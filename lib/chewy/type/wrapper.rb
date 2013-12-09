@@ -1,0 +1,35 @@
+module Chewy
+  class Type
+    module Wrapper
+      extend ActiveSupport::Concern
+
+      attr_accessor :attributes
+
+      def initialize(attributes = {})
+        @attributes = attributes.stringify_keys
+      end
+
+      def ==(other)
+        if other.is_a?(Chewy::Type)
+          self.class == other.class && (respond_to?(:id) ? id == other.id : attributes == other.attributes)
+        elsif other.is_a?(self.class._envelops[:model])
+          id.to_s == other.id.to_s
+        else
+          false
+        end
+      end
+
+      def method_missing(method, *args, &block)
+        if @attributes.key?(method.to_s)
+          @attributes[method.to_s]
+        else
+          super
+        end
+      end
+
+      def respond_to_missing?(method, _)
+        @attributes.key?(method.to_s) || super
+      end
+    end
+  end
+end

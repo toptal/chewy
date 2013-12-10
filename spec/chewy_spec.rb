@@ -11,18 +11,18 @@ describe Chewy do
     before do
       stub_const('SomeIndex', Class.new)
 
-      stub_const('DevelopersIndex', index_class(:developers) do
+      stub_index(:developers) do
         define_type do
         end
-      end)
+      end
 
-      stub_const('Namespace::AutocompleteIndex', index_class(:autocomplete) do
+      stub_index('namespace/autocomplete') do
         define_type :developer do
         end
 
         define_type :company do
         end
-      end)
+      end
     end
 
     specify { expect { described_class.derive_type('developers_index#developers') }.to raise_error Chewy::UnderivableType, /DevelopersIndexIndex/ }

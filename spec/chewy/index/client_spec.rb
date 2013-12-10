@@ -4,13 +4,15 @@ describe Chewy::Index::Client do
   include ClassHelpers
 
   describe '.client' do
-    specify { index_class.client.should == index_class.client }
+    specify { stub_index(:dummies1).client.should == stub_index(:dummies2).client }
 
     context do
-      let(:index1) { index_class }
-      let(:index2) { index_class(index1) }
+      before do
+        stub_index(:dummies1)
+        stub_index(:dummies2, Dummies1Index)
+      end
 
-      specify { index1.client.should == index2.client }
+      specify { Dummies1Index.client.should == Dummies2Index.client }
     end
   end
 end

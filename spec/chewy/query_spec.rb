@@ -3,19 +3,19 @@ require 'spec_helper'
 describe Chewy::Query do
   include ClassHelpers
 
-  let(:products_index) do
-    index_class(:products) do
+  before do
+    stub_index(:products) do
       define_type(:product) do
         field :name, :age
       end
     end
   end
 
-  subject { described_class.new(products_index, type: :product) }
+  subject { described_class.new(ProductsIndex, type: :product) }
 
   describe '#==' do
     let(:data) { 3.times.map { |i| {id: i.next.to_s, name: "Name#{i.next}", age: 10 * i.next}.stringify_keys! } }
-    before { products_index.types['product'].import(data.map { |h| double(h) }) }
+    before { ProductsIndex.types['product'].import(data.map { |h| double(h) }) }
 
     specify { subject.query(match: 'hello').should == subject.query(match: 'hello') }
     specify { subject.query(match: 'hello').should_not == subject.query(match: 'world') }

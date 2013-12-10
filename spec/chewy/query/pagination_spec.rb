@@ -3,8 +3,8 @@ require 'spec_helper'
 describe Chewy::Query::Pagination do
   include ClassHelpers
 
-  let(:products_index) do
-    index_class(:products) do
+  before do
+    stub_index(:products) do
       define_type(:product) do
         field :name, :age
       end
@@ -12,10 +12,10 @@ describe Chewy::Query::Pagination do
   end
   let(:data) { 10.times.map { |i| {id: i.next.to_s, name: "Name#{i.next}", age: 10 * i.next}.stringify_keys! } }
 
-  before { products_index.types['product'].import(data.map { |h| double(h) }) }
+  before { ProductsIndex.types['product'].import(data.map { |h| double(h) }) }
   before { Kaminari.config.stub(default_per_page: 3) }
 
-  let(:search) { products_index.search.order(:age) }
+  let(:search) { ProductsIndex.search.order(:age) }
 
   describe '#per, #page' do
     specify { search.map { |e| e.attributes.except('_score') }.should == data }

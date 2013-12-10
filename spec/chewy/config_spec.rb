@@ -13,7 +13,7 @@ describe Chewy::Config do
   end
 
   describe '#atomic' do
-    let(:dummy_type) { type_class }
+    let(:dummy_type) { Class.new(Chewy::Type) }
 
     specify { subject.atomic { 42 }.should == 42 }
     specify { expect { subject.atomic { subject.atomic_stash Class.new, 42 } }.to raise_error ArgumentError }

@@ -6,9 +6,9 @@ describe Chewy::Type::Import do
 
   describe '.update_index' do
     before do
-      stub_const('DummiesIndex', index_class(:dummies) do
+      stub_index(:dummies) do
         define_type {}
-      end)
+      end
     end
 
     let(:backreferenced) { 3.times.map { |i| double(id: i) } }
@@ -35,17 +35,17 @@ describe Chewy::Type::Import do
         update_elasticsearch('countries#country') { self }
       end
 
-      stub_const('CitiesIndex', index_class(:cities) do
+      stub_index(:cities) do
         define_type do
           envelops(City)
         end
-      end)
+      end
 
-      stub_const('CountriesIndex', index_class(:countries) do
+      stub_index(:countries) do
         define_type do
           envelops(Country)
         end
-      end)
+      end
     end
 
     let(:city) { City.create!(country: Country.create!) }

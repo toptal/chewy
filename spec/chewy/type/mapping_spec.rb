@@ -4,7 +4,8 @@ describe Chewy::Type::Mapping do
   include ClassHelpers
 
   let(:dummy_type) do
-    type_class(:product) do
+    Class.new(Chewy::Type) do
+      type_name :product
       root do
         field :name, 'surname'
         field :title, type: 'string' do
@@ -29,13 +30,14 @@ describe Chewy::Type::Mapping do
   end
 
   describe '.mappings_hash' do
-    specify { type_class.mappings_hash.should == {} }
+    specify { Class.new(Chewy::Type).mappings_hash.should == {} }
     specify { dummy_type.mappings_hash.should == dummy_type.root_object.mappings_hash }
   end
 
   context "no root element call" do
     let(:dummy_type) do
-      type_class(:product) do
+      Class.new(Chewy::Type) do
+        type_name :product
         field :title, type: 'string' do
           field :subfield1
         end

@@ -6,7 +6,7 @@ describe Chewy::Type::Wrapper do
   let!(:dummy_model) { stub_const('DummyModel', Class.new) }
 
   let!(:dummy_type) do
-    type_class do
+    Class.new(Chewy::Type) do
       envelops DummyModel
     end
   end

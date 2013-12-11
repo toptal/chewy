@@ -42,11 +42,11 @@ Or install it yourself as:
 
   ```ruby
     class UsersIndex < Chewy::Index
-      define_type User.active.includes(:country, :bages, :projects) do
+      define_type User.active.includes(:country, :badges, :projects) do
         field :first_name, :last_name # multiple fields without additional options
         field :email, analyzer: 'email' # elasticsearch-related options
         field :country, value: ->(user) { user.country.name } # custom value proc
-        field :bages, value: ->(user) { user.bages.map(&:name) } # passing array values to index
+        field :badges, value: ->(user) { user.badges.map(&:name) } # passing array values to index
         field :projects, type: 'object' do # the same syntax for `multi_field`
           field :title
           field :description # default data type is `string`
@@ -72,12 +72,12 @@ Or install it yourself as:
         }
       }
 
-      define_type User.active.includes(:country, :bages, :projects) do
+      define_type User.active.includes(:country, :badges, :projects) do
         root _boost: { name: :_boost, null_value: 1.0 } do # optional `root` object settings
           field :first_name, :last_name # multiple fields without additional options
           field :email, analyzer: 'email' # elasticsearch-related options
           field :country, value: ->(user) { user.country.name } # custom value proc
-          field :bages, value: ->(user) { user.bages.map(&:name) } # passing array values to index
+          field :badges, value: ->(user) { user.badges.map(&:name) } # passing array values to index
           field :projects, type: 'object' do # the same syntax for `multi_field`
             field :title
             field :description # default data type is `string`
@@ -125,7 +125,7 @@ Or install it yourself as:
   UsersIndex.index_delete # destroy index if exists
   UsersIndex.index_create! # use bang or non-bang methods
   UsersIndex.import # import with 0 arguments process all the data specified in type definition
-                    # literally, User.active.includes(:country, :bages, :projects).find_in_batches
+                    # literally, User.active.includes(:country, :badges, :projects).find_in_batches
 
   UsersIndex.import User.where('rating > 100') # or import specified users
   UsersIndex.import [1, 2, 42] # pass even ids for import, it will be handled in the most effective way
@@ -201,8 +201,9 @@ It is possible to load source objects from database for every search result:
 
 ## Contributing
 
-1. Fork it ( http://github.com/<my-github-username>/chewy/fork )
+1. Fork it ( http://github.com/toptal/chewy/fork )
 2. Create your feature branch (`git checkout -b my-new-feature`)
-3. Commit your changes (`git commit -am 'Add some feature'`)
-4. Push to the branch (`git push origin my-new-feature`)
-5. Create new Pull Request
+3. Implement your changes, cover it with specs and make sure old specs are passing
+4. Commit your changes (`git commit -am 'Add some feature'`)
+5. Push to the branch (`git push origin my-new-feature`)
+6. Create new Pull Request

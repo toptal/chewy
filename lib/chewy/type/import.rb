@@ -1,27 +1,21 @@
 module Chewy
-  class Type
+  module Type
     module Import
       extend ActiveSupport::Concern
 
       included do
-        class_attribute :_envelops, instance_reader: false, instance_writer: false
-        self._envelops = []
       end
 
       module ClassMethods
-        def envelops(model, &block)
-          self._envelops = {model: model, scope: block}
-        end
-
-        def bulk options = {}
+        def bulk(options = {})
           client.bulk options.merge(index: index.index_name, type: type_name)
         end
 
         def import(*args)
           options = args.extract_options!
-          collection = args.first || _envelops[:model].all
+          collection = args.first || adapter.model.all
 
-          if collection.is_a? ActiveRecord::Relation
+          if collection.is_a? ::ActiveRecord::Relation
             scoped_relation(collection)
               .find_in_batches(options.slice(:batch_size)) { |objects| import_objects objects }
           else
@@ -37,12 +31,12 @@ module Chewy
       private
 
         def scoped_relation(relation)
-          _envelops[:scope].is_a?(Proc) ? relation.instance_eval(&_envelops[:scope]) : relation
+          adapter.scope ? relation.merge(adapter.scope) : relation
         end
 
         def import_ids(ids, options = {})
           ids = ids.map(&:to_i).uniq
-          scoped_relation(_envelops[:model].where(id: ids))
+          scoped_relation(adapter.model.where(id: ids))
             .find_in_batches(options.slice(:batch_size)) do |objects|
               ids -= objects.map(&:id)
               import_objects objects

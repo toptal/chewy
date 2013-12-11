@@ -14,16 +14,8 @@ module Chewy
     class_attribute :_settings
     self._settings = {}
 
-    def self.define_type(type_class = nil, &block)
-      if block
-        name = type_class.presence || index_name.singularize
-        type_class = Class.new(Chewy::Type) { type_name name }
-        type_class.index = self
-        type_class.class_eval &block
-      else
-        type_class.index = self
-      end
-
+    def self.define_type(name_or_scope, &block)
+      type_class = Chewy::Type.new(self, name_or_scope, &block)
       self.types = types.merge(type_class.type_name => type_class)
 
       class_eval <<-RUBY, __FILE__, __LINE__ + 1

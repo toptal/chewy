@@ -15,12 +15,10 @@ describe Chewy::Query::Loading do
 
     before do
       stub_index(:places) do
-        define_type(:city) do
-          envelops City
+        define_type City do
           field :rating, type: 'number', value: ->(o){ o.rating }
         end
-        define_type(:country) do
-          envelops Country
+        define_type Country do
           field :rating, type: 'number', value: ->(o){ o.rating }
         end
       end

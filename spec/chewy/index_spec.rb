@@ -4,43 +4,16 @@ describe Chewy::Index do
   include ClassHelpers
 
   describe '.define_type' do
-    context 'existing' do
-      let!(:dummy_type) { stub_const('DummyType', Class.new(Chewy::Type)) }
+    context 'blank name' do
       before do
         stub_index(:dummies) do
-          define_type DummyType
+          define_type :dummy
         end
       end
 
-      specify { DummiesIndex.types.should have_key 'dummy_type' }
-      specify { DummiesIndex.types['dummy_type'].should == DummyType }
-      specify { DummiesIndex.dummy_type.should == DummyType }
-    end
-
-    context 'block' do
-      context 'blank name' do
-        before do
-          stub_index(:dummies) do
-            define_type {}
-          end
-        end
-
-        specify { DummiesIndex.types.should have_key 'dummy' }
-        specify { DummiesIndex.types['dummy'].should be < Chewy::Type }
-        specify { DummiesIndex.types['dummy'].type_name.should == 'dummy' }
-      end
-
-      context 'given name' do
-        before do
-          stub_index(:dummies) do
-            define_type(:dummy_type) {}
-          end
-        end
-
-        specify { DummiesIndex.types.should have_key 'dummy_type' }
-        specify { DummiesIndex.types['dummy_type'].should be < Chewy::Type }
-        specify { DummiesIndex.types['dummy_type'].type_name.should == 'dummy_type' }
-      end
+      specify { DummiesIndex.types.should have_key 'dummy' }
+      specify { DummiesIndex.types['dummy'].should be < Chewy::Type::Base }
+      specify { DummiesIndex.types['dummy'].type_name.should == 'dummy' }
     end
   end
 
@@ -55,18 +28,14 @@ describe Chewy::Index do
     specify { stub_index(:documents).index_params.should == {} }
     specify { stub_index(:documents) { settings number_of_shards: 1 }.index_params.keys.should == [:settings] }
     specify { stub_index(:documents) do
-      define_type do
-        root do
-          field :name, type: 'string'
-        end
+      define_type :document do
+        field :name, type: 'string'
       end
     end.index_params.keys.should == [:mappings] }
     specify { stub_index(:documents) do
       settings number_of_shards: 1
-      define_type do
-        root do
-          field :name, type: 'string'
-        end
+      define_type :document do
+        field :name, type: 'string'
       end
     end.index_params.keys.should =~ [:mappings, :settings] }
   end
@@ -78,24 +47,18 @@ describe Chewy::Index do
 
   describe '.mappings_hash' do
     specify { stub_index(:documents).mappings_hash.should == {} }
-    specify { stub_index(:documents) { define_type {} }.mappings_hash.should == {} }
+    specify { stub_index(:documents) { define_type :document }.mappings_hash.should == {} }
     specify { stub_index(:documents) do
-      define_type do
-        root do
-          field :name, type: 'string'
-        end
+      define_type :document do
+        field :name, type: 'string'
       end
     end.mappings_hash.should == {mappings: {document: {properties: {name: {type: 'string'}}}}} }
     specify { stub_index(:documents) do
-      define_type do
-        root do
-          field :name, type: 'string'
-        end
+      define_type :document do
+        field :name, type: 'string'
       end
-      define_type(:document2) do
-        root do
-          field :name, type: 'string'
-        end
+      define_type :document2 do
+        field :name, type: 'string'
       end
     end.mappings_hash[:mappings].keys.should =~ [:document, :document2] }
   end

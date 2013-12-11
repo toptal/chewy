@@ -36,7 +36,7 @@ module Chewy
 
     def atomic_stash(type = nil, *ids)
       if type
-        raise ArgumentError.new('Only Chewy::Type accepted as the first argument') unless type < Chewy::Type
+        raise ArgumentError.new('Only Chewy::Type::Base accepted as the first argument') unless type < Chewy::Type::Base
         atomic_stash.push({}) unless atomic_stash.last
         atomic_stash.last[type] ||= []
         atomic_stash.last[type] |= ids.flatten

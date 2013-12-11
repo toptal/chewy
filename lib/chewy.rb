@@ -32,7 +32,7 @@ module Chewy
   end
 
   def self.derive_type name
-    return name if name.is_a?(Class) && name < Chewy::Type
+    return name if name.is_a?(Class) && name < Chewy::Type::Base
 
     index_name, type_name = name.split('#', 2)
     class_name = "#{index_name.camelize}Index"

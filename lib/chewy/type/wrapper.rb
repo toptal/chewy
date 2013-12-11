@@ -1,5 +1,5 @@
 module Chewy
-  class Type
+  module Type
     module Wrapper
       extend ActiveSupport::Concern
 
@@ -10,9 +10,9 @@ module Chewy
       end
 
       def ==(other)
-        if other.is_a?(Chewy::Type)
+        if other.is_a?(Chewy::Type::Base)
           self.class == other.class && (respond_to?(:id) ? id == other.id : attributes == other.attributes)
-        elsif other.is_a?(self.class._envelops[:model])
+        elsif other.respond_to?(:id)
           id.to_s == other.id.to_s
         else
           false

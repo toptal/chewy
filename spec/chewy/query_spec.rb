@@ -5,7 +5,7 @@ describe Chewy::Query do
 
   before do
     stub_index(:products) do
-      define_type(:product) do
+      define_type :product do
         field :name, :age
       end
     end

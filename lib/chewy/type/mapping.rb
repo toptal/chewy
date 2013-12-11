@@ -1,5 +1,5 @@
 module Chewy
-  class Type
+  module Type
     module Mapping
       extend ActiveSupport::Concern
 

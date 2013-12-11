@@ -12,7 +12,7 @@ module Chewy
 
       def _load_objects(options)
         loaded_objects = Hash[_results.group_by(&:class).map do |type, objects|
-          model = type._envelops[:model]
+          model = type.adapter.model
           scope = model.where(id: objects.map(&:id))
           additional_scope = options[:scopes][type.type_name.to_sym] if options[:scopes]
           scope = scope.instance_eval(&additional_scope) if additional_scope

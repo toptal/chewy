@@ -7,7 +7,7 @@ describe Chewy::Type::Import do
   describe '.update_index' do
     before do
       stub_index(:dummies) do
-        define_type {}
+        define_type :dummy
       end
     end
 
@@ -36,15 +36,11 @@ describe Chewy::Type::Import do
       end
 
       stub_index(:cities) do
-        define_type do
-          envelops(City)
-        end
+        define_type City
       end
 
       stub_index(:countries) do
-        define_type do
-          envelops(Country)
-        end
+        define_type Country
       end
     end
 

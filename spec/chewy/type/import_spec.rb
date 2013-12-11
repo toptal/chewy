@@ -9,15 +9,14 @@ describe Chewy::Type::Import do
 
   before do
     stub_index(:cities) do
-      define_type do
-        envelops City
+      define_type City do
         field :name
       end
     end
   end
 
   let!(:dummy_cities) { 3.times.map { |i| City.create(name: "name#{i}") } }
-  let(:city) { CitiesIndex.city }
+  let(:city) { CitiesIndex::City }
 
   describe '.import' do
     specify { expect { city.import([]) }.not_to update_index(city) }
@@ -57,10 +56,7 @@ describe Chewy::Type::Import do
     context 'scoped' do
       before do
         stub_index(:cities) do
-          define_type do
-            envelops City do
-              where(name: ['name0', 'name1'])
-            end
+          define_type City.where(name: ['name0', 'name1']) do
             field :name
           end
         end

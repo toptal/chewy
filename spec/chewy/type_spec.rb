@@ -3,24 +3,41 @@ require 'spec_helper'
 describe Chewy::Type do
   include ClassHelpers
 
-  describe '.index' do
-    before { stub_const('DummyType', Class.new(Chewy::Type)) }
-    specify { DummyType.index.should be_nil }
-
-    context do
-      before { stub_index(:dummies) { define_type DummyType } }
-      specify { DummyType.index.should == DummiesIndex }
+  describe '.new' do
+    before do
+      stub_index(:cities)
     end
 
-    context do
-      before { stub_index(:dummies) { define_type {} } }
-      specify { DummiesIndex.types.values.first.index.should == DummiesIndex }
-    end
-  end
+    context 'Symbol' do
+      subject { described_class.new(CitiesIndex, :city) }
 
-  describe '.type_name' do
-    specify { expect { Class.new(Chewy::Type).type_name }.to raise_error Chewy::UndefinedType }
-    specify { Class.new(Chewy::Type) { type_name :mytype }.type_name.should == 'mytype' }
-    specify { stub_const('MyType', Class.new(Chewy::Type)).type_name.should == 'my_type' }
+      it { should be_a Class }
+      it { should be < Chewy::Type::Base }
+      its(:name) { should == 'CitiesIndex::City' }
+      its(:index) { should == CitiesIndex }
+      its(:type_name) { should == 'city' }
+    end
+
+    context 'ActiveRecord model' do
+      before { stub_model(:city) }
+      subject { described_class.new(CitiesIndex, City) }
+
+      it { should be_a Class }
+      it { should be < Chewy::Type::Base }
+      its(:name) { should == 'CitiesIndex::City' }
+      its(:index) { should == CitiesIndex }
+      its(:type_name) { should == 'city' }
+    end
+
+    context 'ActiveRecord scope' do
+      before { stub_model(:city) }
+      subject { described_class.new(CitiesIndex, City.includes(:country)) }
+
+      it { should be_a Class }
+      it { should be < Chewy::Type::Base }
+      its(:name) { should == 'CitiesIndex::City' }
+      its(:index) { should == CitiesIndex }
+      its(:type_name) { should == 'city' }
+    end
   end
 end

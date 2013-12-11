@@ -12,16 +12,12 @@ describe Chewy do
       stub_const('SomeIndex', Class.new)
 
       stub_index(:developers) do
-        define_type do
-        end
+        define_type :developer
       end
 
       stub_index('namespace/autocomplete') do
-        define_type :developer do
-        end
-
-        define_type :company do
-        end
+        define_type :developer
+        define_type :company
       end
     end
 

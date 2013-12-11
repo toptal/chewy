@@ -3,13 +3,14 @@ require 'spec_helper'
 describe Chewy::Index::Search do
   include ClassHelpers
 
-  let!(:product) { stub_const('ProductType', Class.new(Chewy::Type) { type_name :product }) }
   before do
     stub_index(:products) do
-      define_type ProductType
-      define_type(:product2) {}
+      define_type :product
+      define_type :product2
     end
   end
+
+  let(:product) { ProductsIndex.product }
 
   describe '.search' do
     specify do

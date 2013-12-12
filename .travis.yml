@@ -5,3 +5,5 @@ rvm:
   - rbx
 services:
   - elasticsearch
+before_script:
+  - rake elasticsearch:start

@@ -3,6 +3,7 @@ Bundler.require
 
 require 'active_record'
 require 'database_cleaner'
+
 require 'support/fail_helpers'
 require 'support/class_helpers'
 
@@ -25,7 +26,7 @@ end
 
 Kaminari::Hooks.init
 
-Chewy.client_options = { port: 9250 }
+Chewy.client_options = { host: 'localhost:9250' }
 
 RSpec.configure do |config|
   config.mock_with :rspec

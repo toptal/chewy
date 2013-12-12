@@ -187,6 +187,52 @@ It is possible to load source objects from database for every search result:
   scope.only(:id).load # it is optimal to request ids only if you are not planning to use type objects
 ```
 
+### Rspec integration
+
+Just add `require 'chewy/rspec'` to your spec_helper.rb and you will get additional features:
+
+#### `update_index` matcher
+
+```ruby
+  # just update index expectation. Used type class as argument.
+  specify { expect { user.save! }.to update_index(UsersIndex.user) }
+  # expect do not update target index. Type for `update_index` might be specified via string also
+  specify { expect { user.name = 'Duke' }.not_to update_index('users#user') }
+  # expecting update specified objects
+  specify { expect { user.save! }.to update_index(UsersIndex.user).and_reindex(user) }
+  # you can specify even id
+  specify { expect { user.save! }.to update_index(UsersIndex.user).and_reindex(42) }
+  # expected multiple objects to be reindexed
+  specify { expect { [user1, user2].save! }
+    .to update_index(UsersIndex.user).and_reindex(user1, user2) }
+  specify { expect { [user1, user2].save! }
+    .to update_index(UsersIndex.user).and_reindex(user1).and_reindex(user2) }
+  # expect object to be reindexed exact twice
+  specify { expect { 2.times { user.save! } }
+    .to update_index(UsersIndex.user).and_reindex(user, times: 2) }
+  # expect object in index to be updated with specified fields
+  specify { expect { user.update_attributes!(name: 'Duke') }
+    .to update_index(UsersIndex.user).and_reindex(user, with: {name: 'Duke'}) }
+  # combination of previous two
+  specify { expect { 2.times { user.update_attributes!(name: 'Duke') } }
+    .to update_index(UsersIndex.user).and_reindex(user, times: 2, with: {name: 'Duke'}) }
+  # for every object
+  specify { expect { 2.times { [user1, user2].map { |u| u.update_attributes!(name: 'Duke') } } }
+    .to update_index(UsersIndex.user).and_reindex(user1, user2, times: 2, with: {name: 'Duke'}) }
+  # for every object splitted
+  specify { expect { 2.times { [user1, user2].map { |u| u.update_attributes!(name: "Duke#{u.id}") } } }
+    .to update_index(UsersIndex.user)
+      .and_reindex(user1, with: {name: 'Duke42'}) }
+      .and_reindex(user2, times: 1, with: {name: 'Duke43'}) }
+  # object deletion same abilities as `and_reindex`, except `:with` option
+  specify { expect { user.destroy! }.to update_index(UsersIndex.user).and_delete(user) }
+  # double deletion, whatever it means
+  specify { expect { 2.times { user.destroy! } }.to update_index(UsersIndex.user).and_delete(user, times: 2) }
+  # alltogether
+  specify { expect { user1.destroy!; user2.save! } }
+    .to update_index(UsersIndex.user).and_reindex(user2).and_delete(user1)
+```
+
 ## TODO a.k.a coming soon:
 
 * Dynamic templates additional DSL
@@ -197,6 +243,7 @@ It is possible to load source objects from database for every search result:
 * Other than ActiveRecord ORMs support (Mongoid)
 * Maybe, closer ORM/ODM integration, creating index classes implicitly
 * Better facets support
+* Some rake tasks to maintain elasticsearch
 
 ## Contributing
 

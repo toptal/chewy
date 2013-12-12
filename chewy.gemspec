@@ -24,6 +24,7 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'kaminari'
   spec.add_development_dependency 'activerecord', '>= 3.2'
   spec.add_development_dependency 'database_cleaner'
+  spec.add_development_dependency 'elasticsearch-extensions'
   spec.add_development_dependency 'rubysl', '~> 2.0' if RUBY_ENGINE == 'rbx'
 
   spec.add_dependency 'activesupport', '>= 3.2'

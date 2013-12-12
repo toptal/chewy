@@ -2,7 +2,6 @@ require 'spec_helper'
 
 describe Chewy::Type::Import do
   include ClassHelpers
-  before { Chewy.stub(observing_enabled: true) }
 
   describe '.update_index' do
     before do

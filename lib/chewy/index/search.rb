@@ -5,10 +5,14 @@ module Chewy
 
       included do
         singleton_class.delegate :explain, :limit, :offset, :facets, :query,
-          :filter, :order, :reorder, :only, to: :_search
+          :filter, :order, :reorder, :only, to: :all
       end
 
       module ClassMethods
+        def all
+          Chewy::Query.new(search_index, type: search_type)
+        end
+
         def search_string query, options = {}
           options = options.merge(index: search_index.index_name, type: search_type, q: query)
           client.search(options)
@@ -20,12 +24,6 @@ module Chewy
 
         def search_type
           raise NotImplementedError
-        end
-
-      private
-
-        def _search
-          Chewy::Query.new(search_index, type: search_type)
         end
       end
     end

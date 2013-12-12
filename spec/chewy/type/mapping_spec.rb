@@ -3,7 +3,7 @@ require 'spec_helper'
 describe Chewy::Type::Mapping do
   include ClassHelpers
 
-  let(:product) { ProductsIndex.product }
+  let(:product) { ProductsIndex::Product }
 
   before do
     stub_index(:products) do

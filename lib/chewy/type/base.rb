@@ -25,7 +25,7 @@ module Chewy
         raise NotImplementedError
       end
 
-      def self.type_name(suggest = nil)
+      def self.type_name
         adapter.type_name
       end
 

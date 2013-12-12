@@ -10,7 +10,13 @@ describe Chewy::Index::Search do
     end
   end
 
-  let(:product) { ProductsIndex.product }
+  let(:product) { ProductsIndex::Product }
+
+  describe '.all' do
+    specify { product.all.should be_a Chewy::Query }
+    specify { product.all.object_id.should_not == product.all.object_id }
+    specify { product.all.should == product.all }
+  end
 
   describe '.search_string' do
     specify do

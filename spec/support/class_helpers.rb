@@ -10,7 +10,7 @@ module ClassHelpers
       .tap { |i| i.class_eval(&block) if block }
   end
 
-  def stub_class name, superclass, &block
-    stub_const(name.to_s.camelize, Class.new(superclass, &block))
+  def stub_class name, superclass = nil, &block
+    stub_const(name.to_s.camelize, Class.new(superclass || Object, &block))
   end
 end

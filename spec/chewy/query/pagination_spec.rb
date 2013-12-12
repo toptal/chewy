@@ -15,7 +15,7 @@ describe Chewy::Query::Pagination do
   before { ProductsIndex.types['product'].import(data.map { |h| double(h) }) }
   before { Kaminari.config.stub(default_per_page: 3) }
 
-  let(:search) { ProductsIndex.search.order(:age) }
+  let(:search) { ProductsIndex.order(:age) }
 
   describe '#per, #page' do
     specify { search.map { |e| e.attributes.except('_score') }.should == data }

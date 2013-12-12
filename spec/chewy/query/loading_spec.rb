@@ -29,9 +29,9 @@ describe Chewy::Query::Loading do
       PlacesIndex.country.import(countries)
     end
 
-    specify { PlacesIndex.search.order(:rating).limit(6).load.should =~ cities.first(3) + countries.first(3) }
-    specify { PlacesIndex.search.order(:rating).limit(6).load(scopes: {city: ->(i){ where('rating < 2') }})
+    specify { PlacesIndex.order(:rating).limit(6).load.should =~ cities.first(3) + countries.first(3) }
+    specify { PlacesIndex.order(:rating).limit(6).load(scopes: {city: ->(i){ where('rating < 2') }})
       .should =~ cities.first(2) + countries.first(3) }
-    specify { PlacesIndex.search.order(:rating).limit(6).load.total_count.should == 12 }
+    specify { PlacesIndex.order(:rating).limit(6).load.total_count.should == 12 }
   end
 end

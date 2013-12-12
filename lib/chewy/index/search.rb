@@ -3,11 +3,12 @@ module Chewy
     module Search
       extend ActiveSupport::Concern
 
-      module ClassMethods
-        def search
-          Chewy::Query.new(search_index, type: search_type)
-        end
+      included do
+        singleton_class.delegate :explain, :limit, :offset, :facets, :query,
+          :filter, :order, :reorder, :only, to: :_search
+      end
 
+      module ClassMethods
         def search_string query, options = {}
           options = options.merge(index: search_index.index_name, type: search_type, q: query)
           client.search(options)
@@ -19,6 +20,12 @@ module Chewy
 
         def search_type
           raise NotImplementedError
+        end
+
+      private
+
+        def _search
+          Chewy::Query.new(search_index, type: search_type)
         end
       end
     end

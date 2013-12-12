@@ -41,12 +41,12 @@ module Chewy
       chain { criteria.update_search from: Integer(value) }
     end
 
-    def query(params)
-      chain { criteria.update_query params }
-    end
-
     def facets(params)
       chain { criteria.update_facets params }
+    end
+
+    def query(params)
+      chain { criteria.update_query params }
     end
 
     def filter(params)

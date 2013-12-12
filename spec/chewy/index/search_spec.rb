@@ -12,12 +12,6 @@ describe Chewy::Index::Search do
 
   let(:product) { ProductsIndex.product }
 
-  describe '.search' do
-    specify do
-      product.search.should be_a Chewy::Query
-    end
-  end
-
   describe '.search_string' do
     specify do
       expect(ProductsIndex.client).to receive(:search).with(hash_including(q: 'hello')).twice

@@ -192,7 +192,6 @@ It is possible to load source objects from database for every search result:
 * Dynamic templates additional DSL
 * Typecasting support
 * Advanced (simplyfied) query DSL: `UsersIndex.query { email == 'my@gmail.com' }` will produce term query
-* Remove Index.search method, all the query DSL methods should be delegated to the Index
 * Observing strategies reworking
 * update_all support
 * Other than ActiveRecord ORMs support (Mongoid)

@@ -157,7 +157,7 @@ Index update will be performed once per Chewy.atomic block. This strategy is hig
 ### Index querying
 
 ```ruby
-  scope = UsersIndex.search.query(term: {name: 'foo'})
+  scope = UsersIndex.query(term: {name: 'foo'})
     .filter(numeric_range: {rating: {gte: 100}})
     .order(created_at: :desc)
     .limit(20).offset(100)
@@ -174,7 +174,7 @@ Index update will be performed once per Chewy.atomic block. This strategy is hig
 Also, queries can be performed on a type individually
 
 ```ruby
-  UsersIndex.search.query(term: {name: 'foo'}).count # will return UserIndex::User array only
+  UsersIndex.query(term: {name: 'foo'}).count # will return UserIndex::User array only
 ```
 
 ### Objects loading
@@ -182,7 +182,7 @@ Also, queries can be performed on a type individually
 It is possible to load source objects from database for every search result:
 
 ```ruby
-  scope = UsersIndex.search.filter(numeric_range: {rating: {gte: 100}})
+  scope = UsersIndex.filter(numeric_range: {rating: {gte: 100}})
 
   scope.load # => will return User instances array (not a scope because )
   scope.load(user: { scope: ->(_) { includes(:country) }}) # you can also pass loading scopes for each

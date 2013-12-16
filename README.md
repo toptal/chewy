@@ -207,9 +207,9 @@ Just add `require 'chewy/rspec'` to your spec_helper.rb and you will get additio
   # you can specify even id
   specify { expect { user.save! }.to update_index(UsersIndex.user).and_reindex(42) }
   # expected multiple objects to be reindexed
-  specify { expect { [user1, user2].save! }
+  specify { expect { [user1, user2].map(&:save!) }
     .to update_index(UsersIndex.user).and_reindex(user1, user2) }
-  specify { expect { [user1, user2].save! }
+  specify { expect { [user1, user2].map(&:save!) }
     .to update_index(UsersIndex.user).and_reindex(user1).and_reindex(user2) }
   # expect object to be reindexed exact twice
   specify { expect { 2.times { user.save! } }
@@ -235,6 +235,17 @@ Just add `require 'chewy/rspec'` to your spec_helper.rb and you will get additio
   # alltogether
   specify { expect { user1.destroy!; user2.save! } }
     .to update_index(UsersIndex.user).and_reindex(user2).and_delete(user1)
+```
+
+```ruby
+  # strictly specifing updated and deleted records
+  specify { expect { [user1, user2].map(&:save!) }
+    .to update_index(UsersIndex.user).and_reindex(user1, user2).only }
+  specify { expect { [user1, user2].map(&:destroy!) }
+    .to update_index(UsersIndex.user).and_delete(user1, user2).only }
+  # this will fail
+  specify { expect { [user1, user2].map(&:save!) }
+    .to update_index(UsersIndex.user).and_reindex(user1).only }
 ```
 
 ## TODO a.k.a coming soon:

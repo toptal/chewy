@@ -29,6 +29,26 @@ describe :update_index do
     specify { expectation.to fail_matching 'document id `41` (1 times)' }
   end
 
+  context '#only' do
+    specify { expect { DummiesIndex.dummy.bulk body: [{index: {_id: 42, data: {}}}, {index: {_id: 41, data: {}}}] }
+      .to update_index(DummiesIndex.dummy).and_reindex(41, 42).only }
+    specify { expect { expect { DummiesIndex.dummy.bulk body: [{index: {_id: 42, data: {}}}, {index: {_id: 41, data: {}}}] }
+      .to update_index(DummiesIndex.dummy).and_reindex(41).only }
+        .to fail_matching 'to update documents ["41"] only, but ["42"] was updated also' }
+    specify { expect { expect { DummiesIndex.dummy.bulk body: [{index: {_id: 42, data: {}}}, {index: {_id: 41, data: {}}}] }
+      .to update_index(DummiesIndex.dummy).and_reindex(41, times: 2).only }
+        .to fail_matching 'to update documents ["41"] only, but ["42"] was updated also' }
+
+    specify { expect { DummiesIndex.dummy.bulk body: [{delete: {_id: 42}}, {delete: {_id: 41}}] }
+      .to update_index(DummiesIndex.dummy).and_delete(41, 42).only }
+    specify { expect { expect { DummiesIndex.dummy.bulk body: [{delete: {_id: 42}}, {delete: {_id: 41}}] }
+      .to update_index(DummiesIndex.dummy).and_delete(41).only }
+        .to fail_matching 'to delete documents ["41"] only, but ["42"] was deleted also' }
+    specify { expect { expect { DummiesIndex.dummy.bulk body: [{delete: {_id: 42}}, {delete: {_id: 41}}] }
+      .to update_index(DummiesIndex.dummy).and_delete(41, times: 2).only }
+        .to fail_matching 'to delete documents ["41"] only, but ["42"] was deleted also' }
+  end
+
   context '#and_reindex' do
     specify { expect { DummiesIndex.dummy.bulk body: [{index: {_id: 42}}] }.to update_index(DummiesIndex.dummy) }
     specify { expect { DummiesIndex.dummy.bulk body: [{index: {_id: 42, data: {}}}] }

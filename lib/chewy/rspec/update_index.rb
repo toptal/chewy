@@ -9,9 +9,15 @@ RSpec::Matchers.define :update_index do |type_name|
     @delete.merge!(extract_documents(*args))
   end
 
+  chain(:only) do |*args|
+    @only = true
+  end
+
   match do |block|
     @reindex ||= {}
     @delete ||= {}
+    @missed_reindex = []
+    @missed_delete = []
 
     type = Chewy.derive_type(type_name)
     updated = []
@@ -32,10 +38,14 @@ RSpec::Matchers.define :update_index do |type_name|
         if document = @reindex[body[:_id].to_s]
           document[:real_count] += 1
           document[:real_attributes].merge!(body[:data])
+        else
+          @missed_reindex.push(body[:_id].to_s) if @only
         end
       elsif body = updated_document[:delete]
         if document = @delete[body[:_id].to_s]
           document[:real_count] += 1
+        else
+          @missed_delete.push(body[:_id].to_s) if @only
         end
       end
     end
@@ -51,7 +61,7 @@ RSpec::Matchers.define :update_index do |type_name|
         (document[:expected_count] && document[:expected_count] == document[:real_count])
     end
 
-    @updated.any? &&
+    @updated.any? && @missed_reindex.none? && @missed_delete.none? &&
     @reindex.all? { |_, document| document[:match_count] && document[:match_attributes] } &&
     @delete.all? { |_, document| document[:match_count] }
   end
@@ -61,6 +71,9 @@ RSpec::Matchers.define :update_index do |type_name|
 
     if @updated.none?
       output << "Expected index `#{type_name}` to be updated, but it was not\n"
+    else
+      output << "Expected index `#{type_name}` to update documents #{@reindex.keys} only, but #{@missed_reindex} was updated also\n" if @missed_reindex.any?
+      output << "Expected index `#{type_name}` to delete documents #{@delete.keys} only, but #{@missed_delete} was deleted also\n" if @missed_delete.any?
     end
 
     output << @reindex.each.with_object('') do |(id, document), output|

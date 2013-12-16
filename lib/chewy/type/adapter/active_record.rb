@@ -82,7 +82,7 @@ module Chewy
         end
 
         def merged_scope(target)
-          scope ? scope.merge(target) : target
+          scope ? scope.clone.merge(target) : target
         end
       end
     end

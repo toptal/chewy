@@ -62,7 +62,8 @@ describe Chewy::Type::Import do
         end
       end
 
-      specify { expect { CitiesIndex.import }.to update_index(city).and_reindex(dummy_cities.first(2)) }
+      specify { expect { city.import }.to update_index(city).and_reindex(dummy_cities.first(2)) }
+      specify { expect { city.import City.where(id: dummy_cities.first.id) }.to update_index(city).and_reindex(dummy_cities.first).only }
     end
   end
 end

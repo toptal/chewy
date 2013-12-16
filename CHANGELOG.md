@@ -6,6 +6,7 @@
   * Added method `all` to index for query DSL consistency
   * Added ability to pass ActiveRecord::Relation as a scope for load
     `CitiesIndex.all.load(scope: {city: City.include(:country)})`
+  * Added `.only` chain to `update_index` matcher
 
 # Version 0.0.1
 

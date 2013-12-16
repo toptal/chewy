@@ -26,9 +26,8 @@ module Chewy
         def import *args, &block
           import_options = args.extract_options!
           import_options[:batch_size] ||= BATCH_SIZE
-          collection = args.none? ? model.all :
-            args.one? && args.first.is_a?(::ActiveRecord::Relation) ? args.first : args.flatten
-
+          collection = args.none? ? model_all :
+            (args.one? && args.first.is_a?(::ActiveRecord::Relation) ? args.first : args.flatten)
           if collection.is_a?(::ActiveRecord::Relation)
             merged_scope(collection).find_in_batches(import_options.slice(:batch_size)) do |group|
               block.call grouped_objects(group)
@@ -83,6 +82,10 @@ module Chewy
 
         def merged_scope(target)
           scope ? scope.clone.merge(target) : target
+        end
+
+        def model_all
+          ::ActiveRecord::VERSION::MAJOR < 4 ? model.scoped : model.all
         end
       end
     end

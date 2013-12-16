@@ -13,7 +13,11 @@ module Chewy
       end
 
       def compose(object)
-        result = value ? value.call(object) : object.send(name)
+        result = if value && value.is_a?(Proc)
+          value.arity == 0 ? object.instance_exec(&value) : value.call(object)
+        else
+          object.send(name)
+        end
 
         result = if result.is_a?(Enumerable)
           result.map { |object| nested_compose(object) }

@@ -55,7 +55,8 @@ Or install it yourself as:
           field :description # default data type is `string`
         end
         field :rating, type: 'integer' # custom data type
-        field :created_at, type: 'date', include_in_all: false
+        field :created, type: 'date', include_in_all: false,
+          value: ->{ created_at } # value proc for source object context
       end
     end
   ```
@@ -76,18 +77,19 @@ Or install it yourself as:
       }
 
       define_type User.active.includes(:country, :badges, :projects) do
-        root _boost: { name: :_boost, null_value: 1.0 } do # optional `root` object settings
-          field :first_name, :last_name # multiple fields without additional options
-          field :email, analyzer: 'email' # elasticsearch-related options
-          field :country, value: ->(user) { user.country.name } # custom value proc
-          field :badges, value: ->(user) { user.badges.map(&:name) } # passing array values to index
-          field :projects, type: 'object' do # the same syntax for `multi_field`
+        root _boost: { name: :_boost, null_value: 1.0 } do
+          field :first_name, :last_name
+          field :email, analyzer: 'email'
+          field :country, value: ->(user) { user.country.name }
+          field :badges, value: ->(user) { user.badges.map(&:name) }
+          field :projects, type: 'object' do
             field :title
-            field :description # default data type is `string`
+            field :description
           end
           field :about_translations, type: 'object'
-          field :rating, type: 'integer' # custom data type
-          field :created_at, type: 'date', include_in_all: false
+          field :rating, type: 'integer'
+          field :created, type: 'date', include_in_all: false,
+            value: ->{ created_at }
         end
       end
     end
@@ -159,7 +161,7 @@ Index update will be performed once per Chewy.atomic block. This strategy is hig
 ```ruby
   scope = UsersIndex.query(term: {name: 'foo'})
     .filter(numeric_range: {rating: {gte: 100}})
-    .order(created_at: :desc)
+    .order(created: :desc)
     .limit(20).offset(100)
 
   scope.to_a # => will produce array of UserIndex::User or other types instances

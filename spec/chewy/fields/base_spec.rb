@@ -15,13 +15,19 @@ describe Chewy::Fields::Base do
     context do
       before do
         field.nested(described_class.new(:subname1, value: ->(o){ o.subvalue1 }))
-        field.nested(described_class.new(:subname2))
+        field.nested(described_class.new(:subname2, value: ->{ subvalue2 }))
+        field.nested(described_class.new(:subname3))
       end
 
-      specify { field.compose(double(value: double(subvalue1: 'hello', subname2: 'world')))
-        .should == {name: {'subname1' => 'hello', 'subname2' => 'world'}} }
-      specify { field.compose(double(value: [double(subvalue1: 'hello1', subname2: 'world1'), double(subvalue1: 'hello2', subname2: 'world2')]))
-        .should == {name: [{'subname1' => 'hello1', 'subname2' => 'world1'}, {'subname1' => 'hello2', 'subname2' => 'world2'}]} }
+      specify { field.compose(double(value: double(subvalue1: 'hello', subvalue2: 'value', subname3: 'world')))
+        .should == {name: {'subname1' => 'hello', 'subname2' => 'value', 'subname3' => 'world'}} }
+      specify { field.compose(double(value: [
+        double(subvalue1: 'hello1', subvalue2: 'value1', subname3: 'world1'),
+        double(subvalue1: 'hello2', subvalue2: 'value2', subname3: 'world2')
+      ])).should == {name: [
+        {'subname1' => 'hello1', 'subname2' => 'value1', 'subname3' => 'world1'},
+        {'subname1' => 'hello2', 'subname2' => 'value2', 'subname3' => 'world2'}
+      ]} }
     end
 
     context do

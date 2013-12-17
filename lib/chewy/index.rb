@@ -64,7 +64,7 @@ module Chewy
     end
 
     def self.reset
-      index_purge!
+      purge!
       import
     end
   end

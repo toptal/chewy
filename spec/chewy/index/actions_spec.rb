@@ -6,48 +6,48 @@ describe Chewy::Index::Actions do
 
   before { stub_index :dummies }
 
-  describe '.index_exists?' do
-    specify { DummiesIndex.index_exists?.should be_false }
+  describe '.exists?' do
+    specify { DummiesIndex.exists?.should be_false }
 
     context do
-      before { DummiesIndex.index_create }
-      specify { DummiesIndex.index_exists?.should be_true }
+      before { DummiesIndex.create }
+      specify { DummiesIndex.exists?.should be_true }
     end
   end
 
-  describe '.index_create' do
-    specify { DummiesIndex.index_create.should be_true }
+  describe '.create' do
+    specify { DummiesIndex.create.should be_true }
 
     context do
-      before { DummiesIndex.index_create }
-      specify { DummiesIndex.index_create.should be_false }
+      before { DummiesIndex.create }
+      specify { DummiesIndex.create.should be_false }
     end
   end
 
-  describe '.index_create!' do
-    specify { expect { DummiesIndex.index_create! }.not_to raise_error }
+  describe '.create!' do
+    specify { expect { DummiesIndex.create! }.not_to raise_error }
 
     context do
-      before { DummiesIndex.index_create }
-      specify { expect { DummiesIndex.index_create! }.to raise_error }
+      before { DummiesIndex.create }
+      specify { expect { DummiesIndex.create! }.to raise_error }
     end
   end
 
-  describe '.index_delete' do
-    specify { DummiesIndex.index_delete.should be_false }
+  describe '.delete' do
+    specify { DummiesIndex.delete.should be_false }
 
     context do
-      before { DummiesIndex.index_create }
-      specify { DummiesIndex.index_delete.should be_true }
+      before { DummiesIndex.create }
+      specify { DummiesIndex.delete.should be_true }
     end
   end
 
-  describe '.index_delete!' do
-    specify { expect { DummiesIndex.index_delete! }.to raise_error }
+  describe '.delete!' do
+    specify { expect { DummiesIndex.delete! }.to raise_error }
 
     context do
-      before { DummiesIndex.index_create }
-      specify { expect { DummiesIndex.index_delete! }.not_to raise_error }
+      before { DummiesIndex.create }
+      specify { expect { DummiesIndex.delete! }.not_to raise_error }
     end
   end
 end

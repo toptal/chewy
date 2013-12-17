@@ -4,38 +4,38 @@ module Chewy
       extend ActiveSupport::Concern
 
       module ClassMethods
-        def index_exists?
+        def exists?
           client.indices.exists(index: index_name)
         end
 
-        def index_create
-          index_create!
+        def create
+          create!
         rescue Elasticsearch::Transport::Transport::Errors::BadRequest
           false
         end
 
-        def index_create!
+        def create!
           client.indices.create(index: index_name, body: index_params)
         end
 
-        def index_delete
-          index_delete!
+        def delete
+          delete!
         rescue Elasticsearch::Transport::Transport::Errors::NotFound
           false
         end
 
-        def index_delete!
+        def delete!
           client.indices.delete(index: index_name)
         end
 
-        def index_purge
-          index_delete
-          index_create
+        def purge
+          delete
+          create
         end
 
-        def index_purge!
-          index_delete
-          index_create!
+        def purge!
+          delete
+          create!
         end
       end
     end

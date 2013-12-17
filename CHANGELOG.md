@@ -10,6 +10,8 @@
   * Ability to pass value proc for source object context if arity == 0
     `field :full_name, value: ->{ first_name + last_name }` instead of
     `field :full_name, value: ->(u){ u.first_name + u.last_name }`
+  * Changed index handle methods, removed `index_` prefix. I.e. was
+    `UsersIndex.index_create`, became `UsersIndex.create`
 
 # Version 0.0.1
 

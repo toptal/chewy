@@ -127,13 +127,23 @@ Or install it yourself as:
 ### Index manipulation
 
 ```ruby
-  UsersIndex.index_delete # destroy index if exists
-  UsersIndex.index_create! # use bang or non-bang methods
-  UsersIndex.import # import with 0 arguments process all the data specified in type definition
-                    # literally, User.active.includes(:country, :badges, :projects).find_in_batches
+  UsersIndex.delete # destroy index if exists
+  UsersIndex.delete!
 
-  UsersIndex.import User.where('rating > 100') # or import specified users
-  UsersIndex.import [1, 2, 42] # pass even ids for import, it will be handled in the most effective way
+  UsersIndex.create
+  UsersIndex.create! # use bang or non-bang methods
+
+  UsersIndex.purge
+  UsersIndex.purge! # deletes then creates index
+
+  UsersIndex::User.import # import with 0 arguments process all the data specified in type definition
+                          # literally, User.active.includes(:country, :badges, :projects).find_in_batches
+  UsersIndex::User.import User.where('rating > 100') # or import specified users scope
+  UsersIndex::User.import User.where('rating > 100').to_a # or import specified users array
+  UsersIndex::User.import [1, 2, 42] # pass even ids for import, it will be handled in the most effective way
+
+  UsersIndex.import # import every defined type
+  UsersIndex.reset # purges index and imports default data for all types
 ```
 
 Also if passed user is #destroyed? or specified id is not existing in the database, import will perform `delete` index for this it

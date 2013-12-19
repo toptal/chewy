@@ -13,8 +13,8 @@ module Chewy
         end
 
         # Underscored type name, user for elasticsearch type creation
-        # and for type class access with ProductsIndex.types hash or method.
-        # `ProductsIndex.types['product']` or `ProductsIndex.product`
+        # and for type class access with ProductsIndex.type_hash hash or method.
+        # `ProductsIndex.type_hash['product']` or `ProductsIndex.product`
         #
         def type_name
           raise NotImplementedError

@@ -11,9 +11,12 @@ describe Chewy::Index do
         end
       end
 
-      specify { DummiesIndex.types.should have_key 'dummy' }
-      specify { DummiesIndex.types['dummy'].should be < Chewy::Type::Base }
-      specify { DummiesIndex.types['dummy'].type_name.should == 'dummy' }
+      specify { DummiesIndex.types.should == DummiesIndex.type_hash.values }
+      specify { DummiesIndex.type_names.should == DummiesIndex.type_hash.keys }
+      specify { DummiesIndex.type_hash['dummy'].should == DummiesIndex::Dummy }
+      specify { DummiesIndex.type_hash.should have_key 'dummy' }
+      specify { DummiesIndex.type_hash['dummy'].should be < Chewy::Type::Base }
+      specify { DummiesIndex.type_hash['dummy'].type_name.should == 'dummy' }
     end
   end
 

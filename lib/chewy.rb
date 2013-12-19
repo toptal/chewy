@@ -39,9 +39,9 @@ module Chewy
     index = class_name.safe_constantize
     raise Chewy::UnderivableType.new("Can not find index named `#{class_name}`") unless index && index < Chewy::Index
     type = if type_name.present?
-      index.types[type_name] or raise Chewy::UnderivableType.new("Index `#{class_name}` doesn`t have type named `#{type_name}`")
-    elsif index.types.values.one?
-      index.types.values.first
+      index.type_hash[type_name] or raise Chewy::UnderivableType.new("Index `#{class_name}` doesn`t have type named `#{type_name}`")
+    elsif index.types.one?
+      index.types.first
     else
       raise Chewy::UnderivableType.new("Index `#{class_name}` has more than one type, please specify type via `#{index_name}#type_name`")
     end

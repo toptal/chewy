@@ -15,7 +15,7 @@ describe Chewy::Query do
 
   describe '#==' do
     let(:data) { 3.times.map { |i| {id: i.next.to_s, name: "Name#{i.next}", age: 10 * i.next}.stringify_keys! } }
-    before { ProductsIndex.types['product'].import(data.map { |h| double(h) }) }
+    before { ProductsIndex::Product.import(data.map { |h| double(h) }) }
 
     specify { subject.query(match: 'hello').should == subject.query(match: 'hello') }
     specify { subject.query(match: 'hello').should_not == subject.query(match: 'world') }

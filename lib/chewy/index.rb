@@ -8,21 +8,29 @@ module Chewy
     include Client
     include Search
 
-    class_attribute :types
-    self.types = {}
+    class_attribute :type_hash
+    self.type_hash = {}
 
     class_attribute :_settings
     self._settings = {}
 
     def self.define_type(name_or_scope, &block)
       type_class = Chewy::Type.new(self, name_or_scope, &block)
-      self.types = types.merge(type_class.type_name => type_class)
+      self.type_hash = type_hash.merge(type_class.type_name => type_class)
 
       class_eval <<-RUBY, __FILE__, __LINE__ + 1
         def self.#{type_class.type_name}
-          types['#{type_class.type_name}']
+          type_hash['#{type_class.type_name}']
         end
       RUBY
+    end
+
+    def self.types
+      type_hash.values
+    end
+
+    def self.type_names
+      type_hash.keys
     end
 
     def self.settings(params)
@@ -43,7 +51,7 @@ module Chewy
     end
 
     def self.mappings_hash
-      mappings = types.values.map(&:mappings_hash).inject(:merge)
+      mappings = types.map(&:mappings_hash).inject(:merge)
       mappings.present? ? {mappings: mappings} : {}
     end
 
@@ -56,11 +64,11 @@ module Chewy
     end
 
     def self.search_type
-      types.keys
+      type_names
     end
 
     def self.import
-      types.values.all? { |t| t.import }
+      types.all? { |t| t.import }
     end
 
     def self.reset

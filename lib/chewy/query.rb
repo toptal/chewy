@@ -134,7 +134,7 @@ module Chewy
         attributes = hit['_source'] || hit['fields'] || {}
         attributes.reverse_merge!(id: hit['_id']).merge!(_score: hit['_score'])
         attributes.merge!(_explain: hit['_explanation']) if hit['_explanation']
-        index.types[hit['_type']].new attributes
+        index.type_hash[hit['_type']].new attributes
       end
     end
   end

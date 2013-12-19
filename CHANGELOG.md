@@ -26,6 +26,16 @@
       update_elasticsearch('users#user', :users)
     ```
 
+  * Changed types access API:
+
+    ```ruby
+      UsersIndex::User # => UsersIndex::User
+      UsersIndex::types_hash['user'] # => UsersIndex::User
+      UsersIndex.user # => UsersIndex::User
+      UsersIndex.types # => [UsersIndex::User]
+      UsersIndex.type_names # => ['user']
+    ```
+
 # Version 0.0.1
 
   * Initial version

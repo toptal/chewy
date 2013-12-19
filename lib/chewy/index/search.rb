@@ -10,7 +10,7 @@ module Chewy
 
       module ClassMethods
         def all
-          Chewy::Query.new(search_index, type: search_type)
+          Chewy::Query.new(search_index, types: search_type)
         end
 
         def search_string query, options = {}

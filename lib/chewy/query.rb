@@ -17,7 +17,7 @@ module Chewy
 
     def initialize(index, options = {})
       @index, @options = index, DEFAULT_OPTIONS.merge(options)
-      @criteria = Criteria.new
+      @criteria = Criteria.new options.slice(:types)
       reset
     end
 
@@ -65,6 +65,10 @@ module Chewy
       chain { criteria.update_fields params }
     end
 
+    def types(*params)
+      chain { criteria.update_types params }
+    end
+
   protected
 
     def initialize_clone(other)
@@ -80,10 +84,6 @@ module Chewy
 
     def reset
       @_response, @_results = nil
-    end
-
-    def types
-      @types ||= Array.wrap(options[:type] || options[:types])
     end
 
     def _filters
@@ -118,7 +118,7 @@ module Chewy
     end
 
     def _request_target
-      {index: index.index_name, type: types}
+      {index: index.index_name, type: criteria.types}
     end
 
     def _request

@@ -8,10 +8,12 @@ describe Chewy::Query do
       define_type :product do
         field :name, :age
       end
+      define_type :city
+      define_type :country
     end
   end
 
-  subject { described_class.new(ProductsIndex, type: :product) }
+  subject { described_class.new(ProductsIndex, types: ProductsIndex.type_names) }
 
   describe '#==' do
     let(:data) { 3.times.map { |i| {id: i.next.to_s, name: "Name#{i.next}", age: 10 * i.next}.stringify_keys! } }
@@ -106,5 +108,18 @@ describe Chewy::Query do
 
     specify { subject.only(:field1, :field2).criteria.fields.should =~ ['field1', 'field2'] }
     specify { subject.only([:field1, :field2]).only(:field3).criteria.fields.should =~ ['field1', 'field2', 'field3'] }
+  end
+
+  describe '#types' do
+    specify { subject.types(:product).should be_a described_class }
+    specify { subject.types(:product).should_not == subject }
+    specify { expect { subject.types(:product) }.not_to change { subject.criteria.types } }
+
+    specify { subject.criteria.types.should =~ ['product', 'city', 'country'] }
+    specify { subject.types(:user).criteria.types.should =~ ['product', 'city', 'country'] }
+    specify { subject.types(:product).criteria.types.should == ['product'] }
+    specify { subject.types(:product, :user).criteria.types.should == ['product'] }
+    specify { subject.types(:product, :city).criteria.types.should =~ ['product', 'city'] }
+    specify { subject.types([:product, :city]).types(:country).criteria.types.should =~ ['country'] }
   end
 end

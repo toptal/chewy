@@ -3,21 +3,25 @@ require 'spec_helper'
 describe Chewy::Index do
   include ClassHelpers
 
-  describe '.define_type' do
-    context 'blank name' do
-      before do
-        stub_index(:dummies) do
-          define_type :dummy
-        end
-      end
-
-      specify { DummiesIndex.types.should == DummiesIndex.type_hash.values }
-      specify { DummiesIndex.type_names.should == DummiesIndex.type_hash.keys }
-      specify { DummiesIndex.type_hash['dummy'].should == DummiesIndex::Dummy }
-      specify { DummiesIndex.type_hash.should have_key 'dummy' }
-      specify { DummiesIndex.type_hash['dummy'].should be < Chewy::Type::Base }
-      specify { DummiesIndex.type_hash['dummy'].type_name.should == 'dummy' }
+  before do
+    stub_index(:dummies) do
+      define_type :dummy
     end
+  end
+
+  describe '.type_hash' do
+    specify { DummiesIndex.type_hash['dummy'].should == DummiesIndex::Dummy }
+    specify { DummiesIndex.type_hash.should have_key 'dummy' }
+    specify { DummiesIndex.type_hash['dummy'].should be < Chewy::Type::Base }
+    specify { DummiesIndex.type_hash['dummy'].type_name.should == 'dummy' }
+  end
+
+  specify { DummiesIndex.type_names.should == DummiesIndex.type_hash.keys }
+
+  describe '.types' do
+    specify { DummiesIndex.types.should == DummiesIndex.type_hash.values }
+    specify { DummiesIndex.types(:dummy).should be_a Chewy::Query }
+    specify { DummiesIndex.types(:user).should be_a Chewy::Query }
   end
 
   describe '.index_name' do

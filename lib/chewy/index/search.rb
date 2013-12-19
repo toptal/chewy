@@ -5,7 +5,7 @@ module Chewy
 
       included do
         singleton_class.delegate :explain, :limit, :offset, :facets, :query,
-          :filter, :order, :reorder, :only, to: :all
+          :filter, :order, :reorder, :only, :types, to: :all
       end
 
       module ClassMethods

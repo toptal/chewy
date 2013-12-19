@@ -25,8 +25,12 @@ module Chewy
       RUBY
     end
 
-    def self.types
-      type_hash.values
+    def self.types *args
+      if args.any?
+        all.types *args
+      else
+        type_hash.values
+      end
     end
 
     def self.type_names

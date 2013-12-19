@@ -124,6 +124,13 @@ Or install it yourself as:
     end
   ```
 
+  Also, you can use second argument for method name passing:
+
+  ```ruby
+    update_elasticsearch('users#user', :self)
+    update_elasticsearch('users#user', :users)
+  ```
+
 ### Index manipulation
 
 ```ruby

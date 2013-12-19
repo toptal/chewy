@@ -25,13 +25,13 @@ describe Chewy::Type::Import do
       stub_model(:city) do
         belongs_to :country
         update_elasticsearch('cities#city') { self }
-        update_elasticsearch('countries#country') { country }
+        update_elasticsearch 'countries#country', :country
       end
 
       stub_model(:country) do
         has_many :cities
         update_elasticsearch('cities#city') { cities }
-        update_elasticsearch('countries#country') { self }
+        update_elasticsearch 'countries#country', :self
       end
 
       stub_index(:cities) do

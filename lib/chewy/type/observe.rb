@@ -4,9 +4,17 @@ module Chewy
       extend ActiveSupport::Concern
 
       module ActiveRecordMethods
-        def update_elasticsearch(type_name, &block)
+        def update_elasticsearch(type_name, method = nil, &block)
           update = Proc.new do
-            Chewy.derive_type(type_name).update_index(instance_eval(&block))
+            backreference = if method && method.to_s == 'self'
+              self
+            elsif method
+              send(method)
+            else
+              instance_eval(&block)
+            end
+
+            Chewy.derive_type(type_name).update_index(backreference)
           end
 
           after_save &update

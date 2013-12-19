@@ -205,7 +205,7 @@ Index update will be performed once per Chewy.atomic block. This strategy is hig
 Also, queries can be performed on a type individually
 
 ```ruby
-  UsersIndex.query(term: {name: 'foo'}).count # will return UserIndex::User array only
+  UsersIndex::User.query(term: {name: 'foo'}).count # will return UserIndex::User array only
 ```
 
 ### Objects loading

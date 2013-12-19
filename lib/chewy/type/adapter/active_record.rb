@@ -29,12 +29,14 @@ module Chewy
           collection = args.none? ? model_all :
             (args.one? && args.first.is_a?(::ActiveRecord::Relation) ? args.first : args.flatten)
           if collection.is_a?(::ActiveRecord::Relation)
+            result = false
             merged_scope(collection).find_in_batches(import_options.slice(:batch_size)) do |group|
-              block.call grouped_objects(group)
+              result = block.call grouped_objects(group)
             end
+            result
           else
             if collection.all? { |object| object.respond_to?(:id) }
-              collection.in_groups_of(import_options[:batch_size], false) do |group|
+              collection.in_groups_of(import_options[:batch_size], false).all? do |group|
                 block.call grouped_objects(group)
               end
             else
@@ -65,13 +67,18 @@ module Chewy
 
         def import_ids(ids, import_options = {}, &block)
           ids = ids.map(&:to_i).uniq
+
+          indexed = false
           merged_scope(model.where(id: ids)).find_in_batches(import_options.slice(:batch_size)) do |objects|
             ids -= objects.map(&:id)
-            block.call index: objects
+            indexed = block.call index: objects
           end
-          ids.in_groups_of(import_options[:batch_size], false) do |group|
-            block.call delete: group if group.any?
+
+          deleted = ids.in_groups_of(import_options[:batch_size], false).all? do |group|
+            block.call(delete: group)
           end
+
+          indexed && deleted
         end
 
         def grouped_objects(objects)

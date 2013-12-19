@@ -22,7 +22,7 @@ module Chewy
           batch_size = import_options.delete(:batch_size) || BATCH_SIZE
           objects = args.flatten
 
-          objects.in_groups_of(batch_size, false) do |group|
+          objects.in_groups_of(batch_size, false).all? do |group|
             action_groups = group.group_by do |object|
               raise "Object is not a `#{target}`" if class_target? && !object.is_a?(target)
               object.respond_to?(:destroyed?) && object.destroyed? ? :delete : :index

@@ -19,7 +19,7 @@ module Chewy
                 objects.map { |object| { action => identify.merge(_id: object.id, data: object_data(object)) } }
               end)
             end
-            bulk refresh: true, body: body if body.any?
+            body.any? ? !!bulk(refresh: true, body: body) : true
           end
         end
 

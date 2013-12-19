@@ -19,6 +19,11 @@ describe Chewy::Type::Import do
   let(:city) { CitiesIndex::City }
 
   describe '.import' do
+    specify { city.import.should be_true }
+    specify { city.import([]).should be_true }
+    specify { city.import(dummy_cities).should be_true }
+    specify { city.import(dummy_cities.map(&:id)).should be_true }
+
     specify { expect { city.import([]) }.not_to update_index(city) }
     specify { expect { city.import }.to update_index(city).and_reindex(dummy_cities) }
     specify { expect { city.import dummy_cities }.to update_index(city).and_reindex(dummy_cities) }

@@ -22,6 +22,9 @@ describe Chewy::Type::Adapter::ActiveRecord do
       result
     end
 
+    specify { subject.import(3.times.map { |i| City.create! }) { |data| true }.should be_true }
+    specify { subject.import(3.times.map { |i| City.create! }) { |data| false }.should be_false }
+
     context do
       let!(:cities) { 3.times.map { |i| City.create! } }
       let!(:deleted) { 3.times.map { |i| City.create!.tap(&:destroy!) } }

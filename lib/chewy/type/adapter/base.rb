@@ -25,6 +25,8 @@ module Chewy
         #
         #   { delete: [object1, object2], index: [object3, object4, object5] }
         #
+        # Returns true id all the block call returns true and false otherwise
+        #
         def import *args, &block
           raise NotImplementedError
         end

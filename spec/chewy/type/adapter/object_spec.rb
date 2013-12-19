@@ -24,6 +24,9 @@ describe Chewy::Type::Adapter::Object do
       result
     end
 
+    specify { subject.import(3.times.map { |i| double }) { |data| true }.should be_true }
+    specify { subject.import(3.times.map { |i| double }) { |data| false }.should be_false }
+
     context do
       let(:objects) { 3.times.map { |i| double } }
       let(:deleted) { 2.times.map { |i| double(destroyed?: true) } }

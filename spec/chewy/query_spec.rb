@@ -13,7 +13,24 @@ describe Chewy::Query do
     end
   end
 
-  subject { described_class.new(ProductsIndex, types: ProductsIndex.type_names) }
+  subject { described_class.new(ProductsIndex) }
+
+  context 'integration' do
+    let(:products) { 3.times.map { |i| {id: i.next.to_s, name: "Name#{i.next}", age: 10 * i.next}.stringify_keys! } }
+    let(:cities) { 3.times.map { |i| {id: i.next.to_s}.stringify_keys! } }
+    let(:countries) { 3.times.map { |i| {id: i.next.to_s}.stringify_keys! } }
+    before { ProductsIndex::Product.import(products.map { |h| double(h) }) }
+    before { ProductsIndex::City.import(cities.map { |h| double(h) }) }
+    before { ProductsIndex::Country.import(countries.map { |h| double(h) }) }
+
+    specify { subject.count.should == 9 }
+    specify { subject.limit(6).count.should == 6 }
+    specify { subject.offset(6).count.should == 3 }
+    specify { subject.types(:product).count.should == 3 }
+    specify { subject.types(:product, :country).count.should == 6 }
+    specify { subject.filter(term: {age: 10}).count.should == 1 }
+    specify { subject.query(term: {age: 10}).count.should == 1 }
+  end
 
   describe '#==' do
     let(:data) { 3.times.map { |i| {id: i.next.to_s, name: "Name#{i.next}", age: 10 * i.next}.stringify_keys! } }
@@ -71,16 +88,14 @@ describe Chewy::Query do
   describe '#filter' do
     specify { subject.filter(term: {field: 'hello'}).should be_a described_class }
     specify { subject.filter(term: {field: 'hello'}).should_not == subject }
-    specify { subject.filter(term: {field: 'hello'}).criteria.filters.should include(term: {field: 'hello'}) }
-    specify { subject.filter([{term: {field: 'hello'}}, {term: {field: 'world'}}]).criteria.filters.should include(term: {field: 'hello'}) }
-    specify { subject.filter([{term: {field: 'hello'}}, {term: {field: 'world'}}]).criteria.filters.should include(term: {field: 'world'}) }
     specify { expect { subject.filter(term: {field: 'hello'}) }.not_to change { subject.criteria.filters } }
+    specify { subject.filter([{term: {field: 'hello'}}, {term: {field: 'world'}}]).criteria.filters
+      .should == [{term: {field: 'hello'}}, {term: {field: 'world'}}] }
   end
 
   describe '#order' do
     specify { subject.order(field: 'hello').should be_a described_class }
     specify { subject.order(field: 'hello').should_not == subject }
-    specify { subject.order(field: 'hello').criteria.sort.should include(field: 'hello') }
     specify { expect { subject.order(field: 'hello') }.not_to change { subject.criteria.sort } }
 
     specify { subject.order(:field).criteria.sort.should == [:field] }
@@ -92,7 +107,6 @@ describe Chewy::Query do
   describe '#reorder' do
     specify { subject.reorder(field: 'hello').should be_a described_class }
     specify { subject.reorder(field: 'hello').should_not == subject }
-    specify { subject.reorder(field: 'hello').criteria.sort.should include(field: 'hello') }
     specify { expect { subject.reorder(field: 'hello') }.not_to change { subject.criteria.sort } }
 
     specify { subject.order(:field1).reorder(:field2).criteria.sort.should == [:field2] }
@@ -103,11 +117,20 @@ describe Chewy::Query do
   describe '#only' do
     specify { subject.only(:field).should be_a described_class }
     specify { subject.only(:field).should_not == subject }
-    specify { subject.only(:field).criteria.fields.should include('field') }
     specify { expect { subject.only(:field) }.not_to change { subject.criteria.fields } }
 
     specify { subject.only(:field1, :field2).criteria.fields.should =~ ['field1', 'field2'] }
     specify { subject.only([:field1, :field2]).only(:field3).criteria.fields.should =~ ['field1', 'field2', 'field3'] }
+  end
+
+  describe '#only!' do
+    specify { subject.only!(:field).should be_a described_class }
+    specify { subject.only!(:field).should_not == subject }
+    specify { expect { subject.only!(:field) }.not_to change { subject.criteria.fields } }
+
+    specify { subject.only!(:field1, :field2).criteria.fields.should =~ ['field1', 'field2'] }
+    specify { subject.only!([:field1, :field2]).only!(:field3).criteria.fields.should =~ ['field3'] }
+    specify { subject.only([:field1, :field2]).only!(:field3).criteria.fields.should =~ ['field3'] }
   end
 
   describe '#types' do
@@ -115,11 +138,19 @@ describe Chewy::Query do
     specify { subject.types(:product).should_not == subject }
     specify { expect { subject.types(:product) }.not_to change { subject.criteria.types } }
 
-    specify { subject.criteria.types.should =~ ['product', 'city', 'country'] }
-    specify { subject.types(:user).criteria.types.should =~ ['product', 'city', 'country'] }
-    specify { subject.types(:product).criteria.types.should == ['product'] }
-    specify { subject.types(:product, :user).criteria.types.should == ['product'] }
+    specify { subject.types(:user).criteria.types.should == ['user'] }
     specify { subject.types(:product, :city).criteria.types.should =~ ['product', 'city'] }
-    specify { subject.types([:product, :city]).types(:country).criteria.types.should =~ ['country'] }
+    specify { subject.types([:product, :city]).types(:country).criteria.types.should =~ ['product', 'city', 'country'] }
+  end
+
+  describe '#types!' do
+    specify { subject.types!(:product).should be_a described_class }
+    specify { subject.types!(:product).should_not == subject }
+    specify { expect { subject.types!(:product) }.not_to change { subject.criteria.types } }
+
+    specify { subject.types!(:user).criteria.types.should == ['user'] }
+    specify { subject.types!(:product, :city).criteria.types.should =~ ['product', 'city'] }
+    specify { subject.types!([:product, :city]).types!(:country).criteria.types.should =~ ['country'] }
+    specify { subject.types([:product, :city]).types!(:country).criteria.types.should =~ ['country'] }
   end
 end

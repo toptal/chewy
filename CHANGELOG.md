@@ -1,5 +1,10 @@
 # master
 
+  * Added `types!` and `only!` query chain methods, which purges previously
+    chained types and fields
+
+  * `types` chain method now uses types filter
+
   * Added `types` query chain method
 
   * Changed types access API:

@@ -17,7 +17,8 @@ module Chewy
 
     def initialize(index, options = {})
       @index, @options = index, DEFAULT_OPTIONS.merge(options)
-      @criteria = Criteria.new options.slice(:types)
+      @types = Array.wrap(options.delete(:types))
+      @criteria = Criteria.new
       reset
     end
 
@@ -65,8 +66,20 @@ module Chewy
       chain { criteria.update_fields params }
     end
 
+    def only!(*params)
+      chain { criteria.update_fields params, purge: true }
+    end
+
     def types(*params)
-      chain { criteria.update_types params }
+      if params.any?
+        chain { criteria.update_types params }
+      else
+        @types
+      end
+    end
+
+    def types!(*params)
+      chain { criteria.update_types params, purge: true }
     end
 
   protected
@@ -87,19 +100,30 @@ module Chewy
     end
 
     def _filters
-      if criteria.filters.many?
-        {and: criteria.filters}
+      filters = criteria.filters
+      types = criteria.types
+
+      if types.many?
+        filters.push(or: types.map { |type| {type: {value: type}} })
+      elsif types.one?
+        filters.push(type: {value: types.first})
+      end
+
+      if filters.many?
+        {and: filters}
       else
-        criteria.filters.first
+        filters.first
       end
     end
 
     def _request_query
-      if criteria.filters?
+      filters = _filters
+
+      if filters
         {query: {
           filtered: {
             query: criteria.query? ? criteria.query : {match_all: {}},
-            filter: _filters
+            filter: filters
           }
         }}
       elsif criteria.query?
@@ -118,7 +142,7 @@ module Chewy
     end
 
     def _request_target
-      {index: index.index_name, type: criteria.types}
+      {index: index.index_name, type: types}
     end
 
     def _request

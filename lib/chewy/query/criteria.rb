@@ -3,10 +3,6 @@ module Chewy
     class Criteria
       STORAGES = [:search, :query, :facets, :filters, :sort, :fields, :types]
 
-      def initialize options = {}
-        @types = @default_types = Array.wrap(options[:types]).map(&:to_s)
-      end
-
       def ==(other)
         storages == other.storages
       end
@@ -66,12 +62,12 @@ module Chewy
 
       def update_fields(modifer, options = {})
         @fields = nil if options[:purge]
-        @fields = (fields + Array.wrap(modifer).flatten.map(&:to_s).delete_if(&:blank?)).uniq
+        @fields = fields | Array.wrap(modifer).flatten.map(&:to_s).delete_if(&:blank?)
       end
 
       def update_types(modifer, options = {})
-        modifer = @default_types & Array.wrap(modifer).flatten.map(&:to_s)
-        @types = modifer if modifer.any?
+        @types = nil if options[:purge]
+        @types = types | Array.wrap(modifer).flatten.map(&:to_s).delete_if(&:blank?)
       end
 
     protected

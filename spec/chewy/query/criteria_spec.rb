@@ -11,6 +11,7 @@ describe Chewy::Query::Criteria do
   its(:filters) { should == [] }
   its(:sort) { should == [] }
   its(:fields) { should == [] }
+  its(:types) { should == [] }
 
   its(:search?) { should be_false }
   its(:query?) { should be_false }
@@ -18,6 +19,7 @@ describe Chewy::Query::Criteria do
   its(:filters?) { should be_false }
   its(:sort?) { should be_false }
   its(:fields?) { should be_false }
+  its(:types?) { should be_false }
 
   describe '#update_search' do
     specify { expect { subject.update_search(field: 'hello') }.to change { subject.search? }.to(true) }
@@ -69,5 +71,16 @@ describe Chewy::Query::Criteria do
       .to change { subject.fields }.to(['field1', 'field2', 'field3']) }
     specify { expect { subject.tap { |s| s.update_fields(:field1) }.update_fields([:field2, :field3], purge: true) }
       .to change { subject.fields }.to(['field2', 'field3']) }
+  end
+
+  describe '#update_types' do
+    specify { expect { subject.update_types(:type) }.to change { subject.types? }.to(true) }
+    specify { expect { subject.update_types(:type) }.to change { subject.types }.to(['type']) }
+    specify { expect { subject.update_types([:type, :type]) }.to change { subject.types }.to(['type']) }
+    specify { expect { subject.update_types([:type1, :type2]) }.to change { subject.types }.to(['type1', 'type2']) }
+    specify { expect { subject.tap { |s| s.update_types(:type1) }.update_types([:type2, :type3]) }
+      .to change { subject.types }.to(['type1', 'type2', 'type3']) }
+    specify { expect { subject.tap { |s| s.update_types(:type1) }.update_types([:type2, :type3], purge: true) }
+      .to change { subject.types }.to(['type2', 'type3']) }
   end
 end

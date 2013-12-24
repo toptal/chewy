@@ -1,5 +1,8 @@
 # master
 
+  * Added import ActiveSupport::Notifications instrumentation
+    `ActiveSupport::Notifications.subscribe('import_objects.chewy') { |*args| }`
+
   * Added `types!` and `only!` query chain methods, which purges previously
     chained types and fields
 

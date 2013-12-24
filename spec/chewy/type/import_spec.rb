@@ -70,5 +70,18 @@ describe Chewy::Type::Import do
       specify { expect { city.import }.to update_index(city).and_reindex(dummy_cities.first(2)) }
       specify { expect { city.import City.where(id: dummy_cities.first.id) }.to update_index(city).and_reindex(dummy_cities.first).only }
     end
+
+    context 'instrumentation payload' do
+      specify do
+        outer_payload = nil
+        ActiveSupport::Notifications.subscribe('import_objects.chewy') do |name, start, finish, id, payload|
+          outer_payload = payload
+        end
+
+        dummy_cities.first.destroy
+        city.import dummy_cities
+        outer_payload.should == {type: CitiesIndex::City, import: {delete: 1, index: 2}}
+      end
+    end
   end
 end

@@ -12,14 +12,19 @@ module Chewy
           identify = {_index: index.index_name, _type: type_name}
 
           adapter.import(*args) do |action_objects|
-            body = action_objects.each.with_object([]) do |(action, objects), result|
-              result.concat(if action == :delete
-                objects.map { |object| { action => identify.merge(_id: object.respond_to?(:id) ? object.id : object) } }
-              else
-                objects.map { |object| { action => identify.merge(_id: object.id, data: object_data(object)) } }
-              end)
+            payload = {type: self}
+            payload.merge! import: Hash[action_objects.map { |action, objects| [action, objects.count] }]
+
+            ActiveSupport::Notifications.instrument 'import_objects.chewy', payload do
+              body = action_objects.each.with_object([]) do |(action, objects), result|
+                result.concat(if action == :delete
+                  objects.map { |object| { action => identify.merge(_id: object.respond_to?(:id) ? object.id : object) } }
+                else
+                  objects.map { |object| { action => identify.merge(_id: object.id, data: object_data(object)) } }
+                end)
+              end
+              body.any? ? !!bulk(refresh: true, body: body) : true
             end
-            body.any? ? !!bulk(refresh: true, body: body) : true
           end
         end
 

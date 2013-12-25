@@ -102,24 +102,24 @@ Or install it yourself as:
 
   ```ruby
     class User < ActiveRecord::Base
-      update_elasticsearch('users#user') { self } # specifying index, type and backreference
+      update_index('users#user') { self } # specifying index, type and backreference
                                                   # for updating after user save or destroy
     end
 
     class Country < ActiveRecord::Base
       has_many :users
 
-      update_elasticsearch('users#user') { users } # return single object or collection
+      update_index('users#user') { users } # return single object or collection
     end
 
     class Project < ActiveRecord::Base
-      update_elasticsearch('users#user') { user if user.active? } # you can return even `nil` from the backreference
+      update_index('users#user') { user if user.active? } # you can return even `nil` from the backreference
     end
 
     class Bage < ActiveRecord::Base
       has_and_belongs_to_many :users
 
-      update_elasticsearch('users') { users } # if index has only one type
+      update_index('users') { users } # if index has only one type
                                               # there is no need to specify updated type
     end
   ```
@@ -127,8 +127,8 @@ Or install it yourself as:
   Also, you can use second argument for method name passing:
 
   ```ruby
-    update_elasticsearch('users#user', :self)
-    update_elasticsearch('users#user', :users)
+    update_index('users#user', :self)
+    update_index('users#user', :users)
   ```
 
 ### Types access
@@ -169,7 +169,28 @@ Also if passed user is #destroyed? or specified id is not existing in the databa
 
 ### Observing strategies
 
-There are 2 strategies for index updating: updating right after save and cummulative update. The first is by default. To perform the second one, use `Chewy.atomic`:
+There are 3 strategies for index updating: do not update index at all, update right after save and cummulative update. The first is by default.
+
+#### Updating index on-demand
+
+By default Chewy indexes are not updated when the observed model is saved or destroyed.
+This depends on the `Chewy.urgent_update` (false by default) or on the per-model update config.
+If you will perform `Chewy.urgent_update = true`, all the models will start to update elasticsearch
+index right after save. Also
+
+```ruby
+  class User < ActiveRecord::Base
+    update_index 'users#user', 'self', urgent: true
+  end
+```
+
+will make the same effect for User model only.
+Note than urgent update options affects only outside-atomic-block behavour. Inside
+the `Chewy.atomic { }` block indexes updates as described below.
+
+#### Using atomic updates
+
+To perform atomic cummulative updates, use `Chewy.atomic`:
 
 ```ruby
   Chewy.atomic do
@@ -177,13 +198,16 @@ There are 2 strategies for index updating: updating right after save and cummula
   end
 ```
 
-Index update will be performed once per Chewy.atomic block. This strategy is highly usable for rails actions:
+Index update will be performed once per Chewy.atomic block for every affected type.
+This strategy is highly usable for rails actions:
 
 ```ruby
   class ApplicationController < ActionController::Base
     around_action { |&block| Chewy.atomic(&block) }
   end
 ```
+
+Also atomic blocks might be nested and don't affect each other.
 
 ### Index querying
 
@@ -284,7 +308,6 @@ Just add `require 'chewy/rspec'` to your spec_helper.rb and you will get additio
 * Dynamic templates additional DSL
 * Typecasting support
 * Advanced (simplyfied) query DSL: `UsersIndex.query { email == 'my@gmail.com' }` will produce term query
-* Observing strategies reworking
 * update_all support
 * Other than ActiveRecord ORMs support (Mongoid)
 * Maybe, closer ORM/ODM integration, creating index classes implicitly

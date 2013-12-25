@@ -31,6 +31,9 @@ Chewy.client_options = { host: 'localhost:9250' }
 RSpec.configure do |config|
   config.mock_with :rspec
 
+  config.include FailHelpers
+  config.include ClassHelpers
+
   config.before(:suite) do
     DatabaseCleaner.clean_with :truncation
     DatabaseCleaner.strategy = :transaction
@@ -43,7 +46,4 @@ RSpec.configure do |config|
   config.after do
     DatabaseCleaner.clean
   end
-
-  config.include FailHelpers
-  config.include ClassHelpers
 end

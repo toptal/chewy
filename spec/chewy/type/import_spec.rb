@@ -58,6 +58,16 @@ describe Chewy::Type::Import do
       city.import dummy_cities.map(&:id), batch_size: 1
     end
 
+    specify do
+      expect(CitiesIndex.client).to receive(:bulk).with(hash_including(refresh: true))
+      city.import dummy_cities
+    end
+
+    specify do
+      expect(CitiesIndex.client).to receive(:bulk).with(hash_including(refresh: false))
+      city.import dummy_cities, refresh: false
+    end
+
     context 'scoped' do
       before do
         stub_index(:cities) do

@@ -9,9 +9,11 @@ module Chewy
         end
 
         def import(*args)
+          import_options = args.extract_options!
+          bulk_options = import_options.extract!(:refresh).reverse_merge!(refresh: true)
           identify = {_index: index.index_name, _type: type_name}
 
-          adapter.import(*args) do |action_objects|
+          adapter.import(*args, import_options) do |action_objects|
             payload = {type: self}
             payload.merge! import: Hash[action_objects.map { |action, objects| [action, objects.count] }]
 
@@ -23,7 +25,7 @@ module Chewy
                   objects.map { |object| { action => identify.merge(_id: object.id, data: object_data(object)) } }
                 end)
               end
-              body.any? ? !!bulk(refresh: true, body: body) : true
+              body.any? ? !!bulk(bulk_options.merge(body: body)) : true
             end
           end
         end

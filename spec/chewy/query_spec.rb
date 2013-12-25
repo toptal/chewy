@@ -3,6 +3,7 @@ require 'spec_helper'
 describe Chewy::Query do
   include ClassHelpers
 
+  before { Chewy::Index.client.indices.delete }
   before do
     stub_index(:products) do
       define_type :product do

@@ -2,14 +2,14 @@ module Chewy
   class Config
     include Singleton
 
-    attr_accessor :observing_enabled, :client_options
+    attr_accessor :client_options, :urgent_update
 
     def self.delegated
       public_instance_methods - self.superclass.public_instance_methods - Singleton.public_instance_methods
     end
 
     def initialize
-      @observing_enabled = true
+      @urgent_update = false
       @client_options = {}
     end
 
@@ -22,26 +22,24 @@ module Chewy
     end
 
     def atomic?
-      atomic_stash.any?
+      stash.any?
     end
 
     def atomic
-      atomic_stash.push({})
-      result = yield
-      atomic_stash.last.each { |type, ids| type.import(ids) }
-      result
+      stash.push({})
+      yield
     ensure
-      atomic_stash.pop
+      stash.pop.each { |type, ids| type.import(ids) }
     end
 
-    def atomic_stash(type = nil, *ids)
-      if type
+    def stash *args
+      if args.any?
+        type, ids = *args
         raise ArgumentError.new('Only Chewy::Type::Base accepted as the first argument') unless type < Chewy::Type::Base
-        atomic_stash.push({}) unless atomic_stash.last
-        atomic_stash.last[type] ||= []
-        atomic_stash.last[type] |= ids.flatten
+        stash.last[type] ||= []
+        stash.last[type] |= ids
       else
-        Thread.current[:chewy_atomic] ||= []
+        Thread.current[:chewy_cache] ||= []
       end
     end
   end

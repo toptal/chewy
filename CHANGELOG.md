@@ -1,5 +1,10 @@
 # master
 
+  * Renamed `Chewy.observing_enabled` to `Chewy.urgent_update` with `false` as default
+
+  * `update_elasticsearch` renamed to `update_index`, added `update_index`
+    `:urgent` option
+
   * Added import ActiveSupport::Notifications instrumentation
     `ActiveSupport::Notifications.subscribe('import_objects.chewy') { |*args| }`
 

@@ -10,7 +10,7 @@ module Chewy
 
     DEFAULT_OPTIONS = {}
 
-    delegate :each, to: :_results
+    delegate :each, :count, :size, to: :_results
     alias_method :to_ary, :to_a
 
     attr_reader :index, :options, :criteria

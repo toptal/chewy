@@ -18,7 +18,7 @@ module Chewy
             end
 
             Chewy.derive_type(type_name).update_index(backreference,
-              options.reverse_merge!(urgent: Chewy.urgent_update))
+              options.reverse_merge(urgent: Chewy.urgent_update))
           end
 
           after_save &update

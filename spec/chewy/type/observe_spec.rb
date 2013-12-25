@@ -13,14 +13,10 @@ describe Chewy::Type::Import do
     let(:backreferenced) { 3.times.map { |i| double(id: i) } }
 
     specify { expect { DummiesIndex.dummy.update_index(backreferenced, urgent: true) }
-      .to update_index('dummies#dummy').and_reindex(backreferenced) }
+      .to update_index('dummies#dummy', atomic: false).and_reindex(backreferenced) }
     specify { expect { DummiesIndex.dummy.update_index(backreferenced) }
-      .not_to update_index('dummies#dummy') }
-    specify { expect { DummiesIndex.dummy.update_index([], urgent: true) }
-      .not_to update_index('dummies#dummy') }
+      .not_to update_index('dummies#dummy', atomic: false) }
     specify { expect { DummiesIndex.dummy.update_index([]) }
-      .not_to update_index('dummies#dummy') }
-    specify { expect { DummiesIndex.dummy.update_index(nil, urgent: true) }
       .not_to update_index('dummies#dummy') }
     specify { expect { DummiesIndex.dummy.update_index(nil) }
       .not_to update_index('dummies#dummy') }
@@ -52,12 +48,10 @@ describe Chewy::Type::Import do
     let(:city) { City.create!(country: Country.create!) }
     let(:country) { Country.create!(cities: 2.times.map { City.create! }) }
 
-    specify { expect { city.save! }.not_to update_index('cities#city') }
+    specify { expect { city.save! }.not_to update_index('cities#city', atomic: false) }
     specify { expect { country.save! }.to update_index('countries#country').and_reindex(country) }
 
     context do
-      before { Chewy.stub(urgent_update: true) }
-
       specify { expect { city.save! }.to update_index('cities#city').and_reindex(city) }
       specify { expect { city.save! }.to update_index('countries#country').and_reindex(city.country) }
       specify { expect { country.save! }.to update_index('cities#city').and_reindex(country.cities) }

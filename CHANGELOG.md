@@ -1,5 +1,12 @@
 # master
 
+  * `update_index` matcher now wraps expected block in `Chewy.atomic` by default.
+    This behaviour can be prevented with `atomic: false` option passing
+
+    ```ruby
+      expect { user.save! }.to update_index('users#user', atomic: false)
+    ```
+
   * Renamed `Chewy.observing_enabled` to `Chewy.urgent_update` with `false` as default
 
   * `update_elasticsearch` renamed to `update_index`, added `update_index`

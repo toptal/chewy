@@ -1,4 +1,4 @@
-RSpec::Matchers.define :update_index do |type_name|
+RSpec::Matchers.define :update_index do |type_name, options = {}|
   chain(:and_reindex) do |*args|
     @reindex ||= {}
     @reindex.merge!(extract_documents(*args))
@@ -30,7 +30,11 @@ RSpec::Matchers.define :update_index do |type_name|
       end
     end
 
-    block.call
+    if options[:atomic] == false
+      block.call
+    else
+      Chewy.atomic { block.call }
+    end
 
     @updated = updated
     @updated.each do |updated_document|

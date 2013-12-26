@@ -11,6 +11,8 @@ require 'chewy/rspec'
 
 ActiveRecord::Base.establish_connection(adapter: 'sqlite3', database: ':memory:')
 
+Kaminari::Hooks.init
+
 ActiveRecord::Schema.define do
   create_table :countries do |t|
     t.column :name, :string
@@ -23,8 +25,6 @@ ActiveRecord::Schema.define do
     t.column :rating, :integer
   end
 end
-
-Kaminari::Hooks.init
 
 Chewy.client_options = { host: 'localhost:9250' }
 

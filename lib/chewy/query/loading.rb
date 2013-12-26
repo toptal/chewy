@@ -4,8 +4,12 @@ module Chewy
       extend ActiveSupport::Concern
 
       def load(options = {})
-        ::Kaminari.paginate_array(_load_objects(options),
-          limit: limit_value, offset: offset_value, total_count: total_count)
+        if defined?(::Kaminari)
+          ::Kaminari.paginate_array(_load_objects(options),
+            limit: limit_value, offset: offset_value, total_count: total_count)
+        else
+          _load_objects(options)
+        end
       end
 
     private

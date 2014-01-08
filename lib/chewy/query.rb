@@ -4,6 +4,7 @@ rescue LoadError
 end
 
 require 'chewy/query/criteria'
+require 'chewy/query/context'
 require 'chewy/query/loading'
 require 'chewy/query/pagination'
 
@@ -55,7 +56,8 @@ module Chewy
       chain { criteria.update_query params }
     end
 
-    def filter(params)
+    def filter(params = nil, &block)
+      params = Context.new(&block).__render__ if block
       chain { criteria.update_filters params }
     end
 

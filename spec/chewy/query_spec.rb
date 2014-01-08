@@ -92,6 +92,9 @@ describe Chewy::Query do
     specify { expect { subject.filter(term: {field: 'hello'}) }.not_to change { subject.criteria.filters } }
     specify { subject.filter([{term: {field: 'hello'}}, {term: {field: 'world'}}]).criteria.filters
       .should == [{term: {field: 'hello'}}, {term: {field: 'world'}}] }
+
+    specify { expect { subject.filter{ name == 'John' } }.not_to change { subject.criteria.filters } }
+    specify { subject.filter{ name == 'John' }.criteria.filters.should == [{term: {'name' => 'John'}}] }
   end
 
   describe '#order' do

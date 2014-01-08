@@ -1,5 +1,7 @@
 # master
 
+  * Added query `merge` method
+
   * `update_index` matcher now wraps expected block in `Chewy.atomic` by default.
     This behaviour can be prevented with `atomic: false` option passing
 

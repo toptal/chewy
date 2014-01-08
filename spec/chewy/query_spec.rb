@@ -61,15 +61,15 @@ describe Chewy::Query do
   describe '#limit' do
     specify { subject.limit(10).should be_a described_class }
     specify { subject.limit(10).should_not == subject }
-    specify { subject.limit(10).criteria.search.should include(size: 10) }
-    specify { expect { subject.limit(10) }.not_to change { subject.criteria.search } }
+    specify { subject.limit(10).criteria.options.should include(size: 10) }
+    specify { expect { subject.limit(10) }.not_to change { subject.criteria.options } }
   end
 
   describe '#offset' do
     specify { subject.offset(10).should be_a described_class }
     specify { subject.offset(10).should_not == subject }
-    specify { subject.offset(10).criteria.search.should include(from: 10) }
-    specify { expect { subject.offset(10) }.not_to change { subject.criteria.search } }
+    specify { subject.offset(10).criteria.options.should include(from: 10) }
+    specify { expect { subject.offset(10) }.not_to change { subject.criteria.options } }
   end
 
   describe '#query' do
@@ -156,5 +156,12 @@ describe Chewy::Query do
     specify { subject.types!(:product, :city).criteria.types.should =~ ['product', 'city'] }
     specify { subject.types!([:product, :city]).types!(:country).criteria.types.should =~ ['country'] }
     specify { subject.types([:product, :city]).types!(:country).criteria.types.should =~ ['country'] }
+  end
+
+  describe '#merge' do
+    let(:query) { described_class.new(ProductsIndex) }
+
+    specify { subject.filter { name == 'name' }.merge(query.filter { age == 42 }).criteria.filters
+      .should == [{term: {'name' => 'name'}}, {term: {'age' => 42}}] }
   end
 end

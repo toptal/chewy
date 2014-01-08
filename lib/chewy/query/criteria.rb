@@ -1,7 +1,11 @@
 module Chewy
   class Query
     class Criteria
-      STORAGES = [:search, :query, :facets, :filters, :sort, :fields, :types]
+      STORAGES = [:options, :query, :facets, :filters, :sort, :fields, :types]
+
+      def initialize
+
+      end
 
       def ==(other)
         storages == other.storages
@@ -11,7 +15,7 @@ module Chewy
         STORAGES.map { |storage| send(storage) }
       end
 
-      [:search, :query, :facets].each do |storage|
+      [:options, :query, :facets].each do |storage|
         class_eval <<-METHODS, __FILE__, __LINE__ + 1
           def #{storage}
             @#{storage} ||= {}
@@ -19,7 +23,7 @@ module Chewy
         METHODS
       end
 
-      (STORAGES - [:search, :query, :facets]).each do |storage|
+      (STORAGES - [:options, :query, :facets]).each do |storage|
         class_eval <<-METHODS, __FILE__, __LINE__ + 1
           def #{storage}
             @#{storage} ||= []
@@ -35,17 +39,16 @@ module Chewy
         METHODS
       end
 
-      def update_search(modifer)
-        search.merge!(modifer)
+      def update_options(modifer)
+        options.merge!(modifer)
+      end
+
+      def update_facets(modifer)
+        facets.merge!(modifer)
       end
 
       def update_query(modifer)
         query.merge!(modifer)
-      end
-
-
-      def update_facets(modifer)
-        facets.merge!(modifer)
       end
 
       def update_filters(modifer)
@@ -68,6 +71,17 @@ module Chewy
       def update_types(modifer, options = {})
         @types = nil if options[:purge]
         @types = types | Array.wrap(modifer).flatten.map(&:to_s).delete_if(&:blank?)
+      end
+
+      def merge! other
+        STORAGES.each do |storage|
+          send("update_#{storage}", other.send(storage))
+        end
+        self
+      end
+
+      def merge other
+        clone.merge!(other)
       end
 
     protected

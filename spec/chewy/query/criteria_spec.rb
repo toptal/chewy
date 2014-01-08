@@ -5,7 +5,7 @@ describe Chewy::Query::Criteria do
 
   subject { described_class.new }
 
-  its(:search) { should == {} }
+  its(:options) { should == {} }
   its(:query) { should == {} }
   its(:facets) { should == {} }
   its(:filters) { should == [] }
@@ -13,7 +13,7 @@ describe Chewy::Query::Criteria do
   its(:fields) { should == [] }
   its(:types) { should == [] }
 
-  its(:search?) { should be_false }
+  its(:options?) { should be_false }
   its(:query?) { should be_false }
   its(:facets?) { should be_false }
   its(:filters?) { should be_false }
@@ -21,19 +21,19 @@ describe Chewy::Query::Criteria do
   its(:fields?) { should be_false }
   its(:types?) { should be_false }
 
-  describe '#update_search' do
-    specify { expect { subject.update_search(field: 'hello') }.to change { subject.search? }.to(true) }
-    specify { expect { subject.update_search(field: 'hello') }.to change { subject.search }.to(field: 'hello') }
-  end
-
-  describe '#update_query' do
-    specify { expect { subject.update_query(field: 'hello') }.to change { subject.query? }.to(true) }
-    specify { expect { subject.update_query(field: 'hello') }.to change { subject.query }.to(field: 'hello') }
+  describe '#update_options' do
+    specify { expect { subject.update_options(field: 'hello') }.to change { subject.options? }.to(true) }
+    specify { expect { subject.update_options(field: 'hello') }.to change { subject.options }.to(field: 'hello') }
   end
 
   describe '#update_facets' do
     specify { expect { subject.update_facets(field: 'hello') }.to change { subject.facets? }.to(true) }
     specify { expect { subject.update_facets(field: 'hello') }.to change { subject.facets }.to(field: 'hello') }
+  end
+
+  describe '#update_query' do
+    specify { expect { subject.update_query(field: 'hello') }.to change { subject.query? }.to(true) }
+    specify { expect { subject.update_query(field: 'hello') }.to change { subject.query }.to(field: 'hello') }
   end
 
   describe '#update_filters' do
@@ -82,5 +82,49 @@ describe Chewy::Query::Criteria do
       .to change { subject.types }.to(['type1', 'type2', 'type3']) }
     specify { expect { subject.tap { |s| s.update_types(:type1) }.update_types([:type2, :type3], purge: true) }
       .to change { subject.types }.to(['type2', 'type3']) }
+  end
+
+  describe '#merge' do
+    let(:criteria) { described_class.new }
+
+    specify { subject.merge(criteria).should_not be_equal subject }
+    specify { subject.merge(criteria).should_not be_equal criteria }
+
+    specify { subject.tap { |c| c.update_options(opt1: 'hello') }
+      .merge(criteria.tap { |c| c.update_options(opt2: 'hello') }).types == {opt1: 'hello', opt2: 'hello'} }
+    specify { subject.tap { |c| c.update_facets(field1: 'hello') }
+      .merge(criteria.tap { |c| c.update_facets(field1: 'hello') }).types == {field1: 'hello', field1: 'hello'} }
+    specify { subject.tap { |c| c.update_query(field1: 'hello') }
+      .merge(criteria.tap { |c| c.update_query(field1: 'hello') }).types == {field1: 'hello', field1: 'hello'} }
+    specify { subject.tap { |c| c.update_filters(field1: 'hello') }
+      .merge(criteria.tap { |c| c.update_filters(field2: 'hello') }).types == [{field1: 'hello'}, {field2: 'hello'}] }
+    specify { subject.tap { |c| c.update_sort(:field1) }
+      .merge(criteria.tap { |c| c.update_sort(:field2) }).types == ['field1', 'field2'] }
+    specify { subject.tap { |c| c.update_fields(:field1) }
+      .merge(criteria.tap { |c| c.update_fields(:field2) }).types == ['field1', 'field2'] }
+    specify { subject.tap { |c| c.update_types(:type1) }
+      .merge(criteria.tap { |c| c.update_types(:type2) }).types == ['type1', 'type2'] }
+  end
+
+  describe '#merge!' do
+    let(:criteria) { described_class.new }
+
+    specify { subject.merge!(criteria).should be_equal subject }
+    specify { subject.merge!(criteria).should_not be_equal criteria }
+
+    specify { subject.tap { |c| c.update_options(opt1: 'hello') }
+      .merge!(criteria.tap { |c| c.update_options(opt2: 'hello') }).types == {opt1: 'hello', opt2: 'hello'} }
+    specify { subject.tap { |c| c.update_facets(field1: 'hello') }
+      .merge!(criteria.tap { |c| c.update_facets(field1: 'hello') }).types == {field1: 'hello', field1: 'hello'} }
+    specify { subject.tap { |c| c.update_query(field1: 'hello') }
+      .merge!(criteria.tap { |c| c.update_query(field1: 'hello') }).types == {field1: 'hello', field1: 'hello'} }
+    specify { subject.tap { |c| c.update_filters(field1: 'hello') }
+      .merge!(criteria.tap { |c| c.update_filters(field2: 'hello') }).types == [{field1: 'hello'}, {field2: 'hello'}] }
+    specify { subject.tap { |c| c.update_sort(:field1) }
+      .merge!(criteria.tap { |c| c.update_sort(:field2) }).types == ['field1', 'field2'] }
+    specify { subject.tap { |c| c.update_fields(:field1) }
+      .merge!(criteria.tap { |c| c.update_fields(:field2) }).types == ['field1', 'field2'] }
+    specify { subject.tap { |c| c.update_types(:type1) }
+      .merge!(criteria.tap { |c| c.update_types(:type2) }).types == ['type1', 'type2'] }
   end
 end

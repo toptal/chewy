@@ -37,15 +37,15 @@ module Chewy
     end
 
     def explain(value = nil)
-      chain { criteria.update_search explain: (value.nil? ? true : value) }
+      chain { criteria.update_options explain: (value.nil? ? true : value) }
     end
 
     def limit(value)
-      chain { criteria.update_search size: Integer(value) }
+      chain { criteria.update_options size: Integer(value) }
     end
 
     def offset(value)
-      chain { criteria.update_search from: Integer(value) }
+      chain { criteria.update_options from: Integer(value) }
     end
 
     def facets(params)
@@ -87,6 +87,10 @@ module Chewy
 
     def types!(*params)
       chain { criteria.update_types params, purge: true }
+    end
+
+    def merge other
+      chain { criteria.merge!(other.criteria) }
     end
 
   protected
@@ -153,7 +157,7 @@ module Chewy
     end
 
     def _request
-      [criteria.search, _request_target, _request_body].inject(:merge)
+      [criteria.options, _request_target, _request_body].inject(:merge)
     end
 
     def _response

@@ -14,6 +14,8 @@ require 'chewy/fields/base'
 require 'chewy/fields/default'
 require 'chewy/fields/root'
 
+require 'chewy/railtie' if defined?(::Rails)
+
 ActiveSupport.on_load(:active_record) do
   extend Chewy::Type::Observe::ActiveRecordMethods
 end

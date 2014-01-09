@@ -327,7 +327,6 @@ Just add `require 'chewy/rspec'` to your spec_helper.rb and you will get additio
 * Other than ActiveRecord ORMs support (Mongoid)
 * Maybe, closer ORM/ODM integration, creating index classes implicitly
 * Better facets support
-* Some rake tasks to maintain elasticsearch
 
 ## Contributing
 

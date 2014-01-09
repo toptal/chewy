@@ -261,6 +261,16 @@ It is possible to load source objects from database for every search result:
   scope.only(:id).load # it is optimal to request ids only if you are not planning to use type objects
 ```
 
+### Rake tasks
+
+Inside Rails application some index mantaining rake tasks are defined.
+
+```bash
+  rake chewy:reset:all # resets all the existing indexes, declared in app/chewy
+  rake chewy:reset[users] # resets UsersIndex
+  rake chewy:update[users] # updates UsersIndex
+```
+
 ### Rspec integration
 
 Just add `require 'chewy/rspec'` to your spec_helper.rb and you will get additional features:

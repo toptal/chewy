@@ -236,6 +236,17 @@ Also, queries can be performed on a type individually
 
 See [query.rb](lib/chewy/query.rb) for more info.
 
+### Filters query DSL.
+
+There is a test version of filters creating DSL:
+
+```ruby
+  UsersIndex.filter{ name == 'Fred' } # will produce `term` filter.
+  UsersIndex.filter{ age <= 42 } # will produce `range` filter.
+```
+
+See [context.rb](lib/chewy/query/context.rb) for more info.
+
 ### Objects loading
 
 It is possible to load source objects from database for every search result:

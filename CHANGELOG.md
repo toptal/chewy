@@ -1,5 +1,7 @@
 # master
 
+  * Added filters simplified DSL. See [context.rb](lib/chewy/query/context.rb) for more info.
+
   * Queries and filters join system reworked. See [query.rb](lib/chewy/query.rb) for more info.
 
   * Added query `merge` method

@@ -44,6 +44,20 @@ describe Chewy::Query do
     specify { subject.limit(2).should == subject.limit(2).to_a }
   end
 
+  describe '#query_mode' do
+    specify { subject.query_mode(:should).should be_a described_class }
+    specify { subject.query_mode(:should).should_not == subject }
+    specify { subject.query_mode(:should).criteria.options.should include(query_mode: :should) }
+    specify { expect { subject.query_mode(:should) }.not_to change { subject.criteria.options } }
+  end
+
+  describe '#filter_mode' do
+    specify { subject.filter_mode(:or).should be_a described_class }
+    specify { subject.filter_mode(:or).should_not == subject }
+    specify { subject.filter_mode(:or).criteria.options.should include(filter_mode: :or) }
+    specify { expect { subject.filter_mode(:or) }.not_to change { subject.criteria.options } }
+  end
+
   describe '#limit' do
     specify { subject.limit(10).should be_a described_class }
     specify { subject.limit(10).should_not == subject }

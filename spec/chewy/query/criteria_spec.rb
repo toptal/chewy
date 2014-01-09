@@ -21,8 +21,7 @@ describe Chewy::Query::Criteria do
   its(:types?) { should be_false }
 
   describe '#update_options' do
-    specify { expect { subject.update_options(field: 'hello') }.to change { subject.options? }.to(true) }
-    specify { expect { subject.update_options(field: 'hello') }.to change { subject.options }.to(field: 'hello') }
+    specify { expect { subject.update_options(field: 'hello') }.to change { subject.options }.to(hash_including(field: 'hello')) }
   end
 
   describe '#update_facets' do
@@ -94,7 +93,7 @@ describe Chewy::Query::Criteria do
     specify { subject.merge(criteria).should_not be_equal criteria }
 
     specify { subject.tap { |c| c.update_options(opt1: 'hello') }
-      .merge(criteria.tap { |c| c.update_options(opt2: 'hello') }).options.should == {opt1: 'hello', opt2: 'hello'} }
+      .merge(criteria.tap { |c| c.update_options(opt2: 'hello') }).options.should include(opt1: 'hello', opt2: 'hello') }
     specify { subject.tap { |c| c.update_facets(field1: 'hello') }
       .merge(criteria.tap { |c| c.update_facets(field1: 'hello') }).facets.should == {field1: 'hello', field1: 'hello'} }
     specify { subject.tap { |c| c.update_queries(field1: 'hello') }
@@ -116,7 +115,7 @@ describe Chewy::Query::Criteria do
     specify { subject.merge!(criteria).should_not be_equal criteria }
 
     specify { subject.tap { |c| c.update_options(opt1: 'hello') }
-      .merge!(criteria.tap { |c| c.update_options(opt2: 'hello') }).options.should == {opt1: 'hello', opt2: 'hello'} }
+      .merge!(criteria.tap { |c| c.update_options(opt2: 'hello') }).options.should include(opt1: 'hello', opt2: 'hello') }
     specify { subject.tap { |c| c.update_facets(field1: 'hello') }
       .merge!(criteria.tap { |c| c.update_facets(field1: 'hello') }).facets.should == {field1: 'hello', field1: 'hello'} }
     specify { subject.tap { |c| c.update_queries(field1: 'hello') }

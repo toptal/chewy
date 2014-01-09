@@ -2,7 +2,7 @@ module Chewy
   class Config
     include Singleton
 
-    attr_accessor :client_options, :urgent_update
+    attr_accessor :client_options, :urgent_update, :query_mode, :filter_mode
 
     def self.delegated
       public_instance_methods - self.superclass.public_instance_methods - Singleton.public_instance_methods
@@ -11,6 +11,8 @@ module Chewy
     def initialize
       @urgent_update = false
       @client_options = {}
+      @query_mode = :must
+      @filter_mode = :and
     end
 
     def client_options

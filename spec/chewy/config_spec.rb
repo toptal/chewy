@@ -4,6 +4,9 @@ describe Chewy::Config do
   include ClassHelpers
   subject { described_class.send(:new) }
 
+  its(:query_mode) { should == :must }
+  its(:filter_mode) { should == :and }
+
   describe '#atomic?' do
     its(:atomic?) { should be_false }
     specify { subject.atomic { subject.atomic?.should be_true } }

@@ -21,14 +21,14 @@ module Chewy
 
     attr_reader :index, :options, :criteria
 
-    def initialize(index, options = {})
+    def initialize index, options = {}
       @index, @options = index, DEFAULT_OPTIONS.merge(options)
       @types = Array.wrap(options.delete(:types))
       @criteria = Criteria.new
       reset
     end
 
-    def ==(other)
+    def == other
       if other.is_a?(self.class)
         other.criteria == criteria
       else
@@ -36,48 +36,56 @@ module Chewy
       end
     end
 
-    def explain(value = nil)
+    def explain value = nil
       chain { criteria.update_options explain: (value.nil? ? true : value) }
     end
 
-    def limit(value)
+    def query_mode value
+      chain { criteria.update_options query_mode: value }
+    end
+
+    def filter_mode value
+      chain { criteria.update_options filter_mode: value }
+    end
+
+    def limit value
       chain { criteria.update_options size: Integer(value) }
     end
 
-    def offset(value)
+    def offset value
       chain { criteria.update_options from: Integer(value) }
     end
 
-    def facets(params)
+    def facets params
       chain { criteria.update_facets params }
     end
 
-    def query(params)
+    def query params
       chain { criteria.update_queries params }
     end
 
-    def filter(params = nil, &block)
+    def filter params = nil, &block
       params = Context.new(&block).__render__ if block
       chain { criteria.update_filters params }
     end
 
-    def order(*params)
+    def order *params
       chain { criteria.update_sort params }
     end
 
-    def reorder(*params)
+    def reorder *params
       chain { criteria.update_sort params, purge: true }
     end
 
-    def only(*params)
+    def only *params
       chain { criteria.update_fields params }
     end
 
-    def only!(*params)
+    def only! *params
       chain { criteria.update_fields params, purge: true }
     end
 
-    def types(*params)
+    def types *params
       if params.any?
         chain { criteria.update_types params }
       else
@@ -85,7 +93,7 @@ module Chewy
       end
     end
 
-    def types!(*params)
+    def types! *params
       chain { criteria.update_types params, purge: true }
     end
 
@@ -95,7 +103,7 @@ module Chewy
 
   protected
 
-    def initialize_clone(other)
+    def initialize_clone other
       @criteria = other.criteria.clone
       reset
     end

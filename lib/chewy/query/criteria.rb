@@ -4,7 +4,7 @@ module Chewy
       STORAGES = [:options, :queries, :facets, :filters, :sort, :fields, :types]
 
       def initialize options = {}
-        @options = options
+        @options = options.merge(query_mode: Chewy.query_mode, filter_mode: Chewy.filter_mode)
       end
 
       def == other
@@ -112,7 +112,7 @@ module Chewy
 
       def _request_query
         request_filter = _request_filter
-        request_query = _queries_join(queries, options[:query_mode] || :must)
+        request_query = _queries_join(queries, options[:query_mode])
 
         if request_filter
           {query: {
@@ -127,7 +127,7 @@ module Chewy
       end
 
       def _request_filter
-        filter_mode = options[:filter_mode] || :and
+        filter_mode = options[:filter_mode]
         request_filter = if filter_mode == :and
           filters
         else

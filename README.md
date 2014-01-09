@@ -224,13 +224,17 @@ Also atomic blocks might be nested and don't affect each other.
   scope.per(10).page(3) # supports kaminari pagination
   scope.explain.map { |user| user._explanation }
   scope.only(:id, :email) # returns ids and emails only
+
+  scope.merge(other_scope) # queries could be merged
 ```
 
 Also, queries can be performed on a type individually
 
 ```ruby
-  UsersIndex::User.query(term: {name: 'foo'}).count # will return UserIndex::User array only
+  UsersIndex::User.filter(term: {name: 'foo'}) # will return UserIndex::User collection only
 ```
+
+See [query.rb](lib/chewy/query.rb) for more info.
 
 ### Objects loading
 

@@ -44,20 +44,6 @@ describe Chewy::Query do
     specify { subject.limit(2).should == subject.limit(2).to_a }
   end
 
-  describe '#_request_query' do
-    specify { subject.send(:_request_query).should == {} }
-    specify { subject.filter(term: {field: 'hello'}).send(:_request_query)
-      .should == {query: {filtered: {query: {match_all: {}}, filter: {term: {field: "hello"}}}}} }
-    specify { subject.filter(term: {field: 'hello'}).filter(term: {field: 'world'}).send(:_request_query)
-      .should == {query: {filtered: {query: {match_all: {}}, filter: {and: [
-        {term: {field: "hello"}}, {term: {field: "world"}}
-      ]}}}} }
-    specify { subject.query(term: {field: 'hello'}).send(:_request_query)
-      .should == {query: {term: {field: "hello"}}} }
-    specify { subject.filter(term: {field: 'hello'}).query(term: {field: 'world'}).send(:_request_query)
-      .should == {query: {filtered: {query: {term: {field: "world"}}, filter: {term: {field: "hello"}}}}} }
-  end
-
   describe '#limit' do
     specify { subject.limit(10).should be_a described_class }
     specify { subject.limit(10).should_not == subject }
@@ -75,8 +61,8 @@ describe Chewy::Query do
   describe '#query' do
     specify { subject.query(match: 'hello').should be_a described_class }
     specify { subject.query(match: 'hello').should_not == subject }
-    specify { subject.query(match: 'hello').criteria.query.should include(match: 'hello') }
-    specify { expect { subject.query(match: 'hello') }.not_to change { subject.criteria.query } }
+    specify { subject.query(match: 'hello').criteria.queries.should include(match: 'hello') }
+    specify { expect { subject.query(match: 'hello') }.not_to change { subject.criteria.queries } }
   end
 
   describe '#facets' do

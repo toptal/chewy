@@ -53,7 +53,7 @@ module Chewy
     end
 
     def query(params)
-      chain { criteria.update_query params }
+      chain { criteria.update_queries params }
     end
 
     def filter(params = nil, &block)
@@ -107,57 +107,11 @@ module Chewy
     end
 
     def reset
-      @_response, @_results = nil
-    end
-
-    def _filters
-      filters = criteria.filters
-      types = criteria.types
-
-      if types.many?
-        filters.push(or: types.map { |type| {type: {value: type}} })
-      elsif types.one?
-        filters.push(type: {value: types.first})
-      end
-
-      if filters.many?
-        {and: filters}
-      else
-        filters.first
-      end
-    end
-
-    def _request_query
-      filters = _filters
-
-      if filters
-        {query: {
-          filtered: {
-            query: criteria.query? ? criteria.query : {match_all: {}},
-            filter: filters
-          }
-        }}
-      elsif criteria.query?
-        {query: criteria.query}
-      else
-        {}
-      end
-    end
-
-    def _request_body
-      body = _request_query
-      body = body.merge!(facets: criteria.facets) if criteria.facets?
-      body = body.merge!(sort: criteria.sort) if criteria.sort?
-      body = body.merge!(fields: criteria.fields) if criteria.fields?
-      {body: body}
-    end
-
-    def _request_target
-      {index: index.index_name, type: types}
+      @_request, @_response, @_results = nil
     end
 
     def _request
-      [criteria.options, _request_target, _request_body].inject(:merge)
+      @_request ||= criteria.request_body.merge(index: index.index_name, type: types)
     end
 
     def _response

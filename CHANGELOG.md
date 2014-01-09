@@ -1,5 +1,7 @@
 # master
 
+  * Queries and filters join system reworked. See [query.rb](lib/chewy/query.rb) for more info.
+
   * Added query `merge` method
 
   * `update_index` matcher now wraps expected block in `Chewy.atomic` by default.

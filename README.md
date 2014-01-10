@@ -353,10 +353,12 @@ Compliance cheatsheet for filters and DSL expressions:
   UsersIndex.filter{ age <= 42 }
 
   UsersIndex.filter{ age == (40..50) }
+  UsersIndex.filter{ (age > 40) & (age < 50) }
   UsersIndex.filter{ age == [40..50] }
+  UsersIndex.filter{ (age >= 40) & (age <= 50) }
 
-  UsersIndex.filter{ age <=> (40..50) }
-  UsersIndex.filter{ age <=> [40..50] }
+  UsersIndex.filter{ (age > 40) & (age <= 50) }
+  UsersIndex.filter{ (age >= 40) & (age < 50) }
   ```
 
 * Bool filter

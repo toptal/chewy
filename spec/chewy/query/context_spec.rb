@@ -73,8 +73,11 @@ describe Chewy::Query::Context do
 
     specify { query { age == (30..42) }.should be_eql Range(:age, gt: 30, lt: 42) }
     specify { query { age == [30..42] }.should be_eql Range(:age, gt: 30, lt: 42, left_closed: true, right_closed: true) }
-    specify { query { age <=> (30..42) }.should be_eql Range(:age, gt: 30, lt: 42, right_closed: true) }
-    specify { query { age <=> [30..42] }.should be_eql Range(:age, gt: 30, lt: 42, left_closed: true) }
+    specify { query { (age > 30) & (age < 42) }.should be_eql Range(:age, gt: 30, lt: 42) }
+    specify { query { (age > 30) & (age <= 42) }.should be_eql Range(:age, gt: 30, lt: 42, right_closed: true) }
+    specify { query { (age >= 30) & (age < 42) }.should be_eql Range(:age, gt: 30, lt: 42, left_closed: true) }
+    specify { query { (age >= 30) & (age <= 42) }.should be_eql Range(:age, gt: 30, lt: 42, right_closed: true, left_closed: true) }
+    specify { query { (age > 30) | (age < 42) }.should be_eql Or(Range(:age, gt: 30), Range(:age, lt: 42)) }
   end
 
   context 'prefix' do

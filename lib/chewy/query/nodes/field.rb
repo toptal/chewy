@@ -26,14 +26,6 @@ module Chewy
           Nodes::Range.new @name, lt: value, right_closed: true
         end
 
-        def <=> value
-          if value.is_a?(Array) && value.first.is_a?(::Range)
-            Nodes::Range.new @name, gt: value.first.first, lt: value.first.last, left_closed: true
-          else
-            Nodes::Range.new @name, gt: value.first, lt: value.last, right_closed: true
-          end
-        end
-
         def == value
           case value
           when ::Regexp

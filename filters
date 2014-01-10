@@ -28,9 +28,6 @@ range Other
   date == (2.days.ago..3.days.since)   ()
   date == [2.days.ago..3.days.since]   []
 
-  date <=> (2.days.ago..3.days.since)   (]
-  date <=> [2.days.ago..3.days.since]   [)
-
 bool
   must(name == 'name', email == 'email')
     .should(name == 'name', email == 'email')

@@ -245,6 +245,165 @@ UsersIndex.filter{ name == 'Fred' } # will produce `term` filter.
 UsersIndex.filter{ age <= 42 } # will produce `range` filter.
 ```
 
+The basis of the DSL is expression. You can combine expressions as you wish.
+
+```ruby
+UsersIndex.filter{
+  must(
+    should(name =~ 'Fr').should_not(name == 'Fred') & (age == 42), email =~ /gmail\.com/
+  ) | ((roles.admin == true) & name?)
+}
+```
+
+Compliance cheatsheet for filters and DSL expressions:
+
+* Term filter
+
+  ```json
+  {term: {name: 'Fred'}}
+  {not: {term: {name: 'Johny'}}}
+  ```
+
+  ```ruby
+  UsersIndex.filter{ name == 'Fred' }
+  UsersIndex.filter{ name != 'Johny' }
+  ```
+
+* Terms filter
+
+  ```json
+  {terms: {name: ['Fred', 'Johny']}}
+  {not: {terms: {name: ['Fred', 'Johny']}}}
+  ```
+
+  ```ruby
+  UsersIndex.filter{ name == ['Fred', 'Johny'] }
+  UsersIndex.filter{ name != ['Fred', 'Johny'] }
+  ```
+
+* Regexp filter (== and =~ are equivalent)
+
+  ```json
+  {regexp: {'name.first': 's.*y'}}
+  {not: {regexp: {'name.first': 's.*y'}}}
+  ```
+
+  ```ruby
+  UsersIndex.filter{ name.first == /s.*y/ }
+  UsersIndex.filter{ name.first != /s.*y/ }
+
+  UsersIndex.filter{ name.first =~ /s.*y/ }
+  UsersIndex.filter{ name.first !~ /s.*y/ }
+  ```
+
+* Prefix filter
+
+  ```json
+  {prefix: {name: 'Fre'}}
+  {not: {prefix: {name: 'Joh'}}}
+  ```
+
+  ```ruby
+  UsersIndex.filter{ name =~ 'Fre' }
+  UsersIndex.filter{ name !~ 'Joh' }
+  ```
+
+* Exists filter
+
+  ```json
+  {exists: {field: 'name'}}
+  ```
+
+  ```ruby
+  UsersIndex.filter{ name? }
+  ```
+
+* Missing filter
+
+  ```json
+  {missing: {field: 'name'}}
+  ```
+
+  ```ruby
+  UsersIndex.filter{ !name }
+  UsersIndex.filter{ !name? }
+  ```
+
+* Numeric range (not supported yet).
+
+* Range
+
+  ```json
+  {range: {age: {gt: 42}}}
+  {range: {age: {gte: 42}}}
+  {range: {age: {lt: 42}}}
+  {range: {age: {lte: 42}}}
+
+  {range: {age: {gt: 40, lt: 50}}}
+  {range: {age: {gte: 40, lte: 50}}}
+
+  {range: {age: {gt: 40, lte: 50}}}
+  {range: {age: {gte: 40, lt: 50}}}
+  ```
+
+  ```ruby
+  UsersIndex.filter{ age > 42 }
+  UsersIndex.filter{ age >= 42 }
+  UsersIndex.filter{ age < 42 }
+  UsersIndex.filter{ age <= 42 }
+
+  UsersIndex.filter{ age == (40..50) }
+  UsersIndex.filter{ age == [40..50] }
+
+  UsersIndex.filter{ age <=> (40..50) }
+  UsersIndex.filter{ age <=> [40..50] }
+  ```
+
+* Bool filter
+
+  ```json
+  {bool: {
+    must: [{term: {name: 'Name'}}],
+    should: [{term: {age: 42}}, {term: {age: 45}}]
+  }}
+  ```
+
+  ```ruby
+  UsersIndex.filter{ must(name == 'Name').should(age == 42, age == 45) }
+  ```
+
+* And filter
+
+  ```json
+  {and: [{term: {name: 'Name'}}, {range: {age: {lt: 42}}}]}
+  ```
+
+  ```ruby
+  UsersIndex.filter{ (name == 'Name') & (age < 42) }
+  ```
+
+* Or filter
+
+  ```json
+  {or: [{term: {name: 'Name'}}, {range: {age: {lt: 42}}}]}
+  ```
+
+  ```ruby
+  UsersIndex.filter{ (name == 'Name') | (age < 42) }
+  ```
+
+* Not filter
+
+  ```json
+  {not: {term: {name: 'Name'}}}
+  {not: {range: {age: {lt: 42}}}}
+  ```
+
+  ```ruby
+  UsersIndex.filter{ !(name == 'Name') } # or UsersIndex.filter{ name != 'Name' }
+  UsersIndex.filter{ !(age < 42) }
+  ```
+
 See [context.rb](lib/chewy/query/context.rb) for more info.
 
 ### Objects loading

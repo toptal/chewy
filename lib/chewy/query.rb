@@ -9,6 +9,15 @@ require 'chewy/query/loading'
 require 'chewy/query/pagination'
 
 module Chewy
+  # Query allows you to create ES search requests with convenient
+  # chainable DSL. Queries are lazy evaluated and might be merged.
+  # The same DSL is used for whole index or individual types query build.
+  #
+  # Ex:
+  #
+  #   UsersIndex.filter{ age < 42 }.query(text: {name: 'Alex'}).limit(20)
+  #   UsersIndex::User.filter{ age < 42 }.query(text: {name: 'Alex'}).limit(20)
+  #
   class Query
     include Enumerable
     include Loading

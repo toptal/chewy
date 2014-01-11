@@ -338,19 +338,22 @@ Compliance cheatsheet for filters and DSL expressions:
 
 * Numeric range (not supported yet).
 
-* Range
+* Range and NumericRange
+
+  Has the same syntax, except numeric_range renders
+  for numeric values and just range for others.
 
   ```json
-  {range: {age: {gt: 42}}}
-  {range: {age: {gte: 42}}}
-  {range: {age: {lt: 42}}}
-  {range: {age: {lte: 42}}}
+  {numeric_range: {age: {gt: 42}}}
+  {numeric_range: {age: {gte: 42}}}
+  {numeric_range: {age: {lt: 42}}}
+  {numeric_range: {age: {lte: 42}}}
 
-  {range: {age: {gt: 40, lt: 50}}}
-  {range: {age: {gte: 40, lte: 50}}}
+  {numeric_range: {age: {gt: 40, lt: 50}}}
+  {numeric_range: {age: {gte: 40, lte: 50}}}
 
-  {range: {age: {gt: 40, lte: 50}}}
-  {range: {age: {gte: 40, lt: 50}}}
+  {numeric_range: {age: {gt: 40, lte: 50}}}
+  {numeric_range: {age: {gte: 40, lt: 50}}}
   ```
 
   ```ruby

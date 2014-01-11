@@ -316,17 +316,24 @@ Compliance cheatsheet for filters and DSL expressions:
 
   ```ruby
   UsersIndex.filter{ name? }
+  UsersIndex.filter{ !!name }
+  UsersIndex.filter{ !!name? }
+  UsersIndex.filter{ name != nil }
+  UsersIndex.filter{ !(name == nil) }
   ```
 
 * Missing filter
 
   ```json
-  {missing: {field: 'name'}}
+  {missing: {field: 'name', existence: true, null_value: false}}
+  {missing: {field: 'name', existence: true, null_value: true}}
+  {missing: {field: 'name', existence: false, null_value: true}}
   ```
 
   ```ruby
   UsersIndex.filter{ !name }
   UsersIndex.filter{ !name? }
+  UsersIndex.filter{ name == nil }
   ```
 
 * Numeric range (not supported yet).

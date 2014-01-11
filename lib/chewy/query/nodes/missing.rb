@@ -2,8 +2,9 @@ module Chewy
   class Query
     module Nodes
       class Missing < Expr
-        def initialize name
+        def initialize name, options = {}
           @name = name.to_s
+          @options = options.reverse_merge(existence: true, null_value: false)
         end
 
         def !
@@ -11,7 +12,7 @@ module Chewy
         end
 
         def __render__
-          {missing: {term: @name}}
+          {missing: {term: @name}.merge(@options.slice(:existence, :null_value))}
         end
       end
     end

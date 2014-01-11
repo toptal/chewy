@@ -17,6 +17,8 @@ exists
   name?
 missing
   !name
+  !name?
+  name == nil
 
 numeric_range Numeric
 range Other

@@ -6,6 +6,8 @@ describe Chewy::Query::Nodes::Missing do
       Chewy::Query::Context.new(&block).__render__
     end
 
-    specify { render { !name }.should == {missing: {term: 'name'}} }
+    specify { render { !name }.should == {missing: {term: 'name', existence: true, null_value: false}} }
+    specify { render { !name? }.should == {missing: {term: 'name', existence: true, null_value: true}} }
+    specify { render { name == nil }.should == {missing: {term: 'name', existence: false, null_value: true}} }
   end
 end

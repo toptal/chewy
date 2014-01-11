@@ -56,13 +56,17 @@ describe Chewy::Query::Context do
     specify { query { !!email? }.should be_eql Exists(:email) }
     specify { query { emails.first? }.should be_eql Exists('emails.first') }
     specify { query { !!emails.first? }.should be_eql Exists('emails.first') }
+    specify { query { emails != nil }.should be_eql Exists('emails') }
+    specify { query { !(emails == nil) }.should be_eql Exists('emails') }
   end
 
   context 'missing' do
     specify { query { !email }.should be_eql Missing(:email) }
-    specify { query { !email? }.should be_eql Missing(:email) }
+    specify { query { !email? }.should be_eql Missing(:email, null_value: true) }
     specify { query { !emails.first }.should be_eql Missing('emails.first') }
-    specify { query { !emails.first? }.should be_eql Missing('emails.first') }
+    specify { query { !emails.first? }.should be_eql Missing('emails.first', null_value: true) }
+    specify { query { emails == nil }.should be_eql Missing('emails', existence: false, null_value: true) }
+    specify { query { emails.first == nil }.should be_eql Missing('emails.first', existence: false, null_value: true) }
   end
 
   context 'range' do

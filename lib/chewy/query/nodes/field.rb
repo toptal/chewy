@@ -28,6 +28,8 @@ module Chewy
 
         def == value
           case value
+          when nil
+            Nodes::Missing.new @name, existence: false, null_value: true
           when ::Regexp
             Nodes::Regexp.new @name, value
           when ::Range
@@ -42,7 +44,12 @@ module Chewy
         end
 
         def != value
-          Nodes::Not.new self == value
+          case value
+          when nil
+            Nodes::Exists.new @name
+          else
+            Nodes::Not.new self == value
+          end
         end
 
         def =~ value

@@ -7,7 +7,7 @@ module Chewy
         end
 
         def !
-          Nodes::Missing.new @name
+          Nodes::Missing.new @name, null_value: true
         end
 
         def __render__

@@ -25,12 +25,15 @@ module Chewy
         end
 
         def __render__
-          {range:
-            {@name => {
-              (@bounds[:left_closed] ? :gte : :gt) => @range[:gt],
-              (@bounds[:right_closed] ? :lte : :lt) => @range[:lt]
-            }.delete_if { |k, v| v.blank? } }
-          }
+          gt_numeric = !@range.key?(:gt) || @range[:gt].is_a?(Numeric)
+          lt_numeric = !@range.key?(:lt) || @range[:lt].is_a?(Numeric)
+          filter = (@range.key?(:gt) || @range.key?(:lt)) && gt_numeric && lt_numeric ? :numeric_range : :range
+
+          body = {}
+          body[@bounds[:left_closed] ? :gte : :gt] = @range[:gt] if @range.key?(:gt)
+          body[@bounds[:right_closed] ? :lte : :lt] = @range[:lt] if @range.key?(:lt)
+
+          {filter => {@name => body}}
         end
       end
     end

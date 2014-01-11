@@ -113,8 +113,9 @@ describe Chewy::Query::Context do
   context 'script' do
     let(:some_script) { 'some script' }
     specify { query { s('some script') }.should be_eql Script('some script') }
+    specify { query { s('some script', param1: 42) }.should be_eql Script('some script', param1: 42) }
     specify { query { s{'some script'} }.should be_eql Script('some script') }
-    specify { query { s{ some_script } }.should be_eql Script('some script') }
+    specify { query { s(param1: 42) { some_script } }.should be_eql Script('some script', param1: 42) }
   end
 
   context 'and or not' do

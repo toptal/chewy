@@ -69,24 +69,28 @@ module Chewy
       end
 
       # Returns script filter
-      # Just script filter
+      # Just script filter. Supports additional params.
       #
       # Ex:
       #
       #   UsersIndex.filter{ s('doc["num1"].value > 1') }
+      #   UsersIndex.filter{ s('doc["num1"].value > param1', param1: 42) }
       #
       # Supports block for getting script from the outer scope
       #
       # Ex:
       #
       #   def script
-      #     'doc["num1"].value > 1'
+      #     'doc["num1"].value > param1 || 1'
       #   end
       #
       #   UsersIndex.filter{ s{ script } } == UsersIndex.filter{ s('doc["num1"].value > 1') } # => true
+      #   UsersIndex.filter{ s(param1: 42) { script } } == UsersIndex.filter{ s('doc["num1"].value > 1', param1: 42) } # => true
       #
-      def s script = nil, &block
-        Nodes::Script.new block ? o(&block) : script
+      def s *args, &block
+        params = args.extract_options!
+        script = block ? o(&block) : args.first
+        Nodes::Script.new script, params
       end
 
       # Returns query filter

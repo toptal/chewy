@@ -7,5 +7,6 @@ describe Chewy::Query::Nodes::Script do
     end
 
     specify { render { s('var = val') }.should == {script: {script: 'var = val'}} }
+    specify { render { s('var = val', val: 42) }.should == {script: {script: 'var = val', params: {val: 42}}} }
   end
 end

@@ -59,14 +59,13 @@ module Chewy
         @sort = sort + modifer
       end
 
-      def update_fields(modifer, options = {})
-        @fields = nil if options[:purge]
-        @fields = fields | Array.wrap(modifer).flatten.map(&:to_s).delete_if(&:blank?)
-      end
-
-      def update_types(modifer, options = {})
-        @types = nil if options[:purge]
-        @types = types | Array.wrap(modifer).flatten.map(&:to_s).delete_if(&:blank?)
+      %w(fields types).each do |storage|
+        define_method "update_#{storage}" do |modifer, options = {}|
+          variable = "@#{storage}"
+          instance_variable_set(variable, nil) if options[:purge]
+          modifer = send(storage) | Array.wrap(modifer).flatten.map(&:to_s).delete_if(&:blank?)
+          instance_variable_set(variable, modifer)
+        end
       end
 
       def merge! other

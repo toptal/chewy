@@ -11,28 +11,20 @@ module Chewy
         other.is_a?(self.class) && storages == other.storages
       end
 
-      [:options, :facets].each do |storage|
-        class_eval <<-METHODS, __FILE__, __LINE__ + 1
-          def #{storage}
-            @#{storage} ||= {}
-          end
-        METHODS
-      end
-
-      (STORAGES - [:options, :facets]).each do |storage|
-        class_eval <<-METHODS, __FILE__, __LINE__ + 1
-          def #{storage}
-            @#{storage} ||= []
-          end
-        METHODS
+      { (STORAGES - [:options, :facets]) => '[]', [:options, :facets] => '{}' }.each do |storages, default|
+        storages.each do |storage|
+          class_eval <<-METHODS, __FILE__, __LINE__ + 1
+            def #{storage}
+              @#{storage} ||= #{default}
+            end
+          METHODS
+        end
       end
 
       STORAGES.each do |storage|
-        class_eval <<-METHODS, __FILE__, __LINE__ + 1
-          def #{storage}?
-            #{storage}.any?
-          end
-        METHODS
+        define_method "#{storage}?" do
+          send(storage).any?
+        end
       end
 
       def update_options(modifer)

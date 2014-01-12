@@ -2,13 +2,30 @@ module Chewy
   class Query
     module Nodes
       class Equal < Expr
-        def initialize name, value
+        EXECUTION = {
+          :| => :or,
+          :or => :or,
+          :& => :and,
+          :and => :and,
+          :b => :bool,
+          :bool => :bool,
+          :f => :fielddata,
+          :fielddata => :fielddata,
+        }
+
+        def initialize name, value, *args
           @name = name.to_s
           @value = value
+          @options = args.extract_options!
+          execution = EXECUTION[args.first.to_sym] if args.first
+          @options[:execution] = execution if execution
         end
 
         def __render__
-          {(@value.is_a?(Array) ? :terms : :term) => {@name => @value}}
+          filter = (@value.is_a?(Array) ? :terms : :term)
+          body = {@name => @value}
+          body.merge!(@options.slice(:execution)) if filter == :terms
+          {filter => body}
         end
       end
     end

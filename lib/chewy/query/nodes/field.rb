@@ -2,8 +2,9 @@ module Chewy
   class Query
     module Nodes
       class Field < Base
-        def initialize name
+        def initialize name, *options
           @name = name.to_s
+          @options = options
         end
 
         def !
@@ -38,7 +39,7 @@ module Chewy
             if value.is_a?(Array) && value.first.is_a?(::Range)
               Nodes::Range.new @name, gt: value.first.first, lt: value.first.last, left_closed: true, right_closed: true
             else
-              Nodes::Equal.new @name, value
+              Nodes::Equal.new @name, value, *@options
             end
           end
         end

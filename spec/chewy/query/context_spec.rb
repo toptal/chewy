@@ -33,8 +33,19 @@ describe Chewy::Query::Context do
     specify { query { email }.should be_eql Field(:email) }
     specify { query { emails.first }.should be_eql Field('emails.first') }
     specify { query { emails.first.second }.should be_eql Field('emails.first.second') }
+  end
+
+  context 'term' do
     specify { query { email == 'email' }.should be_eql Equal(:email, 'email') }
     specify { query { name != 'name' }.should be_eql Not(Equal(:name, 'name')) }
+    specify { query { email == ['email1', 'email2'] }.should be_eql Equal(:email, ['email1', 'email2']) }
+    specify { query { email != ['email1', 'email2'] }.should be_eql Not(Equal(:email, ['email1', 'email2'])) }
+    specify { query { email(execution: :bool) == ['email1', 'email2'] }
+      .should be_eql Equal(:email, ['email1', 'email2'], execution: :bool) }
+    specify { query { email(:bool) == ['email1', 'email2'] }
+      .should be_eql Equal(:email, ['email1', 'email2'], execution: :bool) }
+    specify { query { email(:b) == ['email1', 'email2'] }
+      .should be_eql Equal(:email, ['email1', 'email2'], execution: :bool) }
   end
 
   context 'bool' do

@@ -48,11 +48,14 @@ module Chewy
       end
 
       # Returns field node
-      # Used if method_missing is not working by some reason
+      # Used if method_missing is not working by some reason.
+      # Additional expression options might be passed as second argument hash.
       #
       # Ex:
       #
       #   UsersIndex.filter{ f(:name) == 'Name' } == UsersIndex.filter{ name == 'Name' } # => true
+      #   UsersIndex.filter{ f(:name, execution: :bool) == ['Name1', 'Name2'] } ==
+      #     UsersIndex.filter{ name(execution: :bool) == ['Name1', 'Name2'] } # => true
       #
       # Supports block for getting field name from the outer scope
       #
@@ -64,8 +67,9 @@ module Chewy
       #
       #   UsersIndex.filter{ f{ field } == 'Name' } == UsersIndex.filter{ name == 'Name' } # => true
       #
-      def f name = nil, &block
-        Nodes::Field.new block ? o(&block) : name
+      def f name = nil, *args, &block
+        name = block ? o(&block) : name
+        Nodes::Field.new name, *args
       end
 
       # Returns script filter
@@ -153,11 +157,14 @@ module Chewy
       end
 
       # Creates field or exists node
+      # Additional options for further expression might be passed as hash
       #
       # Ex:
       #
       #   UsersIndex.filter{ name == 'Name' } == UsersIndex.filter(term: {name: 'Name'}) # => true
       #   UsersIndex.filter{ name? } == UsersIndex.filter(exists: {term: 'name'}) # => true
+      #   UsersIndex.filter{ name(execution: :bool) == ['Name1', 'Name2'] } ==
+      #     UsersIndex.filter(terms: {name: ['Name1', 'Name2'], execution: :bool}) # => true
       #
       # Also field names might be chained to use dot-notation for ES field names
       #
@@ -171,7 +178,7 @@ module Chewy
         if method =~ /\?\Z/
           Nodes::Exists.new method.gsub(/\?\Z/, '')
         else
-          f method
+          f method, *args
         end
       end
 

@@ -245,14 +245,36 @@ UsersIndex.filter{ name == 'Fred' } # will produce `term` filter.
 UsersIndex.filter{ age <= 42 } # will produce `range` filter.
 ```
 
-The basis of the DSL is expression. You can combine expressions as you wish.
+The basis of the DSL is expression.
+There are 2 types of expressions:
+
+* Simple function
+
+  ```ruby
+  UsersIndex.filter{ s('doc["num"] > 1') } # script expression
+  UsersIndex.filter{ q('lazy fox') } # query expression
+  ```
+
+* Field-dependant composite expression.
+  Consists of the field name (with dot notation or not),
+  value and action operator between them. Field name might take
+  additional options for passing to the result expression.
+
+  ```ruby
+  UsersIndex.filter{ name == 'Name' } # simple field term filter
+  UsersIndex.filter{ name(:bool) == ['Name1', 'Name2'] } # terms query with `execution: :bool` option passed
+  UsersIndex.filter{ answers.title =~ /regexp/ } # regexp filter for `answers.title` field
+  ```
+
+You can combine expressions as you wish with combination operators help
 
 ```ruby
+UsersIndex.filter{ (name == 'Name') & (email == 'Email') } # combination produces `and` filter
 UsersIndex.filter{
   must(
     should(name =~ 'Fr').should_not(name == 'Fred') & (age == 42), email =~ /gmail\.com/
   ) | ((roles.admin == true) & name?)
-}
+} # many of the combination possibilities
 ```
 
 Compliance cheatsheet for filters and DSL expressions:
@@ -274,11 +296,35 @@ Compliance cheatsheet for filters and DSL expressions:
   ```json
   {terms: {name: ['Fred', 'Johny']}}
   {not: {terms: {name: ['Fred', 'Johny']}}}
+
+  {terms: {name: ['Fred', 'Johny'], execution: :or}}
+
+  {terms: {name: ['Fred', 'Johny'], execution: :and}}
+
+  {terms: {name: ['Fred', 'Johny'], execution: :bool}}
+
+  {terms: {name: ['Fred', 'Johny'], execution: :fielddata}}
   ```
 
   ```ruby
   UsersIndex.filter{ name == ['Fred', 'Johny'] }
   UsersIndex.filter{ name != ['Fred', 'Johny'] }
+
+  UsersIndex.filter{ name(:|) == ['Fred', 'Johny'] }
+  UsersIndex.filter{ name(:or) == ['Fred', 'Johny'] }
+  UsersIndex.filter{ name(execution: :or) == ['Fred', 'Johny'] }
+
+  UsersIndex.filter{ name(:&) == ['Fred', 'Johny'] }
+  UsersIndex.filter{ name(:and) == ['Fred', 'Johny'] }
+  UsersIndex.filter{ name(execution: :and) == ['Fred', 'Johny'] }
+
+  UsersIndex.filter{ name(:b) == ['Fred', 'Johny'] }
+  UsersIndex.filter{ name(:bool) == ['Fred', 'Johny'] }
+  UsersIndex.filter{ name(execution: :bool) == ['Fred', 'Johny'] }
+
+  UsersIndex.filter{ name(:f) == ['Fred', 'Johny'] }
+  UsersIndex.filter{ name(:fielddata) == ['Fred', 'Johny'] }
+  UsersIndex.filter{ name(execution: :fielddata) == ['Fred', 'Johny'] }
   ```
 
 * Regexp filter (== and =~ are equivalent)

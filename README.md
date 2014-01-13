@@ -331,15 +331,21 @@ Compliance cheatsheet for filters and DSL expressions:
 
   ```json
   {regexp: {'name.first': 's.*y'}}
+
   {not: {regexp: {'name.first': 's.*y'}}}
+
+  {regexp: {'name.first': {value: 's.*y', flags: 'ANYSTRING|INTERSECTION'}}
   ```
 
   ```ruby
   UsersIndex.filter{ name.first == /s.*y/ }
-  UsersIndex.filter{ name.first != /s.*y/ }
-
   UsersIndex.filter{ name.first =~ /s.*y/ }
+
+  UsersIndex.filter{ name.first != /s.*y/ }
   UsersIndex.filter{ name.first !~ /s.*y/ }
+
+  UsersIndex.filter{ name.first(:anystring, :intersection) == /s.*y/ }
+  UsersIndex.filter{ name.first(flags: [:anystring, :intersection]) == /s.*y/ }
   ```
 
 * Prefix filter
@@ -381,8 +387,6 @@ Compliance cheatsheet for filters and DSL expressions:
   UsersIndex.filter{ !name? }
   UsersIndex.filter{ name == nil }
   ```
-
-* Numeric range (not supported yet).
 
 * Range and NumericRange
 

@@ -32,7 +32,7 @@ module Chewy
           when nil
             Nodes::Missing.new @name, existence: false, null_value: true
           when ::Regexp
-            Nodes::Regexp.new @name, value
+            Nodes::Regexp.new @name, value, *@options
           when ::Range
             Nodes::Range.new @name, gt: value.first, lt: value.last
           else
@@ -56,7 +56,7 @@ module Chewy
         def =~ value
           case value
           when ::Regexp
-            Nodes::Regexp.new @name, value
+            Nodes::Regexp.new @name, value, *@options
           else
             Nodes::Prefix.new @name, value
           end
@@ -71,7 +71,7 @@ module Chewy
           if method =~ /\?\Z/
             Nodes::Exists.new [@name, method.gsub(/\?\Z/, '')].join(?.)
           else
-            self.class.new [@name, method].join(?.)
+            self.class.new [@name, method].join(?.), *args
           end
         end
 

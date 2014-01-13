@@ -105,6 +105,7 @@ describe Chewy::Query::Context do
     specify { query { name == /name/ }.should be_eql Regexp(:name, 'name') }
     specify { query { name !~ /name/ }.should be_eql Not(Regexp(:name, 'name')) }
     specify { query { name != /name/ }.should be_eql Not(Regexp(:name, 'name')) }
+    specify { query { name(:anystring, :intersection) =~ /name/ }.should be_eql Regexp(:name, 'name', flags: %w(anystring intersection)) }
   end
 
   context 'query' do

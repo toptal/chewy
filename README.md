@@ -234,6 +234,25 @@ Also, queries can be performed on a type individually
 UsersIndex::User.filter(term: {name: 'foo'}) # will return UserIndex::User collection only
 ```
 
+If you are performing more then one `filter` or `query` in the chain,
+all the filters and queries will be concatenated in the way specified by
+`filter_mode` and `query_mode` respectively.
+
+Default `filter_mode` is `:and` and default `query_mode` is `bool`.
+
+Available filter modes are: `:and`, `:or`, `:must`, `:should` and
+any minimum_should_match-acceptable value
+
+Available query modes are: `:must`, `:should`, `:dis_max`, any
+minimum_should_match-acceptable value or float value for dis_max
+query with tie_breaker specified.
+
+```ruby
+UsersIndex::User.filter{ name == 'Fred' }.filter{ age < 42 } # will be wrapped with `and` filter
+UsersIndex::User.filter{ name == 'Fred' }.filter{ age < 42 }.filter_mode(:should) # will be wrapped with bool `should` filter
+UsersIndex::User.filter{ name == 'Fred' }.filter{ age < 42 }.filter_mode('75%') # will be wrapped with bool `should` filter with `minimum_should_match: '75%'`
+```
+
 See [query.rb](lib/chewy/query.rb) for more info.
 
 ### Filters query DSL.

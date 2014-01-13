@@ -282,8 +282,8 @@ Compliance cheatsheet for filters and DSL expressions:
 * Term filter
 
   ```json
-  {term: {name: 'Fred'}}
-  {not: {term: {name: 'Johny'}}}
+  {"term": {"name": "Fred"}}
+  {"not": {"term": {"name": "Johny"}}}
   ```
 
   ```ruby
@@ -294,16 +294,16 @@ Compliance cheatsheet for filters and DSL expressions:
 * Terms filter
 
   ```json
-  {terms: {name: ['Fred', 'Johny']}}
-  {not: {terms: {name: ['Fred', 'Johny']}}}
+  {"terms": {"name": ["Fred", "Johny"]}}
+  {"not": {"terms": {"name": ["Fred", "Johny"]}}}
 
-  {terms: {name: ['Fred', 'Johny'], execution: :or}}
+  {"terms": {"name": ["Fred", "Johny"], "execution": "or"}}
 
-  {terms: {name: ['Fred', 'Johny'], execution: :and}}
+  {"terms": {"name": ["Fred", "Johny"], "execution": "and"}}
 
-  {terms: {name: ['Fred', 'Johny'], execution: :bool}}
+  {"terms": {"name": ["Fred", "Johny"], "execution": "bool"}}
 
-  {terms: {name: ['Fred', 'Johny'], execution: :fielddata}}
+  {"terms": {"name": ["Fred", "Johny"], "execution": "fielddata"}}
   ```
 
   ```ruby
@@ -330,11 +330,11 @@ Compliance cheatsheet for filters and DSL expressions:
 * Regexp filter (== and =~ are equivalent)
 
   ```json
-  {regexp: {'name.first': 's.*y'}}
+  {"regexp": {"name.first": "s.*y"}}
 
-  {not: {regexp: {'name.first': 's.*y'}}}
+  {"not": {"regexp": {"name.first": "s.*y"}}}
 
-  {regexp: {'name.first': {value: 's.*y', flags: 'ANYSTRING|INTERSECTION'}}
+  {"regexp": {"name.first": {"value": "s.*y", "flags": "ANYSTRING|INTERSECTION"}}}
   ```
 
   ```ruby
@@ -351,19 +351,19 @@ Compliance cheatsheet for filters and DSL expressions:
 * Prefix filter
 
   ```json
-  {prefix: {name: 'Fre'}}
-  {not: {prefix: {name: 'Joh'}}}
+  {"prefix": {"name": "Fre"}}
+  {"not": {"prefix": {"name": "Joh"}}}
   ```
 
   ```ruby
-  UsersIndex.filter{ name =~ 'Fre' }
+  UsersIndex.filter{ name =~ re' }
   UsersIndex.filter{ name !~ 'Joh' }
   ```
 
 * Exists filter
 
   ```json
-  {exists: {field: 'name'}}
+  {"exists": {"field": "name"}}
   ```
 
   ```ruby
@@ -377,9 +377,9 @@ Compliance cheatsheet for filters and DSL expressions:
 * Missing filter
 
   ```json
-  {missing: {field: 'name', existence: true, null_value: false}}
-  {missing: {field: 'name', existence: true, null_value: true}}
-  {missing: {field: 'name', existence: false, null_value: true}}
+  {"missing": {"field": "name", "existence": true, "null_value": false}}
+  {"missing": {"field": "name", "existence": true, "null_value": true}}
+  {"missing": {"field": "name", "existence": false, "null_value": true}}
   ```
 
   ```ruby
@@ -394,16 +394,16 @@ Compliance cheatsheet for filters and DSL expressions:
   for numeric values and just range for others.
 
   ```json
-  {numeric_range: {age: {gt: 42}}}
-  {numeric_range: {age: {gte: 42}}}
-  {numeric_range: {age: {lt: 42}}}
-  {numeric_range: {age: {lte: 42}}}
+  {"numeric_range": {"age": {"gt": 42}}}
+  {"numeric_range": {"age": {"gte": 42}}}
+  {"numeric_range": {"age": {"lt": 42}}}
+  {"numeric_range": {"age": {"lte": 42}}}
 
-  {numeric_range: {age: {gt: 40, lt: 50}}}
-  {numeric_range: {age: {gte: 40, lte: 50}}}
+  {"numeric_range": {"age": {"gt": 40, "lt": 50}}}
+  {"numeric_range": {"age": {"gte": 40, "lte": 50}}}
 
-  {numeric_range: {age: {gt: 40, lte: 50}}}
-  {numeric_range: {age: {gte: 40, lt: 50}}}
+  {"numeric_range": {"age": {"gt": 40, "lte": 50}}}
+  {"numeric_range": {"age": {"gte": 40, "lt": 50}}}
   ```
 
   ```ruby
@@ -424,9 +424,9 @@ Compliance cheatsheet for filters and DSL expressions:
 * Bool filter
 
   ```json
-  {bool: {
-    must: [{term: {name: 'Name'}}],
-    should: [{term: {age: 42}}, {term: {age: 45}}]
+  {"bool": {
+    "must": [{"term": {"name": "Name"}}],
+    "should": [{"term": {"age": 42}}, {"term": {"age": 45}}]
   }}
   ```
 
@@ -437,7 +437,7 @@ Compliance cheatsheet for filters and DSL expressions:
 * And filter
 
   ```json
-  {and: [{term: {name: 'Name'}}, {range: {age: {lt: 42}}}]}
+  {"and": [{"term": {"name": "Name"}}, {"range": {"age": {"lt": 42}}}]}
   ```
 
   ```ruby
@@ -447,18 +447,16 @@ Compliance cheatsheet for filters and DSL expressions:
 * Or filter
 
   ```json
-  {or: [{term: {name: 'Name'}}, {range: {age: {lt: 42}}}]}
+  {"or": [{"term": {"name": "Name"}}, {"range": {"age": {"lt": 42}}}]}
   ```
 
   ```ruby
   UsersIndex.filter{ (name == 'Name') | (age < 42) }
   ```
 
-* Not filter
-
   ```json
-  {not: {term: {name: 'Name'}}}
-  {not: {range: {age: {lt: 42}}}}
+  {"not": {"term": {"name": "Name"}}}
+  {"not": {"range": {"age": {"lt": 42}}}}
   ```
 
   ```ruby

@@ -21,8 +21,6 @@ module Chewy
     # You can use logic operations <tt>&</tt> and <tt>|</tt> to concat
     # expressions.
     #
-    # Ex:
-    #
     #   UsersIndex.filter{ (article.title =~ /Honey/) & (age < 42) & !rate }
     #
     #
@@ -34,8 +32,6 @@ module Chewy
 
       # Outer scope call
       # Block evaluates in the external context
-      #
-      # Ex:
       #
       #   def name
       #     'Friend'
@@ -51,15 +47,11 @@ module Chewy
       # Used if method_missing is not working by some reason.
       # Additional expression options might be passed as second argument hash.
       #
-      # Ex:
-      #
       #   UsersIndex.filter{ f(:name) == 'Name' } == UsersIndex.filter{ name == 'Name' } # => true
       #   UsersIndex.filter{ f(:name, execution: :bool) == ['Name1', 'Name2'] } ==
       #     UsersIndex.filter{ name(execution: :bool) == ['Name1', 'Name2'] } # => true
       #
       # Supports block for getting field name from the outer scope
-      #
-      # Ex:
       #
       #   def field
       #     :name
@@ -75,14 +67,10 @@ module Chewy
       # Returns script filter
       # Just script filter. Supports additional params.
       #
-      # Ex:
-      #
       #   UsersIndex.filter{ s('doc["num1"].value > 1') }
       #   UsersIndex.filter{ s('doc["num1"].value > param1', param1: 42) }
       #
       # Supports block for getting script from the outer scope
-      #
-      # Ex:
       #
       #   def script
       #     'doc["num1"].value > param1 || 1'
@@ -99,19 +87,15 @@ module Chewy
 
       # Returns query filter
       #
-      # Ex:
-      #
-      #   UsersIndex.filter{ q('Hello world') }
+      #   UsersIndex.filter{ q(query_string: {query: 'name: hello'}) }
       #
       # Supports block for getting query from the outer scope
       #
-      # Ex:
-      #
       #   def query
-      #     'Hello world'
+      #     {query_string: {query: 'name: hello'}}
       #   end
       #
-      #   UsersIndex.filter{ q{ query } } == UsersIndex.filter{ q('Hello world') } # => true
+      #   UsersIndex.filter{ q{ query } } == UsersIndex.filter{ q(query_string: {query: 'name: hello'}) } # => true
       #
       def q query = nil, &block
         Nodes::Query.new block ? o(&block) : query
@@ -120,14 +104,10 @@ module Chewy
       # Returns raw expression
       # Same as filter with arguments instead of block, but can participate in expressions
       #
-      # Ex:
-      #
       #   UsersIndex.filter{ r(term: {name: 'Name'}) }
       #   UsersIndex.filter{ r(term: {name: 'Name'}) & (age < 42) }
       #
       # Supports block for getting raw filter from the outer scope
-      #
-      # Ex:
       #
       #   def filter
       #     {term: {name: 'Name'}}
@@ -143,8 +123,6 @@ module Chewy
       # Bool filter chainable methods
       # Used to create bool query. Nodes are passed as arguments.
       #
-      # Ex:
-      #
       #  UsersIndex.filter{ must(age < 42, name == 'Name') }
       #  UsersIndex.filter{ should(age < 42, name == 'Name') }
       #  UsersIndex.filter{ must(age < 42).should(name == 'Name1', name == 'Name2') }
@@ -159,16 +137,12 @@ module Chewy
       # Creates field or exists node
       # Additional options for further expression might be passed as hash
       #
-      # Ex:
-      #
       #   UsersIndex.filter{ name == 'Name' } == UsersIndex.filter(term: {name: 'Name'}) # => true
       #   UsersIndex.filter{ name? } == UsersIndex.filter(exists: {term: 'name'}) # => true
       #   UsersIndex.filter{ name(execution: :bool) == ['Name1', 'Name2'] } ==
       #     UsersIndex.filter(terms: {name: ['Name1', 'Name2'], execution: :bool}) # => true
       #
       # Also field names might be chained to use dot-notation for ES field names
-      #
-      # Ex:
       #
       #   UsersIndex.filter{ article.title =~ 'Hello' }
       #   UsersIndex.filter{ article.tags? }

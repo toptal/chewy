@@ -271,7 +271,7 @@ There are 2 types of expressions:
 
   ```ruby
   UsersIndex.filter{ s('doc["num"] > 1') } # script expression
-  UsersIndex.filter{ q('lazy fox') } # query expression
+  UsersIndex.filter{ q(query_string: {query: 'lazy fox'}) } # query expression
   ```
 
 * Field-dependant composite expression.

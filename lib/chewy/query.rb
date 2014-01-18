@@ -13,8 +13,6 @@ module Chewy
   # chainable DSL. Queries are lazy evaluated and might be merged.
   # The same DSL is used for whole index or individual types query build.
   #
-  # Ex:
-  #
   #   UsersIndex.filter{ age < 42 }.query(text: {name: 'Alex'}).limit(20)
   #   UsersIndex::User.filter{ age < 42 }.query(text: {name: 'Alex'}).limit(20)
   #
@@ -39,11 +37,9 @@ module Chewy
     # If other is collection - search request is executed and
     # result is used for comparation
     #
-    # Ex:
-    #
-    #  UsersIndex.filter(term: {name: 'Johny'}) == UsersIndex.filter(term: {name: 'Johny'}) # => true
-    #  UsersIndex.filter(term: {name: 'Johny'}) == UsersIndex.filter(term: {name: 'Johny'}).to_a # => true
-    #  UsersIndex.filter(term: {name: 'Johny'}) == UsersIndex.filter(term: {name: 'Winnie'}) # => false
+    #   UsersIndex.filter(term: {name: 'Johny'}) == UsersIndex.filter(term: {name: 'Johny'}) # => true
+    #   UsersIndex.filter(term: {name: 'Johny'}) == UsersIndex.filter(term: {name: 'Johny'}).to_a # => true
+    #   UsersIndex.filter(term: {name: 'Johny'}) == UsersIndex.filter(term: {name: 'Winnie'}) # => false
     #
     def == other
       super || if other.is_a?(self.class)
@@ -54,7 +50,6 @@ module Chewy
     end
 
     # Adds <tt>explain</tt> parameter to search request.
-    # Ex:
     #
     #   UsersIndex.filter(term: {name: 'Johny'}).explain
     #   UsersIndex.filter(term: {name: 'Johny'}).explain(true)
@@ -63,8 +58,6 @@ module Chewy
     # Calling explain without any arguments sets explanation flag to true.
     # With <tt>explain: true</tt>, every result object has <tt>_explanation</tt>
     # method
-    #
-    # Ex:
     #
     #   UsersIndex::User.filter(term: {name: 'Johny'}).explain.first._explanation # => {...}
     #
@@ -134,8 +127,6 @@ module Chewy
     #
     # Default value for <tt>:query_mode</tt> might be changed
     # with <tt>Chewy.query_mode</tt> config option.
-    #
-    # Ex:
     #
     #   Chewy.query_mode = :dis_max
     #   Chewy.query_mode = '50%'
@@ -209,8 +200,6 @@ module Chewy
     # Default value for <tt>:filter_mode</tt> might be changed
     # with <tt>Chewy.filter_mode</tt> config option.
     #
-    # Ex:
-    #
     #   Chewy.filter_mode = :should
     #   Chewy.filter_mode = '50%'
     #
@@ -220,8 +209,6 @@ module Chewy
 
     # Sets elasticsearch <tt>size</tt> search request param
     # Default value is set in the elasticsearch and is 10.
-    #
-    # Ex:
     #
     #  UsersIndex.filter{ name == 'Johny' }.limit(100)
     #     # => {body: {
@@ -234,8 +221,6 @@ module Chewy
     end
 
     # Sets elasticsearch <tt>from</tt> search request param
-    #
-    # Ex:
     #
     #  UsersIndex.filter{ name == 'Johny' }.offset(300)
     #     # => {body: {
@@ -250,8 +235,6 @@ module Chewy
     # Adds facets section to the search request.
     # All the chained facets a merged and added to the
     # search request
-    #
-    # Ex:
     #
     #   UsersIndex.facets(tags: {terms: {field: 'tags'}}).facets(ages: {terms: {field: 'age'}})
     #     # => {body: {
@@ -271,8 +254,6 @@ module Chewy
     # By default it joines inside <tt>must</tt> query
     # See <tt>#query_mode</tt> chainable method for more info.
     #
-    # Ex:
-    #
     #   UsersIndex.query(text: {name: 'Johny'}).query(range: {age: {lte: 42}})
     #   UsersIndex::User.query(text: {name: 'Johny'}).query(range: {age: {lte: 42}})
     #     # => {body: {
@@ -281,8 +262,6 @@ module Chewy
     #
     # If only one query was specified, it will become a result
     # query as is, without joining.
-    #
-    # Ex:
     #
     #   UsersIndex.query(text: {name: 'Johny'})
     #     # => {body: {
@@ -304,8 +283,6 @@ module Chewy
     # Also this method supports block DSL.
     # See <tt>Chewy::Query::Context</tt> for more info.
     #
-    # Ex:
-    #
     #   UsersIndex.filter(term: {name: 'Johny'}).filter(range: {age: {lte: 42}})
     #   UsersIndex::User.filter(term: {name: 'Johny'}).filter(range: {age: {lte: 42}})
     #   UsersIndex.filter{ name == 'Johny' }.filter{ age <= 42 }
@@ -316,8 +293,6 @@ module Chewy
     #
     # If only one filter was specified, it will become a result
     # filter as is, without joining.
-    #
-    # Ex:
     #
     #   UsersIndex.filter(term: {name: 'Johny'})
     #     # => {body: {query: {filtered: {
@@ -332,8 +307,6 @@ module Chewy
 
     # Sets search request sorting
     #
-    # Ex:
-    #
     #   UsersIndex.order(:first_name, :last_name).order(age: :desc).order(price: {order: :asc, mode: :avg})
     #     # => {body: {
     #            query: {...},
@@ -345,8 +318,6 @@ module Chewy
     end
 
     # Cleans up previous search sorting and sets the new one
-    #
-    # Ex:
     #
     #   UsersIndex.order(:first_name, :last_name).order(age: :desc).reorder(price: {order: :asc, mode: :avg})
     #     # => {body: {
@@ -360,8 +331,6 @@ module Chewy
 
     # Sets search request field list
     #
-    # Ex:
-    #
     #   UsersIndex.only(:first_name, :last_name).only(:age)
     #     # => {body: {
     #            query: {...},
@@ -373,8 +342,6 @@ module Chewy
     end
 
     # Cleans up previous search field list and sets the new one
-    #
-    # Ex:
     #
     #   UsersIndex.only(:first_name, :last_name).only!(:age)
     #     # => {body: {
@@ -389,8 +356,6 @@ module Chewy
     # Specify types participating in the search result
     # Works via <tt>types</tt> filter. Always merged with another filters
     # with the <tt>and</tt> filter.
-    #
-    # Ex:
     #
     #   UsersIndex.types(:admin, :manager).filters{ name == 'Johny' }.filters{ age <= 42 }
     #     # => {body: {query: {filtered: {
@@ -430,8 +395,6 @@ module Chewy
 
     # Acts the same way as <tt>types</tt>, but cleans up previously set types
     #
-    # Ex:
-    #
     #   UsersIndex.types(:admin).types!(:manager)
     #     # => {body: {query: {filtered: {
     #            query: {...},
@@ -444,8 +407,6 @@ module Chewy
 
     # Merges two queries.
     # Merges all the values in criteria with the same rules as values added manually.
-    #
-    # Ex:
     #
     #   scope1 = UsersIndex.filter{ name == 'Johny' }
     #   scope2 = UsersIndex.filter{ age <= 42 }

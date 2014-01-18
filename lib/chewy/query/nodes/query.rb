@@ -7,7 +7,7 @@ module Chewy
         end
 
         def __render__
-          {query: {query_string: {query: @query}}}
+          {query: @query}
         end
       end
     end

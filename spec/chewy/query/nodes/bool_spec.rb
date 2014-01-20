@@ -15,5 +15,8 @@ describe Chewy::Query::Nodes::Bool do
     specify { render { must(name == 'name').should(email == 'email') }.should == {
       bool: {must: [{term: {'name' => 'name'}}], should: [{ term: {'email' => 'email'}}]
     } } }
+    specify { render { ~must(name == 'name').should(email == 'email') }.should == {
+      bool: {must: [{term: {'name' => 'name'}}], should: [{ term: {'email' => 'email'}}], _cache: true
+    } } }
   end
 end

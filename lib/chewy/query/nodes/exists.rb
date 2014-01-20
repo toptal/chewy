@@ -2,8 +2,9 @@ module Chewy
   class Query
     module Nodes
       class Exists < Expr
-        def initialize name
+        def initialize name, options = {}
           @name = name.to_s
+          @options = options
         end
 
         def !

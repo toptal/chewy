@@ -12,5 +12,7 @@ describe Chewy::Query::Nodes::Exists do
     specify { render { !!name }.should == {exists: {term: 'name'}} }
     specify { render { name != nil }.should == {exists: {term: 'name'}} }
     specify { render { !(name == nil) }.should == {exists: {term: 'name'}} }
+
+    specify { render { ~name? }.should == {exists: {term: 'name'}} }
   end
 end

@@ -2,15 +2,33 @@ module Chewy
   class Query
     module Nodes
       class Range < Expr
-        def initialize name, options = {}
+        EXECUTION = {
+          :i => :index,
+          :index => :index,
+          :f => :fielddata,
+          :fielddata => :fielddata,
+        }
+
+        def initialize name, *args
           @name = name.to_s
-          @range = options.slice(:gt, :lt)
-          @bounds = options.slice(:left_closed, :right_closed)
+          @options = args.extract_options!
+          @range = @options.extract!(:gt, :lt)
+          @bounds = @options.extract!(:left_closed, :right_closed)
+          execution = EXECUTION[args.first.to_sym] if args.first
+          @options[:execution] = execution if execution
         end
 
         def & other
           if other.is_a?(self.class) && other.__name__ == @name
-            self.class.new(@name, __state__.merge(other.__state__))
+            state = __state__.merge(other.__state__)
+
+            cache = other.__options__[:cache] || @options[:cache]
+            state[:cache] = cache unless cache.nil?
+
+            execution = other.__options__[:execution] || @options[:execution]
+            state[:execution] = execution unless execution.nil?
+
+            self.class.new(@name, state)
           else
             super
           end
@@ -24,16 +42,20 @@ module Chewy
           @range.merge(@bounds)
         end
 
-        def __render__
-          gt_numeric = !@range.key?(:gt) || @range[:gt].is_a?(Numeric)
-          lt_numeric = !@range.key?(:lt) || @range[:lt].is_a?(Numeric)
-          filter = (@range.key?(:gt) || @range.key?(:lt)) && gt_numeric && lt_numeric ? :numeric_range : :range
+        def __options__
+          @options
+        end
 
+        def __render__
           body = {}
           body[@bounds[:left_closed] ? :gte : :gt] = @range[:gt] if @range.key?(:gt)
           body[@bounds[:right_closed] ? :lte : :lt] = @range[:lt] if @range.key?(:lt)
 
-          {filter => {@name => body}}
+          filter = {@name => body}
+          filter[:_cache] = !!@options[:cache] if @options.key?(:cache)
+          filter.merge!(@options.slice(:execution))
+
+          {range: filter}
         end
       end
     end

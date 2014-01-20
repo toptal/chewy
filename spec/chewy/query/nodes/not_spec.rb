@@ -9,5 +9,8 @@ describe Chewy::Query::Nodes::Not do
     specify { render { !(email == 'email') }.should == {
       not: {term: {'email' => 'email'}}
     } }
+    specify { render { ~!(email == 'email') }.should == {
+      not: {filter: {term: {'email' => 'email'}}, _cache: true}
+    } }
   end
 end

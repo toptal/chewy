@@ -2,13 +2,15 @@ module Chewy
   class Query
     module Nodes
       class Prefix < Expr
-        def initialize name, value
+        def initialize name, value, options = {}
           @name = name.to_s
-          @value = value
+          @value, @options = value, options
         end
 
         def __render__
-          {prefix: {@name => @value}}
+          filter = {prefix: {@name => @value}}
+          filter[:prefix][:_cache] = !!@options[:cache] if @options.key?(:cache)
+          filter
         end
       end
     end

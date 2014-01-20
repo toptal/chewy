@@ -14,6 +14,11 @@ module Chewy
           Nodes::Not.new self
         end
 
+        def ~
+          @options[:cache] = true
+          self
+        end
+
         def __render__
           raise NotImplementedError
         end

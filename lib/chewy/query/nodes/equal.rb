@@ -25,6 +25,7 @@ module Chewy
           filter = (@value.is_a?(Array) ? :terms : :term)
           body = {@name => @value}
           body.merge!(@options.slice(:execution)) if filter == :terms
+          body.merge!(_cache: !!@options[:cache]) if @options.key?(:cache)
           {filter => body}
         end
       end

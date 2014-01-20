@@ -7,5 +7,6 @@ describe Chewy::Query::Nodes::Query do
     end
 
     specify { render { q(query_string: {query: 'name: hello'}) }.should == {query: {query_string: {query: 'name: hello'}}} }
+    specify { render { ~q(query_string: {query: 'name: hello'}) }.should == {fquery: {query: {query_string: {query: 'name: hello'}}, _cache: true}} }
   end
 end

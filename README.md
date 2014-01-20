@@ -213,7 +213,7 @@ Also atomic blocks might be nested and don't affect each other.
 
 ```ruby
 scope = UsersIndex.query(term: {name: 'foo'})
-  .filter(numeric_range: {rating: {gte: 100}})
+  .filter(range: {rating: {gte: 100}})
   .order(created: :desc)
   .limit(20).offset(100)
 
@@ -294,6 +294,26 @@ UsersIndex.filter{
     should(name =~ 'Fr').should_not(name == 'Fred') & (age == 42), email =~ /gmail\.com/
   ) | ((roles.admin == true) & name?)
 } # many of the combination possibilities
+```
+
+Also, there is a special syntax for cache enabling:
+
+```ruby
+UsersIndex.filter{ ~name == 'Name' } # you can apply tilda to the field name
+UsersIndex.filter{ ~(name == 'Name') } # or to the whole expression
+
+# if you are applying cache to the one part of range filter
+# the whole filter will be cached:
+UsersIndex.filter{ ~(age > 42) & (age <= 50) }
+
+# You can pass cache options as a field option also.
+UsersIndex.filter{ name(cache: true) == 'Name' }
+UsersIndex.filter{ name(cache: false) == 'Name' }
+
+# With regexp filter you can pass _cache_key
+UsersIndex.filter{ name(cache: 'name_regexp') =~ /Name/ }
+# Or not
+UsersIndex.filter{ name(cache: true) =~ /Name/ }
 ```
 
 Compliance cheatsheet for filters and DSL expressions:
@@ -407,22 +427,19 @@ Compliance cheatsheet for filters and DSL expressions:
   UsersIndex.filter{ name == nil }
   ```
 
-* Range and NumericRange
-
-  Has the same syntax, except numeric_range renders
-  for numeric values and just range for others.
+* Range
 
   ```json
-  {"numeric_range": {"age": {"gt": 42}}}
-  {"numeric_range": {"age": {"gte": 42}}}
-  {"numeric_range": {"age": {"lt": 42}}}
-  {"numeric_range": {"age": {"lte": 42}}}
+  {"range": {"age": {"gt": 42}}}
+  {"range": {"age": {"gte": 42}}}
+  {"range": {"age": {"lt": 42}}}
+  {"range": {"age": {"lte": 42}}}
 
-  {"numeric_range": {"age": {"gt": 40, "lt": 50}}}
-  {"numeric_range": {"age": {"gte": 40, "lte": 50}}}
+  {"range": {"age": {"gt": 40, "lt": 50}}}
+  {"range": {"age": {"gte": 40, "lte": 50}}}
 
-  {"numeric_range": {"age": {"gt": 40, "lte": 50}}}
-  {"numeric_range": {"age": {"gte": 40, "lt": 50}}}
+  {"range": {"age": {"gt": 40, "lte": 50}}}
+  {"range": {"age": {"gte": 40, "lt": 50}}}
   ```
 
   ```ruby
@@ -490,7 +507,7 @@ See [context.rb](lib/chewy/query/context.rb) for more info.
 It is possible to load source objects from database for every search result:
 
 ```ruby
-scope = UsersIndex.filter(numeric_range: {rating: {gte: 100}})
+scope = UsersIndex.filter(range: {rating: {gte: 100}})
 
 scope.load # => will return User instances array (not a scope because )
 scope.load(user: { scope: ->(_) { includes(:country) }}) # you can also pass loading scopes for each

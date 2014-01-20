@@ -4,7 +4,8 @@ module Chewy
       class Bool < Expr
         METHODS = %w(must must_not should)
 
-        def initialize
+        def initialize options = {}
+          @options = options
           @must, @must_not, @should = [], [], []
         end
 
@@ -16,12 +17,14 @@ module Chewy
         end
 
         def __render__
-          {
+          bool = {
             bool: Hash[METHODS.map do |method|
               value = instance_variable_get("@#{method}")
               [method.to_sym, value.map(&:__render__)] if value.any?
             end.compact]
           }
+          bool[:bool][:_cache] = !!@options[:cache] if @options.key?(:cache)
+          bool
         end
       end
     end

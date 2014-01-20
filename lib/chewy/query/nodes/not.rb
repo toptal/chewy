@@ -2,8 +2,9 @@ module Chewy
   class Query
     module Nodes
       class Not < Expr
-        def initialize expr
+        def initialize expr, options = {}
           @expr = expr
+          @options = options
         end
 
         def !
@@ -11,7 +12,12 @@ module Chewy
         end
 
         def __render__
-          {not: @expr.__render__}
+          expr = @expr.__render__
+          if @options.key?(:cache)
+            {not: {filter: expr, _cache: !!@options[:cache]}}
+          else
+            {not: expr}
+          end
         end
       end
     end

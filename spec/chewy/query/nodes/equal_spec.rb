@@ -22,5 +22,11 @@ describe Chewy::Query::Nodes::Equal do
     specify { render { name(:bool) == ['name1', 'name2'] }.should == {terms: {'name' => ['name1', 'name2'], execution: :bool}} }
     specify { render { name(:f) == ['name1', 'name2'] }.should == {terms: {'name' => ['name1', 'name2'], execution: :fielddata}} }
     specify { render { name(:fielddata) == ['name1', 'name2'] }.should == {terms: {'name' => ['name1', 'name2'], execution: :fielddata}} }
+
+    specify { render { ~name == 'name' }.should == {term: {'name' => 'name', _cache: true}} }
+    specify { render { ~(name == 'name') }.should == {term: {'name' => 'name', _cache: true}} }
+    specify { render { ~name != 'name' }.should == {not: {term: {'name' => 'name', _cache: true}}} }
+    specify { render { ~name(:|) == ['name1', 'name2'] }.should == {terms: {'name' => ['name1', 'name2'], execution: :or, _cache: true}} }
+    specify { render { ~name != ['name1', 'name2'] }.should == {not: {terms: {'name' => ['name1', 'name2'], _cache: true}}} }
   end
 end

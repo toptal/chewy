@@ -51,6 +51,17 @@ not
 query q()
 script s()
 
+has child
+  has_child('type').query()
+  has_child('type').filter()
+has parent
+  has_parent('type').query()
+  has_parent('type').filter()
+nested
+  name.nested()
+match all
+  match_all
+
 geo bounding box
 geo distance
 geo distance range
@@ -58,13 +69,8 @@ geo polygon
 geoshape
 geohash cell
 
-has child
-has parent
-nested
-
 indices
 type
 ids
 
-match all
 limit

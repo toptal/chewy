@@ -17,7 +17,13 @@ module Chewy
           body = @options[:flags] ?
             {value: @regexp, flags: @options[:flags].map(&:to_s).map(&:upcase).uniq.join('|')} :
             @regexp
-          {regexp: {@name => body}}
+          filter = {@name => body}
+          if @options.key?(:cache)
+            filter[:_cache] = !!@options[:cache]
+            filter[:_cache_key] = @options[:cache].is_a?(TrueClass) || @options[:cache].is_a?(FalseClass) ?
+              @regexp.underscore : @options[:cache]
+          end
+          {regexp: filter}
         end
       end
     end

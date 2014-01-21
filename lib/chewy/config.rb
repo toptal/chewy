@@ -2,7 +2,7 @@ module Chewy
   class Config
     include Singleton
 
-    attr_accessor :client_options, :urgent_update, :query_mode, :filter_mode
+    attr_accessor :client_options, :urgent_update, :query_mode, :filter_mode, :logger
 
     def self.delegated
       public_instance_methods - self.superclass.public_instance_methods - Singleton.public_instance_methods
@@ -16,11 +16,9 @@ module Chewy
     end
 
     def client_options
-      yaml_options = if defined? Rails
-        file = Rails.root.join(*%w(config chewy.yml))
-        YAML.load_file(file)[Rails.env].try(:deep_symbolize_keys) if File.exists?(file)
-      end
-      @client_options.merge(yaml_options || {})
+      options = @client_options.merge(yaml_options)
+      options.merge!(logger: logger) if logger
+      options
     end
 
     def atomic?
@@ -42,6 +40,17 @@ module Chewy
         stash.last[type] |= ids
       else
         Thread.current[:chewy_cache] ||= []
+      end
+    end
+
+  private
+
+    def yaml_options
+      @yaml_options ||= begin
+        if defined?(Rails)
+          file = Rails.root.join(*%w(config chewy.yml))
+          YAML.load_file(file)[Rails.env].try(:deep_symbolize_keys) if File.exists?(file)
+        end || {}
       end
     end
   end

@@ -6,6 +6,15 @@ describe Chewy::Config do
 
   its(:query_mode) { should == :must }
   its(:filter_mode) { should == :and }
+  its(:logger) { should be_nil }
+  its(:client_options) { should_not have_key :logger }
+
+  describe '#logger' do
+    before { subject.logger = double(:logger) }
+
+    its(:logger) { should_not be_nil }
+    its(:client_options) { should have_key :logger }
+  end
 
   describe '#atomic?' do
     its(:atomic?) { should be_false }

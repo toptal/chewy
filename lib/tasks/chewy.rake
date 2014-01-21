@@ -21,7 +21,7 @@ namespace :chewy do
   desc 'Updates specified index'
   task :update, [:index] => :environment do |task, args|
     index = "#{args[:index].camelize}Index".constantize
-    raise "Index `#{index.index_name}` does not exists. Use rake chewy:reset[index] to create and update it." unless index.index_exists?
+    raise "Index `#{index.index_name}` does not exists. Use rake chewy:reset[index] to create and update it." unless index.exists?
     index.import
   end
 end

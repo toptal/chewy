@@ -9,6 +9,19 @@ describe Chewy::Index do
     end
   end
 
+  describe '.client' do
+    specify { stub_index(:dummies1).client.should == stub_index(:dummies2).client }
+
+    context do
+      before do
+        stub_index(:dummies1)
+        stub_index(:dummies2, Dummies1Index)
+      end
+
+      specify { Dummies1Index.client.should == Dummies2Index.client }
+    end
+  end
+
   describe '.type_hash' do
     specify { DummiesIndex.type_hash['dummy'].should == DummiesIndex::Dummy }
     specify { DummiesIndex.type_hash.should have_key 'dummy' }

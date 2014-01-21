@@ -1,12 +1,12 @@
 require 'chewy/index/actions'
-require 'chewy/index/client'
 require 'chewy/index/search'
 
 module Chewy
   class Index
     include Actions
-    include Client
     include Search
+
+    singleton_class.delegate :client, to: 'Chewy'
 
     class_attribute :type_hash
     self.type_hash = {}

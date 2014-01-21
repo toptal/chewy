@@ -21,6 +21,14 @@ module Chewy
       options
     end
 
+    def client?
+      !!Thread.current[:chewy_client]
+    end
+
+    def client
+      Thread.current[:chewy_client] ||= ::Elasticsearch::Client.new client_options
+    end
+
     def atomic?
       stash.any?
     end

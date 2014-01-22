@@ -440,7 +440,11 @@ module Chewy
     end
 
     def _response
-      @_response ||= index.client.search(_request)
+      @_response ||= begin
+        ActiveSupport::Notifications.instrument 'search_query.chewy', request: _request do
+          index.client.search(_request)
+        end
+      end
     end
 
     def _results

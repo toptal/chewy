@@ -48,8 +48,8 @@ not
   !(name == 'name')
   email != 'email'
 
-query q()
 script s()
+query q()
 
 has child
   has_child('type').query()

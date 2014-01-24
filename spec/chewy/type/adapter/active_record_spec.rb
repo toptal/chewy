@@ -88,15 +88,24 @@ describe Chewy::Type::Adapter::ActiveRecord do
   describe '#load' do
     let!(:cities) { 3.times.map { |i| City.create!(country_id: i/2) } }
     let!(:deleted) { 2.times.map { |i| City.create!.tap(&:destroy!) } }
+
+    let(:type) { double(type_name: 'user') }
+
     subject { described_class.new(City) }
 
-    specify { subject.load(cities.map { |c| double(id: c.id) }).should == cities }
-    specify { subject.load(cities.map { |c| double(id: c.id) }.reverse).should == cities.reverse }
-    specify { subject.load(deleted.map { |c| double(id: c.id) }).should == [nil, nil] }
-    specify { subject.load((cities + deleted).map { |c| double(id: c.id) }).should == [*cities, nil, nil] }
-    specify { subject.load(cities.map { |c| double(id: c.id) }, scope: ->(_) { where(country_id: 0) })
+    specify { subject.load(cities.map { |c| double(id: c.id) }, _type: type).should == cities }
+    specify { subject.load(cities.map { |c| double(id: c.id) }.reverse, _type: type).should == cities.reverse }
+    specify { subject.load(deleted.map { |c| double(id: c.id) }, _type: type).should == [nil, nil] }
+    specify { subject.load((cities + deleted).map { |c| double(id: c.id) }, _type: type).should == [*cities, nil, nil] }
+    specify { subject.load(cities.map { |c| double(id: c.id) }, _type: type, scope: ->{ where(country_id: 0) })
       .should == cities.first(2) + [nil] }
-    specify { subject.load(cities.map { |c| double(id: c.id) }, scope: City.where(country_id: 1))
+    specify { subject.load(cities.map { |c| double(id: c.id) },
+      _type: type, scope: ->{ where(country_id: 0) }, user: {scope: ->{ where(country_id: 1)}})
       .should == [nil, nil] + cities.last(1) }
+    specify { subject.load(cities.map { |c| double(id: c.id) }, _type: type, scope: City.where(country_id: 1))
+      .should == [nil, nil] + cities.last(1) }
+    specify { subject.load(cities.map { |c| double(id: c.id) },
+      _type: type, scope: City.where(country_id: 1), user: {scope: ->{ where(country_id: 0)}})
+      .should == cities.first(2) + [nil] }
   end
 end

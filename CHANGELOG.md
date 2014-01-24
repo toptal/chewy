@@ -1,5 +1,11 @@
 # master
 
+  * Added common loading scope for AR adapter. Also removed scope proc argument, now it executes just in main load scope context.
+
+    `CitiesIndex.all.load(scope: {city: City.include(:country)})`
+    `CitiesIndex.all.load(scope: {city: -> { include(:country) }})`
+    `CitiesIndex.all.load(scope: ->{ include(:country) })`
+
 # Version 0.1.0
 
   * Added filters simplified DSL. See [context.rb](lib/chewy/query/context.rb) for more info.

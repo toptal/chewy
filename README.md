@@ -510,9 +510,11 @@ It is possible to load source objects from database for every search result:
 scope = UsersIndex.filter(range: {rating: {gte: 100}})
 
 scope.load # => will return User instances array (not a scope because )
-scope.load(user: { scope: ->(_) { includes(:country) }}) # you can also pass loading scopes for each
-                                                         # possibly returned type
-scope.load(user: { scope: User.includes(:country) }) # the second scope passing way
+scope.load(user: { scope: ->{ includes(:country) }}) # you can also pass loading scopes for each
+                                                     # possibly returned type
+scope.load(user: { scope: User.includes(:country) }) # the second scope passing way.
+scope.load(scope: ->{ includes(:country) }) # and more common scope applied to every loaded object type.
+
 scope.only(:id).load # it is optimal to request ids only if you are not planning to use type objects
 ```
 

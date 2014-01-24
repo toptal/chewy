@@ -16,7 +16,7 @@ module Chewy
 
       def _load_objects(options)
         loaded_objects = Hash[_results.group_by(&:class).map do |type, objects|
-          loaded = type.adapter.load(objects, options[type.type_name.to_sym] || {})
+          loaded = type.adapter.load(objects, options.merge(_type: type))
           [type, loaded.index_by.with_index { |loaded, i| objects[i] }]
         end]
 

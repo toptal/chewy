@@ -49,11 +49,13 @@ module Chewy
           load_options = args.extract_options!
           objects = args.flatten
 
+          additional_scope = load_options[load_options[:_type].type_name.to_sym].try(:[], :scope) || load_options[:scope]
+
           scope = model.where(id: objects.map(&:id))
-          loaded_objects = if load_options[:scope].is_a?(Proc)
-            scope.instance_eval(&load_options[:scope])
-          elsif load_options[:scope].is_a?(::ActiveRecord::Relation)
-            scope.merge(load_options[:scope])
+          loaded_objects = if additional_scope.is_a?(Proc)
+            scope.instance_exec(&additional_scope)
+          elsif additional_scope.is_a?(::ActiveRecord::Relation)
+            scope.merge(additional_scope)
           else
             scope
           end.index_by { |object| object.id.to_s }

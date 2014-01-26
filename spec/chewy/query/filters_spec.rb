@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe Chewy::Query::Context do
+describe Chewy::Query::Filters do
   def Bool options
     Chewy::Query::Nodes::Bool.new.tap do |bool|
       bool.must(*options[:must]) if options[:must].present?
@@ -16,7 +16,7 @@ describe Chewy::Query::Context do
   end
 
   def query &block
-    Chewy::Query::Context.new(&block).__result__
+    Chewy::Query::Filters.new(&block).__result__
   end
 
   context 'outer scope' do

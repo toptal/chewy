@@ -3,7 +3,7 @@ require 'spec_helper'
 describe Chewy::Query::Nodes::Exists do
   describe '#__render__' do
     def render &block
-      Chewy::Query::Context.new(&block).__render__
+      Chewy::Query::Filters.new(&block).__render__
     end
 
     specify { render { name? }.should == {exists: {term: 'name'}} }

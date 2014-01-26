@@ -3,7 +3,7 @@ require 'spec_helper'
 describe Chewy::Query::Nodes::Bool do
   describe '#__render__' do
     def render &block
-      Chewy::Query::Context.new(&block).__render__
+      Chewy::Query::Filters.new(&block).__render__
     end
 
     specify { render { must(name == 'name', email == 'email') }.should == {

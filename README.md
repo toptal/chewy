@@ -500,7 +500,41 @@ Compliance cheatsheet for filters and DSL expressions:
   UsersIndex.filter{ !(age < 42) }
   ```
 
-See [context.rb](lib/chewy/query/context.rb) for more info.
+* Match all filter
+
+  ```json
+  {"match_all": {}}
+  ```
+
+  ```ruby
+  UsersIndex.filter{ match_all }
+  ```
+
+* Has child filter
+
+  ```json
+  {"has_child": {"type": "blog_tag", "query": {"term": {"tag": "something"}}}
+  {"has_child": {"type": "comment", "term": {"term": {"user": "john"}}}
+  ```
+
+  ```ruby
+  UsersIndex.filter{ has_child(:blog_tag).query(term: {tag: 'something'}) }
+  UsersIndex.filter{ has_child(:comment).filter{ user == 'john' } }
+  ```
+
+* Has parent filter
+
+  ```json
+  {"has_parent": {"type": "blog", "query": {"term": {"tag": "something"}}}}
+  {"has_parent": {"type": "blog", "filter": {"term": {"text": "bonsai three"}}}}
+  ```
+
+  ```ruby
+  UsersIndex.filter{ has_parent(:blog).query(term: {tag: 'something'}) }
+  UsersIndex.filter{ has_parent(:blog).filter{ text == 'bonsai three' } }
+  ```
+
+See [filters.rb](lib/chewy/query/filters.rb) for more info.
 
 ### Objects loading
 

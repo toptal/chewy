@@ -1,6 +1,9 @@
+require 'chewy/query/compose'
+
 module Chewy
   class Query
     class Criteria
+      include Compose
       STORAGES = [:options, :queries, :facets, :filters, :sort, :fields, :types]
 
       def initialize options = {}
@@ -72,7 +75,7 @@ module Chewy
       end
 
       def request_body
-        body = (_request_query || {}).tap do |body|
+        body = (_composed_query(_request_query, _request_filter) || {}).tap do |body|
           body.merge!(facets: facets) if facets?
           body.merge!(sort: sort) if sort?
           body.merge!(fields: fields) if fields?
@@ -102,19 +105,7 @@ module Chewy
       end
 
       def _request_query
-        request_filter = _request_filter
-        request_query = _queries_join(queries, options[:query_mode])
-
-        if request_filter
-          {query: {
-            filtered: {
-              query: request_query ? request_query : {match_all: {}},
-              filter: request_filter
-            }
-          }}
-        elsif request_query
-          {query: request_query}
-        end
+        _queries_join(queries, options[:query_mode])
       end
 
       def _request_filter
@@ -130,44 +121,6 @@ module Chewy
 
       def _request_types
         _filters_join(types.map { |type| {type: {value: type}} }, :or)
-      end
-
-      def _queries_join queries, logic
-        queries = queries.compact
-
-        if queries.many?
-          case logic
-          when :dis_max
-            {dis_max: {queries: queries}}
-          when :must, :should
-            {bool: {logic => queries}}
-          else
-            if logic.is_a?(Float)
-              {dis_max: {queries: queries, tie_breaker: logic}}
-            else
-              {bool: {should: queries, minimum_should_match: logic}}
-            end
-          end
-        else
-          queries.first
-        end
-      end
-
-      def _filters_join filters, logic
-        filters = filters.compact
-
-        if filters.many?
-          case logic
-          when :and, :or
-            {logic => filters}
-          when :must, :should
-            {bool: {logic => filters}}
-          else
-            {bool: {should: filters, minimum_should_match: logic}}
-          end
-        else
-          filters.first
-        end
       end
     end
   end

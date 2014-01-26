@@ -14,6 +14,9 @@ require 'chewy/query/nodes/regexp'
 require 'chewy/query/nodes/equal'
 require 'chewy/query/nodes/query'
 require 'chewy/query/nodes/script'
+require 'chewy/query/nodes/has_child'
+require 'chewy/query/nodes/has_parent'
+require 'chewy/query/nodes/match_all'
 
 module Chewy
   class Query
@@ -24,10 +27,10 @@ module Chewy
     #   UsersIndex.filter{ (article.title =~ /Honey/) & (age < 42) & !rate }
     #
     #
-    class Context
-      def initialize &block
+    class Filters
+      def initialize outer = nil, &block
         @block = block
-        @outer = eval('self', block.binding)
+        @outer = outer || eval('self', block.binding)
       end
 
       # Outer scope call
@@ -123,15 +126,65 @@ module Chewy
       # Bool filter chainable methods
       # Used to create bool query. Nodes are passed as arguments.
       #
-      #  UsersIndex.filter{ must(age < 42, name == 'Name') }
-      #  UsersIndex.filter{ should(age < 42, name == 'Name') }
-      #  UsersIndex.filter{ must(age < 42).should(name == 'Name1', name == 'Name2') }
-      #  UsersIndex.filter{ should_not(age >= 42).must(name == 'Name1') }
+      #   UsersIndex.filter{ must(age < 42, name == 'Name') }
+      #   UsersIndex.filter{ should(age < 42, name == 'Name') }
+      #   UsersIndex.filter{ must(age < 42).should(name == 'Name1', name == 'Name2') }
+      #   UsersIndex.filter{ should_not(age >= 42).must(name == 'Name1') }
       #
       %w(must must_not should).each do |method|
         define_method method do |*exprs|
           Nodes::Bool.new.send(method, *exprs)
         end
+      end
+
+      # Initializes has_child filter.
+      # Chainable interface acts the same as main query interface. You can pass plain
+      # filters or plain queries or filter with DSL block.
+      #
+      #   UsersIndex.filter{ has_child('user').filter(term: {role: 'Admin'}) }
+      #   UsersIndex.filter{ has_child('user').filter{ role == 'Admin' } }
+      #   UsersIndex.filter{ has_child('user').query(match: {name: 'borogoves'}) }
+      #
+      # Filters and queries might be combined and filter_mode and query_mode are configurable:
+      #
+      #   UsersIndex.filter do
+      #     has_child('user')
+      #       .filter{ name: 'Peter' }
+      #       .query(match: {name: 'Peter'})
+      #       .filter{ age > 42 }
+      #       .filter_mode(:or)
+      #   end
+      #
+      def has_child type
+        Nodes::HasChild.new(type, @outer)
+      end
+
+      # Initializes has_parent filter.
+      # Chainable interface acts the same as main query interface. You can pass plain
+      # filters or plain queries or filter with DSL block.
+      #
+      #   UsersIndex.filter{ has_parent('user').filter(term: {role: 'Admin'}) }
+      #   UsersIndex.filter{ has_parent('user').filter{ role == 'Admin' } }
+      #   UsersIndex.filter{ has_parent('user').query(match: {name: 'borogoves'}) }
+      #
+      # Filters and queries might be combined and filter_mode and query_mode are configurable:
+      #
+      #   UsersIndex.filter do
+      #     has_parent('user')
+      #       .filter{ name: 'Peter' }
+      #       .query(match: {name: 'Peter'})
+      #       .filter{ age > 42 }
+      #       .filter_mode(:or)
+      #   end
+      #
+      def has_parent type
+        Nodes::HasParent.new(type, @outer)
+      end
+
+      # Just simple match_all filter.
+      #
+      def match_all
+        Nodes::MatchAll.new
       end
 
       # Creates field or exists node

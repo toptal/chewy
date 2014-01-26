@@ -49,7 +49,8 @@ not
   email != 'email'
 
 script s()
-query q()
+match all
+  match_all
 
 has child
   has_child('type').query()
@@ -59,8 +60,8 @@ has parent
   has_parent('type').filter()
 nested
   name.nested()
-match all
-  match_all
+
+query q()
 
 geo bounding box
 geo distance

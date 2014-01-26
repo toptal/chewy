@@ -4,7 +4,7 @@ rescue LoadError
 end
 
 require 'chewy/query/criteria'
-require 'chewy/query/context'
+require 'chewy/query/filters'
 require 'chewy/query/loading'
 require 'chewy/query/pagination'
 
@@ -281,7 +281,7 @@ module Chewy
     # See <tt>#filter_mode</tt> chainable method for more info.
     #
     # Also this method supports block DSL.
-    # See <tt>Chewy::Query::Context</tt> for more info.
+    # See <tt>Chewy::Query::Filters</tt> for more info.
     #
     #   UsersIndex.filter(term: {name: 'Johny'}).filter(range: {age: {lte: 42}})
     #   UsersIndex::User.filter(term: {name: 'Johny'}).filter(range: {age: {lte: 42}})
@@ -301,7 +301,7 @@ module Chewy
     #          }}}}
     #
     def filter params = nil, &block
-      params = Context.new(&block).__render__ if block
+      params = Filters.new(&block).__render__ if block
       chain { criteria.update_filters params }
     end
 

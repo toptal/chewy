@@ -8,7 +8,7 @@
 
 # Version 0.1.0
 
-  * Added filters simplified DSL. See [context.rb](lib/chewy/query/context.rb) for more info.
+  * Added filters simplified DSL. See [filters.rb](lib/chewy/query/filters.rb) for more info.
 
   * Queries and filters join system reworked. See [query.rb](lib/chewy/query.rb) for more info.
 

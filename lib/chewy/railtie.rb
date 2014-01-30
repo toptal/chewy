@@ -11,12 +11,12 @@ module Chewy
     initializer 'chewy.add_requests_logging' do |app|
       ActiveSupport::Notifications.subscribe('import_objects.chewy') do |name, start, finish, id, payload|
         duration = ((finish - start).to_f * 10000).round / 10.0
-        Rails.logger.debug("  \e[1m\e[33m#{payload[:type]} Import (#{duration}ms)\e[0m #{payload[:import]}")
+        Rails.logger.debug("  \e[1m\e[32m#{payload[:type]} Import (#{duration}ms)\e[0m #{payload[:import]}")
       end
 
       ActiveSupport::Notifications.subscribe('search_query.chewy') do |name, start, finish, id, payload|
         duration = ((finish - start).to_f * 10000).round / 10.0
-        Rails.logger.debug("  \e[1m\e[33m#{payload[:index]} Search (#{duration}ms)\e[0m #{payload[:request]}")
+        Rails.logger.debug("  \e[1m\e[32m#{payload[:index]} Search (#{duration}ms)\e[0m #{payload[:request]}")
       end
     end
   end

@@ -162,8 +162,10 @@ UsersIndex::User.import User.where('rating > 100').to_a # or import specified us
 UsersIndex::User.import [1, 2, 42] # pass even ids for import, it will be handled in the most effective way
 
 UsersIndex.import # import every defined type
-UsersIndex.reset # purges index and imports default data for all types
+UsersIndex.reset! # purges index and imports default data for all types
 ```
+
+See [actions.rb](lib/chewy/index/actions.rb) for more details.
 
 Also if passed user is #destroyed? or specified id is not existing in the database, import will perform `delete` index for this it
 
@@ -253,7 +255,7 @@ UsersIndex::User.filter{ name == 'Fred' }.filter{ age < 42 }.filter_mode(:should
 UsersIndex::User.filter{ name == 'Fred' }.filter{ age < 42 }.filter_mode('75%') # will be wrapped with bool `should` filter with `minimum_should_match: '75%'`
 ```
 
-See [query.rb](lib/chewy/query.rb) for more info.
+See [query.rb](lib/chewy/query.rb) for more details.
 
 ### Filters query DSL.
 
@@ -534,7 +536,7 @@ Compliance cheatsheet for filters and DSL expressions:
   UsersIndex.filter{ has_parent(:blog).filter{ text == 'bonsai three' } }
   ```
 
-See [filters.rb](lib/chewy/query/filters.rb) for more info.
+See [filters.rb](lib/chewy/query/filters.rb) for more details.
 
 ### Objects loading
 

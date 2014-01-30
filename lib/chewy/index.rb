@@ -1,9 +1,11 @@
 require 'chewy/index/actions'
+require 'chewy/index/aliases'
 require 'chewy/index/search'
 
 module Chewy
   class Index
     include Actions
+    include Aliases
     include Search
 
     singleton_class.delegate :client, to: 'Chewy'
@@ -50,6 +52,10 @@ module Chewy
       @index_name or raise UndefinedIndex
     end
 
+    def self.build_index_name options = {}
+      [index_name, options[:suffix]].reject(&:blank?).join(?_)
+    end
+
     def self.settings_hash
       _settings.present? ? {settings: _settings} : {}
     end
@@ -71,13 +77,8 @@ module Chewy
       type_names
     end
 
-    def self.import
-      types.all? { |t| t.import }
-    end
-
-    def self.reset
-      purge!
-      import
+    def self.import options = {}
+      types.all? { |t| t.import options }
     end
   end
 end

@@ -62,6 +62,8 @@ nested
   name.nested()
 
 query q()
+type
+  .types()
 
 geo bounding box
 geo distance
@@ -71,7 +73,6 @@ geoshape
 geohash cell
 
 indices
-type
 ids
 
 limit

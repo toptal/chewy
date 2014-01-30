@@ -1,5 +1,13 @@
 # master
 
+  * `chewy:reset` and `chewy:reset:all` rake tasks are now trying to reset index with zero downtime if it is possible.
+
+  * Added `chewy:update:all` rake task.
+
+  * Methods `.create`, `.create!`, `.delete`, `.delete`, `reset!` are now supports index name suffix passing as the first argument. See [actions.rb](lib/chewy/index/actions.rb) for more details.
+
+  * Method `reset` renamed to `reset!`.
+
   * Added common loading scope for AR adapter. Also removed scope proc argument, now it executes just in main load scope context.
 
     `CitiesIndex.all.load(scope: {city: City.include(:country)})`
@@ -8,9 +16,9 @@
 
 # Version 0.1.0
 
-  * Added filters simplified DSL. See [filters.rb](lib/chewy/query/filters.rb) for more info.
+  * Added filters simplified DSL. See [filters.rb](lib/chewy/query/filters.rb) for more details.
 
-  * Queries and filters join system reworked. See [query.rb](lib/chewy/query.rb) for more info.
+  * Queries and filters join system reworked. See [query.rb](lib/chewy/query.rb) for more details.
 
   * Added query `merge` method
 

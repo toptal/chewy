@@ -44,6 +44,11 @@ describe Chewy::Index do
     specify { stub_const('DevelopersIndex', Class.new(Chewy::Index)).index_name.should == 'developers' }
   end
 
+  describe '.build_index_name' do
+    specify { stub_const('DevelopersIndex', Class.new(Chewy::Index)).build_index_name(suffix: '').should == 'developers' }
+    specify { stub_const('DevelopersIndex', Class.new(Chewy::Index)).build_index_name(suffix: '2013').should == 'developers_2013' }
+  end
+
   describe '.index_params' do
     specify { stub_index(:documents).index_params.should == {} }
     specify { stub_index(:documents) { settings number_of_shards: 1 }.index_params.keys.should == [:settings] }

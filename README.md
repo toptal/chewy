@@ -5,6 +5,24 @@
 
 Chewy is ODM and wrapper for official elasticsearch client (https://github.com/elasticsearch/elasticsearch-ruby)
 
+## Why chewy?
+
+* Index classes are independant from ORM/ODM models.
+
+  Now implementing, e.g. cross-model autocomplete is much easier. You can just define index and work with it in object-oriented style. You can define several types for index - one per indexed model.
+
+* Every index is observable by all the related models.
+
+  Most of the indexed models a related to other and somtimes it is nessesary to denormalize this related data and put at the same object. Like you need to index array of tags with article together. Chewy allows you to specify updatable index for every model separately. So, corresponding articles will be reindexed on the any tag update.
+
+* Bulk import everywhere.
+
+  Chewy utilizes bulk ES API for full reindexing or index updates. Also it uses atomic updates concept. All the changed objects are collected inside the atomic block and index is updated once at the end of it with all the collected object. See `Chewy.atomic` for more details.
+
+* Powerful querying DSL.
+
+  Chewy has AR-style query DSL. It is chainable, mergable and lazy. So you can produce queries in the most efficient way. Also it has object-oriented query and filter builders.
+
 ## Installation
 
 Add this line to your application's Gemfile:

@@ -22,6 +22,21 @@ describe Chewy::Index do
     end
   end
 
+  describe '.define_type' do
+    specify { DummiesIndex.type_hash['dummy'].should == DummiesIndex::Dummy }
+
+    context do
+      before { stub_index(:dummies) { define_type :dummy, name: :borogoves } }
+      specify { DummiesIndex.type_hash['borogoves'].should == DummiesIndex::Borogoves }
+    end
+
+    context do
+      before { stub_model(:city) }
+      before { stub_index(:dummies) { define_type City, name: :country } }
+      specify { DummiesIndex.type_hash['country'].should == DummiesIndex::Country }
+    end
+  end
+
   describe '.type_hash' do
     specify { DummiesIndex.type_hash['dummy'].should == DummiesIndex::Dummy }
     specify { DummiesIndex.type_hash.should have_key 'dummy' }

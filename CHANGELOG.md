@@ -1,5 +1,7 @@
 # master
 
+  * `define_type` now takes options for adapter.
+
   * `chewy:reset` and `chewy:reset:all` rake tasks are now trying to reset index with zero downtime if it is possible.
 
   * Added `chewy:update:all` rake task.

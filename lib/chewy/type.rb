@@ -8,7 +8,7 @@ module Chewy
       adapter = if (target.is_a?(Class) && target < ActiveRecord::Base) || target.is_a?(::ActiveRecord::Relation)
         Chewy::Type::Adapter::ActiveRecord.new(target, options)
       else
-        Chewy::Type::Adapter::Object.new(target)
+        Chewy::Type::Adapter::Object.new(target, options)
       end
 
       index.const_set(adapter.name, type)

@@ -39,7 +39,39 @@ Or install it yourself as:
 
 ## Usage
 
-### Index file
+### Client configuration
+
+There are 2 ways to configure Chewy client: `Chewy.client_options` hash and `chewy.yml`
+
+```ruby
+# config/initializers/chewy.rb
+Chewy.client_options = {host: 'localhost:9250'} # do not use environments
+```
+
+```yaml
+# config/chewy.yml
+# separate environment configs
+test:
+  host: 'localhost:9250'
+  prefix: 'test'
+development:
+  host: 'localhost:9250'
+```
+
+The result config merges both hashes. Client options are passed as is to Elasticsearch::Transport::Client except the `:prefix` - it is used internally by chewy to create prefixed index names:
+
+```ruby
+  Chewy.client_options = {prefix: 'testing'}
+  UsersIndex.index_name # => 'testing_users'
+```
+
+Also logger might be set explicitly:
+
+```ruby
+Chewy.logger = Logger.new
+```
+
+### Index definition
 
 1. Create `/app/chewy/users_index.rb`
 

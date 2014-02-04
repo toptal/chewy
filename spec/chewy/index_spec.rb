@@ -57,11 +57,20 @@ describe Chewy::Index do
     specify { Class.new(Chewy::Index) { index_name :myindex }.index_name.should == 'myindex' }
     specify { stub_const('DeveloperIndex', Class.new(Chewy::Index)).index_name.should == 'developer' }
     specify { stub_const('DevelopersIndex', Class.new(Chewy::Index)).index_name.should == 'developers' }
+
+    context do
+      before { Chewy.stub(client_options: {prefix: 'testing'}) }
+      specify { DummiesIndex.index_name.should == 'testing_dummies' }
+      specify { stub_index(:dummies) { index_name :users }.index_name.should == 'testing_users' }
+    end
   end
 
   describe '.build_index_name' do
     specify { stub_const('DevelopersIndex', Class.new(Chewy::Index)).build_index_name(suffix: '').should == 'developers' }
     specify { stub_const('DevelopersIndex', Class.new(Chewy::Index)).build_index_name(suffix: '2013').should == 'developers_2013' }
+    specify { stub_const('DevelopersIndex', Class.new(Chewy::Index)).build_index_name(prefix: '').should == 'developers' }
+    specify { stub_const('DevelopersIndex', Class.new(Chewy::Index)).build_index_name(prefix: 'test').should == 'test_developers' }
+    specify { stub_const('DevelopersIndex', Class.new(Chewy::Index)).build_index_name(:users, prefix: 'test', suffix: '2013').should == 'test_users_2013' }
   end
 
   describe '.index_params' do

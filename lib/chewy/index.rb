@@ -16,6 +16,31 @@ module Chewy
     class_attribute :_settings
     self._settings = {}
 
+    # Setups or returns ElasticSearch index name
+    #
+    #   class UsersIndex < Chewy::Index
+    #   end
+    #   UsersIndex.index_name # => 'users'
+    #
+    #   class UsersIndex < Chewy::Index
+    #     index_name 'dudes'
+    #   end
+    #   UsersIndex.index_name # => 'dudes'
+    #
+    def self.index_name(suggest = nil)
+      if suggest
+        @index_name = build_index_name(suggest, prefix: Chewy.client_options[:prefix])
+      else
+        @index_name ||= begin
+          build_index_name(
+            name.gsub(/Index\Z/, '').demodulize.underscore,
+            prefix: Chewy.client_options[:prefix]
+          ) if name
+        end
+      end
+      @index_name or raise UndefinedIndex
+    end
+
     # Defines type for the index. Arguments depends on adapter used. For
     # ActiveRecord you can pass model or scope and options
     #
@@ -108,26 +133,6 @@ module Chewy
       self._settings = params
     end
 
-    # Setups or returns ElasticSearch index name
-    #
-    #   class UsersIndex < Chewy::Index
-    #   end
-    #   UsersIndex.index_name # => 'users'
-    #
-    #   class UsersIndex < Chewy::Index
-    #     index_name 'dudes'
-    #   end
-    #   UsersIndex.index_name # => 'dudes'
-    #
-    def self.index_name(suggest = nil)
-      if suggest
-        @index_name = suggest.to_s
-      else
-        @index_name ||= (name.gsub(/Index\Z/, '').demodulize.underscore if name)
-      end
-      @index_name or raise UndefinedIndex
-    end
-
     # Perform import operation for every defined type
     #
     #   UsersIndex.import
@@ -141,8 +146,9 @@ module Chewy
 
   private
 
-    def self.build_index_name options = {}
-      [index_name, options[:suffix]].reject(&:blank?).join(?_)
+    def self.build_index_name *args
+      options = args.extract_options!
+      [options[:prefix], args.first || index_name, options[:suffix]].reject(&:blank?).join(?_)
     end
 
     def self.settings_hash

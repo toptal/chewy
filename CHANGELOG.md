@@ -1,5 +1,7 @@
 # master
 
+  * Old indexes cleanup after reset.
+
   * Added index prefixes.
 
   * `define_type` now takes options for adapter.

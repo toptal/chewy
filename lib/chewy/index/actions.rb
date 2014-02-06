@@ -133,6 +133,7 @@ module Chewy
               end,
               {add: {index: build_index_name(suffix: suffix), alias: index_name}}
             ]}
+            client.indices.delete index: indexes if indexes.any?
             result
           else
             purge! suffix

@@ -317,6 +317,7 @@ describe Chewy::Index::Actions do
         specify { CitiesIndex.all.should have(1).item }
         specify { CitiesIndex.aliases.should == [] }
         specify { CitiesIndex.indexes.should == ['cities_2014'] }
+        specify { Chewy.client.indices.exists(index: 'cities_2013').should be_false }
       end
 
       context do
@@ -325,6 +326,7 @@ describe Chewy::Index::Actions do
         specify { CitiesIndex.all.should have(1).item }
         specify { CitiesIndex.aliases.should == [] }
         specify { CitiesIndex.indexes.should == [] }
+        specify { Chewy.client.indices.exists(index: 'cities_2013').should be_false }
       end
     end
   end

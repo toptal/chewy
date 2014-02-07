@@ -1,5 +1,9 @@
 # master
 
+  * `Chewy::Index.import` now takes types hash as argument within options hash:
+
+    `PlacesIndex.import city: City.enabled, country: Country.enabled, refresh: false`
+
   * Old indexes cleanup after reset.
 
   * Added index prefixes.

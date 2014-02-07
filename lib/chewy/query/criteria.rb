@@ -39,11 +39,11 @@ module Chewy
       end
 
       def update_queries(modifer)
-        @queries = queries + Array.wrap(modifer).delete_if(&:blank?)
+        @queries = queries + Array.wrap(modifer).reject(&:blank?)
       end
 
       def update_filters(modifer)
-        @filters = filters + Array.wrap(modifer).delete_if(&:blank?)
+        @filters = filters + Array.wrap(modifer).reject(&:blank?)
       end
 
       def update_sort(modifer, options = {})
@@ -58,7 +58,7 @@ module Chewy
         define_method "update_#{storage}" do |modifer, options = {}|
           variable = "@#{storage}"
           instance_variable_set(variable, nil) if options[:purge]
-          modifer = send(storage) | Array.wrap(modifer).flatten.map(&:to_s).delete_if(&:blank?)
+          modifer = send(storage) | Array.wrap(modifer).flatten.map(&:to_s).reject(&:blank?)
           instance_variable_set(variable, modifer)
         end
       end

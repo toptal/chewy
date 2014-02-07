@@ -141,7 +141,11 @@ module Chewy
     #   UsersIndex.import batch_size: 300 # import batch size
     #
     def self.import options = {}
-      types.all? { |t| t.import options }
+      objects = options.extract!(*type_names.map(&:to_sym))
+      types.map do |type|
+        args = [objects[type.type_name.to_sym], options.dup].reject(&:blank?)
+        type.import *args
+      end.all?
     end
 
   private

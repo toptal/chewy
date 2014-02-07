@@ -111,4 +111,39 @@ describe Chewy::Index do
       end
     end.mappings_hash[:mappings].keys.should =~ [:document, :document2] }
   end
+
+  describe '.import' do
+    before do
+      stub_model(:city)
+      stub_model(:country)
+
+      stub_index(:places) do
+        define_type City
+        define_type Country
+      end
+    end
+
+    let!(:cities) { 2.times.map { City.create! } }
+    let!(:countries) { 2.times.map { Country.create! } }
+
+    specify do
+      expect { PlacesIndex.import }.to update_index(PlacesIndex::City).and_reindex(cities)
+      expect { PlacesIndex.import }.to update_index(PlacesIndex::Country).and_reindex(countries)
+    end
+
+    specify do
+      expect { PlacesIndex.import city: cities.first }.to update_index(PlacesIndex::City).and_reindex(cities.first).only
+      expect { PlacesIndex.import city: cities.first }.to update_index(PlacesIndex::Country).and_reindex(countries)
+    end
+
+    specify do
+      expect { PlacesIndex.import city: cities.first, country: countries.last }.to update_index(PlacesIndex::City).and_reindex(cities.first).only
+      expect { PlacesIndex.import city: cities.first, country: countries.last }.to update_index(PlacesIndex::Country).and_reindex(countries.last).only
+    end
+
+    specify do
+      expect(PlacesIndex.client).to receive(:bulk).with(hash_including(refresh: false)).twice
+      PlacesIndex.import city: cities.first, refresh: false
+    end
+  end
 end

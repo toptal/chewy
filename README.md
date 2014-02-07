@@ -212,6 +212,8 @@ UsersIndex::User.import User.where('rating > 100').to_a # or import specified us
 UsersIndex::User.import [1, 2, 42] # pass even ids for import, it will be handled in the most effective way
 
 UsersIndex.import # import every defined type
+UsersIndex.import user: User.where('rating > 100') # import only active users to `user` type.
+  # Other index types, if exists, will be imported with default scope from the type definition.
 UsersIndex.reset! # purges index and imports default data for all types
 ```
 

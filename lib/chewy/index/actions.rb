@@ -125,7 +125,7 @@ module Chewy
         #
         def reset! suffix = nil
           if suffix.present? && (indexes = self.indexes).any?
-            create suffix, alias: false
+            create! suffix, alias: false
             result = import suffix: suffix
             client.indices.update_aliases body: {actions: [
               *indexes.map do |index|

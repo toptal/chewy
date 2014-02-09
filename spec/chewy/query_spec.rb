@@ -164,4 +164,64 @@ describe Chewy::Query do
     specify { subject.filter { name == 'name' }.merge(query.filter { age == 42 }).criteria.filters
       .should == [{term: {'name' => 'name'}}, {term: {'age' => 42}}] }
   end
+
+  describe 'to_a' do
+    before { stub_model(:city) }
+    let(:cities) { 3.times.map { |i| City.create! name: "name#{i}", rating: i } }
+
+    context do
+      before do
+        stub_index(:cities) do
+          define_type :city do
+            field :name
+            field :rating, type: 'integer'
+            field :nested, type: 'object', value: ->{ {name: name} }
+          end
+        end.tap(&:create!)
+      end
+
+      before { CitiesIndex::City.import cities }
+
+      specify { CitiesIndex.order(:rating).first.should be_a CitiesIndex::City }
+      specify { CitiesIndex.order(:rating).first.name.should == 'name0' }
+      specify { CitiesIndex.order(:rating).first.rating.should == 0 }
+      specify { CitiesIndex.order(:rating).first.nested.should == {'name' => 'name0'} }
+      specify { CitiesIndex.order(:rating).first.id.should == cities.first.id.to_s }
+
+      specify { CitiesIndex.order(:rating).only(:name).first.name.should == 'name0' }
+      specify { CitiesIndex.order(:rating).only(:name).first.rating.should be_nil }
+      specify { CitiesIndex.order(:rating).only(:nested).first.nested.should == {'name' => 'name0'} }
+
+      specify { CitiesIndex.order(:rating).first._score.should be_nil }
+      specify { CitiesIndex.all.first._score.should be > 0 }
+      specify { CitiesIndex.query(match: {name: 'name0'}).first._score.should be > 0 }
+
+      specify { CitiesIndex.order(:rating).first._explanation.should be_nil }
+      specify { CitiesIndex.order(:rating).explain.first._explanation.should be_present }
+    end
+
+    context 'sourceless' do
+      before do
+        stub_index(:cities) do
+          define_type :city do
+            root _source: {enabled: false} do
+              field :name
+              field :rating, type: 'integer'
+              field :nested, type: 'object', value: ->{ {name: name} }
+            end
+          end
+        end.tap(&:create!)
+      end
+      before { CitiesIndex::City.import cities }
+
+      specify { CitiesIndex.order(:rating).first.should be_a CitiesIndex::City }
+      specify { CitiesIndex.order(:rating).first.name.should be_nil }
+      specify { CitiesIndex.order(:rating).first.rating.should be_nil }
+      specify { CitiesIndex.order(:rating).first.nested.should be_nil }
+
+      specify { CitiesIndex.order(:rating).only(:name).first.name.should be_nil }
+      specify { CitiesIndex.order(:rating).only(:name).first.rating.should be_nil }
+      specify { CitiesIndex.order(:rating).only(:nested).first.nested.should be_nil }
+    end
+  end
 end

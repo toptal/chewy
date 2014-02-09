@@ -23,7 +23,7 @@ module Chewy
         if @attributes.key?(method.to_s)
           @attributes[method.to_s]
         else
-          super
+          nil
         end
       end
 

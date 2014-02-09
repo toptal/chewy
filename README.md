@@ -606,6 +606,65 @@ scope.load(scope: ->{ includes(:country) }) # and more common scope applied to e
 scope.only(:id).load # it is optimal to request ids only if you are not planning to use type objects
 ```
 
+### `ActiveSupport::Notifications` support
+
+Chewy has notifing the following events:
+
+#### `search_query.chewy` payload
+
+  * `payload[:index]`: requested index class
+  * `payload[:request]`: request hash
+
+#### `import_objects.chewy` payload
+
+  * `payload[:type]`: currently imported type
+  * `payload[:import]`: imports stast, total imported and deleted objects count:
+
+    ```ruby
+    {index: 30, delete: 5}
+    ```
+
+  * `payload[:erorrs]`: might not exists. Contains grouped errors with objects ids list:
+
+    ```ruby
+    {index: {
+      'error 1 text' => ['1', '2', '3'],
+      'error 2 text' => ['4']
+    }, delete: {
+      'delete error text' => ['10', '12']
+    }}
+    ```
+
+#### NewRelic integration
+
+To integrate with NewRelic you may use the following example source (config/initializers/chewy.rb):
+
+```ruby
+ActiveSupport::Notifications.subscribe('import_objects.chewy') do |name, start, finish, id, payload|
+  metrics = "Database/ElasticSearch/import"
+  duration = (finish - start).to_f
+  logged = "#{payload[:type]} #{payload[:import].to_a.map{ |i| i.join(':') }.join(', ')}"
+
+  self.class.trace_execution_scoped([metrics]) do
+    NewRelic::Agent.instance.transaction_sampler.notice_sql(logged, nil, duration)
+    NewRelic::Agent.instance.sql_sampler.notice_sql(logged, metrics, nil, duration)
+    NewRelic::Agent.instance.stats_engine.record_metrics(metrics, duration)
+  end
+end
+
+ActiveSupport::Notifications.subscribe('search_query.chewy') do |name, start, finish, id, payload|
+  metrics = "Database/ElasticSearch/search"
+  duration = (finish - start).to_f
+  logged = "#{payload[:index]} #{payload[:request]}"
+
+  self.class.trace_execution_scoped([metrics]) do
+    NewRelic::Agent.instance.transaction_sampler.notice_sql(logged, nil, duration)
+    NewRelic::Agent.instance.sql_sampler.notice_sql(logged, metrics, nil, duration)
+    NewRelic::Agent.instance.stats_engine.record_metrics(metrics, duration)
+  end
+end
+```
+
 ### Rake tasks
 
 Inside Rails application some index mantaining rake tasks are defined.

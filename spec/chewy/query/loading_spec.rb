@@ -25,8 +25,8 @@ describe Chewy::Query::Loading do
     end
 
     before do
-      PlacesIndex.city.import(cities)
-      PlacesIndex.country.import(countries)
+      PlacesIndex::City.import(cities)
+      PlacesIndex::Country.import(countries)
     end
 
     specify { PlacesIndex.order(:rating).limit(6).load.total_count.should == 12 }

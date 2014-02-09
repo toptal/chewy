@@ -22,9 +22,6 @@ describe Chewy::Type::Adapter::ActiveRecord do
       result
     end
 
-    specify { subject.import(3.times.map { |i| City.create! }) { |data| true }.should be_true }
-    specify { subject.import(3.times.map { |i| City.create! }) { |data| false }.should be_false }
-
     context do
       let!(:cities) { 3.times.map { |i| City.create! } }
       let!(:deleted) { 3.times.map { |i| City.create!.tap(&:destroy!) } }
@@ -82,6 +79,59 @@ describe Chewy::Type::Adapter::ActiveRecord do
         {index: cities.first(2)},
         {delete: [cities.last.id] + deleted.first(1).map(&:id)},
         {delete: deleted.last(1).map(&:id)}] }
+    end
+
+    context 'error handling' do
+      let!(:cities) { 3.times.map { |i| City.create! } }
+      let!(:deleted) { 2.times.map { |i| City.create!.tap(&:destroy!) } }
+      let(:ids) { (cities + deleted).map(&:id) }
+      subject { described_class.new(City) }
+
+      let(:data_comparer) do
+        ->(id, data) { object = (data[:index] || data[:delete]).first; (object.try(:id) || object) != id }
+      end
+
+      context 'implicit scope' do
+        specify { subject.import { |data| true }.should be_true }
+        specify { subject.import { |data| false }.should be_false }
+        specify { subject.import(batch_size: 1, &data_comparer.curry[cities[0].id]).should be_false }
+        specify { subject.import(batch_size: 1, &data_comparer.curry[cities[1].id]).should be_false }
+        specify { subject.import(batch_size: 1, &data_comparer.curry[cities[2].id]).should be_false }
+        specify { subject.import(batch_size: 1, &data_comparer.curry[deleted[0].id]).should be_true }
+        specify { subject.import(batch_size: 1, &data_comparer.curry[deleted[1].id]).should be_true }
+      end
+
+      context 'explicit scope' do
+        let(:scope) { City.where(id: ids) }
+
+        specify { subject.import(scope) { |data| true }.should be_true }
+        specify { subject.import(scope) { |data| false }.should be_false }
+        specify { subject.import(scope, batch_size: 1, &data_comparer.curry[cities[0].id]).should be_false }
+        specify { subject.import(scope, batch_size: 1, &data_comparer.curry[cities[1].id]).should be_false }
+        specify { subject.import(scope, batch_size: 1, &data_comparer.curry[cities[2].id]).should be_false }
+        specify { subject.import(scope, batch_size: 1, &data_comparer.curry[deleted[0].id]).should be_true }
+        specify { subject.import(scope, batch_size: 1, &data_comparer.curry[deleted[1].id]).should be_true }
+      end
+
+      context 'objects' do
+        specify { subject.import(cities + deleted) { |data| true }.should be_true }
+        specify { subject.import(cities + deleted) { |data| false }.should be_false }
+        specify { subject.import(cities + deleted, batch_size: 1, &data_comparer.curry[cities[0].id]).should be_false }
+        specify { subject.import(cities + deleted, batch_size: 1, &data_comparer.curry[cities[1].id]).should be_false }
+        specify { subject.import(cities + deleted, batch_size: 1, &data_comparer.curry[cities[2].id]).should be_false }
+        specify { subject.import(cities + deleted, batch_size: 1, &data_comparer.curry[deleted[0].id]).should be_false }
+        specify { subject.import(cities + deleted, batch_size: 1, &data_comparer.curry[deleted[1].id]).should be_false }
+      end
+
+      context 'ids' do
+        specify { subject.import(ids) { |data| true }.should be_true }
+        specify { subject.import(ids) { |data| false }.should be_false }
+        specify { subject.import(ids, batch_size: 1, &data_comparer.curry[cities[0].id]).should be_false }
+        specify { subject.import(ids, batch_size: 1, &data_comparer.curry[cities[1].id]).should be_false }
+        specify { subject.import(ids, batch_size: 1, &data_comparer.curry[cities[2].id]).should be_false }
+        specify { subject.import(ids, batch_size: 1, &data_comparer.curry[deleted[0].id]).should be_false }
+        specify { subject.import(ids, batch_size: 1, &data_comparer.curry[deleted[1].id]).should be_false }
+      end
     end
   end
 

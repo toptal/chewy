@@ -28,6 +28,7 @@ RSpec::Matchers.define :update_index do |type_name, options = {}|
         body[:data] = body[:data].symbolize_keys if body[:data]
         updated_document
       end
+      {}
     end
 
     if options[:atomic] == false

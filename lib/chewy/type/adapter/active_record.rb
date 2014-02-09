@@ -23,22 +23,36 @@ module Chewy
           @type_name ||= (options[:name].presence || model.model_name).to_s.underscore
         end
 
+        # Import method fo ActiveRecord takes import data and import options
+        #
+        # Import data types:
+        #
+        #   * Nothing passed - imports all the model data
+        #   * ActiveRecord scope
+        #   * Objects collection
+        #   * Ids collection
+        #
+        # Import options:
+        #
+        #   <tt>:batch_size</tt> - import batch size, 1000 objects by default
+        #
         def import *args, &block
           import_options = args.extract_options!
           import_options[:batch_size] ||= BATCH_SIZE
           collection = args.none? ? model_all :
             (args.one? && args.first.is_a?(::ActiveRecord::Relation) ? args.first : args.flatten)
+
           if collection.is_a?(::ActiveRecord::Relation)
-            result = false
+            result = true
             merged_scope(collection).find_in_batches(import_options.slice(:batch_size)) do |group|
-              result = block.call grouped_objects(group)
+              result &= block.call grouped_objects(group)
             end
             result
           else
             if collection.all? { |object| object.respond_to?(:id) }
-              collection.in_groups_of(import_options[:batch_size], false).all? do |group|
+              collection.in_groups_of(import_options[:batch_size], false).map do |group|
                 block.call grouped_objects(group)
-              end
+              end.all?
             else
               import_ids(collection, import_options, &block)
             end
@@ -70,15 +84,15 @@ module Chewy
         def import_ids(ids, import_options = {}, &block)
           ids = ids.map(&:to_i).uniq
 
-          indexed = false
+          indexed = true
           merged_scope(model.where(id: ids)).find_in_batches(import_options.slice(:batch_size)) do |objects|
             ids -= objects.map(&:id)
-            indexed = block.call index: objects
+            indexed &= block.call index: objects
           end
 
-          deleted = ids.in_groups_of(import_options[:batch_size], false).all? do |group|
+          deleted = ids.in_groups_of(import_options[:batch_size], false).map do |group|
             block.call(delete: group)
-          end
+          end.all?
 
           indexed && deleted
         end

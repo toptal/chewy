@@ -1,5 +1,7 @@
 # master
 
+  * Reworked import error handling. Now all the import errors from ElasticSearch are handled properly, also import method returns true of false depending on the import process success.
+
   * `Chewy::Index.import` now takes types hash as argument within options hash:
 
     `PlacesIndex.import city: City.enabled, country: Country.enabled, refresh: false`

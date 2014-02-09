@@ -3,6 +3,8 @@ require 'spec_helper'
 describe Chewy::Type::Import do
   include ClassHelpers
 
+  before { Chewy.client.indices.delete }
+
   before do
     stub_model(:city)
   end
@@ -17,6 +19,10 @@ describe Chewy::Type::Import do
 
   let!(:dummy_cities) { 3.times.map { |i| City.create(name: "name#{i}") } }
   let(:city) { CitiesIndex::City }
+
+  describe '.bulk' do
+
+  end
 
   describe '.import' do
     specify { city.import.should be_true }
@@ -91,6 +97,85 @@ describe Chewy::Type::Import do
         dummy_cities.first.destroy
         city.import dummy_cities
         outer_payload.should == {type: CitiesIndex::City, import: {delete: 1, index: 2}}
+      end
+
+      specify do
+        outer_payload = nil
+        ActiveSupport::Notifications.subscribe('import_objects.chewy') do |name, start, finish, id, payload|
+          outer_payload = payload
+        end
+
+        dummy_cities.first.destroy
+        city.import dummy_cities, batch_size: 1
+        outer_payload.should == {type: CitiesIndex::City, import: {delete: 1, index: 2}}
+      end
+
+      specify do
+        outer_payload = nil
+        ActiveSupport::Notifications.subscribe('import_objects.chewy') do |name, start, finish, id, payload|
+          outer_payload = payload
+        end
+
+        city.import dummy_cities, batch_size: 1
+        outer_payload.should == {type: CitiesIndex::City, import: {index: 3}}
+      end
+
+      context do
+        before do
+          stub_index(:cities) do
+            define_type City do
+              field :name, type: 'object'
+            end
+          end.tap(&:create!)
+        end
+
+        specify do
+          outer_payload = nil
+          ActiveSupport::Notifications.subscribe('import_objects.chewy') do |name, start, finish, id, payload|
+            outer_payload = payload
+          end
+
+          city.import dummy_cities, batch_size: 1
+          outer_payload.should == {
+            type: CitiesIndex::City,
+            errors: {
+              index: {
+                'MapperParsingException[object mapping for [city] tried to parse as object, but got EOF, has a concrete value been provided to it?]' => ['1', '2', '3']
+              }
+            },
+            import: {index: 3}
+          }
+        end
+      end
+    end
+
+    context 'error handling' do
+      context do
+        before do
+          stub_index(:cities) do
+            define_type City do
+              field :name, type: 'object'
+            end
+          end.tap(&:create!)
+        end
+
+        specify { city.import(dummy_cities).should be_false }
+        specify { city.import(dummy_cities.map(&:id)).should be_false }
+        specify { city.import(dummy_cities, batch_size: 1).should be_false }
+      end
+
+      context do
+        before do
+          stub_index(:cities) do
+            define_type City do
+              field :name, type: 'object', value: ->{ name == 'name1' ? name : {name: name} }
+            end
+          end.tap(&:create!)
+        end
+
+        specify { city.import(dummy_cities).should be_false }
+        specify { city.import(dummy_cities.map(&:id)).should be_false }
+        specify { city.import(dummy_cities, batch_size: 1).should be_false }
       end
     end
   end

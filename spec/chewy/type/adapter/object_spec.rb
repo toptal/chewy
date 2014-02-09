@@ -53,6 +53,24 @@ describe Chewy::Type::Adapter::Object do
       specify { import(products).should == [{index: products}] }
       specify { expect { import(products, non_product) {} }.to raise_error }
     end
+
+    context 'error handling' do
+      let(:products) { 3.times.map { |i| double.tap { |product| product.stub(rating: i.next) } } }
+      let(:deleted) { 2.times.map { |i| double(destroyed?: true, rating: i + 4) } }
+      subject { described_class.new('product') }
+
+      let(:data_comparer) do
+        ->(n, data) { (data[:index] || data[:delete]).first.rating != n }
+      end
+
+      specify { subject.import(products, deleted) { |data| true }.should be_true }
+      specify { subject.import(products, deleted) { |data| false }.should be_false }
+      specify { subject.import(products, deleted, batch_size: 1, &data_comparer.curry[1]).should be_false }
+      specify { subject.import(products, deleted, batch_size: 1, &data_comparer.curry[2]).should be_false }
+      specify { subject.import(products, deleted, batch_size: 1, &data_comparer.curry[3]).should be_false }
+      specify { subject.import(products, deleted, batch_size: 1, &data_comparer.curry[4]).should be_false }
+      specify { subject.import(products, deleted, batch_size: 1, &data_comparer.curry[5]).should be_false }
+    end
   end
 
   describe '#load' do

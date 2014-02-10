@@ -133,6 +133,29 @@ module Chewy
       self._settings = params
     end
 
+    def self.add_analysis_setting(group, name, options)
+      self._settings = self._settings.dup
+      self._settings[:analysis] ||= {}
+      self._settings[:analysis][group.to_sym] ||= {}
+      self._settings[:analysis][group.to_sym][name.to_sym] = options
+    end
+
+    def self.add_analyzer(name, options)
+      add_analysis_setting :analyzer, name, options
+    end
+
+    def self.add_filter(name, options)
+      add_analysis_setting :filter, name, options
+    end
+
+    def self.add_char_filter(name, options)
+      add_analysis_setting :char_filter, name, options
+    end
+
+    def self.add_tokenizer(name, options)
+      add_analysis_setting :tokenizer, name, options
+    end
+
     # Perform import operation for every defined type
     #
     #   UsersIndex.import

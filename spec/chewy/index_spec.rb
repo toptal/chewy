@@ -9,6 +9,28 @@ describe Chewy::Index do
     end
   end
 
+  context 'add settings' do
+    describe '.add_analizer' do
+      subject { stub_index(:dummies1) { add_analyzer :custom_analyzer, option: :some_option } }
+      its(:settings_hash) { should eql settings: {analysis: {analyzer: {custom_analyzer: {option: :some_option}}}} }
+    end
+
+    describe '.add_filter' do
+      subject { stub_index(:dummies1) { add_filter :custom_filter, option: :some_option} }
+      its(:settings_hash) { should eql settings: {analysis: {filter: {custom_filter: {option: :some_option}}}} }
+    end
+
+    describe '.add_char_filter' do
+      subject { stub_index(:dummies1) { add_char_filter :custom_char_filter, option: :some_option } }
+      its(:settings_hash) { should eql settings: {analysis: {char_filter: {custom_char_filter: {option: :some_option}}}} }
+    end
+
+    describe '.add_tokenizer' do
+      subject { stub_index(:dummies1) { add_tokenizer :custom_tokenizer, option: :some_option } }
+      its(:settings_hash) { should eql settings: {analysis: {tokenizer: {custom_tokenizer: {option: :some_option}}}} }
+    end
+  end
+
   describe '.client' do
     specify { stub_index(:dummies1).client.should == stub_index(:dummies2).client }
 

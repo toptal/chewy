@@ -7,12 +7,11 @@ module Chewy
       STORAGES = [:options, :queries, :facets, :filters, :sort, :fields, :types]
 
       def initialize options = {}
-        @empty_scope = false
         @options = options.merge(query_mode: Chewy.query_mode, filter_mode: Chewy.filter_mode)
       end
 
       def == other
-        other.is_a?(self.class) && storages == other.storages && empty_scope? == other.empty_scope?
+        other.is_a?(self.class) && storages == other.storages
       end
 
       { (STORAGES - [:options, :facets]) => '[]', [:options, :facets] => '{}' }.each do |storages, default|
@@ -31,12 +30,8 @@ module Chewy
         end
       end
 
-      def empty_scope!
-        @empty_scope = true
-      end
-
       def empty_scope?
-        !!@empty_scope
+        !!options[:empty_scope]
       end
 
       def update_options(modifer)

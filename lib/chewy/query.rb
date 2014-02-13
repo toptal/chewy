@@ -257,7 +257,7 @@ module Chewy
     #   UsersIndex.none.query(text: {name: 'Johny'}).to_a
     #     # => []
     def none
-      chain { criteria.empty_scope! }
+      chain { criteria.update_options empty_scope: true }
     end
 
     # Adds one or more query to the search request

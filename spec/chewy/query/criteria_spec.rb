@@ -13,6 +13,7 @@ describe Chewy::Query::Criteria do
   its(:fields) { should == [] }
   its(:types) { should == [] }
 
+  its(:none?){ should be_false }
   its(:facets?) { should be_false }
   its(:queries?) { should be_false }
   its(:filters?) { should be_false }

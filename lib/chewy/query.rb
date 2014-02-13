@@ -246,6 +246,20 @@ module Chewy
       chain { criteria.update_facets params }
     end
 
+    # Marks the criteria as having zero records. This scope  always returns empty array
+    # without touching the elasticsearch server.
+    # All the chained calls of methods don't affect the result
+    #
+    #   UsersIndex.none.to_a
+    #     # => []
+    #   UsersIndex.query(text: {name: 'Johny'}).none.to_a
+    #     # => []
+    #   UsersIndex.none.query(text: {name: 'Johny'}).to_a
+    #     # => []
+    def none
+      chain { criteria.update_options none: true }
+    end
+
     # Adds one or more query to the search request
     # Internally queries are stored as an array
     # While the full query compilation this array compiles
@@ -448,7 +462,7 @@ module Chewy
     end
 
     def _results
-      @_results ||= _response['hits']['hits'].map do |hit|
+      @_results ||= (criteria.none? ? [] : _response['hits']['hits']).map do |hit|
         attributes = hit['_source'] || hit['fields'] || {}
         attributes.reverse_merge!(id: hit['_id'])
           .merge!(_score: hit['_score'], _explanation: hit['_explanation'])

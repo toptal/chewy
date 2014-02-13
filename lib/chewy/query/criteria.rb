@@ -30,6 +30,10 @@ module Chewy
         end
       end
 
+      def none?
+        !!options[:none]
+      end
+
       def update_options(modifer)
         options.merge!(modifer)
       end

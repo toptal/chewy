@@ -257,7 +257,7 @@ module Chewy
     #   UsersIndex.none.query(text: {name: 'Johny'}).to_a
     #     # => []
     def none
-      chain { criteria.update_options empty_scope: true }
+      chain { criteria.update_options none: true }
     end
 
     # Adds one or more query to the search request
@@ -462,7 +462,7 @@ module Chewy
     end
 
     def _results
-      @_results ||= (criteria.empty_scope? ? [] : _response['hits']['hits']).map do |hit|
+      @_results ||= (criteria.none? ? [] : _response['hits']['hits']).map do |hit|
         attributes = hit['_source'] || hit['fields'] || {}
         attributes.reverse_merge!(id: hit['_id'])
           .merge!(_score: hit['_score'], _explanation: hit['_explanation'])

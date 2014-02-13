@@ -75,7 +75,7 @@ describe Chewy::Query do
   describe '#none' do
     specify { subject.none.should be_a described_class }
     specify { subject.none.should_not == subject }
-    specify { subject.none.criteria.should be_empty_scope }
+    specify { subject.none.criteria.should be_none }
 
     context do
       before { described_class.any_instance.should_not_receive(:_response) }

@@ -30,8 +30,8 @@ module Chewy
         end
       end
 
-      def empty_scope?
-        !!options[:empty_scope]
+      def none?
+        !!options[:none]
       end
 
       def update_options(modifer)

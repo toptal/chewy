@@ -72,6 +72,20 @@ describe Chewy::Query do
     specify { expect { subject.offset(10) }.not_to change { subject.criteria.options } }
   end
 
+  describe '#none' do
+    specify { subject.none.should be_a described_class }
+    specify { subject.none.should_not == subject }
+    specify { subject.none.criteria.should be_empty_scope }
+
+    context do
+      before { described_class.any_instance.should_not_receive(:_response) }
+
+      specify { subject.none.to_a.should == [] }
+      specify { subject.query(match: 'hello').none.to_a.should == [] }
+      specify { subject.none.query(match: 'hello').to_a.should == [] }
+    end
+  end
+
   describe '#query' do
     specify { subject.query(match: 'hello').should be_a described_class }
     specify { subject.query(match: 'hello').should_not == subject }

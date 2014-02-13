@@ -13,12 +13,17 @@ describe Chewy::Query::Criteria do
   its(:fields) { should == [] }
   its(:types) { should == [] }
 
+  its(:empty_scope?){ should be_false }
   its(:facets?) { should be_false }
   its(:queries?) { should be_false }
   its(:filters?) { should be_false }
   its(:sort?) { should be_false }
   its(:fields?) { should be_false }
   its(:types?) { should be_false }
+
+  describe '#empty_scope!' do
+    specify { expect { subject.empty_scope! }.to change { subject.empty_scope? }.from(false).to(true) }
+  end
 
   describe '#update_options' do
     specify { expect { subject.update_options(field: 'hello') }.to change { subject.options }.to(hash_including(field: 'hello')) }

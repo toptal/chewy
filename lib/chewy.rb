@@ -6,6 +6,7 @@ require 'singleton'
 require 'elasticsearch'
 
 require 'chewy/version'
+require 'chewy/errors'
 require 'chewy/config'
 require 'chewy/index'
 require 'chewy/type'
@@ -21,18 +22,6 @@ ActiveSupport.on_load(:active_record) do
 end
 
 module Chewy
-  class Error < StandardError
-  end
-
-  class UndefinedIndex < Error
-  end
-
-  class UndefinedType < Error
-  end
-
-  class UnderivableType < Error
-  end
-
   def self.derive_type name
     return name if name.is_a?(Class) && name < Chewy::Type::Base
 

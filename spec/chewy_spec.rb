@@ -33,4 +33,19 @@ describe Chewy do
     specify { described_class.derive_type('namespace/autocomplete#developer').should == Namespace::AutocompleteIndex.developer }
     specify { described_class.derive_type('namespace/autocomplete#company').should == Namespace::AutocompleteIndex.company }
   end
+
+  describe '.analyzers' do
+    specify { described_class.analyzers.should be_a_kind_of Chewy::Repository }
+  end
+
+  describe '.analyzer' do
+    context 'getting analyzers' do
+      specify { expect { described_class.analyzer(:name) }.to raise_error Chewy::Repository::UndefinedItem }
+    end
+
+    context 'setting anylizers' do
+      before { described_class.analyzer(:name, option: :foo) }
+      specify { described_class.analyzer(:name).should == {name: {option: :foo}} }
+    end
+  end
 end

@@ -22,7 +22,7 @@ describe Chewy::Repository do
 
   describe '.get' do
     it 'raises error when analyzer is undefined' do
-      expect { subject.get(:undefined_analyzer) }.to raise_error Chewy::Repository::UndefinedItem, 'Undefined analyzer: :undefined_analyzer'
+      expect { subject.get(:undefined_analyzer) }.to raise_error Chewy::UndefinedAnalysisUnit, 'Undefined analyzer: :undefined_analyzer'
     end
 
     it 'returns defined analizer' do

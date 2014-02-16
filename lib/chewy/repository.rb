@@ -1,16 +1,8 @@
 class Chewy::Repository
-  class UndefinedItem < Chewy::Error
-    attr_reader :item, :type
-    def initialize(type, item)
-      @type, @item = type, item
-      super "Undefined #{type}: #{item.inspect}"
-    end
-  end
-
   def initialize(type_name, exclusions=[])
     @exclusions = exclusions
     @type_name  = type_name
-    @repository = Hash.new { |hash, key| raise Chewy::Repository::UndefinedItem.new(type_name, key) }
+    @repository = Hash.new { |hash, key| raise Chewy::UndefinedAnalysisUnit.new(type_name, key) }
   end
 
   def resolve(name, options=nil)
@@ -19,7 +11,7 @@ class Chewy::Repository
     else
       get(name)
     end
-  rescue Chewy::Repository::UndefinedItem => e
+  rescue Chewy::UndefinedAnalysisUnit => e
     raise e unless @exclusions.include?(e.item)
   end
 

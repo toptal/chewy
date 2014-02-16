@@ -40,7 +40,10 @@ describe Chewy do
 
   describe '.analyzer' do
     context 'getting analyzers' do
-      specify { expect { described_class.analyzer(:name) }.to raise_error Chewy::Repository::UndefinedItem }
+      before do
+        described_class.analyzers.clear
+      end
+      specify { expect { described_class.analyzer(:name) }.to raise_error Chewy::UndefinedAnalysisUnit }
     end
 
     context 'setting anylizers' do

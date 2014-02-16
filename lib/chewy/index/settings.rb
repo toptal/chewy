@@ -6,7 +6,10 @@ class Chewy::Index::Settings
   def to_hash
     return {} unless @params.present?
     params = @params.deep_dup
-    params = roll_out_analysis(params)
+
+    if analysis = roll_out_analysis(params[:analysis])
+      params[:analysis] = analysis
+    end
 
     {settings: params}
   end
@@ -25,7 +28,9 @@ class Chewy::Index::Settings
 
 
   def inject_dependencies(type, params, repository)
-    params[type] = collect_dependencies(type, params)
+    if collected = collect_dependencies(type, params)
+      params[type] = collected
+    end
     roll_out(type, params, repository)
     params
   end
@@ -41,6 +46,7 @@ private
   end
 
   def roll_out(type, params, repository)
+    return unless params.is_a? Hash
     params.symbolize_keys!
 
     if params[type].is_a? Hash

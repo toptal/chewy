@@ -2,7 +2,7 @@ class Chewy::Repository
   def initialize(type_name, exclusions=[])
     @exclusions = exclusions
     @type_name  = type_name
-    @repository = Hash.new { |hash, key| raise Chewy::UndefinedAnalysisUnit.new(type_name, key) }
+    clear
   end
 
   def resolve(name, options=nil)
@@ -26,5 +26,13 @@ class Chewy::Repository
     else
       {name.to_sym => @repository[name.to_sym]}
     end
+  end
+
+  def empty?
+    @repository.empty?
+  end
+
+  def clear
+    @repository = Hash.new { |hash, key| raise Chewy::UndefinedAnalysisUnit.new(@type_name, key) }
   end
 end

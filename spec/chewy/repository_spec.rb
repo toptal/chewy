@@ -30,4 +30,13 @@ describe Chewy::Repository do
       subject.get(:analyzer).should == {analyzer: {option: :foo}}
     end
   end
+
+  describe '.clear' do
+    it 'clears repository' do
+      subject.set(:foo, {})
+      subject.should_not be_empty
+      subject.clear
+      subject.should be_empty
+    end
+  end
 end

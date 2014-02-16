@@ -161,7 +161,7 @@ module Chewy
     end
 
     def self.mappings_hash
-      mappings = types.map(&:mappings_hash).roll_out(:merge)
+      mappings = types.map(&:mappings_hash).inject(:merge)
       mappings.present? ? {mappings: mappings} : {}
     end
 

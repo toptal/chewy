@@ -2,6 +2,12 @@ module Chewy
   class Config
     include Singleton
 
+    BUILT_IN_FILTERS = [:standart, :asciifolding, :reverse, :truncate, :unique, :trim, :delimited_payload_filter, :lowercase, :icu_folding, :icu_normalizer, :icu_collation]
+    BUILT_IN_CHAR_FILTERS = [:html_strip]
+    BUILT_IN_TOKENIZERS = [:keyword, :letter, :lowercase, :whitespace, :icu_tokenizer]
+    BUILT_IN_ANALYZERS = [:standard, :simple, :whitespace, :stop, :keyword]
+
+    attr_accessor :analyzers, :tokenizers, :filters, :char_filters
     attr_accessor :client_options, :urgent_update, :query_mode, :filter_mode, :logger
 
     def self.delegated
@@ -13,6 +19,10 @@ module Chewy
       @client_options = {}
       @query_mode = :must
       @filter_mode = :and
+      @analyzers = Chewy::Repository.new(:analyzer, BUILT_IN_ANALYZERS)
+      @tokenizers = Chewy::Repository.new(:tokenizer, BUILT_IN_TOKENIZERS)
+      @filters = Chewy::Repository.new(:filter, BUILT_IN_FILTERS)
+      @char_filters = Chewy::Repository.new(:char_filter, BUILT_IN_CHAR_FILTERS)
     end
 
     def client_options

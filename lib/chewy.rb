@@ -43,17 +43,6 @@ module Chewy
     Chewy::Config.instance
   end
 
-  BUILT_IN_FILTERS = [:lowercase, :icu_folding]
-  BUILT_IN_CHAR_FILTERS = []
-  BUILT_IN_TOKENIZERS = []
-  BUILT_IN_ANALYZERS = []
-
-  mattr_accessor :analyzers, :tokenizers, :filters, :char_filters
-  self.analyzers = Chewy::Repository.new(:analyzer, BUILT_IN_ANALYZERS)
-  self.tokenizers = Chewy::Repository.new(:tokenizer, BUILT_IN_TOKENIZERS)
-  self.filters = Chewy::Repository.new(:filter, BUILT_IN_FILTERS)
-  self.char_filters = Chewy::Repository.new(:char_filter, BUILT_IN_CHAR_FILTERS)
-
   def self.analyzer(name, options=nil)
     analyzers.resolve(name, options)
   end

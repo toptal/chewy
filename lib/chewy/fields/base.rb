@@ -6,6 +6,7 @@ module Chewy
       def initialize(name, options = {})
         @name, @options, @nested = name.to_sym, options, {}
         @value = @options.delete(:value)
+        check_analyzer!
       end
 
       def multi_field?
@@ -47,6 +48,10 @@ module Chewy
 
       def nested_compose(value)
         nested.values.map { |field| field.compose(value) }.inject(:merge)
+      end
+
+      def check_analyzer!
+        @options[:analyzer] && Chewy.analyzer(@options[:analyzer])
       end
     end
   end

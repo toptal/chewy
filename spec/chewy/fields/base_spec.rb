@@ -4,6 +4,20 @@ describe Chewy::Fields::Base do
   specify { described_class.new('name').name.should == :name }
   specify { described_class.new('name', type: 'integer').options[:type].should == 'integer' }
 
+  describe '#check_analyzer!' do
+    let(:create_field) { described_class.new(:name, analyzer: 'custom_analyzer') }
+
+    context 'with defined analyzer' do
+      before { Chewy.analyzer :custom_analyzer, tokenizer: 'standard'  }
+      specify { expect { create_field }.to_not raise_error }
+    end
+
+    context 'with undefined analyzer' do
+      before { Chewy.analyzers.clear }
+      specify { expect { create_field }.to raise_error  'Undefined analyzer: :custom_analyzer' }
+    end
+  end
+
   describe '#compose' do
     let(:field) { described_class.new(:name, value: ->(o){ o.value }) }
 

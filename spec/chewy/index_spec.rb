@@ -22,6 +22,28 @@ describe Chewy::Index do
     end
   end
 
+  describe '.settings' do
+    before do
+      Chewy.analyzer :name, filter: ['lowercase', 'icu_folding', 'names_nysiis']
+      Chewy.analyzer :phone, tokenizer: 'ngram', char_filter: ['phone']
+      Chewy.tokenizer :ngram, type: 'nGram', min_gram: 3, max_gram: 3
+      Chewy.char_filter :phone, type: 'pattern_replace', pattern: '[^\d]', replacement: ''
+      Chewy.filter :names_nysiis, type: 'phonetic', encoder: 'nysiis', replace: false
+    end
+
+    let(:documents) { stub_index(:documents) { settings analysis: {analyzer: [:name, :phone, {sorted: {option: :baz}}]} } }
+
+    specify { expect { documents.settings_hash }.to_not change(documents._settings, :inspect)  }
+    specify { documents.settings_hash.should == {settings: {analysis: {
+      analyzer: {name: {filter: ['lowercase', 'icu_folding', 'names_nysiis']},
+                 phone: {tokenizer: 'ngram', char_filter: ['phone']},
+                 sorted: {option: :baz}},
+      tokenizer: {ngram: {type: 'nGram', min_gram: 3, max_gram: 3}},
+      char_filter: {phone: {type: 'pattern_replace', pattern: '[^\d]', replacement: ''}},
+      filter: {names_nysiis: {type: 'phonetic', encoder: 'nysiis', replace: false}}
+    }}} }
+  end
+
   describe '.define_type' do
     specify { DummiesIndex.type_hash['dummy'].should == DummiesIndex::Dummy }
 

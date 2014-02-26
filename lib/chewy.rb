@@ -6,7 +6,9 @@ require 'singleton'
 require 'elasticsearch'
 
 require 'chewy/version'
+require 'chewy/errors'
 require 'chewy/config'
+require 'chewy/repository'
 require 'chewy/index'
 require 'chewy/type'
 require 'chewy/query'
@@ -21,18 +23,6 @@ ActiveSupport.on_load(:active_record) do
 end
 
 module Chewy
-  class Error < StandardError
-  end
-
-  class UndefinedIndex < Error
-  end
-
-  class UndefinedType < Error
-  end
-
-  class UnderivableType < Error
-  end
-
   def self.derive_type name
     return name if name.is_a?(Class) && name < Chewy::Type::Base
 
@@ -51,6 +41,22 @@ module Chewy
 
   def self.config
     Chewy::Config.instance
+  end
+
+  def self.analyzer(name, options=nil)
+    analyzers.resolve(name, options)
+  end
+
+  def self.tokenizer(name, options=nil)
+    tokenizers.resolve(name, options)
+  end
+
+  def self.filter(name, options=nil)
+    filters.resolve(name, options)
+  end
+
+  def self.char_filter(name, options=nil)
+    char_filters.resolve(name, options)
   end
 
   singleton_class.delegate *Chewy::Config.delegated, to: :config

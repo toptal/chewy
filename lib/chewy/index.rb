@@ -1,6 +1,7 @@
 require 'chewy/index/actions'
 require 'chewy/index/aliases'
 require 'chewy/index/search'
+require 'chewy/index/settings'
 
 module Chewy
   class Index
@@ -14,7 +15,7 @@ module Chewy
     self.type_hash = {}
 
     class_attribute :_settings
-    self._settings = {}
+    self._settings = Chewy::Index::Settings.new
 
     # Setups or returns ElasticSearch index name
     #
@@ -130,7 +131,7 @@ module Chewy
     # for more details
     #
     def self.settings(params)
-      self._settings = params
+      self._settings = Chewy::Index::Settings.new params
     end
 
     # Perform import operation for every defined type
@@ -156,7 +157,7 @@ module Chewy
     end
 
     def self.settings_hash
-      _settings.present? ? {settings: _settings} : {}
+      _settings.to_hash
     end
 
     def self.mappings_hash

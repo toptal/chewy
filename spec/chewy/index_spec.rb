@@ -24,6 +24,8 @@ describe Chewy::Index do
 
   describe '.settings' do
     before do
+      Chewy.stub(config: Chewy::Config.send(:new))
+
       Chewy.analyzer :name, filter: ['lowercase', 'icu_folding', 'names_nysiis']
       Chewy.analyzer :phone, tokenizer: 'ngram', char_filter: ['phone']
       Chewy.tokenizer :ngram, type: 'nGram', min_gram: 3, max_gram: 3

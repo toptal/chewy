@@ -13,6 +13,7 @@ module Chewy
 
   class UndefinedAnalysisUnit < Chewy::Error
     attr_reader :item, :type
+
     def initialize(type, item)
       @type, @item = type, item
       super "Undefined #{type}: #{item.inspect}"

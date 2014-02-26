@@ -113,7 +113,7 @@ Chewy.logger = Logger.new
 
   Mapping definitions - http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/mapping.html
 
-4. Add some index- and type-related settings
+4. Add some index- and type-related settings. Analyzers repositories might be used as well. See `Chewy::Index.settings` docs for details:
 
   ```ruby
   class UsersIndex < Chewy::Index

@@ -3,15 +3,15 @@ require 'spec_helper'
 describe Chewy::Index::Settings do
   include ClassHelpers
 
-  describe '#resolve_dependencies' do
+  describe '#inject_dependencies' do
     let(:repository) { Chewy::Repository.new(:foo).set(:baaaz, {baaaz: :baaaz}).set(:dependency_a, {a: :a}).set(:dependency_b, {b: :b}) }
 
     context 'when :foo defined as a hash' do
       let(:params) { {analyzer: {bar: {foo: :dependency_a}, baz: {foo: :dependency_b}}, foo: {baaaz: 'baaaz'}} }
 
       it 'appends dependencies' do
-        dependencies = {baaaz: 'baaaz', dependency_a: {a: :a}, dependency_b: {b: :b}}
-        subject.inject_dependencies(:foo, params, repository)[:foo].should == dependencies
+        subject.inject_dependencies(:foo, params, repository)[:foo]
+          .should == {baaaz: 'baaaz', dependency_a: {a: :a}, dependency_b: {b: :b}}
       end
     end
 
@@ -19,8 +19,8 @@ describe Chewy::Index::Settings do
       let(:params) { {analyzer: {bar: {foo: :dependency_a}, baz: {foo: :dependency_b}}} }
 
       it 'creates hash with dependencies' do
-        dependencies = {dependency_a: {a: :a}, dependency_b: {b: :b}}
-        subject.inject_dependencies(:foo, params, repository)[:foo].should == dependencies
+        subject.inject_dependencies(:foo, params, repository)[:foo]
+          .should == {dependency_a: {a: :a}, dependency_b: {b: :b}}
       end
     end
 
@@ -28,8 +28,8 @@ describe Chewy::Index::Settings do
       let(:params) { {analyzer: {bar: {foo: :dependency_a}, baz: {foo: :dependency_b}}, foo: [:baaaz]} }
 
       it 'creates hash with dependencies' do
-        dependencies = {dependency_a: {a: :a}, dependency_b: {b: :b}, baaaz: {baaaz: :baaaz}}
-        subject.inject_dependencies(:foo, params, repository)[:foo].should == dependencies
+        subject.inject_dependencies(:foo, params, repository)[:foo]
+          .should == {dependency_a: {a: :a}, dependency_b: {b: :b}, baaaz: {baaaz: :baaaz}}
       end
     end
 

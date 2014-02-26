@@ -1,5 +1,20 @@
 # master
 
+  * Auto-resolved analyzers and analyzers repository:
+
+    ```ruby
+      # Setting up analyzers repository:
+      Chewy.analyzer :title_analyzer, type: 'custom', filter: %w(lowercase icu_folding title_nysiis)
+      Chewy.filter :title_nysiis, type: 'phonetic', encoder: 'nysiis', replace: false
+
+      # Using analyzers from repository in index classes
+      class ProductsIndex < Chewy::Index
+        settings analysis: {analyzer: ['title_analyzer', {one_more_analyzer: {type: 'custom', tokenizer: 'lowercase'}}]}
+      end
+    ```
+
+    `title_analyzer` here will be automatically resolved and passed to index mapping
+
 # Version 0.2.0
 
   * Reworked import error handling. Now all the import errors from ElasticSearch are handled properly, also import method returns true of false depending on the import process success.

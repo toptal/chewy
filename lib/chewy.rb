@@ -43,21 +43,5 @@ module Chewy
     Chewy::Config.instance
   end
 
-  def self.analyzer(name, options=nil)
-    analyzers.resolve(name, options)
-  end
-
-  def self.tokenizer(name, options=nil)
-    tokenizers.resolve(name, options)
-  end
-
-  def self.filter(name, options=nil)
-    filters.resolve(name, options)
-  end
-
-  def self.char_filter(name, options=nil)
-    char_filters.resolve(name, options)
-  end
-
   singleton_class.delegate *Chewy::Config.delegated, to: :config
 end

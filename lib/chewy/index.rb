@@ -130,23 +130,11 @@ module Chewy
     # See http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/indices-update-settings.html
     # for more details
     #
+    # It is possible to store analyzers settings in Chewy repositories
+    # and link them form index class. See `Chewy::Index::Settings` for details.
+    #
     def self.settings(params)
       self._settings = Chewy::Index::Settings.new params
-    end
-
-    # Perform import operation for every defined type
-    #
-    #   UsersIndex.import
-    #   UsersIndex.import refresh: false # to disable index refreshing after import
-    #   UsersIndex.import suffix: Time.now.to_i # imports data to index with specified suffix if such is exists
-    #   UsersIndex.import batch_size: 300 # import batch size
-    #
-    def self.import options = {}
-      objects = options.extract!(*type_names.map(&:to_sym))
-      types.map do |type|
-        args = [objects[type.type_name.to_sym], options.dup].reject(&:blank?)
-        type.import *args
-      end.all?
     end
 
   private

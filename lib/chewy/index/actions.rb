@@ -107,8 +107,11 @@ module Chewy
         #   UsersIndex.purge! '01-2014' # deletes `users` and `users_01-2014` indexes, creates `users_01-2014`
         #
         def purge! suffix = nil
-          delete if suffix.present?
-          delete suffix
+          begin
+            delete! if suffix.present? && exists?
+            delete! suffix
+          rescue Elasticsearch::Transport::Transport::Errors::NotFound
+          end
           create! suffix
         end
 

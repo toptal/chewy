@@ -1,5 +1,7 @@
 # master
 
+# Version 0.2.1
+
   * Auto-resolved analyzers and analyzers repository:
 
     ```ruby

@@ -2,11 +2,6 @@ module Chewy
   class Config
     include Singleton
 
-    BUILT_IN_FILTERS = [:standart, :asciifolding, :reverse, :truncate, :unique, :trim, :delimited_payload_filter, :lowercase, :icu_folding, :icu_normalizer, :icu_collation]
-    BUILT_IN_CHAR_FILTERS = [:html_strip]
-    BUILT_IN_TOKENIZERS = [:keyword, :letter, :lowercase, :whitespace, :icu_tokenizer]
-    BUILT_IN_ANALYZERS = [:standard, :simple, :whitespace, :stop, :keyword]
-
     attr_reader :analyzers, :tokenizers, :filters, :char_filters
     attr_accessor :client_options, :urgent_update, :query_mode, :filter_mode, :logger
 
@@ -14,15 +9,25 @@ module Chewy
       public_instance_methods - self.superclass.public_instance_methods - Singleton.public_instance_methods
     end
 
+    def self.repository name
+      plural_name = name.to_s.pluralize
+
+      class_eval <<-EOS
+        def #{name}(name, options = nil)
+          options ? #{plural_name}[name.to_sym] = options : #{plural_name}[name.to_sym]
+        end
+      EOS
+    end
+
     def initialize
       @urgent_update = false
       @client_options = {}
       @query_mode = :must
       @filter_mode = :and
-      @analyzers = Chewy::Repository.new(:analyzer, BUILT_IN_ANALYZERS)
-      @tokenizers = Chewy::Repository.new(:tokenizer, BUILT_IN_TOKENIZERS)
-      @filters = Chewy::Repository.new(:filter, BUILT_IN_FILTERS)
-      @char_filters = Chewy::Repository.new(:char_filter, BUILT_IN_CHAR_FILTERS)
+      @analyzers = {}
+      @tokenizers = {}
+      @filters = {}
+      @char_filters = {}
     end
 
     # Analysers repository:
@@ -35,36 +40,28 @@ module Chewy
     #   }
     #   Chewy.analyzer(:my_analyzer2) # => {type: 'custom', tokenizer: ...}
     #
-    def analyzer(name, options=nil)
-      analyzers.resolve(name, options)
-    end
+    repository :analyzer
 
     # Tokenizers repository:
     #
     #   Chewy.tokenizer :my_tokenizer1, {type: standard, max_token_length: 900}
     #   Chewy.tokenizer(:my_tokenizer1) # => {type: standard, max_token_length: 900}
     #
-    def tokenizer(name, options=nil)
-      tokenizers.resolve(name, options)
-    end
+    repository :tokenizer
 
     # Token filters repository:
     #
     #   Chewy.filter :my_token_filter1, {type: stop, stopwords: [stop1, stop2, stop3, stop4]}
     #   Chewy.filter(:my_token_filter1) # => {type: stop, stopwords: [stop1, stop2, stop3, stop4]}
     #
-    def filter(name, options=nil)
-      filters.resolve(name, options)
-    end
+    repository :filter
 
     # Char filters repository:
     #
     #   Chewy.char_filter :my_html, {type: html_strip, escaped_tags: [xxx, yyy], read_ahead: 1024}
     #   Chewy.char_filter(:my_html) # => {type: html_strip, escaped_tags: [xxx, yyy], read_ahead: 1024}
     #
-    def char_filter(name, options=nil)
-      char_filters.resolve(name, options)
-    end
+    repository :char_filter
 
     def client_options
       options = @client_options.merge(yaml_options)

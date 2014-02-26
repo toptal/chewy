@@ -24,68 +24,53 @@ module Chewy
     # might be used as well.
     #
     class Settings
-      def initialize(params={})
+      def initialize(params = {})
         @params = params
       end
 
       def to_hash
         return {} unless @params.present?
-        params = @params.deep_dup
 
-        if analysis = resolve_analysis(params[:analysis])
-          params[:analysis] = analysis
-        end
+        params = @params.deep_dup
+        params[:analysis] = resolve_analysis(params[:analysis]) if params[:analysis]
 
         {settings: params}
       end
 
-      def resolve_analysis(params)
-        return unless params.is_a?(Hash)
-
-        resolve(:analyzer, params, Chewy.analyzers)
-
-        inject_dependencies(:tokenizer, params, Chewy.tokenizers)
-        inject_dependencies(:filter, params, Chewy.filters)
-        inject_dependencies(:char_filter, params, Chewy.char_filters)
-
-        params
-      end
-
-      def inject_dependencies(type, params, repository)
-        if collected = collect_dependencies(type, params)
-          params[type] = collected
-        end
-        resolve(type, params, repository)
-        params
-      end
-
     private
 
-      def collect_dependencies(type, analysis)
-        return unless analysis[:analyzer]
+      def resolve_analysis(analysis)
+        analyzer = resolve(analysis[:analyzer], Chewy.analyzers)
 
-        analysis[:analyzer].map do |name, options|
-          options[type]
-        end.compact.flatten + Array.wrap(analysis[type])
-      end
-
-      def resolve(type, params, repository)
-        return unless params.is_a? Hash
-        params.symbolize_keys!
-
-        if params[type].is_a? Hash
-          params[type]
-        else
-          if params[type]
-            injected = params[type].inject({}) do |hash, name_or_hash|
-              resolved = repository.resolve(name_or_hash)
-              hash.update resolved ? resolved : {}
-            end
-            params[type] = injected
-          end
+        options = [:tokenizer, :filter, :char_filter].each.with_object({}) do |type, result|
+          dependencies = collect_dependencies(type, analyzer)
+          resolved = resolve(dependencies.push(analysis[type]), Chewy.send(type.to_s.pluralize))
+          result.merge!(type => resolved) if resolved.present?
         end
 
-        params[type]
+        options.merge!(analyzer: analyzer) if analyzer.present?
+        options
+      end
+
+      def collect_dependencies(type, analyzer)
+        analyzer.map { |_, options| options[type] }.compact.flatten.uniq
+      end
+
+      def resolve(params, repository)
+        if params.is_a?(Array)
+          params.flatten.reject(&:blank?).each.with_object({}) do |name_or_hash, result|
+            options = if name_or_hash.is_a?(Hash)
+              name_or_hash
+            else
+              name_or_hash = name_or_hash.to_sym
+              resolved = repository[name_or_hash]
+              resolved ? {name_or_hash => resolved} : {}
+            end
+            result.merge!(options)
+          end
+        else
+          params || {}
+        end
       end
     end
   end

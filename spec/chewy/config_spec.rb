@@ -8,6 +8,50 @@ describe Chewy::Config do
   its(:filter_mode) { should == :and }
   its(:logger) { should be_nil }
   its(:client_options) { should_not have_key :logger }
+  its(:analyzers) { should == {} }
+  its(:tokenizers) { should == {} }
+  its(:filters) { should == {} }
+  its(:char_filters) { should == {} }
+
+  describe '#analyzer' do
+    specify { subject.analyzer(:name).should be_nil }
+
+    context do
+      before { subject.analyzer(:name, option: :foo) }
+      specify { subject.analyzer(:name).should == {option: :foo} }
+      specify { subject.analyzers.should == {name: {option: :foo}} }
+    end
+  end
+
+  describe '#tokenizer' do
+    specify { subject.tokenizer(:name).should be_nil }
+
+    context do
+      before { subject.tokenizer(:name, option: :foo) }
+      specify { subject.tokenizer(:name).should == {option: :foo} }
+      specify { subject.tokenizers.should == {name: {option: :foo}} }
+    end
+  end
+
+  describe '#filter' do
+    specify { subject.filter(:name).should be_nil }
+
+    context do
+      before { subject.filter(:name, option: :foo) }
+      specify { subject.filter(:name).should == {option: :foo} }
+      specify { subject.filters.should == {name: {option: :foo}} }
+    end
+  end
+
+  describe '#char_filter' do
+    specify { subject.char_filter(:name).should be_nil }
+
+    context do
+      before { subject.char_filter(:name, option: :foo) }
+      specify { subject.char_filter(:name).should == {option: :foo} }
+      specify { subject.char_filters.should == {name: {option: :foo}} }
+    end
+  end
 
   describe '#logger' do
     before { subject.logger = double(:logger) }

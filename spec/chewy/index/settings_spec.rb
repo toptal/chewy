@@ -3,42 +3,68 @@ require 'spec_helper'
 describe Chewy::Index::Settings do
   include ClassHelpers
 
-  describe '#inject_dependencies' do
-    let(:repository) { Chewy::Repository.new(:foo).set(:baaaz, {baaaz: :baaaz}).set(:dependency_a, {a: :a}).set(:dependency_b, {b: :b}) }
+  describe '#to_hash' do
+    before { Chewy.stub(config: Chewy::Config.send(:new)) }
 
-    context 'when :foo defined as a hash' do
-      let(:params) { {analyzer: {bar: {foo: :dependency_a}, baz: {foo: :dependency_b}}, foo: {baaaz: 'baaaz'}} }
+    specify { described_class.new.to_hash.should == {} }
+    specify { described_class.new(number_of_nodes: 3).to_hash.should == {settings: {number_of_nodes: 3}} }
+    specify { described_class.new(number_of_nodes: 3, analysis: {}).to_hash
+      .should == {settings: {number_of_nodes: 3, analysis: {}}} }
+    specify { described_class.new(number_of_nodes: 3, analysis: {filter: {filter1: {}}}).to_hash
+      .should == {settings: {number_of_nodes: 3, analysis: {filter: {filter1: {}}}}} }
+    specify { described_class.new(number_of_nodes: 3, analysis: {analyzer: {analyzer1: {}}}).to_hash
+      .should == {settings: {number_of_nodes: 3, analysis: {analyzer: {analyzer1: {}}}}} }
+    specify { described_class.new(number_of_nodes: 3, analysis: {
+      analyzer: {analyzer1: {tokenizer: 'tokenizer1', filter: ['filter1', 'filter2']}}
+    }).to_hash
+      .should == {settings: {number_of_nodes: 3, analysis: {
+        analyzer: {analyzer1: {tokenizer: 'tokenizer1', filter: ['filter1', 'filter2']}}
+      }}} }
+    specify { described_class.new(number_of_nodes: 3, analysis: {analyser: ['analyzer1']}).to_hash
+      .should == {settings: {number_of_nodes: 3, analysis: {}}} }
 
-      it 'appends dependencies' do
-        subject.inject_dependencies(:foo, params, repository)[:foo]
-          .should == {baaaz: 'baaaz', dependency_a: {a: :a}, dependency_b: {b: :b}}
-      end
+    context do
+      before { Chewy.tokenizer :tokenizer1, {options: 42} }
+
+      specify { described_class.new(number_of_nodes: 3, analysis: {
+        analyzer: {analyzer1: {tokenizer: 'tokenizer1', filter: ['filter1', 'filter2']}}
+      }).to_hash
+        .should == {settings: {number_of_nodes: 3, analysis: {
+          analyzer: {analyzer1: {tokenizer: 'tokenizer1', filter: ['filter1', 'filter2']}},
+          tokenizer: {tokenizer1: {options: 42}}
+        }}} }
     end
 
-    context 'when :foo undefined' do
-      let(:params) { {analyzer: {bar: {foo: :dependency_a}, baz: {foo: :dependency_b}}} }
-
-      it 'creates hash with dependencies' do
-        subject.inject_dependencies(:foo, params, repository)[:foo]
-          .should == {dependency_a: {a: :a}, dependency_b: {b: :b}}
+    context do
+      before do
+        Chewy.filter :filter2, {options: 42}
+        Chewy.filter :filter3, {options: 43}
+        Chewy.filter :filter5, {options: 44}
       end
+
+      specify { described_class.new(number_of_nodes: 3, analysis: {
+        analyzer: {analyzer1: {tokenizer: 'tokenizer1', filter: ['filter1', 'filter2']}},
+        filter: ['filter3', {filter4: {options: 45}}]
+      }).to_hash
+        .should == {settings: {number_of_nodes: 3, analysis: {
+          analyzer: {analyzer1: {tokenizer: 'tokenizer1', filter: ['filter1', 'filter2']}},
+          filter: {filter2: {options: 42}, filter3: {options: 43}, filter4: {options: 45}}
+        }}} }
     end
 
-    context 'when :foo defined as an array' do
-      let(:params) { {analyzer: {bar: {foo: :dependency_a}, baz: {foo: :dependency_b}}, foo: [:baaaz]} }
-
-      it 'creates hash with dependencies' do
-        subject.inject_dependencies(:foo, params, repository)[:foo]
-          .should == {dependency_a: {a: :a}, dependency_b: {b: :b}, baaaz: {baaaz: :baaaz}}
+    context do
+      before do
+        Chewy.analyzer :analyzer1, {options: 42, tokenizer: 'tokenizer1'}
+        Chewy.tokenizer :tokenizer1, {options: 43}
       end
-    end
 
-    context 'when analyzer undefined' do
-      let(:params) { {} }
-
-      it 'do not raise any error' do
-        expect { subject.inject_dependencies(:foo, params, repository)[:foo] }.to_not raise_error
-      end
+      specify { described_class.new(number_of_nodes: 3, analysis: {
+        analyzer: ['analyzer1', {analyzer2: {options: 44}}]
+      }).to_hash
+        .should == {settings: {number_of_nodes: 3, analysis: {
+          analyzer: {analyzer1: {options: 42, tokenizer: 'tokenizer1'}, analyzer2: {options: 44}},
+          tokenizer: {tokenizer1: {options: 43}}
+        }}} }
     end
   end
 end

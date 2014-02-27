@@ -179,4 +179,20 @@ describe Chewy::Type::Import do
       end
     end
   end
+
+  describe '.import!' do
+    specify { expect { city.import!.should }.not_to raise_error }
+
+    context do
+      before do
+        stub_index(:cities) do
+          define_type City do
+            field :name, type: 'object'
+          end
+        end.tap(&:create!)
+      end
+
+      specify { expect { city.import!(dummy_cities) }.to raise_error Chewy::FailedImport }
+    end
+  end
 end

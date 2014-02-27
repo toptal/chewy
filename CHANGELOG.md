@@ -1,6 +1,10 @@
 # master
 
-# Version 0.2.1
+# Version 0.2.3
+
+  * `.import!` method, raises import errors. Useful for specs.
+
+# Version 0.2.2
 
   * Auto-resolved analyzers and analyzers repository:
 

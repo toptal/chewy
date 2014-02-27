@@ -4,13 +4,17 @@ module Chewy
       extend ActiveSupport::Concern
 
       module ClassMethods
-        def bulk options = {}
-          suffix = options.delete(:suffix)
-          result = client.bulk options.merge(index: index.build_index_name(suffix: suffix), type: type_name)
-
-          extract_errors result
-        end
-
+        # Perform import operation for specified documents.
+        # Returns true or false depending on success.
+        #
+        #   UsersIndex::User.import                          # imports default data set
+        #   UsersIndex::User.import User.active              # imports active users
+        #   UsersIndex::User.import [1, 2, 3]                # imports users with specified ids
+        #   UsersIndex::User.import users                    # imports users collection
+        #   UsersIndex::User.import refresh: false           # to disable index refreshing after import
+        #   UsersIndex::User.import suffix: Time.now.to_i    # imports data to index with specified suffix if such is exists
+        #   UsersIndex::User.import batch_size: 300          # import batch size
+        #
         def import *args
           import_options = args.extract_options!
           bulk_options = import_options.extract!(:refresh, :suffix).reverse_merge!(refresh: true)
@@ -27,20 +31,36 @@ module Chewy
           end
         end
 
-      private
-
-        def extract_errors result
-          result && result['items'].map do |item|
-            action = item.keys.first.to_sym
-            data = item.values.first
-            {action: action, id: data['_id'], error: data['error']} if data['error']
-          end.compact.group_by { |item| item[:action] }.map do |action, items|
-            errors = items.group_by { |item| item[:error] }.map do |error, items|
-              {error => items.map { |item| item[:id] }}
-            end.reduce(&:merge)
-            {action => errors}
-          end.reduce(&:merge) || {}
+        # Perform import operation for specified documents.
+        # Raises Chewy::FailedImport exception in case of import errors.
+        #
+        #   UsersIndex::User.import!                          # imports default data set
+        #   UsersIndex::User.import! User.active              # imports active users
+        #   UsersIndex::User.import! [1, 2, 3]                # imports users with specified ids
+        #   UsersIndex::User.import! users                    # imports users collection
+        #   UsersIndex::User.import! refresh: false           # to disable index refreshing after import
+        #   UsersIndex::User.import! suffix: Time.now.to_i    # imports data to index with specified suffix if such is exists
+        #   UsersIndex::User.import! batch_size: 300          # import batch size
+        #
+        def import! *args
+          errors = nil
+          subscriber = ActiveSupport::Notifications.subscribe('import_objects.chewy') do |*args|
+            errors = args.last[:errors]
+          end
+          import *args
+          ActiveSupport::Notifications.unsubscribe(subscriber)
+          raise Chewy::FailedImport.new(self, errors) if errors.present?
+          true
         end
+
+        def bulk options = {}
+          suffix = options.delete(:suffix)
+          result = client.bulk options.merge(index: index.build_index_name(suffix: suffix), type: type_name)
+
+          extract_errors result
+        end
+
+      private
 
         def bulk_body action_objects
           action_objects.each.with_object([]) do |(action, objects), result|
@@ -74,6 +94,19 @@ module Chewy
 
         def object_data object
           (self.root_object ||= build_root).compose(object)[type_name.to_sym]
+        end
+
+        def extract_errors result
+          result && result['items'].map do |item|
+            action = item.keys.first.to_sym
+            data = item.values.first
+            {action: action, id: data['_id'], error: data['error']} if data['error']
+          end.compact.group_by { |item| item[:action] }.map do |action, items|
+            errors = items.group_by { |item| item[:error] }.map do |error, items|
+              {error => items.map { |item| item[:id] }}
+            end.reduce(&:merge)
+            {action => errors}
+          end.reduce(&:merge) || {}
         end
       end
     end

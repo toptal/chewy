@@ -2,7 +2,9 @@
 
 # Version 0.2.3
 
-  * `.import!` method, raises import errors. Useful for specs.
+  * `.import!` indexes method, raises import errors.
+
+  * `.import!` types method, raises import errors. Useful for specs.
 
 # Version 0.2.2
 

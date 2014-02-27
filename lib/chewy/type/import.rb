@@ -53,6 +53,8 @@ module Chewy
           true
         end
 
+        # Wraps elasticsearch-ruby client indices bulk method.
+        # Adds `:suffix` option to bulk import to index with specified suffix.
         def bulk options = {}
           suffix = options.delete(:suffix)
           result = client.bulk options.merge(index: index.build_index_name(suffix: suffix), type: type_name)

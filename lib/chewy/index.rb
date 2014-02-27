@@ -80,11 +80,11 @@ module Chewy
       type_class = Chewy::Type.new(self, target, options, &block)
       self.type_hash = type_hash.merge(type_class.type_name => type_class)
 
-      class_eval <<-RUBY, __FILE__, __LINE__ + 1
+      class_eval <<-METHOD, __FILE__, __LINE__ + 1
         def self.#{type_class.type_name}
           type_hash['#{type_class.type_name}']
         end
-      RUBY
+      METHOD
     end
 
     # Types method has double usage.

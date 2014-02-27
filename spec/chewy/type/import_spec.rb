@@ -20,10 +20,6 @@ describe Chewy::Type::Import do
   let!(:dummy_cities) { 3.times.map { |i| City.create(name: "name#{i}") } }
   let(:city) { CitiesIndex::City }
 
-  describe '.bulk' do
-
-  end
-
   describe '.import' do
     specify { city.import.should be_true }
     specify { city.import([]).should be_true }

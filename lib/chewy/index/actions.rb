@@ -117,17 +117,22 @@ module Chewy
 
         # Perform import operation for every defined type
         #
-        #   UsersIndex.import
-        #   UsersIndex.import refresh: false # to disable index refreshing after import
-        #   UsersIndex.import suffix: Time.now.to_i # imports data to index with specified suffix if such is exists
-        #   UsersIndex.import batch_size: 300 # import batch size
+        #   UsersIndex.import                           # imports default data for every index type
+        #   UsersIndex.import user: User.active         # imports specified objects for user type and default data for other types
+        #   UsersIndex.import refresh: false            # to disable index refreshing after import
+        #   UsersIndex.import suffix: Time.now.to_i     # imports data to index with specified suffix if such is exists
+        #   UsersIndex.import batch_size: 300           # import batch size
         #
-        def import options = {}
-          objects = options.extract!(*type_names.map(&:to_sym))
-          types.map do |type|
-            args = [objects[type.type_name.to_sym], options.dup].reject(&:blank?)
-            type.import *args
-          end.all?
+        [:import, :import!].each do |method|
+          class_eval <<-METHOD, __FILE__, __LINE__ + 1
+            def #{method} options = {}
+              objects = options.extract!(*type_names.map(&:to_sym))
+              types.map do |type|
+                args = [objects[type.type_name.to_sym], options.dup].reject(&:blank?)
+                type.#{method} *args
+              end.all?
+            end
+          METHOD
         end
 
         # Deletes, creates and imports data to the index.

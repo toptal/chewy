@@ -267,6 +267,54 @@ describe Chewy::Index::Actions do
     end
   end
 
+  describe '.import' do
+    before do
+      stub_model(:city)
+      stub_index(:cities) do
+        define_type City
+      end
+    end
+    let!(:dummy_cities) { 3.times.map { |i| City.create(name: "name#{i}") } }
+
+    specify { CitiesIndex.import.should == true }
+
+    context do
+      before do
+        stub_index(:cities) do
+          define_type City do
+            field :name, type: 'object'
+          end
+        end.tap(&:create!)
+      end
+
+      specify { CitiesIndex.import(city: dummy_cities).should == false }
+    end
+  end
+
+  describe '.import!' do
+    before do
+      stub_model(:city)
+      stub_index(:cities) do
+        define_type City
+      end
+    end
+    let!(:dummy_cities) { 3.times.map { |i| City.create(name: "name#{i}") } }
+
+    specify { CitiesIndex.import!.should == true }
+
+    context do
+      before do
+        stub_index(:cities) do
+          define_type City do
+            field :name, type: 'object'
+          end
+        end.tap(&:create!)
+      end
+
+      specify { expect { CitiesIndex.import!(city: dummy_cities) }.to raise_error Chewy::FailedImport }
+    end
+  end
+
   describe '.reset!' do
     before do
       stub_model(:city)

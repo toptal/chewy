@@ -15,11 +15,11 @@ module Chewy
 
           delegate :default_per_page, :max_per_page, :max_pages, to: :_kaminari_config
 
-          class_eval <<-RUBY, __FILE__, __LINE__ + 1
+          class_eval <<-METHOD, __FILE__, __LINE__ + 1
             def #{::Kaminari.config.page_method_name}(num = 1)
               limit(limit_value).offset(limit_value * ([num.to_i, 1].max - 1))
             end
-          RUBY
+          METHOD
         end
 
         def total_count

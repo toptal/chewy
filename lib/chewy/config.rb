@@ -12,11 +12,11 @@ module Chewy
     def self.repository name
       plural_name = name.to_s.pluralize
 
-      class_eval <<-EOS
+      class_eval <<-METHOD, __FILE__, __LINE__ + 1
         def #{name}(name, options = nil)
           options ? #{plural_name}[name.to_sym] = options : #{plural_name}[name.to_sym]
         end
-      EOS
+      METHOD
     end
 
     def initialize

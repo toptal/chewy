@@ -1,5 +1,9 @@
 # master
 
+  * Added `Chewy.configuration[:index]` config to setup common indexes options.
+
+  * `Chewy.client_options` replaced with `Chewy.configuration`
+
   * Using source filtering instead of fields filter (http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/search-request-source-filtering.html).
 
 # Version 0.2.3

@@ -83,7 +83,7 @@ describe Chewy::Index do
     specify { stub_const('DevelopersIndex', Class.new(Chewy::Index)).index_name.should == 'developers' }
 
     context do
-      before { Chewy.stub(client_options: {prefix: 'testing'}) }
+      before { Chewy.stub(configuration: {prefix: 'testing'}) }
       specify { DummiesIndex.index_name.should == 'testing_dummies' }
       specify { stub_index(:dummies) { index_name :users }.index_name.should == 'testing_users' }
     end
@@ -98,6 +98,8 @@ describe Chewy::Index do
   end
 
   describe '.index_params' do
+    before { Chewy.stub(config: Chewy::Config.send(:new)) }
+
     specify { stub_index(:documents).index_params.should == {} }
     specify { stub_index(:documents) { settings number_of_shards: 1 }.index_params.keys.should == [:settings] }
     specify { stub_index(:documents) do
@@ -114,6 +116,8 @@ describe Chewy::Index do
   end
 
   describe '.settings_hash' do
+    before { Chewy.stub(config: Chewy::Config.send(:new)) }
+
     specify { stub_index(:documents).settings_hash.should == {} }
     specify { stub_index(:documents) { settings number_of_shards: 1 }.settings_hash.should == {settings: {number_of_shards: 1}} }
   end

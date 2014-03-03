@@ -3,7 +3,7 @@ module Chewy
     include Singleton
 
     attr_reader :analyzers, :tokenizers, :filters, :char_filters
-    attr_accessor :client_options, :urgent_update, :query_mode, :filter_mode, :logger
+    attr_accessor :configuration, :urgent_update, :query_mode, :filter_mode, :logger
 
     def self.delegated
       public_instance_methods - self.superclass.public_instance_methods - Singleton.public_instance_methods
@@ -21,7 +21,7 @@ module Chewy
 
     def initialize
       @urgent_update = false
-      @client_options = {}
+      @configuration = {}
       @query_mode = :must
       @filter_mode = :and
       @analyzers = {}
@@ -63,8 +63,8 @@ module Chewy
     #
     repository :char_filter
 
-    def client_options
-      options = @client_options.merge(yaml_options)
+    def configuration
+      options = @configuration.deep_symbolize_keys.merge(yaml_options)
       options.merge!(logger: logger) if logger
       options
     end
@@ -74,7 +74,7 @@ module Chewy
     end
 
     def client
-      Thread.current[:chewy_client] ||= ::Elasticsearch::Client.new client_options
+      Thread.current[:chewy_client] ||= ::Elasticsearch::Client.new configuration
     end
 
     def atomic?

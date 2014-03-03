@@ -29,12 +29,15 @@ module Chewy
       end
 
       def to_hash
-        return {} unless @params.present?
+        settings = @params.deep_symbolize_keys
 
-        params = @params.deep_dup
-        params[:analysis] = resolve_analysis(params[:analysis]) if params[:analysis]
+        settings[:analysis] = resolve_analysis(settings[:analysis]) if settings[:analysis]
+        if settings[:index] || Chewy.configuration[:index]
+          settings[:index] = (Chewy.configuration[:index] || {})
+            .deep_merge((settings[:index] || {}).deep_symbolize_keys)
+        end
 
-        {settings: params}
+        settings.present? ? {settings: settings} : {}
       end
 
     private

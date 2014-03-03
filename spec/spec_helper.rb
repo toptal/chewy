@@ -27,7 +27,7 @@ ActiveRecord::Schema.define do
   end
 end
 
-Chewy.client_options = { host: 'localhost:9250' }
+Chewy.configuration = {host: 'localhost:9250', index: {number_of_shards: 1, number_of_replicas: 0}}
 
 RSpec.configure do |config|
   config.mock_with :rspec

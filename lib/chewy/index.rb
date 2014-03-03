@@ -30,12 +30,12 @@ module Chewy
     #
     def self.index_name(suggest = nil)
       if suggest
-        @index_name = build_index_name(suggest, prefix: Chewy.client_options[:prefix])
+        @index_name = build_index_name(suggest, prefix: Chewy.configuration[:prefix])
       else
         @index_name ||= begin
           build_index_name(
             name.gsub(/Index\Z/, '').demodulize.underscore,
-            prefix: Chewy.client_options[:prefix]
+            prefix: Chewy.configuration[:prefix]
           ) if name
         end
       end

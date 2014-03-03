@@ -41,11 +41,11 @@ Or install it yourself as:
 
 ### Client configuration
 
-There are 2 ways to configure Chewy client: `Chewy.client_options` hash and `chewy.yml`
+There are 2 ways to configure Chewy client: `Chewy.configuration` hash and `chewy.yml`
 
 ```ruby
 # config/initializers/chewy.rb
-Chewy.client_options = {host: 'localhost:9250'} # do not use environments
+Chewy.configuration = {host: 'localhost:9250'} # do not use environments
 ```
 
 ```yaml
@@ -61,7 +61,7 @@ development:
 The result config merges both hashes. Client options are passed as is to Elasticsearch::Transport::Client except the `:prefix` - it is used internally by chewy to create prefixed index names:
 
 ```ruby
-  Chewy.client_options = {prefix: 'testing'}
+  Chewy.configuration = {prefix: 'testing'}
   UsersIndex.index_name # => 'testing_users'
 ```
 

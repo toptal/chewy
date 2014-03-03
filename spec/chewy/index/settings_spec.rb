@@ -66,5 +66,17 @@ describe Chewy::Index::Settings do
           tokenizer: {tokenizer1: {options: 43}}
         }}} }
     end
+
+    context ':index' do
+      specify { described_class.new(index: {number_of_shards: 3}).to_hash
+        .should == {settings: {index: {number_of_shards: 3}}} }
+
+      context do
+        before { Chewy.configuration = {index: {number_of_shards: 7, number_of_replicas: 2}} }
+
+        specify { described_class.new(index: {number_of_shards: 3}).to_hash
+          .should == {settings: {index: {number_of_shards: 3, number_of_replicas: 2}}} }
+      end
+    end
   end
 end

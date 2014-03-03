@@ -144,7 +144,7 @@ describe Chewy::Query::Criteria do
     specify { request_body { update_queries(:query) }.should == {body: {query: :query}} }
     specify { request_body {
       update_options(from: 10); update_sort(:field); update_fields(:field); update_queries(:query)
-    }.should == {body: {query: :query, from: 10, sort: [:field], fields: ['field']}} }
+    }.should == {body: {query: :query, from: 10, sort: [:field], _source: ['field']}} }
   end
 
   describe '#_composed_query' do

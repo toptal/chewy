@@ -463,7 +463,7 @@ module Chewy
 
     def _results
       @_results ||= (criteria.none? ? [] : _response['hits']['hits']).map do |hit|
-        attributes = hit['_source'] || hit['fields'] || {}
+        attributes = hit['_source'] || {}
         attributes.reverse_merge!(id: hit['_id'])
           .merge!(_score: hit['_score'], _explanation: hit['_explanation'])
         index.type_hash[hit['_type']].new attributes

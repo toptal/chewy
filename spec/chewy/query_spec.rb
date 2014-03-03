@@ -2,8 +2,8 @@ require 'spec_helper'
 
 describe Chewy::Query do
   include ClassHelpers
+  before { Chewy.client.indices.delete index: '*' }
 
-  before { Chewy::Index.client.indices.delete }
   before do
     stub_index(:products) do
       define_type :product do
@@ -20,9 +20,11 @@ describe Chewy::Query do
     let(:products) { 3.times.map { |i| {id: i.next.to_s, name: "Name#{i.next}", age: 10 * i.next}.stringify_keys! } }
     let(:cities) { 3.times.map { |i| {id: i.next.to_s}.stringify_keys! } }
     let(:countries) { 3.times.map { |i| {id: i.next.to_s}.stringify_keys! } }
-    before { ProductsIndex::Product.import(products.map { |h| double(h) }) }
-    before { ProductsIndex::City.import(cities.map { |h| double(h) }) }
-    before { ProductsIndex::Country.import(countries.map { |h| double(h) }) }
+    before do
+      ProductsIndex::Product.import!(products.map { |h| double(h) })
+      ProductsIndex::City.import!(cities.map { |h| double(h) })
+      ProductsIndex::Country.import!(countries.map { |h| double(h) })
+    end
 
     specify { subject.count.should == 9 }
     specify { subject.limit(6).count.should == 6 }
@@ -35,7 +37,7 @@ describe Chewy::Query do
 
   describe '#==' do
     let(:data) { 3.times.map { |i| {id: i.next.to_s, name: "Name#{i.next}", age: 10 * i.next}.stringify_keys! } }
-    before { ProductsIndex::Product.import(data.map { |h| double(h) }) }
+    before { ProductsIndex::Product.import!(data.map { |h| double(h) }) }
 
     specify { subject.query(match: 'hello').should == subject.query(match: 'hello') }
     specify { subject.query(match: 'hello').should_not == subject.query(match: 'world') }
@@ -194,7 +196,7 @@ describe Chewy::Query do
         end.tap(&:create!)
       end
 
-      before { CitiesIndex::City.import cities }
+      before { CitiesIndex::City.import! cities }
 
       specify { CitiesIndex.order(:rating).first.should be_a CitiesIndex::City }
       specify { CitiesIndex.order(:rating).first.name.should == 'name0' }
@@ -226,16 +228,12 @@ describe Chewy::Query do
           end
         end.tap(&:create!)
       end
-      before { CitiesIndex::City.import cities }
+      before { CitiesIndex::City.import! cities }
 
       specify { CitiesIndex.order(:rating).first.should be_a CitiesIndex::City }
       specify { CitiesIndex.order(:rating).first.name.should be_nil }
       specify { CitiesIndex.order(:rating).first.rating.should be_nil }
       specify { CitiesIndex.order(:rating).first.nested.should be_nil }
-
-      specify { CitiesIndex.order(:rating).only(:name).first.name.should be_nil }
-      specify { CitiesIndex.order(:rating).only(:name).first.rating.should be_nil }
-      specify { CitiesIndex.order(:rating).only(:nested).first.nested.should be_nil }
     end
   end
 end

@@ -2,7 +2,7 @@ require 'spec_helper'
 
 describe Chewy::Query::Loading do
   include ClassHelpers
-  before { Chewy::Index.client.indices.delete }
+  before { Chewy.client.indices.delete index: '*' }
 
   before do
     stub_model(:city)
@@ -24,10 +24,7 @@ describe Chewy::Query::Loading do
       end
     end
 
-    before do
-      PlacesIndex::City.import(cities)
-      PlacesIndex::Country.import(countries)
-    end
+    before { PlacesIndex.import!(cities: cities, countries: countries) }
 
     specify { PlacesIndex.order(:rating).limit(6).load.total_count.should == 12 }
     specify { PlacesIndex.order(:rating).limit(6).load.should =~ cities.first(3) + countries.first(3) }

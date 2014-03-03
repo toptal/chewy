@@ -2,7 +2,7 @@ require 'spec_helper'
 
 describe Chewy::Index::Aliases do
   include ClassHelpers
-  before { Chewy::Index.client.indices.delete }
+  before { Chewy.client.indices.delete index: '*' }
 
   before { stub_index :dummies }
 

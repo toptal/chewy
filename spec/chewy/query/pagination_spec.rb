@@ -2,7 +2,7 @@ require 'spec_helper'
 
 describe Chewy::Query::Pagination do
   include ClassHelpers
-  before { Chewy::Index.client.indices.delete }
+  before { Chewy.client.indices.delete index: '*' }
 
   before do
     stub_index(:products) do
@@ -13,7 +13,7 @@ describe Chewy::Query::Pagination do
   end
   let(:data) { 10.times.map { |i| {id: i.next.to_s, name: "Name#{i.next}", age: 10 * i.next}.stringify_keys! } }
 
-  before { ProductsIndex::Product.import(data.map { |h| double(h) }) }
+  before { ProductsIndex::Product.import!(data.map { |h| double(h) }) }
   before { Kaminari.config.stub(default_per_page: 3) }
 
   let(:search) { ProductsIndex.order(:age) }

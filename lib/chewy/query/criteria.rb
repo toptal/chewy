@@ -82,7 +82,7 @@ module Chewy
         body = (_composed_query(_request_query, _request_filter) || {}).tap do |body|
           body.merge!(facets: facets) if facets?
           body.merge!(sort: sort) if sort?
-          body.merge!(fields: fields) if fields?
+          body.merge!(_source: fields) if fields?
         end
 
         {body: body.merge!(_request_options)}

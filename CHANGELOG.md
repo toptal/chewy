@@ -1,5 +1,7 @@
 # master
 
+  * Using source filtering instead of fields filter (http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/search-request-source-filtering.html).
+
 # Version 0.2.3
 
   * `.import!` indexes method, raises import errors.

@@ -39,6 +39,18 @@ describe Chewy::Fields::Base do
 
       specify { field.compose(double(name: 'Alex')).should == {name: 'Alex'} }
     end
+
+    context do
+      let(:field) { described_class.new(:name, type: 'object') }
+      let(:object) { double(name: { key1: 'value1', key2: 'value2' }) }
+
+      before do
+        field.nested(described_class.new(:key1, value: ->(h){ h[:key1] }))
+        field.nested(described_class.new(:key2, value: ->(h){ h[:key2] }))
+      end
+
+      specify{ field.compose(object).should == { name: { 'key1' => 'value1', 'key2' => 'value2' } } }
+    end
   end
 
   describe '#nested' do

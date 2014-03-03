@@ -19,7 +19,7 @@ module Chewy
           object.send(name)
         end
 
-        result = if result.is_a?(Enumerable)
+        result = if result.is_a?(Enumerable) && !result.is_a?(Hash)
           result.map { |object| nested_compose(object) }
         else
           nested_compose(result)

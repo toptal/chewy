@@ -1,5 +1,7 @@
 # master
 
+# Version 0.3.0
+
   * Added `Chewy.configuration[:index]` config to setup common indexes options.
 
   * `Chewy.client_options` replaced with `Chewy.configuration`

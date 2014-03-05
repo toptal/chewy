@@ -57,6 +57,9 @@ module Chewy
         # Adds `:suffix` option to bulk import to index with specified suffix.
         def bulk options = {}
           suffix = options.delete(:suffix)
+
+          Chewy.wait_for_status
+
           result = client.bulk options.merge(index: index.build_index_name(suffix: suffix), type: type_name)
 
           extract_errors result

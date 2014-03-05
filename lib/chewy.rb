@@ -38,6 +38,10 @@ module Chewy
     end
   end
 
+  def self.wait_for_status
+    client.cluster.health wait_for_status: Chewy.configuration[:wait_for_status] if Chewy.configuration[:wait_for_status].present?
+  end
+
   def self.config
     Chewy::Config.instance
   end

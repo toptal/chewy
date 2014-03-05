@@ -55,6 +55,9 @@ module Chewy
         def create! *args
           options = args.extract_options!.reverse_merge!(alias: true)
           name = build_index_name(suffix: args.first)
+
+          Chewy.wait_for_status
+
           result = client.indices.create(index: name, body: index_params)
           result &&= client.indices.put_alias(index: name, name: index_name) if options[:alias] && name != index_name
           result
@@ -84,6 +87,8 @@ module Chewy
         #   UsersIndex.delete '01-2014' # deletes `users_01-2014` index
         #
         def delete! suffix = nil
+          Chewy.wait_for_status
+
           client.indices.delete index: build_index_name(suffix: suffix)
         end
 

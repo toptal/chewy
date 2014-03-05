@@ -27,7 +27,14 @@ ActiveRecord::Schema.define do
   end
 end
 
-Chewy.configuration = {host: 'localhost:9250', index: {number_of_shards: 1, number_of_replicas: 0}}
+Chewy.configuration = {
+  host: 'localhost:9250',
+  wait_for_status: 'green',
+  index: {
+    number_of_shards: 1,
+    number_of_replicas: 0
+  }
+}
 
 RSpec.configure do |config|
   config.mock_with :rspec

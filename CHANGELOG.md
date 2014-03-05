@@ -1,5 +1,7 @@
 # master
 
+  * `Chewy.configuration[:wait_for_status]` option. Can be set to `red`, `yellow` or `green`. If set - chewy will wait for cluster status before creating, deleting index and import. Useful for specs.
+
 # Version 0.3.0
 
   * Added `Chewy.configuration[:index]` config to setup common indexes options.

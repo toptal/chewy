@@ -19,6 +19,8 @@ module Chewy
           import_options = args.extract_options!
           bulk_options = import_options.extract!(:refresh, :suffix).reverse_merge!(refresh: true)
 
+          index.create!(bulk_options.slice(:suffix)) unless index.exists?
+
           ActiveSupport::Notifications.instrument 'import_objects.chewy', type: self do |payload|
             adapter.import(*args, import_options) do |action_objects|
               body = bulk_body(action_objects)

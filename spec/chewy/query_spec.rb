@@ -193,7 +193,7 @@ describe Chewy::Query do
             field :rating, type: 'integer'
             field :nested, type: 'object', value: ->{ {name: name} }
           end
-        end.tap(&:create!)
+        end
       end
 
       before { CitiesIndex::City.import! cities }
@@ -226,7 +226,7 @@ describe Chewy::Query do
               field :nested, type: 'object', value: ->{ {name: name} }
             end
           end
-        end.tap(&:create!)
+        end
       end
       before { CitiesIndex::City.import! cities }
 

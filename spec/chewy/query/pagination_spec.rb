@@ -7,7 +7,8 @@ describe Chewy::Query::Pagination do
   before do
     stub_index(:products) do
       define_type(:product) do
-        field :name, :age
+        field :name
+        field :age, type: 'integer'
       end
     end
   end
@@ -19,7 +20,7 @@ describe Chewy::Query::Pagination do
   let(:search) { ProductsIndex.order(:age) }
 
   describe '#per, #page' do
-    specify { search.map { |e| e.attributes.except('_score', '_explanation') }.should == data }
+    specify { search.map { |e| e.attributes.except('_score', '_explanation') }.should =~ data }
     specify { search.page(1).map { |e| e.attributes.except('_score', '_explanation') }.should == data[0..2] }
     specify { search.page(2).map { |e| e.attributes.except('_score', '_explanation') }.should == data[3..5] }
     specify { search.page(2).per(4).map { |e| e.attributes.except('_score', '_explanation') }.should == data[4..7] }

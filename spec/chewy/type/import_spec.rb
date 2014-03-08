@@ -122,7 +122,7 @@ describe Chewy::Type::Import do
             define_type City do
               field :name, type: 'object'
             end
-          end.tap(&:create!)
+          end
         end
 
         specify do
@@ -152,7 +152,7 @@ describe Chewy::Type::Import do
             define_type City do
               field :name, type: 'object'
             end
-          end.tap(&:create!)
+          end
         end
 
         specify { city.import(dummy_cities).should be_false }
@@ -166,7 +166,7 @@ describe Chewy::Type::Import do
             define_type City do
               field :name, type: 'object', value: ->{ name == 'name1' ? name : {name: name} }
             end
-          end.tap(&:create!)
+          end
         end
 
         specify { city.import(dummy_cities).should be_false }
@@ -185,7 +185,7 @@ describe Chewy::Type::Import do
           define_type City do
             field :name, type: 'object'
           end
-        end.tap(&:create!)
+        end
       end
 
       specify { expect { city.import!(dummy_cities) }.to raise_error Chewy::FailedImport }

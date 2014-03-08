@@ -36,6 +36,16 @@ module Chewy
         #
         #   <tt>:batch_size</tt> - import batch size, 1000 objects by default
         #
+        # Method handles destroyed objects as well. In case of objects AcriveRecord::Relation
+        # or array passed, objects, responding with true to `destroyed?` method will be deleted
+        # from index. In case of ids array passed - documents with missing records ids will be
+        # deleted from index:
+        #
+        #   users = User.all
+        #   users.each { |user| user.destroy if user.incative? }
+        #   UsersIndex::User.import users # inactive users will be deleted from index
+        #   UsersIndex::User.import users.map(&:id) # deleted user ids will be deleted from index
+        #
         def import *args, &block
           import_options = args.extract_options!
           import_options[:batch_size] ||= BATCH_SIZE

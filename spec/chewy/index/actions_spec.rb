@@ -284,7 +284,7 @@ describe Chewy::Index::Actions do
           define_type City do
             field :name, type: 'object'
           end
-        end.tap(&:create!)
+        end
       end
 
       specify { CitiesIndex.import(city: dummy_cities).should == false }
@@ -308,7 +308,7 @@ describe Chewy::Index::Actions do
           define_type City do
             field :name, type: 'object'
           end
-        end.tap(&:create!)
+        end
       end
 
       specify { expect { CitiesIndex.import!(city: dummy_cities) }.to raise_error Chewy::FailedImport }

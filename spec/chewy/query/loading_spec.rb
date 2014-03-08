@@ -16,10 +16,10 @@ describe Chewy::Query::Loading do
     before do
       stub_index(:places) do
         define_type City do
-          field :rating, type: 'number', value: ->(o){ o.rating }
+          field :rating, type: 'integer', value: ->(o){ o.rating }
         end
         define_type Country do
-          field :rating, type: 'number', value: ->(o){ o.rating }
+          field :rating, type: 'integer', value: ->(o){ o.rating }
         end
       end
     end

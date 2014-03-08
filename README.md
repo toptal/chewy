@@ -7,9 +7,11 @@ Chewy is ODM and wrapper for official elasticsearch client (https://github.com/e
 
 ## Why chewy?
 
-* Index classes are independant from ORM/ODM models.
 
-  Now implementing, e.g. cross-model autocomplete is much easier. You can just define index and work with it in object-oriented style. You can define several types for index - one per indexed model.
+
+* Multi-model indexes.
+
+  Index classes are independant from ORM/ODM models. Now implementing, e.g. cross-model autocomplete is much easier. You can just define index and work with it in object-oriented style. You can define several types for index - one per indexed model.
 
 * Every index is observable by all the related models.
 

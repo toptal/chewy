@@ -65,16 +65,16 @@ module Chewy
 
           additional_scope = load_options[load_options[:_type].type_name.to_sym].try(:[], :scope) || load_options[:scope]
 
-          scope = model.where(id: objects.map(&:id))
+          scope = scoped_model(objects.map(&:id))
           loaded_objects = if additional_scope.is_a?(Proc)
             scope.instance_exec(&additional_scope)
           elsif additional_scope.is_a?(::ActiveRecord::Relation)
             scope.merge(additional_scope)
           else
             scope
-          end.index_by { |object| object.id.to_s }
+          end.index_by { |object| object.send(model.primary_key).to_s }
 
-          objects.map { |object| loaded_objects[object.id.to_s] }
+          objects.map { |object| loaded_objects[object.send(model.primary_key).to_s] }
         end
 
       private
@@ -85,7 +85,7 @@ module Chewy
           ids = ids.map(&:to_i).uniq
 
           indexed = true
-          merged_scope(model.where(id: ids)).find_in_batches(import_options.slice(:batch_size)) do |objects|
+          merged_scope(scoped_model(ids)).find_in_batches(import_options.slice(:batch_size)) do |objects|
             ids -= objects.map(&:id)
             indexed &= block.call index: objects
           end
@@ -105,6 +105,10 @@ module Chewy
 
         def merged_scope(target)
           scope ? scope.clone.merge(target) : target
+        end
+
+        def scoped_model(ids)
+          model.where(Hash[model.primary_key.to_sym || :id, ids])
         end
 
         def model_all

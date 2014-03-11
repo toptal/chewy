@@ -9,6 +9,9 @@ module Chewy
           method = args.first
 
           update = Proc.new do
+            update_options = options.reverse_merge(urgent: Chewy.urgent_update)
+            clear_association_cache if update_options[:urgent]
+
             backreference = if method && method.to_s == 'self'
               self
             elsif method
@@ -17,8 +20,7 @@ module Chewy
               instance_eval(&block)
             end
 
-            Chewy.derive_type(type_name).update_index(backreference,
-              options.reverse_merge(urgent: Chewy.urgent_update))
+            Chewy.derive_type(type_name).update_index(backreference, update_options)
           end
 
           after_save &update

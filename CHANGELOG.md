@@ -1,5 +1,7 @@
 # master
 
+  * Urgent update now clears association cache in ActiveRecord to ensure latest changes are imported.
+
   * `import` now creates index before performing.
 
   * `Chewy.configuration[:wait_for_status]` option. Can be set to `red`, `yellow` or `green`. If set - chewy will wait for cluster status before creating, deleting index and import. Useful for specs.

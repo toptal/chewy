@@ -24,7 +24,7 @@ describe Chewy::Type::Adapter::ActiveRecord do
 
     context do
       let!(:cities) { 3.times.map { |i| City.create! } }
-      let!(:deleted) { 3.times.map { |i| City.create!.tap(&:destroy!) } }
+      let!(:deleted) { 3.times.map { |i| City.create!.tap(&:destroy) } }
       subject { described_class.new(City) }
 
       specify { import.should == [{index: cities}] }
@@ -56,7 +56,7 @@ describe Chewy::Type::Adapter::ActiveRecord do
 
     context do
       let!(:cities) { 3.times.map { |i| City.create!(country_id: i/2) } }
-      let!(:deleted) { 2.times.map { |i| City.create!.tap(&:destroy!) } }
+      let!(:deleted) { 2.times.map { |i| City.create!.tap(&:destroy) } }
       subject { described_class.new(City.where(country_id: 0)) }
 
       specify { import.should == [{index: cities.first(2)}] }
@@ -83,12 +83,12 @@ describe Chewy::Type::Adapter::ActiveRecord do
 
     context 'error handling' do
       let!(:cities) { 3.times.map { |i| City.create! } }
-      let!(:deleted) { 2.times.map { |i| City.create!.tap(&:destroy!) } }
+      let!(:deleted) { 2.times.map { |i| City.create!.tap(&:destroy) } }
       let(:ids) { (cities + deleted).map(&:id) }
       subject { described_class.new(City) }
 
       let(:data_comparer) do
-        ->(id, data) { object = (data[:index] || data[:delete]).first; (object.try(:id) || object) != id }
+        ->(id, data) { object = (data[:index] || data[:delete]).first; (object.respond_to?(:id) ? object.id : object) != id }
       end
 
       context 'implicit scope' do
@@ -137,7 +137,7 @@ describe Chewy::Type::Adapter::ActiveRecord do
 
   describe '#load' do
     let!(:cities) { 3.times.map { |i| City.create!(country_id: i/2) } }
-    let!(:deleted) { 2.times.map { |i| City.create!.tap(&:destroy!) } }
+    let!(:deleted) { 2.times.map { |i| City.create!.tap(&:destroy) } }
 
     let(:type) { double(type_name: 'user') }
 

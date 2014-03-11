@@ -1,6 +1,7 @@
 require 'active_support/concern'
 require 'active_support/core_ext'
 require 'active_support/json'
+require 'i18n/core_ext/hash'
 require 'singleton'
 
 require 'elasticsearch'

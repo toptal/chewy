@@ -82,9 +82,9 @@ module Chewy
             scope.merge(additional_scope)
           else
             scope
-          end.index_by { |object| object.send(model.primary_key).to_s }
+          end.index_by { |object| object.id.to_s }
 
-          objects.map { |object| loaded_objects[object.send(model.primary_key).to_s] }
+          objects.map { |object| loaded_objects[object.id.to_s] }
         end
 
       private

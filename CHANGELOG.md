@@ -1,5 +1,7 @@
 # master
 
+  * ActiveRecord adapter custom `primary_key` support (matthee).
+
   * Urgent update now clears association cache in ActiveRecord to ensure latest changes are imported.
 
   * `import` now creates index before performing.
@@ -22,7 +24,9 @@
 
 # Version 0.2.2
 
-  * Auto-resolved analyzers and analyzers repository:
+  * Support for `none` scope (undr).
+
+  * Auto-resolved analyzers and analyzers repository (webgago):
 
     ```ruby
       # Setting up analyzers repository:

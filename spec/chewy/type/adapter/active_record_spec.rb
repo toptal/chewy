@@ -55,9 +55,9 @@ describe Chewy::Type::Adapter::ActiveRecord do
     end
 
     context 'custom primary_key' do
-      before { stub_model(:city) { self.primary_key = "rating" } }
-      let!(:cities) { 3.times.map { |i| City.create!(rating: i + 7) } }
-      let!(:deleted) { 3.times.map { |i| City.create!(rating: i + 10).tap(&:destroy) } }
+      before { stub_model(:city) { self.primary_key = 'rating' } }
+      let!(:cities) { 3.times.map { |i| City.create! { |c| c.rating = i + 7 } } }
+      let!(:deleted) { 3.times.map { |i| City.create! { |c| c.rating = i + 10 }.tap(&:destroy) } }
       subject { described_class.new(City) }
 
       specify { import.should == [{index: cities}] }
@@ -194,9 +194,9 @@ describe Chewy::Type::Adapter::ActiveRecord do
     end
 
     context 'custom primary_key' do
-      before { stub_model(:city) { self.primary_key = "rating" } }
-      let!(:cities) { 3.times.map { |i| City.create!(country_id: i/2, rating: i + 7) } }
-      let!(:deleted) { 2.times.map { |i| City.create!(rating: i + 10).tap(&:destroy) } }
+      before { stub_model(:city) { self.primary_key = 'rating' } }
+      let!(:cities) { 3.times.map { |i| City.create!(country_id: i/2) { |c| c.rating = i + 7 } } }
+      let!(:deleted) { 2.times.map { |i| City.create! { |c| c.rating = i + 10 }.tap(&:destroy) } }
 
       let(:type) { double(type_name: 'user') }
 

@@ -105,7 +105,7 @@ module Chewy
       end
 
       def _request_options
-        options.slice(:size, :from, :explain)
+        options.slice(:size, :from, :explain, :aggregations)
       end
 
       def _request_query

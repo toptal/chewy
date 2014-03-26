@@ -109,9 +109,7 @@ describe Chewy::Query do
         before do
           stub_index(:cities) do
             define_type :city do
-              field :name
               field :rating, type: 'integer'
-              field :nested, type: 'object', value: ->{ {name: name} }
             end
           end
         end
@@ -126,6 +124,41 @@ describe Chewy::Query do
               {'term' => 0, 'count' => 4},
               {'term' => 2, 'count' => 3},
               {'term' => 1, 'count' => 3}
+            ]
+          }
+        } }
+      end
+    end
+  end
+
+  describe '#aggregations' do
+    specify { subject.aggregations(aggregation1: {field: 'hello'}).should be_a described_class }
+    specify { subject.aggregations(aggregation1: {field: 'hello'}).should_not == subject }
+    specify { subject.aggregations(aggregation1: {field: 'hello'}).criteria.aggregations.should include(aggregation1: {field: 'hello'}) }
+    specify { expect { subject.aggregations(aggregation1: {field: 'hello'}) }.not_to change { subject.criteria.aggregations } }
+
+    context 'results' do
+      before { stub_model(:city) }
+      let(:cities) { 10.times.map { |i| City.create! name: "name#{i}", rating: i % 3 } }
+
+      context do
+        before do
+          stub_index(:cities) do
+            define_type :city do
+              field :rating, type: 'integer'
+            end
+          end
+        end
+
+        before { CitiesIndex::City.import! cities }
+
+        specify { CitiesIndex.aggregations.should == {} }
+        specify { CitiesIndex.aggregations(ratings: {terms: {field: 'rating'}}).aggregations.should == {
+          'ratings' => {
+            'buckets' => [
+              {'key' => 0, 'doc_count' => 4},
+              {'key' => 1, 'doc_count' => 3},
+              {'key' => 2, 'doc_count' => 3}
             ]
           }
         } }

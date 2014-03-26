@@ -4,7 +4,7 @@ module Chewy
       extend ActiveSupport::Concern
 
       included do
-        singleton_class.delegate :explain, :limit, :offset, :facets, :query,
+        singleton_class.delegate :explain, :limit, :offset, :facets, :aggregations, :query,
           :filter, :order, :reorder, :only, :types, :none, to: :all
       end
 

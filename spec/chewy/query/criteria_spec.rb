@@ -7,6 +7,7 @@ describe Chewy::Query::Criteria do
 
   its(:options) { should be_a Hash }
   its(:facets) { should == {} }
+  its(:aggregations) { should == {} }
   its(:queries) { should == [] }
   its(:filters) { should == [] }
   its(:sort) { should == [] }
@@ -15,6 +16,7 @@ describe Chewy::Query::Criteria do
 
   its(:none?){ should be_false }
   its(:facets?) { should be_false }
+  its(:aggregations?) { should be_false }
   its(:queries?) { should be_false }
   its(:filters?) { should be_false }
   its(:sort?) { should be_false }
@@ -28,6 +30,11 @@ describe Chewy::Query::Criteria do
   describe '#update_facets' do
     specify { expect { subject.update_facets(field: 'hello') }.to change { subject.facets? }.to(true) }
     specify { expect { subject.update_facets(field: 'hello') }.to change { subject.facets }.to(field: 'hello') }
+  end
+
+  describe '#update_aggregations' do
+    specify { expect { subject.update_aggregations(field: 'hello') }.to change { subject.aggregations? }.to(true) }
+    specify { expect { subject.update_aggregations(field: 'hello') }.to change { subject.aggregations }.to(field: 'hello') }
   end
 
   describe '#update_queries' do
@@ -97,6 +104,8 @@ describe Chewy::Query::Criteria do
       .merge(criteria.tap { |c| c.update_options(opt2: 'hello') }).options.should include(opt1: 'hello', opt2: 'hello') }
     specify { subject.tap { |c| c.update_facets(field1: 'hello') }
       .merge(criteria.tap { |c| c.update_facets(field1: 'hello') }).facets.should == {field1: 'hello', field1: 'hello'} }
+    specify { subject.tap { |c| c.update_aggregations(field1: 'hello') }
+      .merge(criteria.tap { |c| c.update_aggregations(field1: 'hello') }).aggregations.should == {field1: 'hello', field1: 'hello'} }
     specify { subject.tap { |c| c.update_queries(field1: 'hello') }
       .merge(criteria.tap { |c| c.update_queries(field2: 'hello') }).queries.should == [{field1: 'hello'}, {field2: 'hello'}] }
     specify { subject.tap { |c| c.update_filters(field1: 'hello') }
@@ -119,6 +128,8 @@ describe Chewy::Query::Criteria do
       .merge!(criteria.tap { |c| c.update_options(opt2: 'hello') }).options.should include(opt1: 'hello', opt2: 'hello') }
     specify { subject.tap { |c| c.update_facets(field1: 'hello') }
       .merge!(criteria.tap { |c| c.update_facets(field1: 'hello') }).facets.should == {field1: 'hello', field1: 'hello'} }
+    specify { subject.tap { |c| c.update_aggregations(field1: 'hello') }
+      .merge!(criteria.tap { |c| c.update_aggregations(field1: 'hello') }).aggregations.should == {field1: 'hello', field1: 'hello'} }
     specify { subject.tap { |c| c.update_queries(field1: 'hello') }
       .merge!(criteria.tap { |c| c.update_queries(field2: 'hello') }).queries.should == [{field1: 'hello'}, {field2: 'hello'}] }
     specify { subject.tap { |c| c.update_filters(field1: 'hello') }

@@ -253,6 +253,27 @@ module Chewy
       end
     end
 
+    # Sets elasticsearch <tt>aggregations</tt> search request param
+    #
+    #  UsersIndex.filter{ name == 'Johny' }.aggregations(category_id: {terms: {field: 'category_ids'}})
+    #     # => {body: {
+    #            query: {...},
+    #            aggregations: {
+    #              terms: {
+    #                field: 'category_ids'
+    #              }
+    #            }
+    #          }}
+    #
+    def aggregations params = nil
+      if params
+        chain { criteria.update_aggregations params }
+      else
+        _response['aggregations'] || {}
+      end
+    end
+    alias :aggs :aggregations
+
     # Marks the criteria as having zero records. This scope  always returns empty array
     # without touching the elasticsearch server.
     # All the chained calls of methods don't affect the result
@@ -438,23 +459,6 @@ module Chewy
     def merge other
       chain { criteria.merge!(other.criteria) }
     end
-
-    # Sets elasticsearch <tt>aggregations</tt> search request param
-    #
-    #  UsersIndex.filter{ name == 'Johny' }.aggregations(category_id: {terms: {field: 'category_ids'}})
-    #     # => {body: {
-    #            query: {...},
-    #            aggregations: {
-    #              terms: {
-    #                field: 'category_ids'
-    #              }
-    #            }
-    #          }}
-    #    
-    def aggregations params
-      chain { criteria.update_options aggregations: params }
-    end
-    alias :aggs :aggregations
 
   protected
 

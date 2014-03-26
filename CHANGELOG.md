@@ -1,5 +1,7 @@
 # master
 
+  * Search aggregations API support (@arion).
+
   * Chewy::Query#facets called without params performs the request and returns facets.
 
   * Added `Type.template` dsl method for root objects dynamic templates definition. See [mapping.rb](lib/chewy/type/mapping.rb) for more details.

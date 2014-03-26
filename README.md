@@ -745,7 +745,6 @@ specify { expect { [user1, user2].map(&:save!) }
 * update_all support
 * Other than ActiveRecord ORMs support (Mongoid)
 * Maybe, closer ORM/ODM integration, creating index classes implicitly
-* Better facets support
 
 ## Contributing
 

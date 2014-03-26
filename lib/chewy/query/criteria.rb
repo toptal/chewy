@@ -4,7 +4,9 @@ module Chewy
   class Query
     class Criteria
       include Compose
-      STORAGES = [:options, :queries, :facets, :filters, :sort, :fields, :types]
+      ARRAY_STORAGES = [:queries, :filters, :sort, :fields, :types]
+      HASH_STORAGES = [:options, :facets, :aggregations]
+      STORAGES = ARRAY_STORAGES + HASH_STORAGES
 
       def initialize options = {}
         @options = options.merge(query_mode: Chewy.query_mode, filter_mode: Chewy.filter_mode)
@@ -14,7 +16,7 @@ module Chewy
         other.is_a?(self.class) && storages == other.storages
       end
 
-      { (STORAGES - [:options, :facets]) => '[]', [:options, :facets] => '{}' }.each do |storages, default|
+      { ARRAY_STORAGES => '[]', HASH_STORAGES => '{}' }.each do |storages, default|
         storages.each do |storage|
           class_eval <<-METHODS, __FILE__, __LINE__ + 1
             def #{storage}
@@ -40,6 +42,10 @@ module Chewy
 
       def update_facets(modifer)
         facets.merge!(modifer)
+      end
+
+      def update_aggregations(modifer)
+        aggregations.merge!(modifer)
       end
 
       def update_queries(modifer)
@@ -81,6 +87,7 @@ module Chewy
       def request_body
         body = (_composed_query(_request_query, _request_filter) || {}).tap do |body|
           body.merge!(facets: facets) if facets?
+          body.merge!(aggregations: aggregations) if aggregations?
           body.merge!(sort: sort) if sort?
           body.merge!(_source: fields) if fields?
         end

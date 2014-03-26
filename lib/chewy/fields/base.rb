@@ -40,10 +40,10 @@ module Chewy
         subfields = nested.any? ? {
           (multi_field? ? :fields : :properties) => nested.values.map(&:mappings_hash).inject(:merge)
         } : {}
-        {name => options.merge(subfields)}
+        {name => options.deep_symbolize_keys.merge(subfields)}
       end
 
-      private
+    private
 
       def nested_compose(value)
         nested.values.map { |field| field.compose(value) }.inject(:merge)

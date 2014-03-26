@@ -1,5 +1,7 @@
 # master
 
+  * Added `Type.template` dsl method for root objects dynamic templates definition. See [mapping.rb](lib/chewy/type/mapping.rb) for more details.
+
   * ActiveRecord adapter custom `primary_key` support (matthee).
 
   * Urgent update now clears association cache in ActiveRecord to ensure latest changes are imported.

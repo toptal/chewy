@@ -129,7 +129,9 @@ Chewy.logger = Logger.new
     }
 
     define_type User.active.includes(:country, :badges, :projects) do
-      root _boost: { name: :_boost, null_value: 1.0 } do
+      root date_detection: false do
+        template 'about_translations.*', type: 'string', analyzer: 'stantard'
+
         field :first_name, :last_name
         field :email, analyzer: 'email'
         field :country, value: ->(user) { user.country.name }
@@ -149,6 +151,8 @@ Chewy.logger = Logger.new
 
   Index settings - http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/indices-update-settings.html
   Root object settings - http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/mapping-root-object-type.html
+
+  See [mapping.rb](lib/chewy/type/mapping.rb) for more details.
 
 5. Add model observing code
 
@@ -219,9 +223,9 @@ UsersIndex.import user: User.where('rating > 100') # import only active users to
 UsersIndex.reset! # purges index and imports default data for all types
 ```
 
-See [actions.rb](lib/chewy/index/actions.rb) for more details.
-
 Also if passed user is #destroyed? or specified id is not existing in the database, import will perform `delete` index for this it
+
+See [actions.rb](lib/chewy/index/actions.rb) for more details.
 
 ### Observing strategies
 
@@ -736,7 +740,6 @@ specify { expect { [user1, user2].map(&:save!) }
 
 ## TODO a.k.a coming soon:
 
-* Dynamic templates additional DSL
 * Typecasting support
 * Advanced (simplyfied) query DSL: `UsersIndex.query { email == 'my@gmail.com' }` will produce term query
 * update_all support

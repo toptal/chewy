@@ -242,8 +242,15 @@ module Chewy
     #            facets: {tags: {terms: {field: 'tags'}}, ages: {terms: {field: 'age'}}}
     #          }}
     #
-    def facets params
-      chain { criteria.update_facets params }
+    # If called parameterless - returns result facets from ES performing request.
+    # Returns empty hash if no facets was requested or resulted.
+    #
+    def facets params = nil
+      if params
+        chain { criteria.update_facets params }
+      else
+        _response['facets'] || {}
+      end
     end
 
     # Marks the criteria as having zero records. This scope  always returns empty array

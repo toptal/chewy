@@ -100,6 +100,37 @@ describe Chewy::Query do
     specify { subject.facets(term: {field: 'hello'}).should_not == subject }
     specify { subject.facets(term: {field: 'hello'}).criteria.facets.should include(term: {field: 'hello'}) }
     specify { expect { subject.facets(term: {field: 'hello'}) }.not_to change { subject.criteria.facets } }
+
+    context 'results' do
+      before { stub_model(:city) }
+      let(:cities) { 10.times.map { |i| City.create! name: "name#{i}", rating: i % 3 } }
+
+      context do
+        before do
+          stub_index(:cities) do
+            define_type :city do
+              field :name
+              field :rating, type: 'integer'
+              field :nested, type: 'object', value: ->{ {name: name} }
+            end
+          end
+        end
+
+        before { CitiesIndex::City.import! cities }
+
+        specify { CitiesIndex.facets.should == {} }
+        specify { CitiesIndex.facets(ratings: {terms: {field: 'rating'}}).facets.should == {
+          'ratings' => {
+            '_type' => 'terms', 'missing' => 0, 'total' => 10, 'other' => 0,
+            'terms' => [
+              {'term' => 0, 'count' => 4},
+              {'term' => 2, 'count' => 3},
+              {'term' => 1, 'count' => 3}
+            ]
+          }
+        } }
+      end
+    end
   end
 
   describe '#filter' do

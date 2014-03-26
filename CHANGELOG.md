@@ -1,8 +1,10 @@
 # master
 
+  * Chewy::Query#facets called without params performs the request and returns facets.
+
   * Added `Type.template` dsl method for root objects dynamic templates definition. See [mapping.rb](lib/chewy/type/mapping.rb) for more details.
 
-  * ActiveRecord adapter custom `primary_key` support (matthee).
+  * ActiveRecord adapter custom `primary_key` support (@matthee).
 
   * Urgent update now clears association cache in ActiveRecord to ensure latest changes are imported.
 
@@ -26,9 +28,9 @@
 
 # Version 0.2.2
 
-  * Support for `none` scope (undr).
+  * Support for `none` scope (@undr).
 
-  * Auto-resolved analyzers and analyzers repository (webgago):
+  * Auto-resolved analyzers and analyzers repository (@webgago):
 
     ```ruby
       # Setting up analyzers repository:

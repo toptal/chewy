@@ -439,6 +439,23 @@ module Chewy
       chain { criteria.merge!(other.criteria) }
     end
 
+    # Sets elasticsearch <tt>aggregations</tt> search request param
+    #
+    #  UsersIndex.filter{ name == 'Johny' }.aggregations(category_id: {terms: {field: 'category_ids'}})
+    #     # => {body: {
+    #            query: {...},
+    #            aggregations: {
+    #              terms: {
+    #                field: 'category_ids'
+    #              }
+    #            }
+    #          }}
+    #    
+    def aggregations params
+      chain { criteria.update_options aggregations: params }
+    end
+    alias :aggs :aggregations
+
   protected
 
     def initialize_clone other

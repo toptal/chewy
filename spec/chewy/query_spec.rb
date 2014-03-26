@@ -205,6 +205,12 @@ describe Chewy::Query do
     specify { subject.types([:product, :city]).types!(:country).criteria.types.should =~ ['country'] }
   end
 
+  describe '#aggregations' do
+    specify { subject.aggregations(attribute: {terms: {field: 'attribute'}}).should be_a described_class }
+    specify { subject.aggregations(attribute: {terms: {field: 'attribute'}}).should_not == subject }
+    specify { subject.aggregations(attribute: {terms: {field: 'attribute'}}).criteria.request_body[:body].should include(aggregations: {attribute: {terms: {field: 'attribute'}}}) }
+  end
+
   describe '#merge' do
     let(:query) { described_class.new(ProductsIndex) }
 

@@ -1,14 +1,81 @@
+# Rspec matcher `update_index`
+# To use it - add `require 'chewy/rspec'` to the `spec_helper.rb`
+# Simple usage - just pass type as argument.
+#
+#   specify { expect { user.save! }.to update_index(UsersIndex::User) }
+#   specify { expect { user.save! }.to update_index('users#user') }
+#   specify { expect { user.save! }.not_to update_index('users#user') }
+#
+# This example will pass as well because user1 was reindexed
+# and nothing was said about user2:
+#
+#   specify { expect { [user1, user2].map(&:save!) }
+#     .to update_index(UsersIndex.user).and_reindex(user1) }
+#
+# If you need to specify reindexed records strictly - use `only` chain.
+# Combined matcher chain methods:
+#
+#   specify { expect { user1.destroy!; user2.save! } }
+#     .to update_index(UsersIndex:User).and_reindex(user2).and_delete(user1)
+#
 RSpec::Matchers.define :update_index do |type_name, options = {}|
+
+  # Specify indexed records by passing record itself or id.
+  #
+  #   specify { expect { user.save! }.to update_index(UsersIndex::User).and_reindex(user)
+  #   specify { expect { user.save! }.to update_index(UsersIndex::User).and_reindex(42)
+  #   specify { expect { [user1, user2].map(&:save!) }
+  #     .to update_index(UsersIndex::User).and_reindex(user1, user2) }
+  #   specify { expect { [user1, user2].map(&:save!) }
+  #     .to update_index(UsersIndex::User).and_reindex(user1).and_reindex(user2) }
+  #
+  # Specify indexing count for every particular record. Useful in case
+  # urgent index updates.
+  #
+  #   specify { expect { 2.times { user.save! } }
+  #     .to update_index(UsersIndex::User).and_reindex(user, times: 2) }
+  #
+  # Specify reindexed attributes. Note that arrays are
+  # compared position-independantly.
+  #
+  #   specify { expect { user.update_attributes!(name: 'Duke') }
+  #     .to update_index(UsersIndex.user).and_reindex(user, with: {name: 'Duke'}) }
+  #
+  # You can combine all the options and chain `and_reindex` method to
+  # specify options for every indexed record:
+  #
+  #   specify { expect { 2.times { [user1, user2].map { |u| u.update_attributes!(name: "Duke#{u.id}") } } }
+  #     .to update_index(UsersIndex.user)
+  #     .and_reindex(user1, with: {name: 'Duke42'}) }
+  #     .and_reindex(user2, times: 1, with: {name: 'Duke43'}) }
+  #
   chain(:and_reindex) do |*args|
     @reindex ||= {}
     @reindex.merge!(extract_documents(*args))
   end
 
+  # Specify deleted records with record itself or id passed.
+  #
+  #   specify { expect { user.destroy! }.to update_index(UsersIndex::User).and_delete(user) }
+  #   specify { expect { user.destroy! }.to update_index(UsersIndex::User).and_delete(user.id) }
+  #
   chain(:and_delete) do |*args|
     @delete ||= {}
     @delete.merge!(extract_documents(*args))
   end
 
+  # Used for specifying than no other records would be indexed or deleted:
+  #
+  #   specify { expect { [user1, user2].map(&:save!) }
+  #     .to update_index(UsersIndex.user).and_reindex(user1, user2).only }
+  #   specify { expect { [user1, user2].map(&:destroy!) }
+  #     .to update_index(UsersIndex.user).and_delete(user1, user2).only }
+  #
+  # This example will fail:
+  #
+  #   specify { expect { [user1, user2].map(&:save!) }
+  #     .to update_index(UsersIndex.user).and_reindex(user1).only }
+  #
   chain(:only) do |*args|
     @only = true
   end
@@ -23,9 +90,8 @@ RSpec::Matchers.define :update_index do |type_name, options = {}|
     updated = []
     type.stub(:bulk) do |options|
       updated += options[:body].map do |updated_document|
-        updated_document = updated_document.symbolize_keys
+        updated_document = updated_document.deep_symbolize_keys
         body = updated_document[:index] || updated_document[:delete]
-        body[:data] = body[:data].symbolize_keys if body[:data]
         updated_document
       end
       {}
@@ -59,7 +125,7 @@ RSpec::Matchers.define :update_index do |type_name, options = {}|
       document[:match_count] = (!document[:expected_count] && document[:real_count] > 0) ||
         (document[:expected_count] && document[:expected_count] == document[:real_count])
       document[:match_attributes] = document[:expected_attributes].blank? ||
-        document[:real_attributes].slice(*document[:expected_attributes].keys) == document[:expected_attributes]
+        compare_attributes(document[:expected_attributes], document[:real_attributes])
     end
     @delete.each do |_, document|
       document[:match_count] = (!document[:expected_count] && document[:real_count] > 0) ||
@@ -123,7 +189,7 @@ RSpec::Matchers.define :update_index do |type_name, options = {}|
     options = args.extract_options!
 
     expected_count = options[:times] || options[:count]
-    expected_attributes = (options[:with] || options[:attributes] || {}).symbolize_keys!
+    expected_attributes = (options[:with] || options[:attributes] || {}).deep_symbolize_keys!
 
     Hash[args.flatten.map do |document|
       id = document.respond_to?(:id) ? document.id.to_s : document.to_s
@@ -135,5 +201,28 @@ RSpec::Matchers.define :update_index do |type_name, options = {}|
         real_attributes: {}
       }]
     end]
+  end
+
+  def compare_attributes expected, real
+    expected.inject(true) do |result, (key, value)|
+      equal = if value.is_a?(Array) && real[key].is_a?(Array)
+        array_difference(value, real[key]) && array_difference(real[key], value)
+      elsif value.is_a?(Hash) && real[key].is_a?(Hash)
+        compare_attributes(value, real[key])
+      else
+        real[key] == value
+      end
+      result && equal
+    end
+  end
+
+  def array_difference first, second
+    difference = first.to_ary.dup
+    second.to_ary.each do |element|
+      if index = difference.index(element)
+        difference.delete_at(index)
+      end
+    end
+    difference.none?
   end
 end

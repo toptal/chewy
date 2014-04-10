@@ -1,5 +1,7 @@
 # master
 
+  * Changed `update_index` matcher behavior. Now it compare array attributes position-independantly.
+
   * Search aggregations API support (@arion).
 
   * Chewy::Query#facets called without params performs the request and returns facets.

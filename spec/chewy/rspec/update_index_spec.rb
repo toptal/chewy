@@ -121,6 +121,32 @@ describe :update_index do
         }.to update_index(DummiesIndex.dummy).and_reindex(42, with: {a: 1})
       }.to fail_matching('Expected document with id `42` to be reindexed, but it was not') }
 
+      [
+        [{a: ['one', 'two']}, {a: ['one', 'two']}],
+        [{a: ['one', 'two']}, {a: ['two', 'one']}],
+        [{a: ['one', 'one', 'two']}, {a: ['one', 'two', 'one']}],
+        [{a: {b: ['one', 'one', 'two']}}, {a: {b: ['one', 'two', 'one']}}],
+        [{a: 1, b: 1}, {a: 1}]
+      ].each do |(data, with)|
+        specify { expect {
+          DummiesIndex.dummy.bulk body: [{index: {_id: 42, data: data}}]
+        }.to update_index(DummiesIndex.dummy).and_reindex(42, with: with) }
+      end
+
+      [
+        [{a: ['one', 'two']}, {a: ['one', 'one', 'two']}],
+        [{a: ['one', 'one', 'two']}, {a: ['one', 'two']}],
+        [{a: ['one', 'two']}, {a: 1}],
+        [{a: 1}, {a: ['one', 'two']}],
+        [{a: 1}, {a: 1, b: 1}]
+      ].each do |(data, with)|
+        specify { expect {
+          expect {
+            DummiesIndex.dummy.bulk body: [{index: {_id: 42, data: data}}]
+          }.to update_index(DummiesIndex.dummy).and_reindex(42, with: with)
+        }.to fail_matching('Expected document with id `42` to be reindexed') }
+      end
+
       context do
         let(:expectation) do
           expect { expect {

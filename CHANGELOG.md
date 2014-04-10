@@ -1,5 +1,7 @@
 # master
 
+# Version 0.4.0
+
   * Changed `update_index` matcher behavior. Now it compare array attributes position-independantly.
 
   * Search aggregations API support (@arion).

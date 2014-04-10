@@ -191,7 +191,7 @@ RSpec::Matchers.define :update_index do |type_name, options = {}|
     options = args.extract_options!
 
     expected_count = options[:times] || options[:count]
-    expected_attributes = (options[:with] || options[:attributes] || {}).deep_symbolize_keys!
+    expected_attributes = (options[:with] || options[:attributes] || {}).deep_symbolize_keys
 
     Hash[args.flatten.map do |document|
       id = document.respond_to?(:id) ? document.id.to_s : document.to_s

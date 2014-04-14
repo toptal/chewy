@@ -229,7 +229,9 @@ See [actions.rb](lib/chewy/index/actions.rb) for more details.
 
 ### Observing strategies
 
-There are 3 strategies for index updating: do not update index at all, update right after save and cummulative update. The first is by default.
+There are 3 strategies for index updating: do not update index at all, update right after save and cumulative update. The first is by default.
+
+**WARN: It is preferred to use `Chewy.atomic` block in most cases due to performance restrictions of the urgent updates!**
 
 #### Updating index on-demand
 

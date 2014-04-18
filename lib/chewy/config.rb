@@ -63,6 +63,49 @@ module Chewy
     #
     repository :char_filter
 
+    # Chewy core configurations. There is two ways to set it up:
+    # use `Chewy.configuration=` method or, for Rails application,
+    # create `config/chewy.yml` file. Btw, `config/chewy.yml` supports
+    # ERB the same way as ActiveRecord's config.
+    #
+    # Configuration options:
+    #
+    #   1. Chewy client options. All the options Elasticsearch::Client
+    #      supports.
+    #
+    #        test:
+    #          host: 'localhost:9250'
+    #
+    #   2. Chewy self-configuration:
+    #
+    #      :prefix - used as prefix for any index created.
+    #
+    #        test:
+    #          host: 'localhost:9250'
+    #          prefix: test<%= ENV['TEST_ENV_NUMBER'] %>
+    #
+    #      Then UsersIndex.index_name will be "test42_users"
+    #      in case TEST_ENV_NUMBER=42
+    #
+    #      :wait_for_status - if this option set - chewy actions such
+    #      as creating or deleting index, importing data will wait for
+    #      the status specified. Extremely useful for tests under havy
+    #      indexes manipulations.
+    #
+    #        test:
+    #          host: 'localhost:9250'
+    #          wait_for_status: green
+    #
+    #   3. Index settings. All the possible ElasticSearch index settings.
+    #      Will be merged as defaults with index settings on every index
+    #      creation.
+    #
+    #        test: &test
+    #        host: 'localhost:9250'
+    #        index:
+    #          number_of_shards: 1
+    #          number_of_replicas: 0
+    #
     def configuration
       options = @configuration.deep_symbolize_keys.merge(yaml_options)
       options.merge!(logger: logger) if logger
@@ -105,7 +148,10 @@ module Chewy
       @yaml_options ||= begin
         if defined?(Rails)
           file = Rails.root.join(*%w(config chewy.yml))
-          YAML.load_file(file)[Rails.env].try(:deep_symbolize_keys) if File.exists?(file)
+          if File.exists?(file)
+            yaml = ERB.new(File.read(file)).result
+            YAML.load(yaml)[Rails.env].try(:deep_symbolize_keys)
+          end
         end || {}
       end
     end

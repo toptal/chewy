@@ -7,8 +7,6 @@ Chewy is ODM and wrapper for official elasticsearch client (https://github.com/e
 
 ## Why chewy?
 
-
-
 * Multi-model indexes.
 
   Index classes are independant from ORM/ODM models. Now implementing, e.g. cross-model autocomplete is much easier. You can just define index and work with it in object-oriented style. You can define several types for index - one per indexed model.
@@ -64,7 +62,7 @@ The result config merges both hashes. Client options are passed as is to Elastic
 
 ```ruby
   Chewy.configuration = {prefix: 'testing'}
-  UsersIndex.index_name # => 'testing_users'
+  UsersIndex.index_name # => 'test_users'
 ```
 
 Also logger might be set explicitly:
@@ -72,6 +70,8 @@ Also logger might be set explicitly:
 ```ruby
 Chewy.logger = Logger.new
 ```
+
+See [config.rb](lib/chewy/config.rb) for more details.
 
 ### Index definition
 

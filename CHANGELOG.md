@@ -1,5 +1,9 @@
 # master
 
+# Version 0.4.1
+
+  * config/chewy.yml ERB support.
+
 # Version 0.4.0
 
   * Changed `update_index` matcher behavior. Now it compare array attributes position-independantly.

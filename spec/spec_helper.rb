@@ -28,7 +28,7 @@ ActiveRecord::Schema.define do
 end
 
 Chewy.configuration = {
-  host: 'localhost:9200',
+  host: 'localhost:9250',
   wait_for_status: 'green',
   index: {
     number_of_shards: 1,

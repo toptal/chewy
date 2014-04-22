@@ -73,20 +73,22 @@ module Chewy
         end
       end
 
-      def merge! other
+      def merge!(other)
         STORAGES.each do |storage|
           send("update_#{storage}", other.send(storage))
         end
         self
       end
 
-      def merge other
+      def merge(other)
         clone.merge!(other)
       end
 
       def request_body
-        body = (_composed_query(_request_query, _request_filter) || {}).tap do |body|
+        body = {}.tap do |body|
+          body.merge!(query: _request_query) if queries?
           body.merge!(facets: facets) if facets?
+          body.merge!(filter: _request_filter) if filters?
           body.merge!(aggregations: aggregations) if aggregations?
           body.merge!(sort: sort) if sort?
           body.merge!(_source: fields) if fields?

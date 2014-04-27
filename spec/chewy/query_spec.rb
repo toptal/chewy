@@ -2,7 +2,13 @@ require 'spec_helper'
 
 describe Chewy::Query do
   include ClassHelpers
-  before { Chewy.client.indices.delete index: '*' }
+
+  before do
+    begin
+      Chewy.client.indices.delete index: '*'
+    rescue
+    end
+  end
 
   before do
     stub_index(:products) do

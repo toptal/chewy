@@ -4,7 +4,20 @@ module Chewy
 
     protected
 
-      def _queries_join(queries, logic)
+      def _composed_query queries, filters
+        if filters
+          {query: {
+            filtered: {
+              query: queries ? queries : {match_all: {}},
+              filter: filters
+            }
+          }}
+        elsif queries
+          {query: queries}
+        end
+      end
+
+      def _queries_join queries, logic
         queries = queries.compact
 
         if queries.many?
@@ -25,7 +38,7 @@ module Chewy
         end
       end
 
-      def _filters_join(filters, logic)
+      def _filters_join filters, logic
         filters = filters.compact
 
         if filters.many?

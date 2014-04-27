@@ -26,9 +26,9 @@ describe Chewy::Query::Nodes::HasChild do
       .should == {has_child: {type: 'child', query: {bool: {should: [{match: {name: 'name'}}, {match: {surname: 'surname'}}]}}}} }
 
     specify { render { has_child('child').filter{ name == 'name' }.query(match: {name: 'name'}) }
-      .should == {has_child: {type: 'child', query: {match: {name: 'name'}}, filter: {term: {'name' => 'name'}}}} }
+      .should == {has_child: {type: 'child', query: {filtered: {query: {match: {name: 'name'}}, filter: {term: {'name' => 'name'}}}}}} }
     specify { render { has_child('child').filter{ name == 'name' }.query(match: {name: 'name'}).filter{ age < 42 } }
-      .should == {has_child: {type: 'child', query: {match: {name: 'name'}}, filter: {and: [{term: {'name' => 'name'}}, range: {'age' => {lt: 42}}]}}} }
+      .should == {has_child: {type: 'child', query: {filtered: {query: {match: {name: 'name'}}, filter: {and: [{term: {'name' => 'name'}}, range: {'age' => {lt: 42}}]}}}}} }
 
     context do
       let(:name) { 'Name' }

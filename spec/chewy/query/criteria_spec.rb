@@ -158,6 +158,39 @@ describe Chewy::Query::Criteria do
     }.should == {body: {query: :query, from: 10, sort: [:field], _source: ['field']}} }
   end
 
+  describe '#_composed_query' do
+    def _composed_query &block
+      subject.instance_exec(&block) if block
+      subject.send(:_composed_query, subject.send(:_request_query), subject.send(:_request_filter))
+    end
+
+    specify { _composed_query.should be_nil }
+    specify { _composed_query { update_queries(:query) }.should == {query: :query} }
+    specify { _composed_query { update_queries([:query1, :query2]) }
+      .should == {query: {bool: {must: [:query1, :query2]}}} }
+    specify { _composed_query { update_options(query_mode: :should); update_queries([:query1, :query2]) }
+      .should == {query: {bool: {should: [:query1, :query2]}}} }
+    specify { _composed_query { update_options(query_mode: :dis_max); update_queries([:query1, :query2]) }
+      .should == {query: {dis_max: {queries: [:query1, :query2]}}} }
+
+    specify { _composed_query { update_filters([:filter1, :filter2]) }
+      .should == {query: {filtered: {query: {match_all: {}}, filter: {and: [:filter1, :filter2]}}}} }
+    specify { _composed_query { update_filters([:filter1, :filter2]); update_queries([:query1, :query2]) }
+      .should == {query: {filtered: {
+        query: {bool: {must: [:query1, :query2]}},
+        filter: {and: [:filter1, :filter2]}
+      }}}
+    }
+    specify { _composed_query {
+        update_options(query_mode: :should); update_options(filter_mode: :or);
+        update_filters([:filter1, :filter2]); update_queries([:query1, :query2])
+      }.should == {query: {filtered: {
+        query: {bool: {should: [:query1, :query2]}},
+        filter: {or: [:filter1, :filter2]}
+      }}}
+    }
+  end
+
   describe '#_request_filter' do
     def _request_filter &block
       subject.instance_exec(&block) if block

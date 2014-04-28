@@ -4,10 +4,7 @@ describe Chewy::Query do
   include ClassHelpers
 
   before do
-    begin
-      Chewy.client.indices.delete index: '*'
-    rescue
-    end
+    Chewy.client.indices.delete index: '*'
   end
 
   before do

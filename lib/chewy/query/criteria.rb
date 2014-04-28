@@ -85,14 +85,19 @@ module Chewy
       end
 
       def request_body
-        body = {}.tap do |body|
+        body = {}
+
+        if Chewy.filtered_queries?
+          body.merge!(_composed_query(_request_query, _request_filter) || {})
+        else
           body.merge!(query: _request_query) if queries?
-          body.merge!(facets: facets) if facets?
           body.merge!(filter: _request_filter) if (filters? || types?)
-          body.merge!(aggregations: aggregations) if aggregations?
-          body.merge!(sort: sort) if sort?
-          body.merge!(_source: fields) if fields?
         end
+
+        body.merge!(facets: facets) if facets?
+        body.merge!(aggregations: aggregations) if aggregations?
+        body.merge!(sort: sort) if sort?
+        body.merge!(_source: fields) if fields?
 
         {body: body.merge!(_request_options)}
       end

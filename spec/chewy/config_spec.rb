@@ -6,6 +6,7 @@ describe Chewy::Config do
 
   its(:query_mode) { should == :must }
   its(:filter_mode) { should == :and }
+  its(:filtered_queries) { should == false }
   its(:logger) { should be_nil }
   its(:configuration) { should_not have_key :logger }
   its(:analyzers) { should == {} }

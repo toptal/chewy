@@ -3,7 +3,9 @@ module Chewy
     include Singleton
 
     attr_reader :analyzers, :tokenizers, :filters, :char_filters
-    attr_accessor :configuration, :urgent_update, :query_mode, :filter_mode, :logger
+    attr_accessor :configuration, :urgent_update, :query_mode, :filter_mode, :filtered_queries, :logger
+
+    alias_method :filtered_queries?, :filtered_queries
 
     def self.delegated
       public_instance_methods - self.superclass.public_instance_methods - Singleton.public_instance_methods
@@ -24,6 +26,7 @@ module Chewy
       @configuration = {}
       @query_mode = :must
       @filter_mode = :and
+      @filtered_queries = false
       @analyzers = {}
       @tokenizers = {}
       @filters = {}

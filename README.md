@@ -61,7 +61,7 @@ development:
 The result config merges both hashes. Client options are passed as is to Elasticsearch::Transport::Client except the `:prefix` - it is used internally by chewy to create prefixed index names:
 
 ```ruby
-  Chewy.configuration = {prefix: 'testing'}
+  Chewy.configuration = {prefix: 'test'}
   UsersIndex.index_name # => 'test_users'
 ```
 

@@ -706,3 +706,10 @@ See [update_index.rb](lib/chewy/rspec/update_index.rb) for more details.
 4. Commit your changes (`git commit -am 'Add some feature'`)
 5. Push to the branch (`git push origin my-new-feature`)
 6. Create new Pull Request
+
+Use the following Rake tasks to control ElasticSearch cluster while developing.
+
+```bash
+rake elasticsearch:start # start Elasticsearch cluster on 9250 port for tests
+rake elasticsearch:stop # stop Elasticsearch
+```

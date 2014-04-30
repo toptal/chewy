@@ -1,3 +1,5 @@
+require 'i18n/core_ext/hash'
+
 module Chewy
   module Type
     module Wrapper

@@ -1,5 +1,3 @@
-require 'i18n/core_ext/hash'
-
 module Chewy
   module Type
     module Wrapper
@@ -8,7 +6,7 @@ module Chewy
       attr_accessor :attributes, :_data, :_object
 
       def initialize(attributes = {})
-        @attributes = attributes.deep_stringify_keys
+        @attributes = attributes.stringify_keys
       end
 
       def ==(other)

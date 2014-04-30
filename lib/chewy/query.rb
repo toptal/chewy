@@ -505,15 +505,19 @@ module Chewy
       end
     end
 
+    MERGER = lambda do |key, old_value, new_value|
+      if old_value.is_a?(Hash) && new_value.is_a?(Hash)
+        old_value.merge(new_value, &MERGER)
+      elsif new_value.is_a?(Array) && new_value.count > 1
+        new_value
+      else
+        old_value.is_a?(Array) ? new_value : new_value.first
+      end
+    end
+
     def _results
       @_results ||= (criteria.none? ? [] : _response['hits']['hits']).map do |hit|
-        attributes = (hit['_source'] || {}).deep_merge(hit['highlight'] || {}) do |key, old_value, new_value|
-          if new_value.is_a?(Array) && new_value.count > 1
-            new_value
-          else
-            old_value.is_a?(Array) ? new_value : new_value.first
-          end
-        end
+        attributes = (hit['_source'] || {}).merge(hit['highlight'] || {}, &MERGER)
         attributes.reverse_merge!(id: hit['_id']).merge!(_score: hit['_score'])
 
         wrapper = index.type_hash[hit['_type']].new attributes

@@ -2,6 +2,10 @@
 
 # Version 0.5.0
 
+  * `preload` scope method loads ORM/ODM objects and returns scope itself.
+
+  * `load` method `:only` and `:except` options.
+
   * Highlight and rescore query options support.
 
   * Top-level query filters support (@igor-alexandrov).

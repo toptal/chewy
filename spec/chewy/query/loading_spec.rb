@@ -26,13 +26,30 @@ describe Chewy::Query::Loading do
 
     before { PlacesIndex.import!(cities: cities, countries: countries) }
 
-    specify { PlacesIndex.order(:rating).limit(6).load.total_count.should == 12 }
-    specify { PlacesIndex.order(:rating).limit(6).load.should =~ cities.first(3) + countries.first(3) }
-    specify { PlacesIndex.order(:rating).limit(6).load(city: { scope: ->{ where('rating < 2') } })
-      .should =~ cities.first(2) + countries.first(3) + [nil] }
-    specify { PlacesIndex.order(:rating).limit(6).load(scope: ->{ where('rating < 2') })
-      .should =~ cities.first(2) + countries.first(2) + [nil, nil] }
-    specify { PlacesIndex.order(:rating).limit(6).load(city: { scope: City.where('rating < 2') })
-      .should =~ cities.first(2) + countries.first(3) + [nil] }
+    describe '#load' do
+      specify { PlacesIndex.order(:rating).limit(6).tap { |s| s.load(scope: ->{ where('rating < 2') }) }
+        .map(&:_object).should =~ cities.first(2) + countries.first(2) + [nil] * 2 }
+
+      specify { PlacesIndex.order(:rating).limit(6).load.total_count.should == 12 }
+      specify { PlacesIndex.order(:rating).limit(6).load.should =~ cities.first(3) + countries.first(3) }
+      specify { PlacesIndex.order(:rating).limit(6).load(city: { scope: ->{ where('rating < 2') } })
+        .should =~ cities.first(2) + countries.first(3) + [nil] }
+      specify { PlacesIndex.order(:rating).limit(6).load(scope: ->{ where('rating < 2') })
+        .should =~ cities.first(2) + countries.first(2) + [nil] * 2 }
+      specify { PlacesIndex.order(:rating).limit(6).load(city: { scope: City.where('rating < 2') })
+        .should =~ cities.first(2) + countries.first(3) + [nil] }
+    end
+
+    describe '#preload' do
+      specify { PlacesIndex.order(:rating).limit(6).preload(scope: ->{ where('rating < 2') })
+        .map(&:_object).should =~ cities.first(2) + countries.first(2) + [nil] * 2 }
+
+      specify { PlacesIndex.order(:rating).limit(6).preload(only: :city, scope: ->{ where('rating < 2') })
+        .map(&:_object).should =~ cities.first(2) + [nil] * 4 }
+      specify { PlacesIndex.order(:rating).limit(6).preload(except: [:city], scope: ->{ where('rating < 2') })
+        .map(&:_object).should =~ countries.first(2) + [nil] * 4 }
+      specify { PlacesIndex.order(:rating).limit(6).preload(only: [:city], except: :city, scope: ->{ where('rating < 2') })
+        .map(&:_object).should =~ [nil] * 6 }
+    end
   end
 end

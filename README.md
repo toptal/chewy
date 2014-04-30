@@ -614,6 +614,8 @@ scope.load(scope: ->{ includes(:country) }) # and more common scope applied to e
 scope.only(:id).load # it is optimal to request ids only if you are not planning to use type objects
 ```
 
+See [loading.rb](lib/chewy/query/loading.rb) for more details.
+
 ### `ActiveSupport::Notifications` support
 
 Chewy has notifing the following events:

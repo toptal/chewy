@@ -30,8 +30,11 @@ describe Chewy::Query do
     end
 
     specify { subject.count.should == 9 }
+    specify { subject.first._data.should be_a Hash }
     specify { subject.limit(6).count.should == 6 }
     specify { subject.offset(6).count.should == 3 }
+    specify { subject.query(match: {name: 'name3'}).highlight(fields: {name: {}}).first.name.should == '<em>Name3</em>' }
+    specify { subject.query(match: {name: 'name3'}).highlight(fields: {name: {}}).first._data['_source']['name'].should == 'Name3' }
     specify { subject.types(:product).count.should == 3 }
     specify { subject.types(:product, :country).count.should == 6 }
     specify { subject.filter(term: {age: 10}).count.should == 1 }
@@ -285,8 +288,8 @@ describe Chewy::Query do
       specify { CitiesIndex.all.first._score.should be > 0 }
       specify { CitiesIndex.query(match: {name: 'name0'}).first._score.should be > 0 }
 
-      specify { CitiesIndex.order(:rating).first._explanation.should be_nil }
-      specify { CitiesIndex.order(:rating).explain.first._explanation.should be_present }
+      specify { CitiesIndex.order(:rating).first._data['_explanation'].should be_nil }
+      specify { CitiesIndex.order(:rating).explain.first._data['_explanation'].should be_present }
     end
 
     context 'sourceless' do

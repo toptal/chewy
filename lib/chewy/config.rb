@@ -5,8 +5,6 @@ module Chewy
     attr_reader :analyzers, :tokenizers, :filters, :char_filters
     attr_accessor :configuration, :urgent_update, :query_mode, :filter_mode, :filtered_queries, :logger
 
-    alias_method :filtered_queries?, :filtered_queries
-
     def self.delegated
       public_instance_methods - self.superclass.public_instance_methods - Singleton.public_instance_methods
     end

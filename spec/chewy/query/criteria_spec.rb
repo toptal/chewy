@@ -158,14 +158,14 @@ describe Chewy::Query::Criteria do
     }.should == {body: {query: :query, from: 10, sort: [:field], _source: ['field']}} }
 
     context do
-      before { Chewy.stub(:filtered_queries?) {false} }
+      before { Chewy.stub(filtered_queries: false) }
       specify { request_body {
         update_queries(:query); update_filters(:filters);
       }.should == {body: {query: :query, filter: :filters}} }
     end
 
     context do
-      before { Chewy.stub(:filtered_queries?) {true} }
+      before { Chewy.stub(filtered_queries: true) }
       specify { request_body {
         update_queries(:query); update_filters(:filters);
       }.should == {body: {query: {filtered: {query: :query, filter: :filters}}}} }

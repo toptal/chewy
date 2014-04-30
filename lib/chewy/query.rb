@@ -232,6 +232,22 @@ module Chewy
       chain { criteria.update_options from: Integer(value) }
     end
 
+    # Elasticsearch highlight query option support
+    #
+    #   UsersIndex.query(...).highlight(fields: { ... })
+    #
+    def highlight value
+      chain { criteria.update_options highlight: value }
+    end
+
+    # Elasticsearch rescore query option support
+    #
+    #   UsersIndex.query(...).rescore(query: { ... })
+    #
+    def rescore value
+      chain { criteria.update_options rescore: value }
+    end
+
     # Adds facets section to the search request.
     # All the chained facets a merged and added to the
     # search request
@@ -491,10 +507,18 @@ module Chewy
 
     def _results
       @_results ||= (criteria.none? ? [] : _response['hits']['hits']).map do |hit|
-        attributes = hit['_source'] || {}
-        attributes.reverse_merge!(id: hit['_id'])
-          .merge!(_score: hit['_score'], _explanation: hit['_explanation'])
-        index.type_hash[hit['_type']].new attributes
+        attributes = (hit['_source'] || {}).deep_merge(hit['highlight'] || {}) do |key, old_value, new_value|
+          if new_value.is_a?(Array) && new_value.count > 1
+            new_value
+          else
+            old_value.is_a?(Array) ? new_value : new_value.first
+          end
+        end
+        attributes.reverse_merge!(id: hit['_id']).merge!(_score: hit['_score'])
+
+        wrapper = index.type_hash[hit['_type']].new attributes
+        wrapper._data = hit
+        wrapper
       end
     end
   end

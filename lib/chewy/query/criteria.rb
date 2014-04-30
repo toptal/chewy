@@ -87,7 +87,7 @@ module Chewy
       def request_body
         body = {}
 
-        if Chewy.filtered_queries?
+        if Chewy.filtered_queries
           body.merge!(_composed_query(_request_query, _request_filter) || {})
         else
           body.merge!(query: _request_query) if queries?
@@ -119,7 +119,7 @@ module Chewy
       end
 
       def _request_options
-        options.slice(:size, :from, :explain, :aggregations)
+        options.slice(:size, :from, :explain, :highlight, :rescore)
       end
 
       def _request_query

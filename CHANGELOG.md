@@ -1,6 +1,10 @@
 # master
 
-# Version 0.4.1
+# Version 0.5.0
+
+  * Highlight and rescore query options support.
+
+  * Top-level query filters support (@igor-alexandrov).
 
   * config/chewy.yml ERB support.
 

@@ -3,10 +3,10 @@ module Chewy
     module Wrapper
       extend ActiveSupport::Concern
 
-      attr_accessor :attributes
+      attr_accessor :attributes, :_data
 
       def initialize(attributes = {})
-        @attributes = attributes.stringify_keys
+        @attributes = attributes.deep_stringify_keys
       end
 
       def ==(other)

@@ -10,11 +10,7 @@ module Chewy
         end
 
         def name
-          @name ||= (options[:name] || target).to_s.camelize
-        end
-
-        def type_name
-          @type_name ||= (options[:name] || target).to_s.underscore
+          @name ||= (options[:name] || target).to_s.camelize.demodulize
         end
 
         # Imports passed data with options

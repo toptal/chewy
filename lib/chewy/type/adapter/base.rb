@@ -17,7 +17,7 @@ module Chewy
         # `ProductsIndex.type_hash['product']` or `ProductsIndex.product`
         #
         def type_name
-          raise NotImplementedError
+          @type_name ||= name.underscore
         end
 
         # Splits passed objects to groups according to `:batch_size` options.

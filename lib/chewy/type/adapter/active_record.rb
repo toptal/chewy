@@ -16,11 +16,7 @@ module Chewy
         end
 
         def name
-          @name ||= options[:name].present? ? options[:name].to_s.camelize : model.model_name.to_s
-        end
-
-        def type_name
-          @type_name ||= (options[:name].presence || model.model_name).to_s.underscore
+          @name ||= (options[:name].present? ? options[:name].to_s.camelize : model.model_name.to_s).demodulize
         end
 
         # Import method fo ActiveRecord takes import data and import options

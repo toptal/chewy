@@ -8,6 +8,12 @@ describe Chewy::Type::Adapter::Object do
     specify { described_class.new(:products).name.should == 'Products' }
     specify { described_class.new(Product).name.should == 'Product' }
     specify { described_class.new(Product, name: 'house').name.should == 'House' }
+
+    context do
+      before { stub_class('namespace/product') }
+
+      specify { described_class.new(Namespace::Product).name.should == 'Product' }
+    end
   end
 
   describe '#type_name' do
@@ -15,6 +21,12 @@ describe Chewy::Type::Adapter::Object do
     specify { described_class.new(:products).type_name.should == 'products' }
     specify { described_class.new(Product).type_name.should == 'product' }
     specify { described_class.new(Product, name: 'house').type_name.should == 'house' }
+
+    context do
+      before { stub_class('namespace/product') }
+
+      specify { described_class.new(Namespace::Product).type_name.should == 'product' }
+    end
   end
 
   describe '#import' do

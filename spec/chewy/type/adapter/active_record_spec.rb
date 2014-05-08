@@ -7,12 +7,26 @@ describe Chewy::Type::Adapter::ActiveRecord do
     specify { described_class.new(City).name.should == 'City' }
     specify { described_class.new(City.order(:id)).name.should == 'City' }
     specify { described_class.new(City, name: 'town').name.should == 'Town' }
+
+    context do
+      before { stub_model('namespace/city') }
+
+      specify { described_class.new(Namespace::City).name.should == 'City' }
+      specify { described_class.new(Namespace::City.order(:id)).name.should == 'City' }
+    end
   end
 
   describe '#type_name' do
     specify { described_class.new(City).type_name.should == 'city' }
     specify { described_class.new(City.order(:id)).type_name.should == 'city' }
     specify { described_class.new(City, name: 'town').type_name.should == 'town' }
+
+    context do
+      before { stub_model('namespace/city') }
+
+      specify { described_class.new(Namespace::City).type_name.should == 'city' }
+      specify { described_class.new(Namespace::City.order(:id)).type_name.should == 'city' }
+    end
   end
 
   describe '#import' do

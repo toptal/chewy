@@ -311,7 +311,7 @@ describe Chewy::Index::Actions do
         end
       end
 
-      specify { expect { CitiesIndex.import!(city: dummy_cities) }.to raise_error Chewy::FailedImport }
+      specify { expect { CitiesIndex.import!(city: dummy_cities) }.to raise_error Chewy::ImportFailed }
     end
   end
 

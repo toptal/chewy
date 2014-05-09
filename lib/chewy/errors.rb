@@ -11,7 +11,7 @@ module Chewy
   class UnderivableType < Error
   end
 
-  class FailedImport < Error
+  class ImportFailed < Error
     def initialize type, errors
       output = "Import failed for `#{type}` with:\n"
       errors.each do |action, errors|

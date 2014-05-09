@@ -34,7 +34,7 @@ module Chewy
         end
 
         # Perform import operation for specified documents.
-        # Raises Chewy::FailedImport exception in case of import errors.
+        # Raises Chewy::ImportFailed exception in case of import errors.
         #
         #   UsersIndex::User.import!                          # imports default data set
         #   UsersIndex::User.import! User.active              # imports active users
@@ -51,7 +51,7 @@ module Chewy
           end
           import *args
           ActiveSupport::Notifications.unsubscribe(subscriber)
-          raise Chewy::FailedImport.new(self, errors) if errors.present?
+          raise Chewy::ImportFailed.new(self, errors) if errors.present?
           true
         end
 
@@ -60,9 +60,8 @@ module Chewy
         def bulk options = {}
           suffix = options.delete(:suffix)
 
-          Chewy.wait_for_status
-
           result = client.bulk options.merge(index: index.build_index_name(suffix: suffix), type: type_name)
+          Chewy.wait_for_status
 
           extract_errors result
         end

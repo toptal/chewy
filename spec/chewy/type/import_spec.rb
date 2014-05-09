@@ -188,7 +188,7 @@ describe Chewy::Type::Import do
         end
       end
 
-      specify { expect { city.import!(dummy_cities) }.to raise_error Chewy::FailedImport }
+      specify { expect { city.import!(dummy_cities) }.to raise_error Chewy::ImportFailed }
     end
   end
 end

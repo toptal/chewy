@@ -3,7 +3,53 @@ module Chewy
     include Singleton
 
     attr_reader :analyzers, :tokenizers, :filters, :char_filters
-    attr_accessor :configuration, :urgent_update, :query_mode, :filter_mode, :filtered_queries, :logger
+    attr_accessor :configuration,
+      # Just sets up logger to current configuration
+      #
+      #   Chewy.logger = Rails.logger
+      #
+      :logger,
+
+      # Urgent update default value. False by default. Urgent
+      # updates are useful for testing, so don't use it in the
+      # application code. Prefer `Chewy.atomic` block for cumulative
+      # index updates.
+      #
+      :urgent_update,
+
+      # Default query compilation mode. `:must` by default.
+      # See Chewy::Query#query_mode for details
+      #
+      :query_mode,
+
+      # Default filters compilation mode. `:and` by default.
+      # See Chewy::Query#filter_mode for details
+      #
+      :filter_mode,
+
+      # Special request compilation mode. Switched off by default.
+      # By default separated query and filter request body parts:
+      #
+      #  {body: {query: {...}, filter: {...}}}
+      #
+      # If `filtered_queries` set to true, Chewy creates filtered query
+      # And puts filters inside it:
+      #
+      #  {body: {query: {filtered: {
+      #            query: {...},
+      #            filter: {...}
+      #          }}}}
+      #
+      # The second thing: if query was not defined for request, Chewy
+      # uses `match_all: {}` query by default in `filtered_queries` to
+      # return all the documents like DB.
+      #
+      #  {body: {query: {filtered: {
+      #            query: {match_all: {}},
+      #            filter: {...}
+      #          }}}}
+      #
+      :filtered_queries
 
     def self.delegated
       public_instance_methods - self.superclass.public_instance_methods - Singleton.public_instance_methods
@@ -20,8 +66,8 @@ module Chewy
     end
 
     def initialize
-      @urgent_update = false
       @configuration = {}
+      @urgent_update = false
       @query_mode = :must
       @filter_mode = :and
       @filtered_queries = false

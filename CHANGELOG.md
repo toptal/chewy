@@ -2,6 +2,10 @@
 
 # Version 0.5.0
 
+  * I think, now it waits for status correctly. After index creation and bulk import.
+
+  * Fix #23 "wrong constant name" with namespace models
+
   * `preload` scope method loads ORM/ODM objects and returns scope itself.
 
   * `load` method `:only` and `:except` options.

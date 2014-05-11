@@ -500,7 +500,12 @@ module Chewy
     def _response
       @_response ||= begin
         ActiveSupport::Notifications.instrument 'search_query.chewy', request: _request, index: index do
-          index.client.search(_request)
+          begin
+            index.client.search(_request)
+          rescue Elasticsearch::Transport::Transport::Errors::NotFound => e
+            raise e if e.message !~ /IndexMissingException/
+            {}
+          end
         end
       end
     end
@@ -516,7 +521,7 @@ module Chewy
     end
 
     def _results
-      @_results ||= (criteria.none? ? [] : _response['hits']['hits']).map do |hit|
+      @_results ||= (criteria.none? || _response == {} ? [] : _response['hits']['hits']).map do |hit|
         attributes = (hit['_source'] || {}).merge(hit['highlight'] || {}, &MERGER)
         attributes.reverse_merge!(id: hit['_id']).merge!(_score: hit['_score'])
 

@@ -2,6 +2,8 @@
 
 # Version 0.5.0
 
+  * 404 exception while query is swallowed and treated like an empty result set.
+
   * I think, now it waits for status correctly. After index creation and bulk import.
 
   * Fix #23 "wrong constant name" with namespace models

@@ -19,6 +19,10 @@ describe Chewy::Query do
 
   subject { described_class.new(ProductsIndex) }
 
+  context 'unexistent index' do
+    specify { subject.to_a.should == [] }
+  end
+
   context 'integration' do
     let(:products) { 3.times.map { |i| {id: i.next.to_s, name: "Name#{i.next}", age: 10 * i.next}.stringify_keys! } }
     let(:cities) { 3.times.map { |i| {id: i.next.to_s}.stringify_keys! } }

@@ -23,7 +23,7 @@ module Chewy
         end
 
         def total_count
-          _response['hits']['total']
+          _response['hits'].try(:[], 'total') || 0
         end
 
         def limit_value

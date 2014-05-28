@@ -130,7 +130,7 @@ See [config.rb](lib/chewy/config.rb) for more details.
 
     define_type User.active.includes(:country, :badges, :projects) do
       root date_detection: false do
-        template 'about_translations.*', type: 'string', analyzer: 'stantard'
+        template 'about_translations.*', type: 'string', analyzer: 'standard'
 
         field :first_name, :last_name
         field :email, analyzer: 'email'
@@ -172,7 +172,7 @@ See [config.rb](lib/chewy/config.rb) for more details.
     update_index('users#user') { user if user.active? } # you can return even `nil` from the backreference
   end
 
-  class Bage < ActiveRecord::Base
+  class Badge < ActiveRecord::Base
     has_and_belongs_to_many :users
 
     update_index('users') { users } # if index has only one type
@@ -296,7 +296,7 @@ Also, queries can be performed on a type individually
 UsersIndex::User.filter(term: {name: 'foo'}) # will return UserIndex::User collection only
 ```
 
-If you are performing more then one `filter` or `query` in the chain,
+If you are performing more than one `filter` or `query` in the chain,
 all the filters and queries will be concatenated in the way specified by
 `filter_mode` and `query_mode` respectively.
 

@@ -148,10 +148,10 @@ module Chewy
     #      creation.
     #
     #        test: &test
-    #        host: 'localhost:9250'
-    #        index:
-    #          number_of_shards: 1
-    #          number_of_replicas: 0
+    #          host: 'localhost:9250'
+    #          index:
+    #            number_of_shards: 1
+    #            number_of_replicas: 0
     #
     def configuration
       options = @configuration.deep_symbolize_keys.merge(yaml_options)

@@ -393,6 +393,30 @@ module Chewy
       chain { criteria.update_scores scoring }
     end
 
+    # Adds a random score to the search request. All scores are
+    # added to the search request and combinded according to
+    # <tt>boost_mode</tt> and <tt>score_mode</tt>
+    #
+    # This probably only makes sense if you specifiy a filter
+    # for the random score as well.
+    #
+    # If you do not pass in a seed value, Time.now will be used
+    #
+    #   UsersIndex.random_score(23, filter: { foo: :bar})
+    #       # => {body:
+    #              query: {
+    #                function_score: {
+    #                  query: { ...},
+    #                  functions: [{
+    #                    random_score: { seed: 23 },
+    #                    filter: { foo: :bar }
+    #                  }]
+    #                } } }
+    def random_score(seed = Time.now, options = {})
+      scoring = options.merge(random_score: { seed: seed.to_i })
+      chain { criteria.update_scores scoring }
+    end
+
     # Sets elasticsearch <tt>aggregations</tt> search request param
     #
     #  UsersIndex.filter{ name == 'Johny' }.aggregations(category_id: {terms: {field: 'category_ids'}})

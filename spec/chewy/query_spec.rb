@@ -135,6 +135,14 @@ describe Chewy::Query do
     specify { subject.boost_factor('23', filter: { foo: :bar}).criteria.scores.should == [{ boost_factor: 23, filter: { foo: :bar } }] }
   end
 
+  describe '#random_score' do
+    specify { subject.random_score('23').should be_a described_class }
+    specify { subject.random_score('23').should_not == subject }
+    specify { subject.random_score('23').criteria.scores.should == [ { random_score: { seed: 23 } } ] }
+    specify { expect { subject.random_score('23') }.not_to change { subject.criteria.scores } }
+    specify { subject.random_score('23', filter: { foo: :bar}).criteria.scores.should == [{ random_score: { seed: 23 }, filter: { foo: :bar } }] }
+  end
+
   describe '#facets' do
     specify { subject.facets(term: {field: 'hello'}).should be_a described_class }
     specify { subject.facets(term: {field: 'hello'}).should_not == subject }

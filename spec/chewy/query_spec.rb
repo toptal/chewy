@@ -143,6 +143,14 @@ describe Chewy::Query do
     specify { subject.random_score('23', filter: { foo: :bar}).criteria.scores.should == [{ random_score: { seed: 23 }, filter: { foo: :bar } }] }
   end
 
+  describe '#field_value_score' do
+    specify { subject.field_value_factor(field: :boost).should be_a described_class }
+    specify { subject.field_value_factor(field: :boost).should_not == subject }
+    specify { subject.field_value_factor(field: :boost).criteria.scores.should == [ { field_value_factor: { field: :boost } } ] }
+    specify { expect { subject.field_value_factor(field: :boost) }.not_to change { subject.criteria.scores } }
+    specify { subject.field_value_factor({ field: :boost }, filter: { foo: :bar}).criteria.scores.should == [{ field_value_factor: { field: :boost }, filter: { foo: :bar } }] }
+  end
+
   describe '#facets' do
     specify { subject.facets(term: {field: 'hello'}).should be_a described_class }
     specify { subject.facets(term: {field: 'hello'}).should_not == subject }

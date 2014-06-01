@@ -417,6 +417,37 @@ module Chewy
       chain { criteria.update_scores scoring }
     end
 
+    # Add a field value scoring to the search. All scores are
+    # added to the search request and combinded according to
+    # <tt>boost_mode</tt> and <tt>score_mode</tt>
+    #
+    # This function is only available in Elasticsearch 1.2 and
+    # greater
+    #
+    #   UsersIndex.field_value_factor(
+    #                {
+    #                  field: :boost,
+    #                  factor: 1.2,
+    #                  modifier: :sqrt
+    #                }, filter: { foo: :bar})
+    #       # => {body:
+    #              query: {
+    #                function_score: {
+    #                  query: { ...},
+    #                  functions: [{
+    #                    field_value_factor: {
+    #                      field: :boost,
+    #                      factor: 1.2,
+    #                      modifier: :sqrt
+    #                    },
+    #                    filter: { foo: :bar }
+    #                  }]
+    #                } } }
+    def field_value_factor(settings, options = {})
+      scoring = options.merge(field_value_factor: settings)
+      chain { criteria.update_scores scoring }
+    end
+
     # Sets elasticsearch <tt>aggregations</tt> search request param
     #
     #  UsersIndex.filter{ name == 'Johny' }.aggregations(category_id: {terms: {field: 'category_ids'}})

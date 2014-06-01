@@ -9,6 +9,6 @@ gemfile:
   - gemfiles/Gemfile.rails-3.2
   - gemfiles/Gemfile.rails-4.0
 before_install:
-  - curl -# https://download.elasticsearch.org/elasticsearch/elasticsearch/elasticsearch-1.0.1.tar.gz | tar xz -C /tmp
+  - curl -# https://download.elasticsearch.org/elasticsearch/elasticsearch/elasticsearch-1.2.0.tar.gz | tar xz -C /tmp
 before_script:
-  - TEST_CLUSTER_COMMAND="/tmp/elasticsearch-1.0.1/bin/elasticsearch" rake elasticsearch:start
+  - TEST_CLUSTER_COMMAND="/tmp/elasticsearch-1.2.0/bin/elasticsearch" rake elasticsearch:start

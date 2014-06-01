@@ -360,13 +360,36 @@ module Chewy
     #                  query: { ...},
     #                  functions: [{
     #                    script_score: {
-    #                     script: "doc['boost'].value",
+    #                       script: "doc['boost'].value"
+    #                     },
     #                     filter: { foo: :bar }
     #                    }
     #                  }]
     #                } } }
     def script_score(script, options = {})
       scoring = options.merge(script_score: { script: script })
+      chain { criteria.update_scores scoring }
+    end
+
+    # Adds a boost factor to the search request. All scores are
+    # added to the search request and combinded according to
+    # <tt>boost_mode</tt> and <tt>score_mode</tt>
+    #
+    # This probably only makes sense if you specifiy a filter
+    # for the boost factor as well
+    #
+    #   UsersIndex.boost_factor(23, filter: { foo: :bar})
+    #       # => {body:
+    #              query: {
+    #                function_score: {
+    #                  query: { ...},
+    #                  functions: [{
+    #                    boost_factor: 23,
+    #                    filter: { foo: :bar }
+    #                  }]
+    #                } } }
+    def boost_factor(factor, options = {})
+      scoring = options.merge(boost_factor: factor.to_i)
       chain { criteria.update_scores scoring }
     end
 

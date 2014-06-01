@@ -70,6 +70,20 @@ describe Chewy::Query do
     specify { expect { subject.filter_mode(:or) }.not_to change { subject.criteria.options } }
   end
 
+  describe '#boost_mode' do
+    specify { subject.boost_mode(:replace).should be_a described_class }
+    specify { subject.boost_mode(:replace).should_not == subject }
+    specify { subject.boost_mode(:replace).criteria.options.should include(boost_mode: :replace) }
+    specify { expect { subject.boost_mode(:replace) }.not_to change { subject.criteria.options } }
+  end
+
+  describe '#score_mode' do
+    specify { subject.score_mode(:first).should be_a described_class }
+    specify { subject.score_mode(:first).should_not == subject }
+    specify { subject.score_mode(:first).criteria.options.should include(score_mode: :first) }
+    specify { expect { subject.score_mode(:first) }.not_to change { subject.criteria.options } }
+  end
+
   describe '#limit' do
     specify { subject.limit(10).should be_a described_class }
     specify { subject.limit(10).should_not == subject }
@@ -103,6 +117,13 @@ describe Chewy::Query do
     specify { subject.query(match: 'hello').should_not == subject }
     specify { subject.query(match: 'hello').criteria.queries.should include(match: 'hello') }
     specify { expect { subject.query(match: 'hello') }.not_to change { subject.criteria.queries } }
+  end
+
+  describe '#script_score' do
+    specify { subject.script_score('23').should be_a described_class }
+    specify { subject.script_score('23').should_not == subject }
+    specify { subject.script_score('23').criteria.scores.should == [ { script_score: { script: '23' } } ] }
+    specify { expect { subject.script_score('23') }.not_to change { subject.criteria.scores } }
   end
 
   describe '#facets' do

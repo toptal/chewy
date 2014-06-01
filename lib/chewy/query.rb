@@ -353,17 +353,21 @@ module Chewy
     # added to the search request and combinded according to
     # <tt>boost_mode</tt> and <tt>score_mode</tt>
     #
-    #   UsersIndex.script_score("doc['boost'].value")
+    #   UsersIndex.script_score("doc['boost'].value", filter: { foo: :bar})
     #       # => {body:
     #              query: {
     #                function_score: {
     #                  query: { ...},
     #                  functions: [{
-    #                    script_score: { script: "doc['boost'].value" }
+    #                    script_score: {
+    #                     script: "doc['boost'].value",
+    #                     filter: { foo: :bar }
+    #                    }
     #                  }]
     #                } } }
-    def script_score(script)
-      chain { criteria.update_scores script_score: { script: script } }
+    def script_score(script, options = {})
+      scoring = options.merge(script_score: { script: script })
+      chain { criteria.update_scores scoring }
     end
 
     # Sets elasticsearch <tt>aggregations</tt> search request param

@@ -124,6 +124,7 @@ describe Chewy::Query do
     specify { subject.script_score('23').should_not == subject }
     specify { subject.script_score('23').criteria.scores.should == [ { script_score: { script: '23' } } ] }
     specify { expect { subject.script_score('23') }.not_to change { subject.criteria.scores } }
+    specify { subject.script_score('23', filter: { foo: :bar}).criteria.scores.should == [{ script_score: { script: '23' }, filter: { foo: :bar } }] }
   end
 
   describe '#facets' do

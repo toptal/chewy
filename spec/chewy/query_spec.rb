@@ -151,6 +151,42 @@ describe Chewy::Query do
     specify { subject.field_value_factor({ field: :boost }, filter: { foo: :bar}).criteria.scores.should == [{ field_value_factor: { field: :boost }, filter: { foo: :bar } }] }
   end
 
+  describe '#decay' do
+    specify { subject.decay(:gauss, :field).should be_a described_class }
+    specify { subject.decay(:gauss, :field).should_not == subject }
+    specify { subject.decay(:gauss, :field).criteria.scores.should == [ {
+      gauss: {
+        field: {
+          origin: 0,
+          scale: 1,
+          offset: 1,
+          decay: 0.1
+        }
+      }
+    }] }
+    specify { expect { subject.decay(:gauss, :field) }.not_to change { subject.criteria.scores } }
+    specify {
+      subject.decay(:gauss, :field,
+                    origin: '11, 12',
+                    scale: '2km',
+                    offset: '5km',
+                    decay: 0.4,
+                    options: { filter: { foo: :bar } }).criteria.scores.should == [
+        {
+          gauss: {
+            field: {
+              origin: '11, 12',
+              scale: '2km',
+              offset: '5km',
+              decay: 0.4
+            }
+          },
+          filter: { foo: :bar }
+        }
+      ]
+    }
+  end
+
   describe '#facets' do
     specify { subject.facets(term: {field: 'hello'}).should be_a described_class }
     specify { subject.facets(term: {field: 'hello'}).should_not == subject }

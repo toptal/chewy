@@ -448,6 +448,49 @@ module Chewy
       chain { criteria.update_scores scoring }
     end
 
+    # Add a decay scoring to the search. All scores are
+    # added to the search request and combinded according to
+    # <tt>boost_mode</tt> and <tt>score_mode</tt>
+    #
+    # The parameters have default values, but those may not
+    # be very useful for most applications.
+    #
+    #   UsersIndex.decay(
+    #                :gauss,
+    #                :field,
+    #                origin: '11, 12',
+    #                scale: '2km',
+    #                offset: '5km'
+    #                decay: 0.4
+    #                options: { filter: { foo: :bar}) }
+    #       # => {body:
+    #              query: {
+    #                gauss: {
+    #                  query: { ...},
+    #                  functions: [{
+    #                    gauss: {
+    #                      field: {
+    #                        origin: '11, 12',
+    #                        scale: '2km',
+    #                        offset: '5km',
+    #                        decay: 0.4
+    #                      }
+    #                    },
+    #                    filter: { foo: :bar }
+    #                  }]
+    #                } } }
+    def decay(function, field, origin: 0, scale: 1, offset: 1, decay: 0.1, options: {})
+      scoring = options.merge(function => {
+        field => {
+          origin: origin,
+          scale: scale,
+          offset: offset,
+          decay: decay
+        }
+      })
+      chain { criteria.update_scores scoring }
+    end
+
     # Sets elasticsearch <tt>aggregations</tt> search request param
     #
     #  UsersIndex.filter{ name == 'Johny' }.aggregations(category_id: {terms: {field: 'category_ids'}})

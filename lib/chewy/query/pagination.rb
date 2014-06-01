@@ -27,11 +27,11 @@ module Chewy
         end
 
         def limit_value
-          (criteria.options[:size].presence || default_per_page).to_i
+          (criteria.request_options[:size].presence || default_per_page).to_i
         end
 
         def offset_value
-          criteria.options[:from].to_i
+          criteria.request_options[:from].to_i
         end
 
       private

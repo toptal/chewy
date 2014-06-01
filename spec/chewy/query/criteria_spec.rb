@@ -6,6 +6,7 @@ describe Chewy::Query::Criteria do
   subject { described_class.new }
 
   its(:options) { should be_a Hash }
+  its(:request_options) { should be_a Hash }
   its(:facets) { should == {} }
   its(:aggregations) { should == {} }
   its(:queries) { should == [] }
@@ -25,6 +26,10 @@ describe Chewy::Query::Criteria do
 
   describe '#update_options' do
     specify { expect { subject.update_options(field: 'hello') }.to change { subject.options }.to(hash_including(field: 'hello')) }
+  end
+
+  describe '#update_request_options' do
+    specify { expect { subject.update_request_options(field: 'hello') }.to change { subject.request_options }.to(hash_including(field: 'hello')) }
   end
 
   describe '#update_facets' do
@@ -149,12 +154,12 @@ describe Chewy::Query::Criteria do
     end
 
     specify { request_body.should == {body: {}} }
-    specify { request_body { update_options(size: 10) }.should == {body: {size: 10}} }
-    specify { request_body { update_options(from: 10) }.should == {body: {from: 10}} }
-    specify { request_body { update_options(explain: true) }.should == {body: {explain: true}} }
+    specify { request_body { update_request_options(size: 10) }.should == {body: {size: 10}} }
+    specify { request_body { update_request_options(from: 10) }.should == {body: {from: 10}} }
+    specify { request_body { update_request_options(explain: true) }.should == {body: {explain: true}} }
     specify { request_body { update_queries(:query) }.should == {body: {query: :query}} }
     specify { request_body {
-      update_options(from: 10); update_sort(:field); update_fields(:field); update_queries(:query)
+      update_request_options(from: 10); update_sort(:field); update_fields(:field); update_queries(:query)
     }.should == {body: {query: :query, from: 10, sort: [:field], _source: ['field']}} }
 
     context do

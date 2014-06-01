@@ -73,15 +73,15 @@ describe Chewy::Query do
   describe '#limit' do
     specify { subject.limit(10).should be_a described_class }
     specify { subject.limit(10).should_not == subject }
-    specify { subject.limit(10).criteria.options.should include(size: 10) }
-    specify { expect { subject.limit(10) }.not_to change { subject.criteria.options } }
+    specify { subject.limit(10).criteria.request_options.should include(size: 10) }
+    specify { expect { subject.limit(10) }.not_to change { subject.criteria.request_options } }
   end
 
   describe '#offset' do
     specify { subject.offset(10).should be_a described_class }
     specify { subject.offset(10).should_not == subject }
-    specify { subject.offset(10).criteria.options.should include(from: 10) }
-    specify { expect { subject.offset(10) }.not_to change { subject.criteria.options } }
+    specify { subject.offset(10).criteria.request_options.should include(from: 10) }
+    specify { expect { subject.offset(10) }.not_to change { subject.criteria.request_options } }
   end
 
   describe '#none' do

@@ -2,6 +2,8 @@
 
 # Version 0.5.0
 
+  * Aliasing is performed in index create request for ElasticSearch >= 1.1.
+
   * 404 exception while query is swallowed and treated like an empty result set.
 
   * I think, now it waits for status correctly. After index creation and bulk import.
@@ -10,7 +12,7 @@
 
   * `preload` scope method loads ORM/ODM objects and returns scope itself.
 
-  * `load` method `:only` and `:except` options.
+  * `load` method `:only` and `:except` options to specify load types.
 
   * Highlight and rescore query options support.
 

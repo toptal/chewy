@@ -62,7 +62,7 @@ module Chewy
     #   UsersIndex::User.filter(term: {name: 'Johny'}).explain.first._explanation # => {...}
     #
     def explain value = nil
-      chain { criteria.update_options explain: (value.nil? ? true : value) }
+      chain { criteria.update_request_options explain: (value.nil? ? true : value) }
     end
 
     # Sets query compilation mode for search request.
@@ -217,7 +217,7 @@ module Chewy
     #          }}
     #
     def limit value
-      chain { criteria.update_options size: Integer(value) }
+      chain { criteria.update_request_options size: Integer(value) }
     end
 
     # Sets elasticsearch <tt>from</tt> search request param
@@ -229,7 +229,7 @@ module Chewy
     #          }}
     #
     def offset value
-      chain { criteria.update_options from: Integer(value) }
+      chain { criteria.update_request_options from: Integer(value) }
     end
 
     # Elasticsearch highlight query option support
@@ -237,7 +237,7 @@ module Chewy
     #   UsersIndex.query(...).highlight(fields: { ... })
     #
     def highlight value
-      chain { criteria.update_options highlight: value }
+      chain { criteria.update_request_options highlight: value }
     end
 
     # Elasticsearch rescore query option support
@@ -245,7 +245,7 @@ module Chewy
     #   UsersIndex.query(...).rescore(query: { ... })
     #
     def rescore value
-      chain { criteria.update_options rescore: value }
+      chain { criteria.update_request_options rescore: value }
     end
 
     # Adds facets section to the search request.

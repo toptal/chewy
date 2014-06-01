@@ -5,7 +5,7 @@ module Chewy
     class Criteria
       include Compose
       ARRAY_STORAGES = [:queries, :filters, :sort, :fields, :types]
-      HASH_STORAGES = [:options, :facets, :aggregations]
+      HASH_STORAGES = [:options, :request_options, :facets, :aggregations]
       STORAGES = ARRAY_STORAGES + HASH_STORAGES
 
       def initialize options = {}
@@ -38,6 +38,10 @@ module Chewy
 
       def update_options(modifer)
         options.merge!(modifer)
+      end
+
+      def update_request_options(modifer)
+        request_options.merge!(modifer)
       end
 
       def update_facets(modifer)
@@ -99,7 +103,7 @@ module Chewy
         body.merge!(sort: sort) if sort?
         body.merge!(_source: fields) if fields?
 
-        {body: body.merge!(_request_options)}
+        {body: body.merge!(request_options)}
       end
 
     protected
@@ -116,10 +120,6 @@ module Chewy
             instance_variable_set("@#{storage}", value)
           end
         end
-      end
-
-      def _request_options
-        options.slice(:size, :from, :explain, :highlight, :rescore)
       end
 
       def _request_query

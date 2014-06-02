@@ -462,7 +462,7 @@ module Chewy
     #                scale: '2km',
     #                offset: '5km'
     #                decay: 0.4
-    #                options: { filter: { foo: :bar}) }
+    #                filter: { foo: :bar})
     #       # => {body:
     #              query: {
     #                gauss: {
@@ -479,14 +479,15 @@ module Chewy
     #                    filter: { foo: :bar }
     #                  }]
     #                } } }
-    def decay(function, field, origin: 0, scale: 1, offset: 1, decay: 0.1, options: {})
+    def decay(function, field, options = {})
+      field_options = {
+        origin: options.delete(:origin) || 0,
+        scale: options.delete(:scale) || 1,
+        offset: options.delete(:offset) || 0,
+        decay: options.delete(:decay) || 0.1
+      }
       scoring = options.merge(function => {
-        field => {
-          origin: origin,
-          scale: scale,
-          offset: offset,
-          decay: decay
-        }
+        field => field_options
       })
       chain { criteria.update_scores scoring }
     end

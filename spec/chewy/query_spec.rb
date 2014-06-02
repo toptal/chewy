@@ -159,7 +159,7 @@ describe Chewy::Query do
         field: {
           origin: 0,
           scale: 1,
-          offset: 1,
+          offset: 0,
           decay: 0.1
         }
       }
@@ -171,7 +171,7 @@ describe Chewy::Query do
                     scale: '2km',
                     offset: '5km',
                     decay: 0.4,
-                    options: { filter: { foo: :bar } }).criteria.scores.should == [
+                    filter: { foo: :bar }).criteria.scores.should == [
         {
           gauss: {
             field: {

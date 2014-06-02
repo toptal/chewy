@@ -128,6 +128,10 @@ module Chewy
         scores? or return body
         query = body.delete :query
         filter = body.delete :filter
+        if query && filter
+          query = { filtered: { query: query, filter: filter } }
+          filter = nil
+        end
         score = { }
         score[:functions] = scores
         score[:boost_mode] = options[:boost_mode] if options[:boost_mode]

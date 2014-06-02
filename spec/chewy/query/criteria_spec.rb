@@ -235,6 +235,24 @@ describe Chewy::Query::Criteria do
     }
   end
 
+  describe "#_boost_query" do
+    specify { subject.send(:_boost_query, query: :query).should eq(query: :query) }
+    specify {
+      subject.update_scores({ boost_factor: 5 })
+      subject.send(:_boost_query, query: :query).should eq(query: { function_score: { functions: [{ boost_factor: 5 }], query: :query } })
+    }
+    specify {
+      subject.update_scores({ boost_factor: 5 })
+      subject.update_options(boost_mode: :multiply)
+      subject.update_options(score_mode: :add)
+      subject.send(:_boost_query, query: :query).should eq(query: { function_score: { functions: [{ boost_factor: 5 }], query: :query, boost_mode: :multiply, score_mode: :add } })
+    }
+    specify {
+      subject.update_scores({ boost_factor: 5 })
+      subject.send(:_boost_query, query: :query, filter: :filter).should eq(query: { function_score: { functions: [{ boost_factor: 5 }], query: { filtered: { query: :query, filter: :filter } } } })
+    }
+  end
+
   describe '#_request_filter' do
     def _request_filter &block
       subject.instance_exec(&block) if block

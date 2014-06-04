@@ -2,21 +2,29 @@
 
 # Version 0.5.0
 
-  * Aliasing is performed in index create request for ElasticSearch >= 1.1.
+## Incompatible changes:
+
+  * Changed scopes behavior: now if scoped with `.scoped` method - result will repeat ElasticSearch behavior (return nothing if nothing matches). If `.all` method was used on scope - it will act like ActiveRecord, returning all the records if none are matched.
 
   * 404 exception while query is swallowed and treated like an empty result set.
+
+## Changes:
+
+  * Added chainable `strategy` query method.
+
+  * Added waiting for status after index delete.
+
+  * Aliasing is performed in index create request for ElasticSearch >= 1.1.
 
   * I think, now it waits for status correctly. After index creation and bulk import.
 
   * Fix #23 "wrong constant name" with namespace models
 
-  * `preload` scope method loads ORM/ODM objects and returns scope itself.
+  * `preload` scope method loads ORM/ODM objects and returns Chewy scope itself.
 
   * `load` method `:only` and `:except` options to specify load types.
 
-  * Highlight and rescore query options support.
-
-  * Top-level query filters support (@igor-alexandrov).
+  * `Highlight` and `rescore` query options support.
 
   * config/chewy.yml ERB support.
 

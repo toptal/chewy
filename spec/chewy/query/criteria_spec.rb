@@ -15,7 +15,7 @@ describe Chewy::Query::Criteria do
   its(:fields) { should == [] }
   its(:types) { should == [] }
 
-  its(:none?){ should be_false }
+  its(:request_options?) { should be_false }
   its(:facets?) { should be_false }
   its(:aggregations?) { should be_false }
   its(:queries?) { should be_false }
@@ -23,6 +23,8 @@ describe Chewy::Query::Criteria do
   its(:sort?) { should be_false }
   its(:fields?) { should be_false }
   its(:types?) { should be_false }
+
+  its(:none?){ should be_false }
 
   describe '#update_options' do
     specify { expect { subject.update_options(field: 'hello') }.to change { subject.options }.to(hash_including(field: 'hello')) }
@@ -107,6 +109,8 @@ describe Chewy::Query::Criteria do
 
     specify { subject.tap { |c| c.update_options(opt1: 'hello') }
       .merge(criteria.tap { |c| c.update_options(opt2: 'hello') }).options.should include(opt1: 'hello', opt2: 'hello') }
+    specify { subject.tap { |c| c.update_request_options(opt1: 'hello') }
+      .merge(criteria.tap { |c| c.update_request_options(opt2: 'hello') }).request_options.should include(opt1: 'hello', opt2: 'hello') }
     specify { subject.tap { |c| c.update_facets(field1: 'hello') }
       .merge(criteria.tap { |c| c.update_facets(field1: 'hello') }).facets.should == {field1: 'hello', field1: 'hello'} }
     specify { subject.tap { |c| c.update_aggregations(field1: 'hello') }
@@ -131,6 +135,8 @@ describe Chewy::Query::Criteria do
 
     specify { subject.tap { |c| c.update_options(opt1: 'hello') }
       .merge!(criteria.tap { |c| c.update_options(opt2: 'hello') }).options.should include(opt1: 'hello', opt2: 'hello') }
+    specify { subject.tap { |c| c.update_request_options(opt1: 'hello') }
+      .merge!(criteria.tap { |c| c.update_request_options(opt2: 'hello') }).request_options.should include(opt1: 'hello', opt2: 'hello') }
     specify { subject.tap { |c| c.update_facets(field1: 'hello') }
       .merge!(criteria.tap { |c| c.update_facets(field1: 'hello') }).facets.should == {field1: 'hello', field1: 'hello'} }
     specify { subject.tap { |c| c.update_aggregations(field1: 'hello') }
@@ -162,45 +168,55 @@ describe Chewy::Query::Criteria do
       update_request_options(from: 10); update_sort(:field); update_fields(:field); update_queries(:query)
     }.should == {body: {query: :query, from: 10, sort: [:field], _source: ['field']}} }
 
-    context do
-      before { Chewy.stub(filtered_queries: false) }
-      specify { request_body {
-        update_queries(:query); update_filters(:filters);
-      }.should == {body: {query: :query, filter: :filters}} }
-    end
-
-    context do
-      before { Chewy.stub(filtered_queries: true) }
-      specify { request_body {
-        update_queries(:query); update_filters(:filters);
-      }.should == {body: {query: {filtered: {query: :query, filter: :filters}}}} }
-    end
+    specify { request_body {
+      update_queries(:query); update_filters(:filters);
+    }.should == {body: {query: {filtered: {query: :query, filter: :filters}}}} }
   end
 
-  describe '#_composed_query' do
-    def _composed_query &block
+  describe '#_filtered_query' do
+    def _filtered_query options = {}, &block
       subject.instance_exec(&block) if block
-      subject.send(:_composed_query, subject.send(:_request_query), subject.send(:_request_filter))
+      subject.send(:_filtered_query, subject.send(:_request_query), subject.send(:_request_filter), options)
     end
 
-    specify { _composed_query.should be_nil }
-    specify { _composed_query { update_queries(:query) }.should == {query: :query} }
-    specify { _composed_query { update_queries([:query1, :query2]) }
+    specify { _filtered_query.should == {} }
+    specify { _filtered_query { update_queries(:query) }.should == {query: :query} }
+    specify { _filtered_query(strategy: 'query_first') { update_queries(:query) }.should == {query: :query} }
+    specify { _filtered_query(all: true) { update_queries(:query) }.should == {query: :query} }
+    specify { _filtered_query { update_queries([:query1, :query2]) }
       .should == {query: {bool: {must: [:query1, :query2]}}} }
-    specify { _composed_query { update_options(query_mode: :should); update_queries([:query1, :query2]) }
+    specify { _filtered_query { update_options(query_mode: :should); update_queries([:query1, :query2]) }
       .should == {query: {bool: {should: [:query1, :query2]}}} }
-    specify { _composed_query { update_options(query_mode: :dis_max); update_queries([:query1, :query2]) }
+    specify { _filtered_query { update_options(query_mode: :dis_max); update_queries([:query1, :query2]) }
       .should == {query: {dis_max: {queries: [:query1, :query2]}}} }
 
-    specify { _composed_query { update_filters([:filter1, :filter2]) }
+    specify { _filtered_query { update_filters([:filter1, :filter2]) }
+      .should == {query: {filtered: {filter: {and: [:filter1, :filter2]}}}} }
+    specify { _filtered_query(strategy: 'query_first') { update_filters([:filter1, :filter2]) }
+      .should == {query: {filtered: {filter: {and: [:filter1, :filter2]}, strategy: 'query_first'}}} }
+    specify { _filtered_query(all: true) { update_filters([:filter1, :filter2]) }
       .should == {query: {filtered: {query: {match_all: {}}, filter: {and: [:filter1, :filter2]}}}} }
-    specify { _composed_query { update_filters([:filter1, :filter2]); update_queries([:query1, :query2]) }
+
+    specify { _filtered_query { update_filters([:filter1, :filter2]); update_queries([:query1, :query2]) }
       .should == {query: {filtered: {
         query: {bool: {must: [:query1, :query2]}},
         filter: {and: [:filter1, :filter2]}
       }}}
     }
-    specify { _composed_query {
+    specify { _filtered_query(all: true) { update_filters([:filter1, :filter2]); update_queries([:query1, :query2]) }
+      .should == {query: {filtered: {
+        query: {bool: {must: [:query1, :query2]}},
+        filter: {and: [:filter1, :filter2]}
+      }}}
+    }
+    specify { _filtered_query(strategy: 'query_first') { update_filters([:filter1, :filter2]); update_queries([:query1, :query2]) }
+      .should == {query: {filtered: {
+        query: {bool: {must: [:query1, :query2]}},
+        filter: {and: [:filter1, :filter2]},
+        strategy: 'query_first'
+      }}}
+    }
+    specify { _filtered_query {
         update_options(query_mode: :should); update_options(filter_mode: :or);
         update_filters([:filter1, :filter2]); update_queries([:query1, :query2])
       }.should == {query: {filtered: {

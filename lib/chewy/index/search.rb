@@ -4,12 +4,13 @@ module Chewy
       extend ActiveSupport::Concern
 
       included do
-        singleton_class.delegate :explain, :limit, :offset, :facets, :aggregations, :query,
-          :filter, :order, :reorder, :only, :types, :none, to: :all
+        singleton_class.delegate :explain, :limit, :offset, :highlight, :rescore,
+          :facets, :aggregations, :none, :all, :strategy, :query, :filter, :order,
+          :reorder, :only, :types, to: :scoped
       end
 
       module ClassMethods
-        def all
+        def scoped
           Chewy::Query.new(search_index, types: search_type)
         end
 

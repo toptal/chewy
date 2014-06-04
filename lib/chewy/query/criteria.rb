@@ -91,19 +91,13 @@ module Chewy
       def request_body
         body = {}
 
-        if Chewy.filtered_queries
-          body.merge!(_composed_query(_request_query, _request_filter) || {})
-        else
-          body.merge!(query: _request_query) if queries?
-          body.merge!(filter: _request_filter) if (filters? || types?)
-        end
-
+        body.merge!(_filtered_query(_request_query, _request_filter, options.slice(:all, :strategy)))
         body.merge!(facets: facets) if facets?
         body.merge!(aggregations: aggregations) if aggregations?
         body.merge!(sort: sort) if sort?
         body.merge!(_source: fields) if fields?
 
-        {body: body.merge!(request_options)}
+        { body: body.merge!(request_options) }
       end
 
     protected

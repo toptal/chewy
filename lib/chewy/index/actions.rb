@@ -93,7 +93,9 @@ module Chewy
         #   UsersIndex.delete '01-2014' # deletes `users_01-2014` index
         #
         def delete! suffix = nil
-          client.indices.delete index: build_index_name(suffix: suffix)
+          result = client.indices.delete index: build_index_name(suffix: suffix)
+          Chewy.wait_for_status if result
+          result
         end
 
         # Deletes and recreates index. Supports suffixes.

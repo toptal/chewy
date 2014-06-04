@@ -49,6 +49,12 @@ module Chewy
       end
     end
 
+    # Returns just query itself.
+    #
+    def scoped
+      self
+    end
+
     # Adds <tt>explain</tt> parameter to search request.
     #
     #   UsersIndex.filter(term: {name: 'Johny'}).explain
@@ -302,6 +308,37 @@ module Chewy
     #     # => []
     def none
       chain { criteria.update_options none: true }
+    end
+
+    # Marks criteria as requesting all the possible records.
+    # This means using {match_all: {}} query if query is empty.
+    #
+    #   UsersIndex.scoped.to_a
+    #     # => []
+    #   UsersIndex.all.to_a
+    #     # => [UsersIndex::User, UsersIndex::User, ...]
+    #   UsersIndex.filter { active == true }.to_a
+    #     # => []
+    #   UsersIndex.filter { active == true }.all.to_a
+    #     # => [UsersIndex::User, UsersIndex::User, ...]
+    #
+    def all
+      chain { criteria.update_options all: true }
+    end
+
+
+    # Setups strategy for top-level filtered query
+    #
+    #    UsersIndex.filter { name == 'Johny'}.strategy(:leap_frog)
+    #     # => {body: {
+    #            query: { filtered: {
+    #              filter: { term: { name: 'Johny' } },
+    #              strategy: 'leap_frog'
+    #            } }
+    #          }}
+    #
+    def strategy value = nil
+      chain { criteria.update_options strategy: value }
     end
 
     # Adds one or more query to the search request

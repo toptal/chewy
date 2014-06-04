@@ -25,31 +25,7 @@ module Chewy
       # Default filters compilation mode. `:and` by default.
       # See Chewy::Query#filter_mode for details
       #
-      :filter_mode,
-
-      # Special request compilation mode. Switched off by default.
-      # By default separated query and filter request body parts:
-      #
-      #  {body: {query: {...}, filter: {...}}}
-      #
-      # If `filtered_queries` set to true, Chewy creates filtered query
-      # And puts filters inside it:
-      #
-      #  {body: {query: {filtered: {
-      #            query: {...},
-      #            filter: {...}
-      #          }}}}
-      #
-      # The second thing: if query was not defined for request, Chewy
-      # uses `match_all: {}` query by default in `filtered_queries` to
-      # return all the documents like DB.
-      #
-      #  {body: {query: {filtered: {
-      #            query: {match_all: {}},
-      #            filter: {...}
-      #          }}}}
-      #
-      :filtered_queries
+      :filter_mode
 
     def self.delegated
       public_instance_methods - self.superclass.public_instance_methods - Singleton.public_instance_methods
@@ -70,7 +46,6 @@ module Chewy
       @urgent_update = false
       @query_mode = :must
       @filter_mode = :and
-      @filtered_queries = false
       @analyzers = {}
       @tokenizers = {}
       @filters = {}

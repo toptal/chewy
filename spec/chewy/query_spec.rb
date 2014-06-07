@@ -70,6 +70,13 @@ describe Chewy::Query do
     specify { expect { subject.filter_mode(:or) }.not_to change { subject.criteria.options } }
   end
 
+  describe '#post_filter_mode' do
+    specify { subject.post_filter_mode(:or).should be_a described_class }
+    specify { subject.post_filter_mode(:or).should_not == subject }
+    specify { subject.post_filter_mode(:or).criteria.options.should include(post_filter_mode: :or) }
+    specify { expect { subject.post_filter_mode(:or) }.not_to change { subject.criteria.options } }
+  end
+
   describe '#limit' do
     specify { subject.limit(10).should be_a described_class }
     specify { subject.limit(10).should_not == subject }
@@ -188,6 +195,13 @@ describe Chewy::Query do
     specify { CitiesIndex.filter { rating == [1, 2] }.all.to_a.should have(2).items }
   end
 
+  describe '#strategy' do
+    specify { subject.strategy('query_first').should be_a described_class }
+    specify { subject.strategy('query_first').should_not == subject }
+    specify { subject.strategy('query_first').criteria.options.should include(strategy: 'query_first') }
+    specify { expect { subject.strategy('query_first') }.not_to change { subject.criteria.options } }
+  end
+
   describe '#query' do
     specify { subject.query(match: 'hello').should be_a described_class }
     specify { subject.query(match: 'hello').should_not == subject }
@@ -204,6 +218,17 @@ describe Chewy::Query do
 
     specify { expect { subject.filter{ name == 'John' } }.not_to change { subject.criteria.filters } }
     specify { subject.filter{ name == 'John' }.criteria.filters.should == [{term: {'name' => 'John'}}] }
+  end
+
+  describe '#post_filter' do
+    specify { subject.post_filter(term: {field: 'hello'}).should be_a described_class }
+    specify { subject.post_filter(term: {field: 'hello'}).should_not == subject }
+    specify { expect { subject.post_filter(term: {field: 'hello'}) }.not_to change { subject.criteria.post_filters } }
+    specify { subject.post_filter([{term: {field: 'hello'}}, {term: {field: 'world'}}]).criteria.post_filters
+      .should == [{term: {field: 'hello'}}, {term: {field: 'world'}}] }
+
+    specify { expect { subject.post_filter{ name == 'John' } }.not_to change { subject.criteria.post_filters } }
+    specify { subject.post_filter{ name == 'John' }.criteria.post_filters.should == [{term: {'name' => 'John'}}] }
   end
 
   describe '#order' do

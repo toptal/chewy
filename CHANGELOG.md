@@ -10,6 +10,8 @@
 
 ## Changes:
 
+  * Added `post_filter` API, working the same way as filters.
+
   * Added chainable `strategy` query method.
 
   * Added waiting for status after index delete.

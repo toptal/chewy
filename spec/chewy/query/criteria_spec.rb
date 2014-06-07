@@ -11,6 +11,7 @@ describe Chewy::Query::Criteria do
   its(:aggregations) { should == {} }
   its(:queries) { should == [] }
   its(:filters) { should == [] }
+  its(:post_filters) { should == [] }
   its(:sort) { should == [] }
   its(:fields) { should == [] }
   its(:types) { should == [] }
@@ -20,6 +21,7 @@ describe Chewy::Query::Criteria do
   its(:aggregations?) { should be_false }
   its(:queries?) { should be_false }
   its(:filters?) { should be_false }
+  its(:post_filters?) { should be_false }
   its(:sort?) { should be_false }
   its(:fields?) { should be_false }
   its(:types?) { should be_false }
@@ -60,6 +62,15 @@ describe Chewy::Query::Criteria do
       .to change { subject.filters }.to([{field: 'hello'}, {field: 'world'}]) }
     specify { expect { subject.update_filters([{field: 'hello'}, {field: 'world'}, nil]) }
       .to change { subject.filters }.to([{field: 'hello'}, {field: 'world'}]) }
+  end
+
+  describe '#update_post_filters' do
+    specify { expect { subject.update_post_filters(field: 'hello') }.to change { subject.post_filters? }.to(true) }
+    specify { expect { subject.update_post_filters(field: 'hello') }.to change { subject.post_filters }.to([{field: 'hello'}]) }
+    specify { expect { subject.update_post_filters(field: 'hello'); subject.update_post_filters(field: 'world') }
+      .to change { subject.post_filters }.to([{field: 'hello'}, {field: 'world'}]) }
+    specify { expect { subject.update_post_filters([{field: 'hello'}, {field: 'world'}, nil]) }
+      .to change { subject.post_filters }.to([{field: 'hello'}, {field: 'world'}]) }
   end
 
   describe '#update_sort' do
@@ -119,6 +130,8 @@ describe Chewy::Query::Criteria do
       .merge(criteria.tap { |c| c.update_queries(field2: 'hello') }).queries.should == [{field1: 'hello'}, {field2: 'hello'}] }
     specify { subject.tap { |c| c.update_filters(field1: 'hello') }
       .merge(criteria.tap { |c| c.update_filters(field2: 'hello') }).filters.should == [{field1: 'hello'}, {field2: 'hello'}] }
+    specify { subject.tap { |c| c.update_post_filters(field1: 'hello') }
+      .merge(criteria.tap { |c| c.update_post_filters(field2: 'hello') }).post_filters.should == [{field1: 'hello'}, {field2: 'hello'}] }
     specify { subject.tap { |c| c.update_sort(:field1) }
       .merge(criteria.tap { |c| c.update_sort(:field2) }).sort.should == [:field1, :field2] }
     specify { subject.tap { |c| c.update_fields(:field1) }
@@ -145,6 +158,8 @@ describe Chewy::Query::Criteria do
       .merge!(criteria.tap { |c| c.update_queries(field2: 'hello') }).queries.should == [{field1: 'hello'}, {field2: 'hello'}] }
     specify { subject.tap { |c| c.update_filters(field1: 'hello') }
       .merge!(criteria.tap { |c| c.update_filters(field2: 'hello') }).filters.should == [{field1: 'hello'}, {field2: 'hello'}] }
+    specify { subject.tap { |c| c.update_post_filters(field1: 'hello') }
+      .merge!(criteria.tap { |c| c.update_post_filters(field2: 'hello') }).post_filters.should == [{field1: 'hello'}, {field2: 'hello'}] }
     specify { subject.tap { |c| c.update_sort(:field1) }
       .merge!(criteria.tap { |c| c.update_sort(:field2) }).sort.should == [:field1, :field2] }
     specify { subject.tap { |c| c.update_fields(:field1) }
@@ -171,6 +186,9 @@ describe Chewy::Query::Criteria do
     specify { request_body {
       update_queries(:query); update_filters(:filters);
     }.should == {body: {query: {filtered: {query: :query, filter: :filters}}}} }
+    specify { request_body {
+      update_queries(:query); update_post_filters(:post_filter);
+    }.should == {body: {query: :query, post_filter: :post_filter}} }
   end
 
   describe '#_filtered_query' do
@@ -255,6 +273,31 @@ describe Chewy::Query::Criteria do
       .should == {and: [{or: [{type: {value: 'type1'}}, {type: {value: 'type2'}}]}, {bool: {must: [:filter1, :filter2]}}]} }
     specify { _request_filter { update_options(filter_mode: :should); update_types([:type1, :type2]); update_filters([:filter1, :filter2]) }
       .should == {and: [{or: [{type: {value: 'type1'}}, {type: {value: 'type2'}}]}, {bool: {should: [:filter1, :filter2]}}]} }
+  end
+
+  describe '#_request_post_filter' do
+    def _request_post_filter &block
+      subject.instance_exec(&block) if block
+      subject.send(:_request_post_filter)
+    end
+
+    specify { _request_post_filter.should be_nil }
+
+    specify { _request_post_filter { update_post_filters([:post_filter1, :post_filter2]) }
+      .should == {and: [:post_filter1, :post_filter2]} }
+    specify { _request_post_filter { update_options(post_filter_mode: :or); update_post_filters([:post_filter1, :post_filter2]) }
+      .should == {or: [:post_filter1, :post_filter2]} }
+    specify { _request_post_filter { update_options(post_filter_mode: :must); update_post_filters([:post_filter1, :post_filter2]) }
+      .should == {bool: {must: [:post_filter1, :post_filter2]}} }
+    specify { _request_post_filter { update_options(post_filter_mode: :should); update_post_filters([:post_filter1, :post_filter2]) }
+      .should == {bool: {should: [:post_filter1, :post_filter2]}} }
+
+    context do
+      before { Chewy.stub(filter_mode: :or) }
+
+      specify { _request_post_filter { update_post_filters([:post_filter1, :post_filter2]) }
+        .should == {or: [:post_filter1, :post_filter2]} }
+    end
   end
 
   describe '#_request_types' do

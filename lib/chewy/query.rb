@@ -213,6 +213,18 @@ module Chewy
       chain { criteria.update_options filter_mode: value }
     end
 
+    # Acts the same way as `filter_mode`, but used for `post_filter`.
+    # Note that it fallbacks by default to `Chewy.filter_mode` if
+    # `Chewy.post_filter_mode` is nil.
+    #
+    #   UsersIndex.post_filter{ name == 'Johny' }.post_filter{ age <= 42 }.post_filter_mode(:and)
+    #   UsersIndex.post_filter{ name == 'Johny' }.post_filter{ age <= 42 }.post_filter_mode(:should)
+    #   UsersIndex.post_filter{ name == 'Johny' }.post_filter{ age <= 42 }.post_filter_mode('50%')
+    #
+    def post_filter_mode value
+      chain { criteria.update_options post_filter_mode: value }
+    end
+
     # Sets elasticsearch <tt>size</tt> search request param
     # Default value is set in the elasticsearch and is 10.
     #
@@ -372,7 +384,7 @@ module Chewy
     # While the full query compilation this array compiles
     # according to <tt>:filter_mode</tt> option value
     #
-    # By default it joines inside <tt>and</tt> filter
+    # By default it joins inside <tt>and</tt> filter
     # See <tt>#filter_mode</tt> chainable method for more info.
     #
     # Also this method supports block DSL.
@@ -398,6 +410,37 @@ module Chewy
     def filter params = nil, &block
       params = Filters.new(&block).__render__ if block
       chain { criteria.update_filters params }
+    end
+
+    # Adds one or more post_filter to the search request
+    # Internally post_filters are stored as an array
+    # While the full query compilation this array compiles
+    # according to <tt>:post_filter_mode</tt> option value
+    #
+    # By default it joins inside <tt>and</tt> filter
+    # See <tt>#post_filter_mode</tt> chainable method for more info.
+    #
+    # Also this method supports block DSL.
+    # See <tt>Chewy::Query::Filters</tt> for more info.
+    #
+    #   UsersIndex.post_filter(term: {name: 'Johny'}).post_filter(range: {age: {lte: 42}})
+    #   UsersIndex::User.post_filter(term: {name: 'Johny'}).post_filter(range: {age: {lte: 42}})
+    #   UsersIndex.post_filter{ name == 'Johny' }.post_filter{ age <= 42 }
+    #     # => {body: {
+    #            post_filter: {and: [{term: {name: 'Johny'}}, {range: {age: {lte: 42}}}]}
+    #          }}
+    #
+    # If only one post_filter was specified, it will become a result
+    # post_filter as is, without joining.
+    #
+    #   UsersIndex.post_filter(term: {name: 'Johny'})
+    #     # => {body: {
+    #            post_filter: {term: {name: 'Johny'}}
+    #          }}
+    #
+    def post_filter params = nil, &block
+      params = Filters.new(&block).__render__ if block
+      chain { criteria.update_post_filters params }
     end
 
     # Sets search request sorting

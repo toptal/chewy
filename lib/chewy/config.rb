@@ -25,7 +25,12 @@ module Chewy
       # Default filters compilation mode. `:and` by default.
       # See Chewy::Query#filter_mode for details
       #
-      :filter_mode
+      :filter_mode,
+
+      # Default post_filters compilation mode. `nil` by default.
+      # See Chewy::Query#post_filter_mode for details
+      #
+      :post_filter_mode
 
     def self.delegated
       public_instance_methods - self.superclass.public_instance_methods - Singleton.public_instance_methods

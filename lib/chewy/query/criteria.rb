@@ -4,12 +4,16 @@ module Chewy
   class Query
     class Criteria
       include Compose
-      ARRAY_STORAGES = [:queries, :filters, :sort, :fields, :types]
+      ARRAY_STORAGES = [:queries, :filters, :post_filters, :sort, :fields, :types]
       HASH_STORAGES = [:options, :request_options, :facets, :aggregations]
       STORAGES = ARRAY_STORAGES + HASH_STORAGES
 
       def initialize options = {}
-        @options = options.merge(query_mode: Chewy.query_mode, filter_mode: Chewy.filter_mode)
+        @options = options.merge(
+          query_mode: Chewy.query_mode,
+          filter_mode: Chewy.filter_mode,
+          post_filter_mode: Chewy.filter_mode || Chewy.post_filter_mode
+        )
       end
 
       def == other
@@ -52,12 +56,12 @@ module Chewy
         aggregations.merge!(modifer)
       end
 
-      def update_queries(modifer)
-        @queries = queries + Array.wrap(modifer).reject(&:blank?)
-      end
-
-      def update_filters(modifer)
-        @filters = filters + Array.wrap(modifer).reject(&:blank?)
+      [:filters, :queries, :post_filters].each do |storage|
+        class_eval <<-RUBY
+          def update_#{storage}(modifer)
+            @#{storage} = #{storage} + Array.wrap(modifer).reject(&:blank?)
+          end
+        RUBY
       end
 
       def update_sort(modifer, options = {})
@@ -92,6 +96,7 @@ module Chewy
         body = {}
 
         body.merge!(_filtered_query(_request_query, _request_filter, options.slice(:all, :strategy)))
+        body.merge!(post_filter: _request_post_filter) if post_filters?
         body.merge!(facets: facets) if facets?
         body.merge!(aggregations: aggregations) if aggregations?
         body.merge!(sort: sort) if sort?
@@ -133,6 +138,10 @@ module Chewy
 
       def _request_types
         _filters_join(types.map { |type| {type: {value: type}} }, :or)
+      end
+
+      def _request_post_filter
+        _filters_join(post_filters, options[:post_filter_mode])
       end
     end
   end

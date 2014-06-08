@@ -134,6 +134,8 @@ module Chewy
         #   UsersIndex.import suffix: Time.now.to_i     # imports data to index with specified suffix if such is exists
         #   UsersIndex.import batch_size: 300           # import batch size
         #
+        # See [import.rb](lib/chewy/type/import.rb) for more details.
+        #
         [:import, :import!].each do |method|
           class_eval <<-METHOD, __FILE__, __LINE__ + 1
             def #{method} options = {}

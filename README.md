@@ -223,7 +223,7 @@ UsersIndex.import user: User.where('rating > 100') # import only active users to
 UsersIndex.reset! # purges index and imports default data for all types
 ```
 
-Also if passed user is #destroyed? or specified id is not existing in the database, import will perform `delete` index for this it
+Also if passed user is `#destroyed?` or `#delete_from_index?` or specified id does not exists in the database, import will perform delete from index action for this object.
 
 See [actions.rb](lib/chewy/index/actions.rb) for more details.
 

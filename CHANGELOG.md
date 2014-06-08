@@ -10,6 +10,8 @@
 
 ## Changes:
 
+  * Added `delete_from_index?` API method for custom deleted objects marking.
+
   * Added `post_filter` API, working the same way as filters.
 
   * Added chainable `strategy` query method.

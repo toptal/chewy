@@ -174,27 +174,6 @@ describe Chewy::Query do
     end
   end
 
-  describe '#all' do
-    before { stub_model(:city) }
-    let(:cities) { 3.times.map { |i| City.create! name: "name#{i}", rating: i } }
-
-    before do
-      stub_index(:cities) do
-        define_type :city do
-          field :name
-          field :rating, type: 'integer'
-        end
-      end
-    end
-
-    before { CitiesIndex::City.import! cities }
-
-    xspecify { CitiesIndex.scoped.to_a.should == [] }
-    specify { CitiesIndex.all.to_a.should have(3).items }
-    xspecify { CitiesIndex.filter { rating == [1, 2] }.to_a.should == [] }
-    specify { CitiesIndex.filter { rating == [1, 2] }.all.to_a.should have(2).items }
-  end
-
   describe '#strategy' do
     specify { subject.strategy('query_first').should be_a described_class }
     specify { subject.strategy('query_first').should_not == subject }

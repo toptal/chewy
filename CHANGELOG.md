@@ -4,8 +4,6 @@
 
 ## Incompatible changes:
 
-  * Changed scopes behavior: now if scoped with `.scoped` method - result will repeat ElasticSearch behavior (return nothing if nothing matches). If `.all` method was used on scope - it will act like ActiveRecord, returning all the records if none are matched.
-
   * 404 exception while query is swallowed and treated like an empty result set.
 
 ## Changes:

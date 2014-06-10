@@ -12,12 +12,6 @@ describe Chewy::Index::Search do
 
   let(:product) { ProductsIndex::Product }
 
-  describe '.scoped' do
-    specify { product.scoped.should be_a Chewy::Query }
-    specify { product.scoped.object_id.should_not == product.scoped.object_id }
-    specify { product.scoped.should == product.scoped }
-  end
-
   describe '.search_string' do
     specify do
       expect(ProductsIndex.client).to receive(:search).with(hash_including(q: 'hello')).twice

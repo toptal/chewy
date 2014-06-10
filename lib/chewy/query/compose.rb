@@ -5,7 +5,7 @@ module Chewy
     protected
 
       def _filtered_query query, filter, options = {}
-        query = { match_all: { } } if options[:all] && !query.present? && filter.present?
+        query = { match_all: {} } if !query.present? && filter.present?
 
         if filter.present?
           filtered = if query.present?

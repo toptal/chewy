@@ -50,7 +50,7 @@ module Chewy
           body = if filters && !queries
             {filter: filters}
           else
-            _filtered_query(queries, filters, all: true)
+            _filtered_query(queries, filters)
           end || {}
 
           {_relation => body.merge(type: @type)} if body

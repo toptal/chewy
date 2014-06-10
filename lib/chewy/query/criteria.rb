@@ -95,7 +95,7 @@ module Chewy
       def request_body
         body = {}
 
-        body.merge!(_filtered_query(_request_query, _request_filter, options.slice(:all, :strategy)))
+        body.merge!(_filtered_query(_request_query, _request_filter, options.slice(:strategy)))
         body.merge!(post_filter: _request_post_filter) if post_filters?
         body.merge!(facets: facets) if facets?
         body.merge!(aggregations: aggregations) if aggregations?

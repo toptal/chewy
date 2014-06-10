@@ -122,7 +122,7 @@ module Chewy
         def grouped_objects(objects)
           objects.group_by do |object|
             delete = object.delete_from_index? if object.respond_to?(:delete_from_index?)
-            delete ||= object.destroyed? if object.respond_to?(:destroyed?)
+            delete ||= object.destroyed?
             delete ? :delete : :index
           end
         end

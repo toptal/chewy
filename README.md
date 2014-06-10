@@ -681,7 +681,11 @@ Inside Rails application some index mantaining rake tasks are defined.
 
 ```bash
 rake chewy:reset:all # resets all the existing indexes, declared in app/chewy
+rake chewy:reset # alias for chewy:reset:all
 rake chewy:reset[users] # resets UsersIndex
+
+rake chewy:update:all # updates all the existing indexes, declared in app/chewy
+rake chewy:update # alias for chewy:update:all
 rake chewy:update[users] # updates UsersIndex
 ```
 

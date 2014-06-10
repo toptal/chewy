@@ -200,7 +200,6 @@ describe Chewy::Query::Criteria do
     specify { _filtered_query.should == {} }
     specify { _filtered_query { update_queries(:query) }.should == {query: :query} }
     specify { _filtered_query(strategy: 'query_first') { update_queries(:query) }.should == {query: :query} }
-    specify { _filtered_query(all: true) { update_queries(:query) }.should == {query: :query} }
     specify { _filtered_query { update_queries([:query1, :query2]) }
       .should == {query: {bool: {must: [:query1, :query2]}}} }
     specify { _filtered_query { update_options(query_mode: :should); update_queries([:query1, :query2]) }
@@ -208,20 +207,12 @@ describe Chewy::Query::Criteria do
     specify { _filtered_query { update_options(query_mode: :dis_max); update_queries([:query1, :query2]) }
       .should == {query: {dis_max: {queries: [:query1, :query2]}}} }
 
-    specify { _filtered_query { update_filters([:filter1, :filter2]) }
-      .should == {query: {filtered: {filter: {and: [:filter1, :filter2]}}}} }
     specify { _filtered_query(strategy: 'query_first') { update_filters([:filter1, :filter2]) }
-      .should == {query: {filtered: {filter: {and: [:filter1, :filter2]}, strategy: 'query_first'}}} }
-    specify { _filtered_query(all: true) { update_filters([:filter1, :filter2]) }
+      .should == {query: {filtered: {query: {match_all: {}}, filter: {and: [:filter1, :filter2]}, strategy: 'query_first'}}} }
+    specify { _filtered_query { update_filters([:filter1, :filter2]) }
       .should == {query: {filtered: {query: {match_all: {}}, filter: {and: [:filter1, :filter2]}}}} }
 
     specify { _filtered_query { update_filters([:filter1, :filter2]); update_queries([:query1, :query2]) }
-      .should == {query: {filtered: {
-        query: {bool: {must: [:query1, :query2]}},
-        filter: {and: [:filter1, :filter2]}
-      }}}
-    }
-    specify { _filtered_query(all: true) { update_filters([:filter1, :filter2]); update_queries([:query1, :query2]) }
       .should == {query: {filtered: {
         query: {bool: {must: [:query1, :query2]}},
         filter: {and: [:filter1, :filter2]}

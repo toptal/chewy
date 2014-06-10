@@ -4,7 +4,7 @@
 
 ## Incompatible changes:
 
-  * 404 exception while query is swallowed and treated like an empty result set.
+  * 404 exception (IndexMissingException) while query is swallowed and treated like an empty result set.
 
 ## Changes:
 
@@ -26,7 +26,7 @@
 
   * `load` method `:only` and `:except` options to specify load types.
 
-  * `Highlight` and `rescore` query options support.
+  * `highlight` and `rescore` query options support.
 
   * config/chewy.yml ERB support.
 

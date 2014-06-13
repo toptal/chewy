@@ -68,12 +68,7 @@ module Chewy
       #    loaded_objects == scope.map(&:_object) #=> true
       #
       def load(options = {})
-        if defined?(::Kaminari)
-          ::Kaminari.paginate_array(_load_objects(options),
-            limit: limit_value, offset: offset_value, total_count: total_count)
-        else
-          _load_objects(options)
-        end
+        _load_objects(options)
       end
 
       # This methods is just convenient way to preload some ORM/ODM

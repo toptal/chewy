@@ -45,8 +45,9 @@ describe Chewy::Query::Pagination do
     end
 
     describe '#load' do
-      specify { search.per(2).page(1).load.first.id.should == '1' }
-      specify { search.per(2).page(3).load.first.id.should == '5' }
+      specify { search.per(2).page(1).load.first.age.should == 10 }
+      specify { search.per(2).page(3).load.first.age.should == 50 }
+      specify { search.per(2).page(3).load.page(2).load.first.age.should == 30 }
     end
   end
 end

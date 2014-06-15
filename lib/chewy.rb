@@ -5,6 +5,8 @@ require 'active_support/json'
 require 'i18n/core_ext/hash'
 require 'singleton'
 
+require 'chewy/backports/deep_dup' unless Object.respond_to?(:deep_dup)
+
 require 'elasticsearch'
 
 require 'chewy/version'

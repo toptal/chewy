@@ -3,10 +3,13 @@ require 'active_support/core_ext'
 require 'active_support/concern'
 require 'active_support/json'
 require 'i18n/core_ext/hash'
+require 'chewy/backports/deep_dup' unless Object.respond_to?(:deep_dup)
 require 'singleton'
 
-require 'chewy/backports/deep_dup' unless Object.respond_to?(:deep_dup)
-
+begin
+  require 'kaminari'
+rescue LoadError
+end
 require 'elasticsearch'
 
 require 'chewy/version'

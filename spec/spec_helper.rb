@@ -1,8 +1,3 @@
-if ENV['PAGINATION'] == 'kaminari'
-  require 'kaminari'
-  Kaminari::Hooks.init
-end
-
 require 'bundler'
 Bundler.require
 
@@ -13,6 +8,8 @@ require 'support/fail_helpers'
 require 'support/class_helpers'
 
 require 'chewy/rspec'
+
+Kaminari::Hooks.init
 
 ActiveRecord::Base.establish_connection(adapter: 'sqlite3', database: ':memory:')
 ActiveRecord::Base.logger = Logger.new('/dev/null')

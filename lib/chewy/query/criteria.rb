@@ -114,10 +114,7 @@ module Chewy
       def initialize_clone(other)
         STORAGES.each do |storage|
           value = other.send(storage)
-          if value
-            value = Marshal.load(Marshal.dump(value))
-            instance_variable_set("@#{storage}", value)
-          end
+          instance_variable_set("@#{storage}", value.deep_dup)
         end
       end
 

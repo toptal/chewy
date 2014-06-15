@@ -3,26 +3,15 @@ module Chewy
     module Loading
       extend ActiveSupport::Concern
 
-      class PaginatedArray < Array
-        def initialize query, objects
-          @query, @object = query, objects
-
-          super(objects)
-        end
-
-        delegate :limit, :offset, :total_count, to: :@query
-        delegate Kaminari.config.page_method_name.to_sym, to: :@query if defined?(::Kaminari)
-      end
-
-
-      # Loads actual ORM/ODM objects for search result.
-      # Returns array of ORM/ODM objects. In case when object
-      # can not be loaded because it was deleted or don't satisfy
-      # given scope or options - the result array will contain nil
-      # value in the place of this object. Use `compact` method to
-      # avoid this if necessary.
+      # Lazily loads actual ORM/ODM objects for search result.
+      # Returns scope marked to return loaded objects array instead of
+      # chewy wrappers. In case when object can not be loaded because it
+      # was deleted or don't satisfy given scope or options - the
+      # result collection will contain nil value in the place of this
+      # object. Use `compact` method to avoid this if necessary.
       #
       #   UsersIndex.query(...).load #=> [#<User id: 42...>, ...]
+      #   UsersIndex.query(...).load.filter(...) #=> [#<User id: 42...>, ...]
       #
       # Possible options:
       #
@@ -70,17 +59,8 @@ module Chewy
       #     PlacesIndex.query(...).load(except: [:city])
       #     PlacesIndex.query(...).load(except: [:city, :country])
       #
-      #  Loaded objects are also attached to corresponding Chewy
-      #  type wrapper objects and available with `_object` accessor.
-      #
-      #    scope = PlacesIndex.query(...)
-      #    loaded_objects = scope.load
-      #    scope.first #=> PlacesIndex::City wrapper instance
-      #    scope.first._object #=> City model instance
-      #    loaded_objects == scope.map(&:_object) #=> true
-      #
       def load(options = {})
-        Chewy::Query::Pagination::Proxy.new(_load_objects(options), self)
+        chain { criteria.update_options preload: options, loaded_objects: true }
       end
 
       # This methods is just convenient way to preload some ORM/ODM
@@ -89,16 +69,25 @@ module Chewy
       # so preload method should also be the last in scope methods chain.
       # Takes the same options as the `load` method
       #
-      #   PlacesIndex.query(...).preload(only: :city).map(&:_object)
+      #   PlacesIndex.query(...).preload(only: :city)
+      #
+      # Loaded objects are also attached to corresponding Chewy
+      # type wrapper objects and available with `_object` accessor.
+      #
+      #    scope = PlacesIndex.query(...)
+      #    preload_scope = scope.preload
+      #    preload_scope.first #=> PlacesIndex::City wrapper instance
+      #    preload_scope.first._object #=> City model instance
+      #    scope.load == preload_scope.map(&:_object) #=> true
       #
       def preload(options = {})
-        _load_objects(options)
-        self
+        chain { criteria.update_options preload: options, loaded_objects: false }
       end
 
     private
 
-      def _load_objects(options)
+      def _load_objects!
+        options = criteria.options[:preload]
         only = Array.wrap(options[:only]).map(&:to_s)
         except = Array.wrap(options[:except]).map(&:to_s)
 

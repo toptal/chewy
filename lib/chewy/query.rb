@@ -16,7 +16,17 @@ module Chewy
     include Loading
     include Pagination
 
-    delegate :each, :count, :size, to: :_results
+    RESULT_MERGER = lambda do |key, old_value, new_value|
+      if old_value.is_a?(Hash) && new_value.is_a?(Hash)
+        old_value.merge(new_value, &RESULT_MERGER)
+      elsif new_value.is_a?(Array) && new_value.count > 1
+        new_value
+      else
+        old_value.is_a?(Array) ? new_value : new_value.first
+      end
+    end
+
+    delegate :each, :count, :size, to: :_collection
     alias_method :to_ary, :to_a
 
     attr_reader :index, :options, :criteria
@@ -542,7 +552,7 @@ module Chewy
     end
 
     def reset
-      @_request, @_response, @_results = nil
+      @_request, @_response, @_results, @_collection = nil
     end
 
     def _request
@@ -562,24 +572,22 @@ module Chewy
       end
     end
 
-    MERGER = lambda do |key, old_value, new_value|
-      if old_value.is_a?(Hash) && new_value.is_a?(Hash)
-        old_value.merge(new_value, &MERGER)
-      elsif new_value.is_a?(Array) && new_value.count > 1
-        new_value
-      else
-        old_value.is_a?(Array) ? new_value : new_value.first
-      end
-    end
-
     def _results
       @_results ||= (criteria.none? || _response == {} ? [] : _response['hits']['hits']).map do |hit|
-        attributes = (hit['_source'] || {}).merge(hit['highlight'] || {}, &MERGER)
+        attributes = (hit['_source'] || {}).merge(hit['highlight'] || {}, &RESULT_MERGER)
         attributes.reverse_merge!(id: hit['_id']).merge!(_score: hit['_score'])
 
         wrapper = index.type_hash[hit['_type']].new attributes
         wrapper._data = hit
         wrapper
+      end
+    end
+
+    def _collection
+      @_collection ||= begin
+        _load_objects! if criteria.options[:preload]
+        criteria.options[:preload] && criteria.options[:loaded_objects] ?
+          _results.map(&:_object) : _results
       end
     end
   end

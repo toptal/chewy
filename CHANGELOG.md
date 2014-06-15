@@ -8,6 +8,8 @@
 
 ## Changes:
 
+  * Lazy load and preload for queries.
+
   * Added `delete_from_index?` API method for custom deleted objects marking.
 
   * Added `post_filter` API, working the same way as filters.
@@ -16,7 +18,7 @@
 
   * Aliasing is performed in index create request for ElasticSearch >= 1.1.
 
-  * `preload` scope method loads ORM/ODM objects and returns Chewy scope itself.
+  * `preload` scope method loads ORM/ODM objects in background.
 
   * `load` method `:only` and `:except` options to specify load types.
 

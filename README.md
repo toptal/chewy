@@ -605,13 +605,20 @@ It is possible to load source objects from database for every search result:
 ```ruby
 scope = UsersIndex.filter(range: {rating: {gte: 100}})
 
-scope.load # => will return User instances array (not a scope because )
+scope.load # => scope is marked to return User instances array
+scope.load.query(...) # => since objects are loaded lazily you can complete scope
 scope.load(user: { scope: ->{ includes(:country) }}) # you can also pass loading scopes for each
                                                      # possibly returned type
 scope.load(user: { scope: User.includes(:country) }) # the second scope passing way.
 scope.load(scope: ->{ includes(:country) }) # and more common scope applied to every loaded object type.
 
 scope.only(:id).load # it is optimal to request ids only if you are not planning to use type objects
+```
+
+The `preload` method takes the same options as `load` and ORM/ODM objects will be loaded, but scope will still return array of Chewy wrappers. To access real objects use `_object` wrapper method:
+
+```ruby
+UsersIndex.filter(range: {rating: {gte: 100}}).preload(...).query(...).map(&:_object)
 ```
 
 See [loading.rb](lib/chewy/query/loading.rb) for more details.

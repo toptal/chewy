@@ -7,6 +7,10 @@ module Chewy
         include Kaminari if defined?(::Kaminari)
       end
 
+      def total_count
+        _response['hits'].try(:[], 'total') || 0
+      end
+
       module Kaminari
         extend ActiveSupport::Concern
 
@@ -20,10 +24,6 @@ module Chewy
               limit(limit_value).offset(limit_value * ([num.to_i, 1].max - 1))
             end
           METHOD
-        end
-
-        def total_count
-          _response['hits'].try(:[], 'total') || 0
         end
 
         def limit_value

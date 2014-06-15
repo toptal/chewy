@@ -81,7 +81,8 @@ module Chewy
       #   PlacesIndex.query(...).preload(only: :city).map(&:_object)
       #
       def preload(options = {})
-        tap { |scope| scope.load(options) }
+        _load_objects(options)
+        self
       end
 
     private

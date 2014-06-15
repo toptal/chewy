@@ -3,6 +3,18 @@ module Chewy
     module Loading
       extend ActiveSupport::Concern
 
+      class PaginatedArray < Array
+        def initialize query, objects
+          @query, @object = query, objects
+
+          super(objects)
+        end
+
+        delegate :limit, :offset, :total_count, to: :@query
+        delegate Kaminari.config.page_method_name.to_sym, to: :@query if defined?(::Kaminari)
+      end
+
+
       # Loads actual ORM/ODM objects for search result.
       # Returns array of ORM/ODM objects. In case when object
       # can not be loaded because it was deleted or don't satisfy
@@ -68,8 +80,7 @@ module Chewy
       #    loaded_objects == scope.map(&:_object) #=> true
       #
       def load(options = {})
-        objects = _load_objects(options)
-        objects = PaginatedArray.new(self, objects) if defined?(::Kaminari)
+        Chewy::Query::Pagination::Proxy.new(self, _load_objects(options))
       end
 
       # This methods is just convenient way to preload some ORM/ODM

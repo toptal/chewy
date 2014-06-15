@@ -6,9 +6,9 @@
 
   * 404 exception (IndexMissingException) while query is swallowed and treated like an empty result set.
 
-## Changes:
+  * `load` and `preload` for queries became lazy. Might be partially incompatible.
 
-  * Lazy load and preload for queries.
+## Changes:
 
   * Added `delete_from_index?` API method for custom deleted objects marking.
 

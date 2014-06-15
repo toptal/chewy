@@ -1,8 +1,6 @@
 require 'spec_helper'
 
 describe Chewy::Query do
-  include ClassHelpers
-
   before do
     Chewy.client.indices.delete index: '*'
   end

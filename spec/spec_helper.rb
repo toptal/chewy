@@ -1,3 +1,8 @@
+if ENV['PAGINATION'] == 'kaminari'
+  require 'kaminari'
+  Kaminari::Hooks.init
+end
+
 require 'bundler'
 Bundler.require
 
@@ -11,8 +16,6 @@ require 'chewy/rspec'
 
 ActiveRecord::Base.establish_connection(adapter: 'sqlite3', database: ':memory:')
 ActiveRecord::Base.logger = Logger.new('/dev/null')
-
-Kaminari::Hooks.init
 
 ActiveRecord::Schema.define do
   create_table :countries do |t|

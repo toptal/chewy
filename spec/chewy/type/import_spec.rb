@@ -1,8 +1,6 @@
 require 'spec_helper'
 
 describe Chewy::Type::Import do
-  include ClassHelpers
-
   before { Chewy.client.indices.delete index: '*' }
 
   before do

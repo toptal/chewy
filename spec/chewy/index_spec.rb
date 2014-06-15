@@ -1,8 +1,6 @@
 require 'spec_helper'
 
 describe Chewy::Index do
-  include ClassHelpers
-
   before do
     stub_index(:dummies) do
       define_type :dummy

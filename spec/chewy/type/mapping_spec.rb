@@ -1,8 +1,6 @@
 require 'spec_helper'
 
 describe Chewy::Type::Mapping do
-  include ClassHelpers
-
   let(:product) { ProductsIndex::Product }
 
   before do

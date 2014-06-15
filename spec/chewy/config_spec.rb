@@ -1,7 +1,6 @@
 require 'spec_helper'
 
 describe Chewy::Config do
-  include ClassHelpers
   subject { described_class.send(:new) }
 
   its(:query_mode) { should == :must }

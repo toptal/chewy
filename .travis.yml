@@ -8,6 +8,9 @@ gemfile:
   - Gemfile
   - gemfiles/Gemfile.rails-3.2
   - gemfiles/Gemfile.rails-4.0
+env:
+  - PAGINATION=none
+  - PAGINATION=kaminari
 before_install:
   - curl -# https://download.elasticsearch.org/elasticsearch/elasticsearch/elasticsearch-1.2.1.tar.gz | tar xz -C /tmp
 before_script:

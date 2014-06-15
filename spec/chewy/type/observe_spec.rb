@@ -1,8 +1,6 @@
 require 'spec_helper'
 
 describe Chewy::Type::Import do
-  include ClassHelpers
-
   describe '.update_index' do
     before do
       stub_index(:dummies) do

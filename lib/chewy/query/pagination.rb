@@ -8,9 +8,9 @@ module Chewy
   end
 end
 
-require 'chewy/query/pagination/proxy'
-
 if defined?(::Kaminari)
   require 'chewy/query/pagination/kaminari'
   require 'chewy/query/pagination/kaminari_proxy'
+else
+  require 'chewy/query/pagination/proxy'
 end

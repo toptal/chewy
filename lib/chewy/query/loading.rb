@@ -80,7 +80,7 @@ module Chewy
       #    loaded_objects == scope.map(&:_object) #=> true
       #
       def load(options = {})
-        Chewy::Query::Pagination::Proxy.new(self, _load_objects(options))
+        Chewy::Query::Pagination::Proxy.new(_load_objects(options), self)
       end
 
       # This methods is just convenient way to preload some ORM/ODM

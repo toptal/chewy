@@ -14,13 +14,7 @@
 
   * Added chainable `strategy` query method.
 
-  * Added waiting for status after index delete.
-
   * Aliasing is performed in index create request for ElasticSearch >= 1.1.
-
-  * I think, now it waits for status correctly. After index creation and bulk import.
-
-  * Fix #23 "wrong constant name" with namespace models
 
   * `preload` scope method loads ORM/ODM objects and returns Chewy scope itself.
 
@@ -29,6 +23,14 @@
   * `highlight` and `rescore` query options support.
 
   * config/chewy.yml ERB support.
+
+## Bugfixes:
+
+  * Support for Kaminari new PaginatableArray behavior (@leemhenson)
+
+  * Correct waiting for status. After index creation, bulk import, and deletion.
+
+  * Fix #23 "wrong constant name" with namespace models
 
 # Version 0.4.0
 

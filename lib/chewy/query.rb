@@ -1,8 +1,3 @@
-begin
-  require 'kaminari'
-rescue LoadError
-end
-
 require 'chewy/query/criteria'
 require 'chewy/query/filters'
 require 'chewy/query/loading'

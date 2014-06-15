@@ -1,8 +1,6 @@
 require 'spec_helper'
 
 describe Chewy::Query::Criteria do
-  include ClassHelpers
-
   subject { described_class.new }
 
   its(:options) { should be_a Hash }

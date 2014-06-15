@@ -1,8 +1,6 @@
 require 'spec_helper'
 
 describe Chewy::Type do
-  include ClassHelpers
-
   describe '.new' do
     before { stub_index(:cities) }
 

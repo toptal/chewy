@@ -1,8 +1,6 @@
 require 'spec_helper'
 
 describe Chewy::Index::Search do
-  include ClassHelpers
-
   before do
     stub_index(:products) do
       define_type :product

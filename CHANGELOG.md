@@ -10,6 +10,8 @@
 
 ## Changes:
 
+  * `rake chewy:reset` and `rake chewy:update` paramless acts as `rake chewy:reset:all` and `rake chewy:update:all` respectively
+
   * Added `delete_from_index?` API method for custom deleted objects marking.
 
   * Added `post_filter` API, working the same way as filters.

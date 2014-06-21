@@ -8,6 +8,8 @@
 
   * `load` and `preload` for queries became lazy. Might be partially incompatible.
 
+  * Non-multi_field having nested fields are forced to `object` type in mapping, so there is no need to specify it explicitly.
+
 ## Changes:
 
   * `rake chewy:reset` and `rake chewy:update` paramless acts as `rake chewy:reset:all` and `rake chewy:update:all` respectively

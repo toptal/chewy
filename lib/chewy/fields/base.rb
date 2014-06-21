@@ -4,12 +4,16 @@ module Chewy
       attr_reader :name, :options, :value
 
       def initialize(name, options = {})
-        @name, @options, @nested = name.to_sym, options, {}
+        @name, @options, @nested = name.to_sym, options.deep_symbolize_keys, {}
         @value = @options.delete(:value)
       end
 
       def multi_field?
-        @options[:type] == 'multi_field'
+        @options[:type].to_s == 'multi_field'
+      end
+
+      def object_field?
+        nested.any? && !multi_field?
       end
 
       def compose(object)
@@ -40,7 +44,8 @@ module Chewy
         subfields = nested.any? ? {
           (multi_field? ? :fields : :properties) => nested.values.map(&:mappings_hash).inject(:merge)
         } : {}
-        {name => options.deep_symbolize_keys.merge(subfields)}
+        subfields.merge!(type: 'object') if object_field?
+        {name => options.merge(subfields)}
       end
 
     private

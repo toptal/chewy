@@ -69,17 +69,17 @@ describe Chewy::Fields::Base do
       fields2.each { |m| fields1[0].nested(m) }
     end
 
-    specify { field.mappings_hash.should == {name: {type: 'string', properties: {
-      name1: {type: 'string1', properties: {
+    specify { field.mappings_hash.should == {name: {type: 'object', properties: {
+      name1: {type: 'object', properties: {
         name3: {type: 'string3'}, name4: {type: 'string4'}
       }}, name2: {type: 'string2'}
     }}} }
 
     context do
-      let(:field) { described_class.new(:name, type: 'multi_field') }
+      let(:field) { described_class.new(:name, type: :multi_field) }
 
-      specify { field.mappings_hash.should == {name: {type: 'multi_field', fields: {
-        name1: {type: 'string1', properties: {
+      specify { field.mappings_hash.should == {name: {type: :multi_field, fields: {
+        name1: {type: 'object', properties: {
           name3: {type: 'string3'}, name4: {type: 'string4'}
         }}, name2: {type: 'string2'}
       }}} }

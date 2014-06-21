@@ -9,6 +9,14 @@ module Chewy
         @dynamic_templates = []
       end
 
+      def multi_field?
+        false
+      end
+
+      def object_field?
+        false
+      end
+
       def mappings_hash
         mappings = super
         if dynamic_templates.any?

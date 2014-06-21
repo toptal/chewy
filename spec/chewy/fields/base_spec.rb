@@ -85,4 +85,232 @@ describe Chewy::Fields::Base do
       }}} }
     end
   end
+
+  context 'integration' do
+    context 'objects, hashes and arrays' do
+      before do
+        stub_index(:events) do
+          define_type :event do
+            field :id
+            field :category do
+              field :id
+              field :licenses do
+                field :id
+                field :name
+              end
+            end
+          end
+        end
+      end
+
+      specify do
+        EventsIndex::Event.mappings_hash.should == { event: {
+          properties: {
+            id: { type: 'string' },
+            category: {
+              type: 'object',
+              properties: {
+                id: { type: 'string' },
+                licenses: {
+                  type: 'object',
+                  properties: {
+                    id: { type: 'string' },
+                    name: { type: 'string' } } } } } } } }
+      end
+
+      context do
+        let(:data) do
+          {id: 1, category: { id: 2, licenses: { id: 3, name: 'Name' } } }
+        end
+
+        specify do
+          EventsIndex::Event.root_object.compose(data).should == {
+            event: { 'id' => 1, 'category' => { 'id' => 2, 'licenses' => {'id' => 3, 'name' => 'Name'}}}
+          }
+        end
+      end
+
+      context do
+        let(:data) do
+          { id: 1, category: [
+            { id: 2, 'licenses' => { id: 3, name: 'Name1' } },
+            { id: 4, licenses: nil}
+          ] }
+        end
+
+        specify do
+          EventsIndex::Event.root_object.compose(data).should == {
+            event: { 'id' => 1, 'category' => [
+              { 'id' => 2, 'licenses' => { 'id' => 3, 'name' => 'Name1' } },
+              {'id' => 4, 'licenses' => nil }
+            ] }
+          }
+        end
+      end
+
+      context do
+        let(:data) do
+          { 'id' => 1, category: { id: 2, licenses: [
+            { id: 3, name: 'Name1' }, { id: 4, name: 'Name2' }
+          ] } }
+        end
+
+        specify do
+          EventsIndex::Event.root_object.compose(data).should == {
+            event: { 'id' => 1, 'category' => { 'id' => 2, 'licenses' => [
+              {'id' => 3, 'name' => 'Name1'}, {'id' => 4, 'name' => 'Name2'}
+            ] } }
+          }
+        end
+      end
+
+      context do
+        let(:data) do
+          { id: 1, category: [
+            { id: 2, licenses: [
+              { id: 3, 'name' => 'Name1' }, { id: 4, name: 'Name2' }
+            ] },
+            { id: 5, licenses: [] }
+          ]}
+        end
+
+        specify do
+          EventsIndex::Event.root_object.compose(data).should == {
+            event: { 'id' => 1, 'category' => [
+              { 'id' => 2, 'licenses' => [
+                { 'id' => 3, 'name' => 'Name1' }, { 'id' => 4, 'name' => 'Name2' }
+              ] },
+              {'id' => 5, 'licenses' => [] }
+            ] }
+          }
+        end
+      end
+
+      context do
+        let(:data) do
+          double(id: 1, category: double(id: 2, licenses: double(id: 3, name: 'Name')))
+        end
+
+        specify do
+          EventsIndex::Event.root_object.compose(data).should == {
+            event: { 'id' => 1, 'category' => { 'id' => 2, 'licenses' => {'id' => 3, 'name' => 'Name'}}}
+          }
+        end
+      end
+
+      context do
+        let(:data) do
+          double(id: 1, category: [
+            double(id: 2, licenses: double(id: 3, name: 'Name1')),
+            double(id: 4, licenses: nil)
+          ])
+        end
+
+        specify do
+          EventsIndex::Event.root_object.compose(data).should == {
+            event: { 'id' => 1, 'category' => [
+              { 'id' => 2, 'licenses' => { 'id' => 3, 'name' => 'Name1' } },
+              {'id' => 4, 'licenses' => nil }
+            ] }
+          }
+        end
+      end
+
+      context do
+        let(:data) do
+          double(id: 1, category: double(id: 2, licenses: [
+            double(id: 3, name: 'Name1'), double(id: 4, name: 'Name2')
+          ]))
+        end
+
+        specify do
+          EventsIndex::Event.root_object.compose(data).should == {
+            event: { 'id' => 1, 'category' => { 'id' => 2, 'licenses' => [
+              {'id' => 3, 'name' => 'Name1'}, {'id' => 4, 'name' => 'Name2'}
+            ] } }
+          }
+        end
+      end
+
+      context do
+        let(:data) do
+          double(id: 1, category: [
+            double(id: 2, licenses: [
+              double(id: 3, name: 'Name1'), double(id: 4, name: 'Name2')
+            ]),
+            double(id: 5, licenses: [])
+          ])
+        end
+
+        specify do
+          EventsIndex::Event.root_object.compose(data).should == {
+            event: { 'id' => 1, 'category' => [
+              { 'id' => 2, 'licenses' => [
+                { 'id' => 3, 'name' => 'Name1' }, { 'id' => 4, 'name' => 'Name2' }
+              ] },
+              {'id' => 5, 'licenses' => [] }
+            ] }
+          }
+        end
+      end
+    end
+
+    context 'objects and scopes' do
+      before do
+        stub_model(:city) do
+          belongs_to :country
+        end
+
+        stub_model(:country) do
+          has_many :cities
+        end
+
+        stub_index(:countries) do
+          define_type Country do
+            field :id
+            field :cities do
+              field :id
+              field :name
+            end
+          end
+        end
+      end
+
+      let(:data) do
+        Country.create!(cities: [City.create!(name: 'City1'), City.create!(name: 'City2')])
+      end
+
+      specify do
+        CountriesIndex::Country.root_object.compose(data).should == {
+          country: { 'id' => 1, 'cities' => [
+            { 'id' => 1, 'name' => 'City1' }, { 'id' => 2, 'name' => 'City2' }
+          ] }
+        }
+      end
+
+      context 'nested object' do
+        before do
+          stub_index(:cities) do
+            define_type City do
+              field :id
+              field :country do
+                field :id
+                field :name
+              end
+            end
+          end
+        end
+
+        let(:data) do
+          City.create!(country: Country.create!(name: 'Country'))
+        end
+
+        specify do
+          CitiesIndex::City.root_object.compose(data).should == {
+            city: { 'id' => 1, 'country' => { 'id' => 1, 'name' => 'Country' } }
+          }
+        end
+      end
+    end
+  end
 end

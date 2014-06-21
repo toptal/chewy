@@ -19,12 +19,14 @@ module Chewy
       def compose(object)
         result = if value && value.is_a?(Proc)
           value.arity == 0 ? object.instance_exec(&value) : value.call(object)
+        elsif object.is_a?(Hash)
+          object[name] || object[name.to_s]
         else
           object.send(name)
         end
 
-        result = if result.is_a?(Enumerable) && !result.is_a?(Hash)
-          result.map { |object| nested_compose(object) }
+        result = if result.respond_to?(:to_ary)
+          result.to_ary.map { |object| nested_compose(object) }
         else
           nested_compose(result)
         end if nested.any? && !multi_field?
@@ -51,7 +53,7 @@ module Chewy
     private
 
       def nested_compose(value)
-        nested.values.map { |field| field.compose(value) }.inject(:merge)
+        nested.values.map { |field| field.compose(value) if value }.compact.inject(:merge)
       end
     end
   end

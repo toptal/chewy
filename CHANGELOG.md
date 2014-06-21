@@ -12,6 +12,8 @@
 
 ## Changes:
 
+  * Added hash data support. How it is possible to pass hashes to import.
+
   * `rake chewy:reset` and `rake chewy:update` paramless acts as `rake chewy:reset:all` and `rake chewy:update:all` respectively
 
   * Added `delete_from_index?` API method for custom deleted objects marking.
@@ -31,6 +33,8 @@
   * config/chewy.yml ERB support.
 
 ## Bugfixes:
+
+  * Reworked index data composing.
 
   * Support for Kaminari new PaginatableArray behavior (@leemhenson)
 

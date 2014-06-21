@@ -118,140 +118,121 @@ describe Chewy::Fields::Base do
                     name: { type: 'string' } } } } } } } }
       end
 
-      context do
-        let(:data) do
-          {id: 1, category: { id: 2, licenses: { id: 3, name: 'Name' } } }
-        end
-
-        specify do
-          EventsIndex::Event.root_object.compose(data).should == {
-            event: { 'id' => 1, 'category' => { 'id' => 2, 'licenses' => {'id' => 3, 'name' => 'Name'}}}
-          }
-        end
+      specify do
+        EventsIndex::Event.root_object.compose(
+          id: 1, category: { id: 2, licenses: { id: 3, name: 'Name' } }
+        ).should == {
+          event: { 'id' => 1, 'category' => { 'id' => 2, 'licenses' => {'id' => 3, 'name' => 'Name'}}}
+        }
       end
 
-      context do
-        let(:data) do
-          { id: 1, category: [
-            { id: 2, 'licenses' => { id: 3, name: 'Name1' } },
-            { id: 4, licenses: nil}
+      specify do
+        EventsIndex::Event.root_object.compose(id: 1, category: [
+          { id: 2, 'licenses' => { id: 3, name: 'Name1' } },
+          { id: 4, licenses: nil}
+        ]).should == {
+          event: { 'id' => 1, 'category' => [
+            { 'id' => 2, 'licenses' => { 'id' => 3, 'name' => 'Name1' } },
+            {'id' => 4, 'licenses' => nil }
           ] }
-        end
-
-        specify do
-          EventsIndex::Event.root_object.compose(data).should == {
-            event: { 'id' => 1, 'category' => [
-              { 'id' => 2, 'licenses' => { 'id' => 3, 'name' => 'Name1' } },
-              {'id' => 4, 'licenses' => nil }
-            ] }
-          }
-        end
+        }
       end
 
-      context do
-        let(:data) do
-          { 'id' => 1, category: { id: 2, licenses: [
-            { id: 3, name: 'Name1' }, { id: 4, name: 'Name2' }
+      specify do
+        EventsIndex::Event.root_object.compose('id' => 1, category: { id: 2, licenses: [
+          { id: 3, name: 'Name1' }, { id: 4, name: 'Name2' }
+        ] }).should == {
+          event: { 'id' => 1, 'category' => { 'id' => 2, 'licenses' => [
+            {'id' => 3, 'name' => 'Name1'}, {'id' => 4, 'name' => 'Name2'}
           ] } }
-        end
-
-        specify do
-          EventsIndex::Event.root_object.compose(data).should == {
-            event: { 'id' => 1, 'category' => { 'id' => 2, 'licenses' => [
-              {'id' => 3, 'name' => 'Name1'}, {'id' => 4, 'name' => 'Name2'}
-            ] } }
-          }
-        end
+        }
       end
 
-      context do
-        let(:data) do
-          { id: 1, category: [
-            { id: 2, licenses: [
-              { id: 3, 'name' => 'Name1' }, { id: 4, name: 'Name2' }
+      specify do
+        EventsIndex::Event.root_object.compose(id: 1, category: [
+          { id: 2, licenses: [
+            { id: 3, 'name' => 'Name1' }, { id: 4, name: 'Name2' }
+          ] },
+          { id: 5, licenses: [] }
+        ]).should == {
+          event: { 'id' => 1, 'category' => [
+            { 'id' => 2, 'licenses' => [
+              { 'id' => 3, 'name' => 'Name1' }, { 'id' => 4, 'name' => 'Name2' }
             ] },
-            { id: 5, licenses: [] }
-          ]}
-        end
-
-        specify do
-          EventsIndex::Event.root_object.compose(data).should == {
-            event: { 'id' => 1, 'category' => [
-              { 'id' => 2, 'licenses' => [
-                { 'id' => 3, 'name' => 'Name1' }, { 'id' => 4, 'name' => 'Name2' }
-              ] },
-              {'id' => 5, 'licenses' => [] }
-            ] }
-          }
-        end
+            {'id' => 5, 'licenses' => [] }
+          ] }
+        }
       end
 
-      context do
-        let(:data) do
+      specify do
+        EventsIndex::Event.root_object.compose(
           double(id: 1, category: double(id: 2, licenses: double(id: 3, name: 'Name')))
-        end
-
-        specify do
-          EventsIndex::Event.root_object.compose(data).should == {
-            event: { 'id' => 1, 'category' => { 'id' => 2, 'licenses' => {'id' => 3, 'name' => 'Name'}}}
-          }
-        end
+        ).should == {
+          event: { 'id' => 1, 'category' => { 'id' => 2, 'licenses' => {'id' => 3, 'name' => 'Name'}}}
+        }
       end
 
-      context do
-        let(:data) do
-          double(id: 1, category: [
-            double(id: 2, licenses: double(id: 3, name: 'Name1')),
-            double(id: 4, licenses: nil)
-          ])
-        end
-
-        specify do
-          EventsIndex::Event.root_object.compose(data).should == {
-            event: { 'id' => 1, 'category' => [
-              { 'id' => 2, 'licenses' => { 'id' => 3, 'name' => 'Name1' } },
-              {'id' => 4, 'licenses' => nil }
-            ] }
-          }
-        end
+      specify do
+        EventsIndex::Event.root_object.compose(double(id: 1, category: [
+          double(id: 2, licenses: double(id: 3, name: 'Name1')),
+          double(id: 4, licenses: nil)
+        ])).should == {
+          event: { 'id' => 1, 'category' => [
+            { 'id' => 2, 'licenses' => { 'id' => 3, 'name' => 'Name1' } },
+            {'id' => 4, 'licenses' => nil }
+          ] }
+        }
       end
 
-      context do
-        let(:data) do
-          double(id: 1, category: double(id: 2, licenses: [
+      specify do
+        EventsIndex::Event.root_object.compose(double(id: 1, category: double(id: 2, licenses: [
+          double(id: 3, name: 'Name1'), double(id: 4, name: 'Name2')
+        ]))).should == {
+          event: { 'id' => 1, 'category' => { 'id' => 2, 'licenses' => [
+            {'id' => 3, 'name' => 'Name1'}, {'id' => 4, 'name' => 'Name2'}
+          ] } }
+        }
+      end
+
+      specify do
+        EventsIndex::Event.root_object.compose(double(id: 1, category: [
+          double(id: 2, licenses: [
             double(id: 3, name: 'Name1'), double(id: 4, name: 'Name2')
-          ]))
-        end
+          ]),
+          double(id: 5, licenses: [])
+        ])).should == {
+          event: { 'id' => 1, 'category' => [
+            { 'id' => 2, 'licenses' => [
+              { 'id' => 3, 'name' => 'Name1' }, { 'id' => 4, 'name' => 'Name2' }
+            ] },
+            {'id' => 5, 'licenses' => [] }
+          ] }
+        }
+      end
+    end
 
-        specify do
-          EventsIndex::Event.root_object.compose(data).should == {
-            event: { 'id' => 1, 'category' => { 'id' => 2, 'licenses' => [
-              {'id' => 3, 'name' => 'Name1'}, {'id' => 4, 'name' => 'Name2'}
-            ] } }
-          }
+    context 'custom methods' do
+      before do
+        stub_index(:events) do
+          define_type :event do
+            field :id
+            field :category, value: ->{ categories } do
+              field :id
+              field :licenses, value: ->{ license } do
+                field :id
+                field :name
+              end
+            end
+          end
         end
       end
 
-      context do
-        let(:data) do
-          double(id: 1, category: [
-            double(id: 2, licenses: [
-              double(id: 3, name: 'Name1'), double(id: 4, name: 'Name2')
-            ]),
-            double(id: 5, licenses: [])
-          ])
-        end
-
-        specify do
-          EventsIndex::Event.root_object.compose(data).should == {
-            event: { 'id' => 1, 'category' => [
-              { 'id' => 2, 'licenses' => [
-                { 'id' => 3, 'name' => 'Name1' }, { 'id' => 4, 'name' => 'Name2' }
-              ] },
-              {'id' => 5, 'licenses' => [] }
-            ] }
-          }
-        end
+      specify do
+        EventsIndex::Event.root_object.compose(
+          double(id: 1, categories: double(id: 2, license: double(id: 3, name: 'Name')))
+        ).should == {
+          event: { 'id' => 1, 'category' => { 'id' => 2, 'licenses' => {'id' => 3, 'name' => 'Name'}}}
+        }
       end
     end
 
@@ -276,12 +257,10 @@ describe Chewy::Fields::Base do
         end
       end
 
-      let(:data) do
-        Country.create!(cities: [City.create!(name: 'City1'), City.create!(name: 'City2')])
-      end
-
       specify do
-        CountriesIndex::Country.root_object.compose(data).should == {
+        CountriesIndex::Country.root_object.compose(
+          Country.create!(cities: [City.create!(name: 'City1'), City.create!(name: 'City2')])
+        ).should == {
           country: { 'id' => 1, 'cities' => [
             { 'id' => 1, 'name' => 'City1' }, { 'id' => 2, 'name' => 'City2' }
           ] }
@@ -301,12 +280,10 @@ describe Chewy::Fields::Base do
           end
         end
 
-        let(:data) do
-          City.create!(country: Country.create!(name: 'Country'))
-        end
-
         specify do
-          CitiesIndex::City.root_object.compose(data).should == {
+          CitiesIndex::City.root_object.compose(
+            City.create!(country: Country.create!(name: 'Country'))
+          ).should == {
             city: { 'id' => 1, 'country' => { 'id' => 1, 'name' => 'Country' } }
           }
         end

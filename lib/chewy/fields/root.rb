@@ -6,6 +6,7 @@ module Chewy
       def initialize(name, options = {})
         options.reverse_merge!(value: ->(_){_})
         super(name, options)
+        options.delete(:type)
         @dynamic_templates = []
       end
 
@@ -14,7 +15,11 @@ module Chewy
       end
 
       def object_field?
-        false
+        true
+      end
+
+      def root_field?
+        true
       end
 
       def mappings_hash

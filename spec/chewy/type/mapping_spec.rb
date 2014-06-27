@@ -21,13 +21,13 @@ describe Chewy::Type::Mapping do
 
   describe '.field' do
     specify { product.root_object.nested.keys.should =~ [:name, :surname, :title, :price] }
-    specify { product.root_object.nested.values.should satisfy { |v| v.all? { |f| f.is_a? Chewy::Fields::Default } } }
+    specify { product.root_object.nested.values.should satisfy { |v| v.all? { |f| f.is_a? Chewy::Fields::Base } } }
 
     specify { product.root_object.nested[:title].nested.keys.should == [:subfield1] }
-    specify { product.root_object.nested[:title].nested[:subfield1].should be_a Chewy::Fields::Default }
+    specify { product.root_object.nested[:title].nested[:subfield1].should be_a Chewy::Fields::Base }
 
     specify { product.root_object.nested[:price].nested.keys.should == [:subfield2] }
-    specify { product.root_object.nested[:price].nested[:subfield2].should be_a Chewy::Fields::Default }
+    specify { product.root_object.nested[:price].nested[:subfield2].should be_a Chewy::Fields::Base }
   end
 
   describe '.mappings_hash' do
@@ -47,6 +47,6 @@ describe Chewy::Type::Mapping do
     end
 
     specify { product.root_object.nested[:title].nested.keys.should == [:subfield1] }
-    specify { product.root_object.nested[:title].nested[:subfield1].should be_a Chewy::Fields::Default }
+    specify { product.root_object.nested[:title].nested[:subfield1].should be_a Chewy::Fields::Base }
   end
 end

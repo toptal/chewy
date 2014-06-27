@@ -8,7 +8,7 @@
 
   * `load` and `preload` for queries became lazy. Might be partially incompatible.
 
-  * Non-multi_field having nested fields are forced to `object` type in mapping, so there is no need to specify it explicitly.
+  * Changed mapping behavior: multi-fields are defined in conformity with ElasticSearch documentation (http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/_multi_fields.html#_multi_fields)
 
 ## Changes:
 

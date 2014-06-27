@@ -20,7 +20,6 @@ require 'chewy/index'
 require 'chewy/type'
 require 'chewy/query'
 require 'chewy/fields/base'
-require 'chewy/fields/default'
 require 'chewy/fields/root'
 
 require 'chewy/railtie' if defined?(::Rails)

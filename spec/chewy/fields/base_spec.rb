@@ -31,7 +31,7 @@ describe Chewy::Fields::Base do
     end
 
     context do
-      let(:field) { described_class.new(:name, type: 'multi_field') }
+      let(:field) { described_class.new(:name, type: 'string') }
       before do
         field.nested(described_class.new(:name))
         field.nested(described_class.new(:untouched))
@@ -61,7 +61,7 @@ describe Chewy::Fields::Base do
   end
 
   describe '#mappings_hash' do
-    let(:field) { described_class.new(:name, type: 'string') }
+    let(:field) { described_class.new(:name, type: :object) }
     let(:fields1) { 2.times.map { |i| described_class.new("name#{i+1}", type: "string#{i+1}") } }
     let(:fields2) { 2.times.map { |i| described_class.new("name#{i+3}", type: "string#{i+3}") } }
     before do
@@ -69,19 +69,20 @@ describe Chewy::Fields::Base do
       fields2.each { |m| fields1[0].nested(m) }
     end
 
-    specify { field.mappings_hash.should == {name: {type: 'object', properties: {
-      name1: {type: 'object', properties: {
+    specify { field.mappings_hash.should == {name: {type: :object, properties: {
+      name1: {type: 'string1', fields: {
         name3: {type: 'string3'}, name4: {type: 'string4'}
       }}, name2: {type: 'string2'}
     }}} }
 
     context do
-      let(:field) { described_class.new(:name, type: :multi_field) }
+      let(:field) { described_class.new(:name, type: :string) }
+      let(:fields1) { 2.times.map { |i| described_class.new("name#{i+1}") } }
 
-      specify { field.mappings_hash.should == {name: {type: :multi_field, fields: {
+      specify { field.mappings_hash.should == {name: {type: :string, fields: {
         name1: {type: 'object', properties: {
           name3: {type: 'string3'}, name4: {type: 'string4'}
-        }}, name2: {type: 'string2'}
+        }}, name2: {type: 'string'}
       }}} }
     end
   end
@@ -232,6 +233,65 @@ describe Chewy::Fields::Base do
           double(id: 1, categories: double(id: 2, license: double(id: 3, name: 'Name')))
         ).should == {
           event: { 'id' => 1, 'category' => { 'id' => 2, 'licenses' => {'id' => 3, 'name' => 'Name'}}}
+        }
+      end
+    end
+
+    context 'objects and multi_fields' do
+      before do
+        stub_index(:events) do
+          define_type :event do
+            field :id
+            field :name, type: 'string' do
+              field :raw, analyzer: 'my_own'
+            end
+            field :category, type: 'object'
+          end
+        end
+      end
+
+      specify do
+        EventsIndex::Event.mappings_hash.should == { event: {
+          properties: {
+            id: { type: 'string' },
+            name: {
+              type: 'string',
+              fields: {
+                raw: { analyzer: 'my_own', type: 'string' }
+              }
+            },
+            category: { type: 'object' }
+          }
+        } }
+      end
+
+      specify do
+        EventsIndex::Event.root_object.compose(
+          double(id: 1, name: 'Jonny', category: double(id: 2, as_json: {name: 'Borogoves'}))
+        ).should == {
+          event: {
+            'id' => 1,
+            'name' => 'Jonny',
+            'category' => { 'name' => 'Borogoves' }
+          }
+        }
+      end
+
+      specify do
+        EventsIndex::Event.root_object.compose(
+          double(id: 1, name: 'Jonny', category: [
+            double(id: 2, as_json: { name: 'Borogoves1' }),
+            double(id: 3, as_json: { name: 'Borogoves2' })
+          ])
+        ).should == {
+          event: {
+            'id' => 1,
+            'name' => 'Jonny',
+            'category' => [
+              { 'name' => 'Borogoves1' },
+              { 'name' => 'Borogoves2' }
+            ]
+          }
         }
       end
     end

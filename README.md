@@ -102,7 +102,7 @@ See [config.rb](lib/chewy/config.rb) for more details.
       field :email, analyzer: 'email' # elasticsearch-related options
       field :country, value: ->(user) { user.country.name } # custom value proc
       field :badges, value: ->(user) { user.badges.map(&:name) } # passing array values to index
-      field :projects, type: 'object' do # the same syntax for `multi_field`
+      field :projects do # the same block syntax for multi_field, if `:type` is specified
         field :title
         field :description # default data type is `string`
       end
@@ -136,11 +136,11 @@ See [config.rb](lib/chewy/config.rb) for more details.
         field :email, analyzer: 'email'
         field :country, value: ->(user) { user.country.name }
         field :badges, value: ->(user) { user.badges.map(&:name) }
-        field :projects, type: 'object' do
+        field :projects do
           field :title
           field :description
         end
-        field :about_translations, type: 'object'
+        field :about_translations, type: 'object' # pass object type explicitely if necessary
         field :rating, type: 'integer'
         field :created, type: 'date', include_in_all: false,
           value: ->{ created_at }

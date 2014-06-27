@@ -9,11 +9,15 @@ module Chewy
       end
 
       def multi_field?
-        @options[:type].to_s == 'multi_field'
+        nested.any? && !object_field?
       end
 
       def object_field?
-        nested.any? && !multi_field?
+        (nested.any? && options[:type].blank?) || options[:type].to_s == 'object'
+      end
+
+      def root_field?
+        false
       end
 
       def compose(object)
@@ -43,11 +47,12 @@ module Chewy
       end
 
       def mappings_hash
-        subfields = nested.any? ? {
+        mapping = nested.any? ? {
           (multi_field? ? :fields : :properties) => nested.values.map(&:mappings_hash).inject(:merge)
         } : {}
-        subfields.merge!(type: 'object') if object_field?
-        {name => options.merge(subfields)}
+        mapping.reverse_merge!(options)
+        mapping.reverse_merge!(type: (nested.any? ? 'object' : 'string')) unless root_field?
+        {name => mapping}
       end
 
     private

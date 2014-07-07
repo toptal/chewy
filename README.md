@@ -598,6 +598,24 @@ Compliance cheatsheet for filters and DSL expressions:
 
 See [filters.rb](lib/chewy/query/filters.rb) for more details.
 
+### Faceting
+
+Facets are an optional sidechannel you can request from elasticsearch describing certain fields of the resulting collection. The most common use for facets is to allow the user continue filtering specifically within the subset, as opposed to the global index.
+
+For instance, let's request the ```country``` field as a facet along with our users collection. We can do this with the #facets method like so:
+
+```ruby
+UsersIndex.filter{ [...] }.facets({countries: {terms: {field: 'country'}}}) 
+```
+
+Let's look at what we asked from elasticsearch. The facets setter method accepts a hash. You can choose custom/semantic key names for this hash for your own convinience (in this case I used the plural version of the actual field), in our case: ```countries```. The following nested hash tells ES to grab and aggregate values (terms) from the ```country``` field on our indexed records. 
+
+When the response comes back, it will have the ```:facets``` sidechannel included:
+
+```
+< { ... ,"facets":{"countries":{"_type":"terms","missing":?,"total":?,"other":?,"terms":[{"term":"USA","count":?},{"term":"Brazil","count":?}, ...}}
+```
+
 ### Objects loading
 
 It is possible to load source objects from database for every search result:

@@ -307,6 +307,27 @@ module Chewy
     end
     alias :aggs :aggregations
 
+    # Sets elasticsearch <tt>suggest</tt> search request param
+    #
+    #  UsersIndex.suggest(name: {text: 'Joh', term: {field: 'name'}})
+    #     # => {body: {
+    #            query: {...},
+    #            suggest: {
+    #              text: 'Joh',
+    #              term: {
+    #                field: 'name'
+    #              }
+    #            }
+    #          }}
+    #
+    def suggest params = nil
+      if params
+        chain { criteria.update_suggest params }
+      else
+        _response['suggest'] || {}
+      end
+    end
+
     # Marks the criteria as having zero records. This scope  always returns empty array
     # without touching the elasticsearch server.
     # All the chained calls of methods don't affect the result

@@ -158,6 +158,44 @@ describe Chewy::Query do
     end
   end
 
+  describe '#suggest' do
+    specify { subject.suggest(name1: {text: 'hello', term: {field: 'name'}}) }
+    specify { subject.suggest(name1: {text: 'hello'}).should_not == subject }
+    specify { subject.suggest(name1: {text: 'hello'}).criteria.suggest.should include(name1: {text: 'hello'}) }
+    specify { expect { subject.suggest(name1: {text: 'hello'}) }.not_to change { subject.criteria.suggest } }
+
+    context 'results' do
+      before { stub_model(:city) }
+      let(:cities) { 10.times.map { |i| City.create! name: "name#{i}" } }
+
+      context do
+        before do
+          stub_index(:cities) do
+            define_type :city do
+              field :name
+            end
+          end
+        end
+
+        before { CitiesIndex::City.import! cities }
+
+        specify { CitiesIndex.suggest.should == {} }
+        specify { CitiesIndex.suggest(name: {text: 'name', term: {field: 'name'}}).suggest.should == {
+          'name' => [
+            {'text' => 'name', 'offset' => 0, 'length' => 4, 'options' => [
+                {'text' => 'name0', 'score' => 0.75, 'freq' => 1},
+                {'text' => 'name1', 'score' => 0.75, 'freq' => 1},
+                {'text' => 'name2', 'score' => 0.75, 'freq' => 1},
+                {'text' => 'name3', 'score' => 0.75, 'freq' => 1},
+                {'text' => 'name4', 'score' => 0.75, 'freq' => 1}
+              ]
+            }
+          ] }
+        }
+      end
+    end
+  end
+
   describe '#none' do
     specify { subject.none.should be_a described_class }
     specify { subject.none.should_not == subject }

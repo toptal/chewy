@@ -12,6 +12,8 @@
 
 ## Changes:
 
+  * `suggest` query options support (@rschellhorn).
+
   * Added hash data support. How it is possible to pass hashes to import.
 
   * `rake chewy:reset` and `rake chewy:update` paramless acts as `rake chewy:reset:all` and `rake chewy:update:all` respectively
@@ -33,6 +35,8 @@
   * config/chewy.yml ERB support.
 
 ## Bugfixes:
+
+  * Fixed `missing` and `exists` filters DSL constructors.
 
   * Reworked index data composing.
 

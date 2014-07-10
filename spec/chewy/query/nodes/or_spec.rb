@@ -7,10 +7,10 @@ describe Chewy::Query::Nodes::Or do
     end
 
     specify { render { name? | (email == 'email') }.should == {
-      or: [{exists: {term: 'name'}}, {term: {'email' => 'email'}}]
+      or: [{exists: {field: 'name'}}, {term: {'email' => 'email'}}]
     } }
     specify { render { ~(name? | (email == 'email')) }.should == {
-      or: {filters: [{exists: {term: 'name'}}, {term: {'email' => 'email'}}], _cache: true}
+      or: {filters: [{exists: {field: 'name'}}, {term: {'email' => 'email'}}], _cache: true}
     } }
   end
 end

@@ -12,7 +12,7 @@ module Chewy
         end
 
         def __render__
-          {missing: {term: @name}.merge(@options.slice(:existence, :null_value))}
+          {missing: {field: @name}.merge(@options.slice(:existence, :null_value))}
         end
       end
     end

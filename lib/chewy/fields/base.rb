@@ -13,7 +13,7 @@ module Chewy
       end
 
       def object_field?
-        (nested.any? && options[:type].blank?) || options[:type].to_s == 'object'
+        (nested.any? && options[:type].blank?) || ['object', 'nested'].include?(options[:type].to_s)
       end
 
       def root_field?

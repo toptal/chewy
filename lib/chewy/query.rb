@@ -286,6 +286,149 @@ module Chewy
       end
     end
 
+    # Adds a script function to score the search request. All scores are
+    # added to the search request and combinded according to
+    # <tt>boost_mode</tt> and <tt>score_mode</tt>
+    #
+    #   UsersIndex.script_score("doc['boost'].value", filter: { foo: :bar})
+    #       # => {body:
+    #              query: {
+    #                function_score: {
+    #                  query: { ...},
+    #                  functions: [{
+    #                    script_score: {
+    #                       script: "doc['boost'].value"
+    #                     },
+    #                     filter: { foo: :bar }
+    #                    }
+    #                  }]
+    #                } } }
+    def script_score(script, options = {})
+      scoring = options.merge(script_score: { script: script })
+      chain { criteria.update_scores scoring }
+    end
+
+    # Adds a boost factor to the search request. All scores are
+    # added to the search request and combinded according to
+    # <tt>boost_mode</tt> and <tt>score_mode</tt>
+    #
+    # This probably only makes sense if you specifiy a filter
+    # for the boost factor as well
+    #
+    #   UsersIndex.boost_factor(23, filter: { foo: :bar})
+    #       # => {body:
+    #              query: {
+    #                function_score: {
+    #                  query: { ...},
+    #                  functions: [{
+    #                    boost_factor: 23,
+    #                    filter: { foo: :bar }
+    #                  }]
+    #                } } }
+    def boost_factor(factor, options = {})
+      scoring = options.merge(boost_factor: factor.to_i)
+      chain { criteria.update_scores scoring }
+    end
+
+    # Adds a random score to the search request. All scores are
+    # added to the search request and combinded according to
+    # <tt>boost_mode</tt> and <tt>score_mode</tt>
+    #
+    # This probably only makes sense if you specifiy a filter
+    # for the random score as well.
+    #
+    # If you do not pass in a seed value, Time.now will be used
+    #
+    #   UsersIndex.random_score(23, filter: { foo: :bar})
+    #       # => {body:
+    #              query: {
+    #                function_score: {
+    #                  query: { ...},
+    #                  functions: [{
+    #                    random_score: { seed: 23 },
+    #                    filter: { foo: :bar }
+    #                  }]
+    #                } } }
+    def random_score(seed = Time.now, options = {})
+      scoring = options.merge(random_score: { seed: seed.to_i })
+      chain { criteria.update_scores scoring }
+    end
+
+    # Add a field value scoring to the search. All scores are
+    # added to the search request and combinded according to
+    # <tt>boost_mode</tt> and <tt>score_mode</tt>
+    #
+    # This function is only available in Elasticsearch 1.2 and
+    # greater
+    #
+    #   UsersIndex.field_value_factor(
+    #                {
+    #                  field: :boost,
+    #                  factor: 1.2,
+    #                  modifier: :sqrt
+    #                }, filter: { foo: :bar})
+    #       # => {body:
+    #              query: {
+    #                function_score: {
+    #                  query: { ...},
+    #                  functions: [{
+    #                    field_value_factor: {
+    #                      field: :boost,
+    #                      factor: 1.2,
+    #                      modifier: :sqrt
+    #                    },
+    #                    filter: { foo: :bar }
+    #                  }]
+    #                } } }
+    def field_value_factor(settings, options = {})
+      scoring = options.merge(field_value_factor: settings)
+      chain { criteria.update_scores scoring }
+    end
+
+    # Add a decay scoring to the search. All scores are
+    # added to the search request and combinded according to
+    # <tt>boost_mode</tt> and <tt>score_mode</tt>
+    #
+    # The parameters have default values, but those may not
+    # be very useful for most applications.
+    #
+    #   UsersIndex.decay(
+    #                :gauss,
+    #                :field,
+    #                origin: '11, 12',
+    #                scale: '2km',
+    #                offset: '5km'
+    #                decay: 0.4
+    #                filter: { foo: :bar})
+    #       # => {body:
+    #              query: {
+    #                gauss: {
+    #                  query: { ...},
+    #                  functions: [{
+    #                    gauss: {
+    #                      field: {
+    #                        origin: '11, 12',
+    #                        scale: '2km',
+    #                        offset: '5km',
+    #                        decay: 0.4
+    #                      }
+    #                    },
+    #                    filter: { foo: :bar }
+    #                  }]
+    #                } } }
+    def decay(function, field, options = {})
+      field_options = {
+        origin: options.delete(:origin) || 0,
+        scale: options.delete(:scale) || 1,
+        offset: options.delete(:offset) || 0,
+        decay: options.delete(:decay) || 0.1
+      }
+      scoring = options.merge(function => {
+        field => field_options
+      })
+      chain { criteria.update_scores scoring }
+    end
+
     # Sets elasticsearch <tt>aggregations</tt> search request param
     #
     #  UsersIndex.filter{ name == 'Johny' }.aggregations(category_id: {terms: {field: 'category_ids'}})
@@ -444,6 +587,83 @@ module Chewy
     def post_filter params = nil, &block
       params = Filters.new(&block).__render__ if block
       chain { criteria.update_post_filters params }
+    end
+
+    # Sets the boost mode for custom scoring/boosting.
+    # Not used if no score functions are specified
+    # Possible values:
+    #
+    # * <tt>:multiply</tt>
+    #   Default value. Query score and function result are multiplied.
+    #
+    #   Ex:
+    #
+    #     UsersIndex.boost_mode('multiply').script_score('doc['boost'].value')
+    #       # => {body: {query: function_score: {
+    #         query: {...},
+    #         boost_mode: 'multiply',
+    #         functions: [ ... ]
+    #       }}}
+    #
+    # * <tt>:replace</tt>
+    #   Only function result is used, query score is ignored.
+    #
+    # * <tt>:sum</tt>
+    #   Query score and function score are added.
+    #
+    # * <tt>:avg</tt>
+    #   Average of query and function score.
+    #
+    # * <tt>:max</tt>
+    #   Max of query and function score.
+    #
+    # * <tt>:min</tt>
+    #   Min of query and function score.
+    #
+    # Default value for <tt>:boost_mode</tt> might be changed
+    # with <tt>Chewy.score_mode</tt> config option.
+    def boost_mode value
+      chain { criteria.update_options boost_mode: value }
+    end
+
+    # Sets the scoring mode for combining function scores/boosts
+    # Not used if no score functions are specified.
+    # Possible values:
+    #
+    # * <tt>:multiply</tt>
+    #   Default value. Scores are multiplied.
+    #
+    #   Ex:
+    #
+    #     UsersIndex.score_mode('multiply').script_score('doc['boost'].value')
+    #       # => {body: {query: function_score: {
+    #         query: {...},
+    #         score_mode: 'multiply',
+    #         functions: [ ... ]
+    #       }}}
+    #
+    # * <tt>:sum</tt>
+    #   Scores are summed.
+    #
+    # * <tt>:avg</tt>
+    #   Scores are averaged.
+    #
+    # * <tt>:first</tt>
+    #   The first function that has a matching filter is applied.
+    #
+    # * <tt>:max</tt>
+    #   Maximum score is used.
+    #
+    # * <tt>:min</tt>
+    #   Minimum score is used
+    #
+    # Default value for <tt>:score_mode</tt> might be changed
+    # with <tt>Chewy.score_mode</tt> config option.
+    #
+    #   Chewy.score_mode = :first
+    #
+    def score_mode value
+      chain { criteria.update_options score_mode: value }
     end
 
     # Sets search request sorting

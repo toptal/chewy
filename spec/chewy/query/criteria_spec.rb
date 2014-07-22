@@ -6,6 +6,7 @@ describe Chewy::Query::Criteria do
   its(:options) { should be_a Hash }
   its(:request_options) { should be_a Hash }
   its(:facets) { should == {} }
+  its(:scores) { should == [] }
   its(:aggregations) { should == {} }
   its(:queries) { should == [] }
   its(:filters) { should == [] }
@@ -16,6 +17,7 @@ describe Chewy::Query::Criteria do
 
   its(:request_options?) { should be_false }
   its(:facets?) { should be_false }
+  its(:scores?) { should be_false }
   its(:aggregations?) { should be_false }
   its(:queries?) { should be_false }
   its(:filters?) { should be_false }
@@ -37,6 +39,14 @@ describe Chewy::Query::Criteria do
   describe '#update_facets' do
     specify { expect { subject.update_facets(field: 'hello') }.to change { subject.facets? }.to(true) }
     specify { expect { subject.update_facets(field: 'hello') }.to change { subject.facets }.to(field: 'hello') }
+  end
+
+  describe '#update_scores' do
+    specify { expect { subject.update_scores(:score) }.to change { subject.scores? }.to(true) }
+    specify { expect { subject.update_scores(:score) }.to change { subject.scores }.to([:score]) }
+    specify { expect { subject.update_scores([:score, :score2]) }.to change { subject.scores }.to([:score, :score2]) }
+    specify { expect { subject.tap { |s| s.update_scores(:score1) }.update_scores([:score2, :score3]) }
+      .to change { subject.scores }.to([:score1, :score2, :score3]) }
   end
 
   describe '#update_aggregations' do
@@ -122,6 +132,8 @@ describe Chewy::Query::Criteria do
       .merge(criteria.tap { |c| c.update_request_options(opt2: 'hello') }).request_options.should include(opt1: 'hello', opt2: 'hello') }
     specify { subject.tap { |c| c.update_facets(field1: 'hello') }
       .merge(criteria.tap { |c| c.update_facets(field1: 'hello') }).facets.should == {field1: 'hello', field1: 'hello'} }
+    specify { subject.tap { |c| c.update_scores(script: 'hello') }
+      .merge(criteria.tap { |c| c.update_scores(script: 'foobar') }).scores.should == [{script: 'hello'}, { script: 'foobar' } ] }
     specify { subject.tap { |c| c.update_aggregations(field1: 'hello') }
       .merge(criteria.tap { |c| c.update_aggregations(field1: 'hello') }).aggregations.should == {field1: 'hello', field1: 'hello'} }
     specify { subject.tap { |c| c.update_queries(field1: 'hello') }
@@ -178,6 +190,24 @@ describe Chewy::Query::Criteria do
     specify { request_body { update_request_options(explain: true) }.should == {body: {explain: true}} }
     specify { request_body { update_queries(:query) }.should == {body: {query: :query}} }
     specify { request_body {
+      update_scores(script_score: { script: '_score'})
+    }.should == {body: {query: { function_score: { functions: [{ script_score: {script: '_score' }}] }}}} }
+    specify { request_body {
+      update_scores(script_score: { script: "boost_me" })
+      update_queries(:query)
+      update_options(boost_mode: :add)
+      update_options(score_mode: :avg)
+    }.should == {body: {query: {
+      function_score: {
+        functions: [{
+          script_score: {script: 'boost_me' }
+        }],
+        query: :query,
+        boost_mode: :add,
+        score_mode: :avg
+      }}}}
+    }
+    specify { request_body {
       update_request_options(from: 10); update_sort(:field); update_fields(:field); update_queries(:query)
     }.should == {body: {query: :query, from: 10, sort: [:field], _source: ['field']}} }
 
@@ -230,6 +260,24 @@ describe Chewy::Query::Criteria do
         query: {bool: {should: [:query1, :query2]}},
         filter: {or: [:filter1, :filter2]}
       }}}
+    }
+  end
+
+  describe "#_boost_query" do
+    specify { subject.send(:_boost_query, query: :query).should eq(query: :query) }
+    specify {
+      subject.update_scores({ boost_factor: 5 })
+      subject.send(:_boost_query, query: :query).should eq(query: { function_score: { functions: [{ boost_factor: 5 }], query: :query } })
+    }
+    specify {
+      subject.update_scores({ boost_factor: 5 })
+      subject.update_options(boost_mode: :multiply)
+      subject.update_options(score_mode: :add)
+      subject.send(:_boost_query, query: :query).should eq(query: { function_score: { functions: [{ boost_factor: 5 }], query: :query, boost_mode: :multiply, score_mode: :add } })
+    }
+    specify {
+      subject.update_scores({ boost_factor: 5 })
+      subject.send(:_boost_query, query: :query, filter: :filter).should eq(query: { function_score: { functions: [{ boost_factor: 5 }], query: { filtered: { query: :query, filter: :filter } } } })
     }
   end
 

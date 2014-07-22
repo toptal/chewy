@@ -75,6 +75,20 @@ describe Chewy::Query do
     specify { expect { subject.post_filter_mode(:or) }.not_to change { subject.criteria.options } }
   end
 
+  describe '#boost_mode' do
+    specify { subject.boost_mode(:replace).should be_a described_class }
+    specify { subject.boost_mode(:replace).should_not == subject }
+    specify { subject.boost_mode(:replace).criteria.options.should include(boost_mode: :replace) }
+    specify { expect { subject.boost_mode(:replace) }.not_to change { subject.criteria.options } }
+  end
+
+  describe '#score_mode' do
+    specify { subject.score_mode(:first).should be_a described_class }
+    specify { subject.score_mode(:first).should_not == subject }
+    specify { subject.score_mode(:first).criteria.options.should include(score_mode: :first) }
+    specify { expect { subject.score_mode(:first) }.not_to change { subject.criteria.options } }
+  end
+
   describe '#limit' do
     specify { subject.limit(10).should be_a described_class }
     specify { subject.limit(10).should_not == subject }
@@ -87,6 +101,74 @@ describe Chewy::Query do
     specify { subject.offset(10).should_not == subject }
     specify { subject.offset(10).criteria.request_options.should include(from: 10) }
     specify { expect { subject.offset(10) }.not_to change { subject.criteria.request_options } }
+  end
+
+  describe '#script_score' do
+    specify { subject.script_score('23').should be_a described_class }
+    specify { subject.script_score('23').should_not == subject }
+    specify { subject.script_score('23').criteria.scores.should == [ { script_score: { script: '23' } } ] }
+    specify { expect { subject.script_score('23') }.not_to change { subject.criteria.scores } }
+    specify { subject.script_score('23', filter: { foo: :bar}).criteria.scores.should == [{ script_score: { script: '23' }, filter: { foo: :bar } }] }
+  end
+
+  describe '#boost_factor' do
+    specify { subject.boost_factor('23').should be_a described_class }
+    specify { subject.boost_factor('23').should_not == subject }
+    specify { subject.boost_factor('23').criteria.scores.should == [ { boost_factor: 23  } ] }
+    specify { expect { subject.boost_factor('23') }.not_to change { subject.criteria.scores } }
+    specify { subject.boost_factor('23', filter: { foo: :bar}).criteria.scores.should == [{ boost_factor: 23, filter: { foo: :bar } }] }
+  end
+
+  describe '#random_score' do
+    specify { subject.random_score('23').should be_a described_class }
+    specify { subject.random_score('23').should_not == subject }
+    specify { subject.random_score('23').criteria.scores.should == [ { random_score: { seed: 23 } } ] }
+    specify { expect { subject.random_score('23') }.not_to change { subject.criteria.scores } }
+    specify { subject.random_score('23', filter: { foo: :bar}).criteria.scores.should == [{ random_score: { seed: 23 }, filter: { foo: :bar } }] }
+  end
+
+  describe '#field_value_score' do
+    specify { subject.field_value_factor(field: :boost).should be_a described_class }
+    specify { subject.field_value_factor(field: :boost).should_not == subject }
+    specify { subject.field_value_factor(field: :boost).criteria.scores.should == [ { field_value_factor: { field: :boost } } ] }
+    specify { expect { subject.field_value_factor(field: :boost) }.not_to change { subject.criteria.scores } }
+    specify { subject.field_value_factor({ field: :boost }, filter: { foo: :bar}).criteria.scores.should == [{ field_value_factor: { field: :boost }, filter: { foo: :bar } }] }
+  end
+
+  describe '#decay' do
+    specify { subject.decay(:gauss, :field).should be_a described_class }
+    specify { subject.decay(:gauss, :field).should_not == subject }
+    specify { subject.decay(:gauss, :field).criteria.scores.should == [ {
+      gauss: {
+        field: {
+          origin: 0,
+          scale: 1,
+          offset: 0,
+          decay: 0.1
+        }
+      }
+    }] }
+    specify { expect { subject.decay(:gauss, :field) }.not_to change { subject.criteria.scores } }
+    specify {
+      subject.decay(:gauss, :field,
+                    origin: '11, 12',
+                    scale: '2km',
+                    offset: '5km',
+                    decay: 0.4,
+                    filter: { foo: :bar }).criteria.scores.should == [
+        {
+          gauss: {
+            field: {
+              origin: '11, 12',
+              scale: '2km',
+              offset: '5km',
+              decay: 0.4
+            }
+          },
+          filter: { foo: :bar }
+        }
+      ]
+    }
   end
 
   describe '#facets' do

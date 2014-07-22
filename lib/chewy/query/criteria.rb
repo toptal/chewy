@@ -4,7 +4,7 @@ module Chewy
   class Query
     class Criteria
       include Compose
-      ARRAY_STORAGES = [:queries, :filters, :post_filters, :sort, :fields, :types]
+      ARRAY_STORAGES = [:queries, :filters, :post_filters, :sort, :fields, :types, :scores]
       HASH_STORAGES = [:options, :request_options, :facets, :aggregations, :suggest]
       STORAGES = ARRAY_STORAGES + HASH_STORAGES
 
@@ -50,6 +50,10 @@ module Chewy
 
       def update_facets(modifer)
         facets.merge!(modifer)
+      end
+
+      def update_scores(modifer)
+        @scores = scores + Array.wrap(modifer).reject(&:blank?)
       end
 
       def update_aggregations(modifer)
@@ -99,6 +103,7 @@ module Chewy
       def request_body
         body = {}
 
+
         body.merge!(_filtered_query(_request_query, _request_filter, options.slice(:strategy)))
         body.merge!(post_filter: _request_post_filter) if post_filters?
         body.merge!(facets: facets) if facets?
@@ -106,6 +111,8 @@ module Chewy
         body.merge!(suggest: suggest) if suggest?
         body.merge!(sort: sort) if sort?
         body.merge!(_source: fields) if fields?
+
+        body = _boost_query(body)
 
         { body: body.merge!(request_options) }
       end
@@ -121,6 +128,27 @@ module Chewy
           value = other.send(storage)
           instance_variable_set("@#{storage}", value.deep_dup)
         end
+      end
+
+      def _boost_query(body)
+        scores? or return body
+        query = body.delete :query
+        filter = body.delete :filter
+        if query && filter
+          query = { filtered: { query: query, filter: filter } }
+          filter = nil
+        end
+        score = { }
+        score[:functions] = scores
+        score[:boost_mode] = options[:boost_mode] if options[:boost_mode]
+        score[:score_mode] = options[:score_mode] if options[:score_mode]
+        score[:query] = query if query
+        score[:filter] = filter if filter
+        body.tap { |b| b[:query] = { function_score: score } }
+      end
+
+      def _request_options
+        options.slice(:size, :from, :explain, :highlight, :rescore)
       end
 
       def _request_query

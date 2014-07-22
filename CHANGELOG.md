@@ -2,21 +2,49 @@
 
 # Version 0.5.0
 
-  * 404 exception while query is swallowed and treated like an empty result set.
+## Incompatible changes:
 
-  * I think, now it waits for status correctly. After index creation and bulk import.
+  * 404 exception (IndexMissingException) while query is swallowed and treated like an empty result set.
 
-  * Fix #23 "wrong constant name" with namespace models
+  * `load` and `preload` for queries became lazy. Might be partially incompatible.
 
-  * `preload` scope method loads ORM/ODM objects and returns scope itself.
+  * Changed mapping behavior: multi-fields are defined in conformity with ElasticSearch documentation (http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/_multi_fields.html#_multi_fields)
 
-  * `load` method `:only` and `:except` options.
+## Changes:
 
-  * Highlight and rescore query options support.
+  * `suggest` query options support (@rschellhorn).
 
-  * Top-level query filters support (@igor-alexandrov).
+  * Added hash data support. How it is possible to pass hashes to import.
+
+  * `rake chewy:reset` and `rake chewy:update` paramless acts as `rake chewy:reset:all` and `rake chewy:update:all` respectively
+
+  * Added `delete_from_index?` API method for custom deleted objects marking.
+
+  * Added `post_filter` API, working the same way as filters.
+
+  * Added chainable `strategy` query method.
+
+  * Aliasing is performed in index create request for ElasticSearch >= 1.1.
+
+  * `preload` scope method loads ORM/ODM objects in background.
+
+  * `load` method `:only` and `:except` options to specify load types.
+
+  * `highlight` and `rescore` query options support.
 
   * config/chewy.yml ERB support.
+
+## Bugfixes:
+
+  * Fixed `missing` and `exists` filters DSL constructors.
+
+  * Reworked index data composing.
+
+  * Support for Kaminari new PaginatableArray behavior (@leemhenson)
+
+  * Correct waiting for status. After index creation, bulk import, and deletion.
+
+  * Fix #23 "wrong constant name" with namespace models
 
 # Version 0.4.0
 

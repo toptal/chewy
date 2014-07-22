@@ -1,7 +1,6 @@
 require 'spec_helper'
 
 describe :update_index do
-  include ClassHelpers
   before { Chewy.client.indices.delete index: '*' }
 
   before do

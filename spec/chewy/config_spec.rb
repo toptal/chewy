@@ -1,12 +1,11 @@
 require 'spec_helper'
 
 describe Chewy::Config do
-  include ClassHelpers
   subject { described_class.send(:new) }
 
   its(:query_mode) { should == :must }
   its(:filter_mode) { should == :and }
-  its(:filtered_queries) { should == false }
+  its(:post_filter_mode) { should be_nil }
   its(:logger) { should be_nil }
   its(:configuration) { should_not have_key :logger }
   its(:analyzers) { should == {} }

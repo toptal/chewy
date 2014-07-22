@@ -1,8 +1,6 @@
 require 'spec_helper'
 
 describe Chewy::Index::Settings do
-  include ClassHelpers
-
   describe '#to_hash' do
     before { Chewy.stub(config: Chewy::Config.send(:new)) }
 

@@ -12,49 +12,68 @@ def subscribe_task_stats!
   end
 end
 
+def eager_load_chewy!
+  Rails.application.config.paths['app/chewy'].existent.each do |dir|
+    Dir.glob(File.join(dir, '**/*.rb')).each { |file| require_dependency file }
+  end
+end
+
+def normalize_index index
+  "#{index.to_s.gsub(/index$/i, '').camelize}Index".constantize
+end
+
+def reset_index index
+  index = normalize_index(index)
+  puts "Resetting #{index}"
+  index.reset! (Time.now.to_f * 1000).round
+end
+
+def reset_all
+  eager_load_chewy!
+  Chewy::Index.descendants.each { |index| reset_index index }
+end
+
+def update_index index
+  index = normalize_index(index)
+  puts "Updating #{index}"
+  if index.exists?
+    index.import
+  else
+    puts "Index `#{index.index_name}` does not exists. Use rake chewy:reset[#{index.index_name}] to create and update it."
+  end
+end
+
+def update_all
+  eager_load_chewy!
+  Chewy::Index.descendants.each { |index| update_index index }
+end
+
 namespace :chewy do
   desc 'Destroy, recreate and import data to specified index'
   task :reset, [:index] => :environment do |task, args|
     subscribe_task_stats!
-    "#{args[:index].camelize}Index".constantize.reset! (Time.now.to_f * 1000).round
+    args[:index].present? ? reset_index(args[:index]) : reset_all
   end
 
   namespace :reset do
     desc 'Destroy, recreate and import data for all found indexes'
     task all: :environment do
       subscribe_task_stats!
-      Rails.application.config.paths['app/chewy'].existent.each do |dir|
-        Dir.glob(File.join(dir, '**/*.rb')).each { |file| require file }
-      end
-
-      Chewy::Index.descendants.each do |index|
-        puts "Resetting #{index}"
-        index.reset! (Time.now.to_f * 1000).round
-      end
+      reset_all
     end
   end
 
   desc 'Updates data specified index'
   task :update, [:index] => :environment do |task, args|
     subscribe_task_stats!
-    index = "#{args[:index].camelize}Index".constantize
-    raise "Index `#{index.index_name}` does not exists. Use rake chewy:reset[#{index.index_name}] to create and update it." unless index.exists?
-    index.import
+    args[:index].present? ? update_index(args[:index]) : update_all
   end
 
   namespace :update do
     desc 'Updates data for all found indexes'
     task all: :environment do
       subscribe_task_stats!
-      Rails.application.config.paths['app/chewy'].existent.each do |dir|
-        Dir.glob(File.join(dir, '**/*.rb')).each { |file| require file }
-      end
-
-      Chewy::Index.descendants.each do |index|
-        puts "Updating #{index}"
-        puts "Index `#{index.index_name}` does not exists. Use rake chewy:reset[#{index.index_name}] to create and update it." unless index.exists?
-        index.import
-      end
+      update_all
     end
   end
 end

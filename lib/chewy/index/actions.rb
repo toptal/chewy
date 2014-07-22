@@ -56,8 +56,14 @@ module Chewy
           options = args.extract_options!.reverse_merge!(alias: true)
           name = build_index_name(suffix: args.first)
 
-          result = client.indices.create(index: name, body: index_params)
-          result &&= client.indices.put_alias(index: name, name: index_name) if options[:alias] && name != index_name
+          if Chewy::Runtime.version >= 1.1
+            body = index_params
+            body.merge!(aliases: {index_name => {}}) if options[:alias] && name != index_name
+            result = client.indices.create(index: name, body: body)
+          else
+            result = client.indices.create(index: name, body: index_params)
+            result &&= client.indices.put_alias(index: name, name: index_name) if options[:alias] && name != index_name
+          end
 
           Chewy.wait_for_status if result
           result
@@ -87,7 +93,9 @@ module Chewy
         #   UsersIndex.delete '01-2014' # deletes `users_01-2014` index
         #
         def delete! suffix = nil
-          client.indices.delete index: build_index_name(suffix: suffix)
+          result = client.indices.delete index: build_index_name(suffix: suffix)
+          Chewy.wait_for_status if result
+          result
         end
 
         # Deletes and recreates index. Supports suffixes.
@@ -125,6 +133,8 @@ module Chewy
         #   UsersIndex.import refresh: false            # to disable index refreshing after import
         #   UsersIndex.import suffix: Time.now.to_i     # imports data to index with specified suffix if such is exists
         #   UsersIndex.import batch_size: 300           # import batch size
+        #
+        # See [import.rb](lib/chewy/type/import.rb) for more details.
         #
         [:import, :import!].each do |method|
           class_eval <<-METHOD, __FILE__, __LINE__ + 1

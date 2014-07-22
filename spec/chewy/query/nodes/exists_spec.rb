@@ -6,13 +6,13 @@ describe Chewy::Query::Nodes::Exists do
       Chewy::Query::Filters.new(&block).__render__
     end
 
-    specify { render { name? }.should == {exists: {term: 'name'}} }
+    specify { render { name? }.should == {exists: {field: 'name'}} }
 
-    specify { render { !!name? }.should == {exists: {term: 'name'}} }
-    specify { render { !!name }.should == {exists: {term: 'name'}} }
-    specify { render { name != nil }.should == {exists: {term: 'name'}} }
-    specify { render { !(name == nil) }.should == {exists: {term: 'name'}} }
+    specify { render { !!name? }.should == {exists: {field: 'name'}} }
+    specify { render { !!name }.should == {exists: {field: 'name'}} }
+    specify { render { name != nil }.should == {exists: {field: 'name'}} }
+    specify { render { !(name == nil) }.should == {exists: {field: 'name'}} }
 
-    specify { render { ~name? }.should == {exists: {term: 'name'}} }
+    specify { render { ~name? }.should == {exists: {field: 'name'}} }
   end
 end

@@ -40,7 +40,23 @@ module Chewy
         #   users = User.all
         #   users.each { |user| user.destroy if user.incative? }
         #   UsersIndex::User.import users # inactive users will be deleted from index
+        #   # or
         #   UsersIndex::User.import users.map(&:id) # deleted user ids will be deleted from index
+        #
+        # Also there is custom API method `delete_from_index?`. It it returns `true`
+        # object will be deleted from index. Note that if this method is defined and
+        # return `false` Chewy will still check `destroyed?` method. This is useful
+        # for paranoid objects sdeleting implementation.
+        #
+        #   class User
+        #     alias_method :delete_from_index?, :deleted_at?
+        #   end
+        #
+        #   users = User.all
+        #   users.each { |user| user.deleted_at = Time.now }
+        #   UsersIndex::User.import users # paranoid deleted users will be deleted from index
+        #   # or
+        #   UsersIndex::User.import users.map(&:id) # user ids will be deleted from index
         #
         def import *args, &block
           import_options = args.extract_options!
@@ -93,7 +109,7 @@ module Chewy
           indexed = true
           merged_scope(scoped_model(ids)).find_in_batches(import_options.slice(:batch_size)) do |objects|
             ids -= objects.map(&:id)
-            indexed &= block.call index: objects
+            indexed &= block.call(grouped_objects(objects))
           end
 
           deleted = ids.in_groups_of(import_options[:batch_size], false).map do |group|
@@ -105,7 +121,9 @@ module Chewy
 
         def grouped_objects(objects)
           objects.group_by do |object|
-            object.destroyed? ? :delete : :index
+            delete = object.delete_from_index? if object.respond_to?(:delete_from_index?)
+            delete ||= object.destroyed?
+            delete ? :delete : :index
           end
         end
 

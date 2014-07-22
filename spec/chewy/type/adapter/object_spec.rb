@@ -53,6 +53,27 @@ describe Chewy::Type::Adapter::Object do
           {index: objects.first(2)},
           {index: objects.last(1), delete: deleted.first(1)},
           {delete: deleted.last(1)}] }
+
+      context do
+        let(:deleted) { 2.times.map { |i| double(delete_from_index?: true, destroyed?: true) } }
+        specify { import(deleted).should == [{delete: deleted}] }
+      end
+
+      context do
+        let(:deleted) { 2.times.map { |i| double(delete_from_index?: true, destroyed?: false) } }
+        specify { import(deleted).should == [{delete: deleted}] }
+      end
+
+
+      context do
+        let(:deleted) { 2.times.map { |i| double(delete_from_index?: false, destroyed?: true) } }
+        specify { import(deleted).should == [{delete: deleted}] }
+      end
+
+      context do
+        let(:deleted) { 2.times.map { |i| double(delete_from_index?: false, destroyed?: false) } }
+        specify { import(deleted).should == [{index: deleted}] }
+      end
     end
 
     context do

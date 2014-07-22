@@ -15,6 +15,8 @@ module Chewy
         #   UsersIndex::User.import suffix: Time.now.to_i    # imports data to index with specified suffix if such is exists
         #   UsersIndex::User.import batch_size: 300          # import batch size
         #
+        # See adapters documentation for more details.
+        #
         def import *args
           import_options = args.extract_options!
           bulk_options = import_options.reject { |k, v| ![:refresh, :suffix].include?(k) }.reverse_merge!(refresh: true)
@@ -43,6 +45,8 @@ module Chewy
         #   UsersIndex::User.import! refresh: false           # to disable index refreshing after import
         #   UsersIndex::User.import! suffix: Time.now.to_i    # imports data to index with specified suffix if such is exists
         #   UsersIndex::User.import! batch_size: 300          # import batch size
+        #
+        # See adapters documentation for more details.
         #
         def import! *args
           errors = nil

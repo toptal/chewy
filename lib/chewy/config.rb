@@ -27,29 +27,10 @@ module Chewy
       #
       :filter_mode,
 
-      # Special request compilation mode. Switched off by default.
-      # By default separated query and filter request body parts:
+      # Default post_filters compilation mode. `nil` by default.
+      # See Chewy::Query#post_filter_mode for details
       #
-      #  {body: {query: {...}, filter: {...}}}
-      #
-      # If `filtered_queries` set to true, Chewy creates filtered query
-      # And puts filters inside it:
-      #
-      #  {body: {query: {filtered: {
-      #            query: {...},
-      #            filter: {...}
-      #          }}}}
-      #
-      # The second thing: if query was not defined for request, Chewy
-      # uses `match_all: {}` query by default in `filtered_queries` to
-      # return all the documents like DB.
-      #
-      #  {body: {query: {filtered: {
-      #            query: {match_all: {}},
-      #            filter: {...}
-      #          }}}}
-      #
-      :filtered_queries
+      :post_filter_mode
 
     def self.delegated
       public_instance_methods - self.superclass.public_instance_methods - Singleton.public_instance_methods
@@ -70,7 +51,6 @@ module Chewy
       @urgent_update = false
       @query_mode = :must
       @filter_mode = :and
-      @filtered_queries = false
       @analyzers = {}
       @tokenizers = {}
       @filters = {}
@@ -148,10 +128,10 @@ module Chewy
     #      creation.
     #
     #        test: &test
-    #        host: 'localhost:9250'
-    #        index:
-    #          number_of_shards: 1
-    #          number_of_replicas: 0
+    #          host: 'localhost:9250'
+    #          index:
+    #            number_of_shards: 1
+    #            number_of_replicas: 0
     #
     def configuration
       options = @configuration.deep_symbolize_keys.merge(yaml_options)

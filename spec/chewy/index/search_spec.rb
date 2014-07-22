@@ -1,8 +1,6 @@
 require 'spec_helper'
 
 describe Chewy::Index::Search do
-  include ClassHelpers
-
   before do
     stub_index(:products) do
       define_type :product
@@ -11,12 +9,6 @@ describe Chewy::Index::Search do
   end
 
   let(:product) { ProductsIndex::Product }
-
-  describe '.all' do
-    specify { product.all.should be_a Chewy::Query }
-    specify { product.all.object_id.should_not == product.all.object_id }
-    specify { product.all.should == product.all }
-  end
 
   describe '.search_string' do
     specify do

@@ -9,11 +9,11 @@ Chewy is ODM and wrapper for official elasticsearch client (https://github.com/e
 
 * Multi-model indexes.
 
-  Index classes are independant from ORM/ODM models. Now implementing, e.g. cross-model autocomplete is much easier. You can just define index and work with it in object-oriented style. You can define several types for index - one per indexed model.
+  Index classes are independent from ORM/ODM models. Now implementing, e.g. cross-model autocomplete is much easier. You can just define index and work with it in object-oriented style. You can define several types for index - one per indexed model.
 
 * Every index is observable by all the related models.
 
-  Most of the indexed models a related to other and somtimes it is nessesary to denormalize this related data and put at the same object. Like you need to index array of tags with article together. Chewy allows you to specify updatable index for every model separately. So, corresponding articles will be reindexed on the any tag update.
+  Most of the indexed models are related to other and sometimes it is nessesary to denormalize this related data and put at the same object. For example, you need to index array of tags with article together. Chewy allows you to specify updatable index for every model separately. So, corresponding articles will be reindexed on any tag update.
 
 * Bulk import everywhere.
 
@@ -102,7 +102,7 @@ See [config.rb](lib/chewy/config.rb) for more details.
       field :email, analyzer: 'email' # elasticsearch-related options
       field :country, value: ->(user) { user.country.name } # custom value proc
       field :badges, value: ->(user) { user.badges.map(&:name) } # passing array values to index
-      field :projects, type: 'object' do # the same syntax for `multi_field`
+      field :projects do # the same block syntax for multi_field, if `:type` is specified
         field :title
         field :description # default data type is `string`
       end
@@ -130,17 +130,17 @@ See [config.rb](lib/chewy/config.rb) for more details.
 
     define_type User.active.includes(:country, :badges, :projects) do
       root date_detection: false do
-        template 'about_translations.*', type: 'string', analyzer: 'stantard'
+        template 'about_translations.*', type: 'string', analyzer: 'standard'
 
         field :first_name, :last_name
         field :email, analyzer: 'email'
         field :country, value: ->(user) { user.country.name }
         field :badges, value: ->(user) { user.badges.map(&:name) }
-        field :projects, type: 'object' do
+        field :projects do
           field :title
           field :description
         end
-        field :about_translations, type: 'object'
+        field :about_translations, type: 'object' # pass object type explicitely if necessary
         field :rating, type: 'integer'
         field :created, type: 'date', include_in_all: false,
           value: ->{ created_at }
@@ -172,7 +172,7 @@ See [config.rb](lib/chewy/config.rb) for more details.
     update_index('users#user') { user if user.active? } # you can return even `nil` from the backreference
   end
 
-  class Bage < ActiveRecord::Base
+  class Badge < ActiveRecord::Base
     has_and_belongs_to_many :users
 
     update_index('users') { users } # if index has only one type
@@ -223,7 +223,7 @@ UsersIndex.import user: User.where('rating > 100') # import only active users to
 UsersIndex.reset! # purges index and imports default data for all types
 ```
 
-Also if passed user is #destroyed? or specified id is not existing in the database, import will perform `delete` index for this it
+Also if passed user is `#destroyed?` or `#delete_from_index?` or specified id does not exists in the database, import will perform delete from index action for this object.
 
 See [actions.rb](lib/chewy/index/actions.rb) for more details.
 
@@ -296,7 +296,7 @@ Also, queries can be performed on a type individually
 UsersIndex::User.filter(term: {name: 'foo'}) # will return UserIndex::User collection only
 ```
 
-If you are performing more then one `filter` or `query` in the chain,
+If you are performing more than one `filter` or `query` in the chain,
 all the filters and queries will be concatenated in the way specified by
 `filter_mode` and `query_mode` respectively.
 
@@ -598,6 +598,24 @@ Compliance cheatsheet for filters and DSL expressions:
 
 See [filters.rb](lib/chewy/query/filters.rb) for more details.
 
+### Faceting
+
+Facets are an optional sidechannel you can request from elasticsearch describing certain fields of the resulting collection. The most common use for facets is to allow the user continue filtering specifically within the subset, as opposed to the global index.
+
+For instance, let's request the ```country``` field as a facet along with our users collection. We can do this with the #facets method like so:
+
+```ruby
+UsersIndex.filter{ [...] }.facets({countries: {terms: {field: 'country'}}}) 
+```
+
+Let's look at what we asked from elasticsearch. The facets setter method accepts a hash. You can choose custom/semantic key names for this hash for your own convinience (in this case I used the plural version of the actual field), in our case: ```countries```. The following nested hash tells ES to grab and aggregate values (terms) from the ```country``` field on our indexed records. 
+
+When the response comes back, it will have the ```:facets``` sidechannel included:
+
+```
+< { ... ,"facets":{"countries":{"_type":"terms","missing":?,"total":?,"other":?,"terms":[{"term":"USA","count":?},{"term":"Brazil","count":?}, ...}}
+```
+
 ### Objects loading
 
 It is possible to load source objects from database for every search result:
@@ -605,13 +623,20 @@ It is possible to load source objects from database for every search result:
 ```ruby
 scope = UsersIndex.filter(range: {rating: {gte: 100}})
 
-scope.load # => will return User instances array (not a scope because )
+scope.load # => scope is marked to return User instances array
+scope.load.query(...) # => since objects are loaded lazily you can complete scope
 scope.load(user: { scope: ->{ includes(:country) }}) # you can also pass loading scopes for each
                                                      # possibly returned type
 scope.load(user: { scope: User.includes(:country) }) # the second scope passing way.
 scope.load(scope: ->{ includes(:country) }) # and more common scope applied to every loaded object type.
 
 scope.only(:id).load # it is optimal to request ids only if you are not planning to use type objects
+```
+
+The `preload` method takes the same options as `load` and ORM/ODM objects will be loaded, but scope will still return array of Chewy wrappers. To access real objects use `_object` wrapper method:
+
+```ruby
+UsersIndex.filter(range: {rating: {gte: 100}}).preload(...).query(...).map(&:_object)
 ```
 
 See [loading.rb](lib/chewy/query/loading.rb) for more details.
@@ -681,7 +706,11 @@ Inside Rails application some index mantaining rake tasks are defined.
 
 ```bash
 rake chewy:reset:all # resets all the existing indexes, declared in app/chewy
+rake chewy:reset # alias for chewy:reset:all
 rake chewy:reset[users] # resets UsersIndex
+
+rake chewy:update:all # updates all the existing indexes, declared in app/chewy
+rake chewy:update # alias for chewy:update:all
 rake chewy:update[users] # updates UsersIndex
 ```
 

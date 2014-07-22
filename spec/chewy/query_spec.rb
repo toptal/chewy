@@ -1,8 +1,6 @@
 require 'spec_helper'
 
 describe Chewy::Query do
-  include ClassHelpers
-
   before do
     Chewy.client.indices.delete index: '*'
   end
@@ -70,6 +68,13 @@ describe Chewy::Query do
     specify { expect { subject.filter_mode(:or) }.not_to change { subject.criteria.options } }
   end
 
+  describe '#post_filter_mode' do
+    specify { subject.post_filter_mode(:or).should be_a described_class }
+    specify { subject.post_filter_mode(:or).should_not == subject }
+    specify { subject.post_filter_mode(:or).criteria.options.should include(post_filter_mode: :or) }
+    specify { expect { subject.post_filter_mode(:or) }.not_to change { subject.criteria.options } }
+  end
+
   describe '#boost_mode' do
     specify { subject.boost_mode(:replace).should be_a described_class }
     specify { subject.boost_mode(:replace).should_not == subject }
@@ -87,36 +92,15 @@ describe Chewy::Query do
   describe '#limit' do
     specify { subject.limit(10).should be_a described_class }
     specify { subject.limit(10).should_not == subject }
-    specify { subject.limit(10).criteria.options.should include(size: 10) }
-    specify { expect { subject.limit(10) }.not_to change { subject.criteria.options } }
+    specify { subject.limit(10).criteria.request_options.should include(size: 10) }
+    specify { expect { subject.limit(10) }.not_to change { subject.criteria.request_options } }
   end
 
   describe '#offset' do
     specify { subject.offset(10).should be_a described_class }
     specify { subject.offset(10).should_not == subject }
-    specify { subject.offset(10).criteria.options.should include(from: 10) }
-    specify { expect { subject.offset(10) }.not_to change { subject.criteria.options } }
-  end
-
-  describe '#none' do
-    specify { subject.none.should be_a described_class }
-    specify { subject.none.should_not == subject }
-    specify { subject.none.criteria.should be_none }
-
-    context do
-      before { described_class.any_instance.should_not_receive(:_response) }
-
-      specify { subject.none.to_a.should == [] }
-      specify { subject.query(match: 'hello').none.to_a.should == [] }
-      specify { subject.none.query(match: 'hello').to_a.should == [] }
-    end
-  end
-
-  describe '#query' do
-    specify { subject.query(match: 'hello').should be_a described_class }
-    specify { subject.query(match: 'hello').should_not == subject }
-    specify { subject.query(match: 'hello').criteria.queries.should include(match: 'hello') }
-    specify { expect { subject.query(match: 'hello') }.not_to change { subject.criteria.queries } }
+    specify { subject.offset(10).criteria.request_options.should include(from: 10) }
+    specify { expect { subject.offset(10) }.not_to change { subject.criteria.request_options } }
   end
 
   describe '#script_score' do
@@ -197,29 +181,27 @@ describe Chewy::Query do
       before { stub_model(:city) }
       let(:cities) { 10.times.map { |i| City.create! name: "name#{i}", rating: i % 3 } }
 
-      context do
-        before do
-          stub_index(:cities) do
-            define_type :city do
-              field :rating, type: 'integer'
-            end
+      before do
+        stub_index(:cities) do
+          define_type :city do
+            field :rating, type: 'integer'
           end
         end
-
-        before { CitiesIndex::City.import! cities }
-
-        specify { CitiesIndex.facets.should == {} }
-        specify { CitiesIndex.facets(ratings: {terms: {field: 'rating'}}).facets.should == {
-          'ratings' => {
-            '_type' => 'terms', 'missing' => 0, 'total' => 10, 'other' => 0,
-            'terms' => [
-              {'term' => 0, 'count' => 4},
-              {'term' => 2, 'count' => 3},
-              {'term' => 1, 'count' => 3}
-            ]
-          }
-        } }
       end
+
+      before { CitiesIndex::City.import! cities }
+
+      specify { CitiesIndex.facets.should == {} }
+      specify { CitiesIndex.facets(ratings: {terms: {field: 'rating'}}).facets.should == {
+        'ratings' => {
+          '_type' => 'terms', 'missing' => 0, 'total' => 10, 'other' => 0,
+          'terms' => [
+            {'term' => 0, 'count' => 4},
+            {'term' => 2, 'count' => 3},
+            {'term' => 1, 'count' => 3}
+          ]
+        }
+      } }
     end
   end
 
@@ -248,14 +230,80 @@ describe Chewy::Query do
         specify { CitiesIndex.aggregations(ratings: {terms: {field: 'rating'}}).aggregations.should == {
           'ratings' => {
             'buckets' => [
-              {'key' => 0, 'doc_count' => 4},
-              {'key' => 1, 'doc_count' => 3},
-              {'key' => 2, 'doc_count' => 3}
+              {'key' => 0, 'key_as_string' => '0', 'doc_count' => 4},
+              {'key' => 1, 'key_as_string' => '1', 'doc_count' => 3},
+              {'key' => 2, 'key_as_string' => '2', 'doc_count' => 3}
             ]
           }
         } }
       end
     end
+  end
+
+  describe '#suggest' do
+    specify { subject.suggest(name1: {text: 'hello', term: {field: 'name'}}) }
+    specify { subject.suggest(name1: {text: 'hello'}).should_not == subject }
+    specify { subject.suggest(name1: {text: 'hello'}).criteria.suggest.should include(name1: {text: 'hello'}) }
+    specify { expect { subject.suggest(name1: {text: 'hello'}) }.not_to change { subject.criteria.suggest } }
+
+    context 'results' do
+      before { stub_model(:city) }
+      let(:cities) { 10.times.map { |i| City.create! name: "name#{i}" } }
+
+      context do
+        before do
+          stub_index(:cities) do
+            define_type :city do
+              field :name
+            end
+          end
+        end
+
+        before { CitiesIndex::City.import! cities }
+
+        specify { CitiesIndex.suggest.should == {} }
+        specify { CitiesIndex.suggest(name: {text: 'name', term: {field: 'name'}}).suggest.should == {
+          'name' => [
+            {'text' => 'name', 'offset' => 0, 'length' => 4, 'options' => [
+                {'text' => 'name0', 'score' => 0.75, 'freq' => 1},
+                {'text' => 'name1', 'score' => 0.75, 'freq' => 1},
+                {'text' => 'name2', 'score' => 0.75, 'freq' => 1},
+                {'text' => 'name3', 'score' => 0.75, 'freq' => 1},
+                {'text' => 'name4', 'score' => 0.75, 'freq' => 1}
+              ]
+            }
+          ] }
+        }
+      end
+    end
+  end
+
+  describe '#none' do
+    specify { subject.none.should be_a described_class }
+    specify { subject.none.should_not == subject }
+    specify { subject.none.criteria.should be_none }
+
+    context do
+      before { described_class.any_instance.should_not_receive(:_response) }
+
+      specify { subject.none.to_a.should == [] }
+      specify { subject.query(match: 'hello').none.to_a.should == [] }
+      specify { subject.none.query(match: 'hello').to_a.should == [] }
+    end
+  end
+
+  describe '#strategy' do
+    specify { subject.strategy('query_first').should be_a described_class }
+    specify { subject.strategy('query_first').should_not == subject }
+    specify { subject.strategy('query_first').criteria.options.should include(strategy: 'query_first') }
+    specify { expect { subject.strategy('query_first') }.not_to change { subject.criteria.options } }
+  end
+
+  describe '#query' do
+    specify { subject.query(match: 'hello').should be_a described_class }
+    specify { subject.query(match: 'hello').should_not == subject }
+    specify { subject.query(match: 'hello').criteria.queries.should include(match: 'hello') }
+    specify { expect { subject.query(match: 'hello') }.not_to change { subject.criteria.queries } }
   end
 
   describe '#filter' do
@@ -267,6 +315,17 @@ describe Chewy::Query do
 
     specify { expect { subject.filter{ name == 'John' } }.not_to change { subject.criteria.filters } }
     specify { subject.filter{ name == 'John' }.criteria.filters.should == [{term: {'name' => 'John'}}] }
+  end
+
+  describe '#post_filter' do
+    specify { subject.post_filter(term: {field: 'hello'}).should be_a described_class }
+    specify { subject.post_filter(term: {field: 'hello'}).should_not == subject }
+    specify { expect { subject.post_filter(term: {field: 'hello'}) }.not_to change { subject.criteria.post_filters } }
+    specify { subject.post_filter([{term: {field: 'hello'}}, {term: {field: 'world'}}]).criteria.post_filters
+      .should == [{term: {field: 'hello'}}, {term: {field: 'world'}}] }
+
+    specify { expect { subject.post_filter{ name == 'John' } }.not_to change { subject.criteria.post_filters } }
+    specify { subject.post_filter{ name == 'John' }.criteria.post_filters.should == [{term: {'name' => 'John'}}] }
   end
 
   describe '#order' do
@@ -343,7 +402,7 @@ describe Chewy::Query do
       .should == [{term: {'name' => 'name'}}, {term: {'age' => 42}}] }
   end
 
-  describe 'to_a' do
+  describe '#to_a' do
     before { stub_model(:city) }
     let(:cities) { 3.times.map { |i| City.create! name: "name#{i}", rating: i } }
 

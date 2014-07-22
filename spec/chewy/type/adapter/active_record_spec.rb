@@ -57,6 +57,7 @@ describe Chewy::Type::Adapter::ActiveRecord do
           {delete: deleted.last(2)}] }
 
       specify { import(cities.map(&:id)).should == [{index: cities}] }
+      specify { import(deleted.map(&:id)).should == [{delete: deleted.map(&:id)}] }
       specify { import(cities.map(&:id), batch_size: 2)
         .should == [{index: cities.first(2)}, {index: cities.last(1)}] }
       specify { import(cities.map(&:id), deleted.map(&:id))
@@ -66,6 +67,43 @@ describe Chewy::Type::Adapter::ActiveRecord do
         {index: cities.last(1)},
         {delete: deleted.first(2).map(&:id)},
         {delete: deleted.last(1).map(&:id)}] }
+
+      context do
+        before { deleted.map { |object| object.stub(delete_from_index?: true, destroyed?: true) } }
+        specify { import(deleted).should == [{delete: deleted}] }
+      end
+
+      context do
+        before { deleted.map { |object| object.stub(delete_from_index?: true, destroyed?: false) } }
+        specify { import(deleted).should == [{delete: deleted}] }
+      end
+
+      context do
+        before { deleted.map { |object| object.stub(delete_from_index?: false, destroyed?: true) } }
+        specify { import(deleted).should == [{delete: deleted}] }
+      end
+
+      context do
+        before { deleted.map { |object| object.stub(delete_from_index?: false, destroyed?: false) } }
+        specify { import(deleted).should == [{index: deleted}] }
+      end
+    end
+
+    describe '#delete_from_index?' do
+      before do
+        stub_model(:city) do
+          def delete_from_index?
+            rating == 42
+          end
+        end
+      end
+      let!(:cities) { 3.times.map { |i| City.create! } }
+      let!(:deleted) { 3.times.map { |i| City.create!(rating: 42) } }
+      subject { described_class.new(City) }
+
+      specify { import(cities, deleted).should == [{index: cities, delete: deleted}] }
+      specify { import(cities.map(&:id), deleted.map(&:id))
+        .should == [{index: cities, delete: deleted}] }
     end
 
     context 'custom primary_key' do

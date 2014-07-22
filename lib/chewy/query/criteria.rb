@@ -4,12 +4,16 @@ module Chewy
   class Query
     class Criteria
       include Compose
-      ARRAY_STORAGES = [:queries, :filters, :sort, :fields, :types, :scores]
-      HASH_STORAGES = [:options, :facets, :aggregations]
+      ARRAY_STORAGES = [:queries, :filters, :post_filters, :sort, :fields, :types, :scores]
+      HASH_STORAGES = [:options, :request_options, :facets, :aggregations, :suggest]
       STORAGES = ARRAY_STORAGES + HASH_STORAGES
 
       def initialize options = {}
-        @options = options.merge(query_mode: Chewy.query_mode, filter_mode: Chewy.filter_mode)
+        @options = options.merge(
+          query_mode: Chewy.query_mode,
+          filter_mode: Chewy.filter_mode,
+          post_filter_mode: Chewy.filter_mode || Chewy.post_filter_mode
+        )
       end
 
       def == other
@@ -40,6 +44,10 @@ module Chewy
         options.merge!(modifer)
       end
 
+      def update_request_options(modifer)
+        request_options.merge!(modifer)
+      end
+
       def update_facets(modifer)
         facets.merge!(modifer)
       end
@@ -52,12 +60,16 @@ module Chewy
         aggregations.merge!(modifer)
       end
 
-      def update_queries(modifer)
-        @queries = queries + Array.wrap(modifer).reject(&:blank?)
+      def update_suggest(modifier)
+        suggest.merge!(modifier)
       end
 
-      def update_filters(modifer)
-        @filters = filters + Array.wrap(modifer).reject(&:blank?)
+      [:filters, :queries, :post_filters].each do |storage|
+        class_eval <<-RUBY
+          def update_#{storage}(modifer)
+            @#{storage} = #{storage} + Array.wrap(modifer).reject(&:blank?)
+          end
+        RUBY
       end
 
       def update_sort(modifer, options = {})
@@ -91,21 +103,18 @@ module Chewy
       def request_body
         body = {}
 
-        if Chewy.filtered_queries
-          body.merge!(_composed_query(_request_query, _request_filter) || {})
-        else
-          body.merge!(query: _request_query) if queries?
-          body.merge!(filter: _request_filter) if (filters? || types?)
-        end
 
-        body = _boost_query(body)
-
+        body.merge!(_filtered_query(_request_query, _request_filter, options.slice(:strategy)))
+        body.merge!(post_filter: _request_post_filter) if post_filters?
         body.merge!(facets: facets) if facets?
         body.merge!(aggregations: aggregations) if aggregations?
+        body.merge!(suggest: suggest) if suggest?
         body.merge!(sort: sort) if sort?
         body.merge!(_source: fields) if fields?
 
-        {body: body.merge!(_request_options)}
+        body = _boost_query(body)
+
+        { body: body.merge!(request_options) }
       end
 
     protected
@@ -117,10 +126,7 @@ module Chewy
       def initialize_clone(other)
         STORAGES.each do |storage|
           value = other.send(storage)
-          if value
-            value = Marshal.load(Marshal.dump(value))
-            instance_variable_set("@#{storage}", value)
-          end
+          instance_variable_set("@#{storage}", value.deep_dup)
         end
       end
 
@@ -162,6 +168,10 @@ module Chewy
 
       def _request_types
         _filters_join(types.map { |type| {type: {value: type}} }, :or)
+      end
+
+      def _request_post_filter
+        _filters_join(post_filters, options[:post_filter_mode])
       end
     end
   end

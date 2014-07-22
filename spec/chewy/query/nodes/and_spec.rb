@@ -7,10 +7,10 @@ describe Chewy::Query::Nodes::And do
     end
 
     specify { render { name? & (email == 'email') }.should == {
-      and: [{exists: {term: 'name'}}, {term: {'email' => 'email'}}]
+      and: [{exists: {field: 'name'}}, {term: {'email' => 'email'}}]
     } }
     specify { render { ~(name? & (email == 'email')) }.should == {
-      and: {filters: [{exists: {term: 'name'}}, {term: {'email' => 'email'}}], _cache: true}
+      and: {filters: [{exists: {field: 'name'}}, {term: {'email' => 'email'}}], _cache: true}
     } }
   end
 end

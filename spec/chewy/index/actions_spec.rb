@@ -1,7 +1,6 @@
 require 'spec_helper'
 
 describe Chewy::Index::Actions do
-  include ClassHelpers
   before { Chewy.client.indices.delete index: '*' }
 
   before { stub_index :dummies }

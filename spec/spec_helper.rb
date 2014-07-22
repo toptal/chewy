@@ -9,10 +9,10 @@ require 'support/class_helpers'
 
 require 'chewy/rspec'
 
+Kaminari::Hooks.init
+
 ActiveRecord::Base.establish_connection(adapter: 'sqlite3', database: ':memory:')
 ActiveRecord::Base.logger = Logger.new('/dev/null')
-
-Kaminari::Hooks.init
 
 ActiveRecord::Schema.define do
   create_table :countries do |t|

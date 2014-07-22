@@ -3,18 +3,23 @@ require 'active_support/core_ext'
 require 'active_support/concern'
 require 'active_support/json'
 require 'i18n/core_ext/hash'
+require 'chewy/backports/deep_dup' unless Object.respond_to?(:deep_dup)
 require 'singleton'
 
+begin
+  require 'kaminari'
+rescue LoadError
+end
 require 'elasticsearch'
 
 require 'chewy/version'
 require 'chewy/errors'
 require 'chewy/config'
+require 'chewy/runtime'
 require 'chewy/index'
 require 'chewy/type'
 require 'chewy/query'
 require 'chewy/fields/base'
-require 'chewy/fields/default'
 require 'chewy/fields/root'
 
 require 'chewy/railtie' if defined?(::Rails)

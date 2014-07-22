@@ -82,14 +82,14 @@ module Chewy
         # will be an array of hashes, if `user.quiz` is not a collection association
         # then just values hash will be put in the index.
         #
-        #   field :quiz, type: 'object' do
+        #   field :quiz do
         #     field :question, :answer
         #     field :score, type: 'integer'
         #   end
         #
         # Nested fields are composed from nested objects:
         #
-        #   field :name, type: 'object', value: -> { name_translations } do
+        #   field :name, value: -> { name_translations } do
         #     field :ru, value: ->(name) { name['ru'] }
         #     field :en, value: ->(name) { name['en'] }
         #   end
@@ -99,12 +99,12 @@ module Chewy
         #
         #   field :name, type: 'object', value: -> { name_translations }
         #
-        # The special case is `multi_field`. In that case field composition
-        # changes satisfy elasticsearch rules:
+        # The special case is multi_field. If type options and block are
+        # both present field is treated as a multi-field. In that case field
+        # composition changes satisfy elasticsearch rules:
         #
-        #   field :full_name, type: 'multi_field', value: ->{ full_name.try(:strip) } do
-        #     field :full_name, index: 'analyzed', analyzer: 'name'
-        #     field :sorted, index: 'analyzed', analyzer: 'sorted'
+        #   field :full_name, type: 'string', analyzer: 'name', value: ->{ full_name.try(:strip) } do
+        #     field :sorted, analyzer: 'sorted'
         #   end
         #
         def field *args, &block
@@ -114,7 +114,7 @@ module Chewy
           if args.size > 1
             args.map { |name| field(name, options) }
           else
-            expand_nested(Chewy::Fields::Default.new(args.first, options), &block)
+            expand_nested(Chewy::Fields::Base.new(args.first, options), &block)
           end
         end
 
@@ -135,7 +135,7 @@ module Chewy
         #   template 'title.*', mapping_hash # dot in template causes "path_match" using
         #   template /tit.+/, mapping_hash # using "match_pattern": "regexp"
         #   template /title\..+/, mapping_hash # "\." - escaped dot causes "path_match" using
-        #   template /tit.+/, 'string' mapping_hash # "match_mapping_type" as the optionsl second argument
+        #   template /tit.+/, 'string', mapping_hash # "match_mapping_type" as the optionsl second argument
         #   template template42: {match: 'hello*', mapping: {type: 'object'}} # or even pass a template as is
         #
         def template *args

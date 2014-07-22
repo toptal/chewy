@@ -1,8 +1,6 @@
 require 'spec_helper'
 
 describe Chewy::Type::Wrapper do
-  include ClassHelpers
-
   before do
     stub_model(:city)
     stub_index(:cities) do

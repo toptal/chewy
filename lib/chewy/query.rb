@@ -1,8 +1,3 @@
-begin
-  require 'kaminari'
-rescue LoadError
-end
-
 require 'chewy/query/criteria'
 require 'chewy/query/filters'
 require 'chewy/query/loading'
@@ -21,7 +16,17 @@ module Chewy
     include Loading
     include Pagination
 
-    delegate :each, :count, :size, to: :_results
+    RESULT_MERGER = lambda do |key, old_value, new_value|
+      if old_value.is_a?(Hash) && new_value.is_a?(Hash)
+        old_value.merge(new_value, &RESULT_MERGER)
+      elsif new_value.is_a?(Array) && new_value.count > 1
+        new_value
+      else
+        old_value.is_a?(Array) ? new_value : new_value.first
+      end
+    end
+
+    delegate :each, :count, :size, to: :_collection
     alias_method :to_ary, :to_a
 
     attr_reader :index, :options, :criteria
@@ -62,7 +67,7 @@ module Chewy
     #   UsersIndex::User.filter(term: {name: 'Johny'}).explain.first._explanation # => {...}
     #
     def explain value = nil
-      chain { criteria.update_options explain: (value.nil? ? true : value) }
+      chain { criteria.update_request_options explain: (value.nil? ? true : value) }
     end
 
     # Sets query compilation mode for search request.
@@ -207,84 +212,16 @@ module Chewy
       chain { criteria.update_options filter_mode: value }
     end
 
-    # Sets the boost mode for custom scoring/boosting.
-    # Not used if no score functions are specified
-    # Possible values:
+    # Acts the same way as `filter_mode`, but used for `post_filter`.
+    # Note that it fallbacks by default to `Chewy.filter_mode` if
+    # `Chewy.post_filter_mode` is nil.
     #
-    # * <tt>:multiply</tt>
-    #   Default value. Query score and function result are multiplied.
+    #   UsersIndex.post_filter{ name == 'Johny' }.post_filter{ age <= 42 }.post_filter_mode(:and)
+    #   UsersIndex.post_filter{ name == 'Johny' }.post_filter{ age <= 42 }.post_filter_mode(:should)
+    #   UsersIndex.post_filter{ name == 'Johny' }.post_filter{ age <= 42 }.post_filter_mode('50%')
     #
-    #   Ex:
-    #
-    #     UsersIndex.boost_mode('multiply').script_score('doc['boost'].value')
-    #       # => {body: {query: function_score: {
-    #         query: {...},
-    #         boost_mode: 'multiply',
-    #         functions: [ ... ]
-    #       }}}
-    #
-    # * <tt>:replace</tt>
-    #   Only function result is used, query score is ignored.
-    #
-    # * <tt>:sum</tt>
-    #   Query score and function score are added.
-    #
-    # * <tt>:avg</tt>
-    #   Average of query and function score.
-    #
-    # * <tt>:max</tt>
-    #   Max of query and function score.
-    #
-    # * <tt>:min</tt>
-    #   Min of query and function score.
-    #
-    # Default value for <tt>:boost_mode</tt> might be changed
-    # with <tt>Chewy.score_mode</tt> config option.
-    #
-    #   Chewy.boost_mode = :replace
-    #
-    def boost_mode value
-      chain { criteria.update_options boost_mode: value }
-    end
-
-    # Sets the scoring mode for combining function scores/boosts
-    # Not used if no score functions are specified.
-    # Possible values:
-    #
-    # * <tt>:multiply</tt>
-    #   Default value. Scores are multiplied.
-    #
-    #   Ex:
-    #
-    #     UsersIndex.score_mode('multiply').script_score('doc['boost'].value')
-    #       # => {body: {query: function_score: {
-    #         query: {...},
-    #         score_mode: 'multiply',
-    #         functions: [ ... ]
-    #       }}}
-    #
-    # * <tt>:sum</tt>
-    #   Scores are summed.
-    #
-    # * <tt>:avg</tt>
-    #   Scores are averaged.
-    #
-    # * <tt>:first</tt>
-    #   The first function that has a matching filter is applied.
-    #
-    # * <tt>:max</tt>
-    #   Maximum score is used.
-    #
-    # * <tt>:min</tt>
-    #   Minimum score is used
-    #
-    # Default value for <tt>:score_mode</tt> might be changed
-    # with <tt>Chewy.score_mode</tt> config option.
-    #
-    #   Chewy.score_mode = :first
-    #
-    def score_mode value
-      chain { criteria.update_options score_mode: value }
+    def post_filter_mode value
+      chain { criteria.update_options post_filter_mode: value }
     end
 
     # Sets elasticsearch <tt>size</tt> search request param
@@ -297,7 +234,7 @@ module Chewy
     #          }}
     #
     def limit value
-      chain { criteria.update_options size: Integer(value) }
+      chain { criteria.update_request_options size: Integer(value) }
     end
 
     # Sets elasticsearch <tt>from</tt> search request param
@@ -309,7 +246,7 @@ module Chewy
     #          }}
     #
     def offset value
-      chain { criteria.update_options from: Integer(value) }
+      chain { criteria.update_request_options from: Integer(value) }
     end
 
     # Elasticsearch highlight query option support
@@ -317,7 +254,7 @@ module Chewy
     #   UsersIndex.query(...).highlight(fields: { ... })
     #
     def highlight value
-      chain { criteria.update_options highlight: value }
+      chain { criteria.update_request_options highlight: value }
     end
 
     # Elasticsearch rescore query option support
@@ -325,7 +262,7 @@ module Chewy
     #   UsersIndex.query(...).rescore(query: { ... })
     #
     def rescore value
-      chain { criteria.update_options rescore: value }
+      chain { criteria.update_request_options rescore: value }
     end
 
     # Adds facets section to the search request.
@@ -513,6 +450,27 @@ module Chewy
     end
     alias :aggs :aggregations
 
+    # Sets elasticsearch <tt>suggest</tt> search request param
+    #
+    #  UsersIndex.suggest(name: {text: 'Joh', term: {field: 'name'}})
+    #     # => {body: {
+    #            query: {...},
+    #            suggest: {
+    #              text: 'Joh',
+    #              term: {
+    #                field: 'name'
+    #              }
+    #            }
+    #          }}
+    #
+    def suggest params = nil
+      if params
+        chain { criteria.update_suggest params }
+      else
+        _response['suggest'] || {}
+      end
+    end
+
     # Marks the criteria as having zero records. This scope  always returns empty array
     # without touching the elasticsearch server.
     # All the chained calls of methods don't affect the result
@@ -525,6 +483,20 @@ module Chewy
     #     # => []
     def none
       chain { criteria.update_options none: true }
+    end
+
+    # Setups strategy for top-level filtered query
+    #
+    #    UsersIndex.filter { name == 'Johny'}.strategy(:leap_frog)
+    #     # => {body: {
+    #            query: { filtered: {
+    #              filter: { term: { name: 'Johny' } },
+    #              strategy: 'leap_frog'
+    #            } }
+    #          }}
+    #
+    def strategy value = nil
+      chain { criteria.update_options strategy: value }
     end
 
     # Adds one or more query to the search request
@@ -558,7 +530,7 @@ module Chewy
     # While the full query compilation this array compiles
     # according to <tt>:filter_mode</tt> option value
     #
-    # By default it joines inside <tt>and</tt> filter
+    # By default it joins inside <tt>and</tt> filter
     # See <tt>#filter_mode</tt> chainable method for more info.
     #
     # Also this method supports block DSL.
@@ -584,6 +556,37 @@ module Chewy
     def filter params = nil, &block
       params = Filters.new(&block).__render__ if block
       chain { criteria.update_filters params }
+    end
+
+    # Adds one or more post_filter to the search request
+    # Internally post_filters are stored as an array
+    # While the full query compilation this array compiles
+    # according to <tt>:post_filter_mode</tt> option value
+    #
+    # By default it joins inside <tt>and</tt> filter
+    # See <tt>#post_filter_mode</tt> chainable method for more info.
+    #
+    # Also this method supports block DSL.
+    # See <tt>Chewy::Query::Filters</tt> for more info.
+    #
+    #   UsersIndex.post_filter(term: {name: 'Johny'}).post_filter(range: {age: {lte: 42}})
+    #   UsersIndex::User.post_filter(term: {name: 'Johny'}).post_filter(range: {age: {lte: 42}})
+    #   UsersIndex.post_filter{ name == 'Johny' }.post_filter{ age <= 42 }
+    #     # => {body: {
+    #            post_filter: {and: [{term: {name: 'Johny'}}, {range: {age: {lte: 42}}}]}
+    #          }}
+    #
+    # If only one post_filter was specified, it will become a result
+    # post_filter as is, without joining.
+    #
+    #   UsersIndex.post_filter(term: {name: 'Johny'})
+    #     # => {body: {
+    #            post_filter: {term: {name: 'Johny'}}
+    #          }}
+    #
+    def post_filter params = nil, &block
+      params = Filters.new(&block).__render__ if block
+      chain { criteria.update_post_filters params }
     end
 
     # Sets search request sorting
@@ -713,7 +716,7 @@ module Chewy
     end
 
     def reset
-      @_request, @_response, @_results = nil
+      @_request, @_response, @_results, @_collection = nil
     end
 
     def _request
@@ -733,24 +736,22 @@ module Chewy
       end
     end
 
-    MERGER = lambda do |key, old_value, new_value|
-      if old_value.is_a?(Hash) && new_value.is_a?(Hash)
-        old_value.merge(new_value, &MERGER)
-      elsif new_value.is_a?(Array) && new_value.count > 1
-        new_value
-      else
-        old_value.is_a?(Array) ? new_value : new_value.first
-      end
-    end
-
     def _results
       @_results ||= (criteria.none? || _response == {} ? [] : _response['hits']['hits']).map do |hit|
-        attributes = (hit['_source'] || {}).merge(hit['highlight'] || {}, &MERGER)
+        attributes = (hit['_source'] || {}).merge(hit['highlight'] || {}, &RESULT_MERGER)
         attributes.reverse_merge!(id: hit['_id']).merge!(_score: hit['_score'])
 
         wrapper = index.type_hash[hit['_type']].new attributes
         wrapper._data = hit
         wrapper
+      end
+    end
+
+    def _collection
+      @_collection ||= begin
+        _load_objects! if criteria.options[:preload]
+        criteria.options[:preload] && criteria.options[:loaded_objects] ?
+          _results.map(&:_object) : _results
       end
     end
   end

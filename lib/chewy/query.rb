@@ -589,6 +589,83 @@ module Chewy
       chain { criteria.update_post_filters params }
     end
 
+    # Sets the boost mode for custom scoring/boosting.
+    # Not used if no score functions are specified
+    # Possible values:
+    #
+    # * <tt>:multiply</tt>
+    #   Default value. Query score and function result are multiplied.
+    #
+    #   Ex:
+    #
+    #     UsersIndex.boost_mode('multiply').script_score('doc['boost'].value')
+    #       # => {body: {query: function_score: {
+    #         query: {...},
+    #         boost_mode: 'multiply',
+    #         functions: [ ... ]
+    #       }}}
+    #
+    # * <tt>:replace</tt>
+    #   Only function result is used, query score is ignored.
+    #
+    # * <tt>:sum</tt>
+    #   Query score and function score are added.
+    #
+    # * <tt>:avg</tt>
+    #   Average of query and function score.
+    #
+    # * <tt>:max</tt>
+    #   Max of query and function score.
+    #
+    # * <tt>:min</tt>
+    #   Min of query and function score.
+    #
+    # Default value for <tt>:boost_mode</tt> might be changed
+    # with <tt>Chewy.score_mode</tt> config option.
+    def boost_mode value
+      chain { criteria.update_options boost_mode: value }
+    end
+
+    # Sets the scoring mode for combining function scores/boosts
+    # Not used if no score functions are specified.
+    # Possible values:
+    #
+    # * <tt>:multiply</tt>
+    #   Default value. Scores are multiplied.
+    #
+    #   Ex:
+    #
+    #     UsersIndex.score_mode('multiply').script_score('doc['boost'].value')
+    #       # => {body: {query: function_score: {
+    #         query: {...},
+    #         score_mode: 'multiply',
+    #         functions: [ ... ]
+    #       }}}
+    #
+    # * <tt>:sum</tt>
+    #   Scores are summed.
+    #
+    # * <tt>:avg</tt>
+    #   Scores are averaged.
+    #
+    # * <tt>:first</tt>
+    #   The first function that has a matching filter is applied.
+    #
+    # * <tt>:max</tt>
+    #   Maximum score is used.
+    #
+    # * <tt>:min</tt>
+    #   Minimum score is used
+    #
+    # Default value for <tt>:score_mode</tt> might be changed
+    # with <tt>Chewy.score_mode</tt> config option.
+    #
+    #   Chewy.score_mode = :first
+    #
+    def score_mode value
+      chain { criteria.update_options score_mode: value }
+    end
+
     # Sets search request sorting
     #
     #   UsersIndex.order(:first_name, :last_name).order(age: :desc).order(price: {order: :asc, mode: :avg})

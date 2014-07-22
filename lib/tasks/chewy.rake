@@ -14,7 +14,7 @@ end
 
 def eager_load_chewy!
   Rails.application.config.paths['app/chewy'].existent.each do |dir|
-    Dir.glob(File.join(dir, '**/*.rb')).each { |file| require file }
+    Dir.glob(File.join(dir, '**/*.rb')).each { |file| require_dependency file }
   end
 end
 

@@ -265,7 +265,13 @@ This strategy is highly usable for rails actions:
 
 ```ruby
 class ApplicationController < ActionController::Base
-  around_action { |&block| Chewy.atomic(&block) }
+  around_action :chewy_atomic
+
+  def chewy_atomic
+    Chewy.atomic do
+      yield
+    end
+  end
 end
 ```
 

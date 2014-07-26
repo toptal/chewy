@@ -82,6 +82,10 @@ RSpec::Matchers.define :update_index do |type_name, options = {}|
     @only = true
   end
 
+  def supports_block_expectations?
+    true
+  end
+
   match do |block|
     @reindex ||= {}
     @delete ||= {}
@@ -139,7 +143,7 @@ RSpec::Matchers.define :update_index do |type_name, options = {}|
     @delete.all? { |_, document| document[:match_count] }
   end
 
-  failure_message_for_should do
+  failure_message do
     output = ''
 
     if @updated.none?
@@ -177,7 +181,7 @@ RSpec::Matchers.define :update_index do |type_name, options = {}|
     output
   end
 
-  failure_message_for_should_not do
+  failure_message_when_negated do
     if @updated.any?
       "Expected index `#{type_name}` not to be updated, but it was with #{
         @updated.map(&:values).flatten.group_by { |documents| documents[:_id] }.map do |id, documents|

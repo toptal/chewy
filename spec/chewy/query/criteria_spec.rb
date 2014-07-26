@@ -15,18 +15,18 @@ describe Chewy::Query::Criteria do
   its(:fields) { should == [] }
   its(:types) { should == [] }
 
-  its(:request_options?) { should be_false }
-  its(:facets?) { should be_false }
-  its(:scores?) { should be_false }
-  its(:aggregations?) { should be_false }
-  its(:queries?) { should be_false }
-  its(:filters?) { should be_false }
-  its(:post_filters?) { should be_false }
-  its(:sort?) { should be_false }
-  its(:fields?) { should be_false }
-  its(:types?) { should be_false }
+  its(:request_options?) { should eq(false) }
+  its(:facets?) { should eq(false) }
+  its(:scores?) { should eq(false) }
+  its(:aggregations?) { should eq(false) }
+  its(:queries?) { should eq(false) }
+  its(:filters?) { should eq(false) }
+  its(:post_filters?) { should eq(false) }
+  its(:sort?) { should eq(false) }
+  its(:fields?) { should eq(false) }
+  its(:types?) { should eq(false) }
 
-  its(:none?){ should be_false }
+  its(:none?){ should eq(false) }
 
   describe '#update_options' do
     specify { expect { subject.update_options(field: 'hello') }.to change { subject.options }.to(hash_including(field: 'hello')) }

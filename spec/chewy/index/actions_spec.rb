@@ -6,32 +6,32 @@ describe Chewy::Index::Actions do
   before { stub_index :dummies }
 
   describe '.exists?' do
-    specify { DummiesIndex.exists?.should be_false }
+    specify { DummiesIndex.exists?.should eq(false) }
 
     context do
       before { DummiesIndex.create }
-      specify { DummiesIndex.exists?.should be_true }
+      specify { DummiesIndex.exists?.should eq(true) }
     end
   end
 
   describe '.create' do
-    specify { DummiesIndex.create.should be_true }
-    specify { DummiesIndex.create('2013').should be_true }
+    specify { DummiesIndex.create["acknowledged"].should eq(true) }
+    specify { DummiesIndex.create('2013')["acknowledged"].should eq(true) }
 
     context do
       before { DummiesIndex.create }
-      specify { DummiesIndex.create.should be_false }
-      specify { DummiesIndex.create('2013').should be_false }
+      specify { DummiesIndex.create.should eq(false) }
+      specify { DummiesIndex.create('2013').should eq(false) }
     end
 
     context do
       before { DummiesIndex.create '2013' }
-      specify { Chewy.client.indices.exists(index: 'dummies').should be_true }
-      specify { Chewy.client.indices.exists(index: 'dummies_2013').should be_true }
+      specify { Chewy.client.indices.exists(index: 'dummies').should eq(true) }
+      specify { Chewy.client.indices.exists(index: 'dummies_2013').should eq(true) }
       specify { DummiesIndex.aliases.should == [] }
       specify { DummiesIndex.indexes.should == ['dummies_2013'] }
-      specify { DummiesIndex.create('2013').should be_false }
-      specify { DummiesIndex.create('2014').should be_true }
+      specify { DummiesIndex.create('2013').should eq(false) }
+      specify { DummiesIndex.create('2014')["acknowledged"].should eq(true) }
 
       context do
         before { DummiesIndex.create '2014' }
@@ -41,16 +41,16 @@ describe Chewy::Index::Actions do
 
     context do
       before { DummiesIndex.create '2013', alias: false }
-      specify { Chewy.client.indices.exists(index: 'dummies').should be_false }
-      specify { Chewy.client.indices.exists(index: 'dummies_2013').should be_true }
+      specify { Chewy.client.indices.exists(index: 'dummies').should eq(false) }
+      specify { Chewy.client.indices.exists(index: 'dummies_2013').should eq(true) }
       specify { DummiesIndex.aliases.should == [] }
       specify { DummiesIndex.indexes.should == [] }
     end
   end
 
   describe '.create!' do
-    specify { DummiesIndex.create!.should be_true }
-    specify { DummiesIndex.create!('2013').should be_true }
+    specify { DummiesIndex.create!["acknowledged"].should eq(true) }
+    specify { DummiesIndex.create!('2013')["acknowledged"].should eq(true) }
 
     context do
       before { DummiesIndex.create }
@@ -60,12 +60,12 @@ describe Chewy::Index::Actions do
 
     context do
       before { DummiesIndex.create! '2013' }
-      specify { Chewy.client.indices.exists(index: 'dummies').should be_true }
-      specify { Chewy.client.indices.exists(index: 'dummies_2013').should be_true }
+      specify { Chewy.client.indices.exists(index: 'dummies').should eq(true) }
+      specify { Chewy.client.indices.exists(index: 'dummies_2013').should eq(true) }
       specify { DummiesIndex.aliases.should == [] }
       specify { DummiesIndex.indexes.should == ['dummies_2013'] }
       specify { expect { DummiesIndex.create!('2013') }.to raise_error }
-      specify { DummiesIndex.create!('2014').should be_true }
+      specify { DummiesIndex.create!('2014')["acknowledged"].should eq(true) }
 
       context do
         before { DummiesIndex.create! '2014' }
@@ -75,53 +75,53 @@ describe Chewy::Index::Actions do
 
     context do
       before { DummiesIndex.create! '2013', alias: false }
-      specify { Chewy.client.indices.exists(index: 'dummies').should be_false }
-      specify { Chewy.client.indices.exists(index: 'dummies_2013').should be_true }
+      specify { Chewy.client.indices.exists(index: 'dummies').should eq(false) }
+      specify { Chewy.client.indices.exists(index: 'dummies_2013').should eq(true) }
       specify { DummiesIndex.aliases.should == [] }
       specify { DummiesIndex.indexes.should == [] }
     end
   end
 
   describe '.delete' do
-    specify { DummiesIndex.delete.should be_false }
-    specify { DummiesIndex.delete('dummies_2013').should be_false }
+    specify { DummiesIndex.delete.should eq(false) }
+    specify { DummiesIndex.delete('dummies_2013').should eq(false) }
 
     context do
       before { DummiesIndex.create }
-      specify { DummiesIndex.delete.should be_true }
+      specify { DummiesIndex.delete["acknowledged"].should eq(true) }
 
       context do
         before { DummiesIndex.delete }
-        specify { Chewy.client.indices.exists(index: 'dummies').should be_false }
+        specify { Chewy.client.indices.exists(index: 'dummies').should eq(false) }
       end
     end
 
     context do
       before { DummiesIndex.create '2013' }
-      specify { DummiesIndex.delete('2013').should be_true }
+      specify { DummiesIndex.delete('2013')["acknowledged"].should eq(true) }
 
       context do
         before { DummiesIndex.delete('2013') }
-        specify { Chewy.client.indices.exists(index: 'dummies').should be_false }
-        specify { Chewy.client.indices.exists(index: 'dummies_2013').should be_false }
+        specify { Chewy.client.indices.exists(index: 'dummies').should eq(false) }
+        specify { Chewy.client.indices.exists(index: 'dummies_2013').should eq(false) }
       end
 
       context do
         before { DummiesIndex.create '2014' }
-        specify { DummiesIndex.delete.should be_true }
+        specify { DummiesIndex.delete["acknowledged"].should eq(true) }
 
         context do
           before { DummiesIndex.delete }
-          specify { Chewy.client.indices.exists(index: 'dummies').should be_false }
-          specify { Chewy.client.indices.exists(index: 'dummies_2013').should be_false }
-          specify { Chewy.client.indices.exists(index: 'dummies_2014').should be_false }
+          specify { Chewy.client.indices.exists(index: 'dummies').should eq(false) }
+          specify { Chewy.client.indices.exists(index: 'dummies_2013').should eq(false) }
+          specify { Chewy.client.indices.exists(index: 'dummies_2014').should eq(false) }
         end
 
         context do
           before { DummiesIndex.delete('2014') }
-          specify { Chewy.client.indices.exists(index: 'dummies').should be_true }
-          specify { Chewy.client.indices.exists(index: 'dummies_2013').should be_true }
-          specify { Chewy.client.indices.exists(index: 'dummies_2014').should be_false }
+          specify { Chewy.client.indices.exists(index: 'dummies').should eq(true) }
+          specify { Chewy.client.indices.exists(index: 'dummies_2013').should eq(true) }
+          specify { Chewy.client.indices.exists(index: 'dummies_2014').should eq(false) }
         end
       end
     end
@@ -133,48 +133,48 @@ describe Chewy::Index::Actions do
 
     context do
       before { DummiesIndex.create }
-      specify { DummiesIndex.delete!.should be_true }
+      specify { DummiesIndex.delete!["acknowledged"].should eq(true) }
 
       context do
         before { DummiesIndex.delete! }
-        specify { Chewy.client.indices.exists(index: 'dummies').should be_false }
+        specify { Chewy.client.indices.exists(index: 'dummies').should eq(false) }
       end
     end
 
     context do
       before { DummiesIndex.create '2013' }
-      specify { DummiesIndex.delete!('2013').should be_true }
+      specify { DummiesIndex.delete!('2013')["acknowledged"].should eq(true) }
 
       context do
         before { DummiesIndex.delete!('2013') }
-        specify { Chewy.client.indices.exists(index: 'dummies').should be_false }
-        specify { Chewy.client.indices.exists(index: 'dummies_2013').should be_false }
+        specify { Chewy.client.indices.exists(index: 'dummies').should eq(false) }
+        specify { Chewy.client.indices.exists(index: 'dummies_2013').should eq(false) }
       end
 
       context do
         before { DummiesIndex.create '2014' }
-        specify { DummiesIndex.delete!.should be_true }
+        specify { DummiesIndex.delete!["acknowledged"].should eq(true) }
 
         context do
           before { DummiesIndex.delete! }
-          specify { Chewy.client.indices.exists(index: 'dummies').should be_false }
-          specify { Chewy.client.indices.exists(index: 'dummies_2013').should be_false }
-          specify { Chewy.client.indices.exists(index: 'dummies_2014').should be_false }
+          specify { Chewy.client.indices.exists(index: 'dummies').should eq(false) }
+          specify { Chewy.client.indices.exists(index: 'dummies_2013').should eq(false) }
+          specify { Chewy.client.indices.exists(index: 'dummies_2014').should eq(false) }
         end
 
         context do
           before { DummiesIndex.delete!('2014') }
-          specify { Chewy.client.indices.exists(index: 'dummies').should be_true }
-          specify { Chewy.client.indices.exists(index: 'dummies_2013').should be_true }
-          specify { Chewy.client.indices.exists(index: 'dummies_2014').should be_false }
+          specify { Chewy.client.indices.exists(index: 'dummies').should eq(true) }
+          specify { Chewy.client.indices.exists(index: 'dummies_2013').should eq(true) }
+          specify { Chewy.client.indices.exists(index: 'dummies_2014').should eq(false) }
         end
       end
     end
   end
 
   describe '.purge' do
-    specify { DummiesIndex.purge.should be_true }
-    specify { DummiesIndex.purge('2013').should be_true }
+    specify { DummiesIndex.purge["acknowledged"].should eq(true) }
+    specify { DummiesIndex.purge('2013')["acknowledged"].should eq(true) }
 
     context do
       before { DummiesIndex.purge }
@@ -220,8 +220,8 @@ describe Chewy::Index::Actions do
   end
 
   describe '.purge!' do
-    specify { DummiesIndex.purge!.should be_true }
-    specify { DummiesIndex.purge!('2013').should be_true }
+    specify { DummiesIndex.purge!["acknowledged"].should eq(true) }
+    specify { DummiesIndex.purge!('2013')["acknowledged"].should eq(true) }
 
     context do
       before { DummiesIndex.purge! }
@@ -324,8 +324,8 @@ describe Chewy::Index::Actions do
 
     before { City.create!(name: 'Moscow') }
 
-    specify { CitiesIndex.reset!.should be_true }
-    specify { CitiesIndex.reset!('2013').should be_true }
+    specify { CitiesIndex.reset!.should eq(true) }
+    specify { CitiesIndex.reset!('2013').should eq(true) }
 
     context do
       before { CitiesIndex.reset! }
@@ -364,7 +364,7 @@ describe Chewy::Index::Actions do
         specify { CitiesIndex.all.should have(1).item }
         specify { CitiesIndex.aliases.should == [] }
         specify { CitiesIndex.indexes.should == ['cities_2014'] }
-        specify { Chewy.client.indices.exists(index: 'cities_2013').should be_false }
+        specify { Chewy.client.indices.exists(index: 'cities_2013').should eq(false) }
       end
 
       context do
@@ -373,7 +373,7 @@ describe Chewy::Index::Actions do
         specify { CitiesIndex.all.should have(1).item }
         specify { CitiesIndex.aliases.should == [] }
         specify { CitiesIndex.indexes.should == [] }
-        specify { Chewy.client.indices.exists(index: 'cities_2013').should be_false }
+        specify { Chewy.client.indices.exists(index: 'cities_2013').should eq(false) }
       end
     end
   end

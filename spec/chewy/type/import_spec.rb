@@ -19,10 +19,10 @@ describe Chewy::Type::Import do
   let(:city) { CitiesIndex::City }
 
   describe '.import' do
-    specify { city.import.should be_true }
-    specify { city.import([]).should be_true }
-    specify { city.import(dummy_cities).should be_true }
-    specify { city.import(dummy_cities.map(&:id)).should be_true }
+    specify { city.import.should eq(true) }
+    specify { city.import([]).should eq(true) }
+    specify { city.import(dummy_cities).should eq(true) }
+    specify { city.import(dummy_cities.map(&:id)).should eq(true) }
 
     specify { expect { city.import([]) }.not_to update_index(city) }
     specify { expect { city.import }.to update_index(city).and_reindex(dummy_cities) }
@@ -153,9 +153,9 @@ describe Chewy::Type::Import do
           end
         end
 
-        specify { city.import(dummy_cities).should be_false }
-        specify { city.import(dummy_cities.map(&:id)).should be_false }
-        specify { city.import(dummy_cities, batch_size: 1).should be_false }
+        specify { city.import(dummy_cities).should eq(false) }
+        specify { city.import(dummy_cities.map(&:id)).should eq(false) }
+        specify { city.import(dummy_cities, batch_size: 1).should eq(false) }
       end
 
       context do
@@ -167,9 +167,9 @@ describe Chewy::Type::Import do
           end
         end
 
-        specify { city.import(dummy_cities).should be_false }
-        specify { city.import(dummy_cities.map(&:id)).should be_false }
-        specify { city.import(dummy_cities, batch_size: 1).should be_false }
+        specify { city.import(dummy_cities).should eq(false) }
+        specify { city.import(dummy_cities.map(&:id)).should eq(false) }
+        specify { city.import(dummy_cities, batch_size: 1).should eq(false) }
       end
     end
   end

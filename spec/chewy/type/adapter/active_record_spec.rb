@@ -177,45 +177,45 @@ describe Chewy::Type::Adapter::ActiveRecord do
       end
 
       context 'implicit scope' do
-        specify { subject.import { |data| true }.should be_true }
-        specify { subject.import { |data| false }.should be_false }
-        specify { subject.import(batch_size: 1, &data_comparer.curry[cities[0].id]).should be_false }
-        specify { subject.import(batch_size: 1, &data_comparer.curry[cities[1].id]).should be_false }
-        specify { subject.import(batch_size: 1, &data_comparer.curry[cities[2].id]).should be_false }
-        specify { subject.import(batch_size: 1, &data_comparer.curry[deleted[0].id]).should be_true }
-        specify { subject.import(batch_size: 1, &data_comparer.curry[deleted[1].id]).should be_true }
+        specify { subject.import { |data| true }.should eq(true) }
+        specify { subject.import { |data| false }.should eq(false) }
+        specify { subject.import(batch_size: 1, &data_comparer.curry[cities[0].id]).should eq(false) }
+        specify { subject.import(batch_size: 1, &data_comparer.curry[cities[1].id]).should eq(false) }
+        specify { subject.import(batch_size: 1, &data_comparer.curry[cities[2].id]).should eq(false) }
+        specify { subject.import(batch_size: 1, &data_comparer.curry[deleted[0].id]).should eq(true) }
+        specify { subject.import(batch_size: 1, &data_comparer.curry[deleted[1].id]).should eq(true) }
       end
 
       context 'explicit scope' do
         let(:scope) { City.where(id: ids) }
 
-        specify { subject.import(scope) { |data| true }.should be_true }
-        specify { subject.import(scope) { |data| false }.should be_false }
-        specify { subject.import(scope, batch_size: 1, &data_comparer.curry[cities[0].id]).should be_false }
-        specify { subject.import(scope, batch_size: 1, &data_comparer.curry[cities[1].id]).should be_false }
-        specify { subject.import(scope, batch_size: 1, &data_comparer.curry[cities[2].id]).should be_false }
-        specify { subject.import(scope, batch_size: 1, &data_comparer.curry[deleted[0].id]).should be_true }
-        specify { subject.import(scope, batch_size: 1, &data_comparer.curry[deleted[1].id]).should be_true }
+        specify { subject.import(scope) { |data| true }.should eq(true) }
+        specify { subject.import(scope) { |data| false }.should eq(false) }
+        specify { subject.import(scope, batch_size: 1, &data_comparer.curry[cities[0].id]).should eq(false) }
+        specify { subject.import(scope, batch_size: 1, &data_comparer.curry[cities[1].id]).should eq(false) }
+        specify { subject.import(scope, batch_size: 1, &data_comparer.curry[cities[2].id]).should eq(false) }
+        specify { subject.import(scope, batch_size: 1, &data_comparer.curry[deleted[0].id]).should eq(true) }
+        specify { subject.import(scope, batch_size: 1, &data_comparer.curry[deleted[1].id]).should eq(true) }
       end
 
       context 'objects' do
-        specify { subject.import(cities + deleted) { |data| true }.should be_true }
-        specify { subject.import(cities + deleted) { |data| false }.should be_false }
-        specify { subject.import(cities + deleted, batch_size: 1, &data_comparer.curry[cities[0].id]).should be_false }
-        specify { subject.import(cities + deleted, batch_size: 1, &data_comparer.curry[cities[1].id]).should be_false }
-        specify { subject.import(cities + deleted, batch_size: 1, &data_comparer.curry[cities[2].id]).should be_false }
-        specify { subject.import(cities + deleted, batch_size: 1, &data_comparer.curry[deleted[0].id]).should be_false }
-        specify { subject.import(cities + deleted, batch_size: 1, &data_comparer.curry[deleted[1].id]).should be_false }
+        specify { subject.import(cities + deleted) { |data| true }.should eq(true) }
+        specify { subject.import(cities + deleted) { |data| false }.should eq(false) }
+        specify { subject.import(cities + deleted, batch_size: 1, &data_comparer.curry[cities[0].id]).should eq(false) }
+        specify { subject.import(cities + deleted, batch_size: 1, &data_comparer.curry[cities[1].id]).should eq(false) }
+        specify { subject.import(cities + deleted, batch_size: 1, &data_comparer.curry[cities[2].id]).should eq(false) }
+        specify { subject.import(cities + deleted, batch_size: 1, &data_comparer.curry[deleted[0].id]).should eq(false) }
+        specify { subject.import(cities + deleted, batch_size: 1, &data_comparer.curry[deleted[1].id]).should eq(false) }
       end
 
       context 'ids' do
-        specify { subject.import(ids) { |data| true }.should be_true }
-        specify { subject.import(ids) { |data| false }.should be_false }
-        specify { subject.import(ids, batch_size: 1, &data_comparer.curry[cities[0].id]).should be_false }
-        specify { subject.import(ids, batch_size: 1, &data_comparer.curry[cities[1].id]).should be_false }
-        specify { subject.import(ids, batch_size: 1, &data_comparer.curry[cities[2].id]).should be_false }
-        specify { subject.import(ids, batch_size: 1, &data_comparer.curry[deleted[0].id]).should be_false }
-        specify { subject.import(ids, batch_size: 1, &data_comparer.curry[deleted[1].id]).should be_false }
+        specify { subject.import(ids) { |data| true }.should eq(true) }
+        specify { subject.import(ids) { |data| false }.should eq(false) }
+        specify { subject.import(ids, batch_size: 1, &data_comparer.curry[cities[0].id]).should eq(false) }
+        specify { subject.import(ids, batch_size: 1, &data_comparer.curry[cities[1].id]).should eq(false) }
+        specify { subject.import(ids, batch_size: 1, &data_comparer.curry[cities[2].id]).should eq(false) }
+        specify { subject.import(ids, batch_size: 1, &data_comparer.curry[deleted[0].id]).should eq(false) }
+        specify { subject.import(ids, batch_size: 1, &data_comparer.curry[deleted[1].id]).should eq(false) }
       end
     end
   end

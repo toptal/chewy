@@ -36,8 +36,8 @@ describe Chewy::Type::Adapter::Object do
       result
     end
 
-    specify { subject.import(3.times.map { |i| double }) { |data| true }.should be_true }
-    specify { subject.import(3.times.map { |i| double }) { |data| false }.should be_false }
+    specify { subject.import(3.times.map { |i| double }) { |data| true }.should eq(true) }
+    specify { subject.import(3.times.map { |i| double }) { |data| false }.should eq(false) }
 
     context do
       let(:objects) { 3.times.map { |i| double } }
@@ -96,13 +96,13 @@ describe Chewy::Type::Adapter::Object do
         ->(n, data) { (data[:index] || data[:delete]).first.rating != n }
       end
 
-      specify { subject.import(products, deleted) { |data| true }.should be_true }
-      specify { subject.import(products, deleted) { |data| false }.should be_false }
-      specify { subject.import(products, deleted, batch_size: 1, &data_comparer.curry[1]).should be_false }
-      specify { subject.import(products, deleted, batch_size: 1, &data_comparer.curry[2]).should be_false }
-      specify { subject.import(products, deleted, batch_size: 1, &data_comparer.curry[3]).should be_false }
-      specify { subject.import(products, deleted, batch_size: 1, &data_comparer.curry[4]).should be_false }
-      specify { subject.import(products, deleted, batch_size: 1, &data_comparer.curry[5]).should be_false }
+      specify { subject.import(products, deleted) { |data| true }.should eq(true) }
+      specify { subject.import(products, deleted) { |data| false }.should eq(false) }
+      specify { subject.import(products, deleted, batch_size: 1, &data_comparer.curry[1]).should eq(false) }
+      specify { subject.import(products, deleted, batch_size: 1, &data_comparer.curry[2]).should eq(false) }
+      specify { subject.import(products, deleted, batch_size: 1, &data_comparer.curry[3]).should eq(false) }
+      specify { subject.import(products, deleted, batch_size: 1, &data_comparer.curry[4]).should eq(false) }
+      specify { subject.import(products, deleted, batch_size: 1, &data_comparer.curry[5]).should eq(false) }
     end
   end
 

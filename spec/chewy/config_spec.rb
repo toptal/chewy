@@ -61,9 +61,9 @@ describe Chewy::Config do
   end
 
   describe '#atomic?' do
-    its(:atomic?) { should be_false }
-    specify { subject.atomic { subject.atomic?.should be_true } }
-    specify { subject.atomic { }; subject.atomic?.should be_false }
+    its(:atomic?) { should eq(false) }
+    specify { subject.atomic { subject.atomic?.should eq(true) } }
+    specify { subject.atomic { }; subject.atomic?.should eq(false) }
   end
 
   describe '#atomic' do

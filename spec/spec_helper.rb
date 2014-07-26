@@ -1,6 +1,7 @@
 require 'bundler'
 Bundler.require
-
+require 'rspec/its'
+require 'rspec/collection_matchers'
 require 'active_record'
 require 'database_cleaner'
 

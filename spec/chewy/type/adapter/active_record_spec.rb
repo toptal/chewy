@@ -104,6 +104,7 @@ describe Chewy::Type::Adapter::ActiveRecord do
       specify { import(cities, deleted).should == [{index: cities, delete: deleted}] }
       specify { import(cities.map(&:id), deleted.map(&:id))
         .should == [{index: cities, delete: deleted}] }
+      specify { import(City.order(:id)).should == [{index: cities, delete: deleted}] }
     end
 
     context 'custom primary_key' do

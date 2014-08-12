@@ -104,7 +104,7 @@ module Chewy
         attr_reader :model, :scope, :options
 
         def import_ids(ids, import_options = {}, &block)
-          ids = ids.map(&:to_i).uniq
+          ids.uniq!
 
           indexed = true
           merged_scope(scoped_model(ids)).find_in_batches(import_options.slice(:batch_size)) do |objects|

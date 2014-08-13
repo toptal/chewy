@@ -471,6 +471,11 @@ module Chewy
       end
     end
 
+    # delete all records matching a query
+    def delete_all
+      chain { criteria.update_delete_all }
+    end
+
     # Marks the criteria as having zero records. This scope  always returns empty array
     # without touching the elasticsearch server.
     # All the chained calls of methods don't affect the result

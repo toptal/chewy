@@ -471,11 +471,6 @@ module Chewy
       end
     end
 
-    # delete all records matching a query
-    def delete_all
-      chain { criteria.update_delete_all }
-    end
-
     # Marks the criteria as having zero records. This scope  always returns empty array
     # without touching the elasticsearch server.
     # All the chained calls of methods don't affect the result
@@ -784,6 +779,11 @@ module Chewy
       chain { criteria.merge!(other.criteria) }
     end
 
+    # delete all records matching a query
+    def delete_all
+      _delete_all_response
+    end
+
   protected
 
     def initialize_clone other
@@ -805,11 +805,28 @@ module Chewy
       @_request ||= criteria.request_body.merge(index: index.index_name, type: types)
     end
 
+    def _delete_all_request
+      @_request ||= criteria.delete_all_request_body.merge(index: index.index_name, type: types)
+    end
+
     def _response
       @_response ||= begin
         ActiveSupport::Notifications.instrument 'search_query.chewy', request: _request, index: index do
           begin
             index.client.search(_request)
+          rescue Elasticsearch::Transport::Transport::Errors::NotFound => e
+            raise e if e.message !~ /IndexMissingException/
+            {}
+          end
+        end
+      end
+    end
+
+    def _delete_all_response
+      @_response ||= begin
+        ActiveSupport::Notifications.instrument 'search_query.chewy', request: _delete_all_request, index: index do
+          begin
+            index.client.delete_by_query(_delete_all_request)
           rescue Elasticsearch::Transport::Transport::Errors::NotFound => e
             raise e if e.message !~ /IndexMissingException/
             {}

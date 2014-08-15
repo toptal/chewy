@@ -1,6 +1,6 @@
 module Chewy
   module Type
-    module Import
+    module Reset
       extend ActiveSupport::Concern
 
       module ClassMethods

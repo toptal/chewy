@@ -14,6 +14,7 @@ module Chewy
       include Wrapper
       include Observe
       include Import
+      include Reset
 
       singleton_class.delegate :client, to: :index
 

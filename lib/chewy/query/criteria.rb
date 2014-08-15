@@ -64,10 +64,6 @@ module Chewy
         suggest.merge!(modifier)
       end
 
-      def update_delete_all
-        # something here
-      end
-
       [:filters, :queries, :post_filters].each do |storage|
         class_eval <<-RUBY
           def update_#{storage}(modifer)

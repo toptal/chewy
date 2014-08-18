@@ -118,7 +118,7 @@ module Chewy
       end
 
       def delete_all_request_body
-        _filtered_query(_request_query, _request_filter, options.slice(:strategy))
+        { body: _filtered_query(_request_query, _request_filter, options.slice(:strategy)) }
       end
 
     protected

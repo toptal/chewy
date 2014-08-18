@@ -813,6 +813,8 @@ module Chewy
       @_response ||= begin
         ActiveSupport::Notifications.instrument 'search_query.chewy', request: _request, index: index do
           begin
+            puts "search request:"
+            puts _request
             index.client.search(_request)
           rescue Elasticsearch::Transport::Transport::Errors::NotFound => e
             raise e if e.message !~ /IndexMissingException/
@@ -825,6 +827,8 @@ module Chewy
     def _delete_all_response
       @_delete_all_response ||= begin
         ActiveSupport::Notifications.instrument 'delete_query.chewy', request: _delete_all_request, index: index do
+          puts "delete_all request:"
+          puts _delete_all_request
           index.client.delete_by_query(_delete_all_request)
         end
       end

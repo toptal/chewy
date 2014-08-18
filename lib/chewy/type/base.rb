@@ -3,6 +3,7 @@ require 'chewy/type/mapping'
 require 'chewy/type/wrapper'
 require 'chewy/type/observe'
 require 'chewy/type/import'
+require 'chewy/type/reset'
 require 'chewy/type/adapter/object'
 require 'chewy/type/adapter/active_record'
 

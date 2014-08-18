@@ -9,7 +9,7 @@ module Chewy
         #
         #   UsersIndex::User.reset 
         #
-        def reset *args
+        def reset
           delete_all
           import
         end

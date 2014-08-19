@@ -288,23 +288,9 @@ describe Chewy::Query do
       ProductsIndex::Country.import!(countries.map { |h| double(h) })
     end
 
-    it 'should delete all records matching a match query' do
-      subject.query(match: {name: 'name3'}).count.should == 1
-      subject.query(match: {name: 'name3'}).delete_all
-      subject.query(match: {name: 'name3'}).count.should == 0
-    end
-
-    it 'should delete all records matching a type' do
-      subject.types(:product).count.should == 3
-      subject.types(:product).delete_all
-      subject.types(:product).count.should == 0
-    end
-
-    it 'should delete all records matching a filter' do
-      subject.filter(term: {age: 10}).count.should == 1
-      subject.filter(term: {age: 10}).delete_all
-      subject.filter(term: {age: 10}).count.should == 0
-    end
+    specify { expect { subject.query(match: {name: 'name3'}).delete_all }.to change { subject.query(match: {name: 'name3'}).count }.from(1).to(0) }
+    specify { expect { subject.filter(term: {age: 10}).delete_all }.to change { subject.filter(term: {age: 10}).count }.from(1).to(0) }
+    specify { expect { subject.types(:product).delete_all }.to change { subject.types(:product).count }.from(3).to(0) }
   end
 
   describe '#none' do

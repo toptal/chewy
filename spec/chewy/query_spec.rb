@@ -278,6 +278,35 @@ describe Chewy::Query do
     end
   end
 
+  describe '#delete_all' do
+    let(:products) { 3.times.map { |i| {id: i.next.to_s, name: "Name#{i.next}", age: 10 * i.next}.stringify_keys! } }
+    let(:cities) { 3.times.map { |i| {id: i.next.to_s}.stringify_keys! } }
+    let(:countries) { 3.times.map { |i| {id: i.next.to_s}.stringify_keys! } }
+    before do
+      ProductsIndex::Product.import!(products.map { |h| double(h) })
+      ProductsIndex::City.import!(cities.map { |h| double(h) })
+      ProductsIndex::Country.import!(countries.map { |h| double(h) })
+    end
+
+    it 'should delete all records matching a match query' do
+      subject.query(match: {name: 'name3'}).count.should == 1
+      subject.query(match: {name: 'name3'}).delete_all
+      subject.query(match: {name: 'name3'}).count.should == 0
+    end
+
+    it 'should delete all records matching a type' do
+      subject.types(:product).count.should == 3
+      subject.types(:product).delete_all
+      subject.types(:product).count.should == 0
+    end
+
+    it 'should delete all records matching a filter' do
+      subject.filter(term: {age: 10}).count.should == 1
+      subject.filter(term: {age: 10}).delete_all
+      subject.filter(term: {age: 10}).count.should == 0
+    end
+  end
+
   describe '#none' do
     specify { subject.none.should be_a described_class }
     specify { subject.none.should_not == subject }

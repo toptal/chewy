@@ -3,6 +3,8 @@ module Chewy
     class Root < Chewy::Fields::Base
       attr_reader :dynamic_templates
 
+      # add something in this file?
+
       def initialize(name, options = {})
         options.reverse_merge!(value: ->(_){_})
         super(name, options)

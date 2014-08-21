@@ -2,8 +2,12 @@ module Chewy
   module Fields
     class Root < Chewy::Fields::Base
       attr_reader :dynamic_templates
+      attr_reader :parent
+      attr_reader :parent_id
 
       def initialize(name, options = {})
+        @parent = options.delete(:parent) || options.delete(:_parent)
+        @parent_id = options.delete(:parent_id)
         options.reverse_merge!(value: ->(_){_})
         super(name, options)
         options.delete(:type)
@@ -24,10 +28,16 @@ module Chewy
 
       def mappings_hash
         mappings = super
+
         if dynamic_templates.any?
           mappings[name][:dynamic_templates] ||= []
           mappings[name][:dynamic_templates].concat dynamic_templates
         end
+
+        if parent
+          mappings[name][:_parent] = { type: parent }
+        end
+
         mappings
       end
 
@@ -49,6 +59,12 @@ module Chewy
           @dynamic_templates.push(template)
         else
           @dynamic_templates.push(options)
+        end
+      end
+
+      def compose_parent(object)
+        if parent_id
+          parent_id.arity == 0 ? object.instance_exec(&parent_id) : parent_id.call(object)
         end
       end
     end

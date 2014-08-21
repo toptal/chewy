@@ -33,6 +33,20 @@ describe Chewy::Type::Mapping do
   describe '.mappings_hash' do
     specify { Class.new(Chewy::Type::Base).mappings_hash.should == {} }
     specify { product.mappings_hash.should == product.root_object.mappings_hash }
+
+    context 'parent-child relationship' do
+      before do
+        stub_index(:products) do
+          define_type :product do
+            root parent: 'project', parent_id: -> { project_id } do
+              field :name, 'surname'
+            end
+          end
+        end
+      end
+
+      specify { product.mappings_hash[:product][:_parent].should == { type: 'project' } }
+    end
   end
 
   context "no root element call" do

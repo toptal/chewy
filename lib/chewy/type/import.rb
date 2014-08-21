@@ -73,13 +73,21 @@ module Chewy
       private
 
         def bulk_body action_objects
-          action_objects.each.with_object([]) do |(action, objects), result|
-            result.concat(if action == :delete
-              objects.map { |object| { action => {_id: object.respond_to?(:id) ? object.id : object} } }
-            else
-              objects.map { |object| { action => {_id: object.id, data: object_data(object)} } }
-            end)
+          build_root unless self.root_object
+
+          action_objects.inject([]) do |result, (action, objects)|
+            result.concat(objects.map { |object| bulk_entry(action, object) })
           end
+        end
+
+        def bulk_entry(action, object)
+          entry = {}
+
+          entry[:parent] = self.root_object.compose_parent(object) if self.root_object.parent_id
+          entry[:_id] = object.respond_to?(:id) ? object.id : object
+          entry[:data] = object_data(object) unless action == :delete
+
+          { action => entry }
         end
 
         def fill_payload_import payload, action_objects

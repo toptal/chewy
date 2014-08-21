@@ -3,6 +3,8 @@ module Chewy
     class Base
       attr_reader :name, :options, :value
 
+      # or maybe in this file?
+
       def initialize(name, options = {})
         @name, @options, @nested = name.to_sym, options.deep_symbolize_keys, {}
         @value = @options.delete(:value)

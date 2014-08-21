@@ -5,6 +5,8 @@ module Chewy
       attr_reader :parent
       attr_reader :parent_id
 
+      # add something in this file?
+
       def initialize(name, options = {})
         @parent = options.delete(:parent) || options.delete(:_parent)
         @parent_id = options.delete(:parent_id)

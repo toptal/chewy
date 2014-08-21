@@ -172,6 +172,44 @@ describe Chewy::Type::Import do
         specify { city.import(dummy_cities, batch_size: 1).should eq(false) }
       end
     end
+
+    context 'parent-child relationship' do
+      let(:country) { Country.create(name: 'country') }
+
+      before do
+        stub_model(:country)
+      end
+
+      before do
+        stub_index(:countries) do
+          define_type Country do
+            field :name
+          end
+
+          define_type City do
+            root parent: 'country', parent_id: -> { country_id } do
+              field :name
+            end
+          end
+        end
+      end
+
+      before { CountriesIndex::Country.import(country) }
+
+      let(:child_city) { City.create(country_id: country.id, name: 'city') }
+      let(:city) { CountriesIndex::City }
+
+      specify { city.import(child_city).should eq(true)  }
+      specify { expect { city.import child_city }.to update_index(city).and_reindex(child_city) }
+
+      specify do
+        expect(CountriesIndex.client).to receive(:bulk).with(hash_including(
+          body: [{ index: { _id: child_city.id, parent: country.id, data: { 'name' => 'city' } } }]
+        ))
+
+        city.import child_city
+      end
+    end
   end
 
   describe '.import!' do

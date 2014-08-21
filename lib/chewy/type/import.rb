@@ -83,14 +83,7 @@ module Chewy
         def bulk_entry(action, object)
           entry = {}
 
-          if self.root_object.parent && self.root_object.parent_id
-            parent = self.root_object.parent_id.arity == 0 ?
-              object.instance_exec(&(self.root_object.parent_id)) :
-              self.root_object.parent_id.call(object)
-
-            entry[:parent] = parent
-          end
-
+          entry[:parent] = self.root_object.compose_parent(object) if self.root_object.parent_id
           entry[:_id] = object.respond_to?(:id) ? object.id : object
           entry[:data] = object_data(object) unless action == :delete
 

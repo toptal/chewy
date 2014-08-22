@@ -18,6 +18,11 @@ module Chewy
         duration = ((finish - start).to_f * 10000).round / 10.0
         Rails.logger.debug("  \e[1m\e[32m#{payload[:index]} Search (#{duration}ms)\e[0m #{payload[:request]}")
       end
+
+      ActiveSupport::Notifications.subscribe('delete_query.chewy') do |name, start, finish, id, payload|
+        duration = ((finish - start).to_f * 10000).round / 10.0
+        Rails.logger.debug("  \e[1m\e[32m#{payload[:index]} Delete by Query (#{duration}ms)\e[0m #{payload[:request]}")
+      end
     end
   end
 end

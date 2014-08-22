@@ -779,6 +779,11 @@ module Chewy
       chain { criteria.merge!(other.criteria) }
     end
 
+    # delete all records matching a query
+    def delete_all
+      _delete_all_response
+    end
+
   protected
 
     def initialize_clone other
@@ -800,6 +805,10 @@ module Chewy
       @_request ||= criteria.request_body.merge(index: index.index_name, type: types)
     end
 
+    def _delete_all_request
+      @_delete_all_request ||= criteria.delete_all_request_body.merge(index: index.index_name, type: types)
+    end
+
     def _response
       @_response ||= begin
         ActiveSupport::Notifications.instrument 'search_query.chewy', request: _request, index: index do
@@ -809,6 +818,14 @@ module Chewy
             raise e if e.message !~ /IndexMissingException/
             {}
           end
+        end
+      end
+    end
+
+    def _delete_all_response
+      @_delete_all_response ||= begin
+        ActiveSupport::Notifications.instrument 'delete_query.chewy', request: _delete_all_request, index: index do
+          index.client.delete_by_query(_delete_all_request)
         end
       end
     end

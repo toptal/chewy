@@ -117,6 +117,10 @@ module Chewy
         { body: body.merge!(request_options) }
       end
 
+      def delete_all_request_body
+        { body: _filtered_query(_request_query, _request_filter, options.slice(:strategy)).presence || { query: { match_all: {} } } }
+      end
+
     protected
 
       def storages

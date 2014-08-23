@@ -34,10 +34,7 @@ module Chewy
           mappings[name][:dynamic_templates].concat dynamic_templates
         end
 
-        if parent
-          mappings[name][:_parent] = { type: parent }
-        end
-
+        mappings[name][:_parent] = parent.is_a?(Hash) ? parent : { type: parent } if parent
         mappings
       end
 

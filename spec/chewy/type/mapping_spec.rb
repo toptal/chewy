@@ -35,17 +35,33 @@ describe Chewy::Type::Mapping do
     specify { product.mappings_hash.should == product.root_object.mappings_hash }
 
     context 'parent-child relationship' do
-      before do
-        stub_index(:products) do
-          define_type :product do
-            root parent: 'project', parent_id: -> { project_id } do
-              field :name, 'surname'
+      context do
+        before do
+          stub_index(:products) do
+            define_type :product do
+              root _parent: 'project', parent_id: -> { project_id } do
+                field :name, 'surname'
+              end
             end
           end
         end
+
+        specify { product.mappings_hash[:product][:_parent].should == { type: 'project' } }
       end
 
-      specify { product.mappings_hash[:product][:_parent].should == { type: 'project' } }
+      context do
+        before do
+          stub_index(:products) do
+            define_type :product do
+              root parent: {'type' => 'project'}, parent_id: -> { project_id } do
+                field :name, 'surname'
+              end
+            end
+          end
+        end
+
+        specify { product.mappings_hash[:product][:_parent].should == { 'type' => 'project' } }
+      end
     end
   end
 

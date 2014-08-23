@@ -779,7 +779,13 @@ module Chewy
       chain { criteria.merge!(other.criteria) }
     end
 
-    # delete all records matching a query
+    # Deletes all records matching a query.
+    #
+    #   UsersIndex.delete_all
+    #   UsersIndex.filter{ age <= 42 }.delete_all
+    #   UsersIndex::User.delete_all
+    #   UsersIndex::User.filter{ age <= 42 }.delete_all
+    #
     def delete_all
       _delete_all_response
     end
@@ -810,23 +816,19 @@ module Chewy
     end
 
     def _response
-      @_response ||= begin
-        ActiveSupport::Notifications.instrument 'search_query.chewy', request: _request, index: index do
-          begin
-            index.client.search(_request)
-          rescue Elasticsearch::Transport::Transport::Errors::NotFound => e
-            raise e if e.message !~ /IndexMissingException/
-            {}
-          end
+      @_response ||= ActiveSupport::Notifications.instrument 'search_query.chewy', request: _request, index: index do
+        begin
+          index.client.search(_request)
+        rescue Elasticsearch::Transport::Transport::Errors::NotFound => e
+          raise e if e.message !~ /IndexMissingException/
+          {}
         end
       end
     end
 
     def _delete_all_response
-      @_delete_all_response ||= begin
-        ActiveSupport::Notifications.instrument 'delete_query.chewy', request: _delete_all_request, index: index do
-          index.client.delete_by_query(_delete_all_request)
-        end
+      @_delete_all_response ||= ActiveSupport::Notifications.instrument 'delete_query.chewy', request: _delete_all_request, index: index do
+        index.client.delete_by_query(_delete_all_request)
       end
     end
 

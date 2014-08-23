@@ -1,5 +1,13 @@
 # master
 
+## Changes:
+
+  * `Chewy::Index.total_count` and `Chewy::Type::Base.total_count`
+
+  * `Chewy::Type::Base.reset` method. Deletes all the type documents and performs import (@jondavidford)
+
+  * Added `Chewy::Query#delete_all` scope method using delete by query ES feature (@jondavidford)
+
 # Version 0.5.0
 
 ## Incompatible changes:

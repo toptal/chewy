@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe Chewy::Type::Reset do
+describe Chewy::Type::Actions do
   before { Chewy.client.indices.delete index: '*' }
 
   before do

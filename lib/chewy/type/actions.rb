@@ -1,13 +1,13 @@
 module Chewy
   module Type
-    module Reset
+    module Actions
       extend ActiveSupport::Concern
 
       module ClassMethods
         # Delete all documents of a type and reimport them
         # Returns true or false depending on success.
         #
-        #   UsersIndex::User.reset 
+        #   UsersIndex::User.reset
         #
         def reset
           delete_all

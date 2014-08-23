@@ -323,6 +323,17 @@ UsersIndex::User.filter{ name == 'Fred' }.filter{ age < 42 }.filter_mode('75%') 
 
 See [query.rb](lib/chewy/query.rb) for more details.
 
+### Additional query action.
+
+You may also perform additional actions on query scope, such as deleting of all the scope documents:
+
+```ruby
+UsersIndex.delete_all
+UsersIndex::User.delete_all
+UsersIndex.filter{ age < 42 }.delete_all
+UsersIndex::User.filter{ age < 42 }.delete_all
+```
+
 ### Filters query DSL.
 
 There is a test version of filters creating DSL:
@@ -611,10 +622,10 @@ Facets are an optional sidechannel you can request from elasticsearch describing
 For instance, let's request the ```country``` field as a facet along with our users collection. We can do this with the #facets method like so:
 
 ```ruby
-UsersIndex.filter{ [...] }.facets({countries: {terms: {field: 'country'}}}) 
+UsersIndex.filter{ [...] }.facets({countries: {terms: {field: 'country'}}})
 ```
 
-Let's look at what we asked from elasticsearch. The facets setter method accepts a hash. You can choose custom/semantic key names for this hash for your own convinience (in this case I used the plural version of the actual field), in our case: ```countries```. The following nested hash tells ES to grab and aggregate values (terms) from the ```country``` field on our indexed records. 
+Let's look at what we asked from elasticsearch. The facets setter method accepts a hash. You can choose custom/semantic key names for this hash for your own convinience (in this case I used the plural version of the actual field), in our case: ```countries```. The following nested hash tells ES to grab and aggregate values (terms) from the ```country``` field on our indexed records.
 
 When the response comes back, it will have the ```:facets``` sidechannel included:
 

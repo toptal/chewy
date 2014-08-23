@@ -243,7 +243,7 @@ describe Chewy::Query do
   describe '#suggest' do
     specify { subject.suggest(name1: {text: 'hello', term: {field: 'name'}}) }
     specify { subject.suggest(name1: {text: 'hello'}).should_not == subject }
-    specify { subject.suggest(name1: {text: 'hello'}).criteria.suggest.should include(name1: {text: 'hello'}) }
+    specify { expect(subject.suggest(name1: {text: 'hello'}).criteria.suggest).to include(name1: {text: 'hello'}) }
     specify { expect { subject.suggest(name1: {text: 'hello'}) }.not_to change { subject.criteria.suggest } }
 
     context 'results' do
@@ -279,38 +279,21 @@ describe Chewy::Query do
   end
 
   describe '#delete_all' do
-    context 'multi-type index' do
-      let(:products) { 3.times.map { |i| {id: i.next.to_s, name: "Name#{i.next}", age: 10 * i.next}.stringify_keys! } }
-      let(:cities) { 3.times.map { |i| {id: i.next.to_s}.stringify_keys! } }
-      let(:countries) { 3.times.map { |i| {id: i.next.to_s}.stringify_keys! } }
+    let(:products) { 3.times.map { |i| {id: i.next.to_s, name: "Name#{i.next}", age: 10 * i.next}.stringify_keys! } }
+    let(:cities) { 3.times.map { |i| {id: i.next.to_s}.stringify_keys! } }
+    let(:countries) { 3.times.map { |i| {id: i.next.to_s}.stringify_keys! } }
 
-      before do
-        ProductsIndex::Product.import!(products.map { |h| double(h) })
-        ProductsIndex::City.import!(cities.map { |h| double(h) })
-        ProductsIndex::Country.import!(countries.map { |h| double(h) })
-      end
-
-      specify { expect { subject.query(match: {name: 'name3'}).delete_all }.to change { subject.query(match: {name: 'name3'}).count }.from(1).to(0) }
-      specify { expect { subject.filter(term: {age: 10}).delete_all }.to change { subject.filter(term: {age: 10}).count }.from(1).to(0) }
-      specify { expect { subject.types(:product).delete_all }.to change { subject.types(:product).count }.from(3).to(0) }
+    before do
+      ProductsIndex::Product.import!(products.map { |h| double(h) })
+      ProductsIndex::City.import!(cities.map { |h| double(h) })
+      ProductsIndex::Country.import!(countries.map { |h| double(h) })
     end
-    
-    context 'single-type index' do
-      before { stub_model(:city) }
-      let(:more_cities) { 10.times.map { |i| City.create! name: "name#{i}", rating: i % 3 } }
-      
-      before do
-        stub_index(:cities) do
-          define_type :city do
-            field :rating, type: 'integer'
-          end
-        end
-      end
-      before { CitiesIndex::City.import! more_cities }
 
-      specify { expect { CitiesIndex.delete_all }.to change { CitiesIndex.query(match_all: {}).count }.from(10).to(0) }
-      specify { expect { CitiesIndex::City.delete_all }.to change { CitiesIndex.types(:city).count }.from(10).to(0) }
-    end
+    specify { expect { subject.query(match: {name: 'name3'}).delete_all }.to change { ProductsIndex.total_count }.from(9).to(8) }
+    specify { expect { subject.filter { age == [10, 20] }.delete_all }.to change { ProductsIndex.total_count }.from(9).to(7) }
+    specify { expect { subject.types(:product).delete_all }.to change { ProductsIndex::Product.total_count }.from(3).to(0) }
+    specify { expect { ProductsIndex.delete_all }.to change { ProductsIndex.total_count }.from(9).to(0) }
+    specify { expect { ProductsIndex::City.delete_all }.to change { ProductsIndex.total_count }.from(9).to(6) }
   end
 
   describe '#none' do
@@ -319,7 +302,7 @@ describe Chewy::Query do
     specify { subject.none.criteria.should be_none }
 
     context do
-      before { described_class.any_instance.should_not_receive(:_response) }
+      before { expect_any_instance_of(described_class).not_to receive(:_response) }
 
       specify { subject.none.to_a.should == [] }
       specify { subject.query(match: 'hello').none.to_a.should == [] }

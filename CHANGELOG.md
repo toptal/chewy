@@ -2,11 +2,23 @@
 
 ## Changes:
 
+  * Parent-child mappings feature support (@inbeom)
+
   * `Chewy::Index.total_count` and `Chewy::Type::Base.total_count`
 
   * `Chewy::Type::Base.reset` method. Deletes all the type documents and performs import (@jondavidford)
 
   * Added `Chewy::Query#delete_all` scope method using delete by query ES feature (@jondavidford)
+
+  * Rspec 3 `update_index` matcher support (@jimmybaker)
+
+  * Implemented function scoring (@averell23)
+
+## Bugfixes:
+
+  * Indexed eager-loading fix (@leemhenson)
+
+  * Field type deriving nested type support fix (@rschellhorn)
 
 # Version 0.5.0
 

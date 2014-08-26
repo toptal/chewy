@@ -85,7 +85,10 @@ module Chewy
 
           entry[:_id] = object.respond_to?(:id) ? object.id : object
           entry[:data] = object_data(object) unless action == :delete
-          entry[:parent] = self.root_object.compose_parent(object) rescue nil if self.root_object.parent_id
+
+          if self.root_object.parent_id
+            entry[:parent] = self.root_object.compose_parent(object) if object.respond_to?(:id)
+          end
 
           indexed_object = indexed_objects && indexed_objects[entry[:_id].to_s]
 

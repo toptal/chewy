@@ -92,7 +92,7 @@ module Chewy
 
           indexed_object = indexed_objects && indexed_objects[entry[:_id].to_s]
 
-          if indexed_object && action == :delete
+          if indexed_object && self.root_object.parent_id && action == :delete
             [{ action => entry.merge(parent: indexed_object[:parent]) }]
           elsif indexed_object && self.root_object.parent_id && entry[:parent].to_s != indexed_object[:parent]
             [{ :delete => entry.except(:data).merge(parent: indexed_object[:parent]) }, { action => entry }]

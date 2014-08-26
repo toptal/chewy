@@ -175,9 +175,11 @@ describe Chewy::Type::Import do
 
     context 'parent-child relationship' do
       let(:country) { Country.create(name: 'country') }
+      let(:another_country) { Country.create(name: 'another country') }
 
       before do
         stub_model(:country)
+        stub_model(:city)
       end
 
       before do
@@ -187,7 +189,7 @@ describe Chewy::Type::Import do
           end
 
           define_type City do
-            root parent: 'country', parent_id: -> { country_id } do
+            root parent: { type: 'country' }, parent_id: -> { country_id } do
               field :name
             end
           end
@@ -208,6 +210,43 @@ describe Chewy::Type::Import do
         ))
 
         city.import child_city
+      end
+
+      context 'updating or deleting' do
+        before { city.import child_city }
+
+        specify do
+          child_city.update_attributes(country_id: another_country.id)
+
+          expect(CountriesIndex.client).to receive(:bulk).with(hash_including(
+            body: [
+              { delete: { _id: child_city.id, parent: country.id.to_s } },
+              { index: { _id: child_city.id, parent: another_country.id, data: { 'name' => 'city' } } }
+            ]
+          ))
+
+          city.import child_city
+        end
+
+        specify do
+          child_city.destroy
+
+          expect(CountriesIndex.client).to receive(:bulk).with(hash_including(
+            body: [{ delete: { _id: child_city.id, parent: country.id.to_s } }]
+          ))
+
+          city.import child_city
+        end
+
+        specify do
+          child_city.destroy
+
+          expect(CountriesIndex.client).to receive(:bulk).with(hash_including(
+            body: [{ delete: { _id: child_city.id, parent: country.id.to_s } }]
+          ))
+
+          city.import child_city.id
+        end
       end
     end
   end

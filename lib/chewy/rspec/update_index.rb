@@ -96,14 +96,13 @@ RSpec::Matchers.define :update_index do |type_name, options = {}|
     @delete ||= {}
     @missed_reindex = []
     @missed_delete = []
+    @updated = []
 
     type = Chewy.derive_type(type_name)
-    updated = []
-    type.stub(:bulk) do |options|
-      updated += options[:body].map do |updated_document|
-        updated_document = updated_document.deep_symbolize_keys
-        body = updated_document[:index] || updated_document[:delete]
-        updated_document
+
+    allow(type).to receive(:bulk) do |bulk_options|
+      @updated += bulk_options[:body].map do |updated_document|
+        updated_document.deep_symbolize_keys
       end
       {}
     end
@@ -114,7 +113,6 @@ RSpec::Matchers.define :update_index do |type_name, options = {}|
       Chewy.atomic { block.call }
     end
 
-    @updated = updated
     @updated.each do |updated_document|
       if body = updated_document[:index]
         if document = @reindex[body[:_id].to_s]

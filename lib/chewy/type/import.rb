@@ -22,10 +22,12 @@ module Chewy
           bulk_options = import_options.reject { |k, v| ![:refresh, :suffix].include?(k) }.reverse_merge!(refresh: true)
 
           index.create!(bulk_options.slice(:suffix)) unless index.exists?
+          build_root unless self.root_object
 
           ActiveSupport::Notifications.instrument 'import_objects.chewy', type: self do |payload|
             adapter.import(*args, import_options) do |action_objects|
-              body = bulk_body(action_objects)
+              indexed_objects = self.root_object.parent_id && fetch_indexed_objects(action_objects.values.flatten, bulk_options)
+              body = bulk_body(action_objects, indexed_objects)
               errors = bulk(bulk_options.merge(body: body)) if body.any?
 
               fill_payload_import payload, action_objects
@@ -72,22 +74,31 @@ module Chewy
 
       private
 
-        def bulk_body action_objects
-          build_root unless self.root_object
-
+        def bulk_body(action_objects, indexed_objects = nil)
           action_objects.inject([]) do |result, (action, objects)|
-            result.concat(objects.map { |object| bulk_entry(action, object) })
+            result.concat(objects.map { |object| bulk_entries(action, object, indexed_objects) }.flatten)
           end
         end
 
-        def bulk_entry(action, object)
+        def bulk_entries(action, object, indexed_objects = nil)
           entry = {}
 
-          entry[:parent] = self.root_object.compose_parent(object) if self.root_object.parent_id
           entry[:_id] = object.respond_to?(:id) ? object.id : object
           entry[:data] = object_data(object) unless action == :delete
 
-          { action => entry }
+          if self.root_object.parent_id
+            entry[:parent] = self.root_object.compose_parent(object) if object.respond_to?(:id)
+          end
+
+          indexed_object = indexed_objects && indexed_objects[entry[:_id].to_s]
+
+          if indexed_object && self.root_object.parent_id && action == :delete
+            [{ action => entry.merge(parent: indexed_object[:parent]) }]
+          elsif indexed_object && self.root_object.parent_id && entry[:parent].to_s != indexed_object[:parent]
+            [{ :delete => entry.except(:data).merge(parent: indexed_object[:parent]) }, { action => entry }]
+          else
+            [{ action => entry }]
+          end
         end
 
         def fill_payload_import payload, action_objects
@@ -125,6 +136,23 @@ module Chewy
             end.reduce(&:merge)
             {action => errors}
           end.reduce(&:merge) || {}
+        end
+
+        def fetch_indexed_objects(objects, options = {})
+          ids = objects.map { |object| object.respond_to?(:id) ? object.id : object }
+          result = client.search index: index.build_index_name(suffix: options[:suffix]), type: type_name, fields: '_parent', body: { query: { ids: { values: ids } } }, search_type: 'scan', scroll: '1m'
+
+          indexed_objects = {}
+
+          while result = client.scroll(scroll_id: result['_scroll_id'], scroll: '1m') do
+            break if result['hits']['hits'].empty?
+
+            result['hits']['hits'].map do |hit|
+              indexed_objects[hit['_id']] = { parent: hit['fields']['_parent'] }
+            end
+          end
+
+          indexed_objects
         end
       end
     end

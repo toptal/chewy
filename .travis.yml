@@ -4,6 +4,10 @@ rvm:
   - 2.0.0
   - 2.1.1
   # - rbx
+env:
+  - PAGINATOR=kaminari
+  - PAGINATOR=will_paginate
+  - PAGINATOR=
 gemfile:
   - Gemfile
   - gemfiles/Gemfile.rails-3.2

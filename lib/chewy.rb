@@ -6,10 +6,21 @@ require 'i18n/core_ext/hash'
 require 'chewy/backports/deep_dup' unless Object.respond_to?(:deep_dup)
 require 'singleton'
 
-begin
-  require 'kaminari'
-rescue LoadError
+if ENV['PAGINATOR'] == 'kaminari'
+  begin
+    require 'kaminari'
+  rescue LoadError
+  end
 end
+
+if ENV['PAGINATOR'] == 'will_paginate'
+  begin
+    require 'will_paginate'
+    require 'will_paginate/active_record'
+  rescue LoadError
+  end
+end
+
 require 'elasticsearch'
 
 require 'chewy/version'
@@ -23,6 +34,8 @@ require 'chewy/fields/base'
 require 'chewy/fields/root'
 
 require 'chewy/railtie' if defined?(::Rails)
+
+
 
 ActiveSupport.on_load(:active_record) do
   extend Chewy::Type::Observe::ActiveRecordMethods

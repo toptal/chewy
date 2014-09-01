@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-if ENV['PAGINATOR'] == 'kaminari'
+if defined?(::Kaminari)
   describe Chewy::Query::Pagination::Kaminari do
     before { Chewy.client.indices.delete index: '*' }
 

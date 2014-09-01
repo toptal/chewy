@@ -1,8 +1,7 @@
 require 'spec_helper'
 
 
-if ENV['PAGINATOR'] == 'will_paginate'
-
+if defined?(::WillPaginate)
   describe Chewy::Query::Pagination::WillPaginate do
     before { Chewy.client.indices.delete index: '*' }
 

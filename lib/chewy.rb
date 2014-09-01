@@ -6,19 +6,15 @@ require 'i18n/core_ext/hash'
 require 'chewy/backports/deep_dup' unless Object.respond_to?(:deep_dup)
 require 'singleton'
 
-if ENV['PAGINATOR'] == 'kaminari'
-  begin
-    require 'kaminari'
-  rescue LoadError
-  end
+begin
+  require 'kaminari'
+rescue LoadError
 end
 
-if ENV['PAGINATOR'] == 'will_paginate'
-  begin
-    require 'will_paginate'
-    require 'will_paginate/active_record'
-  rescue LoadError
-  end
+begin
+  require 'will_paginate'
+  require 'will_paginate/active_record'
+rescue LoadError
 end
 
 require 'elasticsearch'

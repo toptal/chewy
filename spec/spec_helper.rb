@@ -7,9 +7,7 @@ require 'rspec/collection_matchers'
 require 'active_record'
 require 'database_cleaner'
 
-if ENV['PAGINATOR'] == 'kaminari'
-  Kaminari::Hooks.init
-end
+Kaminari::Hooks.init if defined?(::Kaminari)
 
 require 'support/fail_helpers'
 require 'support/class_helpers'

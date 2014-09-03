@@ -54,7 +54,7 @@ Chewy.configuration = {host: 'localhost:9250'} # do not use environments
 # config/chewy.yml
 # separate environment configs
 test:
-  host: 'localhost:9200'
+  host: 'localhost:9250'
   prefix: 'test'
 development:
   host: 'localhost:9200'

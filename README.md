@@ -43,6 +43,8 @@ Or install it yourself as:
 
 There are 2 ways to configure Chewy client: `Chewy.configuration` hash and `chewy.yml`
 
+You can create this file manually or run `rails g chewy:install` to do that with yaml way
+
 ```ruby
 # config/initializers/chewy.rb
 Chewy.configuration = {host: 'localhost:9250'} # do not use environments

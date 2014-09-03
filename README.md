@@ -54,10 +54,10 @@ Chewy.configuration = {host: 'localhost:9250'} # do not use environments
 # config/chewy.yml
 # separate environment configs
 test:
-  host: 'localhost:9250'
+  host: 'localhost:9200'
   prefix: 'test'
 development:
-  host: 'localhost:9250'
+  host: 'localhost:9200'
 ```
 
 The result config merges both hashes. Client options are passed as is to Elasticsearch::Transport::Client except the `:prefix` - it is used internally by chewy to create prefixed index names:

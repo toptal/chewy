@@ -1,5 +1,5 @@
 module Chewy
-  module Type
+  class Type
     module Actions
       extend ActiveSupport::Concern
 

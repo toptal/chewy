@@ -31,4 +31,65 @@ describe Chewy do
     specify { described_class.derive_type('namespace/autocomplete#developer').should == Namespace::AutocompleteIndex.developer }
     specify { described_class.derive_type('namespace/autocomplete#company').should == Namespace::AutocompleteIndex.company }
   end
+
+  describe '.create_type' do
+    before { stub_index(:cities) }
+
+    context 'Symbol' do
+      subject { described_class.create_type(CitiesIndex, :city) }
+
+      it { should be_a Class }
+      it { should be < Chewy::Type }
+      its(:name) { should == 'CitiesIndex::City' }
+      its(:index) { should == CitiesIndex }
+      its(:type_name) { should == 'city' }
+    end
+
+    context 'ActiveRecord model' do
+      before { stub_model(:city) }
+      subject { described_class.create_type(CitiesIndex, City) }
+
+      it { should be_a Class }
+      it { should be < Chewy::Type }
+      its(:name) { should == 'CitiesIndex::City' }
+      its(:index) { should == CitiesIndex }
+      its(:type_name) { should == 'city' }
+    end
+
+    context 'ActiveRecord scope' do
+      before { stub_model(:city) }
+      subject { described_class.create_type(CitiesIndex, City.includes(:country)) }
+
+      it { should be_a Class }
+      it { should be < Chewy::Type }
+      its(:name) { should == 'CitiesIndex::City' }
+      its(:index) { should == CitiesIndex }
+      its(:type_name) { should == 'city' }
+    end
+
+    context 'Namespaced index' do
+      before { stub_model(:city) }
+      before { stub_index('namespace/cities') }
+
+      subject { described_class.create_type(Namespace::CitiesIndex, City) }
+
+      it { should be_a Class }
+      it { should be < Chewy::Type }
+      its(:name) { should == 'Namespace::CitiesIndex::City' }
+      its(:index) { should == Namespace::CitiesIndex }
+      its(:type_name) { should == 'city' }
+    end
+
+    context 'Namespaced model' do
+      before { stub_model('namespace/city') }
+
+      subject { described_class.create_type(CitiesIndex, Namespace::City) }
+
+      it { should be_a Class }
+      it { should be < Chewy::Type }
+      its(:name) { should == 'CitiesIndex::City' }
+      its(:index) { should == CitiesIndex }
+      its(:type_name) { should == 'city' }
+    end
+  end
 end

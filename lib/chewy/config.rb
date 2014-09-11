@@ -161,7 +161,7 @@ module Chewy
     def stash *args
       if args.any?
         type, ids = *args
-        raise ArgumentError.new('Only Chewy::Type::Base accepted as the first argument') unless type < Chewy::Type::Base
+        raise ArgumentError.new('Only Chewy::Type accepted as the first argument') unless type < Chewy::Type
         stash.last[type] ||= []
         stash.last[type] |= ids
       else

@@ -77,7 +77,7 @@ module Chewy
     # passed.
     #
     def self.define_type(target, options = {}, &block)
-      type_class = Chewy::Type.new(self, target, options, &block)
+      type_class = Chewy.create_type(self, target, options, &block)
       self.type_hash = type_hash.merge(type_class.type_name => type_class)
 
       class_eval <<-METHOD, __FILE__, __LINE__ + 1

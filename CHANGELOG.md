@@ -1,5 +1,9 @@
 # master
 
+## Incompatible changes:
+
+  * `Chewy::Type::Base` removed in favour of using `Chewy::Type` as a base class for all types
+
 # Version 0.5.1
 
 ## Changes:

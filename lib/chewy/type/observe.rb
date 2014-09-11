@@ -1,5 +1,5 @@
 module Chewy
-  module Type
+  class Type
     module Observe
       extend ActiveSupport::Concern
 

@@ -31,7 +31,7 @@ end
 
 module Chewy
   def self.derive_type name
-    return name if name.is_a?(Class) && name < Chewy::Type::Base
+    return name if name.is_a?(Class) && name < Chewy::Type
 
     index_name, type_name = name.split('#', 2)
     class_name = "#{index_name.camelize}Index"
@@ -44,6 +44,23 @@ module Chewy
     else
       raise Chewy::UnderivableType.new("Index `#{class_name}` has more than one type, please specify type via `#{index_name}#type_name`")
     end
+  end
+
+  def self.create_type index, target, options = {}, &block
+    type = Class.new(Chewy::Type)
+
+    adapter = if (target.is_a?(Class) && target < ActiveRecord::Base) || target.is_a?(::ActiveRecord::Relation)
+      Chewy::Type::Adapter::ActiveRecord.new(target, options)
+    else
+      Chewy::Type::Adapter::Object.new(target, options)
+    end
+
+    index.const_set(adapter.name, type)
+    type.send(:define_singleton_method, :index) { index }
+    type.send(:define_singleton_method, :adapter) { adapter }
+
+    type.class_eval &block if block
+    type
   end
 
   def self.wait_for_status

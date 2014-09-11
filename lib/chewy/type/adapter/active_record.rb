@@ -1,7 +1,7 @@
 require 'chewy/type/adapter/base'
 
 module Chewy
-  module Type
+  class Type
     module Adapter
       class ActiveRecord < Base
         def initialize *args

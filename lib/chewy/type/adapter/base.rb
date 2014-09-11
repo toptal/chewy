@@ -1,5 +1,5 @@
 module Chewy
-  module Type
+  class Type
     module Adapter
       # Basic adapter class. Contains interface, need to implement to add any classes support
       class Base

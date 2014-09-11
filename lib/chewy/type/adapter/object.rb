@@ -1,7 +1,7 @@
 require 'chewy/type/adapter/base'
 
 module Chewy
-  module Type
+  class Type
     module Adapter
       class Object < Base
         def initialize *args

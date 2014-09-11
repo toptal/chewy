@@ -62,7 +62,7 @@ describe Chewy::Index do
   describe '.type_hash' do
     specify { DummiesIndex.type_hash['dummy'].should == DummiesIndex::Dummy }
     specify { DummiesIndex.type_hash.should have_key 'dummy' }
-    specify { DummiesIndex.type_hash['dummy'].should be < Chewy::Type::Base }
+    specify { DummiesIndex.type_hash['dummy'].should be < Chewy::Type }
     specify { DummiesIndex.type_hash['dummy'].type_name.should == 'dummy' }
   end
 

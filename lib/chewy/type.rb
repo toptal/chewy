@@ -1,22 +1,41 @@
-require 'chewy/type/base'
+require 'chewy/index/search'
+require 'chewy/type/mapping'
+require 'chewy/type/wrapper'
+require 'chewy/type/observe'
+require 'chewy/type/actions'
+require 'chewy/type/import'
+require 'chewy/type/adapter/object'
+require 'chewy/type/adapter/active_record'
 
 module Chewy
-  module Type
-    def self.new(index, target, options = {}, &block)
-      type = Class.new(Chewy::Type::Base)
+  class Type
+    include Chewy::Index::Search
+    include Mapping
+    include Wrapper
+    include Observe
+    include Actions
+    include Import
 
-      adapter = if (target.is_a?(Class) && target < ActiveRecord::Base) || target.is_a?(::ActiveRecord::Relation)
-        Chewy::Type::Adapter::ActiveRecord.new(target, options)
-      else
-        Chewy::Type::Adapter::Object.new(target, options)
-      end
+    singleton_class.delegate :client, to: :index
 
-      index.const_set(adapter.name, type)
-      type.send(:define_singleton_method, :index) { index }
-      type.send(:define_singleton_method, :adapter) { adapter }
+    def self.index
+      raise NotImplementedError
+    end
 
-      type.class_eval &block if block
-      type
+    def self.adapter
+      raise NotImplementedError
+    end
+
+    def self.type_name
+      adapter.type_name
+    end
+
+    def self.search_index
+      index
+    end
+
+    def self.search_type
+      type_name
     end
   end
 end

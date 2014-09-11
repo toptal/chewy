@@ -31,7 +31,7 @@ describe Chewy::Type::Mapping do
   end
 
   describe '.mappings_hash' do
-    specify { Class.new(Chewy::Type::Base).mappings_hash.should == {} }
+    specify { Class.new(Chewy::Type).mappings_hash.should == {} }
     specify { product.mappings_hash.should == product.root_object.mappings_hash }
 
     context 'parent-child relationship' do

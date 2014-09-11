@@ -1,5 +1,7 @@
 # master
 
+# Version 0.5.1
+
 ## Changes:
 
   * `chewy.yml` Rails generator (@jirikolarik)

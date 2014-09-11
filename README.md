@@ -639,6 +639,22 @@ When the response comes back, it will have the ```:facets``` sidechannel include
 < { ... ,"facets":{"countries":{"_type":"terms","missing":?,"total":?,"other":?,"terms":[{"term":"USA","count":?},{"term":"Brazil","count":?}, ...}}
 ```
 
+### Script scoring
+
+Script scoring is used to score the search results. All scores are added to the search request and combined according to boost mode and score mode. This can be useful if, for example, a score function is computationally expensive and it is sufficient to compute the score on a filtered set of documents. For example, you might want to multiply the score by another numeric field in the doc:
+
+```ruby
+UsersIndex.script_score("_score * doc['my_numeric_field'].value")
+```
+
+### Boost Factor
+
+Boost factors are a way to add a boost to a query where documents match the filter. If you have some users who are experts and some are regular users, you might want to give the experts a higher score and boost to the top of the search results. You can accomplish this by using the #boost_factor method and adding a boost score for an expert user of 5:
+
+```ruby
+UsersIndex.boost_factor(5, filter: {term: {type: 'Expert'}})
+```
+
 ### Objects loading
 
 It is possible to load source objects from database for every search result:

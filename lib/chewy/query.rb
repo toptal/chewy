@@ -290,7 +290,7 @@ module Chewy
     # added to the search request and combinded according to
     # <tt>boost_mode</tt> and <tt>score_mode</tt>
     #
-    #   UsersIndex.script_score("doc['boost'].value", filter: { foo: :bar})
+    #   UsersIndex.script_score("doc['boost'].value", filter: { term: {foo: :bar} })
     #       # => {body:
     #              query: {
     #                function_score: {
@@ -299,7 +299,7 @@ module Chewy
     #                    script_score: {
     #                       script: "doc['boost'].value"
     #                     },
-    #                     filter: { foo: :bar }
+    #                     filter: { term: { foo: :bar } }
     #                    }
     #                  }]
     #                } } }
@@ -315,14 +315,14 @@ module Chewy
     # This probably only makes sense if you specifiy a filter
     # for the boost factor as well
     #
-    #   UsersIndex.boost_factor(23, filter: { foo: :bar})
+    #   UsersIndex.boost_factor(23, filter: { term: { foo: :bar} })
     #       # => {body:
     #              query: {
     #                function_score: {
     #                  query: { ...},
     #                  functions: [{
     #                    boost_factor: 23,
-    #                    filter: { foo: :bar }
+    #                    filter: { term: { foo: :bar } }
     #                  }]
     #                } } }
     def boost_factor(factor, options = {})

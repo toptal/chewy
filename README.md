@@ -279,6 +279,10 @@ end
 
 Also atomic blocks might be nested and don't affect each other.
 
+### Async reindexing
+
+Chewy is not support async index update, but it's planned. Until you can use third-party solutions, such as [https://github.com/averell23/chewy_kiqqer](https://github.com/averell23/chewy_kiqqer)
+
 ### Index querying
 
 ```ruby

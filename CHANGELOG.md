@@ -2,6 +2,8 @@
 
 ## Changes:
 
+  * `chewy.yml` Rails generator (@jirikolarik)
+
   * Parent-child mappings feature support (@inbeom)
 
   * `Chewy::Index.total_count` and `Chewy::Type::Base.total_count`

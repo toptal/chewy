@@ -37,5 +37,21 @@ module Chewy
     def self.search_type
       type_name
     end
+
+    def self.const_missing(name)
+      to_resolve = "#{self.to_s}::#{name}"
+      to_resolve[index.to_s] = ''
+
+      @__resolved_constants ||= {}
+
+      if to_resolve.empty? || @__resolved_constants[to_resolve]
+        super
+      else
+        @__resolved_constants[to_resolve] = true
+        Kernel.const_get(to_resolve)
+      end
+    rescue NotImplementedError
+      super
+    end
   end
 end

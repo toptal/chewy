@@ -57,6 +57,23 @@ describe Chewy::Index do
       before { stub_index(:dummies) { define_type City, name: :country } }
       specify { DummiesIndex.type_hash['country'].should == DummiesIndex::Country }
     end
+
+
+    context do
+      before { stub_model('City') }
+      before { stub_model('City::District', City) }
+
+      specify do
+        expect {
+          Kernel.eval <<-DUMMY_CITY_INDEX
+            class DummyCityIndex < Chewy::Index
+              define_type City
+              define_type City::District
+            end
+          DUMMY_CITY_INDEX
+        }.not_to raise_error
+      end
+    end
   end
 
   describe '.type_hash' do

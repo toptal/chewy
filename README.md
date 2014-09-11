@@ -749,6 +749,7 @@ See [update_index.rb](lib/chewy/rspec/update_index.rb) for more details.
 * update_all support
 * Other than ActiveRecord ORMs support (Mongoid)
 * Maybe, closer ORM/ODM integration, creating index classes implicitly
+* Asunc indexes updating
 
 ## Contributing
 

@@ -73,6 +73,17 @@ describe Chewy::Index do
           DUMMY_CITY_INDEX
         }.not_to raise_error
       end
+
+      specify do
+        expect {
+          Kernel.eval <<-DUMMY_CITY_INDEX
+            class DummyCityIndex2 < Chewy::Index
+              define_type City
+              define_type City::Nothing
+            end
+          DUMMY_CITY_INDEX
+        }.to raise_error(NameError)
+      end
     end
   end
 

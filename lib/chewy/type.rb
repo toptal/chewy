@@ -48,7 +48,7 @@ module Chewy
         super
       else
         @__resolved_constants[to_resolve] = true
-        Kernel.const_get(to_resolve)
+        to_resolve.constantize
       end
     rescue NotImplementedError
       super

@@ -56,7 +56,7 @@ describe Chewy do
       its(:type_name) { should == 'city' }
     end
 
-    context 'ActiveRecord scope' do
+    context 'ActiveRecord scope', :orm do
       before { stub_model(:city) }
       subject { described_class.create_type(CitiesIndex, City.includes(:country)) }
 

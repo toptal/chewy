@@ -20,7 +20,7 @@ describe Chewy::Type::Import do
       .not_to update_index('dummies#dummy') }
   end
 
-  context 'integration' do
+  context 'integration', :orm do
     before do
       stub_model(:city) do
         belongs_to :country
@@ -43,8 +43,8 @@ describe Chewy::Type::Import do
       end
     end
 
-    let(:city) { City.create!(country: Country.create!) }
-    let(:country) { Country.create!(cities: 2.times.map { City.create! }) }
+    let(:city) { City.create!(id: 1, country: Country.create!(id: 1)) }
+    let(:country) { Country.create!(id: 1, cities: 2.times.map { |i| City.create!(id: i) }) }
 
     specify { expect { city.save! }.not_to update_index('cities#city', atomic: false) }
     specify { expect { country.save! }.to update_index('countries#country').and_reindex(country) }

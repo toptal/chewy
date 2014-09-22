@@ -177,9 +177,9 @@ describe Chewy::Query do
     specify { subject.facets(term: {field: 'hello'}).criteria.facets.should include(term: {field: 'hello'}) }
     specify { expect { subject.facets(term: {field: 'hello'}) }.not_to change { subject.criteria.facets } }
 
-    context 'results' do
+    context 'results', :orm do
       before { stub_model(:city) }
-      let(:cities) { 10.times.map { |i| City.create! name: "name#{i}", rating: i % 3 } }
+      let(:cities) { 10.times.map { |i| City.create! id: i + 1, name: "name#{i}", rating: i % 3 } }
 
       before do
         stub_index(:cities) do
@@ -211,9 +211,9 @@ describe Chewy::Query do
     specify { subject.aggregations(aggregation1: {field: 'hello'}).criteria.aggregations.should include(aggregation1: {field: 'hello'}) }
     specify { expect { subject.aggregations(aggregation1: {field: 'hello'}) }.not_to change { subject.criteria.aggregations } }
 
-    context 'results' do
+    context 'results', :orm do
       before { stub_model(:city) }
-      let(:cities) { 10.times.map { |i| City.create! name: "name#{i}", rating: i % 3 } }
+      let(:cities) { 10.times.map { |i| City.create! id: i + 1, name: "name#{i}", rating: i % 3 } }
 
       context do
         before do
@@ -243,9 +243,9 @@ describe Chewy::Query do
     specify { expect(subject.suggest(name1: {text: 'hello'}).criteria.suggest).to include(name1: {text: 'hello'}) }
     specify { expect { subject.suggest(name1: {text: 'hello'}) }.not_to change { subject.criteria.suggest } }
 
-    context 'results' do
+    context 'results', :orm do
       before { stub_model(:city) }
-      let(:cities) { 10.times.map { |i| City.create! name: "name#{i}" } }
+      let(:cities) { 10.times.map { |i| City.create! id: i + 1, name: "name#{i}" } }
 
       context do
         before do
@@ -417,9 +417,9 @@ describe Chewy::Query do
       .should == [{term: {'name' => 'name'}}, {term: {'age' => 42}}] }
   end
 
-  describe '#to_a' do
+  describe '#to_a', :orm do
     before { stub_model(:city) }
-    let(:cities) { 3.times.map { |i| City.create! name: "name#{i}", rating: i } }
+    let(:cities) { 3.times.map { |i| City.create! id: i + 1, name: "name#{i}", rating: i } }
 
     context do
       before do

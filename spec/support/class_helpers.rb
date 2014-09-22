@@ -2,7 +2,7 @@ module ClassHelpers
   extend ActiveSupport::Concern
 
   def stub_model name, superclass = nil, &block
-    stub_class(name, superclass || ActiveRecord::Base, &block)
+    stub_class(name, superclass, &block)
   end
 
   def stub_index name, superclass = nil, &block

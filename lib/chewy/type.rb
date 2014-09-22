@@ -6,6 +6,7 @@ require 'chewy/type/actions'
 require 'chewy/type/import'
 require 'chewy/type/adapter/object'
 require 'chewy/type/adapter/active_record'
+require 'chewy/type/adapter/mongoid'
 
 module Chewy
   class Type

@@ -13,7 +13,11 @@ gemfile:
   - gemfiles/Gemfile.rails-4.0
   - gemfiles/Gemfile.rails-4.0.kaminari
   - gemfiles/Gemfile.rails-4.0.will_paginate
+  - gemfiles/Gemfile.rails-4.0.mongoid.kaminari
 before_install:
   - curl -# https://download.elasticsearch.org/elasticsearch/elasticsearch/elasticsearch-1.3.0.tar.gz | tar xz -C /tmp
 before_script:
   - TEST_CLUSTER_COMMAND="/tmp/elasticsearch-1.3.0/bin/elasticsearch" rake elasticsearch:start
+services:
+  - mongodb
+

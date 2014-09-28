@@ -1,5 +1,6 @@
 [![Build Status](https://travis-ci.org/toptal/chewy.png)](https://travis-ci.org/toptal/chewy)
 [![Code Climate](https://codeclimate.com/github/toptal/chewy.png)](https://codeclimate.com/github/toptal/chewy)
+[![Inline docs](http://inch-ci.org/github/toptal/chewy.svg?branch=master)](http://inch-ci.org/github/toptal/chewy)
 
 # Chewy
 

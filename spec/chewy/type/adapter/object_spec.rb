@@ -54,6 +54,8 @@ describe Chewy::Type::Adapter::Object do
           {index: objects.last(1), delete: deleted.first(1)},
           {delete: deleted.last(1)}] }
 
+      specify { import(objects.first, nil).should == [{index: [objects.first]}] }
+
       context do
         let(:deleted) { 2.times.map { |i| double(delete_from_index?: true, destroyed?: true) } }
         specify { import(deleted).should == [{delete: deleted}] }

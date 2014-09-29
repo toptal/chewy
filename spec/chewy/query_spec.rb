@@ -227,15 +227,12 @@ describe Chewy::Query do
         before { CitiesIndex::City.import! cities }
 
         specify { CitiesIndex.aggregations.should == {} }
-        specify { CitiesIndex.aggregations(ratings: {terms: {field: 'rating'}}).aggregations.should == {
-          'ratings' => {
-            'buckets' => [
-              {'key' => 0, 'key_as_string' => '0', 'doc_count' => 4},
-              {'key' => 1, 'key_as_string' => '1', 'doc_count' => 3},
-              {'key' => 2, 'key_as_string' => '2', 'doc_count' => 3}
-            ]
-          }
-        } }
+        specify { CitiesIndex.aggregations(ratings: {terms: {field: 'rating'}})
+          .aggregations['ratings']['buckets'].map { |h| h.slice('key', 'doc_count') }.should == [
+          { 'key' => 0, 'doc_count' => 4 },
+          { 'key' => 1, 'doc_count' => 3 },
+          { 'key' => 2, 'doc_count' => 3 }
+        ] }
       end
     end
   end

@@ -68,6 +68,9 @@ describe Chewy::Type::Adapter::ActiveRecord do
         {delete: deleted.first(2).map(&:id)},
         {delete: deleted.last(1).map(&:id)}] }
 
+      specify { import(cities.first, nil).should == [{index: [cities.first]}] }
+      specify { import(cities.first.id, nil).should == [{index: [cities.first]}] }
+
       context do
         before { deleted.map { |object| object.stub(delete_from_index?: true, destroyed?: true) } }
         specify { import(deleted).should == [{delete: deleted}] }

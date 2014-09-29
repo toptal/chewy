@@ -4,6 +4,12 @@
 
   * `Chewy::Type::Base` removed in favour of using `Chewy::Type` as a base class for all types
 
+## Bugfixes:
+
+  * Advanced type classes resolving (@inbeom)
+
+  * `import` ignores nil
+
 # Version 0.5.1
 
 ## Changes:

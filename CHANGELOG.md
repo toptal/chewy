@@ -1,5 +1,7 @@
 # master
 
+# Version 0.5.2
+
 ## Changes
 
   * `Chewy.massacre` aliased to `Chewy.delete_all` method deletes all the indexes with current prefix

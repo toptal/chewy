@@ -1,5 +1,9 @@
 # master
 
+## Changes
+
+  * `Chewy.massacre` aliased to `Chewy.delete_all` method deletes all the indexes with current prefix
+
 ## Incompatible changes:
 
   * `Chewy::Type::Base` removed in favour of using `Chewy::Type` as a base class for all types

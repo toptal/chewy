@@ -92,4 +92,24 @@ describe Chewy do
       its(:type_name) { should == 'city' }
     end
   end
+
+  describe '.massacre' do
+    before do
+      Chewy.client.indices.delete index: '*'
+    end
+
+    before do
+      Chewy.configuration = Chewy.configuration.merge(prefix: 'prefix1')
+      stub_index(:admins).create!
+      Chewy.configuration = Chewy.configuration.merge(prefix: 'prefix2')
+      stub_index(:developers).create!
+      stub_index(:companies).create!
+
+      Chewy.massacre
+    end
+
+    specify { AdminsIndex.exists?.should == true }
+    specify { DevelopersIndex.exists?.should == false }
+    specify { CompaniesIndex.exists?.should == false }
+  end
 end

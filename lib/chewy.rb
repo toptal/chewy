@@ -30,46 +30,73 @@ ActiveSupport.on_load(:active_record) do
 end
 
 module Chewy
-  def self.derive_type name
-    return name if name.is_a?(Class) && name < Chewy::Type
+  class << self
+    # Derives type from string `index#type` representation:
+    #
+    #   Chewy.derive_type('users#user') # => UsersIndex::User
+    #
+    # If index has only one type - it is possible to derive it without specification:
+    #
+    #   Chewy.derive_type('users') # => UsersIndex::User
+    #
+    # If index has more then one type - it raises Chewy::UnderivableType.
+    #
+    def derive_type name
+      return name if name.is_a?(Class) && name < Chewy::Type
 
-    index_name, type_name = name.split('#', 2)
-    class_name = "#{index_name.camelize}Index"
-    index = class_name.safe_constantize
-    raise Chewy::UnderivableType.new("Can not find index named `#{class_name}`") unless index && index < Chewy::Index
-    type = if type_name.present?
-      index.type_hash[type_name] or raise Chewy::UnderivableType.new("Index `#{class_name}` doesn`t have type named `#{type_name}`")
-    elsif index.types.one?
-      index.types.first
-    else
-      raise Chewy::UnderivableType.new("Index `#{class_name}` has more than one type, please specify type via `#{index_name}#type_name`")
+      index_name, type_name = name.split('#', 2)
+      class_name = "#{index_name.camelize}Index"
+      index = class_name.safe_constantize
+      raise Chewy::UnderivableType.new("Can not find index named `#{class_name}`") unless index && index < Chewy::Index
+      type = if type_name.present?
+        index.type_hash[type_name] or raise Chewy::UnderivableType.new("Index `#{class_name}` doesn`t have type named `#{type_name}`")
+      elsif index.types.one?
+        index.types.first
+      else
+        raise Chewy::UnderivableType.new("Index `#{class_name}` has more than one type, please specify type via `#{index_name}#type_name`")
+      end
     end
-  end
 
-  def self.create_type index, target, options = {}, &block
-    type = Class.new(Chewy::Type)
+    # Creates Chewy::Type ancestor defining index and adapter methods.
+    #
+    def create_type index, target, options = {}, &block
+      type = Class.new(Chewy::Type)
 
-    adapter = if (target.is_a?(Class) && target < ActiveRecord::Base) || target.is_a?(::ActiveRecord::Relation)
-      Chewy::Type::Adapter::ActiveRecord.new(target, options)
-    else
-      Chewy::Type::Adapter::Object.new(target, options)
+      adapter = if (target.is_a?(Class) && target < ActiveRecord::Base) || target.is_a?(::ActiveRecord::Relation)
+        Chewy::Type::Adapter::ActiveRecord.new(target, options)
+      else
+        Chewy::Type::Adapter::Object.new(target, options)
+      end
+
+      index.const_set(adapter.name, type)
+      type.send(:define_singleton_method, :index) { index }
+      type.send(:define_singleton_method, :adapter) { adapter }
+
+      type.class_eval &block if block
+      type
     end
 
-    index.const_set(adapter.name, type)
-    type.send(:define_singleton_method, :index) { index }
-    type.send(:define_singleton_method, :adapter) { adapter }
+    # Sends wait_for_status request to ElasticSearch with status
+    # defined in configuration.
+    #
+    # Does nothing in case of config `wait_for_status` is undefined.
+    #
+    def wait_for_status
+      client.cluster.health wait_for_status: Chewy.configuration[:wait_for_status] if Chewy.configuration[:wait_for_status].present?
+    end
 
-    type.class_eval &block if block
-    type
+    # Deletes all corresponding indexes with current prefix from ElasticSearch.
+    # Be careful, if current prefix is blank, this will destroy all the indexes.
+    #
+    def massacre
+      Chewy.client.indices.delete(index: [Chewy.configuration[:prefix], '*'].delete_if(&:blank?).join(?_))
+      Chewy.wait_for_status
+    end
+    alias_method :delete_all, :massacre
+
+    def config
+      Chewy::Config.instance
+    end
+    delegate *Chewy::Config.delegated, to: :config
   end
-
-  def self.wait_for_status
-    client.cluster.health wait_for_status: Chewy.configuration[:wait_for_status] if Chewy.configuration[:wait_for_status].present?
-  end
-
-  def self.config
-    Chewy::Config.instance
-  end
-
-  singleton_class.delegate *Chewy::Config.delegated, to: :config
 end

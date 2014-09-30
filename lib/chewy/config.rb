@@ -139,10 +139,6 @@ module Chewy
       options
     end
 
-    def client?
-      !!Thread.current[:chewy_client]
-    end
-
     def client
       Thread.current[:chewy_client] ||= ::Elasticsearch::Client.new configuration
     end

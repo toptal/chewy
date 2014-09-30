@@ -99,9 +99,9 @@ describe Chewy do
     end
 
     before do
-      Chewy.configuration = Chewy.configuration.merge(prefix: 'prefix1')
+      Chewy.stub(configuration: Chewy.configuration.merge(prefix: 'prefix1'))
       stub_index(:admins).create!
-      Chewy.configuration = Chewy.configuration.merge(prefix: 'prefix2')
+      Chewy.stub(configuration: Chewy.configuration.merge(prefix: 'prefix2'))
       stub_index(:developers).create!
       stub_index(:companies).create!
 

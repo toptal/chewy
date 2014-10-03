@@ -13,3 +13,4 @@ module Chewy
 end
 
 require 'chewy/query/pagination/kaminari' if defined?(::Kaminari)
+require 'chewy/query/pagination/will_paginate' if defined?(::WillPaginate)

@@ -7,7 +7,11 @@ rvm:
 gemfile:
   - Gemfile
   - gemfiles/Gemfile.rails-3.2
+  - gemfiles/Gemfile.rails-3.2.kaminari
+  - gemfiles/Gemfile.rails-3.2.will_paginate
   - gemfiles/Gemfile.rails-4.0
+  - gemfiles/Gemfile.rails-4.0.kaminari
+  - gemfiles/Gemfile.rails-4.0.will_paginate
 before_install:
   - curl -# https://download.elasticsearch.org/elasticsearch/elasticsearch/elasticsearch-1.3.0.tar.gz | tar xz -C /tmp
 before_script:

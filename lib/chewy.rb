@@ -11,6 +11,13 @@ begin
   require 'kaminari'
 rescue LoadError
 end
+
+begin
+  require 'will_paginate'
+  require 'will_paginate/active_record'
+rescue LoadError
+end
+
 require 'elasticsearch'
 
 require 'chewy/version'
@@ -24,6 +31,8 @@ require 'chewy/fields/base'
 require 'chewy/fields/root'
 
 require 'chewy/railtie' if defined?(::Rails)
+
+
 
 ActiveSupport.on_load(:active_record) do
   extend Chewy::Type::Observe::ActiveRecordMethods

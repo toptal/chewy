@@ -1,5 +1,9 @@
 # master
 
+## Changes
+
+  * will_paginate support (@josecoelho)
+
 # Version 0.5.2
 
 ## Changes

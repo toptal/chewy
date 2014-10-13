@@ -790,6 +790,14 @@ module Chewy
       _delete_all_response
     end
 
+    # Returns request total time elapsed as reported by elasticsearch
+    #
+    #   UsersIndex.query(...).filter(...).took
+    #
+    def took
+      _response['took']
+    end
+
   protected
 
     def initialize_clone other

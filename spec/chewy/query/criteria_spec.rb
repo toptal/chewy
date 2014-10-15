@@ -376,6 +376,10 @@ describe Chewy::Query::Criteria do
     specify { _queries_join([query], :should).should == query }
     specify { _queries_join([query, query], :should).should == {bool: {should: [query, query]}} }
 
+    specify { _queries_join([], :must_not).should be_nil }
+    specify { _queries_join([query], :must_not).should == {bool: {must_not: [query]}} }
+    specify { _queries_join([query, query], :must_not).should == {bool: {must_not: [query, query]}} }
+
     specify { _queries_join([], '25%').should be_nil }
     specify { _queries_join([query], '25%').should == query }
     specify { _queries_join([query, query], '25%').should == {bool: {should: [query, query], minimum_should_match: '25%'}} }
@@ -403,6 +407,10 @@ describe Chewy::Query::Criteria do
     specify { _filters_join([], :should).should be_nil }
     specify { _filters_join([filter], :should).should == filter }
     specify { _filters_join([filter, filter], :should).should == {bool: {should: [filter, filter]}} }
+
+    specify { _filters_join([], :must_not).should be_nil }
+    specify { _filters_join([filter], :must_not).should == {bool: {must_not: [filter]}} }
+    specify { _filters_join([filter, filter], :must_not).should == {bool: {must_not: [filter, filter]}} }
 
     specify { _filters_join([], '25%').should be_nil }
     specify { _filters_join([filter], '25%').should == filter }

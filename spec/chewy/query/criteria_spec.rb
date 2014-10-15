@@ -301,6 +301,8 @@ describe Chewy::Query::Criteria do
       .should == {bool: {must: [:filter1, :filter2]}} }
     specify { _request_filter { update_options(filter_mode: :should); update_filters([:filter1, :filter2]) }
       .should == {bool: {should: [:filter1, :filter2]}} }
+    specify { _request_filter { update_options(filter_mode: :must_not); update_filters([:filter1, :filter2]) }
+      .should == {bool: {must_not: [:filter1, :filter2]}} }
 
     specify { _request_filter { update_types([:type1, :type2]); update_filters([:filter1, :filter2]) }
       .should == {and: [{or: [{type: {value: 'type1'}}, {type: {value: 'type2'}}]}, :filter1, :filter2]} }
@@ -310,6 +312,8 @@ describe Chewy::Query::Criteria do
       .should == {and: [{or: [{type: {value: 'type1'}}, {type: {value: 'type2'}}]}, {bool: {must: [:filter1, :filter2]}}]} }
     specify { _request_filter { update_options(filter_mode: :should); update_types([:type1, :type2]); update_filters([:filter1, :filter2]) }
       .should == {and: [{or: [{type: {value: 'type1'}}, {type: {value: 'type2'}}]}, {bool: {should: [:filter1, :filter2]}}]} }
+    specify { _request_filter { update_options(filter_mode: :must_not); update_types([:type1, :type2]); update_filters([:filter1, :filter2]) }
+      .should == {and: [{or: [{type: {value: 'type1'}}, {type: {value: 'type2'}}]}, {bool: {must_not: [:filter1, :filter2]}}]} }
   end
 
   describe '#_request_post_filter' do

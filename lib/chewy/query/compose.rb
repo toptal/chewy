@@ -34,7 +34,7 @@ module Chewy
           case logic
           when :dis_max
             { dis_max: { queries: queries } }
-          when :must, :should
+          when :must, :should, :must_not
             { bool: { logic => queries } }
           else
             if logic.is_a?(Float)
@@ -55,7 +55,7 @@ module Chewy
           case logic
           when :and, :or
             { logic => filters }
-          when :must, :should
+          when :must, :should, :must_not
             { bool: { logic => filters } }
           else
             { bool: { should: filters, minimum_should_match: logic } }

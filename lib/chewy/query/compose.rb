@@ -30,7 +30,7 @@ module Chewy
       def _queries_join queries, logic
         queries = queries.compact
 
-        if queries.many?
+        if queries.many? || (queries.any? && logic == :must_not)
           case logic
           when :dis_max
             { dis_max: { queries: queries } }
@@ -51,7 +51,7 @@ module Chewy
       def _filters_join filters, logic
         filters = filters.compact
 
-        if filters.many?
+        if filters.many? || (filters.any? && logic == :must_not)
           case logic
           when :and, :or
             { logic => filters }

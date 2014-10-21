@@ -58,7 +58,7 @@ RSpec.configure do |config|
       field :name, type: String
       field :rating, type: Integer
 
-      has_many :cities
+      has_many :cities, order: :_id.asc
     end
 
     class City

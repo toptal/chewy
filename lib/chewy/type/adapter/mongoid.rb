@@ -100,6 +100,7 @@ module Chewy
             result = true
             Batcher.new(merged_scope(collection), batch_size).each do |batch, batch_number|
               result &= block.call grouped_objects(batch)
+              log_import_progress batch.count, batch_number, batch_size
             end
             result
           else
@@ -144,6 +145,7 @@ module Chewy
           Batcher.new(merged_scope(scoped_model(ids)), batch_size).each do |batch, batch_number|
             ids -= batch.map(&:id)
             indexed &= block.call(grouped_objects(batch))
+            log_import_progress batch.count, batch_number, batch_size
           end
 
           deleted = ids.in_groups_of(batch_size, false).map do |group|
@@ -171,6 +173,10 @@ module Chewy
 
         def model_all
           model.all
+        end
+
+        def log_import_progress batch, batch_number, batch_size
+          puts "  Imported #{batch + (batch_number * batch_size)}"
         end
       end
     end

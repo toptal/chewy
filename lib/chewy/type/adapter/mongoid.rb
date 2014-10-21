@@ -4,6 +4,36 @@ module Chewy
   class Type
     module Adapter
       class Mongoid < Base
+        class Batcher
+          def initialize criteria, batch_size
+            @criteria = criteria
+
+            # see following links for reasoning behind this batch_size tweak:
+            #
+            # - https://github.com/mongoid/moped/pull/326
+            # - https://github.com/mongoid/moped/issues/327
+
+            @batch_size = [batch_size, 2].max
+          end
+
+          def each
+            current_batch = []
+            batch_number = 0
+
+            @criteria.batch_size(@batch_size).no_timeout.each do |object|
+              current_batch << object
+
+              if current_batch.count == @batch_size
+                yield current_batch, batch_number
+                current_batch = []
+                batch_number += 1
+              end
+            end
+
+            yield(current_batch, batch_number) unless current_batch.empty?
+          end
+        end
+
         def initialize *args
           @options = args.extract_options!
           subject = args.first
@@ -68,8 +98,8 @@ module Chewy
 
           if collection.is_a?(::Mongoid::Criteria)
             result = true
-            merged_scope(collection).batch_size(batch_size).no_timeout.in_groups_of(batch_size, false) do |group|
-              result &= block.call grouped_objects(group.compact)
+            Batcher.new(merged_scope(collection), batch_size).each do |batch, batch_number|
+              result &= block.call grouped_objects(batch)
             end
             result
           else
@@ -107,15 +137,16 @@ module Chewy
 
         def import_ids(ids, import_options = {}, &block)
           ids.uniq!
+          batch_size = import_options[:batch_size] || BATCH_SIZE
 
           indexed = true
-          merged_scope(scoped_model(ids)).in_groups_of(import_options[:batch_size]) do |objects|
-            objects = objects.compact
-            ids -= objects.map(&:id)
-            indexed &= block.call(grouped_objects(objects))
+
+          Batcher.new(merged_scope(scoped_model(ids)), batch_size).each do |batch, batch_number|
+            ids -= batch.map(&:id)
+            indexed &= block.call(grouped_objects(batch))
           end
 
-          deleted = ids.in_groups_of(import_options[:batch_size], false).map do |group|
+          deleted = ids.in_groups_of(batch_size, false).map do |group|
             block.call(delete: group)
           end.all?
 

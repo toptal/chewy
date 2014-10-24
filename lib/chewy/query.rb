@@ -224,6 +224,55 @@ module Chewy
       chain { criteria.update_options post_filter_mode: value }
     end
 
+    # A search timeout, bounding the search request to be executed within the
+    # specified time value and bail with the hits accumulated up to that point
+    # when expired. Defaults to no timeout.
+    #
+    # By default, the coordinating node waits to receive a response from all
+    # shards. If one node is having trouble, it could slow down the response to
+    # all search requests.
+    #
+    # The timeout parameter tells the coordinating node how long it should wait
+    # before giving up and just returning the results that it already has. It
+    # can be better to return some results than none at all.
+    #
+    # The response to a search request will indicate whether the search timed
+    # out and how many shards responded successfully:
+    #
+    #   ...
+    #   "timed_out":     true,
+    #   "_shards": {
+    #       "total":      5,
+    #       "successful": 4,
+    #       "failed":     1
+    #   },
+    #   ...
+    #
+    # The primary shard assigned to perform the index operation might not be
+    # available when the index operation is executed. Some reasons for this
+    # might be that the primary shard is currently recovering from a gateway or
+    # undergoing relocation. By default, the index operation will wait on the
+    # primary shard to become available for up to 1 minute before failing and
+    # responding with an error. The timeout parameter can be used to explicitly
+    # specify how long it waits.
+    #
+    #   UsersIndex.timeout("5000ms")
+    #
+    # Timeout is not a circuit breaker.
+    #
+    # It should be noted that this timeout does not halt the execution of the
+    # query, it merely tells the coordinating node to return the results
+    # collected so far and to close the connection. In the background, other
+    # shards may still be processing the query even though results have been
+    # sent.
+    #
+    # Use the timeout because it is important to your SLA, not because you want
+    # to abort the execution of long running queries.
+    #
+    def timeout value
+      chain { criteria.update_request_options timeout: value }
+    end
+
     # Sets elasticsearch <tt>size</tt> search request param
     # Default value is set in the elasticsearch and is 10.
     #
@@ -796,6 +845,20 @@ module Chewy
     #
     def took
       _response['took']
+    end
+
+    # Returns request timed_out as reported by elasticsearch
+    #
+    # The timed_out value tells us whether the query timed out or not.
+    #
+    # By default, search requests do not timeout. If low response times are more
+    # important to you than complete results, you can specify a timeout as 10 or
+    # "10ms" (10 milliseconds), or "1s" (1 second). See #timeout method.
+    #
+    #   UsersIndex.query(...).filter(...).timed_out
+    #
+    def timed_out
+      _response['timed_out']
     end
 
   protected

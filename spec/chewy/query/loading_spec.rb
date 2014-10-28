@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe Chewy::Query::Loading, :orm do
-  before { Chewy.client.indices.delete index: '*' }
+  before { Chewy.massacre }
 
   before do
     stub_model(:city)
@@ -9,8 +9,8 @@ describe Chewy::Query::Loading, :orm do
   end
 
   context 'multiple types' do
-    let(:cities) { 6.times.map { |i| City.create!(id: i + 1, rating: i) } }
-    let(:countries) { 6.times.map { |i| Country.create!(id: i + 1, rating: i) } }
+    let(:cities) { 6.times.map { |i| City.create!(rating: i) } }
+    let(:countries) { 6.times.map { |i| Country.create!(rating: i) } }
 
     before do
       stub_index(:places) do

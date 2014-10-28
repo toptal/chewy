@@ -22,6 +22,7 @@ module MongoidClassHelpers
 
     if model
       model.class_eval(&block) if block
+      model
     else
       klass = if superclass && superclass.ancestors.include?(Mongoid::Document)
         superclass
@@ -34,6 +35,14 @@ module MongoidClassHelpers
 
       stub_class(name, klass, &block)
     end
+  end
+
+  def active_record?
+    false
+  end
+
+  def mongoid?
+    true
   end
 end
 
@@ -54,17 +63,15 @@ RSpec.configure do |config|
     class Country
       include Mongoid::Document
 
-      field :_id, type: Integer
       field :name, type: String
       field :rating, type: Integer
 
-      has_many :cities, order: :_id.asc
+      has_many :cities, order: :id.asc
     end
 
     class City
       include Mongoid::Document
 
-      field :_id, type: Integer
       field :name, type: String
       field :rating, type: Integer
 

@@ -2,6 +2,11 @@ require 'bundler'
 
 Bundler.require
 
+begin
+  require 'active_record'
+rescue LoadError
+end
+
 require 'rspec/its'
 require 'rspec/collection_matchers'
 

@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe Chewy::Type::Import do
-  before { Chewy.client.indices.delete index: '*' }
+  before { Chewy.massacre }
 
   before do
     stub_model(:city)

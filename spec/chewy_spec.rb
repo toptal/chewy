@@ -45,8 +45,8 @@ describe Chewy do
       its(:type_name) { should == 'city' }
     end
 
-    context 'ActiveRecord model' do
-      before { stub_model(:city) }
+    context 'simple model' do
+      before { stub_class(:city) }
       subject { described_class.create_type(CitiesIndex, City) }
 
       it { should be_a Class }
@@ -56,7 +56,7 @@ describe Chewy do
       its(:type_name) { should == 'city' }
     end
 
-    context 'ActiveRecord scope', :orm do
+    context 'model scope', :orm do
       before { stub_model(:city) }
       subject { described_class.create_type(CitiesIndex, City.includes(:country)) }
 
@@ -68,7 +68,7 @@ describe Chewy do
     end
 
     context 'Namespaced index' do
-      before { stub_model(:city) }
+      before { stub_class(:city) }
       before { stub_index('namespace/cities') }
 
       subject { described_class.create_type(Namespace::CitiesIndex, City) }
@@ -81,7 +81,7 @@ describe Chewy do
     end
 
     context 'Namespaced model' do
-      before { stub_model('namespace/city') }
+      before { stub_class('namespace/city') }
 
       subject { described_class.create_type(CitiesIndex, Namespace::City) }
 
@@ -94,9 +94,7 @@ describe Chewy do
   end
 
   describe '.massacre' do
-    before do
-      Chewy.client.indices.delete index: '*'
-    end
+    before { Chewy.massacre }
 
     before do
       Chewy.stub(configuration: Chewy.configuration.merge(prefix: 'prefix1'))

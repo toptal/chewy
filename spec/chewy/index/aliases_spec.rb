@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe Chewy::Index::Aliases do
-  before { Chewy.client.indices.delete index: '*' }
+  before { Chewy.massacre }
 
   before { stub_index :dummies }
 

@@ -22,6 +22,14 @@ module ActiveRecordClassHelpers
   def stub_model name, superclass = nil, &block
     stub_class(name, superclass || ActiveRecord::Base, &block)
   end
+
+  def active_record?
+    true
+  end
+
+  def mongoid?
+    false
+  end
 end
 
 RSpec.configure do |config|

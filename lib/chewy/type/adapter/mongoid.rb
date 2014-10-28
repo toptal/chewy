@@ -4,36 +4,6 @@ module Chewy
   class Type
     module Adapter
       class Mongoid < Base
-        class Batcher
-          def initialize criteria, batch_size
-            @criteria = criteria
-
-            # see following links for reasoning behind this batch_size tweak:
-            #
-            # - https://github.com/mongoid/moped/pull/326
-            # - https://github.com/mongoid/moped/issues/327
-
-            @batch_size = [batch_size, 2].max
-          end
-
-          def each
-            current_batch = []
-            batch_number = 0
-
-            @criteria.batch_size(@batch_size).no_timeout.each do |object|
-              current_batch << object
-
-              if current_batch.count == @batch_size
-                yield current_batch, batch_number
-                current_batch = []
-                batch_number += 1
-              end
-            end
-
-            yield(current_batch, batch_number) unless current_batch.empty?
-          end
-        end
-
         def initialize *args
           @options = args.extract_options!
           subject = args.first
@@ -98,14 +68,13 @@ module Chewy
 
           if collection.is_a?(::Mongoid::Criteria)
             result = true
-            Batcher.new(merged_scope(collection), batch_size).each do |batch, batch_number|
+            merged_scope(collection).batch_size(batch_size).no_timeout.each_slice(batch_size) do |batch|
               result &= block.call grouped_objects(batch)
-              log_import_progress batch.count, batch_number, batch_size
             end
             result
           else
             if collection.all? { |object| object.respond_to?(:id) }
-              collection.in_groups_of(batch_size, false).map do |group|
+              collection.each_slice(batch_size).map do |group|
                 block.call grouped_objects(group)
               end.all?
             else
@@ -141,14 +110,12 @@ module Chewy
           batch_size = import_options[:batch_size] || BATCH_SIZE
 
           indexed = true
-
-          Batcher.new(merged_scope(scoped_model(ids)), batch_size).each do |batch, batch_number|
+          merged_scope(scoped_model(ids)).batch_size(batch_size).no_timeout.each_slice(batch_size) do |batch|
             ids -= batch.map(&:id)
             indexed &= block.call(grouped_objects(batch))
-            log_import_progress batch.count, batch_number, batch_size
           end
 
-          deleted = ids.in_groups_of(batch_size, false).map do |group|
+          deleted = ids.each_slice(batch_size).map do |group|
             block.call(delete: group)
           end.all?
 
@@ -173,10 +140,6 @@ module Chewy
 
         def model_all
           model.all
-        end
-
-        def log_import_progress batch, batch_number, batch_size
-          puts "  Imported #{batch + (batch_number * batch_size)}"
         end
       end
     end

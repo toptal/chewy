@@ -3,7 +3,7 @@ require 'spec_helper'
 
 if defined?(::WillPaginate)
   describe Chewy::Query::Pagination::WillPaginate do
-    before { Chewy.client.indices.delete index: '*' }
+    before { Chewy.massacre }
 
     before do
       stub_index(:products) do

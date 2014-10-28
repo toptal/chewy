@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe Chewy::Query::Pagination do
-  before { Chewy.client.indices.delete index: '*' }
+  before { Chewy.massacre }
 
   before do
     stub_index(:products) do

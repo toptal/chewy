@@ -53,15 +53,15 @@ describe Chewy::Index do
     end
 
     context do
-      before { stub_model(:city) }
+      before { stub_class(:city) }
       before { stub_index(:dummies) { define_type City, name: :country } }
       specify { DummiesIndex.type_hash['country'].should == DummiesIndex::Country }
     end
 
 
     context do
-      before { stub_model('City') }
-      before { stub_model('City::District', City) }
+      before { stub_class('City') }
+      before { stub_class('City::District', City) }
 
       specify do
         expect {

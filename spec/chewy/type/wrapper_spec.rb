@@ -2,7 +2,7 @@ require 'spec_helper'
 
 describe Chewy::Type::Wrapper do
   before do
-    stub_model(:city)
+    stub_class(:city)
     stub_index(:cities) do
       define_type City
     end

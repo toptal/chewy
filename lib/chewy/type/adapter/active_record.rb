@@ -72,7 +72,7 @@ module Chewy
             result
           else
             if collection.all? { |object| object.respond_to?(:id) }
-              collection.in_groups_of(import_options[:batch_size], false).map do |group|
+              collection.each_slice(import_options[:batch_size]).map do |group|
                 block.call grouped_objects(group)
               end.all?
             else
@@ -112,7 +112,7 @@ module Chewy
             indexed &= block.call(grouped_objects(objects))
           end
 
-          deleted = ids.in_groups_of(import_options[:batch_size], false).map do |group|
+          deleted = ids.each_slice(import_options[:batch_size]).map do |group|
             block.call(delete: group)
           end.all?
 

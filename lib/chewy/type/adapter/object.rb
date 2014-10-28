@@ -33,7 +33,7 @@ module Chewy
           batch_size = import_options.delete(:batch_size) || BATCH_SIZE
           objects = args.flatten.compact
 
-          objects.in_groups_of(batch_size, false).map do |group|
+          objects.each_slice(batch_size).map do |group|
             action_groups = group.group_by do |object|
               raise "Object is not a `#{target}`" if class_target? && !object.is_a?(target)
               delete = object.delete_from_index? if object.respond_to?(:delete_from_index?)

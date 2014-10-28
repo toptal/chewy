@@ -1,9 +1,7 @@
 require 'spec_helper'
 
 describe Chewy::Query do
-  before do
-    Chewy.client.indices.delete index: '*'
-  end
+  before { Chewy.massacre }
 
   before do
     stub_index(:products) do

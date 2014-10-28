@@ -166,7 +166,7 @@ describe Chewy::Index do
     end.mappings_hash[:mappings].keys.should =~ [:document, :document2] }
   end
 
-  describe '.import' do
+  describe '.import', :orm do
     before do
       stub_model(:city)
       stub_model(:country)
@@ -177,8 +177,8 @@ describe Chewy::Index do
       end
     end
 
-    let!(:cities) { 2.times.map { City.create! } }
-    let!(:countries) { 2.times.map { Country.create! } }
+    let!(:cities) { 2.times.map { |i| City.create! id: i + 1 } }
+    let!(:countries) { 2.times.map { |i| Country.create! id: i + 1 } }
 
     specify do
       expect { PlacesIndex.import }.to update_index(PlacesIndex::City).and_reindex(cities)

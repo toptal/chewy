@@ -296,7 +296,7 @@ describe Chewy::Fields::Base do
       end
     end
 
-    context 'objects and scopes' do
+    context 'objects and scopes', :orm do
       before do
         stub_model(:city) do
           belongs_to :country
@@ -319,7 +319,7 @@ describe Chewy::Fields::Base do
 
       specify do
         CountriesIndex::Country.root_object.compose(
-          Country.create!(cities: [City.create!(name: 'City1'), City.create!(name: 'City2')])
+          Country.create!(id: 1, cities: [City.create!(id: 1, name: 'City1'), City.create!(id: 2, name: 'City2')])
         ).should == {
           country: { 'id' => 1, 'cities' => [
             { 'id' => 1, 'name' => 'City1' }, { 'id' => 2, 'name' => 'City2' }
@@ -342,7 +342,7 @@ describe Chewy::Fields::Base do
 
         specify do
           CitiesIndex::City.root_object.compose(
-            City.create!(country: Country.create!(name: 'Country'))
+            City.create!(id: 1, country: Country.create!(id: 1, name: 'Country'))
           ).should == {
             city: { 'id' => 1, 'country' => { 'id' => 1, 'name' => 'Country' } }
           }

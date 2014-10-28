@@ -23,10 +23,9 @@ module Chewy
         def page(page)
           paginate(page: page)
         end
-
       end
     end
   end
 end
 
-Chewy::Query::Pagination.send :include, Chewy::Query::Pagination::WillPaginate
+Chewy::Query.send :include, Chewy::Query::Pagination::WillPaginate

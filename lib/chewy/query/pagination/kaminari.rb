@@ -34,4 +34,4 @@ module Chewy
   end
 end
 
-Chewy::Query::Pagination.send :include, Chewy::Query::Pagination::Kaminari
+Chewy::Query.send :include, Chewy::Query::Pagination::Kaminari

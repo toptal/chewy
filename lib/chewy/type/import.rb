@@ -84,6 +84,7 @@ module Chewy
           entry = {}
 
           entry[:_id] = object.respond_to?(:id) ? object.id : object
+          entry[:_id] = entry[:_id].to_s if defined?(BSON) && entry[:_id].is_a?(BSON::ObjectId)
           entry[:data] = object_data(object) unless action == :delete
 
           if self.root_object.parent_id

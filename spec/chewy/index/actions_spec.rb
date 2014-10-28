@@ -266,14 +266,14 @@ describe Chewy::Index::Actions do
     end
   end
 
-  describe '.import' do
+  describe '.import', :orm do
     before do
       stub_model(:city)
       stub_index(:cities) do
         define_type City
       end
     end
-    let!(:dummy_cities) { 3.times.map { |i| City.create(name: "name#{i}") } }
+    let!(:dummy_cities) { 3.times.map { |i| City.create(id: i + 1, name: "name#{i}") } }
 
     specify { CitiesIndex.import.should == true }
 
@@ -290,14 +290,14 @@ describe Chewy::Index::Actions do
     end
   end
 
-  describe '.import!' do
+  describe '.import!', :orm do
     before do
       stub_model(:city)
       stub_index(:cities) do
         define_type City
       end
     end
-    let!(:dummy_cities) { 3.times.map { |i| City.create(name: "name#{i}") } }
+    let!(:dummy_cities) { 3.times.map { |i| City.create(id: i + 1, name: "name#{i}") } }
 
     specify { CitiesIndex.import!.should == true }
 
@@ -314,7 +314,7 @@ describe Chewy::Index::Actions do
     end
   end
 
-  describe '.reset!' do
+  describe '.reset!', :orm do
     before do
       stub_model(:city)
       stub_index(:cities) do
@@ -322,7 +322,7 @@ describe Chewy::Index::Actions do
       end
     end
 
-    before { City.create!(name: 'Moscow') }
+    before { City.create!(id: 1, name: 'Moscow') }
 
     specify { CitiesIndex.reset!.should eq(true) }
     specify { CitiesIndex.reset!('2013').should eq(true) }

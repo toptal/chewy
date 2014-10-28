@@ -7,17 +7,6 @@ require 'i18n/core_ext/hash'
 require 'chewy/backports/deep_dup' unless Object.respond_to?(:deep_dup)
 require 'singleton'
 
-begin
-  require 'kaminari'
-rescue LoadError
-end
-
-begin
-  require 'will_paginate'
-  require 'will_paginate/active_record'
-rescue LoadError
-end
-
 require 'elasticsearch'
 
 require 'chewy/version'
@@ -30,12 +19,40 @@ require 'chewy/query'
 require 'chewy/fields/base'
 require 'chewy/fields/root'
 
+begin
+  require 'kaminari'
+  require 'chewy/query/pagination/kaminari'
+rescue LoadError
+end
+
+begin
+  require 'will_paginate'
+  require 'will_paginate/collection'
+  require 'chewy/query/pagination/will_paginate'
+rescue LoadError
+end
+
 require 'chewy/railtie' if defined?(::Rails)
-
-
 
 ActiveSupport.on_load(:active_record) do
   extend Chewy::Type::Observe::ActiveRecordMethods
+
+  begin
+    require 'will_paginate/active_record'
+  rescue LoadError
+  end
+end
+
+ActiveSupport.on_load(:mongoid) do
+  module Mongoid::Document::ClassMethods
+    include Chewy::Type::Observe::MongoidMethods
+  end
+
+  begin
+    require 'will_paginate/mongoid'
+    require 'chewy/query/pagination/will_paginate'
+  rescue LoadError
+  end
 end
 
 module Chewy
@@ -71,8 +88,10 @@ module Chewy
     def create_type index, target, options = {}, &block
       type = Class.new(Chewy::Type)
 
-      adapter = if (target.is_a?(Class) && target < ActiveRecord::Base) || target.is_a?(::ActiveRecord::Relation)
+      adapter = if defined?(::ActiveRecord::Base) && ((target.is_a?(Class) && target < ::ActiveRecord::Base) || target.is_a?(::ActiveRecord::Relation))
         Chewy::Type::Adapter::ActiveRecord.new(target, options)
+      elsif defined?(::Mongoid::Document) && ((target.is_a?(Class) && target.ancestors.include?(::Mongoid::Document)) || target.is_a?(::Mongoid::Criteria))
+        Chewy::Type::Adapter::Mongoid.new(target, options)
       else
         Chewy::Type::Adapter::Object.new(target, options)
       end

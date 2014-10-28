@@ -15,10 +15,10 @@ describe Chewy::Type::Import do
     end
   end
 
-  let!(:dummy_cities) { 3.times.map { |i| City.create(name: "name#{i}") } }
+  let!(:dummy_cities) { 3.times.map { |i| City.create(id: i + 1, name: "name#{i}") } }
   let(:city) { CitiesIndex::City }
 
-  describe '.import' do
+  describe '.import', :orm do
     specify { city.import.should eq(true) }
     specify { city.import([]).should eq(true) }
     specify { city.import(dummy_cities).should eq(true) }
@@ -28,10 +28,20 @@ describe Chewy::Type::Import do
     specify { expect { city.import }.to update_index(city).and_reindex(dummy_cities) }
     specify { expect { city.import dummy_cities }.to update_index(city).and_reindex(dummy_cities) }
     specify { expect { city.import dummy_cities.map(&:id) }.to update_index(city).and_reindex(dummy_cities) }
-    specify { expect { city.import(City.where(name: ['name0', 'name1'])) }
-      .to update_index(city).and_reindex(dummy_cities.first(2)) }
-    specify { expect { city.import(City.where(name: ['name0', 'name1']).map(&:id)) }
-        .to update_index(city).and_reindex(dummy_cities.first(2)) }
+
+    describe 'criteria-driven importing' do
+      let(:names) { %w(name0 name1) }
+
+      context 'mongoid', :mongoid do
+        specify { expect { city.import(City.where(:name.in => names)) }.to update_index(city).and_reindex(dummy_cities.first(2)) }
+        specify { expect { city.import(City.where(:name.in => names).map(&:id)) }.to update_index(city).and_reindex(dummy_cities.first(2)) }
+      end
+
+      context 'active record', :active_record do
+        specify { expect { city.import(City.where(name: names)) }.to update_index(city).and_reindex(dummy_cities.first(2)) }
+        specify { expect { city.import(City.where(name: names).map(&:id)) }.to update_index(city).and_reindex(dummy_cities.first(2)) }
+      end
+    end
 
     specify do
       dummy_cities.first.destroy
@@ -47,15 +57,16 @@ describe Chewy::Type::Import do
 
     specify do
       dummy_cities.first.destroy
+
       expect(CitiesIndex.client).to receive(:bulk).with(hash_including(
         body: [{delete: {_id: dummy_cities.first.id}}]
       ))
-      dummy_cities.from(1).each.with_index do |c, i|
-        expect(CitiesIndex.client).to receive(:bulk).with(hash_including(
-          body: [{index: {_id: c.id, data: {'name' => "name#{i+1}"}}}]
-        ))
-      end
-      city.import dummy_cities.map(&:id), batch_size: 1
+
+      expect(CitiesIndex.client).to receive(:bulk).with(hash_including(
+        body: [{index: {_id: 2, data: {'name' => "name1"}}}, {index: {_id: 3, data: {'name' => "name2"}}}]
+      ))
+
+      city.import dummy_cities.map(&:id), batch_size: 2
     end
 
     specify do
@@ -70,15 +81,34 @@ describe Chewy::Type::Import do
 
     context 'scoped' do
       before do
+        names = %w(name0 name1)
+
+        criteria = if defined?(::Mongoid)
+          { :name.in => names }
+        else
+          { name: names }
+        end
+
         stub_index(:cities) do
-          define_type City.where(name: ['name0', 'name1']) do
+          define_type City.where(criteria) do
             field :name
           end
         end
       end
 
       specify { expect { city.import }.to update_index(city).and_reindex(dummy_cities.first(2)) }
-      specify { expect { city.import City.where(id: dummy_cities.first.id) }.to update_index(city).and_reindex(dummy_cities.first).only }
+
+      context 'mongoid', :mongoid do
+        specify do
+          expect { city.import City.where(_id: dummy_cities.first.id) }.to update_index(city).and_reindex(dummy_cities.first).only
+        end
+      end
+
+      context 'active record', :active_record do
+        specify do
+          expect { city.import City.where(id: dummy_cities.first.id) }.to update_index(city).and_reindex(dummy_cities.first).only
+        end
+      end
     end
 
     context 'instrumentation payload' do
@@ -173,9 +203,9 @@ describe Chewy::Type::Import do
       end
     end
 
-    context 'parent-child relationship' do
-      let(:country) { Country.create(name: 'country') }
-      let(:another_country) { Country.create(name: 'another country') }
+    context 'parent-child relationship', :orm do
+      let(:country) { Country.create(id: 1, name: 'country') }
+      let(:another_country) { Country.create(id: 2, name: 'another country') }
 
       before do
         stub_model(:country)
@@ -198,7 +228,7 @@ describe Chewy::Type::Import do
 
       before { CountriesIndex::Country.import(country) }
 
-      let(:child_city) { City.create(country_id: country.id, name: 'city') }
+      let(:child_city) { City.create(id: 4, country_id: country.id, name: 'city') }
       let(:city) { CountriesIndex::City }
 
       specify { city.import(child_city).should eq(true)  }
@@ -251,7 +281,7 @@ describe Chewy::Type::Import do
     end
   end
 
-  describe '.import!' do
+  describe '.import!', :orm do
     specify { expect { city.import!.should }.not_to raise_error }
 
     context do

@@ -37,8 +37,9 @@ module Chewy
               Array.wrap(objects).map { |object| object.respond_to?(:id) ? object.id : object.to_i }
             end
             Chewy.stash self, ids
-          else
-            import(objects) if options[:urgent]
+          elsif options[:urgent]
+            ActiveSupport::Deprecation.warn("`urgent: true` option is deprecated and will be removed soon, use `Chewy.atomic` block instead")
+            import(objects)
           end if objects
 
           true

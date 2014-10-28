@@ -447,7 +447,7 @@ describe Chewy::Query do
       specify { CitiesIndex.order(:rating).first._score.should be_nil }
       specify { CitiesIndex.all.first._score.should be > 0 }
       specify { CitiesIndex.query(match: {name: 'name0'}).first._score.should be > 0 }
-      specify { CitiesIndex.query(match: {name: 'name0'}).took.should be > 0 }
+      specify { CitiesIndex.query(match: {name: 'name0'}).took.should be >= 0 }
 
       specify { CitiesIndex.order(:rating).first._data['_explanation'].should be_nil }
       specify { CitiesIndex.order(:rating).explain.first._data['_explanation'].should be_present }

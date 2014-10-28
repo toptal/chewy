@@ -241,15 +241,8 @@ There are 3 strategies for index updating: do not update index at all, update ri
 By default Chewy indexes are not updated when the observed model is saved or destroyed.
 This depends on the `Chewy.urgent_update` (false by default) or on the per-model update config.
 If you will perform `Chewy.urgent_update = true`, all the models will start to update elasticsearch
-index right after save. Also
+index right after save.
 
-```ruby
-class User < ActiveRecord::Base
-  update_index 'users#user', 'self', urgent: true
-end
-```
-
-will make the same effect for User model only.
 Note than urgent update options affects only outside-atomic-block behavour. Inside
 the `Chewy.atomic { }` block indexes updates as described below.
 

@@ -2,6 +2,10 @@
 
 ## Changes
 
+  * `urgent: true` option for `update_index` is deprecated and will be removed soon, use `Chewy.atomic` instead
+
+  * `timeout` and `timed_out` support (@MarkMurphy)
+
   * will_paginate support (@josecoelho)
 
 # Version 0.5.2

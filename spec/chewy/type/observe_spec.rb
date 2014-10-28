@@ -10,8 +10,6 @@ describe Chewy::Type::Import do
 
     let(:backreferenced) { 3.times.map { |i| double(id: i) } }
 
-    specify { expect { DummiesIndex.dummy.update_index(backreferenced, urgent: true) }
-      .to update_index('dummies#dummy', atomic: false).and_reindex(backreferenced) }
     specify { expect { DummiesIndex.dummy.update_index(backreferenced) }
       .not_to update_index('dummies#dummy', atomic: false) }
     specify { expect { DummiesIndex.dummy.update_index([]) }
@@ -31,7 +29,7 @@ describe Chewy::Type::Import do
       stub_model(:country) do
         has_many :cities
         update_index('cities#city') { cities }
-        update_index 'countries#country', :self, urgent: true
+        update_index 'countries#country', :self
       end
 
       stub_index(:cities) do
@@ -72,11 +70,6 @@ describe Chewy::Type::Import do
 
     context do
       let(:other_country) { Country.create! }
-
-      specify do
-        expect(CountriesIndex::Country).to receive(:import).at_least(2).times
-        [country, other_country].map(&:save!)
-      end
 
       specify do
         expect(CountriesIndex::Country).to receive(:import).with([country.id, other_country.id]).once

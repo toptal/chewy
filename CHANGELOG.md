@@ -2,6 +2,8 @@
 
 ## Changes
 
+  * Mongoid support YaY! (@fabiotomio, @leemhenson)
+
   * `urgent: true` option for `update_index` is deprecated and will be removed soon, use `Chewy.atomic` instead
 
   * `timeout` and `timed_out` support (@MarkMurphy)

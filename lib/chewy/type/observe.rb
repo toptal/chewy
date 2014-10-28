@@ -9,8 +9,6 @@ module Chewy
           method = args.first
 
           update = Proc.new do
-            update_options = options.reverse_merge(urgent: Chewy.urgent_update)
-
             backreference = if method && method.to_s == 'self'
               self
             elsif method
@@ -33,8 +31,7 @@ module Chewy
           method = args.first
 
           update = Proc.new do
-            update_options = options.reverse_merge(urgent: Chewy.urgent_update)
-            clear_association_cache if update_options[:urgent]
+            clear_association_cache if Chewy.urgent_update
 
             backreference = if method && method.to_s == 'self'
               self
@@ -67,6 +64,8 @@ module Chewy
             Chewy.stash self, ids
           elsif options[:urgent]
             ActiveSupport::Deprecation.warn("`urgent: true` option is deprecated and will be removed soon, use `Chewy.atomic` block instead")
+            import(objects)
+          elsif Chewy.urgent_update
             import(objects)
           end if objects
 

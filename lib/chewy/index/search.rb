@@ -4,10 +4,12 @@ module Chewy
       extend ActiveSupport::Concern
 
       included do
-        singleton_class.delegate :explain, :limit, :offset, :highlight, :rescore,
-          :facets, :aggregations, :none, :strategy, :query, :filter, :post_filter,
-          :order, :reorder, :only, :types, :suggest, :delete_all, :total_count,
-          :decay, :boost_factor, to: :all
+        singleton_class.delegate :explain, :query_mode, :filter_mode, :post_filter_mode,
+          :timeout, :limit, :offset, :highlight, :rescore, :facets, :script_score,
+          :boost_factor, :random_score, :field_value_factor, :decay, :aggregations,
+          :suggest, :none, :strategy, :query, :filter, :post_filter, :boost_mode,
+          :score_mode, :order, :reorder, :only, :types, :delete_all, :total,
+          :total_count, :total_entries, to: :all
       end
 
       module ClassMethods

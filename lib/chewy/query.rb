@@ -906,7 +906,9 @@ module Chewy
     def _results
       @_results ||= (criteria.none? || _response == {} ? [] : _response['hits']['hits']).map do |hit|
         attributes = (hit['_source'] || {}).merge(hit['highlight'] || {}, &RESULT_MERGER)
-        attributes.reverse_merge!(id: hit['_id']).merge!(_score: hit['_score'])
+        attributes.reverse_merge!(id: hit['_id'])
+          .merge!(_score: hit['_score'])
+          .merge!(_explanation: hit['_explanation'])
 
         wrapper = index.type_hash[hit['_type']].new attributes
         wrapper._data = hit

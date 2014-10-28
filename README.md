@@ -757,9 +757,8 @@ See [update_index.rb](lib/chewy/rspec/update_index.rb) for more details.
 * Typecasting support
 * Advanced (simplyfied) query DSL: `UsersIndex.query { email == 'my@gmail.com' }` will produce term query
 * update_all support
-* Other than ActiveRecord ORMs support (Mongoid)
 * Maybe, closer ORM/ODM integration, creating index classes implicitly
-* Asunc indexes updating
+* Async indexes updating
 
 ## Contributing
 

@@ -5,10 +5,6 @@ module Chewy
         extend ActiveSupport::Concern
         include ::WillPaginate::CollectionMethods
 
-        included do
-          alias_method :total_entries, :total_count
-        end
-
         attr_reader :current_page, :per_page
 
         def paginate(options={})

@@ -284,11 +284,11 @@ describe Chewy::Query do
       ProductsIndex::Country.import!(countries.map { |h| double(h) })
     end
 
-    specify { expect { subject.query(match: {name: 'name3'}).delete_all }.to change { ProductsIndex.total_count }.from(9).to(8) }
+    specify { expect { subject.query(match: {name: 'name3'}).delete_all }.to change { ProductsIndex.total }.from(9).to(8) }
     specify { expect { subject.filter { age == [10, 20] }.delete_all }.to change { ProductsIndex.total_count }.from(9).to(7) }
-    specify { expect { subject.types(:product).delete_all }.to change { ProductsIndex::Product.total_count }.from(3).to(0) }
-    specify { expect { ProductsIndex.delete_all }.to change { ProductsIndex.total_count }.from(9).to(0) }
-    specify { expect { ProductsIndex::City.delete_all }.to change { ProductsIndex.total_count }.from(9).to(6) }
+    specify { expect { subject.types(:product).delete_all }.to change { ProductsIndex::Product.total_entries }.from(3).to(0) }
+    specify { expect { ProductsIndex.delete_all }.to change { ProductsIndex.total }.from(9).to(0) }
+    specify { expect { ProductsIndex::City.delete_all }.to change { ProductsIndex.total }.from(9).to(6) }
   end
 
   describe '#none' do
@@ -447,8 +447,8 @@ describe Chewy::Query do
       specify { CitiesIndex.query(match: {name: 'name0'}).first._score.should be > 0 }
       specify { CitiesIndex.query(match: {name: 'name0'}).took.should be >= 0 }
 
-      specify { CitiesIndex.order(:rating).first._data['_explanation'].should be_nil }
-      specify { CitiesIndex.order(:rating).explain.first._data['_explanation'].should be_present }
+      specify { CitiesIndex.order(:rating).first._explanation.should be_nil }
+      specify { CitiesIndex.order(:rating).explain.first._explanation.should be_present }
     end
 
     context 'sourceless' do

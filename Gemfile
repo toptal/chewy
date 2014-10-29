@@ -5,7 +5,7 @@ gemspec
 
 gem 'activerecord'
 # gem 'mongoid'
-# gem 'kaminari', require: false
+gem 'kaminari', require: false
 # gem 'will_paginate', require: false
 
 group :test do

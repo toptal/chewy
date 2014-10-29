@@ -37,8 +37,8 @@ describe Chewy::Type::Adapter::Mongoid, :mongoid do
     end
 
     context do
-      let!(:cities) { 3.times.map { |i| City.create! } }
-      let!(:deleted) { 3.times.map { |i| City.create!.tap(&:destroy) } }
+      let!(:cities) { 3.times.map { |i| City.create! }.sort_by(&:id) }
+      let!(:deleted) { 3.times.map { |i| City.create!.tap(&:destroy) }.sort_by(&:id) }
       subject { described_class.new(City) }
 
       specify { import.should == [{index: cities}] }
@@ -100,19 +100,19 @@ describe Chewy::Type::Adapter::Mongoid, :mongoid do
           end
         end
       end
-      let!(:cities) { 3.times.map { |i| City.create! } }
-      let!(:deleted) { 3.times.map { |i| City.create!(rating: 42) } }
+      let!(:cities) { 3.times.map { |i| City.create! }.sort_by(&:id) }
+      let!(:deleted) { 3.times.map { |i| City.create!(rating: 42) }.sort_by(&:id) }
       subject { described_class.new(City) }
 
       specify { import(cities, deleted).should == [{index: cities, delete: deleted}] }
-      specify { import(cities.map(&:id).sort, deleted.map(&:id).sort)
-        .should == [{index: cities.sort_by(&:id), delete: deleted.sort_by(&:id)}] }
+      specify { import(cities.map(&:id), deleted.map(&:id))
+        .should == [{index: cities, delete: deleted}] }
       specify { import(City.order(:id.asc)).should == [{index: cities, delete: deleted}] }
     end
 
     context 'default scope' do
-      let!(:cities) { 3.times.map { |i| City.create!(rating: i/2) } }
-      let!(:deleted) { 2.times.map { |i| City.create!.tap(&:destroy) } }
+      let!(:cities) { 3.times.map { |i| City.create!(rating: i/2) }.sort_by(&:id) }
+      let!(:deleted) { 2.times.map { |i| City.create!.tap(&:destroy) }.sort_by(&:id) }
       subject { described_class.new(City.where(rating: 0)) }
 
       specify { import.should == [{index: cities.first(2)}] }
@@ -138,8 +138,8 @@ describe Chewy::Type::Adapter::Mongoid, :mongoid do
     end
 
     context 'error handling' do
-      let!(:cities) { 6.times.map { |i| City.create! } }
-      let!(:deleted) { 4.times.map { |i| City.create!.tap(&:destroy) } }
+      let!(:cities) { 6.times.map { |i| City.create! }.sort_by(&:id) }
+      let!(:deleted) { 4.times.map { |i| City.create!.tap(&:destroy) }.sort_by(&:id) }
       let(:ids) { (cities + deleted).map(&:id) }
       subject { described_class.new(City) }
 
@@ -193,8 +193,8 @@ describe Chewy::Type::Adapter::Mongoid, :mongoid do
 
   describe '#load' do
     context do
-      let!(:cities) { 3.times.map { |i| City.create!(rating: i/2) } }
-      let!(:deleted) { 2.times.map { |i| City.create!.tap(&:destroy) } }
+      let!(:cities) { 3.times.map { |i| City.create!(rating: i/2) }.sort_by(&:id) }
+      let!(:deleted) { 2.times.map { |i| City.create!.tap(&:destroy) }.sort_by(&:id) }
 
       let(:type) { double(type_name: 'user') }
 

@@ -17,7 +17,7 @@ module Chewy
               instance_eval(&block)
             end
 
-            Chewy.derive_type(type_name).update_index(backreference)
+            Chewy.derive_type(type_name).update_index(backreference, options)
           end
 
           after_save &update
@@ -41,7 +41,7 @@ module Chewy
               instance_eval(&block)
             end
 
-            Chewy.derive_type(type_name).update_index(backreference)
+            Chewy.derive_type(type_name).update_index(backreference, options)
           end
 
           after_save &update

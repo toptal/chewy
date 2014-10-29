@@ -69,7 +69,13 @@ describe Chewy::Type::Import do
     end
 
     context do
+      before { Chewy.stub(urgent_update: true) }
       let(:other_country) { Country.create! }
+
+      specify do
+        expect(CountriesIndex::Country).to receive(:import).at_least(2).times
+        [country, other_country].map(&:save!)
+      end
 
       specify do
         expect(CountriesIndex::Country).to receive(:import).with([country.id, other_country.id]).once

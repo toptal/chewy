@@ -69,7 +69,7 @@ describe Chewy::Type::Import do
     end
 
     context do
-      before { Chewy.stub(urgent_update: true) }
+      before { allow(Chewy).to receive_messages(urgent_update: true) }
       let(:other_country) { Country.create! }
 
       specify do

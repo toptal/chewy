@@ -35,12 +35,12 @@ describe Chewy::Index::Search do
   end
 
   describe '.search_index' do
-    specify { ProductsIndex.search_index.should == ProductsIndex }
-    specify { product.search_index.should == ProductsIndex }
+    specify { expect(ProductsIndex.search_index).to eq(ProductsIndex) }
+    specify { expect(product.search_index).to eq(ProductsIndex) }
   end
 
   describe '.search_type' do
-    specify { ProductsIndex.search_type.should == ['product', 'product2'] }
-    specify { product.search_type.should == 'product' }
+    specify { expect(ProductsIndex.search_type).to eq(['product', 'product2']) }
+    specify { expect(product.search_type).to eq('product') }
   end
 end

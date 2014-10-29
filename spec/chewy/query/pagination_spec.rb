@@ -14,7 +14,7 @@ describe Chewy::Query::Pagination do
 
   let(:search) { ProductsIndex.order(:age) }
 
-  specify { search.total_count.should == 0 }
+  specify { expect(search.total_count).to eq(0) }
 
   context do
     let(:data) { 10.times.map { |i| {id: i.next.to_s, name: "Name#{i.next}", age: 10 * i.next}.stringify_keys! } }
@@ -22,14 +22,14 @@ describe Chewy::Query::Pagination do
     before { ProductsIndex::Product.import!(data.map { |h| double(h) }) }
 
     describe '#total_count' do
-      specify { search.total_count.should == 10 }
-      specify { search.limit(5).total_count.should == 10 }
-      specify { search.filter(numeric_range: {age: {gt: 20}}).limit(3).total_count.should == 8 }
+      specify { expect(search.total_count).to eq(10) }
+      specify { expect(search.limit(5).total_count).to eq(10) }
+      specify { expect(search.filter(numeric_range: {age: {gt: 20}}).limit(3).total_count).to eq(8) }
     end
 
     describe '#load' do
-      specify { search.load.total_count.should == 10 }
-      specify { search.limit(5).load.total_count.should == 10 }
+      specify { expect(search.load.total_count).to eq(10) }
+      specify { expect(search.limit(5).load.total_count).to eq(10) }
     end
   end
 

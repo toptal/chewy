@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe Chewy::Fields::Root do
-  specify { described_class.new('name').value.should be_a(Proc) }
+  specify { expect(described_class.new('name').value).to be_a(Proc) }
   # TODO: add 'should_behave_like base_field'
 
   subject(:field) { described_class.new('product') }
@@ -16,7 +16,7 @@ describe Chewy::Fields::Root do
       field.dynamic_template template_42: {mapping: {}, match: ''}
       field.dynamic_template /hello\..*/
 
-      field.mappings_hash.should == {product: {dynamic_templates: [
+      expect(field.mappings_hash).to eq({product: {dynamic_templates: [
         {template_1: {mapping: {type: 'string'}, match: 'hello'}},
         {template_2: {mapping: {}, match_mapping_type: 'integer', match: 'hello*'}},
         {template_3: {mapping: {}, path_match: 'hello.*'}},
@@ -24,7 +24,7 @@ describe Chewy::Fields::Root do
         {template_5: {mapping: {}, match: 'hello.*', match_pattern: 'regexp'}},
         {template_42: {mapping: {}, match: ''}},
         {template_7: {mapping: {}, path_match: 'hello\..*', match_pattern: 'regexp'}}
-      ]}}
+      ]}})
     end
 
     context do
@@ -34,10 +34,10 @@ describe Chewy::Fields::Root do
 
       specify do
         field.dynamic_template 'hello', type: 'string'
-        field.mappings_hash.should == {product: {dynamic_templates: [
+        expect(field.mappings_hash).to eq({product: {dynamic_templates: [
           {template_42: {mapping: {}, match: ''}},
           {template_1: {mapping: {type: 'string'}, match: 'hello'}}
-        ]}}
+        ]}})
       end
     end
   end

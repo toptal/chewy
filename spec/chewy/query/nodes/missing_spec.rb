@@ -6,10 +6,10 @@ describe Chewy::Query::Nodes::Missing do
       Chewy::Query::Filters.new(&block).__render__
     end
 
-    specify { render { !name }.should == {missing: {field: 'name', existence: true, null_value: false}} }
-    specify { render { !name? }.should == {missing: {field: 'name', existence: true, null_value: true}} }
-    specify { render { name == nil }.should == {missing: {field: 'name', existence: false, null_value: true}} }
+    specify { expect(render { !name }).to eq({missing: {field: 'name', existence: true, null_value: false}}) }
+    specify { expect(render { !name? }).to eq({missing: {field: 'name', existence: true, null_value: true}}) }
+    specify { expect(render { name == nil }).to eq({missing: {field: 'name', existence: false, null_value: true}}) }
 
-    specify { render { ~!name }.should == {missing: {field: 'name', existence: true, null_value: false}} }
+    specify { expect(render { ~!name }).to eq({missing: {field: 'name', existence: true, null_value: false}}) }
   end
 end

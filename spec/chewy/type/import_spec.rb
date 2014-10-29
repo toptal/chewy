@@ -19,10 +19,10 @@ describe Chewy::Type::Import do
   let(:city) { CitiesIndex::City }
 
   describe '.import', :orm do
-    specify { city.import.should eq(true) }
-    specify { city.import([]).should eq(true) }
-    specify { city.import(dummy_cities).should eq(true) }
-    specify { city.import(dummy_cities.map(&:id)).should eq(true) }
+    specify { expect(city.import).to eq(true) }
+    specify { expect(city.import([])).to eq(true) }
+    specify { expect(city.import(dummy_cities)).to eq(true) }
+    specify { expect(city.import(dummy_cities.map(&:id))).to eq(true) }
 
     specify { expect { city.import([]) }.not_to update_index(city) }
     specify { expect { city.import }.to update_index(city).and_reindex(dummy_cities) }
@@ -120,7 +120,7 @@ describe Chewy::Type::Import do
 
         dummy_cities.first.destroy
         city.import dummy_cities
-        outer_payload.should == {type: CitiesIndex::City, import: {delete: 1, index: 2}}
+        expect(outer_payload).to eq({type: CitiesIndex::City, import: {delete: 1, index: 2}})
       end
 
       specify do
@@ -131,7 +131,7 @@ describe Chewy::Type::Import do
 
         dummy_cities.first.destroy
         city.import dummy_cities, batch_size: 1
-        outer_payload.should == {type: CitiesIndex::City, import: {delete: 1, index: 2}}
+        expect(outer_payload).to eq({type: CitiesIndex::City, import: {delete: 1, index: 2}})
       end
 
       specify do
@@ -141,7 +141,7 @@ describe Chewy::Type::Import do
         end
 
         city.import dummy_cities, batch_size: 1
-        outer_payload.should == {type: CitiesIndex::City, import: {index: 3}}
+        expect(outer_payload).to eq({type: CitiesIndex::City, import: {index: 3}})
       end
 
       context do
@@ -160,7 +160,7 @@ describe Chewy::Type::Import do
           end
 
           city.import dummy_cities, batch_size: 1
-          outer_payload.should == {
+          expect(outer_payload).to eq({
             type: CitiesIndex::City,
             errors: {
               index: {
@@ -168,7 +168,7 @@ describe Chewy::Type::Import do
               }
             },
             import: {index: 3}
-          }
+          })
         end
       end
     end
@@ -183,9 +183,9 @@ describe Chewy::Type::Import do
           end
         end
 
-        specify { city.import(dummy_cities).should eq(false) }
-        specify { city.import(dummy_cities.map(&:id)).should eq(false) }
-        specify { city.import(dummy_cities, batch_size: 1).should eq(false) }
+        specify { expect(city.import(dummy_cities)).to eq(false) }
+        specify { expect(city.import(dummy_cities.map(&:id))).to eq(false) }
+        specify { expect(city.import(dummy_cities, batch_size: 1)).to eq(false) }
       end
 
       context do
@@ -197,9 +197,9 @@ describe Chewy::Type::Import do
           end
         end
 
-        specify { city.import(dummy_cities).should eq(false) }
-        specify { city.import(dummy_cities.map(&:id)).should eq(false) }
-        specify { city.import(dummy_cities, batch_size: 1).should eq(false) }
+        specify { expect(city.import(dummy_cities)).to eq(false) }
+        specify { expect(city.import(dummy_cities.map(&:id))).to eq(false) }
+        specify { expect(city.import(dummy_cities, batch_size: 1)).to eq(false) }
       end
     end
 
@@ -231,7 +231,7 @@ describe Chewy::Type::Import do
       let(:child_city) { City.create(id: 4, country_id: country.id, name: 'city') }
       let(:city) { CountriesIndex::City }
 
-      specify { city.import(child_city).should eq(true)  }
+      specify { expect(city.import(child_city)).to eq(true)  }
       specify { expect { city.import child_city }.to update_index(city).and_reindex(child_city) }
 
       specify do
@@ -282,7 +282,7 @@ describe Chewy::Type::Import do
   end
 
   describe '.import!', :orm do
-    specify { expect { city.import!.should }.not_to raise_error }
+    specify { expect { city.import! }.not_to raise_error }
 
     context do
       before do

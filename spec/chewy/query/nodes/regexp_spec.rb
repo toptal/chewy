@@ -6,26 +6,26 @@ describe Chewy::Query::Nodes::Regexp do
       Chewy::Query::Filters.new(&block).__render__
     end
 
-    specify { render { names.first == /nam.*/ }.should == {regexp: {'names.first' => 'nam.*'}} }
-    specify { render { names.first =~ /nam.*/ }.should == {regexp: {'names.first' => 'nam.*'}} }
-    specify { render { name != /nam.*/ }.should == {not: {regexp: {'name' => 'nam.*'}}} }
-    specify { render { name !~ /nam.*/ }.should == {not: {regexp: {'name' => 'nam.*'}}} }
+    specify { expect(render { names.first == /nam.*/ }).to eq({regexp: {'names.first' => 'nam.*'}}) }
+    specify { expect(render { names.first =~ /nam.*/ }).to eq({regexp: {'names.first' => 'nam.*'}}) }
+    specify { expect(render { name != /nam.*/ }).to eq({not: {regexp: {'name' => 'nam.*'}}}) }
+    specify { expect(render { name !~ /nam.*/ }).to eq({not: {regexp: {'name' => 'nam.*'}}}) }
 
-    specify { render { names.first(flags: [:anystring, :intersection, :borogoves]) == /nam.*/ }
-      .should == {regexp: {'names.first' => {value: 'nam.*', flags: 'ANYSTRING|INTERSECTION'}}} }
-    specify { render { names.first(:anystring, :intersection, :borogoves) == /nam.*/ }
-      .should == {regexp: {'names.first' => {value: 'nam.*', flags: 'ANYSTRING|INTERSECTION'}}} }
+    specify { expect(render { names.first(flags: [:anystring, :intersection, :borogoves]) == /nam.*/ })
+      .to eq({regexp: {'names.first' => {value: 'nam.*', flags: 'ANYSTRING|INTERSECTION'}}}) }
+    specify { expect(render { names.first(:anystring, :intersection, :borogoves) == /nam.*/ })
+      .to eq({regexp: {'names.first' => {value: 'nam.*', flags: 'ANYSTRING|INTERSECTION'}}}) }
 
-    specify { render { names.first(flags: [:anystring, :intersection, :borogoves]) =~ /nam.*/ }
-      .should == {regexp: {'names.first' => {value: 'nam.*', flags: 'ANYSTRING|INTERSECTION'}}} }
-    specify { render { names.first(:anystring, :intersection, :borogoves) =~ /nam.*/ }
-      .should == {regexp: {'names.first' => {value: 'nam.*', flags: 'ANYSTRING|INTERSECTION'}}} }
+    specify { expect(render { names.first(flags: [:anystring, :intersection, :borogoves]) =~ /nam.*/ })
+      .to eq({regexp: {'names.first' => {value: 'nam.*', flags: 'ANYSTRING|INTERSECTION'}}}) }
+    specify { expect(render { names.first(:anystring, :intersection, :borogoves) =~ /nam.*/ })
+      .to eq({regexp: {'names.first' => {value: 'nam.*', flags: 'ANYSTRING|INTERSECTION'}}}) }
 
-    specify { render { ~names.first == /nam.*/ }.should == {regexp: {'names.first' => 'nam.*', _cache: true, _cache_key: 'nam.*'}} }
-    specify { render { names.first(cache: 'name') == /nam.*/ }.should == {regexp: {'names.first' => 'nam.*', _cache: true, _cache_key: 'name'}} }
-    specify { render { ~names.first(:anystring) =~ /nam.*/ }
-      .should == {regexp: {'names.first' => {value: 'nam.*', flags: 'ANYSTRING'}, _cache: true, _cache_key: 'nam.*'}} }
-    specify { render { names.first(:anystring, cache: 'name') =~ /nam.*/ }
-      .should == {regexp: {'names.first' => {value: 'nam.*', flags: 'ANYSTRING'}, _cache: true, _cache_key: 'name'}} }
+    specify { expect(render { ~names.first == /nam.*/ }).to eq({regexp: {'names.first' => 'nam.*', _cache: true, _cache_key: 'nam.*'}}) }
+    specify { expect(render { names.first(cache: 'name') == /nam.*/ }).to eq({regexp: {'names.first' => 'nam.*', _cache: true, _cache_key: 'name'}}) }
+    specify { expect(render { ~names.first(:anystring) =~ /nam.*/ })
+      .to eq({regexp: {'names.first' => {value: 'nam.*', flags: 'ANYSTRING'}, _cache: true, _cache_key: 'nam.*'}}) }
+    specify { expect(render { names.first(:anystring, cache: 'name') =~ /nam.*/ })
+      .to eq({regexp: {'names.first' => {value: 'nam.*', flags: 'ANYSTRING'}, _cache: true, _cache_key: 'name'}}) }
   end
 end

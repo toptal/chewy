@@ -4,28 +4,28 @@ describe Chewy::Type::Adapter::Object do
   before { stub_class(:product) }
 
   describe '#name' do
-    specify { described_class.new('product').name.should == 'Product' }
-    specify { described_class.new(:products).name.should == 'Products' }
-    specify { described_class.new(Product).name.should == 'Product' }
-    specify { described_class.new(Product, name: 'house').name.should == 'House' }
+    specify { expect(described_class.new('product').name).to eq('Product') }
+    specify { expect(described_class.new(:products).name).to eq('Products') }
+    specify { expect(described_class.new(Product).name).to eq('Product') }
+    specify { expect(described_class.new(Product, name: 'house').name).to eq('House') }
 
     context do
       before { stub_class('namespace/product') }
 
-      specify { described_class.new(Namespace::Product).name.should == 'Product' }
+      specify { expect(described_class.new(Namespace::Product).name).to eq('Product') }
     end
   end
 
   describe '#type_name' do
-    specify { described_class.new('product').type_name.should == 'product' }
-    specify { described_class.new(:products).type_name.should == 'products' }
-    specify { described_class.new(Product).type_name.should == 'product' }
-    specify { described_class.new(Product, name: 'house').type_name.should == 'house' }
+    specify { expect(described_class.new('product').type_name).to eq('product') }
+    specify { expect(described_class.new(:products).type_name).to eq('products') }
+    specify { expect(described_class.new(Product).type_name).to eq('product') }
+    specify { expect(described_class.new(Product, name: 'house').type_name).to eq('house') }
 
     context do
       before { stub_class('namespace/product') }
 
-      specify { described_class.new(Namespace::Product).type_name.should == 'product' }
+      specify { expect(described_class.new(Namespace::Product).type_name).to eq('product') }
     end
   end
 
@@ -36,61 +36,61 @@ describe Chewy::Type::Adapter::Object do
       result
     end
 
-    specify { subject.import(3.times.map { |i| double }) { |data| true }.should eq(true) }
-    specify { subject.import(3.times.map { |i| double }) { |data| false }.should eq(false) }
+    specify { expect(subject.import(3.times.map { |i| double }) { |data| true }).to eq(true) }
+    specify { expect(subject.import(3.times.map { |i| double }) { |data| false }).to eq(false) }
 
     context do
       let(:objects) { 3.times.map { |i| double } }
       let(:deleted) { 2.times.map { |i| double(destroyed?: true) } }
       subject { described_class.new('product') }
 
-      specify { import.should == [] }
-      specify { import(objects).should == [{index: objects}] }
-      specify { import(objects, batch_size: 2)
-          .should == [{index: objects.first(2)}, {index: objects.last(1)}] }
-      specify { import(objects, deleted).should == [{index: objects, delete: deleted}] }
-      specify { import(objects, deleted, batch_size: 2).should == [
+      specify { expect(import).to eq([]) }
+      specify { expect(import(objects)).to eq([{index: objects}]) }
+      specify { expect(import(objects, batch_size: 2))
+          .to eq([{index: objects.first(2)}, {index: objects.last(1)}]) }
+      specify { expect(import(objects, deleted)).to eq([{index: objects, delete: deleted}]) }
+      specify { expect(import(objects, deleted, batch_size: 2)).to eq([
           {index: objects.first(2)},
           {index: objects.last(1), delete: deleted.first(1)},
-          {delete: deleted.last(1)}] }
+          {delete: deleted.last(1)}]) }
 
-      specify { import(objects.first, nil).should == [{index: [objects.first]}] }
+      specify { expect(import(objects.first, nil)).to eq([{index: [objects.first]}]) }
 
       context do
         let(:deleted) { 2.times.map { |i| double(delete_from_index?: true, destroyed?: true) } }
-        specify { import(deleted).should == [{delete: deleted}] }
+        specify { expect(import(deleted)).to eq([{delete: deleted}]) }
       end
 
       context do
         let(:deleted) { 2.times.map { |i| double(delete_from_index?: true, destroyed?: false) } }
-        specify { import(deleted).should == [{delete: deleted}] }
+        specify { expect(import(deleted)).to eq([{delete: deleted}]) }
       end
 
 
       context do
         let(:deleted) { 2.times.map { |i| double(delete_from_index?: false, destroyed?: true) } }
-        specify { import(deleted).should == [{delete: deleted}] }
+        specify { expect(import(deleted)).to eq([{delete: deleted}]) }
       end
 
       context do
         let(:deleted) { 2.times.map { |i| double(delete_from_index?: false, destroyed?: false) } }
-        specify { import(deleted).should == [{index: deleted}] }
+        specify { expect(import(deleted)).to eq([{index: deleted}]) }
       end
     end
 
     context do
       let(:products) { 3.times.map { |i| double.tap { |product|
-        product.stub(:is_a?).with(Product).and_return(true)
+        allow(product).to receive(:is_a?).with(Product).and_return(true)
       } } }
       let(:non_product) { double }
       subject { described_class.new(Product) }
 
-      specify { import(products).should == [{index: products}] }
+      specify { expect(import(products)).to eq([{index: products}]) }
       specify { expect { import(products, non_product) {} }.to raise_error }
     end
 
     context 'error handling' do
-      let(:products) { 3.times.map { |i| double.tap { |product| product.stub(rating: i.next) } } }
+      let(:products) { 3.times.map { |i| double.tap { |product| allow(product).to receive_messages(rating: i.next) } } }
       let(:deleted) { 2.times.map { |i| double(destroyed?: true, rating: i + 4) } }
       subject { described_class.new('product') }
 
@@ -98,13 +98,13 @@ describe Chewy::Type::Adapter::Object do
         ->(n, data) { (data[:index] || data[:delete]).first.rating != n }
       end
 
-      specify { subject.import(products, deleted) { |data| true }.should eq(true) }
-      specify { subject.import(products, deleted) { |data| false }.should eq(false) }
-      specify { subject.import(products, deleted, batch_size: 1, &data_comparer.curry[1]).should eq(false) }
-      specify { subject.import(products, deleted, batch_size: 1, &data_comparer.curry[2]).should eq(false) }
-      specify { subject.import(products, deleted, batch_size: 1, &data_comparer.curry[3]).should eq(false) }
-      specify { subject.import(products, deleted, batch_size: 1, &data_comparer.curry[4]).should eq(false) }
-      specify { subject.import(products, deleted, batch_size: 1, &data_comparer.curry[5]).should eq(false) }
+      specify { expect(subject.import(products, deleted) { |data| true }).to eq(true) }
+      specify { expect(subject.import(products, deleted) { |data| false }).to eq(false) }
+      specify { expect(subject.import(products, deleted, batch_size: 1, &data_comparer.curry[1])).to eq(false) }
+      specify { expect(subject.import(products, deleted, batch_size: 1, &data_comparer.curry[2])).to eq(false) }
+      specify { expect(subject.import(products, deleted, batch_size: 1, &data_comparer.curry[3])).to eq(false) }
+      specify { expect(subject.import(products, deleted, batch_size: 1, &data_comparer.curry[4])).to eq(false) }
+      specify { expect(subject.import(products, deleted, batch_size: 1, &data_comparer.curry[5])).to eq(false) }
     end
   end
 
@@ -113,23 +113,23 @@ describe Chewy::Type::Adapter::Object do
       subject { described_class.new('product') }
       let(:objects) { 3.times.map { |i| double } }
 
-      specify { subject.load(objects).should == objects }
+      specify { expect(subject.load(objects)).to eq(objects) }
     end
 
     context do
-      before { Product.stub(:wrap) { |object| object.stub(wrapped?: true); object } }
+      before { allow(Product).to receive(:wrap) { |object| allow(object).to receive_messages(wrapped?: true); object } }
       subject { described_class.new(Product) }
       let(:objects) { 3.times.map { |i| double(wrapped?: false) } }
 
-      specify { subject.load(objects).should satisfy { |objects| objects.all?(&:wrapped?) } }
+      specify { expect(subject.load(objects)).to satisfy { |objects| objects.all?(&:wrapped?) } }
     end
 
     context do
-      before { Product.stub(:wrap) { |object| nil } }
+      before { allow(Product).to receive(:wrap) { |object| nil } }
       subject { described_class.new(Product) }
       let(:objects) { 3.times.map { |i| double(wrapped?: false) } }
 
-      specify { subject.load(objects).should satisfy { |objects| objects.all?(&:nil?) } }
+      specify { expect(subject.load(objects)).to satisfy { |objects| objects.all?(&:nil?) } }
     end
   end
 end

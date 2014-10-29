@@ -21,31 +21,31 @@ describe Chewy::Query::Filters do
 
   context 'outer scope' do
     let(:email) { 'email' }
-    specify { query { email }.should be_eql Field(:email) }
-    specify { query { o{email} }.should == 'email' }
+    specify { expect(query { email }).to be_eql Field(:email) }
+    specify { expect(query { o{email} }).to eq('email') }
   end
 
   context 'field' do
     let(:email) { 'email' }
-    specify { query { f(:email) }.should be_eql Field(:email) }
-    specify { query { f{ :email } }.should be_eql Field(:email) }
-    specify { query { f{ email } }.should be_eql Field(:email) }
-    specify { query { email }.should be_eql Field(:email) }
-    specify { query { emails.first }.should be_eql Field('emails.first') }
-    specify { query { emails.first.second }.should be_eql Field('emails.first.second') }
+    specify { expect(query { f(:email) }).to be_eql Field(:email) }
+    specify { expect(query { f{ :email } }).to be_eql Field(:email) }
+    specify { expect(query { f{ email } }).to be_eql Field(:email) }
+    specify { expect(query { email }).to be_eql Field(:email) }
+    specify { expect(query { emails.first }).to be_eql Field('emails.first') }
+    specify { expect(query { emails.first.second }).to be_eql Field('emails.first.second') }
   end
 
   context 'term' do
-    specify { query { email == 'email' }.should be_eql Equal(:email, 'email') }
-    specify { query { name != 'name' }.should be_eql Not(Equal(:name, 'name')) }
-    specify { query { email == ['email1', 'email2'] }.should be_eql Equal(:email, ['email1', 'email2']) }
-    specify { query { email != ['email1', 'email2'] }.should be_eql Not(Equal(:email, ['email1', 'email2'])) }
-    specify { query { email(execution: :bool) == ['email1', 'email2'] }
-      .should be_eql Equal(:email, ['email1', 'email2'], execution: :bool) }
-    specify { query { email(:bool) == ['email1', 'email2'] }
-      .should be_eql Equal(:email, ['email1', 'email2'], execution: :bool) }
-    specify { query { email(:b) == ['email1', 'email2'] }
-      .should be_eql Equal(:email, ['email1', 'email2'], execution: :bool) }
+    specify { expect(query { email == 'email' }).to be_eql Equal(:email, 'email') }
+    specify { expect(query { name != 'name' }).to be_eql Not(Equal(:name, 'name')) }
+    specify { expect(query { email == ['email1', 'email2'] }).to be_eql Equal(:email, ['email1', 'email2']) }
+    specify { expect(query { email != ['email1', 'email2'] }).to be_eql Not(Equal(:email, ['email1', 'email2'])) }
+    specify { expect(query { email(execution: :bool) == ['email1', 'email2'] })
+      .to be_eql Equal(:email, ['email1', 'email2'], execution: :bool) }
+    specify { expect(query { email(:bool) == ['email1', 'email2'] })
+      .to be_eql Equal(:email, ['email1', 'email2'], execution: :bool) }
+    specify { expect(query { email(:b) == ['email1', 'email2'] })
+      .to be_eql Equal(:email, ['email1', 'email2'], execution: :bool) }
   end
 
   context 'bool' do
@@ -63,111 +63,111 @@ describe Chewy::Query::Filters do
   end
 
   context 'exists' do
-    specify { query { email? }.should be_eql Exists(:email) }
-    specify { query { !!email? }.should be_eql Exists(:email) }
-    specify { query { emails.first? }.should be_eql Exists('emails.first') }
-    specify { query { !!emails.first? }.should be_eql Exists('emails.first') }
-    specify { query { emails != nil }.should be_eql Exists('emails') }
-    specify { query { !(emails == nil) }.should be_eql Exists('emails') }
+    specify { expect(query { email? }).to be_eql Exists(:email) }
+    specify { expect(query { !!email? }).to be_eql Exists(:email) }
+    specify { expect(query { emails.first? }).to be_eql Exists('emails.first') }
+    specify { expect(query { !!emails.first? }).to be_eql Exists('emails.first') }
+    specify { expect(query { emails != nil }).to be_eql Exists('emails') }
+    specify { expect(query { !(emails == nil) }).to be_eql Exists('emails') }
   end
 
   context 'missing' do
-    specify { query { !email }.should be_eql Missing(:email) }
-    specify { query { !email? }.should be_eql Missing(:email, null_value: true) }
-    specify { query { !emails.first }.should be_eql Missing('emails.first') }
-    specify { query { !emails.first? }.should be_eql Missing('emails.first', null_value: true) }
-    specify { query { emails == nil }.should be_eql Missing('emails', existence: false, null_value: true) }
-    specify { query { emails.first == nil }.should be_eql Missing('emails.first', existence: false, null_value: true) }
+    specify { expect(query { !email }).to be_eql Missing(:email) }
+    specify { expect(query { !email? }).to be_eql Missing(:email, null_value: true) }
+    specify { expect(query { !emails.first }).to be_eql Missing('emails.first') }
+    specify { expect(query { !emails.first? }).to be_eql Missing('emails.first', null_value: true) }
+    specify { expect(query { emails == nil }).to be_eql Missing('emails', existence: false, null_value: true) }
+    specify { expect(query { emails.first == nil }).to be_eql Missing('emails.first', existence: false, null_value: true) }
   end
 
   context 'range' do
-    specify { query { age > 42 }.should be_eql Range(:age, gt: 42) }
-    specify { query { age >= 42 }.should be_eql Range(:age, gt: 42, left_closed: true) }
-    specify { query { age < 42 }.should be_eql Range(:age, lt: 42) }
-    specify { query { age <= 42 }.should be_eql Range(:age, lt: 42, right_closed: true) }
+    specify { expect(query { age > 42 }).to be_eql Range(:age, gt: 42) }
+    specify { expect(query { age >= 42 }).to be_eql Range(:age, gt: 42, left_closed: true) }
+    specify { expect(query { age < 42 }).to be_eql Range(:age, lt: 42) }
+    specify { expect(query { age <= 42 }).to be_eql Range(:age, lt: 42, right_closed: true) }
 
-    specify { query { age == (30..42) }.should be_eql Range(:age, gt: 30, lt: 42) }
-    specify { query { age == [30..42] }.should be_eql Range(:age, gt: 30, lt: 42, left_closed: true, right_closed: true) }
-    specify { query { (age > 30) & (age < 42) }.should be_eql Range(:age, gt: 30, lt: 42) }
-    specify { query { (age > 30) & (age <= 42) }.should be_eql Range(:age, gt: 30, lt: 42, right_closed: true) }
-    specify { query { (age >= 30) & (age < 42) }.should be_eql Range(:age, gt: 30, lt: 42, left_closed: true) }
-    specify { query { (age >= 30) & (age <= 42) }.should be_eql Range(:age, gt: 30, lt: 42, right_closed: true, left_closed: true) }
-    specify { query { (age > 30) | (age < 42) }.should be_eql Or(Range(:age, gt: 30), Range(:age, lt: 42)) }
+    specify { expect(query { age == (30..42) }).to be_eql Range(:age, gt: 30, lt: 42) }
+    specify { expect(query { age == [30..42] }).to be_eql Range(:age, gt: 30, lt: 42, left_closed: true, right_closed: true) }
+    specify { expect(query { (age > 30) & (age < 42) }).to be_eql Range(:age, gt: 30, lt: 42) }
+    specify { expect(query { (age > 30) & (age <= 42) }).to be_eql Range(:age, gt: 30, lt: 42, right_closed: true) }
+    specify { expect(query { (age >= 30) & (age < 42) }).to be_eql Range(:age, gt: 30, lt: 42, left_closed: true) }
+    specify { expect(query { (age >= 30) & (age <= 42) }).to be_eql Range(:age, gt: 30, lt: 42, right_closed: true, left_closed: true) }
+    specify { expect(query { (age > 30) | (age < 42) }).to be_eql Or(Range(:age, gt: 30), Range(:age, lt: 42)) }
   end
 
   context 'prefix' do
-    specify { query { name =~ 'nam' }.should be_eql Prefix(:name, 'nam') }
-    specify { query { name !~ 'nam' }.should be_eql Not(Prefix(:name, 'nam')) }
+    specify { expect(query { name =~ 'nam' }).to be_eql Prefix(:name, 'nam') }
+    specify { expect(query { name !~ 'nam' }).to be_eql Not(Prefix(:name, 'nam')) }
   end
 
   context 'regexp' do
-    specify { query { name =~ /name/ }.should be_eql Regexp(:name, 'name') }
-    specify { query { name == /name/ }.should be_eql Regexp(:name, 'name') }
-    specify { query { name !~ /name/ }.should be_eql Not(Regexp(:name, 'name')) }
-    specify { query { name != /name/ }.should be_eql Not(Regexp(:name, 'name')) }
-    specify { query { name(:anystring, :intersection) =~ /name/ }.should be_eql Regexp(:name, 'name', flags: %w(anystring intersection)) }
+    specify { expect(query { name =~ /name/ }).to be_eql Regexp(:name, 'name') }
+    specify { expect(query { name == /name/ }).to be_eql Regexp(:name, 'name') }
+    specify { expect(query { name !~ /name/ }).to be_eql Not(Regexp(:name, 'name')) }
+    specify { expect(query { name != /name/ }).to be_eql Not(Regexp(:name, 'name')) }
+    specify { expect(query { name(:anystring, :intersection) =~ /name/ }).to be_eql Regexp(:name, 'name', flags: %w(anystring intersection)) }
   end
 
   context 'query' do
     let(:some_query) { 'some query' }
-    specify { query { q('some query') }.should be_eql Query('some query') }
-    specify { query { q{'some query'} }.should be_eql Query('some query') }
-    specify { query { q{ some_query } }.should be_eql Query('some query') }
+    specify { expect(query { q('some query') }).to be_eql Query('some query') }
+    specify { expect(query { q{'some query'} }).to be_eql Query('some query') }
+    specify { expect(query { q{ some_query } }).to be_eql Query('some query') }
   end
 
   context 'raw' do
     let(:raw_query) { {term: {name: 'name'}} }
-    specify { query { r(term: {name: 'name'}) }.should be_eql Raw(term: {name: 'name'}) }
-    specify { query { r{ {term: {name: 'name'}} } }.should be_eql Raw(term: {name: 'name'}) }
-    specify { query { r{ raw_query } }.should be_eql Raw(term: {name: 'name'}) }
+    specify { expect(query { r(term: {name: 'name'}) }).to be_eql Raw(term: {name: 'name'}) }
+    specify { expect(query { r{ {term: {name: 'name'}} } }).to be_eql Raw(term: {name: 'name'}) }
+    specify { expect(query { r{ raw_query } }).to be_eql Raw(term: {name: 'name'}) }
   end
 
   context 'script' do
     let(:some_script) { 'some script' }
-    specify { query { s('some script') }.should be_eql Script('some script') }
-    specify { query { s('some script', param1: 42) }.should be_eql Script('some script', param1: 42) }
-    specify { query { s{'some script'} }.should be_eql Script('some script') }
-    specify { query { s(param1: 42) { some_script } }.should be_eql Script('some script', param1: 42) }
+    specify { expect(query { s('some script') }).to be_eql Script('some script') }
+    specify { expect(query { s('some script', param1: 42) }).to be_eql Script('some script', param1: 42) }
+    specify { expect(query { s{'some script'} }).to be_eql Script('some script') }
+    specify { expect(query { s(param1: 42) { some_script } }).to be_eql Script('some script', param1: 42) }
   end
 
   context 'and or not' do
-    specify { query { (email == 'email') & (name == 'name') }
-      .should be_eql And(Equal(:email, 'email'), Equal(:name, 'name')) }
-    specify { query { (email == 'email') | (name == 'name') }
-      .should be_eql Or(Equal(:email, 'email'), Equal(:name, 'name')) }
-    specify { query { !(email == 'email') }.should be_eql Not(Equal(:email, 'email')) }
+    specify { expect(query { (email == 'email') & (name == 'name') })
+      .to be_eql And(Equal(:email, 'email'), Equal(:name, 'name')) }
+    specify { expect(query { (email == 'email') | (name == 'name') })
+      .to be_eql Or(Equal(:email, 'email'), Equal(:name, 'name')) }
+    specify { expect(query { !(email == 'email') }).to be_eql Not(Equal(:email, 'email')) }
 
-    specify { query { (email == 'email') & (name == 'name') | (address != 'address') }
-      .should be_eql Or(
+    specify { expect(query { (email == 'email') & (name == 'name') | (address != 'address') })
+      .to be_eql Or(
         And(
           Equal(:email, 'email'),
           Equal(:name, 'name')
         ),
         Not(Equal(:address, 'address'))
       ) }
-    specify { query { (email == 'email') & ((name == 'name') | (address != 'address')) }
-      .should be_eql And(
+    specify { expect(query { (email == 'email') & ((name == 'name') | (address != 'address')) })
+      .to be_eql And(
         Equal(:email, 'email'),
         Or(
           Equal(:name, 'name'),
           Not(Equal(:address, 'address')),
         )
       ) }
-    specify { query { (email == 'email') & ((name == 'name') & (address != 'address')) }
-      .should be_eql And(
+    specify { expect(query { (email == 'email') & ((name == 'name') & (address != 'address')) })
+      .to be_eql And(
         Equal(:email, 'email'),
         Equal(:name, 'name'),
         Not(Equal(:address, 'address')),
       ) }
-    specify { query { ((email == 'email') | (name == 'name')) | (address != 'address') }
-      .should be_eql Or(
+    specify { expect(query { ((email == 'email') | (name == 'name')) | (address != 'address') })
+      .to be_eql Or(
         Equal(:email, 'email'),
         Equal(:name, 'name'),
         Not(Equal(:address, 'address')),
       ) }
-    specify { query { !((email == 'email') | (name == 'name')) }
-      .should be_eql Not(Or(Equal(:email, 'email'), Equal(:name, 'name'))) }
-    specify { query { !!((email == 'email') | (name == 'name')) }
-      .should be_eql Or(Equal(:email, 'email'), Equal(:name, 'name')) }
+    specify { expect(query { !((email == 'email') | (name == 'name')) })
+      .to be_eql Not(Or(Equal(:email, 'email'), Equal(:name, 'name'))) }
+    specify { expect(query { !!((email == 'email') | (name == 'name')) })
+      .to be_eql Or(Equal(:email, 'email'), Equal(:name, 'name')) }
   end
 end

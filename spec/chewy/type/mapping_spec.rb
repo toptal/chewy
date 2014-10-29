@@ -20,19 +20,19 @@ describe Chewy::Type::Mapping do
   end
 
   describe '.field' do
-    specify { product.root_object.nested.keys.should =~ [:name, :surname, :title, :price] }
-    specify { product.root_object.nested.values.should satisfy { |v| v.all? { |f| f.is_a? Chewy::Fields::Base } } }
+    specify { expect(product.root_object.nested.keys).to match_array([:name, :surname, :title, :price]) }
+    specify { expect(product.root_object.nested.values).to satisfy { |v| v.all? { |f| f.is_a? Chewy::Fields::Base } } }
 
-    specify { product.root_object.nested[:title].nested.keys.should == [:subfield1] }
-    specify { product.root_object.nested[:title].nested[:subfield1].should be_a Chewy::Fields::Base }
+    specify { expect(product.root_object.nested[:title].nested.keys).to eq([:subfield1]) }
+    specify { expect(product.root_object.nested[:title].nested[:subfield1]).to be_a Chewy::Fields::Base }
 
-    specify { product.root_object.nested[:price].nested.keys.should == [:subfield2] }
-    specify { product.root_object.nested[:price].nested[:subfield2].should be_a Chewy::Fields::Base }
+    specify { expect(product.root_object.nested[:price].nested.keys).to eq([:subfield2]) }
+    specify { expect(product.root_object.nested[:price].nested[:subfield2]).to be_a Chewy::Fields::Base }
   end
 
   describe '.mappings_hash' do
-    specify { Class.new(Chewy::Type).mappings_hash.should == {} }
-    specify { product.mappings_hash.should == product.root_object.mappings_hash }
+    specify { expect(Class.new(Chewy::Type).mappings_hash).to eq({}) }
+    specify { expect(product.mappings_hash).to eq(product.root_object.mappings_hash) }
 
     context 'parent-child relationship' do
       context do
@@ -46,7 +46,7 @@ describe Chewy::Type::Mapping do
           end
         end
 
-        specify { product.mappings_hash[:product][:_parent].should == { type: 'project' } }
+        specify { expect(product.mappings_hash[:product][:_parent]).to eq({ type: 'project' }) }
       end
 
       context do
@@ -60,7 +60,7 @@ describe Chewy::Type::Mapping do
           end
         end
 
-        specify { product.mappings_hash[:product][:_parent].should == { 'type' => 'project' } }
+        specify { expect(product.mappings_hash[:product][:_parent]).to eq({ 'type' => 'project' }) }
       end
     end
   end
@@ -76,7 +76,7 @@ describe Chewy::Type::Mapping do
       end
     end
 
-    specify { product.root_object.nested[:title].nested.keys.should == [:subfield1] }
-    specify { product.root_object.nested[:title].nested[:subfield1].should be_a Chewy::Fields::Base }
+    specify { expect(product.root_object.nested[:title].nested.keys).to eq([:subfield1]) }
+    specify { expect(product.root_object.nested[:title].nested[:subfield1]).to be_a Chewy::Fields::Base }
   end
 end

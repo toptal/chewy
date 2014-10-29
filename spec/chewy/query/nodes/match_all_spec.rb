@@ -6,6 +6,6 @@ describe Chewy::Query::Nodes::MatchAll do
       Chewy::Query::Filters.new(&block).__render__
     end
 
-    specify { render { match_all }.should == {match_all: {}} }
+    specify { expect(render { match_all }).to eq({match_all: {}}) }
   end
 end

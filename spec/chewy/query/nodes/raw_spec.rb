@@ -6,6 +6,6 @@ describe Chewy::Query::Nodes::Raw do
       Chewy::Query::Filters.new(&block).__render__
     end
 
-    specify { render { r(term: {name: 'name'}) }.should == {term: {name: 'name'}} }
+    specify { expect(render { r(term: {name: 'name'}) }).to eq({term: {name: 'name'}}) }
   end
 end

@@ -12,22 +12,22 @@ describe Chewy::Type::Wrapper do
 
   subject { city_type.new(name: 'Martin', age: 42) }
 
-  it { should respond_to :name }
-  it { should respond_to :age }
+  it { is_expected.to respond_to :name }
+  it { is_expected.to respond_to :age }
   its(:name) { should == 'Martin' }
   its(:age) { should == 42 }
 
   describe '#==' do
-    specify { city_type.new(id: 42).should == city_type.new(id: 42) }
-    specify { city_type.new(id: 42, age: 55).should == city_type.new(id: 42, age: 54) }
-    specify { city_type.new(id: 42).should_not == city_type.new(id: 43) }
-    specify { city_type.new(id: 42, age: 55).should_not == city_type.new(id: 43, age: 55) }
-    specify { city_type.new(age: 55).should == city_type.new(age: 55) }
-    specify { city_type.new(age: 55).should_not == city_type.new(age: 54) }
+    specify { expect(city_type.new(id: 42)).to eq(city_type.new(id: 42)) }
+    specify { expect(city_type.new(id: 42, age: 55)).to eq(city_type.new(id: 42, age: 54)) }
+    specify { expect(city_type.new(id: 42)).not_to eq(city_type.new(id: 43)) }
+    specify { expect(city_type.new(id: 42, age: 55)).not_to eq(city_type.new(id: 43, age: 55)) }
+    specify { expect(city_type.new(age: 55)).to eq(city_type.new(age: 55)) }
+    specify { expect(city_type.new(age: 55)).not_to eq(city_type.new(age: 54)) }
 
-    specify { city_type.new(id: '42').should == City.new.tap { |m| m.stub(id: 42) } }
-    specify { city_type.new(id: 42).should_not == City.new.tap { |m| m.stub(id: 43) } }
+    specify { expect(city_type.new(id: '42')).to eq(City.new.tap { |m| allow(m).to receive_messages(id: 42) }) }
+    specify { expect(city_type.new(id: 42)).not_to eq(City.new.tap { |m| allow(m).to receive_messages(id: 43) }) }
 
-    specify { city_type.new(id: 42).should_not == Class.new }
+    specify { expect(city_type.new(id: 42)).not_to eq(Class.new) }
   end
 end

@@ -25,11 +25,11 @@ describe Chewy do
     specify { expect { described_class.derive_type('developers#borogoves') }.to raise_error Chewy::UnderivableType, /DevelopersIndex.*borogoves/ }
     specify { expect { described_class.derive_type('namespace/autocomplete') }.to raise_error Chewy::UnderivableType, /AutocompleteIndex.*namespace\/autocomplete#type_name/ }
 
-    specify { described_class.derive_type(DevelopersIndex.developer).should == DevelopersIndex.developer }
-    specify { described_class.derive_type('developers').should == DevelopersIndex.developer }
-    specify { described_class.derive_type('developers#developer').should == DevelopersIndex.developer }
-    specify { described_class.derive_type('namespace/autocomplete#developer').should == Namespace::AutocompleteIndex.developer }
-    specify { described_class.derive_type('namespace/autocomplete#company').should == Namespace::AutocompleteIndex.company }
+    specify { expect(described_class.derive_type(DevelopersIndex.developer)).to eq(DevelopersIndex.developer) }
+    specify { expect(described_class.derive_type('developers')).to eq(DevelopersIndex.developer) }
+    specify { expect(described_class.derive_type('developers#developer')).to eq(DevelopersIndex.developer) }
+    specify { expect(described_class.derive_type('namespace/autocomplete#developer')).to eq(Namespace::AutocompleteIndex.developer) }
+    specify { expect(described_class.derive_type('namespace/autocomplete#company')).to eq(Namespace::AutocompleteIndex.company) }
   end
 
   describe '.create_type' do
@@ -38,8 +38,8 @@ describe Chewy do
     context 'Symbol' do
       subject { described_class.create_type(CitiesIndex, :city) }
 
-      it { should be_a Class }
-      it { should be < Chewy::Type }
+      it { is_expected.to be_a Class }
+      it { is_expected.to be < Chewy::Type }
       its(:name) { should == 'CitiesIndex::City' }
       its(:index) { should == CitiesIndex }
       its(:type_name) { should == 'city' }
@@ -49,8 +49,8 @@ describe Chewy do
       before { stub_class(:city) }
       subject { described_class.create_type(CitiesIndex, City) }
 
-      it { should be_a Class }
-      it { should be < Chewy::Type }
+      it { is_expected.to be_a Class }
+      it { is_expected.to be < Chewy::Type }
       its(:name) { should == 'CitiesIndex::City' }
       its(:index) { should == CitiesIndex }
       its(:type_name) { should == 'city' }
@@ -60,8 +60,8 @@ describe Chewy do
       before { stub_model(:city) }
       subject { described_class.create_type(CitiesIndex, City.includes(:country)) }
 
-      it { should be_a Class }
-      it { should be < Chewy::Type }
+      it { is_expected.to be_a Class }
+      it { is_expected.to be < Chewy::Type }
       its(:name) { should == 'CitiesIndex::City' }
       its(:index) { should == CitiesIndex }
       its(:type_name) { should == 'city' }
@@ -73,8 +73,8 @@ describe Chewy do
 
       subject { described_class.create_type(Namespace::CitiesIndex, City) }
 
-      it { should be_a Class }
-      it { should be < Chewy::Type }
+      it { is_expected.to be_a Class }
+      it { is_expected.to be < Chewy::Type }
       its(:name) { should == 'Namespace::CitiesIndex::City' }
       its(:index) { should == Namespace::CitiesIndex }
       its(:type_name) { should == 'city' }
@@ -85,8 +85,8 @@ describe Chewy do
 
       subject { described_class.create_type(CitiesIndex, Namespace::City) }
 
-      it { should be_a Class }
-      it { should be < Chewy::Type }
+      it { is_expected.to be_a Class }
+      it { is_expected.to be < Chewy::Type }
       its(:name) { should == 'CitiesIndex::City' }
       its(:index) { should == CitiesIndex }
       its(:type_name) { should == 'city' }
@@ -97,17 +97,17 @@ describe Chewy do
     before { Chewy.massacre }
 
     before do
-      Chewy.stub(configuration: Chewy.configuration.merge(prefix: 'prefix1'))
+      allow(Chewy).to receive_messages(configuration: Chewy.configuration.merge(prefix: 'prefix1'))
       stub_index(:admins).create!
-      Chewy.stub(configuration: Chewy.configuration.merge(prefix: 'prefix2'))
+      allow(Chewy).to receive_messages(configuration: Chewy.configuration.merge(prefix: 'prefix2'))
       stub_index(:developers).create!
       stub_index(:companies).create!
 
       Chewy.massacre
     end
 
-    specify { AdminsIndex.exists?.should == true }
-    specify { DevelopersIndex.exists?.should == false }
-    specify { CompaniesIndex.exists?.should == false }
+    specify { expect(AdminsIndex.exists?).to eq(true) }
+    specify { expect(DevelopersIndex.exists?).to eq(false) }
+    specify { expect(CompaniesIndex.exists?).to eq(false) }
   end
 end

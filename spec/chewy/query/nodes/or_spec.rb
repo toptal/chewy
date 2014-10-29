@@ -6,11 +6,11 @@ describe Chewy::Query::Nodes::Or do
       Chewy::Query::Filters.new(&block).__render__
     end
 
-    specify { render { name? | (email == 'email') }.should == {
+    specify { expect(render { name? | (email == 'email') }).to eq({
       or: [{exists: {field: 'name'}}, {term: {'email' => 'email'}}]
-    } }
-    specify { render { ~(name? | (email == 'email')) }.should == {
+    }) }
+    specify { expect(render { ~(name? | (email == 'email')) }).to eq({
       or: {filters: [{exists: {field: 'name'}}, {term: {'email' => 'email'}}], _cache: true}
-    } }
+    }) }
   end
 end

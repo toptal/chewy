@@ -14,42 +14,42 @@ describe Chewy::Config do
   its(:char_filters) { should == {} }
 
   describe '#analyzer' do
-    specify { subject.analyzer(:name).should be_nil }
+    specify { expect(subject.analyzer(:name)).to be_nil }
 
     context do
       before { subject.analyzer(:name, option: :foo) }
-      specify { subject.analyzer(:name).should == {option: :foo} }
-      specify { subject.analyzers.should == {name: {option: :foo}} }
+      specify { expect(subject.analyzer(:name)).to eq({option: :foo}) }
+      specify { expect(subject.analyzers).to eq({name: {option: :foo}}) }
     end
   end
 
   describe '#tokenizer' do
-    specify { subject.tokenizer(:name).should be_nil }
+    specify { expect(subject.tokenizer(:name)).to be_nil }
 
     context do
       before { subject.tokenizer(:name, option: :foo) }
-      specify { subject.tokenizer(:name).should == {option: :foo} }
-      specify { subject.tokenizers.should == {name: {option: :foo}} }
+      specify { expect(subject.tokenizer(:name)).to eq({option: :foo}) }
+      specify { expect(subject.tokenizers).to eq({name: {option: :foo}}) }
     end
   end
 
   describe '#filter' do
-    specify { subject.filter(:name).should be_nil }
+    specify { expect(subject.filter(:name)).to be_nil }
 
     context do
       before { subject.filter(:name, option: :foo) }
-      specify { subject.filter(:name).should == {option: :foo} }
-      specify { subject.filters.should == {name: {option: :foo}} }
+      specify { expect(subject.filter(:name)).to eq({option: :foo}) }
+      specify { expect(subject.filters).to eq({name: {option: :foo}}) }
     end
   end
 
   describe '#char_filter' do
-    specify { subject.char_filter(:name).should be_nil }
+    specify { expect(subject.char_filter(:name)).to be_nil }
 
     context do
       before { subject.char_filter(:name, option: :foo) }
-      specify { subject.char_filter(:name).should == {option: :foo} }
-      specify { subject.char_filters.should == {name: {option: :foo}} }
+      specify { expect(subject.char_filter(:name)).to eq({option: :foo}) }
+      specify { expect(subject.char_filters).to eq({name: {option: :foo}}) }
     end
   end
 
@@ -62,8 +62,8 @@ describe Chewy::Config do
 
   describe '#atomic?' do
     its(:atomic?) { should eq(false) }
-    specify { subject.atomic { subject.atomic?.should eq(true) } }
-    specify { subject.atomic { }; subject.atomic?.should eq(false) }
+    specify { subject.atomic { expect(subject.atomic?).to eq(true) } }
+    specify { subject.atomic { }; expect(subject.atomic?).to eq(false) }
   end
 
   describe '#atomic' do
@@ -74,9 +74,9 @@ describe Chewy::Config do
     end
     let(:dummy_type) { DummiesIndex::Dummy }
 
-    specify { subject.atomic { 42 }.should == 42 }
+    specify { expect(subject.atomic { 42 }).to eq(42) }
     specify { expect { subject.atomic { subject.stash Class.new, 42 } }.to raise_error ArgumentError }
-    specify { subject.atomic { subject.atomic { subject.stash.should == [{}, {}] } } }
+    specify { subject.atomic { subject.atomic { expect(subject.stash).to eq([{}, {}]) } } }
 
     specify do
       expect(dummy_type).to receive(:import).with([1, 2, 3]).once
@@ -107,6 +107,6 @@ describe Chewy::Config do
   end
 
   describe '#stash' do
-    specify { subject.atomic { subject.stash.should == [{}] } }
+    specify { subject.atomic { expect(subject.stash).to eq([{}]) } }
   end
 end

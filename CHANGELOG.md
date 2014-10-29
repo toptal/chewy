@@ -1,5 +1,7 @@
 # master
 
+# Version 0.6.0
+
 ## Changes
 
   * Mongoid support YaY! (@fabiotomio, @leemhenson)
@@ -9,6 +11,10 @@
   * `timeout` and `timed_out` support (@MarkMurphy)
 
   * will_paginate support (@josecoelho)
+
+## Bugfixes
+
+  * All the query chainable methods delegated to indexes and types (partially @Linuus)
 
 # Version 0.5.2
 

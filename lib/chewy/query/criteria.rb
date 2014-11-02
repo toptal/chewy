@@ -101,24 +101,22 @@ module Chewy
       end
 
       def request_body
-        body = {}
+        body = _filtered_query(_request_query, _request_filter, options.slice(:strategy))
 
+        if options[:simple]
+          { body: body.presence || { query: { match_all: {} } } }
+        else
+          body.merge!(post_filter: _request_post_filter) if post_filters?
+          body.merge!(facets: facets) if facets?
+          body.merge!(aggregations: aggregations) if aggregations?
+          body.merge!(suggest: suggest) if suggest?
+          body.merge!(sort: sort) if sort?
+          body.merge!(_source: fields) if fields?
 
-        body.merge!(_filtered_query(_request_query, _request_filter, options.slice(:strategy)))
-        body.merge!(post_filter: _request_post_filter) if post_filters?
-        body.merge!(facets: facets) if facets?
-        body.merge!(aggregations: aggregations) if aggregations?
-        body.merge!(suggest: suggest) if suggest?
-        body.merge!(sort: sort) if sort?
-        body.merge!(_source: fields) if fields?
+          body = _boost_query(body)
 
-        body = _boost_query(body)
-
-        { body: body.merge!(request_options) }
-      end
-
-      def delete_all_request_body
-        { body: _filtered_query(_request_query, _request_filter, options.slice(:strategy)).presence || { query: { match_all: {} } } }
+          { body: body.merge!(request_options) }
+        end
       end
 
     protected

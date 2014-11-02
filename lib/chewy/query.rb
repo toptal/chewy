@@ -530,6 +530,7 @@ module Chewy
     #     # => []
     #   UsersIndex.none.query(text: {name: 'Johny'}).to_a
     #     # => []
+    #
     def none
       chain { criteria.update_options none: true }
     end
@@ -836,7 +837,31 @@ module Chewy
     #   UsersIndex::User.filter{ age <= 42 }.delete_all
     #
     def delete_all
-      _delete_all_response
+      request = chain { criteria.update_options simple: true }.send(:_request)
+      ActiveSupport::Notifications.instrument 'delete_query.chewy', request: request, index: index do
+        index.client.delete_by_query(request)
+      end
+    end
+
+    # Deletes all records matching a query.
+    #
+    #   UsersIndex.find(42)
+    #   UsersIndex.filter{ age <= 42 }.find(42)
+    #   UsersIndex::User.find(42)
+    #   UsersIndex::User.filter{ age <= 42 }.find(42)
+    #
+    # In all the previous examples find will return a single object.
+    # To get a collection - pass an array of ids.
+    #
+    #    UsersIndex::User.find(42, 7, 3) # array of objects with ids in [42, 7, 3]
+    #    UsersIndex::User.find([8, 13])  # array of objects with ids in [8, 13]
+    #    UsersIndex::User.find([42])     # array of the object with id == 42
+    #
+    def find *ids
+      results = chain { criteria.update_options simple: true }.filter { _id == ids.flatten }.to_a
+
+      raise Chewy::DocumentNotFound.new("Could not find documents for ids #{ids.flatten}") if results.empty?
+      ids.one? && !ids.first.is_a?(Array) ? results.first : results
     end
 
     # Returns request total time elapsed as reported by elasticsearch
@@ -882,10 +907,6 @@ module Chewy
       @_request ||= criteria.request_body.merge(index: index.index_name, type: types)
     end
 
-    def _delete_all_request
-      @_delete_all_request ||= criteria.delete_all_request_body.merge(index: index.index_name, type: types)
-    end
-
     def _response
       @_response ||= ActiveSupport::Notifications.instrument 'search_query.chewy', request: _request, index: index do
         begin
@@ -894,12 +915,6 @@ module Chewy
           raise e if e.message !~ /IndexMissingException/
           {}
         end
-      end
-    end
-
-    def _delete_all_response
-      @_delete_all_response ||= ActiveSupport::Notifications.instrument 'delete_query.chewy', request: _delete_all_request, index: index do
-        index.client.delete_by_query(_delete_all_request)
       end
     end
 

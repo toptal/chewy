@@ -1,4 +1,4 @@
-require 'chewy/index/search'
+require 'chewy/search'
 require 'chewy/type/mapping'
 require 'chewy/type/wrapper'
 require 'chewy/type/observe'
@@ -10,7 +10,7 @@ require 'chewy/type/adapter/mongoid'
 
 module Chewy
   class Type
-    include Chewy::Index::Search
+    include Search
     include Mapping
     include Wrapper
     include Observe

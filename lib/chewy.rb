@@ -15,7 +15,6 @@ require 'chewy/config'
 require 'chewy/runtime'
 require 'chewy/index'
 require 'chewy/type'
-require 'chewy/query'
 require 'chewy/fields/base'
 require 'chewy/fields/root'
 

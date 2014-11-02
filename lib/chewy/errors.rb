@@ -11,6 +11,9 @@ module Chewy
   class UnderivableType < Error
   end
 
+  class DocumentNotFound < Error
+  end
+
   class ImportFailed < Error
     def initialize type, errors
       output = "Import failed for `#{type}` with:\n"

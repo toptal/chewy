@@ -291,6 +291,31 @@ describe Chewy::Query do
     specify { expect { ProductsIndex::City.delete_all }.to change { ProductsIndex.total }.from(9).to(6) }
   end
 
+  describe '#find' do
+    let(:products) { 3.times.map { |i| {id: i.next.to_s, name: "Name#{i.next}", age: 10 * i.next}.stringify_keys! } }
+    let(:cities) { 1.times.map { |i| {id: '4'}.stringify_keys! } }
+    let(:countries) { 1.times.map { |i| {id: '4'}.stringify_keys! } }
+
+    before do
+      ProductsIndex::Product.import!(products.map { |h| double(h) })
+      ProductsIndex::City.import!(cities.map { |h| double(h) })
+      ProductsIndex::Country.import!(countries.map { |h| double(h) })
+    end
+
+    specify { expect(subject.find(1)).to be_a(ProductsIndex::Product) }
+    specify { expect(subject.find(1).id).to eq('1') }
+    specify { expect(subject.find(4).id).to eq('4') }
+    specify { expect(subject.find([1]).map(&:id)).to match_array(%w(1)) }
+    specify { expect(subject.find([4]).map(&:id)).to match_array(%w(4 4)) }
+    specify { expect(subject.find([1, 3]).map(&:id)).to match_array(%w(1 3)) }
+    specify { expect(subject.find(1, 3).map(&:id)).to match_array(%w(1 3)) }
+    specify { expect(subject.find(1, 10).map(&:id)).to match_array(%w(1)) }
+
+    specify { expect { subject.find(10) }.to raise_error Chewy::DocumentNotFound }
+    specify { expect { subject.find([10]) }.to raise_error Chewy::DocumentNotFound }
+    specify { expect { subject.find([10, 20]) }.to raise_error Chewy::DocumentNotFound }
+  end
+
   describe '#none' do
     specify { expect(subject.none).to be_a described_class }
     specify { expect(subject.none).not_to eq(subject) }

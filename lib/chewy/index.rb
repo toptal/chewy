@@ -1,13 +1,13 @@
+require 'chewy/search'
 require 'chewy/index/actions'
 require 'chewy/index/aliases'
-require 'chewy/index/search'
 require 'chewy/index/settings'
 
 module Chewy
   class Index
+    include Search
     include Actions
     include Aliases
-    include Search
 
     singleton_class.delegate :client, to: 'Chewy'
 

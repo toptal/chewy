@@ -1,5 +1,9 @@
 # master
 
+## Changes
+
+  * `Chewy::Query#find` method for finding records by id
+
 # Version 0.6.0
 
 ## Changes

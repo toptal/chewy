@@ -149,10 +149,6 @@ module Chewy
         body.tap { |b| b[:query] = { function_score: score } }
       end
 
-      def _request_options
-        options.slice(:size, :from, :explain, :highlight, :rescore)
-      end
-
       def _request_query
         _queries_join(queries, options[:query_mode])
       end

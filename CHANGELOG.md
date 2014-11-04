@@ -2,8 +2,9 @@
 
 ## Changes
 
+  * `min_score` query option support (@jshirley)
+
   * `Chewy::Query#find` method for finding records by id
-  * `min_score` query option support.
 
 # Version 0.6.0
 

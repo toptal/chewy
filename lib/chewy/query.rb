@@ -314,6 +314,14 @@ module Chewy
       chain { criteria.update_request_options rescore: value }
     end
 
+    # Elasticsearch minscore option support
+    #
+    # UsersIndex.query(...).min_score(0.5)
+    #
+    def min_score value
+      chain { criteria.update_request_options min_score: value }
+    end
+
     # Adds facets section to the search request.
     # All the chained facets a merged and added to the
     # search request

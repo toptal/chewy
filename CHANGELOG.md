@@ -1,5 +1,7 @@
 # master
 
+# Version 0.6.1
+
 ## Changes
 
   * `min_score` query option support (@jshirley)

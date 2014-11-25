@@ -10,7 +10,7 @@ Gem::Specification.new do |spec|
   spec.email         = ['kinwizard@gmail.com']
   spec.summary       = %q{Elasticsearch ODM client wrapper}
   spec.description   = %q{Chewy provides functionality for Elasticsearch index handling, documents import mappings and chainable query DSL}
-  spec.homepage      = ''
+  spec.homepage      = 'https://github.com/toptal/chewy'
   spec.license       = 'MIT'
 
   spec.files         = `git ls-files`.split($/)

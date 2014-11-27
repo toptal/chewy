@@ -90,6 +90,10 @@ module Chewy
           if self.root_object.parent_id
             entry[:parent] = self.root_object.compose_parent(object) if object.respond_to?(:id)
           end
+          
+          if self.root_object.id
+            entry[:_id] = self.root_object.compose_id(object)
+          end
 
           indexed_object = indexed_objects && indexed_objects[entry[:_id].to_s]
 

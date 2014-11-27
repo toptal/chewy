@@ -454,8 +454,8 @@ module Chewy
     #                :field,
     #                origin: '11, 12',
     #                scale: '2km',
-    #                offset: '5km'
-    #                decay: 0.4
+    #                offset: '5km',
+    #                decay: 0.4,
     #                filter: { foo: :bar})
     #       # => {body:
     #              query: {
@@ -474,12 +474,7 @@ module Chewy
     #                  }]
     #                } } }
     def decay(function, field, options = {})
-      field_options = {
-        origin: options.delete(:origin) || 0,
-        scale: options.delete(:scale) || 1,
-        offset: options.delete(:offset) || 0,
-        decay: options.delete(:decay) || 0.1
-      }
+      field_options = options.extract!(:origin, :scale, :offset, :decay).delete_if { |_, v| v.nil? }
       scoring = options.merge(function => {
         field => field_options
       })

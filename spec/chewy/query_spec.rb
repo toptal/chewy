@@ -138,12 +138,7 @@ describe Chewy::Query do
     specify { expect(subject.decay(:gauss, :field)).not_to eq(subject) }
     specify { expect(subject.decay(:gauss, :field).criteria.scores).to eq([ {
       gauss: {
-        field: {
-          origin: 0,
-          scale: 1,
-          offset: 0,
-          decay: 0.1
-        }
+        field: {}
       }
     }]) }
     specify { expect { subject.decay(:gauss, :field) }.not_to change { subject.criteria.scores } }

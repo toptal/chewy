@@ -12,7 +12,7 @@ Mongoid.configure do |config|
   config.load_configuration(CONFIG)
 end
 
-Mongoid.logger = Logger.new('/dev/null')
+Mongoid.logger = Logger.new('C:\tmp\logs\chewy\test.log')
 
 module MongoidClassHelpers
   extend ActiveSupport::Concern
@@ -64,6 +64,7 @@ RSpec.configure do |config|
       include Mongoid::Document
 
       field :name, type: String
+      field :country_code, type: String
       field :rating, type: Integer
 
       has_many :cities, order: :id.asc

@@ -1,11 +1,12 @@
 require 'database_cleaner'
 
 ActiveRecord::Base.establish_connection(adapter: 'sqlite3', database: ':memory:')
-ActiveRecord::Base.logger = Logger.new('/dev/null')
+ActiveRecord::Base.logger = Logger.new('C:\tmp\logs\chewy\test.log')
 
 ActiveRecord::Schema.define do
   create_table :countries do |t|
     t.column :name, :string
+    t.column :country_code, :string
     t.column :rating, :integer
   end
 

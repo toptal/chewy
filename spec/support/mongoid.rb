@@ -12,7 +12,7 @@ Mongoid.configure do |config|
   config.load_configuration(CONFIG)
 end
 
-Mongoid.logger = Logger.new('C:\tmp\logs\chewy\test.log')
+Mongoid.logger = Logger.new('/dev/null')
 
 module MongoidClassHelpers
   extend ActiveSupport::Concern

@@ -1,7 +1,7 @@
 require 'database_cleaner'
 
 ActiveRecord::Base.establish_connection(adapter: 'sqlite3', database: ':memory:')
-ActiveRecord::Base.logger = Logger.new('C:\tmp\logs\chewy\test.log')
+ActiveRecord::Base.logger = Logger.new('/dev/null')
 
 ActiveRecord::Schema.define do
   create_table :countries do |t|

@@ -279,6 +279,58 @@ describe Chewy::Type::Import do
         end
       end
     end
+    
+    context 'root id', :orm do
+      let(:canada) { Country.create(id: 1, name: 'Canada', country_code: 'CA', rating: 4) }
+      let(:country)  { CountriesIndex::Country }
+      
+      before do
+        stub_model(:country)
+      end
+      
+      before do
+        stub_index(:countries) do
+          define_type Country do
+            root _id: -> { country_code } do
+              field :name
+              field :rating
+            end
+          end
+        end
+      end
+      
+      specify { expect( country.import(canada) ).to eq(true)  }
+      specify { expect { country.import(canada) }.to update_index(country).and_reindex(canada.country_code) }
+
+      specify do
+        expect(CountriesIndex.client).to receive(:bulk).with(hash_including(
+          body: [{ index: { _id: canada.country_code, data: { 'name' => 'Canada', 'rating' => 4 } } }]
+        ))
+
+        country.import canada
+      end
+      
+      specify do
+        canada.update_attributes(rating: 9)
+
+        expect(CountriesIndex.client).to receive(:bulk).with(hash_including(
+          body: [{ index: { _id: canada.country_code, data: { 'name' => 'Canada', 'rating' => 9 } } }]
+        ))
+
+        country.import canada
+      end
+      
+      specify do
+        canada.destroy
+
+        expect(CountriesIndex.client).to receive(:bulk).with(hash_including(
+          body: [{ delete: { _id: canada.country_code } }]
+        ))
+
+        country.import canada
+      end
+      
+    end  # END root id
   end
 
   describe '.import!', :orm do

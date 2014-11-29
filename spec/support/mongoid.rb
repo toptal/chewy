@@ -64,6 +64,7 @@ RSpec.configure do |config|
       include Mongoid::Document
 
       field :name, type: String
+      field :country_code, type: String
       field :rating, type: Integer
 
       has_many :cities, order: :id.asc

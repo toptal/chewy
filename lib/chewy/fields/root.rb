@@ -2,10 +2,12 @@ module Chewy
   module Fields
     class Root < Chewy::Fields::Base
       attr_reader :dynamic_templates
+      attr_reader :id
       attr_reader :parent
       attr_reader :parent_id
 
       def initialize(name, options = {})
+        @id = options.delete(:id) || options.delete(:_id)
         @parent = options.delete(:parent) || options.delete(:_parent)
         @parent_id = options.delete(:parent_id)
         options.reverse_merge!(value: ->(_){_})
@@ -62,6 +64,12 @@ module Chewy
       def compose_parent(object)
         if parent_id
           parent_id.arity == 0 ? object.instance_exec(&parent_id) : parent_id.call(object)
+        end
+      end
+      
+      def compose_id(object)
+        if id
+          id.arity == 0 ? object.instance_exec(&id) : id.call(object)
         end
       end
     end

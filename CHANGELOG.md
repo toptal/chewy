@@ -1,5 +1,17 @@
 # master
 
+# Version 0.6.2
+
+## Changes
+
+  * document root id custom value option (@baronworks)
+
+## Bugfixes
+
+  * Removed decay function defaults (@Linuus)
+
+  * Correct config file handling in case of empty file
+
 # Version 0.6.1
 
 ## Changes

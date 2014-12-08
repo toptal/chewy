@@ -31,14 +31,6 @@ module Chewy
       adapter.type_name
     end
 
-    def self.search_index
-      index
-    end
-
-    def self.search_type
-      type_name
-    end
-
     def self.const_missing(name)
       to_resolve = "#{self.to_s}::#{name}"
       to_resolve[index.to_s] = ''

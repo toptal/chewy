@@ -15,20 +15,15 @@ module Chewy
 
     module ClassMethods
       def all
-        Chewy::Query.new(search_index, types: search_type)
+        Chewy::Query.new(self)
       end
 
       def search_string query, options = {}
-        options = options.merge(index: search_index.index_name, type: search_type, q: query)
-        client.search(options)
-      end
-
-      def search_index
-        raise NotImplementedError
-      end
-
-      def search_type
-        raise NotImplementedError
+        options = options.merge(
+          index: all._indexes.map(&:index_name),
+          type: all._types.map(&:type_name),
+          q: query)
+        Chewy.client.search(options)
       end
     end
   end

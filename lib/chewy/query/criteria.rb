@@ -133,14 +133,14 @@ module Chewy
       end
 
       def _boost_query(body)
-        scores? or return body
+        return body unless scores?
         query = body.delete :query
         filter = body.delete :filter
         if query && filter
           query = { filtered: { query: query, filter: filter } }
           filter = nil
         end
-        score = { }
+        score = {}
         score[:functions] = scores
         score[:boost_mode] = options[:boost_mode] if options[:boost_mode]
         score[:score_mode] = options[:score_mode] if options[:score_mode]

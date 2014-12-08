@@ -29,13 +29,14 @@ module Chewy
     delegate :each, :count, :size, to: :_collection
     alias_method :to_ary, :to_a
 
-    attr_reader :index, :options, :criteria
+    attr_reader :_indexes, :_types, :options, :criteria
 
-    def initialize index, options = {}
-      @index, @options = index, options
-      @types = Array.wrap(options.delete(:types))
+    def initialize *indexes_or_types_and_options
+      @options = indexes_or_types_and_options.extract_options!
+      @_types = indexes_or_types_and_options.select { |klass| klass < Chewy::Type }
+      @_indexes = indexes_or_types_and_options.select { |klass| klass < Chewy::Index }
+      @_indexes |= @_types.map(&:index)
       @criteria = Criteria.new
-      reset
     end
 
     # Comparation with other query or collection
@@ -800,11 +801,7 @@ module Chewy
     #          }}}}
     #
     def types *params
-      if params.any?
-        chain { criteria.update_types params }
-      else
-        @types
-      end
+      chain { criteria.update_types params }
     end
 
     # Acts the same way as <tt>types</tt>, but cleans up previously set types
@@ -841,8 +838,8 @@ module Chewy
     #
     def delete_all
       request = chain { criteria.update_options simple: true }.send(:_request)
-      ActiveSupport::Notifications.instrument 'delete_query.chewy', request: request, index: index do
-        index.client.delete_by_query(request)
+      ActiveSupport::Notifications.instrument 'delete_query.chewy', request: request, index: _indexes.one? ? _indexes.first : _indexes do
+        Chewy.client.delete_by_query(request)
       end
     end
 
@@ -907,13 +904,13 @@ module Chewy
     end
 
     def _request
-      @_request ||= criteria.request_body.merge(index: index.index_name, type: types)
+      @_request ||= criteria.request_body.merge(index: _indexes.map(&:index_name), type: _types.map(&:type_name))
     end
 
     def _response
-      @_response ||= ActiveSupport::Notifications.instrument 'search_query.chewy', request: _request, index: index do
+      @_response ||= ActiveSupport::Notifications.instrument 'search_query.chewy', request: _request, index: _indexes.one? ? _indexes.first : _indexes do
         begin
-          index.client.search(_request)
+          Chewy.client.search(_request)
         rescue Elasticsearch::Transport::Transport::Errors::NotFound => e
           raise e if e.message !~ /IndexMissingException/
           {}
@@ -928,7 +925,7 @@ module Chewy
           .merge!(_score: hit['_score'])
           .merge!(_explanation: hit['_explanation'])
 
-        wrapper = index.type_hash[hit['_type']].new attributes
+        wrapper = _derive_index(hit['_index']).type_hash[hit['_type']].new attributes
         wrapper._data = hit
         wrapper
       end
@@ -940,6 +937,15 @@ module Chewy
         criteria.options[:preload] && criteria.options[:loaded_objects] ?
           _results.map(&:_object) : _results
       end
+    end
+
+    def _derive_index index_name
+      (@derive_index ||= {})[index_name] ||= _indexes_hash[index_name] ||
+        _indexes_hash[_indexes_hash.keys.sort_by(&:length).reverse.detect { |name| index_name.starts_with?(name) }]
+    end
+
+    def _indexes_hash
+      @_indexes_hash ||= _indexes.index_by(&:index_name)
     end
   end
 end

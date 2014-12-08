@@ -156,13 +156,5 @@ module Chewy
     def self.index_params
       [settings_hash, mappings_hash].inject(:merge)
     end
-
-    def self.search_index
-      self
-    end
-
-    def self.search_type
-      type_names
-    end
   end
 end

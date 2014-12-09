@@ -15,7 +15,7 @@ module Chewy
 
     module ClassMethods
       def all
-        Chewy::Query.new(self)
+        query_class.new(self)
       end
 
       def search_string query, options = {}
@@ -24,6 +24,28 @@ module Chewy
           type: all._types.map(&:type_name),
           q: query)
         Chewy.client.search(options)
+      end
+
+    private
+
+      def query_class
+        @query_class ||= begin
+          klass = Class.new(Chewy::Query)
+          if self < Chewy::Type
+            delegate_string klass,
+              public_methods - Chewy::Type.public_methods, self
+          else
+            delegate_string klass,
+              public_methods - Chewy::Index.public_methods, self
+          end
+          const_set('Query', klass)
+        end
+      end
+
+      def delegate_string klass, methods, to
+        klass.class_eval do
+          delegate *methods, to: to
+        end
       end
     end
   end

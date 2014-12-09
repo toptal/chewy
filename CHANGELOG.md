@@ -1,5 +1,9 @@
 # master
 
+## Changes
+
+  * Implemented basic names scopes
+
 # Version 0.6.2
 
 ## Changes

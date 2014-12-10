@@ -35,7 +35,7 @@ module Chewy
           nested_compose(result)
         end if nested.any? && !multi_field?
 
-        {name => result.as_json}
+        {name => result.as_json(root: false)}
       end
 
       def nested(field = nil)

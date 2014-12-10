@@ -139,7 +139,7 @@ module Chewy
         [:import, :import!].each do |method|
           class_eval <<-METHOD, __FILE__, __LINE__ + 1
             def #{method} options = {}
-              objects = options.reject { |k, v| !type_names.map(&:to_sym).include?(k) }
+              objects = options.slice!(type_names.map(&:to_sym))
               types.map do |type|
                 args = [objects[type.type_name.to_sym], options.dup].reject(&:blank?)
                 type.#{method} *args

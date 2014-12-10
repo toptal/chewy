@@ -90,7 +90,7 @@ module Chewy
           if self.root_object.parent_id
             entry[:parent] = self.root_object.compose_parent(object) if object.respond_to?(:id)
           end
-          
+
           if self.root_object.id
             entry[:_id] = self.root_object.compose_id(object)
           end

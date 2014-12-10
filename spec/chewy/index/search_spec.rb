@@ -1,6 +1,8 @@
 require 'spec_helper'
 
 describe Chewy::Search do
+  before { Chewy.massacre }
+
   before do
     stub_index(:products) do
       define_type :product
@@ -53,9 +55,13 @@ describe Chewy::Search do
           def self.by_rating
             filter { rating == 2 }
           end
+
+          field :rating, type: :integer
         end
 
-        define_type Country
+        define_type Country do
+          field :rating, type: :integer
+        end
       end
     end
 

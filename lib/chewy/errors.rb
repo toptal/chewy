@@ -11,20 +11,29 @@ module Chewy
   class UnderivableType < Error
   end
 
+  class UndefinedUpdateStrategy < Error
+    def initialize type
+      super <<-MESSAGE
+Index update strategy is undefined in current context.
+Please wrap your code with `Chewy.strategy(:strategy_name) block.`
+      MESSAGE
+    end
+  end
+
   class DocumentNotFound < Error
   end
 
   class ImportFailed < Error
     def initialize type, errors
-      output = "Import failed for `#{type}` with:\n"
+      message = "Import failed for `#{type}` with:\n"
       errors.each do |action, errors|
-        output << "    #{action.to_s.humanize} errors:\n"
+        message << "    #{action.to_s.humanize} errors:\n"
         errors.each do |error, documents|
-          output << "      `#{error}`\n"
-          output << "        on #{documents.count} documents: #{documents}\n"
+          message << "      `#{error}`\n"
+          message << "        on #{documents.count} documents: #{documents}\n"
         end
       end
-      super output
+      super message
     end
   end
 end

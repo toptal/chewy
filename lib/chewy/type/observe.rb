@@ -31,7 +31,7 @@ module Chewy
           method = args.first
 
           update = Proc.new do
-            clear_association_cache if Chewy.urgent_update
+            clear_association_cache if Chewy.strategy.current.is_a?(Chewy::Strategy::Urgent)
 
             backreference = if method && method.to_s == 'self'
               self
@@ -51,24 +51,7 @@ module Chewy
 
       module ClassMethods
         def update_index(objects, options = {})
-          if Chewy.atomic?
-            relation = (defined?(::ActiveRecord) && objects.is_a?(::ActiveRecord::Relation)) ||
-                       (defined?(::Mongoid) && objects.is_a?(::Mongoid::Criteria))
-
-            ids = if relation
-              objects.pluck(:id)
-            else
-              Array.wrap(objects).map { |object| object.respond_to?(:id) ? object.id : object.to_i }
-            end
-
-            Chewy.stash self, ids
-          elsif options[:urgent]
-            ActiveSupport::Deprecation.warn("`urgent: true` option is deprecated and will be removed soon, use `Chewy.atomic` block instead")
-            import(objects)
-          elsif Chewy.urgent_update
-            import(objects)
-          end if objects
-
+          Chewy.strategy.current.update(self, objects, options)
           true
         end
       end

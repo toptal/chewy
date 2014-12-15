@@ -1,5 +1,11 @@
 # master
 
+## Incompatible changes:
+
+  * Reworked index update strategies implementation. `Chewy.atomic`
+  and `Chewy.urgent_update` are now deprecated in favour of the new
+  `Chewy.strategy` API.
+
 ## Changes
 
   * Implemented basic names scopes
@@ -42,13 +48,13 @@
 
 # Version 0.5.2
 
-## Changes
-
-  * `Chewy.massacre` aliased to `Chewy.delete_all` method deletes all the indexes with current prefix
-
 ## Incompatible changes:
 
   * `Chewy::Type::Base` removed in favour of using `Chewy::Type` as a base class for all types
+
+## Changes
+
+  * `Chewy.massacre` aliased to `Chewy.delete_all` method deletes all the indexes with current prefix
 
 ## Bugfixes:
 

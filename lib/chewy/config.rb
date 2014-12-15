@@ -10,13 +10,6 @@ module Chewy
       #
       :logger,
 
-      # Urgent update default value. False by default. Urgent
-      # updates are useful for testing, so don't use it in the
-      # application code. Prefer `Chewy.atomic` block for cumulative
-      # index updates.
-      #
-      :urgent_update,
-
       # Default query compilation mode. `:must` by default.
       # See Chewy::Query#query_mode for details
       #
@@ -48,7 +41,6 @@ module Chewy
 
     def initialize
       @configuration = {}
-      @urgent_update = false
       @query_mode = :must
       @filter_mode = :and
       @analyzers = {}
@@ -143,26 +135,31 @@ module Chewy
       Thread.current[:chewy_client] ||= ::Elasticsearch::Client.new configuration
     end
 
-    def atomic?
-      stash.any?
-    end
-
-    def atomic
-      stash.push({})
-      yield
-    ensure
-      stash.pop.each { |type, ids| type.import(ids) }
-    end
-
-    def stash *args
-      if args.any?
-        type, ids = *args
-        raise ArgumentError.new('Only Chewy::Type accepted as the first argument') unless type < Chewy::Type
-        stash.last[type] ||= []
-        stash.last[type] |= ids
+    def strategy name = nil, &block
+      Thread.current[:chewy_strategy] ||= Chewy::Strategy.new
+      if name
+        if block
+          Thread.current[:chewy_strategy].wrap name, &block
+        else
+          Thread.current[:chewy_strategy].push name
+        end
       else
-        Thread.current[:chewy_cache] ||= []
+        Thread.current[:chewy_strategy]
       end
+    end
+
+    def urgent_update= value
+      ActiveSupport::Deprecation.warn('`Chewy.urgent_update = value` is deprecated and will be removed soon, use `Chewy.strategy(:urgent)` block instead')
+      if value
+        strategy(:urgent)
+      else
+        strategy.pop
+      end
+    end
+
+    def atomic &block
+      ActiveSupport::Deprecation.warn('`Chewy.atomic` block is deprecated and will be removed soon, use `Chewy.strategy(:atomic)` block instead')
+      strategy(:atomic, &block)
     end
 
   private
@@ -172,7 +169,7 @@ module Chewy
         if defined?(Rails)
           file = Rails.root.join(*%w(config chewy.yml))
 
-          if File.exists?(file)
+          if File.exist?(file)
             yaml = ERB.new(File.read(file)).result
             hash = YAML.load(yaml)
             hash[Rails.env].try(:deep_symbolize_keys) if hash

@@ -11,7 +11,7 @@ describe Chewy::Type::Import do
     let(:backreferenced) { 3.times.map { |i| double(id: i) } }
 
     specify { expect { DummiesIndex.dummy.update_index(backreferenced) }
-      .not_to update_index('dummies#dummy', atomic: false) }
+      .to raise_error Chewy::UndefinedUpdateStrategy }
     specify { expect { DummiesIndex.dummy.update_index([]) }
       .not_to update_index('dummies#dummy') }
     specify { expect { DummiesIndex.dummy.update_index(nil) }
@@ -41,46 +41,12 @@ describe Chewy::Type::Import do
       end
     end
 
-    let(:city) { City.create!(id: 1, country: Country.create!(id: 1)) }
-    let(:country) { Country.create!(id: 1, cities: 2.times.map { |i| City.create!(id: i) }) }
+    let(:city) { Chewy.strategy(:atomic) { City.create!(id: 1, country: Country.create!(id: 1)) } }
+    let(:country) { Chewy.strategy(:atomic) { Country.create!(id: 1, cities: 2.times.map { |i| City.create!(id: i) }) } }
 
-    specify { expect { city.save! }.not_to update_index('cities#city', atomic: false) }
+    specify { expect { city.save! }.to update_index('cities#city').and_reindex(city) }
+    specify { expect { city.save! }.to update_index('countries#country').and_reindex(city.country) }
+    specify { expect { country.save! }.to update_index('cities#city').and_reindex(country.cities) }
     specify { expect { country.save! }.to update_index('countries#country').and_reindex(country) }
-
-    context do
-      specify { expect { city.save! }.to update_index('cities#city').and_reindex(city) }
-      specify { expect { city.save! }.to update_index('countries#country').and_reindex(city.country) }
-      specify { expect { country.save! }.to update_index('cities#city').and_reindex(country.cities) }
-      specify { expect { country.save! }.to update_index('countries#country').and_reindex(country) }
-    end
-
-    context do
-      let(:other_city) { City.create! }
-
-      specify do
-        expect(CitiesIndex::City).not_to receive(:import)
-        [city, other_city].map(&:save!)
-      end
-
-      specify do
-        expect(CitiesIndex::City).to receive(:import).with([city.id, other_city.id]).once
-        Chewy.atomic { [city, other_city].map(&:save!) }
-      end
-    end
-
-    context do
-      before { allow(Chewy).to receive_messages(urgent_update: true) }
-      let(:other_country) { Country.create! }
-
-      specify do
-        expect(CountriesIndex::Country).to receive(:import).at_least(2).times
-        [country, other_country].map(&:save!)
-      end
-
-      specify do
-        expect(CountriesIndex::Country).to receive(:import).with([country.id, other_country.id]).once
-        Chewy.atomic { [country, other_country].map(&:save!) }
-      end
-    end
   end
 end

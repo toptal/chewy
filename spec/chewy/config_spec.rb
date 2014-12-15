@@ -60,53 +60,18 @@ describe Chewy::Config do
     its(:configuration) { should have_key :logger }
   end
 
-  describe '#atomic?' do
-    its(:atomic?) { should eq(false) }
-    specify { subject.atomic { expect(subject.atomic?).to eq(true) } }
-    specify { subject.atomic { }; expect(subject.atomic?).to eq(false) }
+  describe '#urgent_update=' do
+    specify do
+      subject.urgent_update = true
+      expect(subject.strategy.current).to be_a(Chewy::Strategy::Urgent)
+      subject.urgent_update = false
+      expect(subject.strategy.current).to be_a(Chewy::Strategy::Base)
+    end
   end
 
   describe '#atomic' do
-    before do
-      stub_index(:dummies) do
-        define_type :dummy
-      end
-    end
-    let(:dummy_type) { DummiesIndex::Dummy }
-
-    specify { expect(subject.atomic { 42 }).to eq(42) }
-    specify { expect { subject.atomic { subject.stash Class.new, 42 } }.to raise_error ArgumentError }
-    specify { subject.atomic { subject.atomic { expect(subject.stash).to eq([{}, {}]) } } }
-
     specify do
-      expect(dummy_type).to receive(:import).with([1, 2, 3]).once
-      subject.atomic do
-        subject.stash dummy_type, [1, 2]
-        subject.stash dummy_type, [2, 3]
-      end
+      subject.atomic { expect(subject.strategy.current).to be_a(Chewy::Strategy::Atomic) }
     end
-
-    specify do
-      expect(dummy_type).to receive(:import).with([1, 2]).once
-      subject.atomic do
-        subject.stash dummy_type, [1, 2]
-        raise
-      end rescue nil
-    end
-
-    specify do
-      expect(dummy_type).to receive(:import).with([2, 3]).once
-      expect(dummy_type).to receive(:import).with([1, 2]).once
-      subject.atomic do
-        subject.stash dummy_type, [2, 3]
-        subject.atomic do
-          subject.stash dummy_type, [1, 2]
-        end
-      end
-    end
-  end
-
-  describe '#stash' do
-    specify { subject.atomic { expect(subject.stash).to eq([{}]) } }
   end
 end

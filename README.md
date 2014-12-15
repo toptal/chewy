@@ -18,7 +18,7 @@ Chewy is ODM and wrapper for official elasticsearch client (https://github.com/e
 
 * Bulk import everywhere.
 
-  Chewy utilizes bulk ES API for full reindexing or index updates. Also it uses atomic updates concept. All the changed objects are collected inside the atomic block and index is updated once at the end of it with all the collected object. See `Chewy.atomic` for more details.
+  Chewy utilizes bulk ES API for full reindexing or index updates. Also it uses atomic updates concept. All the changed objects are collected inside the atomic block and index is updated once at the end of it with all the collected object. See `Chewy.strategy(:atomic)` for more details.
 
 * Powerful querying DSL.
 
@@ -230,52 +230,126 @@ Also if passed user is `#destroyed?` or `#delete_from_index?` or specified id do
 
 See [actions.rb](lib/chewy/index/actions.rb) for more details.
 
-### Observing strategies
+### Index update strategies
 
-There are 3 strategies for index updating: do not update index at all, update right after save and cumulative update. The first is by default.
-
-**WARN: It is preferred to use `Chewy.atomic` block in most cases due to performance restrictions of the urgent updates!**
-
-#### Updating index on-demand
-
-By default Chewy indexes are not updated when the observed model is saved or destroyed.
-This depends on the `Chewy.urgent_update` (false by default) or on the per-model update config.
-If you will perform `Chewy.urgent_update = true`, all the models will start to update elasticsearch
-index right after save.
-
-Note than urgent update options affects only outside-atomic-block behavour. Inside
-the `Chewy.atomic { }` block indexes updates as described below.
-
-#### Using atomic updates
-
-To perform atomic cummulative updates, use `Chewy.atomic`:
+Assume you've got the following code:
 
 ```ruby
-Chewy.atomic do
-  user.each { |user| user.update_attributes(name: user.name.strip) }
+class City < ActiveRecord::Base
+  update_index 'cities#city', :self
+end
+
+class CitiesIndex < Chewy::Index
+  define_type City do
+    field :name
+  end
 end
 ```
 
-Index update will be performed once per Chewy.atomic block for every affected type.
-This strategy is highly usable for rails actions:
+If you'll perform something like `City.first.save!` you'll get
+UndefinedUpdateStrategy exception instead of normal object saving
+and index update. This exception forces you to choose appropriate
+update strategy for current context.
+
+#### `:atomic`
+
+The main strategy here is `:atomic`. Assume you have to update a
+lot of records in db.
+
+```ruby
+Chewy.strategy(:atomic) do
+  City.popular.map(&:do_some_update_action!)
+end
+```
+
+Using this strategy delays index update request until the end of
+block. Updated records are aggregated and index update happens with
+bulk API. So this strategy is highly optimized.
+
+It is a good idea to use it in controller actions, so all the updated
+records will be indexed in batches just after action is finished.
 
 ```ruby
 class ApplicationController < ActionController::Base
   around_action :chewy_atomic
 
   def chewy_atomic
-    Chewy.atomic do
-      yield
-    end
+    Chewy.strategy(:atomic) { yield }
   end
 end
 ```
 
-Also atomic blocks might be nested and don't affect each other.
+#### `:urgent`
+
+Next strategy is convenient if you are going to update documents in
+index one-by-one.
+
+```ruby
+Chewy.strategy(:urgent) do
+  City.popular.map(&:do_some_update_action!)
+end
+```
+
+This code would perform `City.popular.count` requests for ES
+documents update.
+
+Seems to be convenient for usage in e.g. rails console with
+non-block notation:
+
+```ruby
+> Chewy.strategy(:urgent)
+> City.popular.map(&:do_some_update_action!)
+```
+
+#### `:bypass`
+
+Bypass strategy simply silences index updates.
+
+#### Nesting
+
+Strategies are designed to allow nesting, so it is possible
+to redefine it for nested contexts.
+
+```ruby
+Chewy.strategy(:atomic) do
+  city1.do_update!
+  Chewy.strategy(:urgent) do
+    city2.do_update!
+    city3.do_update!
+    # there will be 2 update index requests for city2 and city3
+  end
+  city4..do_update!
+  # city1 and city4 will be grouped in one index update request
+end
+```
+
+#### Non-block notation
+
+It is possible to nest strategies without blocks:
+
+```ruby
+Chewy.strategy(:urgent)
+city1.do_update! # index updated
+Chewy.strategy(:bypass)
+city2.do_update! # update bypassed
+Chewy.strategy.pop
+city3.do_update! # index updated again
+```
+
+#### Designing own strategies
+
+Async strategy is not implemented yet, but it is planned. So
+it would be a good idea to implements own async strategy for
+particular delayed jobs library or simply threads.
+
+See [strategy/base.rb](lib/chewy/strategy/base.rb) for more details.
+See [strategy/atomic.rb](lib/chewy/strategy/atomic.rb) for example.
 
 ### Async reindexing
 
 Chewy is not support async index update, but it's planned. Until you can use third-party solutions, such as [https://github.com/averell23/chewy_kiqqer](https://github.com/averell23/chewy_kiqqer)
+
+Not sure it works currently.
 
 ### Index querying
 

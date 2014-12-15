@@ -12,7 +12,7 @@ module Chewy
         @options = options.merge(
           query_mode: Chewy.query_mode,
           filter_mode: Chewy.filter_mode,
-          post_filter_mode: Chewy.filter_mode || Chewy.post_filter_mode
+          post_filter_mode: Chewy.post_filter_mode || Chewy.filter_mode
         )
       end
 
@@ -165,7 +165,7 @@ module Chewy
       end
 
       def _request_types
-        _filters_join(types.map { |type| {type: {value: type}} }, :or)
+        _filters_join(types.map { |type| { type: { value: type } } }, :or)
       end
 
       def _request_post_filter

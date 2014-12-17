@@ -97,9 +97,9 @@ describe Chewy do
     before { Chewy.massacre }
 
     before do
-      allow(Chewy).to receive_messages(configuration: Chewy.configuration.merge(prefix: 'prefix1'))
+      allow(Chewy).to receive_messages(configuration: { prefix: 'prefix1' })
       stub_index(:admins).create!
-      allow(Chewy).to receive_messages(configuration: Chewy.configuration.merge(prefix: 'prefix2'))
+      allow(Chewy).to receive_messages(configuration: { prefix: 'prefix2' })
       stub_index(:developers).create!
       stub_index(:companies).create!
 
@@ -109,5 +109,20 @@ describe Chewy do
     specify { expect(AdminsIndex.exists?).to eq(true) }
     specify { expect(DevelopersIndex.exists?).to eq(false) }
     specify { expect(CompaniesIndex.exists?).to eq(false) }
+  end
+
+  describe '#urgent_update=' do
+    specify do
+      described_class.urgent_update = true
+      expect(described_class.strategy.current).to be_a(Chewy::Strategy::Urgent)
+      described_class.urgent_update = false
+      expect(described_class.strategy.current).to be_a(Chewy::Strategy::Base)
+    end
+  end
+
+  describe '#atomic' do
+    specify do
+      described_class.atomic { expect(described_class.strategy.current).to be_a(Chewy::Strategy::Atomic) }
+    end
   end
 end

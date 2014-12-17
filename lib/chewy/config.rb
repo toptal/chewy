@@ -2,13 +2,7 @@ module Chewy
   class Config
     include Singleton
 
-    attr_reader :analyzers, :tokenizers, :filters, :char_filters
-    attr_accessor :configuration,
-      # Just sets up logger to current configuration
-      #
-      #   Chewy.logger = Rails.logger
-      #
-      :logger,
+    attr_accessor :settings, :transport_logger, :transport_tracer, :logger,
 
       # Default query compilation mode. `:must` by default.
       # See Chewy::Query#query_mode for details
@@ -29,61 +23,24 @@ module Chewy
       public_instance_methods - self.superclass.public_instance_methods - Singleton.public_instance_methods
     end
 
-    def self.repository name
-      plural_name = name.to_s.pluralize
-
-      class_eval <<-METHOD, __FILE__, __LINE__ + 1
-        def #{name}(name, options = nil)
-          options ? #{plural_name}[name.to_sym] = options : #{plural_name}[name.to_sym]
-        end
-      METHOD
-    end
-
     def initialize
-      @configuration = {}
+      @settings = {}
       @query_mode = :must
       @filter_mode = :and
-      @analyzers = {}
-      @tokenizers = {}
-      @filters = {}
-      @char_filters = {}
     end
 
-    # Analysers repository:
-    #
-    #   Chewy.analyzer :my_analyzer2, {
-    #     type: custom,
-    #     tokenizer: 'my_tokenizer1',
-    #     filter : ['my_token_filter1', 'my_token_filter2']
-    #     char_filter : ['my_html']
-    #   }
-    #   Chewy.analyzer(:my_analyzer2) # => {type: 'custom', tokenizer: ...}
-    #
-    repository :analyzer
+    def transport_logger= logger
+      Chewy.client.transport.logger = logger
+      @transport_logger = logger
+    end
 
-    # Tokenizers repository:
-    #
-    #   Chewy.tokenizer :my_tokenizer1, {type: standard, max_token_length: 900}
-    #   Chewy.tokenizer(:my_tokenizer1) # => {type: standard, max_token_length: 900}
-    #
-    repository :tokenizer
-
-    # Token filters repository:
-    #
-    #   Chewy.filter :my_token_filter1, {type: stop, stopwords: [stop1, stop2, stop3, stop4]}
-    #   Chewy.filter(:my_token_filter1) # => {type: stop, stopwords: [stop1, stop2, stop3, stop4]}
-    #
-    repository :filter
-
-    # Char filters repository:
-    #
-    #   Chewy.char_filter :my_html, {type: html_strip, escaped_tags: [xxx, yyy], read_ahead: 1024}
-    #   Chewy.char_filter(:my_html) # => {type: html_strip, escaped_tags: [xxx, yyy], read_ahead: 1024}
-    #
-    repository :char_filter
+    def transport_tracer= tracer
+      Chewy.client.transport.tracer = tracer
+      @transport_tracer = tracer
+    end
 
     # Chewy core configurations. There is two ways to set it up:
-    # use `Chewy.configuration=` method or, for Rails application,
+    # use `Chewy.settings=` method or, for Rails application,
     # create `config/chewy.yml` file. Btw, `config/chewy.yml` supports
     # ERB the same way as ActiveRecord's config.
     #
@@ -126,46 +83,16 @@ module Chewy
     #            number_of_replicas: 0
     #
     def configuration
-      options = @configuration.deep_symbolize_keys.merge(yaml_options)
-      options.merge!(logger: logger) if logger
-      options
-    end
-
-    def client
-      Thread.current[:chewy_client] ||= ::Elasticsearch::Client.new configuration
-    end
-
-    def strategy name = nil, &block
-      Thread.current[:chewy_strategy] ||= Chewy::Strategy.new
-      if name
-        if block
-          Thread.current[:chewy_strategy].wrap name, &block
-        else
-          Thread.current[:chewy_strategy].push name
-        end
-      else
-        Thread.current[:chewy_strategy]
+      yaml_settings.merge(settings.deep_symbolize_keys).tap do |configuration|
+        configuration.merge(logger: transport_logger) if transport_logger
+        configuration.merge(tracer: transport_tracer) if transport_tracer
       end
-    end
-
-    def urgent_update= value
-      ActiveSupport::Deprecation.warn('`Chewy.urgent_update = value` is deprecated and will be removed soon, use `Chewy.strategy(:urgent)` block instead')
-      if value
-        strategy(:urgent)
-      else
-        strategy.pop
-      end
-    end
-
-    def atomic &block
-      ActiveSupport::Deprecation.warn('`Chewy.atomic` block is deprecated and will be removed soon, use `Chewy.strategy(:atomic)` block instead')
-      strategy(:atomic, &block)
     end
 
   private
 
-    def yaml_options
-      @yaml_options ||= begin
+    def yaml_settings
+      @yaml_settings ||= begin
         if defined?(Rails)
           file = Rails.root.join(*%w(config chewy.yml))
 

@@ -2,11 +2,22 @@
 
 ## Incompatible changes:
 
+  * Default strategy for controller actions is `:atomic`
+
+  * Default strategy for activerecord migrations is `:bypass`
+
+  * Default strategy for sandbox console is `:bypass`
+
+  * Default strategy for rails console is `:urgent`
+
+  * `Chewy.configuration` was renamed to `Chewy.settings`
+
   * Reworked index update strategies implementation. `Chewy.atomic`
   and `Chewy.urgent_update` are now deprecated in favour of the new
   `Chewy.strategy` API.
 
 ## Changes
+
 
   * Implemented basic names scopes
 

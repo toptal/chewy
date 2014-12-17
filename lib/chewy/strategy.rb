@@ -15,32 +15,9 @@ module Chewy
   #     User.last.save # Save user according to the `:atomic` strategy rules
   #   end
   #
-  # Strategies are designed to allow nesting, so it is possible
-  # to redefine it for nested contexts.
-  #
-  #   Chewy.strategy(:atomic) do
-  #     city1.do_update!
-  #     Chewy.strategy(:urgent) do
-  #       city2.do_update!
-  #       city3.do_update!
-  #       # there will be 2 update index requests for city2 and city3
-  #     end
-  #     city4..do_update!
-  #     # city1 and city4 will be grouped in one index update request
-  #   end
-  #
-  # It is possible to nest strategies without blocks:
-  #
-  #   Chewy.strategy(:urgent)
-  #   city1.do_update! # index updated
-  #   Chewy.strategy(:bypass)
-  #   city2.do_update! # update bypassed
-  #   Chewy.strategy.pop
-  #   city3.do_update! # index updated again
-  #
   class Strategy
     def initialize
-      @stack = [Chewy::Strategy::Base.new]
+      @stack = [resolve(:base).new]
     end
 
     def current
@@ -48,12 +25,16 @@ module Chewy
     end
 
     def push name
-      @stack.push resolve(name).new
+      result = @stack.push resolve(name).new
+      debug "  Chewy strategy changed to `#{name}`"
+      result
     end
 
     def pop
       raise 'Strategy stack is empty' if @stack.count <= 1
-      @stack.pop.tap(&:leave)
+      result = @stack.pop.tap(&:leave)
+      debug "  Chewy strategy changed back to `#{current.name}`"
+      result
     end
 
     def wrap name
@@ -64,6 +45,10 @@ module Chewy
     end
 
   private
+
+    def debug string
+      Chewy.logger.debug(string) if Chewy.logger
+    end
 
     def resolve name
       "Chewy::Strategy::#{name.to_s.camelize}".constantize or raise "Can't find update strategy `#{name}`"

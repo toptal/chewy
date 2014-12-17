@@ -17,7 +17,7 @@ require 'support/class_helpers'
 
 require 'chewy/rspec'
 
-Chewy.configuration = {
+Chewy.settings = {
   host: 'localhost:9250',
   wait_for_status: 'green',
   index: {

@@ -3,6 +3,7 @@ require 'spec_helper'
 describe Chewy::Index::Settings do
   describe '#to_hash' do
     before { allow(Chewy).to receive_messages(config: Chewy::Config.send(:new)) }
+    before { allow(Chewy).to receive_messages(repository: Chewy::Repository.send(:new)) }
 
     specify { expect(described_class.new.to_hash).to eq({}) }
     specify { expect(described_class.new(number_of_nodes: 3).to_hash).to eq({settings: {number_of_nodes: 3}}) }
@@ -70,7 +71,7 @@ describe Chewy::Index::Settings do
         .to eq({settings: {index: {number_of_shards: 3}}}) }
 
       context do
-        before { Chewy.configuration = {index: {number_of_shards: 7, number_of_replicas: 2}} }
+        before { allow(Chewy).to receive_messages(configuration: {index: {number_of_shards: 7, number_of_replicas: 2}}) }
 
         specify { expect(described_class.new.to_hash)
           .to eq({settings: {index: {number_of_shards: 7, number_of_replicas: 2}}}) }

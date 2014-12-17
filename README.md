@@ -40,15 +40,15 @@ Or install it yourself as:
 
 ## Usage
 
-### Client configuration
+### Client settings
 
-There are 2 ways to configure Chewy client: `Chewy.configuration` hash and `chewy.yml`
+There are 2 ways to configure Chewy client: `Chewy.settings` hash and `chewy.yml`
 
 You can create this file manually or run `rails g chewy:install` to do that with yaml way
 
 ```ruby
 # config/initializers/chewy.rb
-Chewy.configuration = {host: 'localhost:9250'} # do not use environments
+Chewy.settings = {host: 'localhost:9250'} # do not use environments
 ```
 
 ```yaml
@@ -64,7 +64,7 @@ development:
 The result config merges both hashes. Client options are passed as is to Elasticsearch::Transport::Client except the `:prefix` - it is used internally by chewy to create prefixed index names:
 
 ```ruby
-  Chewy.configuration = {prefix: 'test'}
+  Chewy.settings = {prefix: 'test'}
   UsersIndex.index_name # => 'test_users'
 ```
 
@@ -266,19 +266,6 @@ Using this strategy delays index update request until the end of
 block. Updated records are aggregated and index update happens with
 bulk API. So this strategy is highly optimized.
 
-It is a good idea to use it in controller actions, so all the updated
-records will be indexed in batches just after action is finished.
-
-```ruby
-class ApplicationController < ActionController::Base
-  around_action :chewy_atomic
-
-  def chewy_atomic
-    Chewy.strategy(:atomic) { yield }
-  end
-end
-```
-
 #### `:urgent`
 
 Next strategy is convenient if you are going to update documents in
@@ -350,6 +337,26 @@ See [strategy/atomic.rb](lib/chewy/strategy/atomic.rb) for example.
 Chewy is not support async index update, but it's planned. Until you can use third-party solutions, such as [https://github.com/averell23/chewy_kiqqer](https://github.com/averell23/chewy_kiqqer)
 
 Not sure it works currently.
+
+### Rails application strategies integration
+
+There is a couple of pre-defined strategies for your rails application. At first, rails console uses `:urgent` strategy by default, except the sandbox case. Whan you are running sandbox it switches to `bypass` strategy to avoid index polluting.
+
+Also migrations are wrapped with `:bypass` strategy. Because the main behavor implies that indexes are resetted after migration, so there is no need for extra index updates.
+Also indexing might be broken during migrations because of the outdated schema.
+
+Controller actions are wrapped with `:atomic` strategy just to reduce amount of index update requests inside actions.
+
+It is also a good idea to set up `:bypass` strategy inside your test suite and import objects manually only when needed, plus use `Chewy.massacre` when needed to flush test ES indexes before every example. This will allow to minimize unnecessary ES requests and reduce overhead.
+
+
+```ruby
+RSpec.configure do |config|
+  config.before(:suite) do
+    Chewy.strategy(:bypass)
+  end
+end
+```
 
 ### Index querying
 

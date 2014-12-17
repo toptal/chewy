@@ -1,4 +1,5 @@
 require 'active_support'
+require 'active_support/log_subscriber'
 require 'active_support/deprecation'
 require 'active_support/core_ext'
 require 'active_support/concern'
@@ -12,7 +13,9 @@ require 'elasticsearch'
 require 'chewy/version'
 require 'chewy/errors'
 require 'chewy/config'
+require 'chewy/repository'
 require 'chewy/runtime'
+require 'chewy/log_subscriber'
 require 'chewy/strategy'
 require 'chewy/index'
 require 'chewy/type'
@@ -104,6 +107,12 @@ module Chewy
       type
     end
 
+    # Main elasticsearch-ruby client instance
+    #
+    def client
+      Thread.current[:chewy_client] ||= ::Elasticsearch::Client.new configuration
+    end
+
     # Sends wait_for_status request to ElasticSearch with status
     # defined in configuration.
     #
@@ -122,9 +131,64 @@ module Chewy
     end
     alias_method :delete_all, :massacre
 
+    # Strategies are designed to allow nesting, so it is possible
+    # to redefine it for nested contexts.
+    #
+    #   Chewy.strategy(:atomic) do
+    #     city1.do_update!
+    #     Chewy.strategy(:urgent) do
+    #       city2.do_update!
+    #       city3.do_update!
+    #       # there will be 2 update index requests for city2 and city3
+    #     end
+    #     city4..do_update!
+    #     # city1 and city4 will be grouped in one index update request
+    #   end
+    #
+    # It is possible to nest strategies without blocks:
+    #
+    #   Chewy.strategy(:urgent)
+    #   city1.do_update! # index updated
+    #   Chewy.strategy(:bypass)
+    #   city2.do_update! # update bypassed
+    #   Chewy.strategy.pop
+    #   city3.do_update! # index updated again
+    #
+    def strategy name = nil, &block
+      Thread.current[:chewy_strategy] ||= Chewy::Strategy.new
+      if name
+        if block
+          Thread.current[:chewy_strategy].wrap name, &block
+        else
+          Thread.current[:chewy_strategy].push name
+        end
+      else
+        Thread.current[:chewy_strategy]
+      end
+    end
+
+    def urgent_update= value
+      ActiveSupport::Deprecation.warn('`Chewy.urgent_update = value` is deprecated and will be removed soon, use `Chewy.strategy(:urgent)` block instead')
+      if value
+        strategy(:urgent)
+      else
+        strategy.pop
+      end
+    end
+
+    def atomic &block
+      ActiveSupport::Deprecation.warn('`Chewy.atomic` block is deprecated and will be removed soon, use `Chewy.strategy(:atomic)` block instead')
+      strategy(:atomic, &block)
+    end
+
     def config
       Chewy::Config.instance
     end
     delegate *Chewy::Config.delegated, to: :config
+
+    def repository
+      Chewy::Repository.instance
+    end
+    delegate *Chewy::Repository.delegated, to: :repository
   end
 end

@@ -797,7 +797,7 @@ end
 ActiveSupport::Notifications.subscribe('search_query.chewy') do |name, start, finish, id, payload|
   metrics = "Database/ElasticSearch/search"
   duration = (finish - start).to_f
-  logged = "#{payload[:index]} #{payload[:request]}"
+  logged = "#{payload[:type].presence || payload[:index]} #{payload[:request]}"
 
   self.class.trace_execution_scoped([metrics]) do
     NewRelic::Agent.instance.transaction_sampler.notice_sql(logged, nil, duration)

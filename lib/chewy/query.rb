@@ -838,8 +838,11 @@ module Chewy
     #
     def delete_all
       request = chain { criteria.update_options simple: true }.send(:_request)
-      ActiveSupport::Notifications.instrument 'delete_query.chewy', request: request, index: _indexes.one? ? _indexes.first : _indexes do
-        Chewy.client.delete_by_query(request)
+      ActiveSupport::Notifications.instrument 'delete_query.chewy',
+        request: request, indexes: _indexes, types: _types,
+        index: _indexes.one? ? _indexes.first : _indexes,
+        type: _types.one? ? _types.first : _types do
+          Chewy.client.delete_by_query(request)
       end
     end
 
@@ -908,13 +911,16 @@ module Chewy
     end
 
     def _response
-      @_response ||= ActiveSupport::Notifications.instrument 'search_query.chewy', request: _request, index: _indexes.one? ? _indexes.first : _indexes do
-        begin
-          Chewy.client.search(_request)
-        rescue Elasticsearch::Transport::Transport::Errors::NotFound => e
-          raise e if e.message !~ /IndexMissingException/
-          {}
-        end
+      @_response ||= ActiveSupport::Notifications.instrument 'search_query.chewy',
+        request: _request, indexes: _indexes, types: _types,
+        index: _indexes.one? ? _indexes.first : _indexes,
+        type: _types.one? ? _types.first : _types do
+          begin
+            Chewy.client.search(_request)
+          rescue Elasticsearch::Transport::Transport::Errors::NotFound => e
+            raise e if e.message !~ /IndexMissingException/
+            {}
+          end
       end
     end
 

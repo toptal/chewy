@@ -3,7 +3,11 @@ module Chewy
     module ControllerPatch
       extend ActiveSupport::Concern
       included do
-        prepend_around_action :setup_chewy_strategy
+        if respond_to?(:prepend_around_action)
+          prepend_around_action :setup_chewy_strategy
+        else
+          prepend_around_filter :setup_chewy_strategy
+        end
       end
 
     private

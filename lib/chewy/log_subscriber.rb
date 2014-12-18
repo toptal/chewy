@@ -23,7 +23,7 @@ module Chewy
       if description.present?
         subject = payload[:type].presence || payload[:index]
         action = "#{subject} #{action} (#{event.duration.round(1)}ms)"
-        action = color(action, GREEN, true)
+        action = color(action, GREEN, true) if colorize_logging
 
         debug("  #{action} #{description}")
       end

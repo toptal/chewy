@@ -17,7 +17,7 @@ module Chewy
   #
   class Strategy
     def initialize
-      @stack = [resolve(:base).new]
+      @stack = [resolve(Chewy.root_strategy).new]
     end
 
     def current
@@ -26,14 +26,14 @@ module Chewy
 
     def push name
       result = @stack.push resolve(name).new
-      debug "  Chewy strategy changed to `#{name}`"
+      debug "[#{@stack.size}] <- #{current.name}"
       result
     end
 
     def pop
-      raise 'Strategy stack is empty' if @stack.count <= 1
+      raise "Can't pop root strategy" if @stack.one?
+      debug "[#{@stack.size}] -> #{current.name}"
       result = @stack.pop.tap(&:leave)
-      debug "  Chewy strategy changed back to `#{current.name}`"
       result
     end
 
@@ -47,7 +47,10 @@ module Chewy
   private
 
     def debug string
-      Chewy.logger.debug(string) if Chewy.logger
+      if Chewy.logger && Chewy.logger.debug?
+        line = caller.detect { |line| line !~ %r{lib/chewy/strategy.rb:|lib/chewy.rb:} }
+        Chewy.logger.debug(["Chewy strategies stack: #{string}", line.sub(/:in\s.+$/, '')].join(' @ '))
+      end
     end
 
     def resolve name

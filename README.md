@@ -251,6 +251,9 @@ UndefinedUpdateStrategy exception instead of normal object saving
 and index update. This exception forces you to choose appropriate
 update strategy for current context.
 
+If you want to return behavior was before 0.7.0 - just set
+`Chewy.root_strategy = :bypass`.
+
 #### `:atomic`
 
 The main strategy here is `:atomic`. Assume you have to update a
@@ -345,7 +348,7 @@ There is a couple of pre-defined strategies for your rails application. At first
 Also migrations are wrapped with `:bypass` strategy. Because the main behavor implies that indexes are resetted after migration, so there is no need for extra index updates.
 Also indexing might be broken during migrations because of the outdated schema.
 
-Controller actions are wrapped with `:atomic` strategy just to reduce amount of index update requests inside actions.
+Controller actions are wrapped with `:atomic` strategy with middleware just to reduce amount of index update requests inside actions.
 
 It is also a good idea to set up `:bypass` strategy inside your test suite and import objects manually only when needed, plus use `Chewy.massacre` when needed to flush test ES indexes before every example. This will allow to minimize unnecessary ES requests and reduce overhead.
 

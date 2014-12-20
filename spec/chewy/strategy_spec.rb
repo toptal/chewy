@@ -5,6 +5,11 @@ describe Chewy::Strategy do
 
   describe '#current' do
     specify { expect(strategy.current).to be_a(Chewy::Strategy::Base) }
+
+    context do
+      before { allow(Chewy).to receive_messages(root_strategy: :bypass) }
+      specify { expect(strategy.current).to be_a(Chewy::Strategy::Bypass) }
+    end
   end
 
   describe '#push' do

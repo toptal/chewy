@@ -2,6 +2,8 @@
 
 ## Incompatible changes:
 
+  * `Chewy.root_strategy` to configure the first strategy in stack
+
   * Default strategy for controller actions is `:atomic`
 
   * Default strategy for activerecord migrations is `:bypass`

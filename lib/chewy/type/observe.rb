@@ -31,7 +31,7 @@ module Chewy
           method = args.first
 
           update = Proc.new do
-            clear_association_cache if Chewy.strategy.current.is_a?(Chewy::Strategy::Urgent)
+            clear_association_cache if Chewy.strategy.current.name == :urgent
 
             backreference = if method && method.to_s == 'self'
               self

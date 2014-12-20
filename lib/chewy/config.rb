@@ -17,7 +17,13 @@ module Chewy
       # Default post_filters compilation mode. `nil` by default.
       # See Chewy::Query#post_filter_mode for details
       #
-      :post_filter_mode
+      :post_filter_mode,
+
+      # The first trategy in stack. `:base` by default.
+      # If you neet to return to the previous chewy behavior -
+      # just set it to `:bypass`
+      #
+      :root_strategy
 
     def self.delegated
       public_instance_methods - self.superclass.public_instance_methods - Singleton.public_instance_methods
@@ -27,6 +33,7 @@ module Chewy
       @settings = {}
       @query_mode = :must
       @filter_mode = :and
+      @root_strategy = :base
     end
 
     def transport_logger= logger

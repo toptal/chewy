@@ -20,6 +20,16 @@
 
 ## Changes
 
+  * Nested fields value procs additional arguments: parent objects.
+
+    ```ruby
+      define_type Country do
+        field :name
+        field :cities do
+          filed :district, value: ->(city, country) { city.districts if country.main? }
+        end
+      end
+    ```
 
   * Implemented basic names scopes
 

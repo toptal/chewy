@@ -12,7 +12,7 @@ describe Chewy::Fields::Base do
 
     specify { expect(described_class.new(:name).compose(double(name: 'hello'))).to eq({name: 'hello'}) }
 
-    context do
+    context 'nested fields' do
       before do
         field.nested(described_class.new(:subname1, value: ->(o){ o.subvalue1 }))
         field.nested(described_class.new(:subname2, value: ->{ subvalue2 }))
@@ -30,7 +30,22 @@ describe Chewy::Fields::Base do
       ]}) }
     end
 
-    context do
+    context 'parent objects' do
+      let!(:country) { described_class.new(:name, value: ->(country){ country.cities }) }
+      let!(:city) { country.nested(described_class.new(:name, value: ->(city, country) { city.districts.map { |district| [district, country.name] } })) }
+      let!(:district) { city.nested(described_class.new(:name, value: ->(district, city, country) { [district, city.name, country.name] })) }
+
+      specify { expect(country.compose(double(name: 'Thailand', cities: [
+        double(name: 'Bangkok', districts: ['First', 'Second'])
+      ]))).to eq(name: [
+        { 'name' => [
+          { 'name' => [['First', 'Thailand'], 'Bangkok', 'Thailand'] },
+          { 'name' => [['Second', 'Thailand'], 'Bangkok', 'Thailand'] }
+        ] }
+      ]) }
+    end
+
+    context 'implicit values' do
       let(:field) { described_class.new(:name, type: 'string') }
       before do
         field.nested(described_class.new(:name))
@@ -40,7 +55,7 @@ describe Chewy::Fields::Base do
       specify { expect(field.compose(double(name: 'Alex'))).to eq({name: 'Alex'}) }
     end
 
-    context do
+    context 'hash values' do
       let(:field) { described_class.new(:name, type: 'object') }
       let(:object) { double(name: { key1: 'value1', key2: 'value2' }) }
 

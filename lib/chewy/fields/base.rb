@@ -20,9 +20,10 @@ module Chewy
         false
       end
 
-      def compose(object)
+      def compose(object, *parent_objects)
         result = if value && value.is_a?(Proc)
-          value.arity == 0 ? object.instance_exec(&value) : value.call(object)
+          value.arity.zero? ? object.instance_exec(&value) :
+            value.call(object, *parent_objects.first(value.arity - 1))
         elsif object.is_a?(Hash)
           object[name] || object[name.to_s]
         else
@@ -30,9 +31,9 @@ module Chewy
         end
 
         result = if result.respond_to?(:to_ary)
-          result.to_ary.map { |object| nested_compose(object) }
+          result.to_ary.map { |result| nested_compose(result, object, *parent_objects) }
         else
-          nested_compose(result)
+          nested_compose(result, object, *parent_objects)
         end if nested.any? && !multi_field?
 
         {name => result.as_json(root: false)}
@@ -57,8 +58,8 @@ module Chewy
 
     private
 
-      def nested_compose(value)
-        nested.values.map { |field| field.compose(value) if value }.compact.inject(:merge)
+      def nested_compose(value, *parent_objects)
+        nested.values.map { |field| field.compose(value, *parent_objects) if value }.compact.inject(:merge)
       end
     end
   end

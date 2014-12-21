@@ -3,6 +3,7 @@
 [![Inline docs](http://inch-ci.org/github/toptal/chewy.svg?branch=master)](http://inch-ci.org/github/toptal/chewy)
 
 # Chewy
+[![Gitter](https://badges.gitter.im/Join Chat.svg)](https://gitter.im/toptal/chewy?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 Chewy is ODM and wrapper for official elasticsearch client (https://github.com/elasticsearch/elasticsearch-ruby)
 

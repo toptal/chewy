@@ -177,7 +177,7 @@ describe Chewy::Type::Adapter::ActiveRecord, :active_record do
       subject { described_class.new(City) }
 
       let(:data_comparer) do
-        ->(id, data) { object = (data[:index] || data[:delete]).first; (object.respond_to?(:id) ? object.id : object) != id }
+        ->(id, data) { objects = data[:index] || data[:delete]; !objects.map { |o| o.respond_to?(:id) ? o.id : o }.include?(id) }
       end
 
       context 'implicit scope' do

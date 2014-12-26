@@ -56,6 +56,15 @@ describe Chewy::Type::Adapter::Object do
 
       specify { expect(import(objects.first, nil)).to eq([{index: [objects.first]}]) }
 
+      context 'initial data' do
+        subject { described_class.new ->{ objects } }
+
+        specify { expect(import).to eq([{index: objects}]) }
+        specify { expect(import(objects[0..1])).to eq([{index: objects[0..1]}]) }
+        specify { expect(import(batch_size: 2))
+          .to eq([{index: objects.first(2)}, {index: objects.last(1)}]) }
+      end
+
       context do
         let(:deleted) { 2.times.map { |i| double(delete_from_index?: true, destroyed?: true) } }
         specify { expect(import(deleted)).to eq([{delete: deleted}]) }

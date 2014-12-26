@@ -20,6 +20,14 @@
 
 ## Changes
 
+  * Object adapter initial proc support. Used for initial index filling.
+
+    ```ruby
+      define_type ->{ ObjectsSource.new }, name: :custom_objects do
+        ...
+      end
+    ```
+
   * Nested fields value procs additional arguments: parent objects.
 
     ```ruby

@@ -10,7 +10,7 @@ module Chewy
         end
 
         def name
-          @name ||= (options[:name] || target).to_s.camelize.demodulize
+          @name ||= (options[:name] || @target).to_s.camelize.demodulize
         end
 
         # Imports passed data with options
@@ -31,7 +31,8 @@ module Chewy
         def import *args, &block
           import_options = args.extract_options!
           batch_size = import_options.delete(:batch_size) || BATCH_SIZE
-          objects = args.flatten.compact
+          objects = args.none? && @target.respond_to?(:call) ?
+            @target.call : args.flatten.compact
 
           objects.each_slice(batch_size).map do |group|
             action_groups = group.group_by do |object|

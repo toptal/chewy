@@ -34,7 +34,7 @@
       define_type Country do
         field :name
         field :cities do
-          filed :district, value: ->(city, country) { city.districts if country.main? }
+          field :district, value: ->(city, country) { city.districts if country.main? }
         end
       end
     ```

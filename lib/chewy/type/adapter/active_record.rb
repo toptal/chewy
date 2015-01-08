@@ -61,7 +61,7 @@ module Chewy
         def import *args, &block
           import_options = args.extract_options!
           import_options[:batch_size] ||= BATCH_SIZE
-          collection = args.none? ? model_all :
+          collection = args.empty? ? model_all :
             (args.one? && args.first.is_a?(::ActiveRecord::Relation) ? args.first : args.flatten.compact)
 
           if collection.is_a?(::ActiveRecord::Relation)

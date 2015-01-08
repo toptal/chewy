@@ -42,6 +42,7 @@ describe Chewy::Type::Adapter::ActiveRecord, :active_record do
       subject { described_class.new(City) }
 
       specify { expect(import).to eq([{index: cities}]) }
+      specify { expect(import nil).to eq([]) }
 
       specify { expect(import(City.order(:id))).to eq([{index: cities}]) }
       specify { expect(import(City.order(:id), batch_size: 2))

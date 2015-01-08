@@ -41,6 +41,10 @@
 
   * Implemented basic names scopes
 
+## Bugfixes
+
+  * `Chewy::Index.import nil` imports nothing instead of initial data
+
 # Version 0.6.2
 
 ## Changes

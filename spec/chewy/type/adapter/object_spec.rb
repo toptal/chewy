@@ -45,6 +45,8 @@ describe Chewy::Type::Adapter::Object do
       subject { described_class.new('product') }
 
       specify { expect(import).to eq([]) }
+      specify { expect(import nil).to eq([]) }
+
       specify { expect(import(objects)).to eq([{index: objects}]) }
       specify { expect(import(objects, batch_size: 2))
           .to eq([{index: objects.first(2)}, {index: objects.last(1)}]) }
@@ -60,6 +62,8 @@ describe Chewy::Type::Adapter::Object do
         subject { described_class.new ->{ objects } }
 
         specify { expect(import).to eq([{index: objects}]) }
+        specify { expect(import nil).to eq([]) }
+
         specify { expect(import(objects[0..1])).to eq([{index: objects[0..1]}]) }
         specify { expect(import(batch_size: 2))
           .to eq([{index: objects.first(2)}, {index: objects.last(1)}]) }

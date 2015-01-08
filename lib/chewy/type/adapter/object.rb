@@ -31,7 +31,7 @@ module Chewy
         def import *args, &block
           import_options = args.extract_options!
           batch_size = import_options.delete(:batch_size) || BATCH_SIZE
-          objects = args.none? && @target.respond_to?(:call) ?
+          objects = args.empty? && @target.respond_to?(:call) ?
             @target.call : args.flatten.compact
 
           objects.each_slice(batch_size).map do |group|

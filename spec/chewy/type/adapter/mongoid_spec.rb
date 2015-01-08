@@ -42,6 +42,7 @@ describe Chewy::Type::Adapter::Mongoid, :mongoid do
       subject { described_class.new(City) }
 
       specify { expect(import).to eq([{index: cities}]) }
+      specify { expect(import nil).to eq([]) }
 
       specify { expect(import(City.order(:id.asc))).to eq([{index: cities}]) }
       specify { expect(import(City.order(:id.asc), batch_size: 2))

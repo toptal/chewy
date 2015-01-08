@@ -63,7 +63,7 @@ module Chewy
           import_options[:batch_size] ||= BATCH_SIZE
           batch_size = import_options[:batch_size]
 
-          collection = args.none? ? model_all :
+          collection = args.empty? ? model_all :
             (args.one? && args.first.is_a?(::Mongoid::Criteria) ? args.first : args.flatten.compact)
 
           if collection.is_a?(::Mongoid::Criteria)

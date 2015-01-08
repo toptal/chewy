@@ -19,8 +19,9 @@ Gem::Specification.new do |spec|
   spec.require_paths = ['lib']
 
   spec.add_development_dependency 'rake'
-  spec.add_development_dependency 'rspec', '~> 3.0.0'
-  spec.add_development_dependency 'rspec-its', '~> 1.0.1'
+  spec.add_development_dependency 'appraisal'
+  spec.add_development_dependency 'rspec'
+  spec.add_development_dependency 'rspec-its'
   spec.add_development_dependency 'rspec-collection_matchers'
   spec.add_development_dependency 'sqlite3'
   spec.add_development_dependency 'database_cleaner', '~> 1.3.0'

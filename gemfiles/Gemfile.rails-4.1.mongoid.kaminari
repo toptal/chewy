@@ -1,7 +1,0 @@
-source 'https://rubygems.org'
-
-gemspec path: '../'
-
-gem 'mongoid', '~> 4.0.0'
-gem 'activesupport', '~> 4.1.0'
-gem 'kaminari', require: false

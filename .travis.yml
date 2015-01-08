@@ -4,32 +4,12 @@ rvm:
   - 2.1.5
   - 2.2.0
   # - rbx
-gemfile:
-  - gemfiles/Gemfile.rails-3.2.active_record
-  - gemfiles/Gemfile.rails-3.2.active_record.kaminari
-  - gemfiles/Gemfile.rails-3.2.active_record.will_paginate
-  - gemfiles/Gemfile.rails-4.0.active_record
-  - gemfiles/Gemfile.rails-4.0.active_record.kaminari
-  - gemfiles/Gemfile.rails-4.0.active_record.will_paginate
-  - gemfiles/Gemfile.rails-4.0.mongoid
-  - gemfiles/Gemfile.rails-4.0.mongoid.kaminari
-  - gemfiles/Gemfile.rails-4.0.mongoid.will_paginate
-  - gemfiles/Gemfile.rails-4.1.active_record
-  - gemfiles/Gemfile.rails-4.1.active_record.kaminari
-  - gemfiles/Gemfile.rails-4.1.active_record.will_paginate
-  - gemfiles/Gemfile.rails-4.1.mongoid
-  - gemfiles/Gemfile.rails-4.1.mongoid.kaminari
-  - gemfiles/Gemfile.rails-4.1.mongoid.will_paginate
-  - gemfiles/Gemfile.rails-4.2.active_record
-  - gemfiles/Gemfile.rails-4.2.active_record.kaminari
-  - gemfiles/Gemfile.rails-4.2.active_record.will_paginate
-  - gemfiles/Gemfile.rails-4.2.mongoid
-  - gemfiles/Gemfile.rails-4.2.mongoid.kaminari
-  - gemfiles/Gemfile.rails-4.2.mongoid.will_paginate
-
+services:
+  - mongodb
 before_install:
   - curl -# https://download.elasticsearch.org/elasticsearch/elasticsearch/elasticsearch-1.4.2.tar.gz | tar xz -C /tmp
 before_script:
   - TEST_CLUSTER_COMMAND="/tmp/elasticsearch-1.4.2/bin/elasticsearch" rake elasticsearch:start
-services:
-  - mongodb
+  - appraisal install
+script:
+  - appraisal rake

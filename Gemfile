@@ -1,7 +1,9 @@
 source 'https://rubygems.org'
 
-# Specify your gem's dependencies in chewy.gemspec
 gemspec
+
+# gem 'activerecord'
+# gem 'mongoid'
 
 group :test do
   gem 'guard'

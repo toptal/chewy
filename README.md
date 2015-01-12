@@ -647,26 +647,26 @@ To integrate with NewRelic you may use the following example source (config/init
 
 ```ruby
 ActiveSupport::Notifications.subscribe('import_objects.chewy') do |name, start, finish, id, payload|
-  metrics = "Database/ElasticSearch/import"
+  metric_name = "Database/ElasticSearch/import"
   duration = (finish - start).to_f
   logged = "#{payload[:type]} #{payload[:import].to_a.map{ |i| i.join(':') }.join(', ')}"
 
-  self.class.trace_execution_scoped([metrics]) do
+  self.class.trace_execution_scoped([metric_name]) do
     NewRelic::Agent.instance.transaction_sampler.notice_sql(logged, nil, duration)
-    NewRelic::Agent.instance.sql_sampler.notice_sql(logged, metrics, nil, duration)
-    NewRelic::Agent.instance.stats_engine.record_metrics(metrics, duration)
+    NewRelic::Agent.instance.sql_sampler.notice_sql(logged, metric_name, nil, duration)
+    NewRelic::Agent.record_metric(metric_name, duration)
   end
 end
 
 ActiveSupport::Notifications.subscribe('search_query.chewy') do |name, start, finish, id, payload|
-  metrics = "Database/ElasticSearch/search"
+  metric_name = "Database/ElasticSearch/search"
   duration = (finish - start).to_f
   logged = "#{payload[:index]} #{payload[:request]}"
 
-  self.class.trace_execution_scoped([metrics]) do
+  self.class.trace_execution_scoped([metric_name]) do
     NewRelic::Agent.instance.transaction_sampler.notice_sql(logged, nil, duration)
-    NewRelic::Agent.instance.sql_sampler.notice_sql(logged, metrics, nil, duration)
-    NewRelic::Agent.instance.stats_engine.record_metrics(metrics, duration)
+    NewRelic::Agent.instance.sql_sampler.notice_sql(logged, metric_name, nil, duration)
+    NewRelic::Agent.record_metric(metric_name, duration)
   end
 end
 ```

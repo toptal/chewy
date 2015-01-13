@@ -6,7 +6,11 @@ module Chewy
       end
 
       def call(env)
-        Chewy.strategy(:atomic) { @app.call(env) }
+        if env['PATH_INFO'] =~ /^\/assets\//
+          @app.call(env)
+        else
+          Chewy.strategy(Chewy.request_strategy) { @app.call(env) }
+        end
       end
     end
 

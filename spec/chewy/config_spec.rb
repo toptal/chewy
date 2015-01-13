@@ -10,6 +10,7 @@ describe Chewy::Config do
   its(:filter_mode) { should == :and }
   its(:post_filter_mode) { should be_nil }
   its(:root_strategy) { should == :base }
+  its(:request_strategy) { should == :atomic }
 
   describe '#transport_logger=' do
     let(:logger) { Logger.new('/dev/null') }

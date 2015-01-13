@@ -23,7 +23,13 @@ module Chewy
       # If you neet to return to the previous chewy behavior -
       # just set it to `:bypass`
       #
-      :root_strategy
+      :root_strategy,
+
+      # The first trategy in stack. `:base` by default.
+      # If you neet to return to the previous chewy behavior -
+      # just set it to `:bypass`
+      #
+      :request_strategy
 
     def self.delegated
       public_instance_methods - self.superclass.public_instance_methods - Singleton.public_instance_methods
@@ -34,6 +40,7 @@ module Chewy
       @query_mode = :must
       @filter_mode = :and
       @root_strategy = :base
+      @request_strategy = :atomic
     end
 
     def transport_logger= logger

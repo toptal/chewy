@@ -30,7 +30,8 @@ module Chewy
     end
 
     console do |app|
-      Chewy.logger = ActiveRecord::Base.logger
+      Chewy.logger = ActiveRecord::Base.logger if defined?(ActiveRecord)
+
       if app.sandbox?
         Chewy.strategy(:bypass)
       else

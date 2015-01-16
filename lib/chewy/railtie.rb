@@ -1,5 +1,9 @@
 module Chewy
   class Railtie < Rails::Railtie
+    def self.all_engines
+      Rails::Engine.subclasses.map(&:instance) + [Rails.application]
+    end
+
     class RequestStrategy
       def initialize(app)
         @app = app
@@ -30,7 +34,8 @@ module Chewy
     end
 
     console do |app|
-      Chewy.logger = ActiveRecord::Base.logger
+      Chewy.logger = ActiveRecord::Base.logger if defined?(ActiveRecord)
+
       if app.sandbox?
         Chewy.strategy(:bypass)
       else
@@ -53,7 +58,9 @@ module Chewy
     end
 
     initializer 'chewy.add_app_chewy_path' do |app|
-      app.config.paths.add 'app/chewy'
+      Chewy::Railtie.all_engines.each do |engine|
+        engine.paths.add 'app/chewy'
+      end
     end
   end
 end

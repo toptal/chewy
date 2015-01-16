@@ -13,8 +13,12 @@ def subscribe_task_stats!
 end
 
 def eager_load_chewy!
-  Rails.application.config.paths['app/chewy'].existent.each do |dir|
-    Dir.glob(File.join(dir, '**/*.rb')).each { |file| require_dependency file }
+  dirs = Chewy::Railtie.all_engines.map { |engine| engine.paths['app/chewy'].existent }.flatten.uniq
+
+  dirs.each do |dir|
+    Dir.glob(File.join(dir, '**/*.rb')).each do |file|
+      require_dependency file
+    end
   end
 end
 

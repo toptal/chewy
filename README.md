@@ -109,7 +109,7 @@ See [config.rb](lib/chewy/config.rb) for more details.
         field :title
         field :description # default data type is `string`
         # additional top-level objects passed to value proc:
-        field :categories, value ->(project, user) { project.categories.map(&:name) if user.active? }
+        field :categories, value: ->(project, user) { project.categories.map(&:name) if user.active? }
       end
       field :rating, type: 'integer' # custom data type
       field :created, type: 'date', include_in_all: false,

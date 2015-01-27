@@ -107,6 +107,7 @@ describe Chewy::Query do
     specify { expect(subject.script_score('23').criteria.scores).to eq([ { script_score: { script: '23' } } ]) }
     specify { expect { subject.script_score('23') }.not_to change { subject.criteria.scores } }
     specify { expect(subject.script_score('23', filter: { foo: :bar}).criteria.scores).to eq([{ script_score: { script: '23' }, filter: { foo: :bar } }]) }
+    specify { expect(subject.script_score('23 * factor', params: { factor: 0.5}).criteria.scores).to eq([{ script_score: { script: '23 * factor', params: { factor: 0.5} } }]) }
   end
 
   describe '#boost_factor' do

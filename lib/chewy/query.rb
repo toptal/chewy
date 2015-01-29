@@ -348,7 +348,7 @@ module Chewy
     # added to the search request and combinded according to
     # <tt>boost_mode</tt> and <tt>score_mode</tt>
     #
-    #   UsersIndex.script_score("doc['boost'].value", params: { modifier: 2 }, filter: { term: {foo: :bar} })
+    #   UsersIndex.script_score("doc['boost'].value", params: { modifier: 2 })
     #       # => {body:
     #              query: {
     #                function_score: {
@@ -357,16 +357,12 @@ module Chewy
     #                    script_score: {
     #                       script: "doc['boost'].value * modifier",
     #                       params: { modifier: 2 }
-    #                     },
-    #                     filter: { term: { foo: :bar } }
+    #                     }
     #                    }
     #                  }]
     #                } } }
     def script_score(script, options = {})
-      script_score = { script: script }
-      script_score[:params] = options.delete(:params) if options.key?(:params)
-
-      scoring = options.merge(script_score: script_score)
+      scoring = { script_score: { script: script }.merge(options) }
       chain { criteria.update_scores scoring }
     end
 

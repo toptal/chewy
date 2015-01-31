@@ -51,6 +51,10 @@ describe Chewy::Search do
           filter { rating == 1 }
         end
 
+        def self.named_pittsburgh
+          filter { name == "pittsburgh" }
+        end
+
         define_type City do
           def self.by_rating
             filter { rating == 2 }
@@ -65,13 +69,16 @@ describe Chewy::Search do
       end
     end
 
-    let!(:cities) { 3.times.map { |i| City.create! rating: i + 1 } }
+    let!(:cities) { 3.times.map { |i| City.create! rating: i + 1, name: "pittsburgh" } }
     let!(:countries) { 3.times.map { |i| Country.create! rating: i + 1 } }
 
     before { PlacesIndex.import! city: cities, country: countries }
 
     specify { expect(PlacesIndex.by_rating.map(&:rating)).to eq([1, 1]) }
     specify { expect(PlacesIndex.order(:name).by_rating.map(&:rating)).to eq([1, 1]) }
+
+    specify { expect(PlacesIndex.named_pittsburgh.map(&:rating)).to eq([1, 2, 3]) }
+    specify { expect(PlacesIndex.by_rating.named_pittsburgh.map(&:rating)).to eq([1]) }
 
     specify { expect(PlacesIndex::City.by_rating.map(&:rating)).to eq([2]) }
     specify { expect(PlacesIndex::City.order(:name).by_rating.map(&:rating)).to eq([2]) }

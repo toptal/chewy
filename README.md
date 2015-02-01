@@ -778,7 +778,7 @@ Chewy has notifing the following events:
     {index: 30, delete: 5}
     ```
 
-  * `payload[:erorrs]`: might not exists. Contains grouped errors with objects ids list:
+  * `payload[:errors]`: might not exists. Contains grouped errors with objects ids list:
 
     ```ruby
     {index: {

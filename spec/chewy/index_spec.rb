@@ -7,6 +7,41 @@ describe Chewy::Index do
     end
   end
 
+  describe '.import', :orm do
+    before do
+      stub_model(:city)
+      stub_model(:country)
+
+      stub_index(:places) do
+        define_type City
+        define_type Country
+      end
+    end
+
+    let!(:cities) { 2.times.map { |i| City.create! id: i + 1 } }
+    let!(:countries) { 2.times.map { |i| Country.create! id: i + 1 } }
+
+    specify do
+      expect { PlacesIndex.import }.to update_index(PlacesIndex::City).and_reindex(cities)
+      expect { PlacesIndex.import }.to update_index(PlacesIndex::Country).and_reindex(countries)
+    end
+
+    specify do
+      expect { PlacesIndex.import city: cities.first }.to update_index(PlacesIndex::City).and_reindex(cities.first).only
+      expect { PlacesIndex.import city: cities.first }.to update_index(PlacesIndex::Country).and_reindex(countries)
+    end
+
+    specify do
+      expect { PlacesIndex.import city: cities.first, country: countries.last }.to update_index(PlacesIndex::City).and_reindex(cities.first).only
+      expect { PlacesIndex.import city: cities.first, country: countries.last }.to update_index(PlacesIndex::Country).and_reindex(countries.last).only
+    end
+
+    specify do
+      expect(PlacesIndex.client).to receive(:bulk).with(hash_including(refresh: false)).twice
+      PlacesIndex.import city: cities.first, refresh: false
+    end
+  end
+
   describe '.client' do
     specify { expect(stub_index(:dummies1).client).to eq(stub_index(:dummies2).client) }
 
@@ -20,28 +55,17 @@ describe Chewy::Index do
     end
   end
 
-  describe '.settings' do
-    before do
-      allow(Chewy).to receive_messages(config: Chewy::Config.send(:new))
+  describe '.index_name' do
+    specify { expect { Class.new(Chewy::Index).index_name }.to raise_error Chewy::UndefinedIndex }
+    specify { expect(Class.new(Chewy::Index) { index_name :myindex }.index_name).to eq('myindex') }
+    specify { expect(stub_const('DeveloperIndex', Class.new(Chewy::Index)).index_name).to eq('developer') }
+    specify { expect(stub_const('DevelopersIndex', Class.new(Chewy::Index)).index_name).to eq('developers') }
 
-      Chewy.analyzer :name, filter: ['lowercase', 'icu_folding', 'names_nysiis']
-      Chewy.analyzer :phone, tokenizer: 'ngram', char_filter: ['phone']
-      Chewy.tokenizer :ngram, type: 'nGram', min_gram: 3, max_gram: 3
-      Chewy.char_filter :phone, type: 'pattern_replace', pattern: '[^\d]', replacement: ''
-      Chewy.filter :names_nysiis, type: 'phonetic', encoder: 'nysiis', replace: false
+    context do
+      before { allow(Chewy).to receive_messages(configuration: {prefix: 'testing'}) }
+      specify { expect(DummiesIndex.index_name).to eq('testing_dummies') }
+      specify { expect(stub_index(:dummies) { index_name :users }.index_name).to eq('testing_users') }
     end
-
-    let(:documents) { stub_index(:documents) { settings analysis: {analyzer: [:name, :phone, {sorted: {option: :baz}}]} } }
-
-    specify { expect { documents.settings_hash }.to_not change(documents._settings, :inspect)  }
-    specify { expect(documents.settings_hash).to eq({settings: {analysis: {
-      analyzer: {name: {filter: ['lowercase', 'icu_folding', 'names_nysiis']},
-                 phone: {tokenizer: 'ngram', char_filter: ['phone']},
-                 sorted: {option: :baz}},
-      tokenizer: {ngram: {type: 'nGram', min_gram: 3, max_gram: 3}},
-      char_filter: {phone: {type: 'pattern_replace', pattern: '[^\d]', replacement: ''}},
-      filter: {names_nysiis: {type: 'phonetic', encoder: 'nysiis', replace: false}}
-    }}}) }
   end
 
   describe '.define_type' do
@@ -57,7 +81,6 @@ describe Chewy::Index do
       before { stub_index(:dummies) { define_type City, name: :country } }
       specify { expect(DummiesIndex.type_hash['country']).to eq(DummiesIndex::Country) }
     end
-
 
     context do
       before { stub_class('City') }
@@ -102,17 +125,48 @@ describe Chewy::Index do
     specify { expect(DummiesIndex.types(:user)).to be_a Chewy::Query }
   end
 
-  describe '.index_name' do
-    specify { expect { Class.new(Chewy::Index).index_name }.to raise_error Chewy::UndefinedIndex }
-    specify { expect(Class.new(Chewy::Index) { index_name :myindex }.index_name).to eq('myindex') }
-    specify { expect(stub_const('DeveloperIndex', Class.new(Chewy::Index)).index_name).to eq('developer') }
-    specify { expect(stub_const('DevelopersIndex', Class.new(Chewy::Index)).index_name).to eq('developers') }
+  describe '.settings' do
+    before do
+      allow(Chewy).to receive_messages(config: Chewy::Config.send(:new))
 
-    context do
-      before { allow(Chewy).to receive_messages(configuration: {prefix: 'testing'}) }
-      specify { expect(DummiesIndex.index_name).to eq('testing_dummies') }
-      specify { expect(stub_index(:dummies) { index_name :users }.index_name).to eq('testing_users') }
+      Chewy.analyzer :name, filter: ['lowercase', 'icu_folding', 'names_nysiis']
+      Chewy.analyzer :phone, tokenizer: 'ngram', char_filter: ['phone']
+      Chewy.tokenizer :ngram, type: 'nGram', min_gram: 3, max_gram: 3
+      Chewy.char_filter :phone, type: 'pattern_replace', pattern: '[^\d]', replacement: ''
+      Chewy.filter :names_nysiis, type: 'phonetic', encoder: 'nysiis', replace: false
     end
+
+    let(:documents) { stub_index(:documents) { settings analysis: {analyzer: [:name, :phone, {sorted: {option: :baz}}]} } }
+
+    specify { expect { documents.settings_hash }.to_not change(documents._settings, :inspect)  }
+    specify { expect(documents.settings_hash).to eq({settings: {analysis: {
+      analyzer: {name: {filter: ['lowercase', 'icu_folding', 'names_nysiis']},
+                 phone: {tokenizer: 'ngram', char_filter: ['phone']},
+                 sorted: {option: :baz}},
+      tokenizer: {ngram: {type: 'nGram', min_gram: 3, max_gram: 3}},
+      char_filter: {phone: {type: 'pattern_replace', pattern: '[^\d]', replacement: ''}},
+      filter: {names_nysiis: {type: 'phonetic', encoder: 'nysiis', replace: false}}
+    }}}) }
+  end
+
+  describe '.scopes' do
+    before do
+      stub_index(:places) do
+        def self.by_rating
+        end
+
+        def self.by_name
+        end
+
+        define_type :city do
+          def self.by_id
+          end
+        end
+      end
+    end
+
+    specify { expect(described_class.scopes).to eq([]) }
+    specify { expect(PlacesIndex.scopes).to match_array([:by_rating, :by_name]) }
   end
 
   describe '.build_index_name' do
@@ -121,24 +175,6 @@ describe Chewy::Index do
     specify { expect(stub_const('DevelopersIndex', Class.new(Chewy::Index)).build_index_name(prefix: '')).to eq('developers') }
     specify { expect(stub_const('DevelopersIndex', Class.new(Chewy::Index)).build_index_name(prefix: 'test')).to eq('test_developers') }
     specify { expect(stub_const('DevelopersIndex', Class.new(Chewy::Index)).build_index_name(:users, prefix: 'test', suffix: '2013')).to eq('test_users_2013') }
-  end
-
-  describe '.index_params' do
-    before { allow(Chewy).to receive_messages(config: Chewy::Config.send(:new)) }
-
-    specify { expect(stub_index(:documents).index_params).to eq({}) }
-    specify { expect(stub_index(:documents) { settings number_of_shards: 1 }.index_params.keys).to eq([:settings]) }
-    specify { expect(stub_index(:documents) do
-      define_type :document do
-        field :name, type: 'string'
-      end
-    end.index_params.keys).to eq([:mappings]) }
-    specify { expect(stub_index(:documents) do
-      settings number_of_shards: 1
-      define_type :document do
-        field :name, type: 'string'
-      end
-    end.index_params.keys).to match_array([:mappings, :settings]) }
   end
 
   describe '.settings_hash' do
@@ -166,38 +202,21 @@ describe Chewy::Index do
     end.mappings_hash[:mappings].keys).to match_array([:document, :document2]) }
   end
 
-  describe '.import', :orm do
-    before do
-      stub_model(:city)
-      stub_model(:country)
+  describe '.index_params' do
+    before { allow(Chewy).to receive_messages(config: Chewy::Config.send(:new)) }
 
-      stub_index(:places) do
-        define_type City
-        define_type Country
+    specify { expect(stub_index(:documents).index_params).to eq({}) }
+    specify { expect(stub_index(:documents) { settings number_of_shards: 1 }.index_params.keys).to eq([:settings]) }
+    specify { expect(stub_index(:documents) do
+      define_type :document do
+        field :name, type: 'string'
       end
-    end
-
-    let!(:cities) { 2.times.map { |i| City.create! id: i + 1 } }
-    let!(:countries) { 2.times.map { |i| Country.create! id: i + 1 } }
-
-    specify do
-      expect { PlacesIndex.import }.to update_index(PlacesIndex::City).and_reindex(cities)
-      expect { PlacesIndex.import }.to update_index(PlacesIndex::Country).and_reindex(countries)
-    end
-
-    specify do
-      expect { PlacesIndex.import city: cities.first }.to update_index(PlacesIndex::City).and_reindex(cities.first).only
-      expect { PlacesIndex.import city: cities.first }.to update_index(PlacesIndex::Country).and_reindex(countries)
-    end
-
-    specify do
-      expect { PlacesIndex.import city: cities.first, country: countries.last }.to update_index(PlacesIndex::City).and_reindex(cities.first).only
-      expect { PlacesIndex.import city: cities.first, country: countries.last }.to update_index(PlacesIndex::Country).and_reindex(countries.last).only
-    end
-
-    specify do
-      expect(PlacesIndex.client).to receive(:bulk).with(hash_including(refresh: false)).twice
-      PlacesIndex.import city: cities.first, refresh: false
-    end
+    end.index_params.keys).to eq([:mappings]) }
+    specify { expect(stub_index(:documents) do
+      settings number_of_shards: 1
+      define_type :document do
+        field :name, type: 'string'
+      end
+    end.index_params.keys).to match_array([:mappings, :settings]) }
   end
 end

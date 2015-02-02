@@ -137,6 +137,12 @@ module Chewy
       self._settings = Chewy::Index::Settings.new params
     end
 
+    # Returns list of public class methods defined in current index
+    #
+    def self.scopes
+      public_methods - Chewy::Index.public_methods - type_names.map(&:to_sym)
+    end
+
   private
 
     def self.build_index_name *args

@@ -1,5 +1,6 @@
 require 'chewy/query/criteria'
 require 'chewy/query/filters'
+require 'chewy/query/scoping'
 require 'chewy/query/loading'
 require 'chewy/query/pagination'
 
@@ -13,6 +14,7 @@ module Chewy
   #
   class Query
     include Enumerable
+    include Scoping
     include Loading
     include Pagination
 
@@ -899,7 +901,7 @@ module Chewy
   private
 
     def chain &block
-      clone.tap { |q| q.instance_eval(&block) }
+      clone.tap { |q| q.instance_exec(&block) }
     end
 
     def reset

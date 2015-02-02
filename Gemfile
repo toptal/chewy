@@ -2,7 +2,7 @@ source 'https://rubygems.org'
 
 gemspec
 
-# gem 'activerecord'
+gem 'activerecord'
 # gem 'mongoid'
 
 group :test do

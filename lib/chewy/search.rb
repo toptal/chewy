@@ -15,7 +15,7 @@ module Chewy
 
     module ClassMethods
       def all
-        query_class.new(self)
+        query_class.scopes.last || query_class.new(self)
       end
 
       def search_string query, options = {}
@@ -30,21 +30,25 @@ module Chewy
 
       def query_class
         @query_class ||= begin
-          klass = Class.new(Chewy::Query)
+          query_class = Class.new(Chewy::Query)
           if self < Chewy::Type
-            delegate_string klass,
-              public_methods - Chewy::Type.public_methods, self
-          else
-            delegate_string klass,
-              public_methods - Chewy::Index.public_methods, self
+            index_scopes = index.scopes - scopes
+
+            delegate_scoped index, query_class, index_scopes
+            delegate_scoped index, self, index_scopes
           end
-          const_set('Query', klass)
+          delegate_scoped self, query_class, scopes
+          const_set('Query', query_class)
         end
       end
 
-      def delegate_string klass, methods, to
-        klass.class_eval do
-          delegate *methods, to: to
+      def delegate_scoped source, destination, methods
+        methods.each do |method|
+          destination.class_eval do
+            define_method method do |*args, &block|
+              scoping { source.public_send(method, *args, &block) }
+            end
+          end
         end
       end
     end

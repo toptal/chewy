@@ -10,7 +10,12 @@ module Chewy
     #
     class Urgent < Base
       def update type, objects, options = {}
-        type.import(objects)
+        objects = Array(objects)
+        if objects.all? { |object| object.respond_to?(:id) }
+          type.import(objects.map(&:id))
+        else
+          type.import(objects)
+        end
       end
     end
   end

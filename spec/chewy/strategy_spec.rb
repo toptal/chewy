@@ -74,5 +74,23 @@ describe Chewy::Strategy do
         Chewy.strategy(:atomic) { [city, other_city].map(&:save!) }
       end
     end
+
+    context "urgent strategy when type has a default scope" do
+      around { |example| Chewy.strategy(:bypass) { example.run } }
+
+      before do
+        stub_index(:cities) do
+          define_type City.where(rating: 0)
+        end
+      end
+
+      let!(:poorly_rated_city) { City.create(rating: 0) }
+      let!(:highly_rated_city) { City.create(rating: 100) }
+
+      it "only imports the records in scope" do
+        Chewy.strategy(:urgent) { [poorly_rated_city, highly_rated_city].map(&:save!) }
+        expect(CitiesIndex::City.limit(2)).to contain_exactly(poorly_rated_city)
+      end
+    end
   end
 end

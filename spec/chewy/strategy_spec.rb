@@ -75,7 +75,7 @@ describe Chewy::Strategy do
       end
     end
 
-    context "urgent strategy when type has a default scope" do
+    context "urgent strategy when type has a default scope", :active_record do
       around { |example| Chewy.strategy(:bypass) { example.run } }
 
       before do

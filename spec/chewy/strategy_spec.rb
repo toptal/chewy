@@ -90,6 +90,19 @@ describe Chewy::Strategy do
           [city, other_city].map(&:save!)
           expect(CitiesIndex::City.total_count).to eq(4)
         end
+
+        context do
+          before do
+            stub_model(:city) do
+              update_index('cities#city') { { id: id.to_s, name: name } }
+            end
+          end
+
+          specify do
+            [city, other_city].map(&:save!)
+            expect(CitiesIndex::City.total_count).to eq(2)
+          end
+        end
       end
     end
   end

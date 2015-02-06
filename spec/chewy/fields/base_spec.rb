@@ -313,13 +313,11 @@ describe Chewy::Fields::Base do
 
     context 'objects and scopes', :orm do
       before do
-        stub_model(:city) do
-          belongs_to :country
-        end
+        stub_model(:city)
+        stub_model(:country)
 
-        stub_model(:country) do
-          has_many :cities
-        end
+        City.belongs_to :country
+        Country.has_many :cities
 
         stub_index(:countries) do
           define_type Country do

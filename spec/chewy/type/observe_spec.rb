@@ -21,16 +21,17 @@ describe Chewy::Type::Import do
   context 'integration', :orm do
     before do
       stub_model(:city) do
-        belongs_to :country
         update_index('cities#city') { self }
         update_index 'countries#country', :country
       end
 
       stub_model(:country) do
-        has_many :cities
         update_index('cities#city') { cities }
         update_index 'countries#country', :self
       end
+
+      City.belongs_to :country
+      Country.has_many :cities
 
       stub_index(:cities) do
         define_type City

@@ -1,6 +1,7 @@
 require 'spec_helper'
 
 describe Chewy::Strategy do
+  before { Chewy.massacre }
   subject(:strategy) { Chewy::Strategy.new }
 
   describe '#current' do
@@ -44,8 +45,8 @@ describe Chewy::Strategy do
       end
     end
 
-    let(:city) { City.create! }
-    let(:other_city) { City.create! }
+    let(:city) { City.create!(name: 'hello') }
+    let(:other_city) { City.create!(name: 'world') }
 
     context do
       around { |example| Chewy.strategy(:bypass) { example.run } }
@@ -72,6 +73,23 @@ describe Chewy::Strategy do
       specify do
         expect(CitiesIndex::City).to receive(:import).with([city.id, other_city.id]).once
         Chewy.strategy(:atomic) { [city, other_city].map(&:save!) }
+      end
+
+      context 'hash passed to urgent' do
+        before do
+          stub_index(:cities) do
+            define_type :city
+          end
+
+          stub_model(:city) do
+            update_index('cities#city') { { name: name } }
+          end
+        end
+
+        specify do
+          [city, other_city].map(&:save!)
+          expect(CitiesIndex::City.total_count).to eq(4)
+        end
       end
     end
   end

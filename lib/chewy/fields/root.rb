@@ -10,7 +10,7 @@ module Chewy
         @id = options.delete(:id) || options.delete(:_id)
         @parent = options.delete(:parent) || options.delete(:_parent)
         @parent_id = options.delete(:parent_id)
-        options.reverse_merge!(value: ->(_){_})
+        options.reverse_merge!(value: ->(_) { _ })
         super(name, options)
         options.delete(:type)
         @dynamic_templates = []
@@ -66,7 +66,7 @@ module Chewy
           parent_id.arity == 0 ? object.instance_exec(&parent_id) : parent_id.call(object)
         end
       end
-      
+
       def compose_id(object)
         if id
           id.arity == 0 ? object.instance_exec(&id) : id.call(object)

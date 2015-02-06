@@ -28,6 +28,7 @@ module Chewy
             adapter.import(*args, import_options) do |action_objects|
               indexed_objects = self.root_object.parent_id && fetch_indexed_objects(action_objects.values.flatten, bulk_options)
               body = bulk_body(action_objects, indexed_objects)
+
               errors = bulk(bulk_options.merge(body: body)) if body.any?
 
               fill_payload_import payload, action_objects
@@ -76,33 +77,54 @@ module Chewy
 
         def bulk_body(action_objects, indexed_objects = nil)
           action_objects.inject([]) do |result, (action, objects)|
-            result.concat(objects.map { |object| bulk_entries(action, object, indexed_objects) }.flatten)
+            method = "#{action}_bulk_entry"
+            result.concat(objects.map { |object| send(method, object, indexed_objects) }.flatten)
           end
         end
 
-        def bulk_entries(action, object, indexed_objects = nil)
+        def delete_bulk_entry(object, indexed_objects = nil)
           entry = {}
-
-          entry[:_id] = object.respond_to?(:id) ? object.id : object
-          entry[:_id] = entry[:_id].to_s if defined?(BSON) && entry[:_id].is_a?(BSON::ObjectId)
-          entry[:data] = object_data(object) unless action == :delete
-
-          if self.root_object.parent_id
-            entry[:parent] = self.root_object.compose_parent(object) if object.respond_to?(:id)
-          end
 
           if self.root_object.id
             entry[:_id] = self.root_object.compose_id(object)
+          else
+            entry[:_id] = object.id if object.respond_to?(:id)
+            entry[:_id] ||= object[:id] || object['id'] if object.is_a?(Hash)
+            entry[:_id] ||= object
+            entry[:_id] = entry[:_id].to_s if defined?(BSON) && entry[:_id].is_a?(BSON::ObjectId)
           end
 
-          indexed_object = indexed_objects && indexed_objects[entry[:_id].to_s]
+          if self.root_object.parent_id
+            existing_object = entry[:_id].present? && indexed_objects && indexed_objects[entry[:_id].to_s]
+            entry.merge!(parent: existing_object[:parent]) if existing_object
+          end
 
-          if indexed_object && self.root_object.parent_id && action == :delete
-            [{ action => entry.merge(parent: indexed_object[:parent]) }]
-          elsif indexed_object && self.root_object.parent_id && entry[:parent].to_s != indexed_object[:parent]
-            [{ :delete => entry.except(:data).merge(parent: indexed_object[:parent]) }, { action => entry }]
+          [{ delete: entry }]
+        end
+
+        def index_bulk_entry(object, indexed_objects = nil)
+          entry = {}
+
+          if self.root_object.id
+            entry[:_id] = self.root_object.compose_id(object)
           else
-            [{ action => entry }]
+            entry[:_id] = object.id if object.respond_to?(:id)
+            entry[:_id] ||= object[:id] || object['id'] if object.is_a?(Hash)
+            entry[:_id] = entry[:_id].to_s if defined?(BSON) && entry[:_id].is_a?(BSON::ObjectId)
+          end
+          entry.delete(:_id) if entry[:_id].blank?
+
+          if self.root_object.parent_id
+            entry[:parent] = self.root_object.compose_parent(object)
+            existing_object = entry[:_id].present? && indexed_objects && indexed_objects[entry[:_id].to_s]
+          end
+
+          entry[:data] = object_data(object)
+
+          if existing_object && entry[:parent].to_s != existing_object[:parent]
+            [{ delete: entry.except(:data).merge(parent: existing_object[:parent]) }, { index: entry }]
+          else
+            [{ index: entry }]
           end
         end
 
@@ -145,7 +167,12 @@ module Chewy
 
         def fetch_indexed_objects(objects, options = {})
           ids = objects.map { |object| object.respond_to?(:id) ? object.id : object }
-          result = client.search index: index.build_index_name(suffix: options[:suffix]), type: type_name, fields: '_parent', body: { query: { ids: { values: ids } } }, search_type: 'scan', scroll: '1m'
+          result = client.search index: index.build_index_name(suffix: options[:suffix]),
+                                 type: type_name,
+                                 fields: '_parent',
+                                 body: { filter: { ids: { values: ids } } },
+                                 search_type: 'scan',
+                                 scroll: '1m'
 
           indexed_objects = {}
 

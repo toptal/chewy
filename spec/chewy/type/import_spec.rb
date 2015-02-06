@@ -279,15 +279,15 @@ describe Chewy::Type::Import do
         end
       end
     end
-    
+
     context 'root id', :orm do
       let(:canada) { Country.create(id: 1, name: 'Canada', country_code: 'CA', rating: 4) }
       let(:country)  { CountriesIndex::Country }
-      
+
       before do
         stub_model(:country)
       end
-      
+
       before do
         stub_index(:countries) do
           define_type Country do
@@ -298,7 +298,7 @@ describe Chewy::Type::Import do
           end
         end
       end
-      
+
       specify { expect( country.import(canada) ).to eq(true)  }
       specify { expect { country.import(canada) }.to update_index(country).and_reindex(canada.country_code) }
 
@@ -309,7 +309,7 @@ describe Chewy::Type::Import do
 
         country.import canada
       end
-      
+
       specify do
         canada.update_attributes(rating: 9)
 
@@ -319,7 +319,7 @@ describe Chewy::Type::Import do
 
         country.import canada
       end
-      
+
       specify do
         canada.destroy
 
@@ -329,7 +329,7 @@ describe Chewy::Type::Import do
 
         country.import canada
       end
-      
+
     end  # END root id
   end
 

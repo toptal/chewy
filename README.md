@@ -198,7 +198,7 @@ You are able to access index-defined types with the following API:
 
 ```ruby
 UsersIndex::User # => UsersIndex::User
-UsersIndex.types_hash['user'] # => UsersIndex::User
+UsersIndex.type_hash['user'] # => UsersIndex::User
 UsersIndex.user # => UsersIndex::User
 UsersIndex.types # => [UsersIndex::User]
 UsersIndex.type_names # => ['user']

@@ -60,26 +60,18 @@ module Chewy
         #
         def import *args, &block
           import_options = args.extract_options!
-          import_options[:batch_size] ||= BATCH_SIZE
-          batch_size = import_options[:batch_size]
+          batch_size = import_options[:batch_size] || BATCH_SIZE
 
           collection = args.empty? ? model_all :
             (args.one? && args.first.is_a?(::Mongoid::Criteria) ? args.first : args.flatten.compact)
 
           if collection.is_a?(::Mongoid::Criteria)
-            result = true
-            merged_scope(collection).batch_size(batch_size).no_timeout.each_slice(batch_size) do |batch|
-              result &= block.call grouped_objects(batch)
+            batch_process(collection, batch_size) do |batch|
+              block.call grouped_objects(batch)
             end
-            result
           else
-            if collection.all? { |object| object.respond_to?(:id) }
-              collection.each_slice(batch_size).map do |group|
-                block.call grouped_objects(group)
-              end.all?
-            else
-              import_ids(collection, import_options, &block)
-            end
+            objects, ids = collection.partition { |object| object.is_a?(::Mongoid::Document) }
+            import_objects(objects, batch_size, &block) && import_ids(ids, batch_size, &block)
           end
         end
 
@@ -105,19 +97,23 @@ module Chewy
 
         attr_reader :model, :scope, :options
 
-        def import_ids(ids, import_options = {}, &block)
-          ids.uniq!
-          batch_size = import_options[:batch_size] || BATCH_SIZE
+        def import_objects(objects, batch_size, &block)
+          objects.each_slice(batch_size).all? do |group|
+            block.call grouped_objects(group)
+          end
+        end
 
-          indexed = true
-          merged_scope(scoped_model(ids)).batch_size(batch_size).no_timeout.each_slice(batch_size) do |batch|
+        def import_ids(ids, batch_size)
+          ids.uniq!
+
+          indexed = batch_process(scoped_model(ids), batch_size) do |batch|
             ids -= batch.map(&:id)
-            indexed &= block.call(grouped_objects(batch))
+            yield grouped_objects(batch)
           end
 
-          deleted = ids.each_slice(batch_size).map do |group|
-            block.call(delete: group)
-          end.all?
+          deleted = ids.each_slice(batch_size).all? do |group|
+            yield delete: group
+          end
 
           indexed && deleted
         end
@@ -128,6 +124,11 @@ module Chewy
             delete ||= object.destroyed?
             delete ? :delete : :index
           end
+        end
+
+        def batch_process(collection, batch_size, &block)
+          merged_scope(collection).batch_size(batch_size)
+            .no_timeout.each_slice(batch_size).all?(&block)
         end
 
         def merged_scope(target)

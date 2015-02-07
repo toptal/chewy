@@ -98,9 +98,9 @@ module Chewy
         attr_reader :model, :scope, :options
 
         def import_objects(objects, batch_size, &block)
-          objects.each_slice(batch_size).all? do |group|
+          objects.each_slice(batch_size).map do |group|
             block.call grouped_objects(group)
-          end
+          end.all?
         end
 
         def import_ids(ids, batch_size)
@@ -111,9 +111,9 @@ module Chewy
             yield grouped_objects(batch)
           end
 
-          deleted = ids.each_slice(batch_size).all? do |group|
+          deleted = ids.each_slice(batch_size).map do |group|
             yield delete: group
-          end
+          end.all?
 
           indexed && deleted
         end
@@ -128,7 +128,7 @@ module Chewy
 
         def batch_process(collection, batch_size, &block)
           merged_scope(collection).batch_size(batch_size)
-            .no_timeout.each_slice(batch_size).all?(&block)
+            .no_timeout.each_slice(batch_size).map(&block).all?
         end
 
         def merged_scope(target)

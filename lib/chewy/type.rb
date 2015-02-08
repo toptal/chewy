@@ -17,7 +17,7 @@ module Chewy
     include Actions
     include Import
 
-    singleton_class.delegate :client, to: :index
+    singleton_class.delegate :index_name, :client, to: :index
 
     # Chewy index current type blongs to. Defined inside `Chewy.create_type`
     #

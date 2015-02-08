@@ -26,7 +26,7 @@ module Chewy
 
           ActiveSupport::Notifications.instrument 'import_objects.chewy', type: self do |payload|
             adapter.import(*args, import_options) do |action_objects|
-              indexed_objects = self.root_object.parent_id && fetch_indexed_objects(action_objects.values.flatten, bulk_options)
+              indexed_objects = self.root_object.parent_id && fetch_indexed_objects(action_objects.values.flatten)
               body = bulk_body(action_objects, indexed_objects)
 
               errors = bulk(bulk_options.merge(body: body)) if body.any?
@@ -165,9 +165,9 @@ module Chewy
           end.reduce(&:merge) || {}
         end
 
-        def fetch_indexed_objects(objects, options = {})
+        def fetch_indexed_objects(objects)
           ids = objects.map { |object| object.respond_to?(:id) ? object.id : object }
-          result = client.search index: index.build_index_name(suffix: options[:suffix]),
+          result = client.search index: index_name,
                                  type: type_name,
                                  fields: '_parent',
                                  body: { filter: { ids: { values: ids } } },

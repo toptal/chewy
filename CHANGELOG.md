@@ -20,14 +20,40 @@
   and `Chewy.urgent_update` are now deprecated in favour of the new
   `Chewy.strategy` API.
 
-## Changes
-
-  * Object adapter initial proc support. Used for initial index filling.
+  * Loading objects for object-sourced types using `wrap` method is
+  deprecated, `load_one` method should be used instead. Or method name
+  might be passed to `define_type`:
 
     ```ruby
-      define_type ->{ ObjectsSource.new }, name: :custom_objects do
-        ...
+      class GeoData
+        def self.get_data(elasticsearch_document)
+          REDIS.get("geo_data_#{elasticsearch_document.id}")
+        end
       end
+
+      ...
+        define_type GeoData, load_one_method: :get_data do
+          ...
+        end
+    ```
+
+## Changes
+
+  * Object adapter supports custom initial import and load methods, so it
+  could be configured to be used with procs or any class responding to `call`
+  method.
+
+    ```ruby
+      class GeoData
+        def self.call
+          REDIS.get_all
+        end
+      end
+
+      ...
+        define_type GeoData do
+          ...
+        end
     ```
 
   * Nested fields value procs additional arguments: parent objects.
@@ -41,7 +67,7 @@
       end
     ```
 
-  * Implemented basic names scopes
+  * Implemented basic named scopes
 
 ## Bugfixes
 

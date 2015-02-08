@@ -76,10 +76,6 @@ module Chewy
           end
         end
 
-        # For every passed ElasticSearch document object the method
-        # loads corresponding ORM object from database and returns
-        # hash of ORM objects indexed by id.
-        #
         def load *args
           load_options = args.extract_options!
           objects = args.flatten

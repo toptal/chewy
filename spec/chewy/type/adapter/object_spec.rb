@@ -91,17 +91,6 @@ describe Chewy::Type::Adapter::Object do
       end
     end
 
-    context do
-      let(:products) { 3.times.map { |i| double.tap { |product|
-        allow(product).to receive(:is_a?).with(Product).and_return(true)
-      } } }
-      let(:non_product) { double }
-      subject { described_class.new(Product) }
-
-      specify { expect(import(products)).to eq([{index: products}]) }
-      specify { expect { import(products, non_product) {} }.to raise_error }
-    end
-
     context 'error handling' do
       let(:products) { 3.times.map { |i| double.tap { |product| allow(product).to receive_messages(rating: i.next) } } }
       let(:deleted) { 2.times.map { |i| double(destroyed?: true, rating: i + 4) } }
@@ -129,20 +118,22 @@ describe Chewy::Type::Adapter::Object do
       specify { expect(subject.load(objects)).to eq(objects) }
     end
 
-    context do
-      before { allow(Product).to receive(:wrap) { |object| allow(object).to receive_messages(wrapped?: true); object } }
-      subject { described_class.new(Product) }
-      let(:objects) { 3.times.map { |i| double(wrapped?: false) } }
+    [:wrap, :load_one].each do |load_method|
+      context do
+        before { allow(Product).to receive(load_method) { |object| allow(object).to receive_messages(wrapped?: true); object } }
+        subject { described_class.new(Product) }
+        let(:objects) { 3.times.map { |i| double(wrapped?: false) } }
 
-      specify { expect(subject.load(objects)).to satisfy { |objects| objects.all?(&:wrapped?) } }
-    end
+        specify { expect(subject.load(objects)).to satisfy { |objects| objects.all?(&:wrapped?) } }
+      end
 
-    context do
-      before { allow(Product).to receive(:wrap) { |object| nil } }
-      subject { described_class.new(Product) }
-      let(:objects) { 3.times.map { |i| double(wrapped?: false) } }
+      context do
+        before { allow(Product).to receive(load_method) { |object| nil } }
+        subject { described_class.new(Product) }
+        let(:objects) { 3.times.map { |i| double(wrapped?: false) } }
 
-      specify { expect(subject.load(objects)).to satisfy { |objects| objects.all?(&:nil?) } }
+        specify { expect(subject.load(objects)).to satisfy { |objects| objects.all?(&:nil?) } }
+      end
     end
   end
 end

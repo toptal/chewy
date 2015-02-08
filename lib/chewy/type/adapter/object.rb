@@ -31,14 +31,15 @@ module Chewy
         def import *args, &block
           import_options = args.extract_options!
           batch_size = import_options.delete(:batch_size) || BATCH_SIZE
-          objects = args.empty? && @target.respond_to?(:call) ?
-            @target.call : args.flatten.compact
+
+          objects = args.empty? && @target.respond_to?(import_all_method) ?
+            @target.send(import_all_method) : args.flatten.compact
 
           objects.each_slice(batch_size).map do |group|
             action_groups = group.group_by do |object|
-              raise "Object is not a `#{target}`" if class_target? && !object.is_a?(target)
               delete = object.delete_from_index? if object.respond_to?(:delete_from_index?)
               delete ||= object.destroyed? if object.respond_to?(:destroyed?)
+              delete ||= object[:_destroyed] || object['_destroyed'] if object.is_a?(Hash)
               delete ? :delete : :index
             end
             block.call action_groups
@@ -48,7 +49,12 @@ module Chewy
         def load *args
           load_options = args.extract_options!
           objects = args.flatten
-          if class_target?
+          if target.respond_to?(load_all_method)
+            target.send(load_all_method, objects)
+          elsif target.respond_to?(load_one_method)
+            objects.map { |object| target.send(load_one_method, object) }
+          elsif target.respond_to?(:wrap)
+            ActiveSupport::Deprecation.warn('Loading with `wrap` method is deprecated. Rename it to `load_one` or pass `load_one_method: :my_load_method` option to `define_type`')
             objects.map { |object| target.wrap(object) }
           else
             objects
@@ -59,8 +65,16 @@ module Chewy
 
         attr_reader :target, :options
 
-        def class_target?
-          @class_target ||= @target.is_a?(Class)
+        def import_all_method
+          @import_all_method ||= options[:import_all_method] || :call
+        end
+
+        def load_all_method
+          @load_all_method ||= options[:load_all_method] || :load_all
+        end
+
+        def load_one_method
+          @load_one_method ||= options[:load_one_method] || :load_one
         end
       end
     end

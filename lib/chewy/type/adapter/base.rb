@@ -5,6 +5,14 @@ module Chewy
       class Base
         BATCH_SIZE = 1000
 
+        attr_reader :type, :options
+
+        def initialize type, *args
+          @type = type
+          @options = args.extract_options!
+          prepare_arguments(*args)
+        end
+
         # Camelcased name, used as type class constant name.
         # For returned value 'Product' will be generated class name `ProductsIndex::Product`
         #
@@ -39,6 +47,39 @@ module Chewy
         #
         def load *args
           raise NotImplementedError
+        end
+
+      private
+
+        def import_objects(objects, batch_size, &block)
+          objects.each_slice(batch_size).map do |group|
+            block.call grouped_objects(group)
+          end.all?
+        end
+
+        def grouped_objects(objects)
+          objects.group_by do |object|
+            delete_from_index?(object) ? :delete : :index
+          end
+        end
+
+        def delete_from_index?(object)
+          if object.respond_to?(:delete_from_index?)
+            ActiveSupport::Deprecation.warn('`delete_from_index?` method in models is deprecated and will be removed soon. Use per-type `delete_if` option for `define_type`')
+            delete = object.delete_from_index?
+          end
+
+          delete_if = options[:delete_if]
+          delete ||= case delete_if
+          when Symbol, String
+            object.send delete_if
+          when Proc
+            delete_if.arity == 1 ? delete_if.call(object) : object.instance_exec(&delete_if)
+          end
+
+          delete ||= object.destroyed? if object.respond_to?(:destroyed?)
+          delete ||= object[:_destroyed] || object['_destroyed'] if object.is_a?(Hash)
+          !!delete
         end
       end
     end

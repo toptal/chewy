@@ -44,13 +44,13 @@ module Chewy
         #   # or
         #   UsersIndex::User.import users.map(&:id) # deleted user ids will be deleted from index
         #
-        # Also there is custom API method `delete_from_index?`. It it returns `true`
-        # object will be deleted from index. Note that if this method is defined and
+        # Also there is custom type option `delete_if`. It it returns `true`
+        # object will be deleted from index. Note that if this option is defined and
         # return `false` Chewy will still check `destroyed?` method. This is useful
-        # for paranoid objects sdeleting implementation.
+        # for paranoid objects deleting implementation.
         #
-        #   class User
-        #     alias_method :delete_from_index?, :deleted_at?
+        #   define_type User, delete_if: ->{ deleted_at } do
+        #     ...
         #   end
         #
         #   users = User.all
@@ -98,12 +98,6 @@ module Chewy
 
         attr_reader :model, :scope, :options
 
-        def import_objects(objects, batch_size, &block)
-          objects.each_slice(batch_size).map do |group|
-            block.call grouped_objects(group)
-          end.all?
-        end
-
         def import_ids(ids, batch_size)
           ids.uniq!
 
@@ -117,14 +111,6 @@ module Chewy
           end.all?
 
           indexed && deleted
-        end
-
-        def grouped_objects(objects)
-          objects.group_by do |object|
-            delete = object.delete_from_index? if object.respond_to?(:delete_from_index?)
-            delete ||= object.destroyed?
-            delete ? :delete : :index
-          end
         end
       end
     end

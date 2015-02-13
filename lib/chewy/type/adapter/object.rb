@@ -23,10 +23,10 @@ module Chewy
         #
         #   <tt>:batch_size</tt> - import batch size, 1000 objects by default
         #
-        # If methods `delete_from_index?` or `destroyed?` are defined for object
-        # and any return true then object will be deleted from index. But to be
-        # destroyed objects need to respond to `id` method as well, so ElasticSearch
-        # could know which one to delete.
+        # If method `destroyed?` is defined for object and returns true or object
+        # satisfy `delete_if` type option then object will be deleted from index.
+        # But to be destroyed objects need to respond to `id` method as well, so
+        # ElasticSearch could know which one to delete.
         #
         def import *args, &block
           import_options = args.extract_options!
@@ -35,15 +35,7 @@ module Chewy
           objects = args.empty? && @target.respond_to?(import_all_method) ?
             @target.send(import_all_method) : args.flatten.compact
 
-          objects.each_slice(batch_size).map do |group|
-            action_groups = group.group_by do |object|
-              delete = object.delete_from_index? if object.respond_to?(:delete_from_index?)
-              delete ||= object.destroyed? if object.respond_to?(:destroyed?)
-              delete ||= object[:_destroyed] || object['_destroyed'] if object.is_a?(Hash)
-              delete ? :delete : :index
-            end
-            block.call action_groups
-          end.all?
+          import_objects(objects, batch_size, &block)
         end
 
         def load *args

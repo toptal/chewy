@@ -38,7 +38,7 @@ describe Chewy::Type::Adapter::Mongoid, :mongoid do
 
     context do
       let!(:cities) { 3.times.map { |i| City.create! }.sort_by(&:id) }
-      let!(:deleted) { 3.times.map { |i| City.create!.tap(&:destroy) }.sort_by(&:id) }
+      let!(:deleted) { 4.times.map { |i| City.create!.tap(&:destroy) }.sort_by(&:id) }
       subject { described_class.new(City) }
 
       specify { expect(import).to eq([{index: cities}]) }
@@ -55,7 +55,8 @@ describe Chewy::Type::Adapter::Mongoid, :mongoid do
       specify { expect(import(cities, deleted, batch_size: 2)).to eq([
           {index: cities.first(2)},
           {index: cities.last(1), delete: deleted.first(1)},
-          {delete: deleted.last(2)}]) }
+          {delete: deleted[1..2]},
+          {delete: deleted.last(1)}]) }
 
       specify { expect(import(cities.map(&:id))).to eq([{index: cities}]) }
       specify { expect(import(deleted.map(&:id))).to eq([{delete: deleted.map(&:id)}]) }
@@ -67,29 +68,36 @@ describe Chewy::Type::Adapter::Mongoid, :mongoid do
         {index: cities.first(2)},
         {index: cities.last(1)},
         {delete: deleted.first(2).map(&:id)},
-        {delete: deleted.last(1).map(&:id)}]) }
+        {delete: deleted.last(2).map(&:id)}]) }
 
       specify { expect(import(cities.first, nil)).to eq([{index: [cities.first]}]) }
       specify { expect(import(cities.first.id, nil)).to eq([{index: [cities.first]}]) }
 
       context do
-        before { deleted.map { |object| allow(object).to receive_messages(delete_from_index?: true, destroyed?: true) } }
-        specify { expect(import(deleted)).to eq([{delete: deleted}]) }
+        before {
+          allow(deleted[0]).to receive_messages(delete_from_index?: true, destroyed?: true)
+          allow(deleted[1]).to receive_messages(delete_from_index?: true, destroyed?: false)
+          allow(deleted[2]).to receive_messages(delete_from_index?: false, destroyed?: true)
+          allow(deleted[3]).to receive_messages(delete_from_index?: false, destroyed?: false)
+        }
+
+        specify { expect(import(deleted)).to eq([
+          { delete: deleted[0..2], index: [deleted[3]] }
+        ]) }
       end
 
       context do
-        before { deleted.map { |object| allow(object).to receive_messages(delete_from_index?: true, destroyed?: false) } }
-        specify { expect(import(deleted)).to eq([{delete: deleted}]) }
-      end
+        subject { described_class.new(City, delete_if: ->(city) { city.delete? }) }
+        before {
+          allow(deleted[0]).to receive_messages(delete?: true, destroyed?: true)
+          allow(deleted[1]).to receive_messages(delete?: true, destroyed?: false)
+          allow(deleted[2]).to receive_messages(delete?: false, destroyed?: true)
+          allow(deleted[3]).to receive_messages(delete?: false, destroyed?: false)
+        }
 
-      context do
-        before { deleted.map { |object| allow(object).to receive_messages(delete_from_index?: false, destroyed?: true) } }
-        specify { expect(import(deleted)).to eq([{delete: deleted}]) }
-      end
-
-      context do
-        before { deleted.map { |object| allow(object).to receive_messages(delete_from_index?: false, destroyed?: false) } }
-        specify { expect(import(deleted)).to eq([{index: deleted}]) }
+        specify { expect(import(deleted)).to eq([
+          { delete: deleted[0..2], index: [deleted[3]] }
+        ]) }
       end
     end
 

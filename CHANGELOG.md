@@ -2,6 +2,14 @@
 
 ## Incompatible changes:
 
+  * `delete_from_index?` method is deprecated, use
+
+    ```ruby
+      define_type User, delete_if: ->{ removed? } do
+        ...
+      end
+    ```
+
   * `Chewy.request_strategy` to configure action controller's request wrapping strategy
 
   * `Chewy.root_strategy` to configure the first strategy in stack

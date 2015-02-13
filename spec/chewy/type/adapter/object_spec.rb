@@ -70,24 +70,30 @@ describe Chewy::Type::Adapter::Object do
       end
 
       context do
-        let(:deleted) { 2.times.map { |i| double(delete_from_index?: true, destroyed?: true) } }
-        specify { expect(import(deleted)).to eq([{delete: deleted}]) }
+        let(:deleted) { [
+          double(delete_from_index?: true, destroyed?: true),
+          double(delete_from_index?: true, destroyed?: false),
+          double(delete_from_index?: false, destroyed?: true),
+          double(delete_from_index?: false, destroyed?: false)
+        ] }
+
+        specify { expect(import(deleted)).to eq([
+          { delete: deleted[0..2], index: deleted.last(1) }
+        ]) }
       end
 
       context do
-        let(:deleted) { 2.times.map { |i| double(delete_from_index?: true, destroyed?: false) } }
-        specify { expect(import(deleted)).to eq([{delete: deleted}]) }
-      end
+        subject { described_class.new('product', delete_if: :delete?) }
+        let(:deleted) { [
+          double(delete?: true, destroyed?: true),
+          double(delete?: true, destroyed?: false),
+          double(delete?: false, destroyed?: true),
+          double(delete?: false, destroyed?: false)
+        ] }
 
-
-      context do
-        let(:deleted) { 2.times.map { |i| double(delete_from_index?: false, destroyed?: true) } }
-        specify { expect(import(deleted)).to eq([{delete: deleted}]) }
-      end
-
-      context do
-        let(:deleted) { 2.times.map { |i| double(delete_from_index?: false, destroyed?: false) } }
-        specify { expect(import(deleted)).to eq([{index: deleted}]) }
+        specify { expect(import(deleted)).to eq([
+          { delete: deleted[0..2], index: deleted.last(1) }
+        ]) }
       end
     end
 

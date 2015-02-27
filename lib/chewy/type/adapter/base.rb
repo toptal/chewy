@@ -51,6 +51,8 @@ module Chewy
 
       private
 
+        attr_reader :target, :options
+
         def import_objects(objects, batch_size, &block)
           objects.each_slice(batch_size).map do |group|
             block.call grouped_objects(group)

@@ -6,24 +6,24 @@ module Chewy
       class ActiveRecord < Orm
       private
 
-        def batch_process(collection, batch_size)
+        def batch_process(scope, batch_size)
           result = true
-          merged_scope(collection).find_in_batches(batch_size: batch_size) do |batch|
+          default_scope.merge(scope).find_in_batches(batch_size: batch_size) do |batch|
             result &= yield batch
           end
           result
         end
 
-        def merged_scope(target)
-          scope ? scope.clone.merge(target) : target
+        def indexable_ids(ids)
+          default_scope.merge(ids_scope(ids)).pluck(target.primary_key)
         end
 
-        def find_all_by_ids(ids)
-          model.where(model.primary_key.to_sym => ids)
+        def ids_scope(ids)
+          target.where(target.primary_key => ids)
         end
 
-        def model_all
-          ::ActiveRecord::VERSION::MAJOR < 4 ? model.scoped : model.all
+        def all_scope
+          ::ActiveRecord::VERSION::MAJOR < 4 ? target.scoped : target.all
         end
 
         def relation_class

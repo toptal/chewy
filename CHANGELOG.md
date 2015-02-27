@@ -2,6 +2,8 @@
 
 ## Incompatible changes:
 
+  * Import now respects default scope and removes documents which are not in it (for objects import only)
+
   * `delete_from_index?` method is deprecated, use
 
     ```ruby

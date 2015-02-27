@@ -6,21 +6,21 @@ module Chewy
       class Mongoid < Orm
       private
 
-        def batch_process(collection, batch_size, &block)
-          merged_scope(collection).batch_size(batch_size)
+        def batch_process(scope, batch_size, &block)
+          default_scope.merge(scope).batch_size(batch_size)
             .no_timeout.each_slice(batch_size).map(&block).all?
         end
 
-        def merged_scope(target)
-          scope ? scope.clone.merge(target) : target
+        def ids_scope(ids)
+          target.where(:_id.in => ids)
         end
 
-        def find_all_by_ids(ids)
-          model.where(:_id.in => ids)
+        def indexable_ids(ids)
+          default_scope.merge(ids_scope(ids)).pluck(:_id)
         end
 
-        def model_all
-          model.all
+        def all_scope
+          target.all
         end
 
         def relation_class

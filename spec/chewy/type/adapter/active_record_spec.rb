@@ -37,8 +37,8 @@ describe Chewy::Type::Adapter::ActiveRecord, :active_record do
     end
 
     context do
-      let!(:cities) { 3.times.map { |i| City.create! } }
-      let!(:deleted) { 4.times.map { |i| City.create!.tap(&:destroy) } }
+      let!(:cities) { 3.times.map { City.create! } }
+      let!(:deleted) { 4.times.map { City.create!.tap(&:destroy) } }
       subject { described_class.new(City) }
 
       specify { expect(import).to eq([{index: cities}]) }
@@ -74,29 +74,31 @@ describe Chewy::Type::Adapter::ActiveRecord, :active_record do
       specify { expect(import(cities.first.id, nil)).to eq([{index: [cities.first]}]) }
 
       context do
+        let!(:cities) { 4.times.map { City.create! } }
         before {
-          allow(deleted[0]).to receive_messages(delete_from_index?: true, destroyed?: true)
-          allow(deleted[1]).to receive_messages(delete_from_index?: true, destroyed?: false)
-          allow(deleted[2]).to receive_messages(delete_from_index?: false, destroyed?: true)
-          allow(deleted[3]).to receive_messages(delete_from_index?: false, destroyed?: false)
+          allow(cities[0]).to receive_messages(delete_from_index?: true, destroyed?: true)
+          allow(cities[1]).to receive_messages(delete_from_index?: true, destroyed?: false)
+          allow(cities[2]).to receive_messages(delete_from_index?: false, destroyed?: true)
+          allow(cities[3]).to receive_messages(delete_from_index?: false, destroyed?: false)
         }
 
-        specify { expect(import(deleted)).to eq([
-          { delete: deleted[0..2], index: [deleted[3]] }
+        specify { expect(import(cities)).to eq([
+          { delete: cities[0..2], index: [cities[3]] }
         ]) }
       end
 
       context do
+        let!(:cities) { 4.times.map { City.create! } }
         subject { described_class.new(City, delete_if: -> { delete? }) }
         before {
-          allow(deleted[0]).to receive_messages(delete?: true, destroyed?: true)
-          allow(deleted[1]).to receive_messages(delete?: true, destroyed?: false)
-          allow(deleted[2]).to receive_messages(delete?: false, destroyed?: true)
-          allow(deleted[3]).to receive_messages(delete?: false, destroyed?: false)
+          allow(cities[0]).to receive_messages(delete?: true, destroyed?: true)
+          allow(cities[1]).to receive_messages(delete?: true, destroyed?: false)
+          allow(cities[2]).to receive_messages(delete?: false, destroyed?: true)
+          allow(cities[3]).to receive_messages(delete?: false, destroyed?: false)
         }
 
-        specify { expect(import(deleted)).to eq([
-          { delete: deleted[0..2], index: [deleted[3]] }
+        specify { expect(import(cities)).to eq([
+          { delete: cities[0..2], index: [cities[3]] }
         ]) }
       end
     end
@@ -163,9 +165,16 @@ describe Chewy::Type::Adapter::ActiveRecord, :active_record do
       specify { expect(import(City.order(:id), batch_size: 2))
         .to eq([{index: cities.first(2)}, {index: [cities[2]]}]) }
 
-      specify { expect(import(cities)).to eq([{index: cities}]) }
-      specify { expect(import(cities, batch_size: 3))
-        .to eq([{index: cities.first(3)}, {index: cities.last(1)}]) }
+      specify { expect(import(cities))
+        .to eq([{index: cities.first(3), delete: [cities.last]}]) }
+      specify { expect(import(cities, batch_size: 2))
+        .to eq([{index: cities.first(2)}, {index: [cities[2]], delete: [cities.last]}]) }
+      specify { expect(import(cities, deleted))
+        .to eq([{index: cities.first(3), delete: [cities.last] + deleted}]) }
+      specify { expect(import(cities, deleted, batch_size: 3)).to eq([
+        {index: cities.first(3)},
+        {delete: [cities.last] + deleted.first(2)},
+        {delete: deleted.last(1)}]) }
 
       specify { expect(import(cities.map(&:id)))
         .to eq([{index: cities.first(3)}, {delete: [cities.last.id]}]) }

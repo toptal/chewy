@@ -55,8 +55,6 @@ module Chewy
 
       private
 
-        attr_reader :target, :options
-
         def import_all_method
           @import_all_method ||= options[:import_all_method] || :call
         end

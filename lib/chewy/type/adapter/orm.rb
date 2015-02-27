@@ -6,17 +6,18 @@ module Chewy
       class Orm < Base
         def initialize *args
           @options = args.extract_options!
-          subject = args.first
-          if subject.is_a?(relation_class)
-            @model = subject.klass
-            @scope = subject
+          class_or_relation = args.first
+          if class_or_relation.is_a?(relation_class)
+            @target = class_or_relation.klass
+            @default_scope = class_or_relation
           else
-            @model = subject
+            @target = class_or_relation
+            @default_scope = all_scope
           end
         end
 
         def name
-          @name ||= (options[:name].present? ? options[:name].to_s.camelize : model.model_name.to_s).demodulize
+          @name ||= (options[:name].present? ? options[:name].to_s.camelize : target.model_name.to_s).demodulize
         end
 
         # Import method for ORM takes import data and import options
@@ -63,7 +64,7 @@ module Chewy
           import_options = args.extract_options!
           batch_size = import_options[:batch_size] || BATCH_SIZE
 
-          collection = args.empty? ? model_all :
+          collection = args.empty? ? all_scope :
             (args.one? && args.first.is_a?(relation_class) ? args.first : args.flatten.compact)
 
           if collection.is_a?(relation_class)
@@ -82,7 +83,7 @@ module Chewy
 
           additional_scope = load_options[load_options[:_type].type_name.to_sym].try(:[], :scope) || load_options[:scope]
 
-          scope = find_all_by_ids(objects.map(&:id))
+          scope = ids_scope(objects.map(&:id))
           loaded_objects = if additional_scope.is_a?(Proc)
             scope.instance_exec(&additional_scope)
           elsif additional_scope.is_a?(relation_class)
@@ -96,12 +97,24 @@ module Chewy
 
       private
 
-        attr_reader :model, :scope, :options
+        attr_reader :default_scope
+
+        def import_objects(objects, batch_size, &block)
+          ids = objects.map(&:id)
+          deleted_ids = (ids - indexable_ids(ids)).to_set
+
+          objects.each_slice(batch_size).map do |group|
+            group = group.group_by do |object|
+              deleted_ids.include?(object.id) || delete_from_index?(object) ? :delete : :index
+            end
+            block.call group
+          end.all?
+        end
 
         def import_ids(ids, batch_size)
           ids.uniq!
 
-          indexed = batch_process(find_all_by_ids(ids), batch_size) do |batch|
+          indexed = batch_process(ids_scope(ids), batch_size) do |batch|
             ids -= batch.map(&:id)
             yield grouped_objects(batch)
           end

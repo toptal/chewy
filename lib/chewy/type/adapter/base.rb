@@ -5,13 +5,7 @@ module Chewy
       class Base
         BATCH_SIZE = 1000
 
-        attr_reader :type, :options
-
-        def initialize type, *args
-          @type = type
-          @options = args.extract_options!
-          prepare_arguments(*args)
-        end
+        attr_reader :target, :options
 
         # Camelcased name, used as type class constant name.
         # For returned value 'Product' will be generated class name `ProductsIndex::Product`
@@ -51,11 +45,9 @@ module Chewy
 
       private
 
-        attr_reader :target, :options
-
-        def import_objects(objects, batch_size, &block)
+        def import_objects(objects, batch_size)
           objects.each_slice(batch_size).map do |group|
-            block.call grouped_objects(group)
+            yield grouped_objects(group)
           end.all?
         end
 

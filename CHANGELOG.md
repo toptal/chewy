@@ -2,7 +2,7 @@
 
 ## Incompatible changes:
 
-  * Import now respects default scope and removes documents which are not in it (for objects import only)
+  * Import now respects default scope and removes unmatched documents
 
   * `delete_from_index?` method is deprecated, use
 

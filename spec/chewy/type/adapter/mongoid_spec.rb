@@ -16,6 +16,14 @@ describe Chewy::Type::Adapter::Mongoid, :mongoid do
     end
   end
 
+  describe '#default_scope' do
+    specify { expect(described_class.new(City).default_scope).to eq(City.all) }
+    specify { expect(described_class.new(City.order(:id.asc)).default_scope).to eq(City.all) }
+    specify { expect(described_class.new(City.limit(10)).default_scope).to eq(City.all) }
+    specify { expect(described_class.new(City.offset(10)).default_scope).to eq(City.all) }
+    specify { expect(described_class.new(City.where(rating: 10)).default_scope).to eq(City.where(rating: 10)) }
+  end
+
   describe '#type_name' do
     specify { expect(described_class.new(City).type_name).to eq('city') }
     specify { expect(described_class.new(City.order(:id.asc)).type_name).to eq('city') }
@@ -128,25 +136,29 @@ describe Chewy::Type::Adapter::Mongoid, :mongoid do
 
       specify { expect(import).to eq([{index: cities.first(3)}]) }
 
-      specify { expect(import(City.order(:id.asc))).to eq([{index: cities.first(3)}]) }
-      specify { expect(import(City.order(:id.asc), batch_size: 2))
-        .to eq([{index: cities.first(2)}, {index: [cities[2]]}]) }
+      specify { expect(import(City.where(:rating.lt => 2).order(:id.asc)))
+        .to eq([{index: cities.first(3)}, {delete: [cities.last.id]}]) }
+      specify { expect(import(City.where(:rating.lt => 2).order(:id.asc), batch_size: 2))
+        .to eq([{index: cities.first(2)}, {index: [cities[2]]}, {delete: [cities.last.id]}]) }
+      specify { expect(import(City.where(:rating.lt => 1).order(:id.asc)))
+        .to eq([{index: cities.first(3)}]) }
+      specify { expect(import(City.where(:rating.gt => 1).order(:id.asc))).to eq([]) }
 
-      # specify { expect(import(cities)).to eq([{index: cities}]) }
-      # specify { expect(import(cities, batch_size: 2))
-      #   .to eq([{index: cities.first(2)}, {index: cities.last(1)}]) }
-
+      specify { expect(import(cities.first(2)))
+        .to eq([{index: cities.first(2)}]) }
       specify { expect(import(cities))
-        .to eq([{index: cities.first(3), delete: [cities.last]}]) }
+        .to eq([{index: cities.first(3), delete: cities.last(1)}]) }
       specify { expect(import(cities, batch_size: 2))
-        .to eq([{index: cities.first(2)}, {index: [cities[2]], delete: [cities.last]}]) }
+        .to eq([{index: cities.first(2)}, {index: [cities[2]], delete: cities.last(1)}]) }
       specify { expect(import(cities, deleted))
-        .to eq([{index: cities.first(3), delete: [cities.last] + deleted}]) }
+        .to eq([{index: cities.first(3), delete: cities.last(1) + deleted}]) }
       specify { expect(import(cities, deleted, batch_size: 3)).to eq([
         {index: cities.first(3)},
-        {delete: [cities.last] + deleted.first(2)},
+        {delete: cities.last(1) + deleted.first(2)},
         {delete: deleted.last(1)}]) }
 
+      specify { expect(import(cities.first(2).map(&:id)))
+        .to eq([{index: cities.first(2)}]) }
       specify { expect(import(cities.map(&:id)))
         .to eq([{index: cities.first(3)}, {delete: [cities.last.id]}]) }
       specify { expect(import(cities.map(&:id), batch_size: 2))

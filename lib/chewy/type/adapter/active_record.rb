@@ -6,24 +6,33 @@ module Chewy
       class ActiveRecord < Orm
       private
 
+        def cleanup_default_scope!
+          if Chewy.logger && (@default_scope.arel.orders.present? ||
+             @default_scope.arel.limit.present? || @default_scope.arel.offset.present?)
+            Chewy.logger.warn('Default type scope order, limit and offest are ignored and will be nullified')
+          end
+
+          @default_scope = @default_scope.reorder(nil).limit(nil).offset(nil)
+        end
+
         def batch_process(scope, batch_size)
           result = true
-          default_scope.merge(scope).find_in_batches(batch_size: batch_size) do |batch|
+          scope.find_in_batches(batch_size: batch_size) do |batch|
             result &= yield batch
           end
           result
         end
 
-        def indexable_ids(ids)
-          default_scope.merge(ids_scope(ids)).pluck(target.primary_key)
+        def pluck_ids(scope)
+          scope.pluck(target.primary_key)
         end
 
-        def ids_scope(ids)
-          target.where(target.primary_key => ids)
+        def default_scope_where_ids_in(ids)
+          default_scope.where(target.primary_key => ids)
         end
 
         def all_scope
-          ::ActiveRecord::VERSION::MAJOR < 4 ? target.scoped : target.all
+          target.where(nil)
         end
 
         def relation_class

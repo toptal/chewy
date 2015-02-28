@@ -6,17 +6,27 @@ module Chewy
       class Mongoid < Orm
       private
 
+        def cleanup_default_scope!
+          if Chewy.logger && @default_scope.options.values_at(:sort, :limit, :skip).compact.present?
+            Chewy.logger.warn('Default type scope order, limit and offest are ignored and will be nullified')
+          end
+
+          @default_scope = @default_scope.reorder(nil)
+          @default_scope.options.delete(:limit)
+          @default_scope.options.delete(:skip)
+        end
+
         def batch_process(scope, batch_size, &block)
-          default_scope.merge(scope).batch_size(batch_size)
+          scope.batch_size(batch_size)
             .no_timeout.each_slice(batch_size).map(&block).all?
         end
 
-        def ids_scope(ids)
-          target.where(:_id.in => ids)
+        def pluck_ids(scope)
+          scope.pluck(:_id)
         end
 
-        def indexable_ids(ids)
-          default_scope.merge(ids_scope(ids)).pluck(:_id)
+        def default_scope_where_ids_in(ids)
+          default_scope.where(:_id.in => ids)
         end
 
         def all_scope

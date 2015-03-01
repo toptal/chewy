@@ -27,8 +27,8 @@ module Chewy
           scope.pluck(target.primary_key)
         end
 
-        def default_scope_where_ids_in(ids)
-          default_scope.where(target.primary_key => ids)
+        def scope_where_ids_in(scope, ids)
+          scope.where(target.primary_key => ids)
         end
 
         def all_scope

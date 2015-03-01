@@ -45,15 +45,10 @@ module Chewy
 
       private
 
-        def import_objects(objects, batch_size)
-          objects.each_slice(batch_size).map do |group|
-            yield grouped_objects(group)
-          end.all?
-        end
-
         def grouped_objects(objects)
           objects.group_by do |object|
-            delete_from_index?(object) ? :delete : :index
+            delete = yield(object) if block_given?
+            (delete || delete_from_index?(object)) ? :delete : :index
           end
         end
 

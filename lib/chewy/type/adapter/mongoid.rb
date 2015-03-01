@@ -25,8 +25,8 @@ module Chewy
           scope.pluck(:_id)
         end
 
-        def default_scope_where_ids_in(ids)
-          default_scope.where(:_id.in => ids)
+        def scope_where_ids_in(scope, ids)
+          scope.where(:_id.in => ids)
         end
 
         def all_scope

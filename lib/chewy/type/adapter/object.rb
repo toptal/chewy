@@ -55,6 +55,12 @@ module Chewy
 
       private
 
+        def import_objects(objects, batch_size)
+          objects.each_slice(batch_size).map do |group|
+            yield grouped_objects(group)
+          end.all?
+        end
+
         def import_all_method
           @import_all_method ||= options[:import_all_method] || :call
         end

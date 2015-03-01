@@ -84,7 +84,7 @@ module Chewy
 
           additional_scope = load_options[load_options[:_type].type_name.to_sym].try(:[], :scope) || load_options[:scope]
 
-          scope = default_scope_where_ids_in(objects.map(&:id))
+          scope = all_scope_where_ids_in(objects.map(&:id))
           loaded_objects = if additional_scope.is_a?(Proc)
             scope.instance_exec(&additional_scope)
           elsif additional_scope.is_a?(relation_class)
@@ -104,10 +104,7 @@ module Chewy
           deleted_ids = (ids - indexed_ids).to_set
 
           objects.each_slice(batch_size).map do |group|
-            group = group.group_by do |object|
-              deleted_ids.include?(object.id) || delete_from_index?(object) ? :delete : :index
-            end
-            yield group
+            yield grouped_objects(group) { |object| deleted_ids.include?(object.id) }
           end.all?
         end
 
@@ -122,6 +119,14 @@ module Chewy
           end.all?
 
           indexed && deleted
+        end
+
+        def default_scope_where_ids_in(ids)
+          scope_where_ids_in(default_scope, ids)
+        end
+
+        def all_scope_where_ids_in(ids)
+          scope_where_ids_in(all_scope, ids)
         end
       end
     end

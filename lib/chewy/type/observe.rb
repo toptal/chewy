@@ -44,8 +44,7 @@ module Chewy
             Chewy.derive_type(type_name).update_index(backreference, options)
           end
 
-          after_save &update
-          after_destroy &update
+          after_commit &update
         end
       end
 

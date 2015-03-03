@@ -2,6 +2,8 @@
 
 ## Incompatible changes:
 
+  * ActiveRecord import is now called after_commit instead of after_save and after_destroy
+
   * Import now respects default scope and removes unmatched documents
 
   * `delete_from_index?` method is deprecated, use

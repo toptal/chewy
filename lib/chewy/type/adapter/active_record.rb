@@ -24,7 +24,7 @@ module Chewy
         end
 
         def pluck_ids(scope)
-          scope.pluck(target.primary_key)
+          scope.pluck(target.primary_key.to_sym)
         end
 
         def scope_where_ids_in(scope, ids)

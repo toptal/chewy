@@ -130,7 +130,7 @@ describe Chewy::Type::Import do
         end
 
         dummy_cities.first.destroy
-        city.import dummy_cities, batch_size: 1
+        city.import dummy_cities, batch_size: 2
         expect(outer_payload).to eq({type: CitiesIndex::City, import: {delete: 1, index: 2}})
       end
 
@@ -140,7 +140,7 @@ describe Chewy::Type::Import do
           outer_payload = payload
         end
 
-        city.import dummy_cities, batch_size: 1
+        city.import dummy_cities, batch_size: 2
         expect(outer_payload).to eq({type: CitiesIndex::City, import: {index: 3}})
       end
 
@@ -159,7 +159,7 @@ describe Chewy::Type::Import do
             outer_payload = payload
           end
 
-          city.import dummy_cities, batch_size: 1
+          city.import dummy_cities, batch_size: 2
           expect(outer_payload).to eq({
             type: CitiesIndex::City,
             errors: {
@@ -199,7 +199,7 @@ describe Chewy::Type::Import do
 
         specify { expect(city.import(dummy_cities)).to eq(false) }
         specify { expect(city.import(dummy_cities.map(&:id))).to eq(false) }
-        specify { expect(city.import(dummy_cities, batch_size: 1)).to eq(false) }
+        specify { expect(city.import(dummy_cities, batch_size: 2)).to eq(false) }
       end
     end
 
@@ -299,7 +299,7 @@ describe Chewy::Type::Import do
         end
       end
 
-      specify { expect( country.import(canada) ).to eq(true)  }
+      specify { expect(country.import(canada)).to eq(true)  }
       specify { expect { country.import(canada) }.to update_index(country).and_reindex(canada.country_code) }
 
       specify do

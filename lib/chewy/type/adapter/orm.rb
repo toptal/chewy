@@ -70,12 +70,15 @@ module Chewy
           collection = args.empty? ? default_scope :
             (args.one? && args.first.is_a?(relation_class) ? args.first : args.flatten.compact)
 
-          if collection.is_a?(relation_class)
-            import_ids(pluck_ids(collection), batch_size, &block)
+          ids = if collection.is_a?(relation_class)
+            pluck_ids(collection)
           else
-            objects, ids = collection.partition { |object| object.is_a?(object_class) }
-            import_objects(objects, batch_size, &block) && import_ids(ids, batch_size, &block)
+            collection.index_by do |entity|
+              entity.is_a?(object_class) ? entity.id : entity
+            end
           end
+
+          import_objects(ids, batch_size, &block)
         end
 
         def load *args
@@ -98,24 +101,16 @@ module Chewy
 
       private
 
-        def import_objects(objects, batch_size)
-          ids = objects.map(&:id)
-          indexed_ids = pluck_ids(default_scope_where_ids_in(ids))
-          deleted_ids = (ids - indexed_ids).to_set
+        def import_objects(ids, batch_size)
+          hash = ids.is_a?(Hash)
 
-          objects.each_slice(batch_size).map do |group|
-            yield grouped_objects(group) { |object| deleted_ids.include?(object.id) }
-          end.all?
-        end
-
-        def import_ids(ids, batch_size)
-          indexed = batch_process(default_scope_where_ids_in(ids), batch_size) do |batch|
-            ids -= batch.map(&:id)
+          indexed = batch_process(default_scope_where_ids_in(hash ? ids.keys : ids), batch_size) do |batch|
+            batch.each { |object| ids.delete(object.id) }
             yield grouped_objects(batch)
           end
 
-          deleted = ids.each_slice(batch_size).map do |group|
-            yield delete: group
+          deleted = (hash ? ids.keys : ids).each_slice(batch_size).map do |group|
+            yield delete: hash ? ids.values_at(*group) : group
           end.all?
 
           indexed && deleted

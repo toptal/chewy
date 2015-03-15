@@ -59,12 +59,13 @@ describe Chewy::Type::Adapter::ActiveRecord, :active_record do
       specify { expect(import(cities)).to eq([{index: cities}]) }
       specify { expect(import(cities, batch_size: 2))
           .to eq([{index: cities.first(2)}, {index: cities.last(1)}]) }
-      specify { expect(import(cities, deleted)).to eq([{index: cities, delete: deleted}]) }
+      specify { expect(import(cities, deleted))
+        .to eq([{index: cities}, {delete: deleted}]) }
       specify { expect(import(cities, deleted, batch_size: 2)).to eq([
-          {index: cities.first(2)},
-          {index: cities.last(1), delete: deleted.first(1)},
-          {delete: deleted[1..2]},
-          {delete: deleted.last(1)}]) }
+        {index: cities.first(2)},
+        {index: cities.last(1)},
+        {delete: deleted.first(2)},
+        {delete: deleted.last(2)}]) }
 
       specify { expect(import(cities.map(&:id))).to eq([{index: cities}]) }
       specify { expect(import(deleted.map(&:id))).to eq([{delete: deleted.map(&:id)}]) }
@@ -80,53 +81,57 @@ describe Chewy::Type::Adapter::ActiveRecord, :active_record do
 
       specify { expect(import(cities.first, nil)).to eq([{index: [cities.first]}]) }
       specify { expect(import(cities.first.id, nil)).to eq([{index: [cities.first]}]) }
-
-      context do
-        let!(:cities) { 4.times.map { City.create! } }
-        before {
-          allow(cities[0]).to receive_messages(delete_from_index?: true, destroyed?: true)
-          allow(cities[1]).to receive_messages(delete_from_index?: true, destroyed?: false)
-          allow(cities[2]).to receive_messages(delete_from_index?: false, destroyed?: true)
-          allow(cities[3]).to receive_messages(delete_from_index?: false, destroyed?: false)
-        }
-
-        specify { expect(import(cities)).to eq([
-          { delete: cities[0..2], index: [cities[3]] }
-        ]) }
-      end
-
-      context do
-        let!(:cities) { 4.times.map { City.create! } }
-        subject { described_class.new(City, delete_if: -> { delete? }) }
-        before {
-          allow(cities[0]).to receive_messages(delete?: true, destroyed?: true)
-          allow(cities[1]).to receive_messages(delete?: true, destroyed?: false)
-          allow(cities[2]).to receive_messages(delete?: false, destroyed?: true)
-          allow(cities[3]).to receive_messages(delete?: false, destroyed?: false)
-        }
-
-        specify { expect(import(cities)).to eq([
-          { delete: cities[0..2], index: [cities[3]] }
-        ]) }
-      end
     end
 
-    describe '#delete_from_index?' do
-      before do
-        stub_model(:city) do
-          def delete_from_index?
-            rating == 42
-          end
-        end
-      end
-      let!(:cities) { 3.times.map { |i| City.create! } }
-      let!(:deleted) { 3.times.map { |i| City.create!(rating: 42) } }
+    context 'additional delete conitions' do
+      let!(:cities) { 4.times.map { |i| City.create! rating: i } }
+      before { cities.last(2).map(&:destroy!) }
       subject { described_class.new(City) }
 
-      specify { expect(import(cities, deleted)).to eq([{index: cities, delete: deleted}]) }
-      specify { expect(import(cities.map(&:id), deleted.map(&:id)))
-        .to eq([{index: cities, delete: deleted}]) }
-      specify { expect(import(City.order(:id))).to eq([{index: cities, delete: deleted}]) }
+      context do
+        before do
+          City.class_eval do
+            def delete_from_index?
+              rating.in?([1, 3])
+            end
+          end
+        end
+
+        specify { expect(import(City.where(nil))).to eq([
+          { index: [cities[0]], delete: [cities[1]] }
+        ]) }
+        specify { expect(import(cities)).to eq([
+          { index: [cities[0]], delete: [cities[1]] },
+          { delete: cities.last(2) }
+        ]) }
+        specify { expect(import(cities.map(&:id))).to eq([
+          { index: [cities[0]], delete: [cities[1]] },
+          { delete: cities.last(2).map(&:id) }
+        ]) }
+      end
+
+      context do
+        before do
+          City.class_eval do
+            def delete_already?
+              rating.in?([1, 3])
+            end
+          end
+        end
+        subject { described_class.new(City, delete_if: ->{ delete_already? }) }
+
+        specify { expect(import(City.where(nil))).to eq([
+          { index: [cities[0]], delete: [cities[1]] }
+        ]) }
+        specify { expect(import(cities)).to eq([
+          { index: [cities[0]], delete: [cities[1]] },
+          { delete: cities.last(2) }
+        ]) }
+        specify { expect(import(cities.map(&:id))).to eq([
+          { index: [cities[0]], delete: [cities[1]] },
+          { delete: cities.last(2).map(&:id) }
+        ]) }
+      end
     end
 
     context 'custom primary_key' do
@@ -144,11 +149,13 @@ describe Chewy::Type::Adapter::ActiveRecord, :active_record do
       specify { expect(import(cities)).to eq([{index: cities}]) }
       specify { expect(import(cities, batch_size: 2))
           .to eq([{index: cities.first(2)}, {index: cities.last(1)}]) }
-      specify { expect(import(cities, deleted)).to eq([{index: cities, delete: deleted}]) }
+      specify { expect(import(cities, deleted))
+        .to eq([{index: cities}, {delete: deleted}]) }
       specify { expect(import(cities, deleted, batch_size: 2)).to eq([
-          {index: cities.first(2)},
-          {index: cities.last(1), delete: deleted.first(1)},
-          {delete: deleted.last(2)}]) }
+        {index: cities.first(2)},
+        {index: cities.last(1)},
+        {delete: deleted.first(2)},
+        {delete: deleted.last(1)}]) }
 
       specify { expect(import(cities.map(&:id))).to eq([{index: cities}]) }
       specify { expect(import(cities.map(&:id), batch_size: 2))
@@ -180,11 +187,11 @@ describe Chewy::Type::Adapter::ActiveRecord, :active_record do
       specify { expect(import(cities.first(2)))
         .to eq([{index: cities.first(2)}]) }
       specify { expect(import(cities))
-        .to eq([{index: cities.first(3), delete: cities.last(1)}]) }
+        .to eq([{index: cities.first(3)}, {delete: cities.last(1)}]) }
       specify { expect(import(cities, batch_size: 2))
-        .to eq([{index: cities.first(2)}, {index: [cities[2]], delete: cities.last(1)}]) }
+        .to eq([{index: cities.first(2)}, {index: [cities[2]]}, {delete: cities.last(1)}]) }
       specify { expect(import(cities, deleted))
-        .to eq([{index: cities.first(3), delete: cities.last(1) + deleted}]) }
+        .to eq([{index: cities.first(3)}, {delete: cities.last(1) + deleted}]) }
       specify { expect(import(cities, deleted, batch_size: 3)).to eq([
         {index: cities.first(3)},
         {delete: cities.last(1) + deleted.first(2)},

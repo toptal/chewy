@@ -61,6 +61,13 @@ module Chewy
           end.all?
         end
 
+        def delete_from_index?(object)
+          delete = super
+          delete ||= object.destroyed? if object.respond_to?(:destroyed?)
+          delete ||= object[:_destroyed] || object['_destroyed'] if object.is_a?(Hash)
+          !!delete
+        end
+
         def import_all_method
           @import_all_method ||= options[:import_all_method] || :call
         end

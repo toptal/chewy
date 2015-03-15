@@ -47,8 +47,7 @@ module Chewy
 
         def grouped_objects(objects)
           objects.group_by do |object|
-            delete = yield(object) if block_given?
-            (delete || delete_from_index?(object)) ? :delete : :index
+            delete_from_index?(object) ? :delete : :index
           end
         end
 
@@ -66,8 +65,6 @@ module Chewy
             delete_if.arity == 1 ? delete_if.call(object) : object.instance_exec(&delete_if)
           end
 
-          delete ||= object.destroyed? if object.respond_to?(:destroyed?)
-          delete ||= object[:_destroyed] || object['_destroyed'] if object.is_a?(Hash)
           !!delete
         end
       end

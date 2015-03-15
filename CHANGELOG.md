@@ -2,6 +2,9 @@
 
 ## Incompatible changes:
 
+  * `Chewy.use_after_commit_callbacks = false` returns previous RDBMS behavior
+  in tests.
+
   * ActiveRecord import is now called after_commit instead of after_save and after_destroy
 
   * Import now respects default scope and removes unmatched documents

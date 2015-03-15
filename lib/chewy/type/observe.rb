@@ -31,7 +31,7 @@ module Chewy
           method = args.first
 
           update = Proc.new do
-            # clear_association_cache if Chewy.strategy.current.name == :urgent
+            clear_association_cache if Chewy.strategy.current.name == :urgent
 
             backreference = if method && method.to_s == 'self'
               self
@@ -44,12 +44,7 @@ module Chewy
             Chewy.derive_type(type_name).update_index(backreference, options)
           end
 
-          if Chewy.use_after_commit_callbacks
-            after_commit &update
-          else
-            after_save &update
-            after_destroy &update
-          end
+          after_commit &update
         end
       end
 

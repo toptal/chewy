@@ -29,14 +29,7 @@ module Chewy
       # If you neet to return to the previous chewy behavior -
       # just set it to `:bypass`
       #
-      :request_strategy,
-
-      # Use after_commit callbacks for RDBMS instead of
-      # after_save and after_destroy. True by default. Useful
-      # in tests with transactional fixtures or transactional
-      # DatabaseCleaner strategy.
-      #
-      :use_after_commit_callbacks
+      :request_strategy
 
     def self.delegated
       public_instance_methods - self.superclass.public_instance_methods - Singleton.public_instance_methods
@@ -48,7 +41,6 @@ module Chewy
       @filter_mode = :and
       @root_strategy = :base
       @request_strategy = :atomic
-      @use_after_commit_callbacks = true
     end
 
     def transport_logger= logger

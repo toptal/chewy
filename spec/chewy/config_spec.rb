@@ -11,7 +11,6 @@ describe Chewy::Config do
   its(:post_filter_mode) { should be_nil }
   its(:root_strategy) { should == :base }
   its(:request_strategy) { should == :atomic }
-  its(:use_after_commit_callbacks) { should == true }
 
   describe '#transport_logger=' do
     let(:logger) { Logger.new('/dev/null') }

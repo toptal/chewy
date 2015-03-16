@@ -105,5 +105,19 @@ describe Chewy::Strategy do
         end
       end
     end
+
+    context do
+      around { |example| Chewy.strategy(:asynchronous) { example.run } }
+
+      specify do
+        expect(Sidekiq::Client).to receive(:push).at_least(2).times
+        [city, other_city].map(&:save!)
+      end
+
+      specify do
+        expect(Sidekiq::Client).to receive(:push).with([city.id, other_city.id]).once
+        Chewy.strategy(:asynchronous) { [city, other_city].map(&:save!) }
+      end
+    end
   end
 end

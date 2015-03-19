@@ -142,9 +142,9 @@ describe Chewy::Type::Adapter::Mongoid, :mongoid do
       specify { expect(import).to eq([{index: cities.first(3)}]) }
 
       specify { expect(import(City.where(:rating.lt => 2).order(:id.asc)))
-        .to eq([{index: cities.first(3)}, {delete: [cities.last.id]}]) }
+        .to eq([{index: cities.first(3)}]) }
       specify { expect(import(City.where(:rating.lt => 2).order(:id.asc), batch_size: 2))
-        .to eq([{index: cities.first(2)}, {index: [cities[2]]}, {delete: [cities.last.id]}]) }
+        .to eq([{index: cities.first(2)}, {index: [cities[2]]}]) }
       specify { expect(import(City.where(:rating.lt => 1).order(:id.asc)))
         .to eq([{index: cities.first(3)}]) }
       specify { expect(import(City.where(:rating.gt => 1).order(:id.asc))).to eq([]) }

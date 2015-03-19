@@ -177,9 +177,9 @@ describe Chewy::Type::Adapter::ActiveRecord, :active_record do
       specify { expect(import).to eq([{index: cities.first(3)}]) }
 
       specify { expect(import(City.where('rating < 2')))
-        .to eq([{index: cities.first(3)}, {delete: [cities.last.id]}]) }
+        .to eq([{index: cities.first(3)}]) }
       specify { expect(import(City.where('rating < 2'), batch_size: 2))
-        .to eq([{index: cities.first(2)}, {index: [cities[2]]}, {delete: [cities.last.id]}]) }
+        .to eq([{index: cities.first(2)}, {index: [cities[2]]}]) }
       specify { expect(import(City.where('rating < 1')))
         .to eq([{index: cities.first(3)}]) }
       specify { expect(import(City.where('rating > 1'))).to eq([]) }

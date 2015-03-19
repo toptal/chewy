@@ -16,10 +16,17 @@ module Chewy
         end
 
         def batch_process(scope, batch_size)
+          scope = scope.reorder(target.primary_key.to_sym).limit(batch_size)
+          ids = scope.pluck(target.primary_key.to_sym)
           result = true
-          scope.find_in_batches(batch_size: batch_size) do |batch|
-            result &= yield batch
+
+          while ids.any?
+            result &= yield ids
+            break if ids.size < batch_size
+            ids = scope.where(scope.table[target.primary_key]
+              .gt(ids.last)).pluck(target.primary_key.to_sym)
           end
+
           result
         end
 

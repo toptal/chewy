@@ -70,15 +70,11 @@ module Chewy
           collection = args.empty? ? default_scope :
             (args.one? && args.first.is_a?(relation_class) ? args.first : args.flatten.compact)
 
-          ids = if collection.is_a?(relation_class)
-            pluck_ids(collection)
+          if collection.is_a?(relation_class)
+            import_scope(collection, batch_size, &block)
           else
-            collection.index_by do |entity|
-              entity.is_a?(object_class) ? entity.id : entity
-            end
+            import_objects(collection, batch_size, &block)
           end
-
-          import_objects(ids, batch_size, &block)
         end
 
         def load *args
@@ -101,16 +97,29 @@ module Chewy
 
       private
 
-        def import_objects(ids, batch_size)
-          hash = ids.is_a?(Hash)
+        def import_scope(collection, batch_size)
+          batch_process(collection, batch_size) do |ids|
+            yield grouped_objects(default_scope_where_ids_in(ids))
+          end
+        end
 
-          indexed = batch_process(default_scope_where_ids_in(hash ? ids.keys : ids), batch_size) do |batch|
-            batch.each { |object| ids.delete(object.id) }
-            yield grouped_objects(batch)
+        def import_objects(collection, batch_size)
+          hash = collection.index_by do |entity|
+            entity.is_a?(object_class) ? entity.id : entity
           end
 
-          deleted = (hash ? ids.keys : ids).each_slice(batch_size).map do |group|
-            yield delete: hash ? ids.values_at(*group) : group
+          indexed = hash.keys.each_slice(batch_size).map do |ids|
+            batch = default_scope_where_ids_in(ids)
+            if batch.empty?
+              true
+            else
+              batch.each { |object| hash.delete(object.id) }
+              yield grouped_objects(batch)
+            end
+          end.all?
+
+          deleted = hash.keys.each_slice(batch_size).map do |group|
+            yield delete: hash.values_at(*group)
           end.all?
 
           indexed && deleted

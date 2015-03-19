@@ -58,15 +58,15 @@ describe Chewy::Type::Import do
     specify do
       dummy_cities.first.destroy
 
-      expect(CitiesIndex.client).to receive(:bulk).with(hash_including(
-        body: [{delete: {_id: dummy_cities.first.id}}]
-      ))
-
-      expect(CitiesIndex.client).to receive(:bulk).with(hash_including(
-        body: [{index: {_id: 2, data: {'name' => "name1"}}}, {index: {_id: 3, data: {'name' => "name2"}}}]
-      ))
+      imported = []
+      allow(CitiesIndex.client).to receive(:bulk) { |params| imported << params[:body]; nil }
 
       city.import dummy_cities.map(&:id), batch_size: 2
+      expect(imported.flatten).to match_array([
+        {index: {_id: 2, data: {'name' => 'name1'}}},
+        {index: {_id: 3, data: {'name' => 'name2'}}},
+        {delete: {_id: dummy_cities.first.id}}
+      ])
     end
 
     specify do

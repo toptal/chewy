@@ -17,8 +17,8 @@ module Chewy
         end
 
         def batch_process(scope, batch_size, &block)
-          scope.batch_size(batch_size)
-            .no_timeout.each_slice(batch_size).map(&block).all?
+          scope.batch_size(batch_size).no_timeout
+            .pluck(:_id).each_slice(batch_size).map(&block).all?
         end
 
         def pluck_ids(scope)

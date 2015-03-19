@@ -97,12 +97,6 @@ module Chewy
 
       private
 
-        def import_scope(collection, batch_size)
-          batch_process(collection, batch_size) do |ids|
-            yield grouped_objects(default_scope_where_ids_in(ids))
-          end
-        end
-
         def import_objects(collection, batch_size)
           hash = collection.index_by do |entity|
             entity.is_a?(object_class) ? entity.id : entity

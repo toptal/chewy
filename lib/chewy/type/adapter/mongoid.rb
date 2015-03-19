@@ -16,9 +16,10 @@ module Chewy
           @default_scope.options.delete(:skip)
         end
 
-        def batch_process(scope, batch_size, &block)
-          scope.batch_size(batch_size).no_timeout
-            .pluck(:_id).each_slice(batch_size).map(&block).all?
+        def import_scope(scope, batch_size)
+          scope.batch_size(batch_size).no_timeout.pluck(:_id).each_slice(batch_size).map do |ids|
+            yield grouped_objects(default_scope_where_ids_in(ids))
+          end.all?
         end
 
         def pluck_ids(scope)

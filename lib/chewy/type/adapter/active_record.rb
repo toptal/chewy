@@ -15,19 +15,10 @@ module Chewy
           @default_scope = @default_scope.reorder(nil).limit(nil).offset(nil)
         end
 
-        def batch_process(scope, batch_size)
-          scope = scope.reorder(target.primary_key.to_sym).limit(batch_size)
-          ids = scope.pluck(target.primary_key.to_sym)
-          result = true
-
-          while ids.any?
-            result &= yield ids
-            break if ids.size < batch_size
-            ids = scope.where(scope.table[target.primary_key]
-              .gt(ids.last)).pluck(target.primary_key.to_sym)
-          end
-
-          result
+        def import_scope(scope, batch_size)
+          default_scope_where_ids_in(scope.except(:select)).each_slice(batch_size).map do |objects|
+            yield grouped_objects(objects)
+          end.all?
         end
 
         def pluck_ids(scope)

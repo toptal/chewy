@@ -54,6 +54,21 @@
 
 ## Changes
 
+  * ORM adapters now completely relies on the default scope. This means every scope or objects passed to import are merged with default scope so basically there is no need to define `delete_if` block. Default scope strongly restricts objects which may land in the current index.
+
+    ```ruby
+      define_type Country.where("rating > 30") do
+
+      end
+
+      # this code would import only countries with rating between 30 and 50
+      CountriesIndex::Country.import(Country.where("rating < 50"))
+
+      # the same is true for arrays of objects or ids
+      CountriesIndex::Country.import(Country.where("rating < 50").to_a)
+      CountriesIndex::Country.import(Country.where("rating < 50").pluck(:id))
+    ```
+
   * Object adapter supports custom initial import and load methods, so it
   could be configured to be used with procs or any class responding to `call`
   method.

@@ -16,9 +16,11 @@ module Chewy
         end
 
         def import_scope(scope, batch_size)
-          default_scope_where_ids_in(scope.except(:select)).find_in_batches(batch_size: batch_size).map do |batch|
-            yield grouped_objects(batch)
-          end.all?
+          result = true
+          default_scope_where_ids_in(scope.except(:select)).find_in_batches(batch_size: batch_size) do |batch|
+            result &= yield grouped_objects(batch)
+          end
+          result
         end
 
         def pluck_ids(scope)

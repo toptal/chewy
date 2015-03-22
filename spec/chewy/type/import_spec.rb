@@ -164,7 +164,7 @@ describe Chewy::Type::Import do
             type: CitiesIndex::City,
             errors: {
               index: {
-                'MapperParsingException[object mapping for [city] tried to parse as object, but got EOF, has a concrete value been provided to it?]' => ['1', '2', '3']
+                'MapperParsingException[object mapping for [city] tried to parse field [name] as object, but got EOF, has a concrete value been provided to it?]' => ['1', '2', '3']
               }
             },
             import: {index: 3}

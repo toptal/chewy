@@ -23,6 +23,16 @@ module Chewy
           @name ||= (options[:name].present? ? options[:name].to_s.camelize : target.model_name.to_s).demodulize
         end
 
+        def identify collection
+          ids = if collection.is_a?(relation_class)
+            pluck_ids(collection)
+          else
+            Array.wrap(collection).map do |entity|
+              entity.is_a?(object_class) ? entity.id : entity
+            end
+          end
+        end
+
         # Import method for ORM takes import data and import options
         #
         # Import data types:

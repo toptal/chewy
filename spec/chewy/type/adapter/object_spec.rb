@@ -29,6 +29,13 @@ describe Chewy::Type::Adapter::Object do
     end
   end
 
+  describe '#identify' do
+    let!(:objects) { 3.times.map { double } }
+
+    specify { expect(subject.identify(objects)).to eq(objects) }
+    specify { expect(subject.identify(objects.first)).to eq([objects.first]) }
+  end
+
   describe '#import' do
     def import(*args)
       result = []

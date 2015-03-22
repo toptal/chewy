@@ -22,6 +22,14 @@ module Chewy
           @type_name ||= name.underscore
         end
 
+        # Returns shortest identifies for further postponed importing.
+        # For ORM/ODM it will be an array of ids for simple objects -
+        # just objects themselves
+        #
+        def identify collection
+          raise NotImplementedError
+        end
+
         # Splits passed objects to groups according to `:batch_size` options.
         # For every group crates hash with action keys. Example:
         #

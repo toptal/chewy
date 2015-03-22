@@ -19,19 +19,8 @@ module Chewy
       def update type, objects, options = {}
         ActiveSupport::Deprecation.warn("`urgent: true` option is deprecated and is not effective inside `:atomic` strategy, use `Chewy.strategy(:urgent)` strategy instead") if options.key?(:urgent)
 
-        relation = (defined?(::ActiveRecord) && objects.is_a?(::ActiveRecord::Relation)) ||
-                   (defined?(::Mongoid) && objects.is_a?(::Mongoid::Criteria))
-
-        ids = if relation
-          objects.pluck(:id)
-        else
-          Array.wrap(objects).map do |object|
-            object.respond_to?(:id) ? object.id : object
-          end
-        end
-
         @stash[type] ||= []
-        @stash[type] |= ids
+        @stash[type] |= type.adapter.identify(objects)
       end
 
       def leave

@@ -37,6 +37,16 @@ describe Chewy::Type::Adapter::Mongoid, :mongoid do
     end
   end
 
+  describe '#identify' do
+    subject { described_class.new(City) }
+    let!(:cities) { 3.times.map { City.create! } }
+
+    specify { expect(subject.identify(City.all)).to match_array(cities.map(&:id)) }
+    specify { expect(subject.identify(cities)).to eq(cities.map(&:id)) }
+    specify { expect(subject.identify(cities.first)).to eq([cities.first.id]) }
+    specify { expect(subject.identify(cities.first(2).map(&:id))).to eq(cities.first(2).map(&:id)) }
+  end
+
   describe '#import' do
     def import(*args)
       result = []

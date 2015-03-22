@@ -37,6 +37,29 @@ describe Chewy::Type::Adapter::ActiveRecord, :active_record do
     end
   end
 
+  describe '#identify' do
+    context do
+      subject { described_class.new(City) }
+      let!(:cities) { 3.times.map { City.create! } }
+
+      specify { expect(subject.identify(City.where(nil))).to match_array(cities.map(&:id)) }
+      specify { expect(subject.identify(cities)).to eq(cities.map(&:id)) }
+      specify { expect(subject.identify(cities.first)).to eq([cities.first.id]) }
+      specify { expect(subject.identify(cities.first(2).map(&:id))).to eq(cities.first(2).map(&:id)) }
+    end
+
+    context 'custom primary_key' do
+      before { stub_model(:city) { self.primary_key = 'rating' } }
+      subject { described_class.new(City) }
+      let!(:cities) { 3.times.map { |i| City.create! { |c| c.rating = i } } }
+
+      specify { expect(subject.identify(City.where(nil))).to match_array([0, 1, 2]) }
+      specify { expect(subject.identify(cities)).to eq([0, 1, 2]) }
+      specify { expect(subject.identify(cities.first)).to eq([0]) }
+      specify { expect(subject.identify(cities.first(2).map(&:id))).to eq([0, 1]) }
+    end
+  end
+
   describe '#import' do
     def import(*args)
       result = []

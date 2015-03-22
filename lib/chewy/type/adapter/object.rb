@@ -13,6 +13,10 @@ module Chewy
           @name ||= (options[:name] || @target).to_s.camelize.demodulize
         end
 
+        def identify collection
+          Array.wrap(collection)
+        end
+
         # Imports passed data with options
         #
         # Import data types:

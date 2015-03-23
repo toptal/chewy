@@ -5,7 +5,7 @@ module Chewy
     class Criteria
       include Compose
       ARRAY_STORAGES = [:queries, :filters, :post_filters, :sort, :fields, :types, :scores]
-      HASH_STORAGES = [:options, :request_options, :facets, :aggregations, :suggest]
+      HASH_STORAGES = [:options, :request_options, :facets, :aggregations, :suggest, :script_fields]
       STORAGES = ARRAY_STORAGES + HASH_STORAGES
 
       def initialize options = {}
@@ -64,6 +64,10 @@ module Chewy
         suggest.merge!(modifier)
       end
 
+      def update_script_fields(modifier)
+        script_fields.merge!(modifier)
+      end
+
       [:filters, :queries, :post_filters].each do |storage|
         class_eval <<-RUBY
           def update_#{storage}(modifier)
@@ -112,6 +116,7 @@ module Chewy
           body.merge!(suggest: suggest) if suggest?
           body.merge!(sort: sort) if sort?
           body.merge!(_source: fields) if fields?
+          body.merge!(script_fields: script_fields) if script_fields?
 
           body = _boost_query(body)
 

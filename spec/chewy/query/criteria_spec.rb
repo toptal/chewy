@@ -8,6 +8,7 @@ describe Chewy::Query::Criteria do
   its(:facets) { should == {} }
   its(:scores) { should == [] }
   its(:aggregations) { should == {} }
+  its(:script_fields) { should == {} }
   its(:queries) { should == [] }
   its(:filters) { should == [] }
   its(:post_filters) { should == [] }
@@ -19,6 +20,7 @@ describe Chewy::Query::Criteria do
   its(:facets?) { should eq(false) }
   its(:scores?) { should eq(false) }
   its(:aggregations?) { should eq(false) }
+  its(:script_fields?) { should eq(false) }
   its(:queries?) { should eq(false) }
   its(:filters?) { should eq(false) }
   its(:post_filters?) { should eq(false) }
@@ -52,6 +54,11 @@ describe Chewy::Query::Criteria do
   describe '#update_aggregations' do
     specify { expect { subject.update_aggregations(field: 'hello') }.to change { subject.aggregations? }.to(true) }
     specify { expect { subject.update_aggregations(field: 'hello') }.to change { subject.aggregations }.to(field: 'hello') }
+  end
+
+  describe '#update_script_fields' do
+    specify { expect { subject.update_script_fields(distance: {script: "doc['coordinates'].distanceInMiles(lat, lon)"}) }.to change { subject.script_fields? }.to(true) }
+    specify { expect { subject.update_script_fields(distance_km: {script: "doc['coordinates'].distanceInKm(lat, lon)"}) }.to change { subject.script_fields }.to(distance_km: {script: "doc['coordinates'].distanceInKm(lat, lon)"}) }
   end
 
   describe '#update_queries' do
@@ -132,6 +139,8 @@ describe Chewy::Query::Criteria do
       .merge(criteria.tap { |c| c.update_request_options(opt2: 'hello') }).request_options).to include(opt1: 'hello', opt2: 'hello') }
     specify { expect(subject.tap { |c| c.update_facets(field1: 'hello') }
       .merge(criteria.tap { |c| c.update_facets(field1: 'hello') }).facets).to eq({field1: 'hello', field1: 'hello'}) }
+    specify { expect(subject.tap { |c| c.update_script_fields(distance_m: {script: "doc['coordinates'].distanceInMiles(lat, lon)"}) }
+      .merge(criteria.tap { |c| c.update_script_fields(distance_km: {script: "doc['coordinates'].distanceInKm(lat, lon)"}) }).script_fields).to eq({distance_m: {script: "doc['coordinates'].distanceInMiles(lat, lon)"}, distance_km: {script: "doc['coordinates'].distanceInKm(lat, lon)"}}) }
     specify { expect(subject.tap { |c| c.update_scores(script: 'hello') }
       .merge(criteria.tap { |c| c.update_scores(script: 'foobar') }).scores).to eq([{script: 'hello'}, { script: 'foobar' } ]) }
     specify { expect(subject.tap { |c| c.update_aggregations(field1: 'hello') }
@@ -162,6 +171,8 @@ describe Chewy::Query::Criteria do
       .merge!(criteria.tap { |c| c.update_request_options(opt2: 'hello') }).request_options).to include(opt1: 'hello', opt2: 'hello') }
     specify { expect(subject.tap { |c| c.update_facets(field1: 'hello') }
       .merge!(criteria.tap { |c| c.update_facets(field1: 'hello') }).facets).to eq({field1: 'hello', field1: 'hello'}) }
+    specify { expect(subject.tap { |c| c.update_script_fields(distance_m: {script: "doc['coordinates'].distanceInMiles(lat, lon)"}) }
+      .merge(criteria.tap { |c| c.update_script_fields(distance_km: {script: "doc['coordinates'].distanceInKm(lat, lon)"}) }).script_fields).to eq({distance_m: {script: "doc['coordinates'].distanceInMiles(lat, lon)"}, distance_km: {script: "doc['coordinates'].distanceInKm(lat, lon)"}}) }
     specify { expect(subject.tap { |c| c.update_aggregations(field1: 'hello') }
       .merge!(criteria.tap { |c| c.update_aggregations(field1: 'hello') }).aggregations).to eq({field1: 'hello', field1: 'hello'}) }
     specify { expect(subject.tap { |c| c.update_queries(field1: 'hello') }
@@ -217,6 +228,9 @@ describe Chewy::Query::Criteria do
     specify { expect(request_body {
       update_queries(:query); update_post_filters(:post_filter);
     }).to eq({body: {query: :query, post_filter: :post_filter}}) }
+    specify { expect(request_body {
+      update_script_fields(distance_m: {script: "doc['coordinates'].distanceInMiles(lat, lon)"})
+    }).to eq({:body=>{:script_fields=>{:distance_m=>{:script=>"doc['coordinates'].distanceInMiles(lat, lon)"}}}}) }
   end
 
   describe '#_filtered_query' do

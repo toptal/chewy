@@ -5,7 +5,7 @@ module Chewy
     class Criteria
       include Compose
       ARRAY_STORAGES = [:queries, :filters, :post_filters, :sort, :fields, :types, :scores]
-      HASH_STORAGES = [:options, :request_options, :facets, :aggregations, :suggest]
+      HASH_STORAGES = [:options, :request_options, :facets, :aggregations, :suggest, :script_fields]
       STORAGES = ARRAY_STORAGES + HASH_STORAGES
 
       def initialize options = {}
@@ -40,52 +40,56 @@ module Chewy
         !!options[:none]
       end
 
-      def update_options(modifer)
-        options.merge!(modifer)
+      def update_options(modifier)
+        options.merge!(modifier)
       end
 
-      def update_request_options(modifer)
-        request_options.merge!(modifer)
+      def update_request_options(modifier)
+        request_options.merge!(modifier)
       end
 
-      def update_facets(modifer)
-        facets.merge!(modifer)
+      def update_facets(modifier)
+        facets.merge!(modifier)
       end
 
-      def update_scores(modifer)
-        @scores = scores + Array.wrap(modifer).reject(&:blank?)
+      def update_scores(modifier)
+        @scores = scores + Array.wrap(modifier).reject(&:blank?)
       end
 
-      def update_aggregations(modifer)
-        aggregations.merge!(modifer)
+      def update_aggregations(modifier)
+        aggregations.merge!(modifier)
       end
 
       def update_suggest(modifier)
         suggest.merge!(modifier)
       end
 
+      def update_script_fields(modifier)
+        script_fields.merge!(modifier)
+      end
+
       [:filters, :queries, :post_filters].each do |storage|
         class_eval <<-RUBY
-          def update_#{storage}(modifer)
-            @#{storage} = #{storage} + Array.wrap(modifer).reject(&:blank?)
+          def update_#{storage}(modifier)
+            @#{storage} = #{storage} + Array.wrap(modifier).reject(&:blank?)
           end
         RUBY
       end
 
-      def update_sort(modifer, options = {})
+      def update_sort(modifier, options = {})
         @sort = nil if options[:purge]
-        modifer = Array.wrap(modifer).flatten.map do |element|
+        modifier = Array.wrap(modifier).flatten.map do |element|
           element.is_a?(Hash) ? element.map { |k, v| {k => v} } : element
         end.flatten
-        @sort = sort + modifer
+        @sort = sort + modifier
       end
 
       %w(fields types).each do |storage|
-        define_method "update_#{storage}" do |modifer, options = {}|
+        define_method "update_#{storage}" do |modifier, options = {}|
           variable = "@#{storage}"
           instance_variable_set(variable, nil) if options[:purge]
-          modifer = send(storage) | Array.wrap(modifer).flatten.map(&:to_s).reject(&:blank?)
-          instance_variable_set(variable, modifer)
+          modifier = send(storage) | Array.wrap(modifier).flatten.map(&:to_s).reject(&:blank?)
+          instance_variable_set(variable, modifier)
         end
       end
 
@@ -112,6 +116,7 @@ module Chewy
           body.merge!(suggest: suggest) if suggest?
           body.merge!(sort: sort) if sort?
           body.merge!(_source: fields) if fields?
+          body.merge!(script_fields: script_fields) if script_fields?
 
           body = _boost_query(body)
 

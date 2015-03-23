@@ -34,7 +34,7 @@ module Chewy
       else
         @index_name ||= begin
           build_index_name(
-            name.gsub(/Index\Z/, '').demodulize.underscore,
+            name.sub(/Index\Z/, '').demodulize.underscore,
             prefix: Chewy.configuration[:prefix]
           ) if name
         end

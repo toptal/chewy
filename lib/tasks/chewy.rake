@@ -1,6 +1,6 @@
 def subscribe_task_stats!
   ActiveSupport::Notifications.subscribe('import_objects.chewy') do |name, start, finish, id, payload|
-    duration = ((finish - start).to_f * 100).round / 100.0
+    duration = (finish - start).round(2)
     puts "  Imported #{payload[:type]} for #{duration}s, documents total: #{payload[:import].try(:[], :index).to_i}"
     payload[:errors].each do |action, errors|
       puts "    #{action.to_s.humanize} errors:"

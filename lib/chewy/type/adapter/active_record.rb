@@ -16,10 +16,17 @@ module Chewy
         end
 
         def import_scope(scope, batch_size)
+          scope = scope.reorder(target.primary_key.to_sym).limit(batch_size)
+
+          ids = pluck_ids(scope)
           result = true
-          default_scope_where_ids_in(scope.except(:select)).find_in_batches(batch_size: batch_size) do |batch|
-            result &= yield grouped_objects(batch)
+
+          while ids.any?
+            result &= yield grouped_objects(default_scope_where_ids_in(ids))
+            break if ids.size < batch_size
+            ids = pluck_ids(scope.where(scope.table[target.primary_key].gt(ids.last)))
           end
+
           result
         end
 

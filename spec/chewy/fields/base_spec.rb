@@ -149,7 +149,7 @@ describe Chewy::Fields::Base do
         ])).to eq({
           event: { 'id' => 1, 'category' => [
             { 'id' => 2, 'licenses' => { 'id' => 3, 'name' => 'Name1' } },
-            {'id' => 4, 'licenses' => nil }
+            {'id' => 4, 'licenses' => nil.as_json }
           ] }
         })
       end
@@ -195,7 +195,7 @@ describe Chewy::Fields::Base do
         ]))).to eq({
           event: { 'id' => 1, 'category' => [
             { 'id' => 2, 'licenses' => { 'id' => 3, 'name' => 'Name1' } },
-            {'id' => 4, 'licenses' => nil }
+            {'id' => 4, 'licenses' => nil.as_json }
           ] }
         })
       end

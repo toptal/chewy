@@ -212,7 +212,7 @@ RSpec::Matchers.define :update_index do |type_name, options = {}|
   def compare_attributes expected, real
     expected.inject(true) do |result, (key, value)|
       equal = if value.is_a?(Array) && real[key].is_a?(Array)
-        array_difference(value, real[key]) && array_difference(real[key], value)
+        value.sort == real[key].sort
       elsif value.is_a?(Hash) && real[key].is_a?(Hash)
         compare_attributes(value, real[key])
       else
@@ -220,15 +220,5 @@ RSpec::Matchers.define :update_index do |type_name, options = {}|
       end
       result && equal
     end
-  end
-
-  def array_difference first, second
-    difference = first.to_ary.dup
-    second.to_ary.each do |element|
-      if index = difference.index(element)
-        difference.delete_at(index)
-      end
-    end
-    difference.none?
   end
 end

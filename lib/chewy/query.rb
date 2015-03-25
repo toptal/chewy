@@ -818,6 +818,20 @@ module Chewy
       chain { criteria.update_types params, purge: true }
     end
 
+    # Sets <tt>search_type</tt> for request.
+    # For instance, one can use <tt>search_type=count</tt> to fetch only total count of records or to fetch only aggregations without fetching records.
+    #
+    #   scope = UsersIndex.search_type(:count)
+    #   scope.count == 0  # no records actually fetched
+    #   scope.total == 10 # but we know a total count of them
+    #
+    #   scope = UsersIndex.aggs(max_age: { max: { field: 'age' } }).search_type(:count)
+    #   max_age = scope.aggs['max_age']['value']
+    #
+    def search_type val
+      chain { options.merge!(search_type: val) }
+    end
+
     # Merges two queries.
     # Merges all the values in criteria with the same rules as values added manually.
     #
@@ -909,7 +923,12 @@ module Chewy
     end
 
     def _request
-      @_request ||= criteria.request_body.merge(index: _indexes.map(&:index_name), type: _types.map(&:type_name))
+      @_request ||= begin
+        request = criteria.request_body
+        request.merge!(index: _indexes.map(&:index_name), type: _types.map(&:type_name))
+        request.merge!(search_type: options[:search_type]) if options[:search_type]
+        request
+      end
     end
 
     def _response

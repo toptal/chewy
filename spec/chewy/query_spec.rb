@@ -39,6 +39,8 @@ describe Chewy::Query do
     specify { expect(subject.types(:product, :country).count).to eq(6) }
     specify { expect(subject.filter(term: {age: 10}).count).to eq(1) }
     specify { expect(subject.query(term: {age: 10}).count).to eq(1) }
+    specify { expect(subject.search_type(:count).count).to eq(0) }
+    specify { expect(subject.search_type(:count).total).to eq(9) }
   end
 
   describe '#==' do
@@ -420,6 +422,10 @@ describe Chewy::Query do
     specify { expect(subject.types!(:product, :city).criteria.types).to match_array(['product', 'city']) }
     specify { expect(subject.types!([:product, :city]).types!(:country).criteria.types).to match_array(['country']) }
     specify { expect(subject.types([:product, :city]).types!(:country).criteria.types).to match_array(['country']) }
+  end
+
+  describe '#search_type' do
+    specify { expect(subject.search_type(:count).options).to include(search_type: :count) }
   end
 
   describe '#aggregations' do

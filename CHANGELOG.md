@@ -54,6 +54,10 @@
 
 ## Changes
 
+  * Multiple enhancements by @DNNX
+
+  * Added `script_fields` to search crteria (@ka8725)
+
   * ORM adapters now completely relies on the default scope. This means every scope or objects passed to import are merged with default scope so basically there is no need to define `delete_if` block. Default scope strongly restricts objects which may land in the current index.
 
     ```ruby
@@ -100,6 +104,10 @@
   * Implemented basic named scopes
 
 ## Bugfixes
+
+  * `script_score` allow options (@joeljunstrom)
+
+  * Chewy indexes eaged loading fixes (@leemhenson)
 
   * `Chewy::Index.import nil` imports nothing instead of initial data
 

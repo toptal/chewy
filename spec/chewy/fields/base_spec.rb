@@ -317,7 +317,12 @@ describe Chewy::Fields::Base do
         stub_model(:country)
 
         City.belongs_to :country
-        Country.has_many :cities, -> { order(:id) }
+
+        if active_record?
+          Country.has_many :cities, -> { order(:id) }
+        else # mongoid
+          Country.has_many :cities, order: :id.asc
+        end
 
         stub_index(:countries) do
           define_type Country do

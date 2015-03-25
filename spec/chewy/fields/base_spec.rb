@@ -319,7 +319,11 @@ describe Chewy::Fields::Base do
         City.belongs_to :country
 
         if active_record?
-          Country.has_many :cities, -> { order(:id) }
+          if ActiveRecord::VERSION::MAJOR >= 4
+            Country.has_many :cities, -> { order :id }
+          else
+            Country.has_many :cities, order: :id
+          end
         else # mongoid
           Country.has_many :cities, order: :id.asc
         end

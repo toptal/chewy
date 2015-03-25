@@ -1,5 +1,7 @@
 # master
 
+# Version 0.7.0
+
 ## Incompatible changes:
 
   * `Chewy.use_after_commit_callbacks = false` returns previous RDBMS behavior

@@ -48,11 +48,6 @@ describe Chewy::Type::Adapter::Mongoid, :mongoid do
   end
 
   describe '#import' do
-    before do
-      City.class_eval do
-        City.default_scope -> { order(:id.asc) }
-      end
-    end
     def import(*args)
       result = []
       subject.import(*args) { |data| result.push data }

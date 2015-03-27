@@ -59,7 +59,7 @@ describe Chewy::Type::Adapter::Mongoid, :mongoid do
       let!(:deleted) { 4.times.map { |i| City.create!.tap(&:destroy) }.sort_by(&:id) }
       subject { described_class.new(City) }
 
-      specify { expect(import.first[:index]).to match_array(cities) }
+      specify { expect(import).to eq([{index: cities}]) }
       specify { expect(import nil).to eq([]) }
 
       specify { expect(import(City.order(:id.asc))).to eq([{index: cities}]) }

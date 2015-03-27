@@ -145,8 +145,8 @@ describe Chewy::Type::Adapter::Mongoid, :mongoid do
     end
 
     context 'default scope' do
-      let!(:cities) { 4.times.map { |i| City.create!(rating: i/3) }.sort_by(&:id) }
-      let!(:deleted) { 3.times.map { |i| City.create!.tap(&:destroy) }.sort_by(&:id) }
+      let!(:cities) { 4.times.map { |i| City.create!(id: i, rating: i/3) }.sort_by(&:id) }
+      let!(:deleted) { 3.times.map { |i| City.create!(id: 4 + i).tap(&:destroy) }.sort_by(&:id) }
       subject { described_class.new(City.where(rating: 0)) }
 
       specify { expect(import).to eq([{index: cities.first(3)}]) }
@@ -242,8 +242,8 @@ describe Chewy::Type::Adapter::Mongoid, :mongoid do
 
   describe '#load' do
     context do
-      let!(:cities) { 3.times.map { |i| City.create!(rating: i/2) }.sort_by(&:id) }
-      let!(:deleted) { 2.times.map { |i| City.create!.tap(&:destroy) }.sort_by(&:id) }
+      let!(:cities) { 3.times.map { |i| City.create!(id: i, rating: i/2) }.sort_by(&:id) }
+      let!(:deleted) { 2.times.map { |i| City.create!(id: 3 + i).tap(&:destroy) }.sort_by(&:id) }
 
       let(:type) { double(type_name: 'user') }
 

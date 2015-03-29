@@ -1,11 +1,25 @@
 # master
 
+## Incompatible changes:
+
+  * `:atomic` and `:urgent` strategies are using `import!` method raising exceptions
+
+## Changes
+
+  * `:sidekiq` async strategy
+
+  * Added `Query#search_type` for `search_type` request option setup (@marshall-lee)
+
+## Bugfixes
+
+  * Mongoid random failing specs fixes (@marshall-lee)
+
 # Version 0.7.0
 
 ## Incompatible changes:
 
   * `Chewy.use_after_commit_callbacks = false` returns previous RDBMS behavior
-  in tests.
+  in tests
 
   * ActiveRecord import is now called after_commit instead of after_save and after_destroy
 

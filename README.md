@@ -281,6 +281,16 @@ Using this strategy delays index update request until the end of
 block. Updated records are aggregated and index update happens with
 bulk API. So this strategy is highly optimized.
 
+#### `:sidekiq`
+
+Does the same thing as `:atomic`, but in async way using sidekiq
+
+```ruby
+Chewy.strategy(:sidekiq) do
+  City.popular.map(&:do_some_update_action!)
+end
+```
+
 #### `:urgent`
 
 Next strategy is convenient if you are going to update documents in
@@ -340,18 +350,8 @@ city3.do_update! # index updated again
 
 #### Designing own strategies
 
-Async strategy is not implemented yet, but it is planned. So
-it would be a good idea to implements own async strategy for
-particular delayed jobs library or simply threads.
-
 See [strategy/base.rb](lib/chewy/strategy/base.rb) for more details.
 See [strategy/atomic.rb](lib/chewy/strategy/atomic.rb) for example.
-
-### Async reindexing
-
-Chewy is not support async index update, but it's planned. Until you can use third-party solutions, such as [https://github.com/averell23/chewy_kiqqer](https://github.com/averell23/chewy_kiqqer)
-
-Not sure it works currently.
 
 ### Rails application strategies integration
 
@@ -854,7 +854,6 @@ See [update_index.rb](lib/chewy/rspec/update_index.rb) for more details.
 * Advanced (simplyfied) query DSL: `UsersIndex.query { email == 'my@gmail.com' }` will produce term query
 * update_all support
 * Maybe, closer ORM/ODM integration, creating index classes implicitly
-* Async indexes updating
 
 ## Contributing
 

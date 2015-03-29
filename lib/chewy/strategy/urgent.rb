@@ -10,7 +10,7 @@ module Chewy
     #
     class Urgent < Base
       def update type, objects, options = {}
-        type.import(Array.wrap(objects))
+        type.import!(Array.wrap(objects))
       end
     end
   end

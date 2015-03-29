@@ -24,7 +24,7 @@ module Chewy
       end
 
       def leave
-        @stash.all? { |type, ids| type.import(ids) }
+        @stash.all? { |type, ids| type.import!(ids) }
       end
     end
   end

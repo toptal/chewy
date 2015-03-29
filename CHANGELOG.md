@@ -6,7 +6,9 @@
 
 ## Changes
 
-  * `:sidekiq` async strategy
+  * `:resque` async strategy
+
+  * `:sidekiq` async strategy (inspired by @sharkzp)
 
   * Added `Query#search_type` for `search_type` request option setup (@marshall-lee)
 

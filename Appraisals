@@ -2,6 +2,7 @@
   appraise "rails.#{version}.activerecord" do
     gem 'activerecord', "~> #{version}.0"
     gem 'activesupport', "~> #{version}.0"
+    gem 'sidekiq', require: false
   end
 
   appraise "rails.#{version}.activerecord.kaminari" do
@@ -21,6 +22,7 @@ end
   appraise "rails.#{version}.mongoid" do
     gem 'mongoid', '~> 4.0.0'
     gem 'activesupport', "~> #{version}.0"
+    gem 'sidekiq', require: false
   end
 
   appraise "rails.#{version}.mongoid.kaminari" do

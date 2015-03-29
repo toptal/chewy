@@ -3,6 +3,12 @@ require 'chewy/strategy/bypass'
 require 'chewy/strategy/urgent'
 require 'chewy/strategy/atomic'
 
+begin
+  require 'sidekiq'
+  require 'chewy/strategy/sidekiq'
+rescue LoadError
+end
+
 module Chewy
   # This class represents strategies stack with `:base`
   # Strategy on top of it. This causes raising exceptions

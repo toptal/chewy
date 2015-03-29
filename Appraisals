@@ -2,6 +2,7 @@
   appraise "rails.#{version}.activerecord" do
     gem 'activerecord', "~> #{version}.0"
     gem 'activesupport', "~> #{version}.0"
+    gem 'resque', require: false
     gem 'sidekiq', require: false
   end
 
@@ -22,6 +23,7 @@ end
   appraise "rails.#{version}.mongoid" do
     gem 'mongoid', '~> 4.0.0'
     gem 'activesupport', "~> #{version}.0"
+    gem 'resque', require: false
     gem 'sidekiq', require: false
   end
 

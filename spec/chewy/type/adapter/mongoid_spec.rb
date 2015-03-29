@@ -41,10 +41,10 @@ describe Chewy::Type::Adapter::Mongoid, :mongoid do
     subject { described_class.new(City) }
     let!(:cities) { 3.times.map { City.create! } }
 
-    specify { expect(subject.identify(City.all)).to match_array(cities.map(&:id)) }
-    specify { expect(subject.identify(cities)).to eq(cities.map(&:id)) }
-    specify { expect(subject.identify(cities.first)).to eq([cities.first.id]) }
-    specify { expect(subject.identify(cities.first(2).map(&:id))).to eq(cities.first(2).map(&:id)) }
+    specify { expect(subject.identify(City.all)).to match_array(cities.map(&:id).map(&:to_s)) }
+    specify { expect(subject.identify(cities)).to eq(cities.map(&:id).map(&:to_s)) }
+    specify { expect(subject.identify(cities.first)).to eq([cities.first.id.to_s]) }
+    specify { expect(subject.identify(cities.first(2).map(&:id))).to eq(cities.first(2).map(&:id).map(&:to_s)) }
   end
 
   describe '#import' do

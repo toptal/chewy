@@ -281,9 +281,22 @@ Using this strategy delays index update request until the end of
 block. Updated records are aggregated and index update happens with
 bulk API. So this strategy is highly optimized.
 
+#### `:resque`
+
+Does the same thing as `:atomic`, but in async way using resque.
+Default queue name is `chewy`.
+Patch `Chewy::Strategy::Resque::Worker` for index updates improving.
+
+```ruby
+Chewy.strategy(:resque) do
+  City.popular.map(&:do_some_update_action!)
+end
+```
+
 #### `:sidekiq`
 
-Does the same thing as `:atomic`, but in async way using sidekiq
+Does the same thing as `:atomic`, but in async way using sidekiq.
+Patch `Chewy::Strategy::Sidekiq::Worker` for index updates improving.
 
 ```ruby
 Chewy.strategy(:sidekiq) do

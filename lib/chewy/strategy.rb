@@ -4,6 +4,12 @@ require 'chewy/strategy/urgent'
 require 'chewy/strategy/atomic'
 
 begin
+  require 'resque'
+  require 'chewy/strategy/resque'
+rescue LoadError
+end
+
+begin
   require 'sidekiq'
   require 'chewy/strategy/sidekiq'
 rescue LoadError

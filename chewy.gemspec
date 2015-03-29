@@ -26,6 +26,7 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'sqlite3'
   spec.add_development_dependency 'database_cleaner', '~> 1.3.0'
   spec.add_development_dependency 'elasticsearch-extensions'
+  spec.add_development_dependency 'resque_spec'
   spec.add_development_dependency 'rubysl', '~> 2.0' if RUBY_ENGINE == 'rbx'
 
   spec.add_dependency 'activesupport', '>= 3.2'

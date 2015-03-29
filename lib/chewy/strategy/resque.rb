@@ -1,25 +1,25 @@
 module Chewy
   class Strategy
     # The strategy works the same way as atomic, but performs
-    # async index update driven by sidekiq
+    # async index update driven by resque
     #
-    #   Chewy.strategy(:sidekiq) do
+    #   Chewy.strategy(:resque) do
     #     User.all.map(&:save) # Does nothing here
     #     Post.all.map(&:save) # And here
     #     # It imports all the changed users and posts right here
     #   end
     #
-    class Sidekiq < Atomic
+    class Resque < Atomic
       class Worker
-        include ::Sidekiq::Worker
+        @queue = :chewy
 
-        def perform(type, ids)
+        def self.perform(type, ids)
           type.constantize.import!(ids)
         end
       end
 
       def leave
-        @stash.all? { |type, ids| Chewy::Strategy::Sidekiq::Worker.perform_async(type.name, ids) }
+        @stash.all? { |type, ids| ::Resque.enqueue(Chewy::Strategy::Resque::Worker, type.name, ids) }
       end
     end
   end

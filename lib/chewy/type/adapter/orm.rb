@@ -24,7 +24,7 @@ module Chewy
         end
 
         def identify collection
-          ids = if collection.is_a?(relation_class)
+          if collection.is_a?(relation_class)
             pluck_ids(collection)
           else
             Array.wrap(collection).map do |entity|

@@ -4,6 +4,11 @@ module Chewy
   class Type
     module Adapter
       class Mongoid < Orm
+
+        def identify collection
+          super(collection).map(&:to_s)
+        end
+
       private
 
         def cleanup_default_scope!

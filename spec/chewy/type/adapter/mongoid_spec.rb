@@ -45,6 +45,15 @@ describe Chewy::Type::Adapter::Mongoid, :mongoid do
     specify { expect(subject.identify(cities)).to eq(cities.map(&:id).map(&:to_s)) }
     specify { expect(subject.identify(cities.first)).to eq([cities.first.id.to_s]) }
     specify { expect(subject.identify(cities.first(2).map(&:id))).to eq(cities.first(2).map(&:id).map(&:to_s)) }
+
+    context 'non-bson ids' do
+      let!(:cities) { 3.times.map { |i| City.create! id: i+1 } }
+
+      specify { expect(subject.identify(City.all)).to match_array(cities.map(&:id)) }
+      specify { expect(subject.identify(cities)).to eq(cities.map(&:id)) }
+      specify { expect(subject.identify(cities.first)).to eq([cities.first.id]) }
+      specify { expect(subject.identify(cities.first(2).map(&:id))).to eq(cities.first(2).map(&:id)) }
+    end
   end
 
   describe '#import' do

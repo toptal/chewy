@@ -6,7 +6,7 @@ module Chewy
       class Mongoid < Orm
 
         def identify collection
-          super(collection).map(&:to_s)
+          super(collection).map { |id| id.is_a?(BSON::ObjectId) ? id.to_s : id }
         end
 
       private

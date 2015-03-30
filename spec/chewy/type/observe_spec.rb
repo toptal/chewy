@@ -49,7 +49,6 @@ describe Chewy::Type::Import do
     specify { expect { city.save! }.to update_index('countries#country').and_reindex(city.country) }
     specify { expect { country.save! }.to update_index('cities#city').and_reindex(country.cities) }
     specify { expect { country.save! }.to update_index('countries#country').and_reindex(country) }
-
   end
 
   context 'transactions', :active_record do

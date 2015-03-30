@@ -9,7 +9,7 @@
   appraise "rails.#{version}.activerecord.kaminari" do
     gem 'activerecord', "~> #{version}.0"
     gem 'activesupport', "~> #{version}.0"
-    gem 'kaminari', require: false
+    gem 'kaminari', '0.16.3', require: false
   end
 
   appraise "rails.#{version}.activerecord.will_paginate" do
@@ -30,7 +30,7 @@ end
   appraise "rails.#{version}.mongoid.kaminari" do
     gem 'mongoid', '~> 4.0.0'
     gem 'activesupport', "~> #{version}.0"
-    gem 'kaminari', require: false
+    gem 'kaminari', '0.16.3', require: false
   end
 
   appraise "rails.#{version}.mongoid.will_paginate" do

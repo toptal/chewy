@@ -4,6 +4,6 @@ describe Chewy::Runtime do
   describe '.version' do
     specify { expect(described_class.version).to be_a(described_class::Version) }
     specify { expect(described_class.version).to be >= '1.0' }
-    specify { expect(described_class.version).to be < '1.5' }
+    specify { expect(described_class.version).to be < '1.6' }
   end
 end

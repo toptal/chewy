@@ -16,7 +16,7 @@ module Chewy
         end
 
         def import_scope(scope, batch_size)
-          scope = scope.reorder(target.primary_key.to_sym).limit(batch_size)
+          scope = scope.reorder(target_id.asc).limit(batch_size)
 
           ids = pluck_ids(scope)
           result = true
@@ -24,7 +24,7 @@ module Chewy
           while ids.any?
             result &= yield grouped_objects(default_scope_where_ids_in(ids))
             break if ids.size < batch_size
-            ids = pluck_ids(scope.where(scope.table[target.primary_key].gt(ids.last)))
+            ids = pluck_ids(scope.where(target_id.gt(ids.last)))
           end
 
           result
@@ -35,11 +35,15 @@ module Chewy
         end
 
         def scope_where_ids_in(scope, ids)
-          scope.where(target.primary_key => ids)
+          scope.where(target_id.in(Array.wrap(ids)))
         end
 
         def all_scope
           target.where(nil)
+        end
+
+        def target_id
+          target.arel_table[target.primary_key]
         end
 
         def relation_class

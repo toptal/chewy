@@ -100,12 +100,14 @@ RSpec::Matchers.define :update_index do |type_name, options = {}|
 
     type = Chewy.derive_type(type_name)
 
-    allow(type).to receive(:bulk) do |bulk_options|
-      @updated += bulk_options[:body].map do |updated_document|
-        updated_document.deep_symbolize_keys
+    instance_eval <<-RUBY
+       #{agnostic_stub} do |bulk_options|
+        @updated += bulk_options[:body].map do |updated_document|
+          updated_document.deep_symbolize_keys
+        end
+        {}
       end
-      {}
-    end
+    RUBY
 
     ActiveSupport::Deprecation.warn('`atomic: false` option is removed and not effective anymore, use `strategy: :atomic` option instead') if options.key?(:atomic)
     Chewy.strategy(options[:strategy] || :atomic) { block.call }
@@ -188,6 +190,14 @@ RSpec::Matchers.define :update_index do |type_name, options = {}|
           "\n  document id `#{id}` (#{documents.count} times)"
         end.join
       }\n"
+    end
+  end
+
+  def agnostic_stub
+    if defined? Mocha
+      "type.stubs(:bulk).with"
+    else
+      "allow(type).to receive(:bulk)"
     end
   end
 

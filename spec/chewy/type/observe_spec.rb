@@ -22,7 +22,9 @@ describe Chewy::Type::Import do
     before do
       stub_model(:city) do
         update_index('cities#city') { self }
-        update_index 'countries#country', :country
+        update_index 'countries#country' do
+          changes['country_id'] || previous_changes['country_id'] || country
+        end
       end
 
       stub_model(:country) do
@@ -42,13 +44,27 @@ describe Chewy::Type::Import do
       end
     end
 
-    let(:city) { Chewy.strategy(:atomic) { City.create!(id: 1, country: Country.create!(id: 1)) } }
-    let(:country) { Chewy.strategy(:atomic) { Country.create!(id: 1, cities: 2.times.map { |i| City.create!(id: i) }) } }
+    context do
+      let!(:country1) { Chewy.strategy(:atomic) { Country.create!(id: 1) } }
+      let!(:country2) { Chewy.strategy(:atomic) { Country.create!(id: 2) } }
+      let!(:city) { Chewy.strategy(:atomic) { City.create!(id: 1, country: country1) } }
 
-    specify { expect { city.save! }.to update_index('cities#city').and_reindex(city) }
-    specify { expect { city.save! }.to update_index('countries#country').and_reindex(city.country) }
-    specify { expect { country.save! }.to update_index('cities#city').and_reindex(country.cities) }
-    specify { expect { country.save! }.to update_index('countries#country').and_reindex(country) }
+      specify { expect { city.save! }.to update_index('cities#city').and_reindex(city) }
+      specify { expect { city.save! }.to update_index('countries#country').and_reindex(country1) }
+
+      specify { expect { city.update_attributes!(country: nil) }.to update_index('cities#city').and_reindex(city) }
+      specify { expect { city.update_attributes!(country: nil) }.to update_index('countries#country').and_reindex(country1) }
+
+      specify { expect { city.update_attributes!(country: country2) }.to update_index('cities#city').and_reindex(city) }
+      specify { expect { city.update_attributes!(country: country2) }.to update_index('countries#country').and_reindex(country1, country2) }
+    end
+
+    context do
+      let!(:country) { Chewy.strategy(:atomic) { Country.create!(id: 1, cities: 2.times.map { |i| City.create!(id: i) }) } }
+
+      specify { expect { country.save! }.to update_index('cities#city').and_reindex(country.cities) }
+      specify { expect { country.save! }.to update_index('countries#country').and_reindex(country) }
+    end
   end
 
   context 'transactions', :active_record do

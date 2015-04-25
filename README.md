@@ -196,6 +196,22 @@ See [config.rb](lib/chewy/config.rb) for more details.
   update_index('users#user', :users)
   ```
 
+  In case of belongs_to association you may need to update both associated objects, previous and current:
+
+  ```ruby
+  class City < ActiveRecord::Base
+    belongs_to :country
+
+    update_index('cities#city') { self }
+    update_index 'countries#country' do
+      # For the latest active_record changed values are
+      # already in `previous_changes` hash,
+      # but for mongoid you have to use `changes` hash
+      previous_changes['country_id'] || country
+    end
+  end
+  ```
+
 ### Types access
 
 You are able to access index-defined types with the following API:

@@ -212,6 +212,14 @@ See [config.rb](lib/chewy/config.rb) for more details.
   end
   ```
 
+### Inside the scope of .define_type
+
+You can access the class that the defined type is mapped to using:
+
+```ruby
+adapter.target
+```
+
 ### Types access
 
 You are able to access index-defined types with the following API:

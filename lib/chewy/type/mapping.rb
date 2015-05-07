@@ -154,7 +154,11 @@ module Chewy
       private
 
         def expand_nested field, &block
-          @_current_field.nested(field) if @_current_field
+          if @_current_field
+            field.parent = @_current_field
+            @_current_field.children.push(field)
+          end
+
           if block
             previous_field, @_current_field = @_current_field, field
             block.call
@@ -164,8 +168,8 @@ module Chewy
 
         def build_root options = {}, &block
           self.root_object = Chewy::Fields::Root.new(type_name, options)
-          expand_nested(self.root_object, &block)
-          @_current_field = self.root_object
+          expand_nested(root_object, &block)
+          @_current_field = root_object
         end
       end
     end

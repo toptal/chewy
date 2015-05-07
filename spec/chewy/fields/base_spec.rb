@@ -14,9 +14,9 @@ describe Chewy::Fields::Base do
 
     context 'nested fields' do
       before do
-        field.nested(described_class.new(:subname1, value: ->(o){ o.subvalue1 }))
-        field.nested(described_class.new(:subname2, value: ->{ subvalue2 }))
-        field.nested(described_class.new(:subname3))
+        field.children.push(described_class.new(:subname1, value: ->(o){ o.subvalue1 }))
+        field.children.push(described_class.new(:subname2, value: ->{ subvalue2 }))
+        field.children.push(described_class.new(:subname3))
       end
 
       specify { expect(field.compose(double(value: double(subvalue1: 'hello', subvalue2: 'value', subname3: 'world'))))
@@ -32,8 +32,13 @@ describe Chewy::Fields::Base do
 
     context 'parent objects' do
       let!(:country) { described_class.new(:name, value: ->(country){ country.cities }) }
-      let!(:city) { country.nested(described_class.new(:name, value: ->(city, country) { city.districts.map { |district| [district, country.name] } })) }
-      let!(:district) { city.nested(described_class.new(:name, value: ->(district, city, country) { [district, city.name, country.name] })) }
+      let!(:city) { described_class.new(:name, value: ->(city, country) { city.districts.map { |district| [district, country.name] } }) }
+      let!(:district) { described_class.new(:name, value: ->(district, city, country) { [district, city.name, country.name] }) }
+
+      before do
+        country.children.push(city)
+        city.children.push(district)
+      end
 
       specify { expect(country.compose(double(name: 'Thailand', cities: [
         double(name: 'Bangkok', districts: ['First', 'Second'])
@@ -48,8 +53,8 @@ describe Chewy::Fields::Base do
     context 'implicit values' do
       let(:field) { described_class.new(:name, type: 'string') }
       before do
-        field.nested(described_class.new(:name))
-        field.nested(described_class.new(:untouched))
+        field.children.push(described_class.new(:name))
+        field.children.push(described_class.new(:untouched))
       end
 
       specify { expect(field.compose(double(name: 'Alex'))).to eq({name: 'Alex'}) }
@@ -60,19 +65,12 @@ describe Chewy::Fields::Base do
       let(:object) { double(name: { key1: 'value1', key2: 'value2' }) }
 
       before do
-        field.nested(described_class.new(:key1, value: ->(h){ h[:key1] }))
-        field.nested(described_class.new(:key2, value: ->(h){ h[:key2] }))
+        field.children.push(described_class.new(:key1, value: ->(h){ h[:key1] }))
+        field.children.push(described_class.new(:key2, value: ->(h){ h[:key2] }))
       end
 
       specify{ expect(field.compose(object)).to eq({ name: { 'key1' => 'value1', 'key2' => 'value2' } }) }
     end
-  end
-
-  describe '#nested' do
-    let(:field) { described_class.new(:name) }
-
-    specify { expect { field.nested(described_class.new(:name1)) }
-      .to change { field.nested[:name1] }.from(nil).to(an_instance_of(described_class))  }
   end
 
   describe '#mappings_hash' do
@@ -80,8 +78,8 @@ describe Chewy::Fields::Base do
     let(:fields1) { 2.times.map { |i| described_class.new("name#{i+1}", type: "string#{i+1}") } }
     let(:fields2) { 2.times.map { |i| described_class.new("name#{i+3}", type: "string#{i+3}") } }
     before do
-      fields1.each { |m| field.nested(m) }
-      fields2.each { |m| fields1[0].nested(m) }
+      fields1.each { |m| field.children.push(m) }
+      fields2.each { |m| fields1[0].children.push(m) }
     end
 
     specify { expect(field.mappings_hash).to eq({name: {type: :object, properties: {

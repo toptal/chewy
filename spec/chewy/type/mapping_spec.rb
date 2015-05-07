@@ -20,14 +20,17 @@ describe Chewy::Type::Mapping do
   end
 
   describe '.field' do
-    specify { expect(product.root_object.nested.keys).to match_array([:name, :surname, :title, :price]) }
-    specify { expect(product.root_object.nested.values).to satisfy { |v| v.all? { |f| f.is_a? Chewy::Fields::Base } } }
+    specify { expect(product.root_object.children.map(&:name)).to eq([:name, :surname, :title, :price]) }
+    specify { expect(product.root_object.children.map(&:parent)).to eq([product.root_object] * 4) }
 
-    specify { expect(product.root_object.nested[:title].nested.keys).to eq([:subfield1]) }
-    specify { expect(product.root_object.nested[:title].nested[:subfield1]).to be_a Chewy::Fields::Base }
+    specify { expect(product.root_object.children[0].children.map(&:name)).to eq([]) }
+    specify { expect(product.root_object.children[1].children.map(&:name)).to eq([]) }
 
-    specify { expect(product.root_object.nested[:price].nested.keys).to eq([:subfield2]) }
-    specify { expect(product.root_object.nested[:price].nested[:subfield2]).to be_a Chewy::Fields::Base }
+    specify { expect(product.root_object.children[2].children.map(&:name)).to eq([:subfield1]) }
+    specify { expect(product.root_object.children[2].children.map(&:parent)).to eq([product.root_object.children[2]]) }
+
+    specify { expect(product.root_object.children[3].children.map(&:name)).to eq([:subfield2]) }
+    specify { expect(product.root_object.children[3].children.map(&:parent)).to eq([product.root_object.children[3]]) }
   end
 
   describe '.mappings_hash' do
@@ -60,7 +63,7 @@ describe Chewy::Type::Mapping do
           end
         end
 
-        specify { expect(product.mappings_hash[:product][:_parent]).to eq({ 'type' => 'project' }) }
+        specify { expect(product.mappings_hash[:product][:_parent]).to eq({ type: 'project' }) }
       end
     end
   end
@@ -76,7 +79,9 @@ describe Chewy::Type::Mapping do
       end
     end
 
-    specify { expect(product.root_object.nested[:title].nested.keys).to eq([:subfield1]) }
-    specify { expect(product.root_object.nested[:title].nested[:subfield1]).to be_a Chewy::Fields::Base }
+    specify { expect(product.root_object.children.map(&:name)).to eq([:title]) }
+    specify { expect(product.root_object.children.map(&:parent)).to eq([product.root_object]) }
+    specify { expect(product.root_object.children[0].children.map(&:name)).to eq([:subfield1]) }
+    specify { expect(product.root_object.children[0].children.map(&:parent)).to eq([product.root_object.children[0]]) }
   end
 end

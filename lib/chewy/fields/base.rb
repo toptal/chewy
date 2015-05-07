@@ -1,23 +1,30 @@
 module Chewy
   module Fields
     class Base
-      attr_reader :name, :options, :value
+      attr_reader :name, :options, :value, :children
+      attr_accessor :parent
 
       def initialize(name, options = {})
-        @name, @options, @nested = name.to_sym, options.deep_symbolize_keys, {}
+        @name, @options = name.to_sym, options.deep_symbolize_keys
         @value = @options.delete(:value)
+        @children = []
       end
 
       def multi_field?
-        nested.any? && !object_field?
+        children.any? && !object_field?
       end
 
       def object_field?
-        (nested.any? && options[:type].blank?) || ['object', 'nested'].include?(options[:type].to_s)
+        (children.any? && options[:type].blank?) || ['object', 'nested'].include?(options[:type].to_s)
       end
 
-      def root_field?
-        false
+      def mappings_hash
+        mapping = children.any? ? {
+          (multi_field? ? :fields : :properties) => children.map(&:mappings_hash).inject(:merge)
+        } : {}
+        mapping.reverse_merge!(options)
+        mapping.reverse_merge!(type: (children.any? ? 'object' : 'string'))
+        {name => mapping}
       end
 
       def compose(object, *parent_objects)
@@ -31,35 +38,18 @@ module Chewy
         end
 
         result = if result.respond_to?(:to_ary)
-          result.to_ary.map { |result| nested_compose(result, object, *parent_objects) }
+          result.to_ary.map { |result| compose_children(result, object, *parent_objects) }
         else
-          nested_compose(result, object, *parent_objects)
-        end if nested.any? && !multi_field?
+          compose_children(result, object, *parent_objects)
+        end if children.any? && !multi_field?
 
         {name => result.as_json(root: false)}
       end
 
-      def nested(field = nil)
-        if field
-          @nested[field.name] = field
-        else
-          @nested
-        end
-      end
-
-      def mappings_hash
-        mapping = nested.any? ? {
-          (multi_field? ? :fields : :properties) => nested.values.map(&:mappings_hash).inject(:merge)
-        } : {}
-        mapping.reverse_merge!(options)
-        mapping.reverse_merge!(type: (nested.any? ? 'object' : 'string')) unless root_field?
-        {name => mapping}
-      end
-
     private
 
-      def nested_compose(value, *parent_objects)
-        nested.values.map { |field| field.compose(value, *parent_objects) if value }.compact.inject(:merge)
+      def compose_children(value, *parent_objects)
+        children.map { |field| field.compose(value, *parent_objects) if value }.compact.inject(:merge)
       end
     end
   end

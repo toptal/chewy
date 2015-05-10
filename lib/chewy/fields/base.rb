@@ -28,9 +28,16 @@ module Chewy
       end
 
       def compose(object, *parent_objects)
+        objects = ([object] + parent_objects.flatten).uniq
+
         result = if value && value.is_a?(Proc)
-          value.arity.zero? ? object.instance_exec(&value) :
-            value.call(object, *parent_objects.first(value.arity - 1))
+          if value.arity == 0
+            object.instance_exec(&value)
+          elsif value.arity < 0
+            value.call(*object)
+          else
+            value.call(*objects.first(value.arity))
+          end
         elsif object.is_a?(Hash)
           object[name] || object[name.to_s]
         else
@@ -38,9 +45,9 @@ module Chewy
         end
 
         result = if result.respond_to?(:to_ary)
-          result.to_ary.map { |result| compose_children(result, object, *parent_objects) }
+          result.to_ary.map { |result| compose_children(result, *objects) }
         else
-          compose_children(result, object, *parent_objects)
+          compose_children(result, *objects)
         end if children.any? && !multi_field?
 
         {name => result.as_json(root: false)}

@@ -78,11 +78,12 @@ module Chewy
         def bulk_body(action_objects, indexed_objects = nil)
           action_objects.inject([]) do |result, (action, objects)|
             method = "#{action}_bulk_entry"
-            result.concat(objects.map { |object| send(method, object, indexed_objects) }.flatten)
+            crutches = Chewy::Type::Crutch::Crutches.new self, objects
+            result.concat(objects.map { |object| send(method, object, indexed_objects, crutches) }.flatten)
           end
         end
 
-        def delete_bulk_entry(object, indexed_objects = nil)
+        def delete_bulk_entry(object, indexed_objects = nil, crutches = nil)
           entry = {}
 
           if self.root_object.id
@@ -102,7 +103,7 @@ module Chewy
           [{ delete: entry }]
         end
 
-        def index_bulk_entry(object, indexed_objects = nil)
+        def index_bulk_entry(object, indexed_objects = nil, crutches = nil)
           entry = {}
 
           if self.root_object.id
@@ -119,7 +120,7 @@ module Chewy
             existing_object = entry[:_id].present? && indexed_objects && indexed_objects[entry[:_id].to_s]
           end
 
-          entry[:data] = object_data(object)
+          entry[:data] = object_data(object, crutches)
 
           if existing_object && entry[:parent].to_s != existing_object[:parent]
             [{ delete: entry.except(:data).merge(parent: existing_object[:parent]) }, { index: entry }]
@@ -148,8 +149,8 @@ module Chewy
           end
         end
 
-        def object_data object
-          (self.root_object ||= build_root).compose(object)[type_name.to_sym]
+        def object_data object, crutches = nil
+          (self.root_object ||= build_root).compose(object, crutches)[type_name.to_sym]
         end
 
         def extract_errors result

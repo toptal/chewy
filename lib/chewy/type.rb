@@ -3,6 +3,7 @@ require 'chewy/type/mapping'
 require 'chewy/type/wrapper'
 require 'chewy/type/observe'
 require 'chewy/type/actions'
+require 'chewy/type/crutch'
 require 'chewy/type/import'
 require 'chewy/type/adapter/object'
 require 'chewy/type/adapter/active_record'
@@ -15,6 +16,7 @@ module Chewy
     include Wrapper
     include Observe
     include Actions
+    include Crutch
     include Import
 
     singleton_class.delegate :index_name, :client, to: :index

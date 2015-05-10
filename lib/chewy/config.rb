@@ -25,9 +25,9 @@ module Chewy
       #
       :root_strategy,
 
-      # The first trategy in stack. `:base` by default.
-      # If you neet to return to the previous chewy behavior -
-      # just set it to `:bypass`
+      # Default request strategy middleware, used in e.g
+      # Rails controllers. See Chewy::Railtie::RequestStrategy
+      # for more info.
       #
       :request_strategy,
 

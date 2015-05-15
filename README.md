@@ -718,7 +718,7 @@ Compliance cheatsheet for filters and DSL expressions:
 
   ```json
   {"has_child": {"type": "blog_tag", "query": {"term": {"tag": "something"}}}
-  {"has_child": {"type": "comment", "term": {"term": {"user": "john"}}}
+  {"has_child": {"type": "comment", "filter": {"term": {"user": "john"}}}
   ```
 
   ```ruby

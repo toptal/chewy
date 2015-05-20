@@ -384,7 +384,7 @@ See [strategy/atomic.rb](lib/chewy/strategy/atomic.rb) for example.
 
 ### Rails application strategies integration
 
-There is a couple of pre-defined strategies for your rails application. At first, rails console uses `:urgent` strategy by default, except the sandbox case. Whan you are running sandbox it switches to `bypass` strategy to avoid index polluting.
+There is a couple of pre-defined strategies for your rails application. At first, rails console uses `:urgent` strategy by default, except the sandbox case. When you are running sandbox it switches to `bypass` strategy to avoid index polluting.
 
 Also migrations are wrapped with `:bypass` strategy. Because the main behavor implies that indexes are resetted after migration, so there is no need for extra index updates.
 Also indexing might be broken during migrations because of the outdated schema.

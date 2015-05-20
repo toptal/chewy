@@ -877,6 +877,14 @@ rake chewy:update[users] # updates UsersIndex
 Just add `require 'chewy/rspec'` to your spec_helper.rb and you will get additional features:
 See [update_index.rb](lib/chewy/rspec/update_index.rb) for more details.
 
+Note that Chewy depends on transactions so if using say Database Cleaner with transaction strategy, switch to truncation for the suite with:
+
+```ruby
+  before(:all) do
+    DatabaseCleaner.strategy = :truncation
+  end
+```
+
 ## TODO a.k.a coming soon:
 
 * Typecasting support

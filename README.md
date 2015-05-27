@@ -877,6 +877,13 @@ rake chewy:update[users] # updates UsersIndex
 Just add `require 'chewy/rspec'` to your spec_helper.rb and you will get additional features:
 See [update_index.rb](lib/chewy/rspec/update_index.rb) for more details.
 
+If you use `DatabaseCleaner` in your tests with `transaction` (strategy)[https://github.com/DatabaseCleaner/database_cleaner#how-to-use] you may run into the problem that `ActiveRecord`'s models are not indexed automatically on save them despite of the fact that you set the callbacks to do this with the `update_index` method. The issue arises because `chewy` indexes data on `after_commit` run as default but all `after_commit` callbacks are not run with the `DatabaseCleaner`'s' `transaction` strategy. You can solve the issue by changing the `Chewy.use_after_commit_callbacks` option. Just add the following initializer in your Rails application:
+
+```ruby
+#config/initializers/chewy.rb
+Chewy.use_after_commit_callbacks = !Rails.env.test?
+```
+
 ## TODO a.k.a coming soon:
 
 * Typecasting support

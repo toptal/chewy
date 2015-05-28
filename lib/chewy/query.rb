@@ -73,6 +73,20 @@ module Chewy
       chain { criteria.update_request_options explain: (value.nil? ? true : value) }
     end
 
+    # Adds <tt>script_fields</tt> parameter to search request.
+    #  UsersIndex.script_fields(
+    #    distance: {
+    #      params: {
+    #        lat: 37.569976,
+    #        lon: -122.351591
+    #      },
+    #      script: "doc['coordinates'].distanceInMiles(lat, lon)"
+    #    }
+    #  )
+    def script_fields value
+      chain { criteria.update_script_fields(value) }
+    end
+
     # Sets query compilation mode for search request.
     # Not used if only one filter for search is specified.
     # Possible values:

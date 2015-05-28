@@ -103,6 +103,13 @@ describe Chewy::Query do
     specify { expect { subject.offset(10) }.not_to change { subject.criteria.request_options } }
   end
 
+  describe '#script_fields' do
+    specify { expect(subject.script_fields(distance: 'test()')).to be_a described_class }
+    specify { expect(subject.script_fields(distance: 'test()')).not_to eq(subject) }
+    specify { expect(subject.script_fields(distance: 'test()').criteria.script_fields).to include(distance: 'test()') }
+    specify { expect { subject.script_fields(distance: 'test()') }.not_to change { subject.criteria.script_fields } }
+  end
+
   describe '#script_score' do
     specify { expect(subject.script_score('23')).to be_a described_class }
     specify { expect(subject.script_score('23')).not_to eq(subject) }

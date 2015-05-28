@@ -758,6 +758,23 @@ When the response comes back, it will have the ```:facets``` sidechannel include
 < { ... ,"facets":{"countries":{"_type":"terms","missing":?,"total":?,"other":?,"terms":[{"term":"USA","count":?},{"term":"Brazil","count":?}, ...}}
 ```
 
+### Script fields
+
+Script fields allow to execute elasticsearch's scripting language such as groovy, javascript and etc. More about supported languages and what is scripting [here](https://www.elastic.co/guide/en/elasticsearch/reference/0.90/modules-scripting.html). This feature allows to calculate distance between geo points, for example. This is how to use the DSL:
+
+```ruby
+UsersIndex.script_fields(
+  distance: {
+    params: {
+      lat: 37.569976,
+      lon: -122.351591
+    },
+    script: "doc['coordinates'].distanceInMiles(lat, lon)"
+  }
+)
+```
+`coordinates` here is a field with `geo_point` type. There will be `distance` field for the index's model in the search result.
+
 ### Script scoring
 
 Script scoring is used to score the search results. All scores are added to the search request and combined according to boost mode and score mode. This can be useful if, for example, a score function is computationally expensive and it is sufficient to compute the score on a filtered set of documents. For example, you might want to multiply the score by another numeric field in the doc:

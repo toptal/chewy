@@ -8,6 +8,7 @@ module Chewy
         # Returns true or false depending on success.
         #
         #   UsersIndex::User.import                          # imports default data set
+        #   UsersIndex::User.import nil                      # imports default data set
         #   UsersIndex::User.import User.active              # imports active users
         #   UsersIndex::User.import [1, 2, 3]                # imports users with specified ids
         #   UsersIndex::User.import users                    # imports users collection
@@ -42,6 +43,7 @@ module Chewy
         # Raises Chewy::ImportFailed exception in case of import errors.
         #
         #   UsersIndex::User.import!                          # imports default data set
+        #   UsersIndex::User.import! nil                      # imports default data set
         #   UsersIndex::User.import! User.active              # imports active users
         #   UsersIndex::User.import! [1, 2, 3]                # imports users with specified ids
         #   UsersIndex::User.import! users                    # imports users collection

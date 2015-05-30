@@ -212,6 +212,70 @@ See [config.rb](lib/chewy/config.rb) for more details.
   end
   ```
 
+### Crutches™ technology
+
+Assume you are defining index like this (product has_many categories through product_categories):
+
+```ruby
+class ProductsIndex < Chewy::Index
+  define_type Product.includes(:categories) do
+    field :name
+    field :category_names, value: ->(product) { product.categories.map(&:name) } # or shorter just -> { categories.map(&:name) }
+  end
+end
+```
+
+Then chewy reindexing flow would be look like following pseudo-code (even in mongoid):
+
+```ruby
+Product.includes(:categories).find_in_batches(1000) do |batch|
+  bulk_body = batch.map do |object|
+    {name: object.name, category_names: object.categories.map(&:name)}.to_json
+  end
+  # here we are sending every batch of data to ES
+  Chewy.client.bulk bulk_body
+end
+```
+
+But in rails 4.1 and 4.2 you may face with slow associations problem (take a look on https://github.com/rails/rails/pull/19423) also, there might be really complicated cases when associations are not applicable.
+
+Then you are able to replace rails associations with Chewy Crutches™ technology:
+
+```ruby
+class ProductsIndex < Chewy::Index
+  define_type Product.includes(:categories) do
+    crutch :categories do |collection| # collection here is a current batch of products
+      # data is fetched with a lightweight query without objects initialization
+      data = ProductCategory.joins(:category).where(product_id: collection.map(&:id)).pluck(:product_id, 'categories.name')
+      # then we have to convert fetched data to appropriate format
+      # this will return our data in structure like:
+      # {123 => ['seweets', 'juices'], 456 => ['meat']}
+      data.each.with_object({}) { |(id, name), result| (result[id] ||= []).push(name) }
+    end
+
+    field :name
+    # simply use crutch-fetched data as a value:
+    field :category_names, value: ->(product, crutches) { crutches.categories[product.id] }
+  end
+end
+```
+
+And example flow would be look like this:
+
+```ruby
+Product.includes(:categories).find_in_batches(1000) do |batch|
+  crutches[:categories] = ProductCategory.joins(:category).where(product_id: batch.map(&:id)).pluck(:product_id, 'categories.name')
+    .each.with_object({}) { |(id, name), result| (result[id] ||= []).push(name) }
+
+  bulk_body = batch.map do |object|
+    {name: object.name, category_names: crutches[:categories][object.id]}.to_json
+  end
+  Chewy.client.bulk bulk_body
+end
+```
+
+So Chewy Crutches™ technology is able to increase your indexing performance in some cases up to 100 times or even more depending on your associations complexity.
+
 ### Types access
 
 You are able to access index-defined types with the following API:
@@ -880,14 +944,15 @@ end
 Inside Rails application some index mantaining rake tasks are defined.
 
 ```bash
-rake chewy:reset:all # resets all the existing indexes, declared in app/chewy
-rake chewy:reset # alias for chewy:reset:all
-rake chewy:reset[users] # resets UsersIndex
+rake chewy:reset # resets all the existing indexes, declared in app/chewy
+rake chewy:reset[users] # resets UsersIndex only
 
-rake chewy:update:all # updates all the existing indexes, declared in app/chewy
-rake chewy:update # alias for chewy:update:all
-rake chewy:update[users] # updates UsersIndex
+rake chewy:update # updates all the existing indexes, declared in app/chewy
+rake chewy:update[users] # updates UsersIndex only
 ```
+
+Also `rake chewy:reset` performs zero-downtime reindexing as described here: https://www.elastic.co/blog/changing-mapping-with-zero-downtime. So basically rake task creates new index with uniq suffix and then simply aliases it to the common index name. Previous index is deleted afterwards (see `Chewy::Index.reset!` for more details).
+
 
 ### Rspec integration
 

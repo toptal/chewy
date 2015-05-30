@@ -1,10 +1,18 @@
 # master
 
+# Version 0.8.0
+
 ## Incompatible changes:
 
   * `:atomic` and `:urgent` strategies are using `import!` method raising exceptions
 
 ## Changes
+
+  * Crutches™ technology
+
+  * Added `.script_fields` chainable method to query (@ka8725)
+
+  * `update_index` mocha support (@lardawge)
 
   * `:resque` async strategy
 
@@ -13,6 +21,8 @@
   * Added `Query#search_type` for `search_type` request option setup (@marshall-lee)
 
 ## Bugfixes
+
+  * Rails 4.2 migrations are not raising UndefinedUpdateStrategy anymore on data updates
 
   * Mongoid random failing specs fixes (@marshall-lee)
 

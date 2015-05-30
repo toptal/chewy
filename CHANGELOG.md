@@ -1,5 +1,11 @@
 # master
 
+# Version 0.8.1
+
+## Bugfixes
+
+  * Added support of elasticsearch-ruby 1.0.10
+
 # Version 0.8.0
 
 ## Incompatible changes:

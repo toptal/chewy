@@ -20,12 +20,14 @@ describe Chewy::Type::Import do
 
   describe '.import', :orm do
     specify { expect(city.import).to eq(true) }
+    specify { expect(city.import nil).to eq(true) }
     specify { expect(city.import([])).to eq(true) }
     specify { expect(city.import(dummy_cities)).to eq(true) }
     specify { expect(city.import(dummy_cities.map(&:id))).to eq(true) }
 
     specify { expect { city.import([]) }.not_to update_index(city) }
     specify { expect { city.import }.to update_index(city).and_reindex(dummy_cities) }
+    specify { expect { city.import nil }.to update_index(city).and_reindex(dummy_cities) }
     specify { expect { city.import dummy_cities }.to update_index(city).and_reindex(dummy_cities) }
     specify { expect { city.import dummy_cities.map(&:id) }.to update_index(city).and_reindex(dummy_cities) }
 

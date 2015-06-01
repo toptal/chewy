@@ -16,6 +16,8 @@ module Chewy
             instance_eval(&block)
           end
 
+          type_name = type_name.call(self) if type_name.is_a?(Proc)
+
           Chewy.derive_type(type_name).update_index(backreference, options)
         end
       end

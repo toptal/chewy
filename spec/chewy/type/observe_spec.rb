@@ -10,6 +10,10 @@ describe Chewy::Type::Import do
 
     let(:backreferenced) { 3.times.map { |i| double(id: i) } }
 
+    specify { expect { DummiesIndex.dummy.update_index("dummies#dummy") }
+      .to update_index('dummies#dummy') }
+    specify { expect { DummiesIndex.dummy.update_index(->(dummy) {"dummies#dummy"}) }
+      .to update_index('dummies#dummy') }
     specify { expect { DummiesIndex.dummy.update_index(backreferenced) }
       .to raise_error Chewy::UndefinedUpdateStrategy }
     specify { expect { DummiesIndex.dummy.update_index([]) }

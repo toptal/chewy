@@ -212,6 +212,30 @@ See [config.rb](lib/chewy/config.rb) for more details.
   end
   ```
 
+### Multi (nested) and object field types
+
+To define objects field you have to simply nest fields in dsl:
+
+```ruby
+field :projects do
+  field :title
+  field :description
+end
+```
+
+This will automatically sets the type or root field to `object`. Also you may specify `type: 'objects'` explicitly.
+
+To define multi field you have to specify any type except of `object` or `nested` in the rrot field:
+
+```ruby
+field :full_name, type: 'string', value: ->{ full_name.strip } do
+  field :ordered, analyzer: `ordered`
+  field :untouched, index: 'not_analyzed'
+end
+```
+
+`value:` option for internal fields would not be effective anymore.
+
 ### Crutches™ technology
 
 Assume you are defining index like this (product has_many categories through product_categories):

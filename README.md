@@ -187,6 +187,12 @@ See [config.rb](lib/chewy/config.rb) for more details.
     update_index('users') { users } # if index has only one type
                                     # there is no need to specify updated type
   end
+
+  class Book < ActiveRecord::Base
+    update_index(->(book) {"books#book_#{book.language}"}) { self } # dynamic index and type with Proc.
+                                                                    # For book with language == "en"
+                                                                    # this code will generate `books#book_en`
+  end
   ```
 
   Also, you can use second argument for method name passing:

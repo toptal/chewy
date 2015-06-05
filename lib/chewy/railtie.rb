@@ -55,7 +55,7 @@ module Chewy
     end
 
     initializer 'chewy.request_strategy' do |app|
-      app.config.middleware.insert_after(Rack::Runtime, RequestStrategy)
+      app.config.middleware.insert_after(Rails::Rack::Logger, RequestStrategy)
     end
 
     initializer 'chewy.add_app_chewy_path' do |app|

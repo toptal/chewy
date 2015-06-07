@@ -10,22 +10,18 @@ describe Chewy::Type::Import do
 
     let(:backreferenced) { 3.times.map { |i| double(id: i) } }
 
-    specify { expect { DummiesIndex.dummy.update_index("dummies#dummy") }
-      .to update_index('dummies#dummy') }
-    specify { expect { DummiesIndex.dummy.update_index(->(dummy) {"dummies#dummy"}) }
-      .to update_index('dummies#dummy') }
-    specify { expect { DummiesIndex.dummy.update_index(backreferenced) }
+    specify { expect { DummiesIndex::Dummy.update_index(backreferenced) }
       .to raise_error Chewy::UndefinedUpdateStrategy }
-    specify { expect { DummiesIndex.dummy.update_index([]) }
+    specify { expect { DummiesIndex::Dummy.update_index([]) }
       .not_to update_index('dummies#dummy') }
-    specify { expect { DummiesIndex.dummy.update_index(nil) }
+    specify { expect { DummiesIndex::Dummy.update_index(nil) }
       .not_to update_index('dummies#dummy') }
   end
 
   context 'integration', :orm do
     before do
       stub_model(:city) do
-        update_index('cities#city') { self }
+        update_index(->(city) { "cities##{city.class.name.underscore}" }) { self }
         update_index 'countries#country' do
           changes['country_id'] || previous_changes['country_id'] || country
         end
@@ -33,7 +29,7 @@ describe Chewy::Type::Import do
 
       stub_model(:country) do
         update_index('cities#city') { cities }
-        update_index 'countries#country', :self
+        update_index(->{ "countries##{self.class.name.underscore}" }, :self)
       end
 
       City.belongs_to :country

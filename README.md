@@ -218,6 +218,18 @@ See [config.rb](lib/chewy/config.rb) for more details.
   end
   ```
 
+  If you need to specify index or type name dynamically just simply use lambda for type reference passing (useful for e.g. [One Language per Document](https://www.elastic.co/guide/en/elasticsearch/guide/current/one-lang-docs.html) pattern implementation):
+
+  ```ruby
+  class Post < ActiveRecord::Base
+    belongs_to :post
+
+    update_index(->(post) { "posts##{post.locale}_post" }, :self)
+    # argumentless lambda evaluated in object context
+    # update_index(-> { "posts##{locale}_post" }, :self)
+  end
+  ```
+
 ### Multi (nested) and object field types
 
 To define objects field you have to simply nest fields in dsl:

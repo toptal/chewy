@@ -1,5 +1,9 @@
 # master
 
+## Changes
+
+  * Ability to pass a proc to `update_index` to define updating index dynamically (@SeTeM)
+
 # Version 0.8.1
 
 ## Bugfixes
@@ -18,7 +22,7 @@
 
   * Added `.script_fields` chainable method to query (@ka8725)
 
-  * `update_index` mocha support (@lardawge)
+  * `update_index` matcher mocha support (@lardawge)
 
   * `:resque` async strategy
 

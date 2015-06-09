@@ -8,25 +8,25 @@
 
 # Chewy
 
-Chewy is ODM and wrapper for official elasticsearch client (https://github.com/elasticsearch/elasticsearch-ruby)
+Chewy is an ODM and wrapper for [the official Elasticsearch client](https://github.com/elasticsearch/elasticsearch-ruby).
 
-## Why chewy?
+## Why Chewy?
 
 * Multi-model indexes.
 
-  Index classes are independent from ORM/ODM models. Now implementing, e.g. cross-model autocomplete is much easier. You can just define index and work with it in object-oriented style. You can define several types for index - one per indexed model.
+  Index classes are independent from ORM/ODM models. Now, implementing e.g. cross-model autocomplete is much easier. You can just define the index and work with it in an object-oriented style. You can define several types for index - one per indexed model.
 
 * Every index is observable by all the related models.
 
-  Most of the indexed models are related to other and sometimes it is nessesary to denormalize this related data and put at the same object. For example, you need to index array of tags with article together. Chewy allows you to specify updatable index for every model separately. So, corresponding articles will be reindexed on any tag update.
+  Most of the indexed models are related to other and sometimes it is necessary to denormalize this related data and put at the same object. For example, you need to index an array of tags together with an article. Chewy allows you to specify an updateable index for every model separately - so corresponding articles will be reindexed on any tag update.
 
 * Bulk import everywhere.
 
-  Chewy utilizes bulk ES API for full reindexing or index updates. Also it uses atomic updates concept. All the changed objects are collected inside the atomic block and index is updated once at the end of it with all the collected object. See `Chewy.strategy(:atomic)` for more details.
+  Chewy utilizes the bulk ES API for full reindexing or index updates. It also uses atomic updates. All the changed objects are collected inside the atomic block and the index is updated once at the end with all the collected objects. See `Chewy.strategy(:atomic)` for more details.
 
 * Powerful querying DSL.
 
-  Chewy has AR-style query DSL. It is chainable, mergable and lazy. So you can produce queries in the most efficient way. Also it has object-oriented query and filter builders.
+  Chewy has an ActiveRecord-style query DSL. It is chainable, mergeable and lazy, so you can produce queries in the most efficient way. It also has object-oriented query and filter builders.
 
 ## Installation
 
@@ -46,9 +46,9 @@ Or install it yourself as:
 
 ### Client settings
 
-There are 2 ways to configure Chewy client: `Chewy.settings` hash and `chewy.yml`
+There are two ways to configure the Chewy client: the `Chewy.settings` hash and `chewy.yml`
 
-You can create this file manually or run `rails g chewy:install` to do that with yaml way
+You can create this file manually or run `rails g chewy:install`.
 
 ```ruby
 # config/initializers/chewy.rb
@@ -65,14 +65,14 @@ development:
   host: 'localhost:9200'
 ```
 
-The result config merges both hashes. Client options are passed as is to Elasticsearch::Transport::Client except the `:prefix` - it is used internally by chewy to create prefixed index names:
+The result config merges both hashes. Client options are passed as is to `Elasticsearch::Transport::Client` except for the `:prefix`, which is used internally by Chewy to create prefixed index names:
 
 ```ruby
   Chewy.settings = {prefix: 'test'}
   UsersIndex.index_name # => 'test_users'
 ```
 
-Also logger might be set explicitly:
+The logger may be set explicitly:
 
 ```ruby
 Chewy.logger = Logger.new
@@ -106,7 +106,7 @@ See [config.rb](lib/chewy/config.rb) for more details.
   class UsersIndex < Chewy::Index
     define_type User.active.includes(:country, :badges, :projects) do
       field :first_name, :last_name # multiple fields without additional options
-      field :email, analyzer: 'email' # elasticsearch-related options
+      field :email, analyzer: 'email' # Elasticsearch-related options
       field :country, value: ->(user) { user.country.name } # custom value proc
       field :badges, value: ->(user) { user.badges.map(&:name) } # passing array values to index
       field :projects do # the same block syntax for multi_field, if `:type` is specified
@@ -122,9 +122,9 @@ See [config.rb](lib/chewy/config.rb) for more details.
   end
   ```
 
-  Mapping definitions - http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/mapping.html
+  [See here for mapping definitions](http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/mapping.html).
 
-4. Add some index- and type-related settings. Analyzers repositories might be used as well. See `Chewy::Index.settings` docs for details:
+4. Add some index- and type-related settings. Analyzer repositories might be used as well. See `Chewy::Index.settings` docs for details:
 
   ```ruby
   class UsersIndex < Chewy::Index
@@ -149,7 +149,7 @@ See [config.rb](lib/chewy/config.rb) for more details.
           field :title
           field :description
         end
-        field :about_translations, type: 'object' # pass object type explicitely if necessary
+        field :about_translations, type: 'object' # pass object type explicitly if necessary
         field :rating, type: 'integer'
         field :created, type: 'date', include_in_all: false,
           value: ->{ created_at }
@@ -158,16 +158,16 @@ See [config.rb](lib/chewy/config.rb) for more details.
   end
   ```
 
-  Index settings - http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/indices-update-settings.html
-  Root object settings - http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/mapping-root-object-type.html
+  [See index settings here](http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/indices-update-settings.html).
+  [See root object settings here](http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/mapping-root-object-type.html).
 
   See [mapping.rb](lib/chewy/type/mapping.rb) for more details.
 
-5. Add model observing code
+5. Add model-observing code
 
   ```ruby
   class User < ActiveRecord::Base
-    update_index('users#user') { self } # specifying index, type and backreference
+    update_index('users#user') { self } # specifying index, type and back-reference
                                         # for updating after user save or destroy
   end
 
@@ -178,7 +178,7 @@ See [config.rb](lib/chewy/config.rb) for more details.
   end
 
   class Project < ActiveRecord::Base
-    update_index('users#user') { user if user.active? } # you can return even `nil` from the backreference
+    update_index('users#user') { user if user.active? } # you can return even `nil` from the back-reference
   end
 
   class Badge < ActiveRecord::Base
@@ -189,20 +189,20 @@ See [config.rb](lib/chewy/config.rb) for more details.
   end
 
   class Book < ActiveRecord::Base
-    update_index(->(book) {"books#book_#{book.language}"}) { self } # dynamic index and type with Proc.
+    update_index(->(book) {"books#book_#{book.language}"}) { self } # dynamic index and type with proc.
                                                                     # For book with language == "en"
                                                                     # this code will generate `books#book_en`
   end
   ```
 
-  Also, you can use second argument for method name passing:
+  Also, you can use the second argument for method name passing:
 
   ```ruby
   update_index('users#user', :self)
   update_index('users#user', :users)
   ```
 
-  In case of belongs_to association you may need to update both associated objects, previous and current:
+  In the case of a belongs_to association you may need to update both associated objects, previous and current:
 
   ```ruby
   class City < ActiveRecord::Base
@@ -218,21 +218,9 @@ See [config.rb](lib/chewy/config.rb) for more details.
   end
   ```
 
-  If you need to specify index or type name dynamically just simply use lambda for type reference passing (useful for e.g. [One Language per Document](https://www.elastic.co/guide/en/elasticsearch/guide/current/one-lang-docs.html) pattern implementation):
-
-  ```ruby
-  class Post < ActiveRecord::Base
-    belongs_to :post
-
-    update_index(->(post) { "posts##{post.locale}_post" }, :self)
-    # argumentless lambda evaluated in object context
-    # update_index(-> { "posts##{locale}_post" }, :self)
-  end
-  ```
-
 ### Multi (nested) and object field types
 
-To define objects field you have to simply nest fields in dsl:
+To define an objects field you can simply nest fields in the DSL:
 
 ```ruby
 field :projects do
@@ -241,9 +229,9 @@ field :projects do
 end
 ```
 
-This will automatically sets the type or root field to `object`. Also you may specify `type: 'objects'` explicitly.
+This will automatically set the type or root field to `object`. You may also specify `type: 'objects'` explicitly.
 
-To define multi field you have to specify any type except of `object` or `nested` in the rrot field:
+To define a multi field you have to specify any type except for `object` or `nested` in the root field:
 
 ```ruby
 field :full_name, type: 'string', value: ->{ full_name.strip } do
@@ -252,11 +240,11 @@ field :full_name, type: 'string', value: ->{ full_name.strip } do
 end
 ```
 
-`value:` option for internal fields would not be effective anymore.
+The `value:` option for internal fields would no longer be effective.
 
 ### Crutches™ technology
 
-Assume you are defining index like this (product has_many categories through product_categories):
+Assume you are defining your index like this (product has_many categories through product_categories):
 
 ```ruby
 class ProductsIndex < Chewy::Index
@@ -267,7 +255,7 @@ class ProductsIndex < Chewy::Index
 end
 ```
 
-Then chewy reindexing flow would be look like following pseudo-code (even in mongoid):
+Then the Chewy reindexing flow would look like the following pseudo-code (even in Mongoid):
 
 ```ruby
 Product.includes(:categories).find_in_batches(1000) do |batch|
@@ -279,9 +267,9 @@ Product.includes(:categories).find_in_batches(1000) do |batch|
 end
 ```
 
-But in rails 4.1 and 4.2 you may face with slow associations problem (take a look on https://github.com/rails/rails/pull/19423) also, there might be really complicated cases when associations are not applicable.
+But in Rails 4.1 and 4.2 you may face a problem with slow associations (take a look at https://github.com/rails/rails/pull/19423). Also, there might be really complicated cases when associations are not applicable.
 
-Then you are able to replace rails associations with Chewy Crutches™ technology:
+Then you can replace Rails associations with Chewy Crutches™ technology:
 
 ```ruby
 class ProductsIndex < Chewy::Index
@@ -291,7 +279,7 @@ class ProductsIndex < Chewy::Index
       data = ProductCategory.joins(:category).where(product_id: collection.map(&:id)).pluck(:product_id, 'categories.name')
       # then we have to convert fetched data to appropriate format
       # this will return our data in structure like:
-      # {123 => ['seweets', 'juices'], 456 => ['meat']}
+      # {123 => ['sweets', 'juices'], 456 => ['meat']}
       data.each.with_object({}) { |(id, name), result| (result[id] ||= []).push(name) }
     end
 
@@ -302,7 +290,7 @@ class ProductsIndex < Chewy::Index
 end
 ```
 
-And example flow would be look like this:
+An example flow would look like this:
 
 ```ruby
 Product.includes(:categories).find_in_batches(1000) do |batch|
@@ -316,7 +304,7 @@ Product.includes(:categories).find_in_batches(1000) do |batch|
 end
 ```
 
-So Chewy Crutches™ technology is able to increase your indexing performance in some cases up to 100 times or even more depending on your associations complexity.
+So Chewy Crutches™ technology is able to increase your indexing performance in some cases up to a hundredfold or even more depending on your associations complexity.
 
 ### Types access
 
@@ -333,7 +321,7 @@ UsersIndex.type_names # => ['user']
 ### Index manipulation
 
 ```ruby
-UsersIndex.delete # destroy index if exists
+UsersIndex.delete # destroy index if it exists
 UsersIndex.delete!
 
 UsersIndex.create
@@ -354,7 +342,7 @@ UsersIndex.import user: User.where('rating > 100') # import only active users to
 UsersIndex.reset! # purges index and imports default data for all types
 ```
 
-Also if passed user is `#destroyed?`, or satisfy `delete_if` type option, or specified id does not exists in the database, import will perform delete from index action for this object.
+Also if the passed user is `#destroyed?`, or satisfies a `delete_if` type option, or the specified id does not exist in the database, import will perform delete from index action for this object.
 
 ```ruby
 define_type User, delete_if: :deleted_at
@@ -380,18 +368,13 @@ class CitiesIndex < Chewy::Index
 end
 ```
 
-If you'll perform something like `City.first.save!` you'll get
-UndefinedUpdateStrategy exception instead of normal object saving
-and index update. This exception forces you to choose appropriate
-update strategy for current context.
+If you do something like `City.first.save!` you'll get an UndefinedUpdateStrategy exception instead of the object saving and index updating. This exception forces you to choose an appropriate update strategy for the current context.
 
-If you want to return behavior was before 0.7.0 - just set
-`Chewy.root_strategy = :bypass`.
+If you want to return to the pre-0.7.0 behavior - just set `Chewy.root_strategy = :bypass`.
 
 #### `:atomic`
 
-The main strategy here is `:atomic`. Assume you have to update a
-lot of records in db.
+The main strategy here is `:atomic`. Assume you have to update a lot of records in the db.
 
 ```ruby
 Chewy.strategy(:atomic) do
@@ -399,15 +382,11 @@ Chewy.strategy(:atomic) do
 end
 ```
 
-Using this strategy delays index update request until the end of
-block. Updated records are aggregated and index update happens with
-bulk API. So this strategy is highly optimized.
+Using this strategy delays the index update request until the end of the block. Updated records are aggregated and the index update happens with the bulk API. So this strategy is highly optimized.
 
 #### `:resque`
 
-Does the same thing as `:atomic`, but in async way using resque.
-Default queue name is `chewy`.
-Patch `Chewy::Strategy::Resque::Worker` for index updates improving.
+This does the same thing as `:atomic`, but asynchronously using resque. The default queue name is `chewy`. Patch `Chewy::Strategy::Resque::Worker` for index updates improving.
 
 ```ruby
 Chewy.strategy(:resque) do
@@ -417,8 +396,7 @@ end
 
 #### `:sidekiq`
 
-Does the same thing as `:atomic`, but in async way using sidekiq.
-Patch `Chewy::Strategy::Sidekiq::Worker` for index updates improving.
+This does the same thing as `:atomic`, but asynchronously using sidekiq. Patch `Chewy::Strategy::Sidekiq::Worker` for index updates improving.
 
 ```ruby
 Chewy.strategy(:sidekiq) do
@@ -428,8 +406,7 @@ end
 
 #### `:urgent`
 
-Next strategy is convenient if you are going to update documents in
-index one-by-one.
+The following strategy is convenient if you are going to update documents in your index one by one.
 
 ```ruby
 Chewy.strategy(:urgent) do
@@ -437,11 +414,9 @@ Chewy.strategy(:urgent) do
 end
 ```
 
-This code would perform `City.popular.count` requests for ES
-documents update.
+This code would perform `City.popular.count` requests for ES documents update.
 
-Seems to be convenient for usage in e.g. rails console with
-non-block notation:
+It seems to be convenient for usage in e.g. Rails console with non-block notation:
 
 ```ruby
 > Chewy.strategy(:urgent)
@@ -450,12 +425,11 @@ non-block notation:
 
 #### `:bypass`
 
-Bypass strategy simply silences index updates.
+The bypass strategy simply silences index updates.
 
 #### Nesting
 
-Strategies are designed to allow nesting, so it is possible
-to redefine it for nested contexts.
+Strategies are designed to allow nesting, so it is possible to redefine it for nested contexts.
 
 ```ruby
 Chewy.strategy(:atomic) do
@@ -483,22 +457,19 @@ Chewy.strategy.pop
 city3.do_update! # index updated again
 ```
 
-#### Designing own strategies
+#### Designing your own strategies
 
-See [strategy/base.rb](lib/chewy/strategy/base.rb) for more details.
-See [strategy/atomic.rb](lib/chewy/strategy/atomic.rb) for example.
+See [strategy/base.rb](lib/chewy/strategy/base.rb) for more details. See [strategy/atomic.rb](lib/chewy/strategy/atomic.rb) for an example.
 
 ### Rails application strategies integration
 
-There is a couple of pre-defined strategies for your rails application. At first, rails console uses `:urgent` strategy by default, except the sandbox case. When you are running sandbox it switches to `bypass` strategy to avoid index polluting.
+There are a couple of predefined strategies for your Rails application. Initially, the Rails console uses the `:urgent` strategy by default, except in the sandbox case. When you are running sandbox it switches to the `:bypass` strategy to avoid polluting the index.
 
-Also migrations are wrapped with `:bypass` strategy. Because the main behavor implies that indexes are resetted after migration, so there is no need for extra index updates.
-Also indexing might be broken during migrations because of the outdated schema.
+Migrations are wrapped with the `:bypass` strategy. Because the main behavior implies that indices are reset after migration, there is no need for extra index updates. Also indexing might be broken during migrations because of the outdated schema.
 
-Controller actions are wrapped with `:atomic` strategy with middleware just to reduce amount of index update requests inside actions.
+Controller actions are wrapped with the `:atomic` strategy with middleware just to reduce the number of index update requests inside actions.
 
-It is also a good idea to set up `:bypass` strategy inside your test suite and import objects manually only when needed, plus use `Chewy.massacre` when needed to flush test ES indexes before every example. This will allow to minimize unnecessary ES requests and reduce overhead.
-
+It is also a good idea to set up the `:bypass` strategy inside your test suite and import objects manually only when needed, and use `Chewy.massacre` when needed to flush test ES indexes before every example. This will allow you to minimize unnecessary ES requests and reduce overhead.
 
 ```ruby
 RSpec.configure do |config|
@@ -527,24 +498,20 @@ scope.only(:id, :email) # returns ids and emails only
 scope.merge(other_scope) # queries could be merged
 ```
 
-Also, queries can be performed on a type individually
+Also, queries can be performed on a type individually:
 
 ```ruby
 UsersIndex::User.filter(term: {name: 'foo'}) # will return UserIndex::User collection only
 ```
 
-If you are performing more than one `filter` or `query` in the chain,
-all the filters and queries will be concatenated in the way specified by
+If you are performing more than one `filter` or `query` in the chain, all the filters and queries will be concatenated in the way specified by
 `filter_mode` and `query_mode` respectively.
 
 Default `filter_mode` is `:and` and default `query_mode` is `bool`.
 
-Available filter modes are: `:and`, `:or`, `:must`, `:should` and
-any minimum_should_match-acceptable value
+Available filter modes are: `:and`, `:or`, `:must`, `:should` and any minimum_should_match-acceptable value
 
-Available query modes are: `:must`, `:should`, `:dis_max`, any
-minimum_should_match-acceptable value or float value for dis_max
-query with tie_breaker specified.
+Available query modes are: `:must`, `:should`, `:dis_max`, any minimum_should_match-acceptable value or float value for dis_max query with tie_breaker specified.
 
 ```ruby
 UsersIndex::User.filter{ name == 'Fred' }.filter{ age < 42 } # will be wrapped with `and` filter
@@ -556,7 +523,7 @@ See [query.rb](lib/chewy/query.rb) for more details.
 
 ### Additional query action.
 
-You may also perform additional actions on query scope, such as deleting of all the scope documents:
+You may also perform additional actions on the query scope, such as deleting of all the scope documents:
 
 ```ruby
 UsersIndex.delete_all
@@ -565,17 +532,16 @@ UsersIndex.filter{ age < 42 }.delete_all
 UsersIndex::User.filter{ age < 42 }.delete_all
 ```
 
-### Filters query DSL.
+### Filters query DSL
 
-There is a test version of filters creating DSL:
+There is a test version of the filter-creating DSL:
 
 ```ruby
 UsersIndex.filter{ name == 'Fred' } # will produce `term` filter.
 UsersIndex.filter{ age <= 42 } # will produce `range` filter.
 ```
 
-The basis of the DSL is expression.
-There are 2 types of expressions:
+The basis of the DSL is the expression. There are 2 types of expressions:
 
 * Simple function
 
@@ -584,10 +550,8 @@ There are 2 types of expressions:
   UsersIndex.filter{ q(query_string: {query: 'lazy fox'}) } # query expression
   ```
 
-* Field-dependant composite expression.
-  Consists of the field name (with dot notation or not),
-  value and action operator between them. Field name might take
-  additional options for passing to the result expression.
+* Field-dependent composite expression
+  Consists of the field name (with or without dot notation), a value, and an action operator between them. The field name might take additional options for passing to the resulting expression.
 
   ```ruby
   UsersIndex.filter{ name == 'Name' } # simple field term filter
@@ -595,7 +559,7 @@ There are 2 types of expressions:
   UsersIndex.filter{ answers.title =~ /regexp/ } # regexp filter for `answers.title` field
   ```
 
-You can combine expressions as you wish with combination operators help
+You can combine expressions as you wish with the help of combination operators.
 
 ```ruby
 UsersIndex.filter{ (name == 'Name') & (email == 'Email') } # combination produces `and` filter
@@ -606,10 +570,10 @@ UsersIndex.filter{
 } # many of the combination possibilities
 ```
 
-Also, there is a special syntax for cache enabling:
+There is also a special syntax for cache enabling:
 
 ```ruby
-UsersIndex.filter{ ~name == 'Name' } # you can apply tilda to the field name
+UsersIndex.filter{ ~name == 'Name' } # you can apply tilde to the field name
 UsersIndex.filter{ ~(name == 'Name') } # or to the whole expression
 
 # if you are applying cache to the one part of range filter
@@ -848,17 +812,17 @@ See [filters.rb](lib/chewy/query/filters.rb) for more details.
 
 ### Faceting
 
-Facets are an optional sidechannel you can request from elasticsearch describing certain fields of the resulting collection. The most common use for facets is to allow the user continue filtering specifically within the subset, as opposed to the global index.
+Facets are an optional sidechannel you can request from Elasticsearch describing certain fields of the resulting collection. The most common use for facets is to allow the user to continue filtering specifically within the subset, as opposed to the global index.
 
-For instance, let's request the ```country``` field as a facet along with our users collection. We can do this with the #facets method like so:
+For instance, let's request the `country` field as a facet along with our users collection. We can do this with the #facets method like so:
 
 ```ruby
 UsersIndex.filter{ [...] }.facets({countries: {terms: {field: 'country'}}})
 ```
 
-Let's look at what we asked from elasticsearch. The facets setter method accepts a hash. You can choose custom/semantic key names for this hash for your own convinience (in this case I used the plural version of the actual field), in our case: ```countries```. The following nested hash tells ES to grab and aggregate values (terms) from the ```country``` field on our indexed records.
+Let's look at what we asked from Elasticsearch. The facets setter method accepts a hash. You can choose custom/semantic key names for this hash for your own convenience (in this case I used the plural version of the actual field), in our case `countries`. The following nested hash tells ES to grab and aggregate values (terms) from the `country` field on our indexed records.
 
-When the response comes back, it will have the ```:facets``` sidechannel included:
+When the response comes back, it will have the `:facets` sidechannel included:
 
 ```
 < { ... ,"facets":{"countries":{"_type":"terms","missing":?,"total":?,"other":?,"terms":[{"term":"USA","count":?},{"term":"Brazil","count":?}, ...}}
@@ -866,7 +830,7 @@ When the response comes back, it will have the ```:facets``` sidechannel include
 
 ### Script fields
 
-Script fields allow to execute elasticsearch's scripting language such as groovy, javascript and etc. More about supported languages and what is scripting [here](https://www.elastic.co/guide/en/elasticsearch/reference/0.90/modules-scripting.html). This feature allows to calculate distance between geo points, for example. This is how to use the DSL:
+Script fields allow you to execute Elasticsearch's scripting languages such as groovy and javascript. More about supported languages and what scripting is [here](https://www.elastic.co/guide/en/elasticsearch/reference/0.90/modules-scripting.html). This feature allows you to calculate the distance between geo points, for example. This is how to use the DSL:
 
 ```ruby
 UsersIndex.script_fields(
@@ -879,7 +843,7 @@ UsersIndex.script_fields(
   }
 )
 ```
-`coordinates` here is a field with `geo_point` type. There will be `distance` field for the index's model in the search result.
+Here, `coordinates` is a field with type `geo_point`. There will be a `distance` field for the index's model in the search result.
 
 ### Script scoring
 
@@ -891,7 +855,7 @@ UsersIndex.script_score("_score * doc['my_numeric_field'].value")
 
 ### Boost Factor
 
-Boost factors are a way to add a boost to a query where documents match the filter. If you have some users who are experts and some are regular users, you might want to give the experts a higher score and boost to the top of the search results. You can accomplish this by using the #boost_factor method and adding a boost score for an expert user of 5:
+Boost factors are a way to add a boost to a query where documents match the filter. If you have some users who are experts and some who are regular users, you might want to give the experts a higher score and boost to the top of the search results. You can accomplish this by using the #boost_factor method and adding a boost score of 5 for an expert user:
 
 ```ruby
 UsersIndex.boost_factor(5, filter: {term: {type: 'Expert'}})
@@ -899,7 +863,7 @@ UsersIndex.boost_factor(5, filter: {term: {type: 'Expert'}})
 
 ### Objects loading
 
-It is possible to load source objects from database for every search result:
+It is possible to load source objects from the database for every search result:
 
 ```ruby
 scope = UsersIndex.filter(range: {rating: {gte: 100}})
@@ -914,7 +878,7 @@ scope.load(scope: ->{ includes(:country) }) # and more common scope applied to e
 scope.only(:id).load # it is optimal to request ids only if you are not planning to use type objects
 ```
 
-The `preload` method takes the same options as `load` and ORM/ODM objects will be loaded, but scope will still return array of Chewy wrappers. To access real objects use `_object` wrapper method:
+The `preload` method takes the same options as `load` and ORM/ODM objects will be loaded, but the scope will still return an array of Chewy wrappers. To access real objects use the `_object` wrapper method:
 
 ```ruby
 UsersIndex.filter(range: {rating: {gte: 100}}).preload(...).query(...).map(&:_object)
@@ -924,7 +888,7 @@ See [loading.rb](lib/chewy/query/loading.rb) for more details.
 
 ### `ActiveSupport::Notifications` support
 
-Chewy has notifing the following events:
+Chewy has notifying the following events:
 
 #### `search_query.chewy` payload
 
@@ -934,7 +898,7 @@ Chewy has notifing the following events:
 #### `import_objects.chewy` payload
 
   * `payload[:type]`: currently imported type
-  * `payload[:import]`: imports stast, total imported and deleted objects count:
+  * `payload[:import]`: imports stats, total imported and deleted objects count:
 
     ```ruby
     {index: 30, delete: 5}
@@ -983,7 +947,7 @@ end
 
 ### Rake tasks
 
-Inside Rails application some index mantaining rake tasks are defined.
+Inside the Rails application, some index-maintaining rake tasks are defined.
 
 ```bash
 rake chewy:reset # resets all the existing indexes, declared in app/chewy
@@ -993,15 +957,14 @@ rake chewy:update # updates all the existing indexes, declared in app/chewy
 rake chewy:update[users] # updates UsersIndex only
 ```
 
-Also `rake chewy:reset` performs zero-downtime reindexing as described here: https://www.elastic.co/blog/changing-mapping-with-zero-downtime. So basically rake task creates new index with uniq suffix and then simply aliases it to the common index name. Previous index is deleted afterwards (see `Chewy::Index.reset!` for more details).
+`rake chewy:reset` performs zero-downtime reindexing as described [here](https://www.elastic.co/blog/changing-mapping-with-zero-downtime). So basically rake task creates a new index with uniq suffix and then simply aliases it to the common index name. The previous index is deleted afterwards (see `Chewy::Index.reset!` for more details).
 
 
 ### Rspec integration
 
-Just add `require 'chewy/rspec'` to your spec_helper.rb and you will get additional features:
-See [update_index.rb](lib/chewy/rspec/update_index.rb) for more details.
+Just add `require 'chewy/rspec'` to your spec_helper.rb and you will get additional features: See [update_index.rb](lib/chewy/rspec/update_index.rb) for more details.
 
-If you use `DatabaseCleaner` in your tests with `transaction` (strategy)[https://github.com/DatabaseCleaner/database_cleaner#how-to-use] you may run into the problem that `ActiveRecord`'s models are not indexed automatically on save them despite of the fact that you set the callbacks to do this with the `update_index` method. The issue arises because `chewy` indexes data on `after_commit` run as default but all `after_commit` callbacks are not run with the `DatabaseCleaner`'s' `transaction` strategy. You can solve the issue by changing the `Chewy.use_after_commit_callbacks` option. Just add the following initializer in your Rails application:
+If you use `DatabaseCleaner` in your tests with [the `transaction` strategy](https://github.com/DatabaseCleaner/database_cleaner#how-to-use), you may run into the problem that `ActiveRecord`'s models are not indexed automatically on save despite the fact that you set the callbacks to do this with the `update_index` method. The issue arises because `chewy` indexes data on `after_commit` run as default, but all `after_commit` callbacks are not run with the `DatabaseCleaner`'s' `transaction` strategy. You can solve this issue by changing the `Chewy.use_after_commit_callbacks` option. Just add the following initializer in your Rails application:
 
 ```ruby
 #config/initializers/chewy.rb
@@ -1011,20 +974,20 @@ Chewy.use_after_commit_callbacks = !Rails.env.test?
 ## TODO a.k.a coming soon:
 
 * Typecasting support
-* Advanced (simplyfied) query DSL: `UsersIndex.query { email == 'my@gmail.com' }` will produce term query
+* Advanced (simplified) query DSL: `UsersIndex.query { email == 'my@gmail.com' }` will produce term query
 * update_all support
 * Maybe, closer ORM/ODM integration, creating index classes implicitly
 
 ## Contributing
 
-1. Fork it ( http://github.com/toptal/chewy/fork )
+1. Fork it (http://github.com/toptal/chewy/fork)
 2. Create your feature branch (`git checkout -b my-new-feature`)
 3. Implement your changes, cover it with specs and make sure old specs are passing
 4. Commit your changes (`git commit -am 'Add some feature'`)
 5. Push to the branch (`git push origin my-new-feature`)
 6. Create new Pull Request
 
-Use the following Rake tasks to control ElasticSearch cluster while developing.
+Use the following Rake tasks to control the Elasticsearch cluster while developing.
 
 ```bash
 rake elasticsearch:start # start Elasticsearch cluster on 9250 port for tests

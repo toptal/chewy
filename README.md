@@ -12,7 +12,7 @@ Chewy is an ODM and wrapper for [the official Elasticsearch client](https://gith
 
 ## Why Chewy?
 
-* Multi-model indexes.
+* Multi-model indices.
 
   Index classes are independent from ORM/ODM models. Now, implementing e.g. cross-model autocomplete is much easier. You can just define the index and work with it in an object-oriented style. You can define several types for index - one per indexed model.
 
@@ -308,7 +308,7 @@ So Chewy Crutches™ technology is able to increase your indexing performance in
 
 ### Types access
 
-You are able to access index-defined types with the following API:
+You can access index-defined types with the following API:
 
 ```ruby
 UsersIndex::User # => UsersIndex::User
@@ -342,7 +342,7 @@ UsersIndex.import user: User.where('rating > 100') # import only active users to
 UsersIndex.reset! # purges index and imports default data for all types
 ```
 
-Also if the passed user is `#destroyed?`, or satisfies a `delete_if` type option, or the specified id does not exist in the database, import will perform delete from index action for this object.
+If the passed user is `#destroyed?`, or satisfies a `delete_if` type option, or the specified id does not exist in the database, import will perform delete from index action for this object.
 
 ```ruby
 define_type User, delete_if: :deleted_at
@@ -469,7 +469,7 @@ Migrations are wrapped with the `:bypass` strategy. Because the main behavior im
 
 Controller actions are wrapped with the `:atomic` strategy with middleware just to reduce the number of index update requests inside actions.
 
-It is also a good idea to set up the `:bypass` strategy inside your test suite and import objects manually only when needed, and use `Chewy.massacre` when needed to flush test ES indexes before every example. This will allow you to minimize unnecessary ES requests and reduce overhead.
+It is also a good idea to set up the `:bypass` strategy inside your test suite and import objects manually only when needed, and use `Chewy.massacre` when needed to flush test ES indices before every example. This will allow you to minimize unnecessary ES requests and reduce overhead.
 
 ```ruby
 RSpec.configure do |config|
@@ -507,7 +507,7 @@ UsersIndex::User.filter(term: {name: 'foo'}) # will return UserIndex::User colle
 If you are performing more than one `filter` or `query` in the chain, all the filters and queries will be concatenated in the way specified by
 `filter_mode` and `query_mode` respectively.
 
-Default `filter_mode` is `:and` and default `query_mode` is `bool`.
+The default `filter_mode` is `:and` and the default `query_mode` is `bool`.
 
 Available filter modes are: `:and`, `:or`, `:must`, `:should` and any minimum_should_match-acceptable value
 
@@ -822,7 +822,7 @@ UsersIndex.filter{ [...] }.facets({countries: {terms: {field: 'country'}}})
 
 Let's look at what we asked from Elasticsearch. The facets setter method accepts a hash. You can choose custom/semantic key names for this hash for your own convenience (in this case I used the plural version of the actual field), in our case `countries`. The following nested hash tells ES to grab and aggregate values (terms) from the `country` field on our indexed records.
 
-When the response comes back, it will have the `:facets` sidechannel included:
+The response will include the `:facets` sidechannel:
 
 ```
 < { ... ,"facets":{"countries":{"_type":"terms","missing":?,"total":?,"other":?,"terms":[{"term":"USA","count":?},{"term":"Brazil","count":?}, ...}}
@@ -950,10 +950,10 @@ end
 Inside the Rails application, some index-maintaining rake tasks are defined.
 
 ```bash
-rake chewy:reset # resets all the existing indexes, declared in app/chewy
+rake chewy:reset # resets all the existing indices, declared in app/chewy
 rake chewy:reset[users] # resets UsersIndex only
 
-rake chewy:update # updates all the existing indexes, declared in app/chewy
+rake chewy:update # updates all the existing indices, declared in app/chewy
 rake chewy:update[users] # updates UsersIndex only
 ```
 

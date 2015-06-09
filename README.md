@@ -65,7 +65,7 @@ development:
   host: 'localhost:9200'
 ```
 
-The result config merges both hashes. Client options are passed as is to `Elasticsearch::Transport::Client` except for the `:prefix`, which is used internally by Chewy to create prefixed index names:
+The resulting config merges both hashes. Client options are passed as is to `Elasticsearch::Transport::Client` except for the `:prefix`, which is used internally by Chewy to create prefixed index names:
 
 ```ruby
   Chewy.settings = {prefix: 'test'}
@@ -416,7 +416,7 @@ end
 
 This code would perform `City.popular.count` requests for ES documents update.
 
-It seems to be convenient for usage in e.g. Rails console with non-block notation:
+It is convenient for use in e.g. the Rails console with non-block notation:
 
 ```ruby
 > Chewy.strategy(:urgent)

@@ -876,7 +876,7 @@ module Chewy
       end
     end
 
-    # Deletes all records matching a query.
+    # Find all records matching a query.
     #
     #   UsersIndex.find(42)
     #   UsersIndex.filter{ age <= 42 }.find(42)

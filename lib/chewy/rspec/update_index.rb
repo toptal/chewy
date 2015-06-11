@@ -18,7 +18,7 @@ require 'i18n/core_ext/hash'
 # Combined matcher chain methods:
 #
 #   specify { expect { user1.destroy!; user2.save! } }
-#     .to update_index(UsersIndex:User).and_reindex(user2).and_delete(user1) }
+#     .to update_index(UsersIndex::User).and_reindex(user2).and_delete(user1) }
 #
 RSpec::Matchers.define :update_index do |type_name, options = {}|
 

@@ -21,15 +21,19 @@ describe Chewy::Config do
       .to change { Chewy.client.transport.logger }.to(logger) }
     specify { expect { subject.transport_logger = logger }
       .to change { subject.transport_logger }.to(logger) }
+    specify { expect { subject.transport_logger = logger }
+      .to change { subject.configuration[:logger] }.from(nil).to(logger) }
   end
 
   describe '#transport_tracer=' do
-    let(:logger) { Logger.new('/dev/null') }
+    let(:tracer) { Logger.new('/dev/null') }
     after { subject.transport_tracer = nil }
 
-    specify { expect { subject.transport_tracer = logger }
-      .to change { Chewy.client.transport.tracer }.to(logger) }
-    specify { expect { subject.transport_tracer = logger }
-      .to change { subject.transport_tracer }.to(logger) }
+    specify { expect { subject.transport_tracer = tracer }
+      .to change { Chewy.client.transport.tracer }.to(tracer) }
+    specify { expect { subject.transport_tracer = tracer }
+      .to change { subject.transport_tracer }.to(tracer) }
+    specify { expect { subject.transport_tracer = tracer }
+      .to change { subject.configuration[:tracer] }.from(nil).to(tracer) }
   end
 end

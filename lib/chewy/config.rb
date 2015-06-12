@@ -106,8 +106,8 @@ module Chewy
     #
     def configuration
       yaml_settings.merge(settings.deep_symbolize_keys).tap do |configuration|
-        configuration.merge(logger: transport_logger) if transport_logger
-        configuration.merge(tracer: transport_tracer) if transport_tracer
+        configuration.merge!(logger: transport_logger) if transport_logger
+        configuration.merge!(tracer: transport_tracer) if transport_tracer
       end
     end
 

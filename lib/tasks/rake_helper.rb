@@ -24,7 +24,7 @@ module RakeHelper
   end
 
   def normalize_index index
-    "#{index.to_s.gsub(/index$/i, '').camelize}Index".constantize
+    "#{index.to_s.gsub(/index\z/i, '').camelize}Index".constantize
   end
 
   # Performs zero downtime reindexing of all documents in the specified index.

@@ -8,6 +8,7 @@ require 'chewy/type/import'
 require 'chewy/type/adapter/object'
 require 'chewy/type/adapter/active_record'
 require 'chewy/type/adapter/mongoid'
+require 'chewy/type/adapter/sequel'
 
 module Chewy
   class Type

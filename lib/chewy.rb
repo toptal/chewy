@@ -94,6 +94,8 @@ module Chewy
         Chewy::Type::Adapter::ActiveRecord.new(target, options)
       elsif defined?(::Mongoid::Document) && ((target.is_a?(Class) && target.ancestors.include?(::Mongoid::Document)) || target.is_a?(::Mongoid::Criteria))
         Chewy::Type::Adapter::Mongoid.new(target, options)
+      elsif defined?(::Sequel::Model) && ((target.is_a?(Class) && target < ::Sequel::Model) || target.is_a?(::Sequel::Dataset))
+        Chewy::Type::Adapter::Sequel.new(target, options)
       else
         Chewy::Type::Adapter::Object.new(target, options)
       end

@@ -58,7 +58,17 @@ ActiveSupport.on_load(:mongoid) do
 end
 
 module Chewy
+
+  @adapters = [
+    Chewy::Type::Adapter::ActiveRecord,
+    Chewy::Type::Adapter::Mongoid,
+    Chewy::Type::Adapter::Sequel,
+    Chewy::Type::Adapter::Object
+  ]
+
   class << self
+    attr_accessor :adapters
+
     # Derives type from string `index#type` representation:
     #
     #   Chewy.derive_type('users#user') # => UsersIndex::User
@@ -90,15 +100,7 @@ module Chewy
     def create_type index, target, options = {}, &block
       type = Class.new(Chewy::Type)
 
-      adapter = if defined?(::ActiveRecord::Base) && ((target.is_a?(Class) && target < ::ActiveRecord::Base) || target.is_a?(::ActiveRecord::Relation))
-        Chewy::Type::Adapter::ActiveRecord.new(target, options)
-      elsif defined?(::Mongoid::Document) && ((target.is_a?(Class) && target.ancestors.include?(::Mongoid::Document)) || target.is_a?(::Mongoid::Criteria))
-        Chewy::Type::Adapter::Mongoid.new(target, options)
-      elsif defined?(::Sequel::Model) && ((target.is_a?(Class) && target < ::Sequel::Model) || target.is_a?(::Sequel::Dataset))
-        Chewy::Type::Adapter::Sequel.new(target, options)
-      else
-        Chewy::Type::Adapter::Object.new(target, options)
-      end
+      adapter = adapters.find { |adapter| adapter.accepts?(target) }.new(target, options)
 
       index.const_set(adapter.name, type)
       type.send(:define_singleton_method, :index) { index }

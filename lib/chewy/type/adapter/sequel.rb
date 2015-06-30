@@ -7,6 +7,11 @@ module Chewy
       # Note: Scope is called dataset in Sequel.
       class Sequel < Orm
 
+        def self.accepts?(target)
+          defined?(::Sequel::Model) && (
+            target.is_a?(Class) && target < ::Sequel::Model || target.is_a?(::Sequel::Dataset))
+        end
+
         def initialize(*args)
           @options = args.extract_options!
           class_or_relation = args.first

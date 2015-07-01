@@ -23,13 +23,13 @@ describe Chewy::Type::Adapter::Sequel, :sequel do
     end
   end
 
-  describe '#default_scope' do
+  describe '#default_dataset' do
 
-    it { expect( adapter.new(City).default_scope.sql ).to eql City.where(nil).sql }
-    it { expect( adapter.new(City.order(:id)).default_scope.sql ).to eql City.where(nil).sql }
-    it { expect( adapter.new(City.limit(10)).default_scope.sql ).to eql City.where(nil).sql  }
-    it { expect( adapter.new(City.offset(10)).default_scope.sql ).to eql City.where(nil).sql }
-    it { expect( adapter.new(City.where(rating: 10)).default_scope.sql ).to eql City.where(rating: 10).sql }
+    it { expect( adapter.new(City).default_dataset.sql ).to eql City.where(nil).sql }
+    it { expect( adapter.new(City.order(:id)).default_dataset.sql ).to eql City.where(nil).sql }
+    it { expect( adapter.new(City.limit(10)).default_dataset.sql ).to eql City.where(nil).sql  }
+    it { expect( adapter.new(City.offset(10)).default_dataset.sql ).to eql City.where(nil).sql }
+    it { expect( adapter.new(City.where(rating: 10)).default_dataset.sql ).to eql City.where(rating: 10).sql }
   end
 
   describe '#identify' do

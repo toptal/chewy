@@ -29,6 +29,7 @@ gemfile:
   - gemfiles/rails.4.2.mongoid.gemfile
   - gemfiles/rails.4.2.mongoid.kaminari.gemfile
   - gemfiles/rails.4.2.mongoid.will_paginate.gemfile
+  - gemfiles/sequel.4.23.gemfile
 matrix:
   exclude:
     - rvm: 2.2.0

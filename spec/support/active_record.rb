@@ -38,6 +38,7 @@ RSpec.configure do |config|
   config.include ActiveRecordClassHelpers
 
   config.filter_run_excluding :mongoid
+  config.filter_run_excluding :sequel
 
   config.before(:suite) do
     DatabaseCleaner.clean_with :truncation

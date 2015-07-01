@@ -2,17 +2,18 @@ require 'database_cleaner'
 
 DB = Sequel.sqlite
 
-DB.create_table :cities do
+DB.create_table :countries do
   primary_key :id
-  column :country_code, Integer
-  column :name, String
-  column :rating, Integer
+  column :name, :string
+  column :country_code, :string
+  column :rating, :integer
 end
 
-DB.create_table :countries do
-  column :code, Integer, primary_key: true
-  column :name, String
-  column :rating, Integer
+DB.create_table :cities do
+  primary_key :id
+  column :country_id, :integer
+  column :name, :string
+  column :rating, :integer
 end
 
 module SequelClassHelpers
@@ -20,9 +21,13 @@ module SequelClassHelpers
 
   def stub_model(name, &block)
     stub_class(name, Sequel::Model, &block).tap do |klass|
+
       # Sequel doesn't work well with dynamically created classes,
       # so we must set the dataset (table) name manually.
       klass.dataset = name.to_s.pluralize.to_sym
+
+      # Allow to set primary key using mass assignment.
+      klass.unrestrict_primary_key
     end
   end
 end

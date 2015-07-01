@@ -32,8 +32,13 @@ describe Chewy::Type::Import do
         update_index(->{ "countries##{self.class.name.underscore}" }, :self)
       end
 
-      City.belongs_to :country
-      Country.has_many :cities
+      if adapter == :sequel
+        City.many_to_one :country
+        Country.one_to_many :cities
+      else
+        City.belongs_to :country
+        Country.has_many :cities
+      end
 
       stub_index(:cities) do
         define_type City

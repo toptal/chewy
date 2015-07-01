@@ -31,6 +31,10 @@ module SequelClassHelpers
     end
   end
 
+  def adapter
+    :sequel
+  end
+
   def stub_model(name, &block)
     stub_class(name, AdaptedSequelModel, &block).tap do |klass|
       # Sequel doesn't work well with dynamically created classes,

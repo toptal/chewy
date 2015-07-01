@@ -314,16 +314,20 @@ describe Chewy::Fields::Base do
         stub_model(:city)
         stub_model(:country)
 
-        City.belongs_to :country
-
-        if active_record?
+        case adapter
+        when :active_record
+          City.belongs_to :country
           if ActiveRecord::VERSION::MAJOR >= 4
             Country.has_many :cities, -> { order :id }
           else
             Country.has_many :cities, order: :id
           end
-        else # mongoid
+        when :mongoid
+          City.belongs_to :country
           Country.has_many :cities, order: :id.asc
+        when :sequel
+          City.many_to_one :country
+          Country.one_to_many :cities, order: :id
         end
 
         stub_index(:countries) do

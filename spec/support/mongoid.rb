@@ -40,6 +40,10 @@ module MongoidClassHelpers
     end
   end
 
+  def adapter
+    :mongoid
+  end
+
   def stub_model name, superclass = nil, &block
     mixin = "MongoidClassHelpers::#{name.to_s.camelize}".safe_constantize || Mongoid::Document
     superclass ||= Class.new do
@@ -48,14 +52,6 @@ module MongoidClassHelpers
     end
 
     stub_class(name, superclass, &block)
-  end
-
-  def active_record?
-    false
-  end
-
-  def mongoid?
-    true
   end
 end
 

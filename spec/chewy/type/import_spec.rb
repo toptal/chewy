@@ -209,7 +209,8 @@ describe Chewy::Type::Import do
 
       before do
         stub_model(:country)
-        stub_model(:city) { belongs_to :country }
+        stub_model(:city)
+        adapter == :sequel ? City.many_to_one(:country) : City.belongs_to(:country)
       end
 
       before do

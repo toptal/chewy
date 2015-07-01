@@ -19,15 +19,23 @@ end
 module SequelClassHelpers
   extend ActiveSupport::Concern
 
-  def stub_model(name, &block)
-    stub_class(name, Sequel::Model, &block).tap do |klass|
+  class AdaptedSequelModel < Sequel::Model
+    # Allow to set primary key using mass assignment.
+    unrestrict_primary_key
 
+    # Aliases for compatibility with specs that were written with ActiveRecord in mind...
+    alias_method :save!, :save
+
+    class << self
+      alias_method :create!, :create
+    end
+  end
+
+  def stub_model(name, &block)
+    stub_class(name, AdaptedSequelModel, &block).tap do |klass|
       # Sequel doesn't work well with dynamically created classes,
       # so we must set the dataset (table) name manually.
       klass.dataset = name.to_s.pluralize.to_sym
-
-      # Allow to set primary key using mass assignment.
-      klass.unrestrict_primary_key
     end
   end
 end

@@ -16,6 +16,8 @@ DB.create_table :cities do
   column :rating, :integer
 end
 
+Sequel::Model.plugin :chewy_observe
+
 module SequelClassHelpers
   extend ActiveSupport::Concern
 
@@ -25,6 +27,8 @@ module SequelClassHelpers
 
     # Aliases for compatibility with specs that were written with ActiveRecord in mind...
     alias_method :save!, :save
+    alias_method :update_attributes, :update
+    alias_method :update_attributes!, :update
 
     class << self
       alias_method :create!, :create

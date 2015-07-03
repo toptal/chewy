@@ -28,6 +28,9 @@ Chewy is an ODM and wrapper for [the official Elasticsearch client](https://gith
 
   Chewy has an ActiveRecord-style query DSL. It is chainable, mergeable and lazy, so you can produce queries in the most efficient way. It also has object-oriented query and filter builders.
 
+* Support for ActiveRecord, [Mongoid](https://github.com/mongoid/mongoid) and [Sequel](https://github.com/jeremyevans/sequel).
+
+
 ## Installation
 
 Add this line to your application's Gemfile:
@@ -216,6 +219,21 @@ See [config.rb](lib/chewy/config.rb) for more details.
       previous_changes['country_id'] || country
     end
   end
+  ```
+
+  You can observe Sequel models in the same way as ActiveRecord:
+
+  ```ruby
+  class User < Sequel::Model
+    update_index('users#user') { self }
+  end
+  ```
+
+  However, to make it work, you must load the chewy plugin into Sequel model:
+
+  ```ruby
+  Sequel::Model.plugin :chewy  # for all models, or...
+  User.plugin :chewy           # just for User
   ```
 
 ### Multi (nested) and object field types

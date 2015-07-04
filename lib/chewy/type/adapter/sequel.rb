@@ -1,4 +1,4 @@
-require 'chewy/type/adapter/orm'
+require 'chewy/type/adapter/base'
 
 module Chewy
   class Type
@@ -77,7 +77,7 @@ module Chewy
         def import_dataset(dataset, batch_size)
           dataset = dataset.limit(batch_size)
 
-          DB.transaction(isolation: :committed) do
+          dataset.db.transaction(isolation: :committed) do
             0.step(Float::INFINITY, batch_size).lazy
               .map { |offset| dataset.offset(offset).to_a }
               .take_while(&:any?)

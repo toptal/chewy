@@ -78,7 +78,7 @@ module Chewy
           dataset = dataset.limit(batch_size)
 
           DB.transaction(isolation: :committed) do
-            0.step(by: batch_size).lazy
+            0.step(Float::INFINITY, batch_size).lazy
               .map { |offset| dataset.offset(offset).to_a }
               .take_while(&:any?)
               .map { |items| yield grouped_objects(items) }

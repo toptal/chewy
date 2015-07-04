@@ -1,4 +1,5 @@
-require 'tasks/rake_helper'
+require 'chewy/rake_helper'
+
 namespace :chewy do
   desc 'Destroy, recreate and import data to specified index'
   task :reset, [:index] => :environment do |task, args|

@@ -11,7 +11,6 @@ require 'active_support/core_ext/numeric/time'
 require 'active_support/core_ext/object/blank'
 require 'active_support/core_ext/object/inclusion'
 require 'active_support/core_ext/string/inflections'
-require 'active_support/core_ext/string/starts_ends_with'
 
 require 'i18n/core_ext/hash'
 require 'chewy/backports/deep_dup' unless Object.respond_to?(:deep_dup)

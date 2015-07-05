@@ -7,6 +7,12 @@ module Chewy
 
         attr_reader :target, :options
 
+        # Returns `true` if this adapter is applicable for the given target.
+        #
+        def self.accepts? target
+          true
+        end
+
         # Camelcased name, used as type class constant name.
         # For returned value 'Product' will be generated class name `ProductsIndex::Product`
         #

@@ -314,16 +314,20 @@ describe Chewy::Fields::Base do
         stub_model(:city)
         stub_model(:country)
 
-        City.belongs_to :country
-
-        if active_record?
+        case adapter
+        when :active_record
+          City.belongs_to :country
           if ActiveRecord::VERSION::MAJOR >= 4
             Country.has_many :cities, -> { order :id }
           else
             Country.has_many :cities, order: :id
           end
-        else # mongoid
+        when :mongoid
+          City.belongs_to :country
           Country.has_many :cities, order: :id.asc
+        when :sequel
+          City.many_to_one :country
+          Country.one_to_many :cities, order: :id
         end
 
         stub_index(:countries) do
@@ -337,10 +341,20 @@ describe Chewy::Fields::Base do
         end
       end
 
+      let(:country_with_cities) do
+        cities = [City.create!(id: 1, name: 'City1'), City.create!(id: 2, name: 'City2')]
+
+        if adapter == :sequel
+          Country.create(id: 1).tap do |country|
+            cities.each { |city| country.add_city(city) }
+          end
+        else
+          Country.create!(id: 1, cities: cities)
+        end
+      end
+
       specify do
-        expect(CountriesIndex::Country.root_object.compose(
-          Country.create!(id: 1, cities: [City.create!(id: 1, name: 'City1'), City.create!(id: 2, name: 'City2')])
-        )).to eq({
+        expect(CountriesIndex::Country.root_object.compose(country_with_cities)).to eq({
           country: { 'id' => 1, 'cities' => [
             { 'id' => 1, 'name' => 'City1' }, { 'id' => 2, 'name' => 'City2' }
           ] }

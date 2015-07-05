@@ -57,9 +57,8 @@ describe Chewy do
     end
 
     context 'model scope', :orm do
-      before { stub_model(:country) }
-      before { stub_model(:city) { belongs_to :country } }
-      subject { described_class.create_type(CitiesIndex, City.includes(:country)) }
+      before { stub_model(:city) }
+      subject { described_class.create_type(CitiesIndex, City.where(rating: 1)) }
 
       it { is_expected.to be_a Class }
       it { is_expected.to be < Chewy::Type }

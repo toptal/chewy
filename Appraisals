@@ -39,3 +39,8 @@ end
     gem 'will_paginate', require: false
   end
 end
+
+appraise "sequel.4.23" do
+  gem 'sequel', "~> 4.23.0"
+  gem 'activesupport', '~> 4.2.0'
+end

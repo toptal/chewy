@@ -4,6 +4,7 @@ Bundler.require
 
 begin
   require 'active_record'
+  require 'sequel'
 rescue LoadError
 end
 
@@ -38,10 +39,12 @@ if defined?(::ActiveRecord)
   require 'support/active_record'
 elsif defined?(::Mongoid)
   require 'support/mongoid'
+elsif defined?(::Sequel)
+  require 'support/sequel'
 else
   RSpec.configure do |config|
-    config.filter_run_excluding :orm
-    config.filter_run_excluding :mongoid
-    config.filter_run_excluding :active_record
+    [:orm, :mongoid, :active_record, :sequel].each do |group|
+      config.filter_run_excluding(group)
+    end
   end
 end

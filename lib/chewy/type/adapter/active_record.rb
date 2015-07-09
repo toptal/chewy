@@ -38,7 +38,7 @@ module Chewy
         end
 
         def pluck_ids(scope)
-          scope.pluck(target.primary_key.to_sym)
+          scope.pluck("distinct(#{target.table_name}.#{target.primary_key})")
         end
 
         def scope_where_ids_in(scope, ids)

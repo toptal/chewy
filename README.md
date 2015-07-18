@@ -232,8 +232,8 @@ See [config.rb](lib/chewy/config.rb) for more details.
   However, to make it work, you must load the chewy plugin into Sequel model:
 
   ```ruby
-  Sequel::Model.plugin :chewy  # for all models, or...
-  User.plugin :chewy           # just for User
+  Sequel::Model.plugin :chewy_observe  # for all models, or...
+  User.plugin :chewy_observe           # just for User
   ```
 
 ### Multi (nested) and object field types

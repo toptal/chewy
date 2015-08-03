@@ -24,24 +24,35 @@ module Chewy
         end
       end
 
+      def self.extract_callback_options!(args)
+        options = args.extract_options!
+        options.each_key.with_object({}) { |key, hash|
+          hash[key] = options.delete(key) if [:if, :unless].include?(key)
+        }.tap {
+          args.push(options) unless options.empty?
+        }
+      end
+
       module MongoidMethods
         def update_index(type_name, *args, &block)
+          callback_options = Observe.extract_callback_options!(args)
           update_proc = Observe.update_proc(type_name, *args, &block)
 
-          after_save &update_proc
-          after_destroy &update_proc
+          after_save(callback_options, &update_proc)
+          after_destroy(callback_options, &update_proc)
         end
       end
 
       module ActiveRecordMethods
         def update_index(type_name, *args, &block)
+          callback_options = Observe.extract_callback_options!(args)
           update_proc = Observe.update_proc(type_name, *args, &block)
 
           if Chewy.use_after_commit_callbacks
-            after_commit &update_proc
+            after_commit(callback_options, &update_proc)
           else
-            after_save &update_proc
-            after_destroy &update_proc
+            after_save(callback_options, &update_proc)
+            after_destroy(callback_options, &update_proc)
           end
         end
       end

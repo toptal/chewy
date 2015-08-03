@@ -3,35 +3,39 @@ module Chewy
     module Observe
       extend ActiveSupport::Concern
 
-      def self.update_proc(type_name, *args, &block)
-        options = args.extract_options!
-        method = args.first
+      module Helpers
+        def update_proc(type_name, *args, &block)
+          options = args.extract_options!
+          method = args.first
 
-        Proc.new do
-          backreference = if method && method.to_s == 'self'
-            self
-          elsif method
-            send(method)
-          else
-            instance_eval(&block)
+          Proc.new do
+            backreference = if method && method.to_s == 'self'
+              self
+            elsif method
+              send(method)
+            else
+              instance_eval(&block)
+            end
+
+            if type_name.is_a?(Proc)
+              type_name = type_name.arity == 0 ? instance_exec(&type_name) : type_name.call(self)
+            end
+
+            Chewy.derive_type(type_name).update_index(backreference, options)
           end
+        end
 
-          if type_name.is_a?(Proc)
-            type_name = type_name.arity == 0 ? instance_exec(&type_name) : type_name.call(self)
-          end
-
-          Chewy.derive_type(type_name).update_index(backreference, options)
+        def extract_callback_options!(args)
+          options = args.extract_options!
+          options.each_key.with_object({}) { |key, hash|
+            hash[key] = options.delete(key) if [:if, :unless].include?(key)
+          }.tap {
+            args.push(options) unless options.empty?
+          }
         end
       end
 
-      def self.extract_callback_options!(args)
-        options = args.extract_options!
-        options.each_key.with_object({}) { |key, hash|
-          hash[key] = options.delete(key) if [:if, :unless].include?(key)
-        }.tap {
-          args.push(options) unless options.empty?
-        }
-      end
+      extend Helpers
 
       module MongoidMethods
         def update_index(type_name, *args, &block)

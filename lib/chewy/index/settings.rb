@@ -2,7 +2,7 @@ module Chewy
   class Index
 
     # Stores ElasticSearch index settings and resolves `analysis`
-    # hash. At first, you need to store sone analyzers or other
+    # hash. At first, you need to store some analyzers or other
     # analysis options to the corresponding repository:
     #
     #   Chewy.analyzer :title_analyzer, type: 'custom', filter: %w(lowercase icu_folding title_nysiis)

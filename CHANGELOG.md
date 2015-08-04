@@ -279,7 +279,7 @@
 
   * Chewy::Query#facets called without params performs the request and returns facets.
 
-  * Added `Type.template` dsl method for root objects dynamic templates definition. See [mapping.rb](lib/chewy/type/mapping.rb) for more details.
+  * Added `Type.template` DSL method for root objects dynamic templates definition. See [mapping.rb](lib/chewy/type/mapping.rb) for more details.
 
   * ActiveRecord adapter custom `primary_key` support (@matthee).
 
@@ -418,7 +418,7 @@
 
 # Version 0.0.1
 
-  * Query dsl
+  * Query DSL
 
   * Basic index hadling
 

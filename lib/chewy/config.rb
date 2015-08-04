@@ -19,8 +19,8 @@ module Chewy
       #
       :post_filter_mode,
 
-      # The first trategy in stack. `:base` by default.
-      # If you neet to return to the previous chewy behavior -
+      # The first strategy in stack. `:base` by default.
+      # If you need to return to the previous chewy behavior -
       # just set it to `:bypass`
       #
       :root_strategy,

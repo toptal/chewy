@@ -94,7 +94,7 @@
 
   * Multiple enhancements by @DNNX
 
-  * Added `script_fields` to search crteria (@ka8725)
+  * Added `script_fields` to search criteria (@ka8725)
 
   * ORM adapters now completely relies on the default scope. This means every scope or objects passed to import are merged with default scope so basically there is no need to define `delete_if` block. Default scope strongly restricts objects which may land in the current index.
 
@@ -273,13 +273,13 @@
 
 # Version 0.4.0
 
-  * Changed `update_index` matcher behavior. Now it compare array attributes position-independantly.
+  * Changed `update_index` matcher behavior. Now it compare array attributes position-independently.
 
   * Search aggregations API support (@arion).
 
   * Chewy::Query#facets called without params performs the request and returns facets.
 
-  * Added `Type.template` dsl method for root objects dynamic templates definition. See [mapping.rb](lib/chewy/type/mapping.rb) for more details.
+  * Added `Type.template` DSL method for root objects dynamic templates definition. See [mapping.rb](lib/chewy/type/mapping.rb) for more details.
 
   * ActiveRecord adapter custom `primary_key` support (@matthee).
 
@@ -418,8 +418,8 @@
 
 # Version 0.0.1
 
-  * Query dsl
+  * Query DSL
 
-  * Basic index hadling
+  * Basic index handling
 
   * Initial version

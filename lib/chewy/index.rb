@@ -92,7 +92,7 @@ module Chewy
     #
     #   UsersIndex.types # => [UsersIndex::Admin, UsersIndex::Manager, UsersIndex::User]
     #
-    # If arguments are passed it treats like a part of chainable query dsl and
+    # If arguments are passed it treats like a part of chainable query DSL and
     # adds types array for index to select.
     #
     #   UsersIndex.filters { name =~ 'ro' }.types(:admin, :manager)

@@ -118,7 +118,7 @@ module Chewy
           end
         end
 
-        # Defines dynamic template in mapping root objests
+        # Defines dynamic template in mapping root objects
         #
         #   class CarsIndex < Chewy::Index
         #     define_type Car do

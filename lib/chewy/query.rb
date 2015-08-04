@@ -386,7 +386,7 @@ module Chewy
     # added to the search request and combinded according to
     # <tt>boost_mode</tt> and <tt>score_mode</tt>
     #
-    # This probably only makes sense if you specifiy a filter
+    # This probably only makes sense if you specify a filter
     # for the boost factor as well
     #
     #   UsersIndex.boost_factor(23, filter: { term: { foo: :bar} })
@@ -408,7 +408,7 @@ module Chewy
     # added to the search request and combinded according to
     # <tt>boost_mode</tt> and <tt>score_mode</tt>
     #
-    # This probably only makes sense if you specifiy a filter
+    # This probably only makes sense if you specify a filter
     # for the random score as well.
     #
     # If you do not pass in a seed value, Time.now will be used

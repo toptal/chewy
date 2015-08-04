@@ -53,7 +53,7 @@ module Chewy
         # deleted from index:
         #
         #   users = User.all
-        #   users.each { |user| user.destroy if user.incative? }
+        #   users.each { |user| user.destroy if user.inactive? }
         #   UsersIndex::User.import users # inactive users will be deleted from index
         #   # or
         #   UsersIndex::User.import users.map(&:id) # deleted user ids will be deleted from index

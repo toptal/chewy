@@ -22,7 +22,7 @@ module Chewy
 
     singleton_class.delegate :index_name, :client, to: :index
 
-    # Chewy index current type blongs to. Defined inside `Chewy.create_type`
+    # Chewy index current type belongs to. Defined inside `Chewy.create_type`
     #
     def self.index
       raise NotImplementedError

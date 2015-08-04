@@ -16,7 +16,7 @@ module Chewy
         def cleanup_default_scope!
           if Chewy.logger && (@default_scope.arel.orders.present? ||
              @default_scope.arel.limit.present? || @default_scope.arel.offset.present?)
-            Chewy.logger.warn('Default type scope order, limit and offest are ignored and will be nullified')
+            Chewy.logger.warn('Default type scope order, limit and offset are ignored and will be nullified')
           end
 
           @default_scope = @default_scope.reorder(nil).limit(nil).offset(nil)

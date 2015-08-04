@@ -1,6 +1,6 @@
 module Chewy
   class Strategy
-    # This strategy accomulates all the objects prepared for
+    # This strategy accumulates all the objects prepared for
     # indexing and fires index process when strategy is popped
     # from the strategies stack.
     #

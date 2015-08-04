@@ -1,3 +1,5 @@
+require 'active_support/callbacks'
+
 module Sequel
   module Plugins
     # This Sequel plugin adds support for chewy's model-observing hook for
@@ -18,39 +20,49 @@ module Sequel
     #   end
     #
     module ChewyObserve
-      module ClassMethods
+      extend ::Chewy::Type::Observe::Helpers
 
-        attr_reader :update_index_proc
-
-        def update_index(type_name, *args, &block)
-          (@update_index_proc ||= []) << ::Chewy::Type::Observe.update_proc(type_name, *args, &block)
+      def self.apply(model)
+        model.instance_eval do
+          include ActiveSupport::Callbacks
+          define_callbacks :commit, :save, :destroy
         end
-
-        ::Sequel::Plugins.inherited_instance_variables(self, :@update_index_proc => nil)
       end
 
-      module InstanceMethods
+      # Class level methods for Sequel::Model
+      #
+      module ClassMethods
+        def update_index(type_name, *args, &block)
+          callback_options = ChewyObserve.extract_callback_options!(args)
+          update_proc = ChewyObserve.update_proc(type_name, *args, &block)
 
+          if Chewy.use_after_commit_callbacks
+            set_callback(:commit, callback_options, &update_proc)
+          else
+            set_callback(:save, callback_options, &update_proc)
+            set_callback(:destroy, callback_options, &update_proc)
+          end
+        end
+      end
+
+      # Instance level methods for Sequel::Model
+      #
+      module InstanceMethods
         def after_commit
-          super
-          update_index! if ::Chewy.use_after_commit_callbacks
+          run_callbacks(:commit) do
+            super
+          end
         end
 
         def after_save
-          super
-          update_index! unless ::Chewy.use_after_commit_callbacks
+          run_callbacks(:save) do
+            super
+          end
         end
 
         def after_destroy
-          super
-          update_index! unless ::Chewy.use_after_commit_callbacks
-        end
-
-        private
-
-        def update_index!
-          model.update_index_proc.to_a.each do |proc|
-            instance_eval &proc
+          run_callbacks(:destroy) do
+            super
           end
         end
       end

@@ -19,6 +19,8 @@ describe Chewy::Type::Import do
   end
 
   context 'integration', :orm do
+    let(:update_condition) { true }
+
     before do
       city_countries_update_proc = if adapter == :sequel
           ->(*) { previous_changes.try(:[], :country_id) || country }
@@ -32,8 +34,9 @@ describe Chewy::Type::Import do
       end
 
       stub_model(:country) do
-        update_index('cities#city') { cities }
+        update_index('cities#city', if: -> { update_condition }) { cities }
         update_index(->{ "countries##{self.class.name.underscore}" }, :self)
+        attr_accessor :update_condition
       end
 
       if adapter == :sequel
@@ -55,8 +58,8 @@ describe Chewy::Type::Import do
     end
 
     context do
-      let!(:country1) { Chewy.strategy(:atomic) { Country.create!(id: 1) } }
-      let!(:country2) { Chewy.strategy(:atomic) { Country.create!(id: 2) } }
+      let!(:country1) { Chewy.strategy(:atomic) { Country.create!(id: 1, update_condition: update_condition) } }
+      let!(:country2) { Chewy.strategy(:atomic) { Country.create!(id: 2, update_condition: update_condition) } }
       let!(:city) { Chewy.strategy(:atomic) { City.create!(id: 1, country: country1) } }
 
       specify { expect { city.save! }.to update_index('cities#city').and_reindex(city) }
@@ -74,17 +77,22 @@ describe Chewy::Type::Import do
         Chewy.strategy(:atomic) do
           cities = 2.times.map { |i| City.create!(id: i) }
           if adapter == :sequel
-            Country.create(id: 1).tap do |country|
+            Country.create(id: 1, update_condition: update_condition).tap do |country|
               cities.each { |city| country.add_city(city) }
             end
           else
-            Country.create!(id: 1, cities: cities)
+            Country.create!(id: 1, cities: cities, update_condition: update_condition)
           end
         end
       end
 
       specify { expect { country.save! }.to update_index('cities#city').and_reindex(country.cities) }
       specify { expect { country.save! }.to update_index('countries#country').and_reindex(country) }
+
+      context 'conditional update' do
+        let(:update_condition) { false }
+        specify { expect { country.save! }.not_to update_index('cities#city') }
+      end
     end
   end
 

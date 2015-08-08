@@ -1,11 +1,7 @@
 require 'spec_helper'
 
 describe Chewy::Type::Adapter::ActiveRecord, :active_record do
-  before do
-    stub_model(:city) do
-      belongs_to :country
-    end
-  end
+  before { stub_model(:city) }
 
   describe '#name' do
     specify { expect(described_class.new(City).name).to eq('City') }
@@ -47,7 +43,6 @@ describe Chewy::Type::Adapter::ActiveRecord, :active_record do
       let!(:cities) { 3.times.map { City.create! } }
 
       specify { expect(subject.identify(City.where(nil))).to match_array(cities.map(&:id)) }
-      specify { expect(subject.identify(City.includes(:country).order('countries.id'))).to match_array(cities.map(&:id)) }
       specify { expect(subject.identify(cities)).to eq(cities.map(&:id)) }
       specify { expect(subject.identify(cities.first)).to eq([cities.first.id]) }
       specify { expect(subject.identify(cities.first(2).map(&:id))).to eq(cities.first(2).map(&:id)) }

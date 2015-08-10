@@ -14,9 +14,16 @@ describe Chewy::Type::Mapping do
           field 'price', type: 'float' do
             field :subfield2
           end
+          agg :named_agg do
+            { avg: { field: 'title.subfield1' } }
+          end
         end
       end
     end
+  end
+
+  describe '.agg' do
+    specify { expect(product.agg_defs[:named_agg].call).to eq({ avg: { field: 'title.subfield1' } }) }
   end
 
   describe '.field' do

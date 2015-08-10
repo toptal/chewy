@@ -213,6 +213,34 @@ describe Chewy::Query do
     specify { expect(subject.aggregations(aggregation1: {field: 'hello'}).criteria.aggregations).to include(aggregation1: {field: 'hello'}) }
     specify { expect { subject.aggregations(aggregation1: {field: 'hello'}) }.not_to change { subject.criteria.aggregations } }
 
+    context 'when requesting a named aggregation' do
+      before do
+        stub_index(:products) do
+          define_type :product do
+            root do
+              field :name, 'surname'
+              field :title, type: 'string' do
+                field :subfield1
+              end
+              field 'price', type: 'float' do
+                field :subfield2
+              end
+              agg :named_agg do
+                { avg: { field: 'title.subfield1' } }
+              end
+            end
+          end
+          define_type :person do
+            root do
+              field :name
+            end
+          end
+        end
+      end
+
+      specify { expect(subject.aggregations(:named_agg).criteria.aggregations).to include(named_agg: { avg: { field: 'title.subfield1' } }) }
+    end
+
     context 'results', :orm do
       before { stub_model(:city) }
       let(:cities) { 10.times.map { |i| City.create! id: i + 1, name: "name#{i}", rating: i % 3 } }

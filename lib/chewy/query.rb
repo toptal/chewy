@@ -511,13 +511,28 @@ module Chewy
     #          }}
     #
     def aggregations params = nil
+      @_named_aggs ||= _build_named_aggs
       if params
+        params = { params => @_named_aggs[params]} if params.is_a?(Symbol)
         chain { criteria.update_aggregations params }
       else
         _response['aggregations'] || {}
       end
     end
     alias :aggs :aggregations
+
+    # In this simplest of implementations each named aggregation must be uniquely named
+    def _build_named_aggs
+      named_aggs = {}
+      @_indexes.each do |index|
+        index.types.each do |type|
+          type.agg_defs.each do |agg_name, prc|
+            named_aggs[agg_name] = prc.call
+          end
+        end
+      end
+      named_aggs
+    end
 
     # Sets elasticsearch <tt>suggest</tt> search request param
     #

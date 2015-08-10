@@ -118,6 +118,35 @@ module Chewy
           end
         end
 
+        # Defines an aggregation that can be bound to a query or filter
+        #
+        #   Suppose that a user has posts and each post has ratings
+        #   avg_post_rating is the mean of all ratings
+        #
+        #   class UsersIndex < Chewy::Index
+        #     define_type User do
+        #       field :posts do
+        #         field :rating
+        #       end
+        #
+        #       agg :avg_rating do
+        #         { avg: { field: 'posts.rating' } }
+        #       end
+        #     end
+        #   end
+        def agg *args, &block
+          options = args.extract_options!
+          build_root unless root_object
+
+          @_agg_defs ||= {}
+          @_agg_defs[args.first] = block
+        end
+        alias_method :aggregation, :agg
+
+        def agg_defs
+          @_agg_defs || {}
+        end
+
         # Defines dynamic template in mapping root objects
         #
         #   class CarsIndex < Chewy::Index

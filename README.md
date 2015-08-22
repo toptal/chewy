@@ -846,6 +846,50 @@ The response will include the `:facets` sidechannel:
 < { ... ,"facets":{"countries":{"_type":"terms","missing":?,"total":?,"other":?,"terms":[{"term":"USA","count":?},{"term":"Brazil","count":?}, ...}}
 ```
 
+### Aggregations
+
+Aggregations are part of the optional sidechannel that can be requested with a query.
+
+You interact with aggregations using the composable #aggregations method (or its alias #aggs)
+
+Let's look at an example.
+
+```ruby
+class UsersIndex < Chewy::Index
+  define_type User do
+    field :name
+    field :rating
+  end
+end
+
+all_johns = UsersIndex::User.filter { name == 'john' }.aggs({ avg_rating: { avg: { field: 'rating' } } })
+
+avg_johns_rating = all_johns.aggs
+# => {"avg_rating"=>{"value"=>3.5}}
+```
+
+It is convenient to name aggregations that you intend to reuse regularly. This is achieve with the .aggregation method,
+which is also available under the .agg alias method.
+
+Here's the same example from before
+
+```ruby
+class UsersIndex < Chewy::Index
+  define_type User do
+    field :name
+    field :rating
+    agg :avg_rating do
+      { avg: { field: 'rating' } }
+    end
+  end
+end
+
+all_johns = UsersIndex::User.filter { name == 'john' }.aggs(:avg_rating)
+
+avg_johns_rating = all_johns.aggs
+# => {"avg_rating"=>{"value"=>3.5}}
+```
+
 ### Script fields
 
 Script fields allow you to execute Elasticsearch's scripting languages such as groovy and javascript. More about supported languages and what scripting is [here](https://www.elastic.co/guide/en/elasticsearch/reference/0.90/modules-scripting.html). This feature allows you to calculate the distance between geo points, for example. This is how to use the DSL:

@@ -17,7 +17,7 @@ module Chewy
       end
 
       def eager_load_chewy!
-        dirs = Chewy::Railtie.all_engines.map { |engine| engine.paths['app/chewy'].existent }.flatten.uniq
+        dirs = Chewy::Railtie.all_engines.map { |engine| engine.paths['app/chewy'] }.compact.map(&:existent).flatten.uniq
 
         dirs.each do |dir|
           Dir.glob(File.join(dir, '**/*.rb')).each do |file|

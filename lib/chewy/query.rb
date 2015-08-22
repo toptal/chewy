@@ -512,8 +512,10 @@ module Chewy
     #
     def aggregations params = nil
       @_named_aggs ||= _build_named_aggs
+      @_fully_qualified_named_aggs ||= _build_fqn_aggs
       if params
-        params = { params => @_named_aggs[params]} if params.is_a?(Symbol)
+        params = { params => @_named_aggs[params] } if params.is_a?(Symbol)
+        params = { params => _get_fully_qualified_named_agg(params) } if params.is_a?(String) && params =~ /\A\S+#\S+\.\S+\z/
         chain { criteria.update_aggregations params }
       else
         _response['aggregations'] || {}
@@ -532,6 +534,28 @@ module Chewy
         end
       end
       named_aggs
+    end
+
+    def _build_fqn_aggs
+      named_aggs = {}
+      @_indexes.each do |index|
+        named_aggs[index.to_s.downcase] ||= {}
+        index.types.each do |type|
+          named_aggs[index.to_s.downcase][type.to_s.downcase] ||= {}
+          type.agg_defs.each do |agg_name, prc|
+            named_aggs[index.to_s.downcase][type.to_s.downcase][agg_name.to_s.downcase] = prc.call
+          end
+        end
+      end
+      named_aggs
+    end
+
+    def _get_fully_qualified_named_agg(str)
+      parts = str.scan(/\A(\S+)#(\S+)\.(\S+)\z/).first
+      idx = "#{parts[0]}index"
+      type = "#{idx}::#{parts[1]}"
+      agg_name = parts[2]
+      @_fully_qualified_named_aggs[idx][type][agg_name]
     end
 
     # Sets elasticsearch <tt>suggest</tt> search request param

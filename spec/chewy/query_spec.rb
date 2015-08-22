@@ -214,6 +214,7 @@ describe Chewy::Query do
     specify { expect { subject.aggregations(aggregation1: {field: 'hello'}) }.not_to change { subject.criteria.aggregations } }
 
     context 'when requesting a named aggregation' do
+
       before do
         stub_index(:products) do
           define_type :product do
@@ -225,20 +226,60 @@ describe Chewy::Query do
               field 'price', type: 'float' do
                 field :subfield2
               end
-              agg :named_agg do
-                { avg: { field: 'title.subfield1' } }
+              agg :uniquely_named_agg do
+                { min: { field: 'title.subfield1' } }
               end
-            end
-          end
-          define_type :person do
-            root do
-              field :name
             end
           end
         end
       end
+      specify { expect(subject.aggregations(:uniquely_named_agg).criteria.aggregations).to include(uniquely_named_agg: { min: { field: 'title.subfield1' } }) }
 
-      specify { expect(subject.aggregations(:named_agg).criteria.aggregations).to include(named_agg: { avg: { field: 'title.subfield1' } }) }
+      context 'when more than one aggregation of the same name exists' do
+        before do
+          stub_index(:products) do
+            define_type :product do
+              root do
+                field :name, 'surname'
+                field :title, type: 'string' do
+                  field :subfield1
+                end
+                field 'price', type: 'float' do
+                  field :subfield2
+                end
+                agg :uniquely_named_agg do
+                  { min: { field: 'title.subfield1' } }
+                end
+                agg :named_agg do
+                  { avg: { field: 'title.subfield1' } }
+                end
+              end
+            end
+            define_type :review do
+              field :title, :body
+              field :comments do
+                field :message
+                field :rating, type: 'long'
+              end
+              agg :named_agg do
+                { avg: { field: 'comments.rating' } }
+              end
+            end
+          end
+        end
+
+        it "is the aggregation definition that was last defined" do
+          expect(subject.aggregations(:named_agg).criteria.aggregations).to include(named_agg: { avg: { field: 'comments.rating' } })
+        end
+
+        context "when the fully qualified aggregation name is provided" do
+          specify { expect(subject
+                               .aggregations("products#product.named_agg")
+                               .criteria
+                               .aggregations)
+                        .to include({ "products#product.named_agg" => { avg: { field: 'title.subfield1' } } }) }
+        end
+      end
     end
 
     context 'results', :orm do

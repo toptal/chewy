@@ -6,6 +6,7 @@ module Chewy
       included do
         class_attribute :root_object, instance_reader: false, instance_writer: false
         class_attribute :_templates
+        class_attribute :_agg_defs
       end
 
       module ClassMethods
@@ -138,13 +139,13 @@ module Chewy
           options = args.extract_options!
           build_root unless root_object
 
-          @_agg_defs ||= {}
-          @_agg_defs[args.first] = block
+          self._agg_defs ||= {}
+          _agg_defs[args.first] = block
         end
         alias_method :aggregation, :agg
 
         def agg_defs
-          @_agg_defs || {}
+          _agg_defs
         end
 
         # Defines dynamic template in mapping root objects

@@ -145,7 +145,7 @@ module Chewy
         alias_method :aggregation, :agg
 
         def agg_defs
-          _agg_defs
+          _agg_defs || {}
         end
 
         # Defines dynamic template in mapping root objects

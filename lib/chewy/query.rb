@@ -528,7 +528,7 @@ module Chewy
       named_aggs = {}
       @_indexes.each do |index|
         index.types.each do |type|
-          type.agg_defs.each do |agg_name, prc|
+          type._agg_defs.each do |agg_name, prc|
             named_aggs[agg_name] = prc.call
           end
         end
@@ -542,7 +542,7 @@ module Chewy
         named_aggs[index.to_s.downcase] ||= {}
         index.types.each do |type|
           named_aggs[index.to_s.downcase][type.to_s.downcase] ||= {}
-          type.agg_defs.each do |agg_name, prc|
+          type._agg_defs.each do |agg_name, prc|
             named_aggs[index.to_s.downcase][type.to_s.downcase][agg_name.to_s.downcase] = prc.call
           end
         end

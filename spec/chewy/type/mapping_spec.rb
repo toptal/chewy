@@ -34,8 +34,8 @@ describe Chewy::Type::Mapping do
   end
 
   describe '.agg' do
-    specify { expect(product.agg_defs[:named_agg].call).to eq({ avg: { field: 'title.subfield1' } }) }
-    specify { expect(review.agg_defs[:named_agg].call).to eq({ avg: { field: 'comments.rating' } }) }
+    specify { expect(product._agg_defs[:named_agg].call).to eq({ avg: { field: 'title.subfield1' } }) }
+    specify { expect(review._agg_defs[:named_agg].call).to eq({ avg: { field: 'comments.rating' } }) }
   end
 
   describe '.field' do

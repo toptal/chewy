@@ -78,7 +78,7 @@ The resulting config merges both hashes. Client options are passed as is to `Ela
 The logger may be set explicitly:
 
 ```ruby
-Chewy.logger = Logger.new
+Chewy.logger = Logger.new(STDOUT)
 ```
 
 See [config.rb](lib/chewy/config.rb) for more details.

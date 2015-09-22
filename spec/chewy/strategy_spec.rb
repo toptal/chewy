@@ -14,7 +14,7 @@ describe Chewy::Strategy do
   end
 
   describe '#push' do
-    specify { expect { strategy.push(:unexistant) }.to raise_error(NameError).with_message(/uninitialized constant Chewy::Strategy::Unexistant/) }
+    specify { expect { strategy.push(:unexistant) }.to raise_error(NameError).with_message(/uninitialized constant.*Unexistant/) }
 
     specify do
       expect { strategy.push(:atomic) }

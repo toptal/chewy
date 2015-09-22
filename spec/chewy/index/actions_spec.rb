@@ -54,8 +54,8 @@ describe Chewy::Index::Actions do
 
     context do
       before { DummiesIndex.create }
-      specify { expect { DummiesIndex.create! }.to raise_error(Elasticsearch::Transport::Transport::Errors::BadRequest) }
-      specify { expect { DummiesIndex.create!('2013') }.to raise_error(Elasticsearch::Transport::Transport::Errors::BadRequest) }
+      specify { expect { DummiesIndex.create! }.to raise_error(Elasticsearch::Transport::Transport::Errors::BadRequest).with_message(/\[\[dummies\] already exists\]/) }
+      specify { expect { DummiesIndex.create!('2013') }.to raise_error(Elasticsearch::Transport::Transport::Errors::BadRequest).with_message(/Invalid alias name \[dummies\]/) }
     end
 
     context do
@@ -64,7 +64,7 @@ describe Chewy::Index::Actions do
       specify { expect(Chewy.client.indices.exists(index: 'dummies_2013')).to eq(true) }
       specify { expect(DummiesIndex.aliases).to eq([]) }
       specify { expect(DummiesIndex.indexes).to eq(['dummies_2013']) }
-      specify { expect { DummiesIndex.create!('2013') }.to raise_error(Elasticsearch::Transport::Transport::Errors::BadRequest) }
+      specify { expect { DummiesIndex.create!('2013') }.to raise_error(Elasticsearch::Transport::Transport::Errors::BadRequest).with_message(/\[\[dummies_2013\] already exists\]/) }
       specify { expect(DummiesIndex.create!('2014')["acknowledged"]).to eq(true) }
 
       context do

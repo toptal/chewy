@@ -14,7 +14,7 @@ describe Chewy::Strategy do
   end
 
   describe '#push' do
-    specify { expect { strategy.push(:unexistant) }.to raise_error }
+    specify { expect { strategy.push(:unexistant) }.to raise_error(NameError) }
 
     specify do
       expect { strategy.push(:atomic) }
@@ -24,7 +24,7 @@ describe Chewy::Strategy do
   end
 
   describe '#pop' do
-    specify { expect { strategy.pop }.to raise_error }
+    specify { expect { strategy.pop }.to raise_error(RuntimeError).with_message(/Can't pop root strategy/) }
 
     specify do
       strategy.push(:urgent)

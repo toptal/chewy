@@ -2,6 +2,7 @@ require 'spec_helper'
 
 describe Chewy::Type::Mapping do
   let(:product) { ProductsIndex::Product }
+  let(:review)  { ProductsIndex::Review }
 
   before do
     stub_index(:products) do
@@ -14,9 +15,27 @@ describe Chewy::Type::Mapping do
           field 'price', type: 'float' do
             field :subfield2
           end
+          agg :named_agg do
+            { avg: { field: 'title.subfield1' } }
+          end
+        end
+      end
+      define_type :review do
+        field :title, :body
+        field :comments do
+          field :message
+          field :rating, type: 'long'
+        end
+        agg :named_agg do
+          { avg: { field: 'comments.rating' } }
         end
       end
     end
+  end
+
+  describe '.agg' do
+    specify { expect(product._agg_defs[:named_agg].call).to eq({ avg: { field: 'title.subfield1' } }) }
+    specify { expect(review._agg_defs[:named_agg].call).to eq({ avg: { field: 'comments.rating' } }) }
   end
 
   describe '.field' do

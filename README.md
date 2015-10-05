@@ -260,6 +260,25 @@ end
 
 The `value:` option for internal fields would no longer be effective.
 
+### Geo Point fields
+
+You can use [Elasticsearch's geo mapping](https://www.elastic.co/guide/en/elasticsearch/reference/current/mapping-geo-point-type.html) with the `geo_point` field type, allowing you to query, filter and order by latitude and longitude. You can use the following hash format:
+
+```ruby
+field :coordinates, type: 'geo_point', value: ->{ {lat: latitude, lon: longitude} }
+```
+
+or by using nested fields:
+
+```ruby
+field :coordinates, type: 'geo_point' do
+  field :lat, value: ->{ latitude }
+  field :long, value: ->{ longitude }
+end
+```
+
+See the section on *Script fields* for details on calculating distance in a search.
+
 ### Crutches™ technology
 
 Assume you are defining your index like this (product has_many categories through product_categories):

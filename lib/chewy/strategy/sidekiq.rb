@@ -19,7 +19,9 @@ module Chewy
       end
 
       def leave
-        @stash.all? { |type, ids| Chewy::Strategy::Sidekiq::Worker.perform_async(type.name, ids) }
+        @stash.each do |type, ids|
+          Chewy::Strategy::Sidekiq::Worker.perform_async(type.name, ids) unless ids.empty?
+        end
       end
     end
   end

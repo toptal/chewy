@@ -2,10 +2,11 @@
 
 source "https://rubygems.org"
 
-gem "mongoid", "~> 4.0.0"
-gem "activesupport", "~> 4.1.0"
+gem "activerecord"
 gem "resque", :require => false
 gem "sidekiq", :require => false
+gem "mongoid", "~> 4.0.0"
+gem "activesupport", "~> 4.1.0"
 
 group :test do
   gem "guard"

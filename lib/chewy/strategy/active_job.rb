@@ -10,7 +10,7 @@ module Chewy
     #   end
     #
     class ActiveJob < Atomic
-      class Worker < ActiveJob::Base
+      class Worker < ::ActiveJob::Base
         def perform(type, ids)
           type.constantize.import!(ids)
         end

@@ -441,6 +441,16 @@ Chewy.strategy(:sidekiq) do
 end
 ```
 
+#### `:active_job`
+
+This does the same thing as `:atomic`, but using ActiveJob. This will inherit the ActiveJob configuration settings including the `active_job.queue_adapter` setting for the environment. Patch `Chewy::Strategy::ActiveJob::Worker` for index updates improving.
+
+```ruby
+Chewy.strategy(:active_job) do
+  City.popular.map(&:do_some_update_action!)
+end
+```
+
 #### `:urgent`
 
 The following strategy is convenient if you are going to update documents in your index one by one.

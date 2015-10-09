@@ -15,6 +15,12 @@ begin
 rescue LoadError
 end
 
+begin
+  require 'active_job'
+  require 'chewy/strategy/active_job'
+rescue LoadError
+end
+
 module Chewy
   # This class represents strategies stack with `:base`
   # Strategy on top of it. This causes raising exceptions

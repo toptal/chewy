@@ -3,6 +3,9 @@ require 'spec_helper'
 if defined?(::ActiveJob)
   describe Chewy::Strategy::ActiveJob do
     around { |example| Chewy.strategy(:bypass) { example.run } }
+    before(:all) do
+      ::ActiveJob::Base.logger = Chewy.logger
+    end
     before do
       ::ActiveJob::Base.queue_adapter = :test
       ::ActiveJob::Base.queue_adapter.enqueued_jobs.clear

@@ -28,6 +28,15 @@ if defined?(::ActiveJob)
     end
 
     specify do
+      Chewy.strategy(:active_job) do
+        [city, other_city].map(&:save!)
+      end
+      enqueued_job = ::ActiveJob::Base.queue_adapter.enqueued_jobs.first
+      expect(enqueued_job[:job]).to eq(Chewy::Strategy::ActiveJob::Worker)
+      expect(enqueued_job[:queue]).to eq('chewy')
+    end
+
+    specify do
       ::ActiveJob::Base.queue_adapter = :inline
       expect { [city, other_city].map(&:save!) }
         .to update_index(CitiesIndex::City, strategy: :active_job)

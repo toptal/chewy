@@ -3,6 +3,9 @@ require 'spec_helper'
 if defined?(::ActiveJob)
   describe Chewy::Strategy::ActiveJob do
     around { |example| Chewy.strategy(:bypass) { example.run } }
+    before(:all) do
+      ::ActiveJob::Base.logger = Chewy.logger
+    end
     before do
       ::ActiveJob::Base.queue_adapter = :test
       ::ActiveJob::Base.queue_adapter.enqueued_jobs.clear
@@ -25,6 +28,15 @@ if defined?(::ActiveJob)
     specify do
       expect { [city, other_city].map(&:save!) }
         .not_to update_index(CitiesIndex::City, strategy: :active_job)
+    end
+
+    specify do
+      Chewy.strategy(:active_job) do
+        [city, other_city].map(&:save!)
+      end
+      enqueued_job = ::ActiveJob::Base.queue_adapter.enqueued_jobs.first
+      expect(enqueued_job[:job]).to eq(Chewy::Strategy::ActiveJob::Worker)
+      expect(enqueued_job[:queue]).to eq('chewy')
     end
 
     specify do

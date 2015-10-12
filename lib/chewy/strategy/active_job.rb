@@ -11,6 +11,8 @@ module Chewy
     #
     class ActiveJob < Atomic
       class Worker < ::ActiveJob::Base
+        queue_as :chewy
+
         def perform(type, ids)
           type.constantize.import!(ids)
         end

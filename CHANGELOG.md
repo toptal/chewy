@@ -1,8 +1,31 @@
 # master
 
+# Version 0.8.2
+
 ## Changes
 
+  * ActiveJob strategy by @mkcode
+
+  * Async strategies tweak (@AndreySavelyev)
+
+  * GeoPoint readme (@joonty)
+
+  * Multiple grammar fixes and code improvements (@biow0lf)
+
+  * Named aggregations by @caldwecr
+
+  * Sequel adapter by @jirutka
+
+  * Rake helper methods extracted (@caldwecr, @jirutka)
+
+  * Multiple grammar fixes (@henrebotha)
+
   * Ability to pass a proc to `update_index` to define updating index dynamically (@SeTeM)
+
+
+## Bugfixes
+
+  * Fixed transport logger and tracer configuration
 
 # Version 0.8.1
 

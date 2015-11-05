@@ -10,7 +10,7 @@ module Chewy
       end
 
       def call(env)
-        if env['PATH_INFO'].start_with?('/assets/')
+        if env['PATH_INFO'].start_with?(Rails.application.config.assets.prefix)
           @app.call(env)
         else
           Chewy.strategy(Chewy.request_strategy) { @app.call(env) }

@@ -349,5 +349,16 @@ describe Chewy::Type::Import do
 
       specify { expect { city.import!(dummy_cities) }.to raise_error Chewy::ImportFailed }
     end
+
+    context 'when .import fails' do
+      before do
+        allow(city).to receive(:import) { raise }
+      end
+
+      specify do
+        expect(ActiveSupport::Notifications).to receive(:unsubscribe)
+        city.import!(dummy_cities) rescue nil
+      end
+    end
   end
 end

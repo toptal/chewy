@@ -57,9 +57,10 @@ module Chewy
             errors = args.last[:errors]
           end
           import *args
-          ActiveSupport::Notifications.unsubscribe(subscriber)
           raise Chewy::ImportFailed.new(self, errors) if errors.present?
           true
+        ensure
+          ActiveSupport::Notifications.unsubscribe(subscriber) if subscriber
         end
 
         # Wraps elasticsearch-ruby client indices bulk method.

@@ -84,19 +84,26 @@ module Chewy
           end
         end
 
+        # Returns the value of the identifier for an object
+        def root_object_identifier object
+          case object
+            when String, Fixnum
+              object
+            else
+              root_object.compose_id object
+          end
+        end
+
         def delete_bulk_entry(object, indexed_objects = nil, crutches = nil)
           entry = {}
 
-          if self.root_object.id
-            entry[:_id] = self.root_object.compose_id(object)
-          else
-            entry[:_id] = object.id if object.respond_to?(:id)
-            entry[:_id] ||= object[:id] || object['id'] if object.is_a?(Hash)
-            entry[:_id] ||= object
-            entry[:_id] = entry[:_id].to_s if defined?(BSON) && entry[:_id].is_a?(BSON::ObjectId)
-          end
+          entry[:_id] = root_object_identifier object if root_object.id
+          entry[:_id] ||= object.id if object.respond_to?(:id)
+          entry[:_id] ||= object[:id] || object['id'] if object.is_a?(Hash)
+          entry[:_id] ||= object
+          entry[:_id] = entry[:_id].to_s if defined?(BSON) && entry[:_id].is_a?(BSON::ObjectId)
 
-          if self.root_object.parent_id
+          if root_object.parent_id
             existing_object = entry[:_id].present? && indexed_objects && indexed_objects[entry[:_id].to_s]
             entry.merge!(parent: existing_object[:parent]) if existing_object
           end
@@ -107,17 +114,15 @@ module Chewy
         def index_bulk_entry(object, indexed_objects = nil, crutches = nil)
           entry = {}
 
-          if self.root_object.id
-            entry[:_id] = self.root_object.compose_id(object)
-          else
-            entry[:_id] = object.id if object.respond_to?(:id)
-            entry[:_id] ||= object[:id] || object['id'] if object.is_a?(Hash)
-            entry[:_id] = entry[:_id].to_s if defined?(BSON) && entry[:_id].is_a?(BSON::ObjectId)
-          end
+          entry[:_id] = root_object_identifier object if root_object.id
+          entry[:_id] ||= object.id if object.respond_to?(:id)
+          entry[:_id] ||= object[:id] || object['id'] if object.is_a?(Hash)
+          entry[:_id] = entry[:_id].to_s if defined?(BSON) && entry[:_id].is_a?(BSON::ObjectId)
+
           entry.delete(:_id) if entry[:_id].blank?
 
-          if self.root_object.parent_id
-            entry[:parent] = self.root_object.compose_parent(object)
+          if root_object.parent_id
+            entry[:parent] = root_object.compose_parent(object)
             existing_object = entry[:_id].present? && indexed_objects && indexed_objects[entry[:_id].to_s]
           end
 

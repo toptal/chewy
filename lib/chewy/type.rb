@@ -41,6 +41,18 @@ module Chewy
       adapter.type_name
     end
 
+    # Returns the identifier value
+    #
+    def self.identify objects
+      case root_object
+        # Handle case in specs where root_object is nil, or where root_object is a string or integer
+        when NilClass, String, Fixnum
+          adapter.identify(objects)
+        else
+          Array(root_object.compose_id(objects) || adapter.identify(objects))
+      end
+    end
+
     # Returns list of public class methods defined in current type
     #
     def self.scopes

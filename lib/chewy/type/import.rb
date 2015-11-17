@@ -86,12 +86,7 @@ module Chewy
 
         # Returns the value of the identifier for an object
         def root_object_identifier object
-          case object
-            when String, Fixnum
-              object
-            else
-              root_object.compose_id object
-          end
+          Array(identify object).first
         end
 
         def delete_bulk_entry(object, indexed_objects = nil, crutches = nil)

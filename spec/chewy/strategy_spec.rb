@@ -60,6 +60,29 @@ describe Chewy::Strategy do
         expect(CitiesIndex::City).to receive(:import).with([city.id, other_city.id]).once
         Chewy.strategy(:atomic) { [city, other_city].map(&:save!) }
       end
+
+      context "when a root _id evaluator is provided" do
+        before do
+          stub_index(:cities) do
+            define_type City do
+              root _id: -> { name } do
+              end
+            end
+          end
+        end
+
+        specify do
+          expect(CitiesIndex::City).to receive(:import).with([city.name, other_city.name]).once
+          Chewy.strategy(:atomic) { [city, other_city].map(&:save!) }
+        end
+
+        specify do
+          # We really want to assert that #delete_bulk_entry is invoked, but #import seems the best
+          # public method that surrounds the call to #delete_bulk_entry
+          expect(CitiesIndex::City).to receive(:import).with([city.name, other_city.name]).once
+          Chewy.strategy(:atomic) { [city, other_city].map(&:destroy!) }
+        end
+      end
     end
 
     context do

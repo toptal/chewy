@@ -22,11 +22,10 @@ module Chewy
           bulk_options = import_options.reject { |k, v| ![:refresh, :suffix].include?(k) }.reverse_merge!(refresh: true)
 
           index.create!(bulk_options.slice(:suffix)) unless index.exists?
-          build_root unless self.root_object
 
           ActiveSupport::Notifications.instrument 'import_objects.chewy', type: self do |payload|
             adapter.import(*args, import_options) do |action_objects|
-              indexed_objects = self.root_object.parent_id && fetch_indexed_objects(action_objects.values.flatten)
+              indexed_objects = build_root.parent_id && fetch_indexed_objects(action_objects.values.flatten)
               body = bulk_body(action_objects, indexed_objects)
 
               errors = bulk(bulk_options.merge(body: body)) if body.any?
@@ -87,8 +86,8 @@ module Chewy
         def delete_bulk_entry(object, indexed_objects = nil, crutches = nil)
           entry = {}
 
-          if self.root_object.id
-            entry[:_id] = self.root_object.compose_id(object)
+          if root_object.id
+            entry[:_id] = root_object.compose_id(object)
           else
             entry[:_id] = object.id if object.respond_to?(:id)
             entry[:_id] ||= object[:id] || object['id'] if object.is_a?(Hash)
@@ -96,7 +95,7 @@ module Chewy
             entry[:_id] = entry[:_id].to_s if defined?(BSON) && entry[:_id].is_a?(BSON::ObjectId)
           end
 
-          if self.root_object.parent_id
+          if root_object.parent_id
             existing_object = entry[:_id].present? && indexed_objects && indexed_objects[entry[:_id].to_s]
             entry.merge!(parent: existing_object[:parent]) if existing_object
           end
@@ -107,8 +106,8 @@ module Chewy
         def index_bulk_entry(object, indexed_objects = nil, crutches = nil)
           entry = {}
 
-          if self.root_object.id
-            entry[:_id] = self.root_object.compose_id(object)
+          if root_object.id
+            entry[:_id] = root_object.compose_id(object)
           else
             entry[:_id] = object.id if object.respond_to?(:id)
             entry[:_id] ||= object[:id] || object['id'] if object.is_a?(Hash)
@@ -116,8 +115,8 @@ module Chewy
           end
           entry.delete(:_id) if entry[:_id].blank?
 
-          if self.root_object.parent_id
-            entry[:parent] = self.root_object.compose_parent(object)
+          if root_object.parent_id
+            entry[:parent] = root_object.compose_parent(object)
             existing_object = entry[:_id].present? && indexed_objects && indexed_objects[entry[:_id].to_s]
           end
 
@@ -151,7 +150,7 @@ module Chewy
         end
 
         def object_data object, crutches = nil
-          (self.root_object ||= build_root).compose(object, crutches)[type_name.to_sym]
+          build_root.compose(object, crutches)[type_name.to_sym]
         end
 
         def extract_errors result

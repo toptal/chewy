@@ -9,4 +9,8 @@ module ClassHelpers
   def stub_class name, superclass = nil, &block
     stub_const(name.to_s.camelize, Class.new(superclass || Object, &block))
   end
+
+  def stub_model name, superclass = nil, &block
+    raise NotImplementedError, 'Seems like no ORM/ODM are loaded, please check your Gemfile'
+  end
 end

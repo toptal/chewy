@@ -111,7 +111,7 @@ module Chewy
         #
         def field *args, &block
           options = args.extract_options!
-          build_root unless root_object
+          build_root
 
           if args.size > 1
             args.map { |name| field(name, options) }
@@ -138,7 +138,7 @@ module Chewy
         #   end
         def agg *args, &block
           options = args.extract_options!
-          build_root unless root_object
+          build_root
           self._agg_defs = _agg_defs.merge(args.first => block)
         end
         alias_method :aggregation, :agg
@@ -164,9 +164,7 @@ module Chewy
         #   template template42: {match: 'hello*', mapping: {type: 'object'}} # or even pass a template as is
         #
         def template *args
-          build_root unless root_object
-
-          root_object.dynamic_template *args
+          build_root.dynamic_template *args
         end
         alias_method :dynamic_template, :template
 
@@ -192,6 +190,7 @@ module Chewy
         end
 
         def build_root options = {}, &block
+          return root_object if root_object
           self.root_object = Chewy::Fields::Root.new(type_name, options)
           expand_nested(root_object, &block)
           @_current_field = root_object

@@ -138,13 +138,13 @@ describe Chewy::Query::Criteria do
     specify { expect(subject.tap { |c| c.update_request_options(opt1: 'hello') }
       .merge(criteria.tap { |c| c.update_request_options(opt2: 'hello') }).request_options).to include(opt1: 'hello', opt2: 'hello') }
     specify { expect(subject.tap { |c| c.update_facets(field1: 'hello') }
-      .merge(criteria.tap { |c| c.update_facets(field1: 'hello') }).facets).to eq({field1: 'hello', field1: 'hello'}) }
+      .merge(criteria.tap { |c| c.update_facets(field1: 'hello') }).facets).to eq({field1: 'hello'}) }
     specify { expect(subject.tap { |c| c.update_script_fields(distance_m: {script: "doc['coordinates'].distanceInMiles(lat, lon)"}) }
       .merge(criteria.tap { |c| c.update_script_fields(distance_km: {script: "doc['coordinates'].distanceInKm(lat, lon)"}) }).script_fields).to eq({distance_m: {script: "doc['coordinates'].distanceInMiles(lat, lon)"}, distance_km: {script: "doc['coordinates'].distanceInKm(lat, lon)"}}) }
     specify { expect(subject.tap { |c| c.update_scores(script: 'hello') }
       .merge(criteria.tap { |c| c.update_scores(script: 'foobar') }).scores).to eq([{script: 'hello'}, { script: 'foobar' } ]) }
     specify { expect(subject.tap { |c| c.update_aggregations(field1: 'hello') }
-      .merge(criteria.tap { |c| c.update_aggregations(field1: 'hello') }).aggregations).to eq({field1: 'hello', field1: 'hello'}) }
+      .merge(criteria.tap { |c| c.update_aggregations(field1: 'hello') }).aggregations).to eq({field1: 'hello'}) }
     specify { expect(subject.tap { |c| c.update_queries(field1: 'hello') }
       .merge(criteria.tap { |c| c.update_queries(field2: 'hello') }).queries).to eq([{field1: 'hello'}, {field2: 'hello'}]) }
     specify { expect(subject.tap { |c| c.update_filters(field1: 'hello') }
@@ -170,11 +170,11 @@ describe Chewy::Query::Criteria do
     specify { expect(subject.tap { |c| c.update_request_options(opt1: 'hello') }
       .merge!(criteria.tap { |c| c.update_request_options(opt2: 'hello') }).request_options).to include(opt1: 'hello', opt2: 'hello') }
     specify { expect(subject.tap { |c| c.update_facets(field1: 'hello') }
-      .merge!(criteria.tap { |c| c.update_facets(field1: 'hello') }).facets).to eq({field1: 'hello', field1: 'hello'}) }
+      .merge!(criteria.tap { |c| c.update_facets(field1: 'hello') }).facets).to eq({field1: 'hello'}) }
     specify { expect(subject.tap { |c| c.update_script_fields(distance_m: {script: "doc['coordinates'].distanceInMiles(lat, lon)"}) }
       .merge(criteria.tap { |c| c.update_script_fields(distance_km: {script: "doc['coordinates'].distanceInKm(lat, lon)"}) }).script_fields).to eq({distance_m: {script: "doc['coordinates'].distanceInMiles(lat, lon)"}, distance_km: {script: "doc['coordinates'].distanceInKm(lat, lon)"}}) }
     specify { expect(subject.tap { |c| c.update_aggregations(field1: 'hello') }
-      .merge!(criteria.tap { |c| c.update_aggregations(field1: 'hello') }).aggregations).to eq({field1: 'hello', field1: 'hello'}) }
+      .merge!(criteria.tap { |c| c.update_aggregations(field1: 'hello') }).aggregations).to eq({field1: 'hello'}) }
     specify { expect(subject.tap { |c| c.update_queries(field1: 'hello') }
       .merge!(criteria.tap { |c| c.update_queries(field2: 'hello') }).queries).to eq([{field1: 'hello'}, {field2: 'hello'}]) }
     specify { expect(subject.tap { |c| c.update_filters(field1: 'hello') }

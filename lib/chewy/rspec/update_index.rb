@@ -194,7 +194,7 @@ RSpec::Matchers.define :update_index do |type_name, options = {}|
   end
 
   def agnostic_stub
-    if defined? Mocha
+    if defined?(Mocha) && RSpec.configuration.mock_framework.to_s == 'RSpec::Core::MockingAdapters::Mocha'
       "type.stubs(:bulk).with"
     else
       "allow(type).to receive(:bulk)"

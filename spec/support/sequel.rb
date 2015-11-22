@@ -1,6 +1,6 @@
 require 'database_cleaner'
 
-DB = Sequel.sqlite
+DB = Sequel.sqlite# logger: Logger.new(STDOUT)
 
 DB.create_table :countries do
   primary_key :id
@@ -14,6 +14,12 @@ DB.create_table :cities do
   column :country_id, :integer
   column :name, :string
   column :rating, :integer
+end
+
+DB.create_table :rating_cities do
+  primary_key :rating
+  column :country_id, :integer
+  column :name, :string
 end
 
 Sequel::Model.plugin :chewy_observe

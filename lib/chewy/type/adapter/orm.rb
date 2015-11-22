@@ -10,7 +10,7 @@ module Chewy
           @options = args.extract_options!
           class_or_relation = args.first
           if class_or_relation.is_a?(relation_class)
-            @target = class_or_relation.klass
+            @target = model_of_relation(class_or_relation)
             @default_scope = class_or_relation
           else
             @target = class_or_relation
@@ -20,7 +20,7 @@ module Chewy
         end
 
         def name
-          @name ||= (options[:name].present? ? options[:name].to_s.camelize : target.model_name.to_s).demodulize
+          @name ||= (options[:name].presence || target.name).to_s.camelize.demodulize
         end
 
         def identify collection
@@ -28,7 +28,7 @@ module Chewy
             pluck_ids(collection)
           else
             Array.wrap(collection).map do |entity|
-              entity.is_a?(object_class) ? entity.id : entity
+              entity.is_a?(object_class) ? entity.public_send(primary_key) : entity
             end
           end
         end
@@ -93,23 +93,23 @@ module Chewy
 
           additional_scope = load_options[load_options[:_type].type_name.to_sym].try(:[], :scope) || load_options[:scope]
 
-          scope = all_scope_where_ids_in(objects.map(&:id))
+          scope = all_scope_where_ids_in(objects.map(&primary_key))
           loaded_objects = if additional_scope.is_a?(Proc)
             scope.instance_exec(&additional_scope)
-          elsif additional_scope.is_a?(relation_class)
+          elsif additional_scope.is_a?(relation_class) && scope.respond_to?(:merge)
             scope.merge(additional_scope)
           else
             scope
-          end.index_by { |object| object.id.to_s }
+          end.index_by { |object| object.public_send(primary_key).to_s }
 
-          objects.map { |object| loaded_objects[object.id.to_s] }
+          objects.map { |object| loaded_objects[object.public_send(primary_key).to_s] }
         end
 
       private
 
         def import_objects(collection, batch_size)
           hash = collection.index_by do |entity|
-            entity.is_a?(object_class) ? entity.id : entity
+            entity.is_a?(object_class) ? entity.public_send(primary_key) : entity
           end
 
           indexed = hash.keys.each_slice(batch_size).map do |ids|
@@ -117,7 +117,7 @@ module Chewy
             if batch.empty?
               true
             else
-              batch.each { |object| hash.delete(object.id) }
+              batch.each { |object| hash.delete(object.public_send(primary_key)) }
               yield grouped_objects(batch)
             end
           end.all?
@@ -129,12 +129,24 @@ module Chewy
           indexed && deleted
         end
 
+        def primary_key
+          :id
+        end
+
         def default_scope_where_ids_in(ids)
           scope_where_ids_in(default_scope, ids)
         end
 
         def all_scope_where_ids_in(ids)
           scope_where_ids_in(all_scope, ids)
+        end
+
+        def all_scope
+          target.where(nil)
+        end
+
+        def model_of_relation relation
+          relation.klass
         end
       end
     end

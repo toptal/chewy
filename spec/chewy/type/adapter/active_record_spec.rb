@@ -38,8 +38,9 @@ describe Chewy::Type::Adapter::ActiveRecord, :active_record do
   end
 
   describe '#identify' do
+    subject { described_class.new(City) }
+
     context do
-      subject { described_class.new(City) }
       let!(:cities) { 3.times.map { City.create! } }
 
       specify { expect(subject.identify(City.where(nil))).to match_array(cities.map(&:id)) }
@@ -50,7 +51,6 @@ describe Chewy::Type::Adapter::ActiveRecord, :active_record do
 
     context 'custom primary_key' do
       before { stub_model(:city) { self.primary_key = 'rating' } }
-      subject { described_class.new(City) }
       let!(:cities) { 3.times.map { |i| City.create! { |c| c.rating = i } } }
 
       specify { expect(subject.identify(City.where(nil))).to match_array([0, 1, 2]) }

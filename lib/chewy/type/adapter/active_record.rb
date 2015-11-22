@@ -37,20 +37,16 @@ module Chewy
           result
         end
 
+        def target_id
+          target.arel_table[target.primary_key]
+        end
+
         def pluck_ids(scope)
           scope.except(:includes).uniq.pluck(target.primary_key.to_sym)
         end
 
         def scope_where_ids_in(scope, ids)
           scope.where(target_id.in(Array.wrap(ids)))
-        end
-
-        def all_scope
-          target.where(nil)
-        end
-
-        def target_id
-          target.arel_table[target.primary_key]
         end
 
         def relation_class

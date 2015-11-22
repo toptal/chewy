@@ -60,7 +60,7 @@ module Chewy
       private
 
         def grouped_objects(objects)
-          objects.group_by do |object|
+          objects.to_a.group_by do |object|
             delete_from_index?(object) ? :delete : :index
           end
         end

@@ -22,9 +22,9 @@ module Chewy
             Chewy.logger.warn('Default type scope order, limit and offset are ignored and will be nullified')
           end
 
-          @default_scope = @default_scope.reorder(nil)
           @default_scope.options.delete(:limit)
           @default_scope.options.delete(:skip)
+          @default_scope = @default_scope.reorder(nil)
         end
 
         def import_scope(scope, batch_size)

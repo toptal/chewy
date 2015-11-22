@@ -110,19 +110,4 @@ describe Chewy do
     specify { expect(DevelopersIndex.exists?).to eq(false) }
     specify { expect(CompaniesIndex.exists?).to eq(false) }
   end
-
-  describe '#urgent_update=' do
-    specify do
-      described_class.urgent_update = true
-      expect(described_class.strategy.current).to be_a(Chewy::Strategy::Urgent)
-      described_class.urgent_update = false
-      expect(described_class.strategy.current).to be_a(Chewy::Strategy::Base)
-    end
-  end
-
-  describe '#atomic' do
-    specify do
-      described_class.atomic { expect(described_class.strategy.current).to be_a(Chewy::Strategy::Atomic) }
-    end
-  end
 end

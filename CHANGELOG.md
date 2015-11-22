@@ -1,5 +1,11 @@
 # master
 
+## Incompatible changes:
+
+  * `Chewy.atomic` and `Chewy.urgent_update=` methods was removed from the codebase, use `Chewy.strategy` block instead.
+
+  * `delete_from_index?` hook is removed from the codebase.
+
 # Version 0.8.2
 
 ## Changes

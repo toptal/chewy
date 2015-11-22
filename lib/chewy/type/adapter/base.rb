@@ -66,11 +66,6 @@ module Chewy
         end
 
         def delete_from_index?(object)
-          if object.respond_to?(:delete_from_index?)
-            ActiveSupport::Deprecation.warn('`delete_from_index?` method in models is deprecated and will be removed soon. Use per-type `delete_if` option for `define_type`')
-            delete = object.delete_from_index?
-          end
-
           delete_if = options[:delete_if]
           delete ||= case delete_if
           when Symbol, String

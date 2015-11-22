@@ -179,20 +179,6 @@ module Chewy
       end
     end
 
-    def urgent_update= value
-      ActiveSupport::Deprecation.warn('`Chewy.urgent_update = value` is deprecated and will be removed soon, use `Chewy.strategy(:urgent)` block instead')
-      if value
-        strategy(:urgent)
-      else
-        strategy.pop
-      end
-    end
-
-    def atomic &block
-      ActiveSupport::Deprecation.warn('`Chewy.atomic` block is deprecated and will be removed soon, use `Chewy.strategy(:atomic)` block instead')
-      strategy(:atomic, &block)
-    end
-
     def config
       Chewy::Config.instance
     end

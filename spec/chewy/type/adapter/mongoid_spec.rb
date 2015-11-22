@@ -107,50 +107,26 @@ describe Chewy::Type::Adapter::Mongoid, :mongoid do
       before { cities.last(2).map(&:destroy) }
       subject { described_class.new(City) }
 
-      context do
-        before do
-          City.class_eval do
-            def delete_from_index?
-              rating.in?([1, 3])
-            end
+      before do
+        City.class_eval do
+          def delete_already?
+            rating.in?([1, 3])
           end
         end
-
-        specify { expect(import(City.all)).to eq([
-          { index: [cities[0]], delete: [cities[1]] }
-        ]) }
-        specify { expect(import(cities)).to eq([
-          { index: [cities[0]], delete: [cities[1]] },
-          { delete: cities.last(2) }
-        ]) }
-        specify { expect(import(cities.map(&:id))).to eq([
-          { index: [cities[0]], delete: [cities[1]] },
-          { delete: cities.last(2).map(&:id) }
-        ]) }
       end
+      subject { described_class.new(City, delete_if: ->{ delete_already? }) }
 
-      context do
-        before do
-          City.class_eval do
-            def delete_already?
-              rating.in?([1, 3])
-            end
-          end
-        end
-        subject { described_class.new(City, delete_if: ->{ delete_already? }) }
-
-        specify { expect(import(City.all)).to eq([
-          { index: [cities[0]], delete: [cities[1]] }
-        ]) }
-        specify { expect(import(cities)).to eq([
-          { index: [cities[0]], delete: [cities[1]] },
-          { delete: cities.last(2) }
-        ]) }
-        specify { expect(import(cities.map(&:id))).to eq([
-          { index: [cities[0]], delete: [cities[1]] },
-          { delete: cities.last(2).map(&:id) }
-        ]) }
-      end
+      specify { expect(import(City.all)).to eq([
+        { index: [cities[0]], delete: [cities[1]] }
+      ]) }
+      specify { expect(import(cities)).to eq([
+        { index: [cities[0]], delete: [cities[1]] },
+        { delete: cities.last(2) }
+      ]) }
+      specify { expect(import(cities.map(&:id))).to eq([
+        { index: [cities[0]], delete: [cities[1]] },
+        { delete: cities.last(2).map(&:id) }
+      ]) }
     end
 
     context 'default scope' do

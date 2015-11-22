@@ -77,19 +77,6 @@ describe Chewy::Type::Adapter::Object do
       end
 
       context do
-        let(:deleted) { [
-          double(delete_from_index?: true, destroyed?: true),
-          double(delete_from_index?: true, destroyed?: false),
-          double(delete_from_index?: false, destroyed?: true),
-          double(delete_from_index?: false, destroyed?: false)
-        ] }
-
-        specify { expect(import(deleted)).to eq([
-          { delete: deleted[0..2], index: deleted.last(1) }
-        ]) }
-      end
-
-      context do
         subject { described_class.new('product', delete_if: :delete?) }
         let(:deleted) { [
           double(delete?: true, destroyed?: true),

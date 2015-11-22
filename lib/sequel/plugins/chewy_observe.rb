@@ -25,7 +25,7 @@ module Sequel
       def self.apply(model)
         model.instance_eval do
           include ActiveSupport::Callbacks
-          define_callbacks :commit, :save, :destroy
+          define_callbacks :commit, :destroy_commit, :save, :destroy
         end
       end
 
@@ -38,6 +38,7 @@ module Sequel
 
           if Chewy.use_after_commit_callbacks
             set_callback(:commit, callback_options, &update_proc)
+            set_callback(:destroy_commit, callback_options, &update_proc)
           else
             set_callback(:save, callback_options, &update_proc)
             set_callback(:destroy, callback_options, &update_proc)
@@ -50,6 +51,12 @@ module Sequel
       module InstanceMethods
         def after_commit
           run_callbacks(:commit) do
+            super
+          end
+        end
+
+        def after_destroy_commit
+          run_callbacks(:destroy_commit) do
             super
           end
         end

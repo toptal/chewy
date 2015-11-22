@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe Chewy::Strategy::Atomic do
+describe Chewy::Strategy::Atomic, :orm do
   around { |example| Chewy.strategy(:bypass) { example.run } }
 
   before do

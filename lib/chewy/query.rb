@@ -992,7 +992,7 @@ module Chewy
           begin
             Chewy.client.search(_request)
           rescue Elasticsearch::Transport::Transport::Errors::NotFound => e
-            raise e if e.message !~ /IndexMissingException/
+            raise e if e.message !~ /IndexMissingException/ && e.message !~ /index_not_found_exception/
             {}
           end
       end

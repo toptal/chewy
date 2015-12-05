@@ -13,4 +13,8 @@ module ClassHelpers
   def stub_model name, superclass = nil, &block
     raise NotImplementedError, 'Seems like no ORM/ODM are loaded, please check your Gemfile'
   end
+
+  def skip_on_version_gte version
+    skip "Removed from elasticsearch #{version}" if Chewy::Runtime.version >= version
+  end
 end

@@ -54,17 +54,31 @@ describe Chewy::Index::Actions do
 
     context do
       before { DummiesIndex.create }
-      specify { expect { DummiesIndex.create! }.to raise_error(Elasticsearch::Transport::Transport::Errors::BadRequest).with_message(/\[\[dummies\] already exists\]/) }
+      let(:exception) do
+        if Chewy::Runtime.version < '2.0'
+          /\[\[dummies\] already exists\]/
+        else
+          /index_already_exists_exception.*dummies/
+        end
+      end
+      specify { expect { DummiesIndex.create! }.to raise_error(Elasticsearch::Transport::Transport::Errors::BadRequest).with_message(exception) }
       specify { expect { DummiesIndex.create!('2013') }.to raise_error(Elasticsearch::Transport::Transport::Errors::BadRequest).with_message(/Invalid alias name \[dummies\]/) }
     end
 
     context do
       before { DummiesIndex.create! '2013' }
+      let(:exception) do
+        if Chewy::Runtime.version < '2.0'
+          /\[\[dummies_2013\] already exists\]/
+        else
+          /index_already_exists_exception.*dummies_2013/
+        end
+      end
       specify { expect(Chewy.client.indices.exists(index: 'dummies')).to eq(true) }
       specify { expect(Chewy.client.indices.exists(index: 'dummies_2013')).to eq(true) }
       specify { expect(DummiesIndex.aliases).to eq([]) }
       specify { expect(DummiesIndex.indexes).to eq(['dummies_2013']) }
-      specify { expect { DummiesIndex.create!('2013') }.to raise_error(Elasticsearch::Transport::Transport::Errors::BadRequest).with_message(/\[\[dummies_2013\] already exists\]/) }
+      specify { expect { DummiesIndex.create!('2013') }.to raise_error(Elasticsearch::Transport::Transport::Errors::BadRequest).with_message(exception) }
       specify { expect(DummiesIndex.create!('2014')["acknowledged"]).to eq(true) }
 
       context do

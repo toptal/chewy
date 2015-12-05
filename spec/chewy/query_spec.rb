@@ -174,10 +174,22 @@ describe Chewy::Query do
   end
 
   describe '#facets' do
-    specify { expect(subject.facets(term: {field: 'hello'})).to be_a described_class }
-    specify { expect(subject.facets(term: {field: 'hello'})).not_to eq(subject) }
-    specify { expect(subject.facets(term: {field: 'hello'}).criteria.facets).to include(term: {field: 'hello'}) }
-    specify { expect { subject.facets(term: {field: 'hello'}) }.not_to change { subject.criteria.facets } }
+    specify do
+      skip_on_version_gte('2.0')
+      expect(subject.facets(term: {field: 'hello'})).to be_a described_class
+    end
+    specify do
+      skip_on_version_gte('2.0')
+      expect(subject.facets(term: {field: 'hello'})).not_to eq(subject)
+    end
+    specify do
+      skip_on_version_gte('2.0')
+      expect(subject.facets(term: {field: 'hello'}).criteria.facets).to include(term: {field: 'hello'})
+    end
+    specify do
+      skip_on_version_gte('2.0')
+      expect { subject.facets(term: {field: 'hello'}) }.not_to change { subject.criteria.facets }
+    end
 
     context 'results', :orm do
       before { stub_model(:city) }
@@ -193,17 +205,23 @@ describe Chewy::Query do
 
       before { CitiesIndex::City.import! cities }
 
-      specify { expect(CitiesIndex.facets).to eq({}) }
-      specify { expect(CitiesIndex.facets(ratings: {terms: {field: 'rating'}}).facets).to eq({
-        'ratings' => {
-          '_type' => 'terms', 'missing' => 0, 'total' => 10, 'other' => 0,
-          'terms' => [
-            {'term' => 0, 'count' => 4},
-            {'term' => 2, 'count' => 3},
-            {'term' => 1, 'count' => 3}
-          ]
-        }
-      }) }
+      specify do
+        skip_on_version_gte('2.0')
+        expect(CitiesIndex.facets).to eq({})
+      end
+      specify do
+        skip_on_version_gte('2.0')
+        expect(CitiesIndex.facets(ratings: {terms: {field: 'rating'}}).facets).to eq({
+          'ratings' => {
+            '_type' => 'terms', 'missing' => 0, 'total' => 10, 'other' => 0,
+            'terms' => [
+              {'term' => 0, 'count' => 4},
+              {'term' => 2, 'count' => 3},
+              {'term' => 1, 'count' => 3}
+            ]
+          }
+        })
+      end
     end
   end
 

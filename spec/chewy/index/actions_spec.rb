@@ -54,31 +54,31 @@ describe Chewy::Index::Actions do
 
     context do
       before { DummiesIndex.create }
-      let(:exception) do
-        if Chewy::Runtime.version < '2.0'
-          /\[\[dummies\] already exists\]/
-        else
-          /index_already_exists_exception.*dummies/
-        end
+      specify do
+        skip_on_version_gte('2.0', 'format of exception changed in 2.x')
+        expect { DummiesIndex.create! }.to raise_error(Elasticsearch::Transport::Transport::Errors::BadRequest).with_message(/\[\[dummies\] already exists\]/)
       end
-      specify { expect { DummiesIndex.create! }.to raise_error(Elasticsearch::Transport::Transport::Errors::BadRequest).with_message(exception) }
+      specify do
+        skip_on_version_lt('2.0', 'format of exception was changed')
+        expect { DummiesIndex.create! }.to raise_error(Elasticsearch::Transport::Transport::Errors::BadRequest).with_message(/index_already_exists_exception.*dummies/)
+      end
       specify { expect { DummiesIndex.create!('2013') }.to raise_error(Elasticsearch::Transport::Transport::Errors::BadRequest).with_message(/Invalid alias name \[dummies\]/) }
     end
 
     context do
       before { DummiesIndex.create! '2013' }
-      let(:exception) do
-        if Chewy::Runtime.version < '2.0'
-          /\[\[dummies_2013\] already exists\]/
-        else
-          /index_already_exists_exception.*dummies_2013/
-        end
-      end
       specify { expect(Chewy.client.indices.exists(index: 'dummies')).to eq(true) }
       specify { expect(Chewy.client.indices.exists(index: 'dummies_2013')).to eq(true) }
       specify { expect(DummiesIndex.aliases).to eq([]) }
       specify { expect(DummiesIndex.indexes).to eq(['dummies_2013']) }
-      specify { expect { DummiesIndex.create!('2013') }.to raise_error(Elasticsearch::Transport::Transport::Errors::BadRequest).with_message(exception) }
+      specify do
+        skip_on_version_gte('2.0', 'format of exception changed in 2.x')
+        expect { DummiesIndex.create!('2013') }.to raise_error(Elasticsearch::Transport::Transport::Errors::BadRequest).with_message(/\[\[dummies_2013\] already exists\]/)
+      end
+      specify do
+        skip_on_version_lt('2.0', 'format of exception was changed')
+        expect { DummiesIndex.create!('2013') }.to raise_error(Elasticsearch::Transport::Transport::Errors::BadRequest).with_message(/index_already_exists_exception.*dummies_2013/)
+      end
       specify { expect(DummiesIndex.create!('2014')["acknowledged"]).to eq(true) }
 
       context do

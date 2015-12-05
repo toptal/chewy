@@ -14,11 +14,11 @@ module ClassHelpers
     raise NotImplementedError, 'Seems like no ORM/ODM are loaded, please check your Gemfile'
   end
 
-  def skip_on_version_gte version
-    skip "Removed from elasticsearch #{version}" if Chewy::Runtime.version >= version
+  def skip_on_version_gte version, message = "Removed from elasticsearch #{version}"
+    skip message if Chewy::Runtime.version >= version
   end
 
-  def skip_on_version_lt version
-    skip "Only for elasticsearch #{version} and greater" if Chewy::Runtime.version < version
+  def skip_on_version_lt version, message = "Only for elasticsearch #{version} and greater"
+    skip message if Chewy::Runtime.version < version
   end
 end

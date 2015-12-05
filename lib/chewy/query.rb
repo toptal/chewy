@@ -914,6 +914,12 @@ module Chewy
         type: _types.one? ? _types.first : _types do
           Chewy.client.delete_by_query(request)
       end
+    rescue Elasticsearch::Transport::Transport::Errors::BadRequest => e
+      if e.message =~ /No handler found for uri/
+        raise PluginMissing, "install delete-by-query plugin"
+      else
+        raise e
+      end
     end
 
     # Find all records matching a query.

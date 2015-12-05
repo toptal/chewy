@@ -380,11 +380,31 @@ describe Chewy::Query do
       ProductsIndex::Country.import!(countries.map { |h| double(h) })
     end
 
-    specify { expect { subject.query(match: {name: 'name3'}).delete_all }.to change { ProductsIndex.total }.from(9).to(8) }
-    specify { expect { subject.filter { age == [10, 20] }.delete_all }.to change { ProductsIndex.total_count }.from(9).to(7) }
-    specify { expect { subject.types(:product).delete_all }.to change { ProductsIndex::Product.total_entries }.from(3).to(0) }
-    specify { expect { ProductsIndex.delete_all }.to change { ProductsIndex.total }.from(9).to(0) }
-    specify { expect { ProductsIndex::City.delete_all }.to change { ProductsIndex.total }.from(9).to(6) }
+    specify do
+      skip_on_version_gte('2.0')
+      expect { subject.query(match: {name: 'name3'}).delete_all }.to change { ProductsIndex.total }.from(9).to(8)
+    end
+    specify do
+      skip_on_version_gte('2.0')
+      expect { subject.filter { age == [10, 20] }.delete_all }.to change { ProductsIndex.total_count }.from(9).to(7)
+    end
+    specify do
+      skip_on_version_gte('2.0')
+      expect { subject.types(:product).delete_all }.to change { ProductsIndex::Product.total_entries }.from(3).to(0)
+    end
+    specify do
+      skip_on_version_gte('2.0')
+      expect { ProductsIndex.delete_all }.to change { ProductsIndex.total }.from(9).to(0)
+    end
+    specify do
+      skip_on_version_gte('2.0')
+      expect { ProductsIndex::City.delete_all }.to change { ProductsIndex.total }.from(9).to(6)
+    end
+
+    specify do
+      skip_on_version_lt('2.0')
+      expect { ProductsIndex.delete_all }.to raise_error(Chewy::PluginMissing).with_message("install delete-by-query plugin")
+    end
   end
 
   describe '#find' do

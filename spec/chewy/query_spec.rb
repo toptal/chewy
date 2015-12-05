@@ -175,6 +175,11 @@ describe Chewy::Query do
 
   describe '#facets' do
     specify do
+      skip_on_version_lt('2.0')
+      expect { subject.facets }.to raise_error(Chewy::RemovedFeature).with_message('removed in elasticsearch 2.0')
+    end
+
+    specify do
       skip_on_version_gte('2.0')
       expect(subject.facets(term: {field: 'hello'})).to be_a described_class
     end

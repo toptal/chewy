@@ -17,4 +17,8 @@ module ClassHelpers
   def skip_on_version_gte version
     skip "Removed from elasticsearch #{version}" if Chewy::Runtime.version >= version
   end
+
+  def skip_on_version_lt version
+    skip "Only for elasticsearch #{version} and greater" if Chewy::Runtime.version < version
+  end
 end

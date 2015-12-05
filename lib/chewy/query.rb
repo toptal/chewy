@@ -353,6 +353,7 @@ module Chewy
     # Returns empty hash if no facets was requested or resulted.
     #
     def facets params = nil
+      raise RemovedFeature, 'removed in elasticsearch 2.0' if Runtime.version >= '2.0'
       if params
         chain { criteria.update_facets params }
       else

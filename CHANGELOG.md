@@ -1,5 +1,21 @@
 # master
 
+## Changes
+
+  * Sequel support completely reworked to use common ORM implementations + better sequel specs covarage.
+
+## Bugfixes
+
+  * Sequel objects transactional destruction fix
+
+  * Correct Rspec mocking framework checking (@mainameiz)
+
+  * Atomic strategy is now compatible with custom ids proc.
+
+  * Safe unsubscribe on import (@marshall-lee)
+
+  * Correct custom assets path silencer (@davekaro)
+
 ## Incompatible changes:
 
   * `Chewy.atomic` and `Chewy.urgent_update=` methods was removed from the codebase, use `Chewy.strategy` block instead.

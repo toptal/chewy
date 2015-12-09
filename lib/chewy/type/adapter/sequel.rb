@@ -13,16 +13,6 @@ module Chewy
             target.is_a?(::Sequel::Dataset))
         end
 
-        def identify collection
-          if collection.is_a?(relation_class)
-            pluck_ids(collection)
-          else
-            Array.wrap(collection).map do |entity|
-              entity.is_a?(object_class) ? entity.public_send(primary_key) : entity
-            end
-          end
-        end
-
       private
 
         def cleanup_default_scope!
@@ -40,7 +30,7 @@ module Chewy
           result = true
 
           while ids.any?
-            result &= yield grouped_objects(default_scope_where_ids_in(ids))
+            result &= yield grouped_objects(default_scope_where_ids_in(ids).all)
             break if ids.size < batch_size
             ids = pluck_ids(scope.where { |o| o.__send__(primary_key) > ids.last })
           end
@@ -50,6 +40,10 @@ module Chewy
 
         def primary_key
           target.primary_key
+        end
+
+        def all_scope
+          target.dataset
         end
 
         def pluck_ids(scope)
@@ -70,6 +64,10 @@ module Chewy
 
         def object_class
           ::Sequel::Model
+        end
+
+        def load_scope_objects(*args)
+          super.all
         end
       end
     end

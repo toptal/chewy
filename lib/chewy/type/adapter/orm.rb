@@ -94,13 +94,7 @@ module Chewy
           additional_scope = load_options[load_options[:_type].type_name.to_sym].try(:[], :scope) || load_options[:scope]
 
           scope = all_scope_where_ids_in(objects.map(&primary_key))
-          loaded_objects = if additional_scope.is_a?(Proc)
-            scope.instance_exec(&additional_scope)
-          elsif additional_scope.is_a?(relation_class) && scope.respond_to?(:merge)
-            scope.merge(additional_scope)
-          else
-            scope
-          end.index_by { |object| object.public_send(primary_key).to_s }
+          loaded_objects = load_scope_objects(scope, additional_scope).index_by { |object| object.public_send(primary_key).to_s }
 
           objects.map { |object| loaded_objects[object.public_send(primary_key).to_s] }
         end
@@ -147,6 +141,16 @@ module Chewy
 
         def model_of_relation relation
           relation.klass
+        end
+
+        def load_scope_objects(scope, additional_scope = nil)
+          if additional_scope.is_a?(Proc)
+            scope.instance_exec(&additional_scope)
+          elsif additional_scope.is_a?(relation_class) && scope.respond_to?(:merge)
+            scope.merge(additional_scope)
+          else
+            scope
+          end
         end
       end
     end

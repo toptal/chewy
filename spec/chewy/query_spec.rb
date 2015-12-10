@@ -382,23 +382,33 @@ describe Chewy::Query do
 
     specify do
       skip_on_plugin_missing_from_version('delete-by-query', '2.0')
-      expect { subject.query(match: {name: 'name3'}).delete_all }.to change { ProductsIndex.total }.from(9).to(8)
+      expect {
+        subject.query(match: {name: 'name3'}).delete_all
+        Chewy.client.indices.refresh(index: 'products') }.to change { ProductsIndex.total }.from(9).to(8)
     end
     specify do
       skip_on_plugin_missing_from_version('delete-by-query', '2.0')
-      expect { subject.filter { age == [10, 20] }.delete_all }.to change { ProductsIndex.total_count }.from(9).to(7)
+      expect {
+        subject.filter { age == [10, 20] }.delete_all
+        Chewy.client.indices.refresh(index: 'products') }.to change { ProductsIndex.total_count }.from(9).to(7)
     end
     specify do
       skip_on_plugin_missing_from_version('delete-by-query', '2.0')
-      expect { subject.types(:product).delete_all }.to change { ProductsIndex::Product.total_entries }.from(3).to(0)
+      expect {
+        subject.types(:product).delete_all
+        Chewy.client.indices.refresh(index: 'products') }.to change { ProductsIndex::Product.total_entries }.from(3).to(0)
     end
     specify do
       skip_on_plugin_missing_from_version('delete-by-query', '2.0')
-      expect { ProductsIndex.delete_all }.to change { ProductsIndex.total }.from(9).to(0)
+      expect {
+        ProductsIndex.delete_all
+        Chewy.client.indices.refresh(index: 'products') }.to change { ProductsIndex.total }.from(9).to(0)
     end
     specify do
       skip_on_plugin_missing_from_version('delete-by-query', '2.0')
-      expect { ProductsIndex::City.delete_all }.to change { ProductsIndex.total }.from(9).to(6)
+      expect {
+        ProductsIndex::City.delete_all
+        Chewy.client.indices.refresh(index: 'products') }.to change { ProductsIndex.total }.from(9).to(6)
     end
 
     specify do

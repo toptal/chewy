@@ -514,7 +514,7 @@ There are a couple of predefined strategies for your Rails application. Initiall
 
 Migrations are wrapped with the `:bypass` strategy. Because the main behavior implies that indices are reset after migration, there is no need for extra index updates. Also indexing might be broken during migrations because of the outdated schema.
 
-Controller actions are wrapped with the `:atomic` strategy with middleware just to reduce the number of index update requests inside actions.
+Controller actions are wrapped with the configurable value of `Chewy.request_strategy` and defaults to `:atomic`. This is done at the middleware level to reduce the number of index update requests inside actions.
 
 It is also a good idea to set up the `:bypass` strategy inside your test suite and import objects manually only when needed, and use `Chewy.massacre` when needed to flush test ES indices before every example. This will allow you to minimize unnecessary ES requests and reduce overhead.
 

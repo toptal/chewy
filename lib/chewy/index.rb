@@ -80,11 +80,14 @@ module Chewy
       type_class = Chewy.create_type(self, target, options, &block)
       self.type_hash = type_hash.merge(type_class.type_name => type_class)
 
-      class_eval <<-METHOD, __FILE__, __LINE__ + 1
-        def self.#{type_class.type_name}
-          type_hash['#{type_class.type_name}']
-        end
-      METHOD
+      unless respond_to?(type_class.type_name)
+        class_eval <<-METHOD, __FILE__, __LINE__ + 1
+          def self.#{type_class.type_name}
+            ActiveSupport::Deprecation.warn("`#{self}.#{type_class.type_name}` accessor is deprecated and will be removed soon. Use `#{type_class}` directly instead.")
+            type_hash['#{type_class.type_name}']
+          end
+        METHOD
+      end
     end
 
     # Types method has double usage.

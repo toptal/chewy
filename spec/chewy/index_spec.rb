@@ -108,6 +108,20 @@ describe Chewy::Index do
         }.to raise_error(NameError)
       end
     end
+
+    context 'type methods should be deprecated and can\'t redefine existion ones' do
+      before do
+        stub_index(:places) do
+          def self.city
+          end
+          define_type :city
+          define_type :country
+        end
+      end
+
+      specify { expect(PlacesIndex.city).to be_nil }
+      specify { expect(PlacesIndex.country).to be < Chewy::Type }
+    end
   end
 
   describe '.type_hash' do

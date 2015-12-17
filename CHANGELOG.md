@@ -2,6 +2,14 @@
 
 ## Changes
 
+  * Accessing types with methods is deprecated. Use `MyIndex::MyType` constant reference instead of `MyIndex.my_type` method.
+
+  * Sequel adapter improvements by @mrbrdo
+
+# Version 0.8.3
+
+## Changes
+
   * Sequel support completely reworked to use common ORM implementations + better sequel specs covarage.
 
 ## Bugfixes

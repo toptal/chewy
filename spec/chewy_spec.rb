@@ -25,11 +25,11 @@ describe Chewy do
     specify { expect { described_class.derive_type('developers#borogoves') }.to raise_error Chewy::UnderivableType, /DevelopersIndex.*borogoves/ }
     specify { expect { described_class.derive_type('namespace/autocomplete') }.to raise_error Chewy::UnderivableType, /AutocompleteIndex.*namespace\/autocomplete#type_name/ }
 
-    specify { expect(described_class.derive_type(DevelopersIndex.developer)).to eq(DevelopersIndex.developer) }
-    specify { expect(described_class.derive_type('developers')).to eq(DevelopersIndex.developer) }
-    specify { expect(described_class.derive_type('developers#developer')).to eq(DevelopersIndex.developer) }
-    specify { expect(described_class.derive_type('namespace/autocomplete#developer')).to eq(Namespace::AutocompleteIndex.developer) }
-    specify { expect(described_class.derive_type('namespace/autocomplete#company')).to eq(Namespace::AutocompleteIndex.company) }
+    specify { expect(described_class.derive_type(DevelopersIndex::Developer)).to eq(DevelopersIndex::Developer) }
+    specify { expect(described_class.derive_type('developers')).to eq(DevelopersIndex::Developer) }
+    specify { expect(described_class.derive_type('developers#developer')).to eq(DevelopersIndex::Developer) }
+    specify { expect(described_class.derive_type('namespace/autocomplete#developer')).to eq(Namespace::AutocompleteIndex::Developer) }
+    specify { expect(described_class.derive_type('namespace/autocomplete#company')).to eq(Namespace::AutocompleteIndex::Company) }
   end
 
   describe '.create_type' do

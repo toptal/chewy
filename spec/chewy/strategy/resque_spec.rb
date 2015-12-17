@@ -3,7 +3,7 @@ require 'spec_helper'
 if defined?(::Resque)
   require 'resque_spec'
 
-  describe Chewy::Strategy::Resque do
+  describe Chewy::Strategy::Resque, :orm do
     around { |example| Chewy.strategy(:bypass) { example.run } }
     before { ResqueSpec.reset! }
     before do

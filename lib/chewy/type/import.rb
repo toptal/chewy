@@ -181,7 +181,8 @@ module Chewy
             break if result['hits']['hits'].empty?
 
             result['hits']['hits'].map do |hit|
-              indexed_objects[hit['_id']] = { parent: hit['fields']['_parent'] }
+              parent = hit.has_key?('_parent') ? hit['_parent'] : hit['fields']['_parent']
+              indexed_objects[hit['_id']] = { parent: parent }
             end
           end
 

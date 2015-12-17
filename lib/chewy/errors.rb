@@ -36,4 +36,10 @@ Please wrap your code with `Chewy.strategy(:strategy_name) block.`
       super message
     end
   end
+
+  class RemovedFeature < Error
+  end
+
+  class PluginMissing < Error
+  end
 end

@@ -154,6 +154,7 @@ describe Chewy::Type::Import do
         end
 
         specify do
+          skip_on_version_gte('2.0', 'format of exception changed in 2.x')
           outer_payload = nil
           ActiveSupport::Notifications.subscribe('import_objects.chewy') do |name, start, finish, id, payload|
             outer_payload = payload
@@ -166,6 +167,25 @@ describe Chewy::Type::Import do
               index: {
                 "WriteFailureException; nested: MapperParsingException[object mapping for [city] tried to parse field [name] as object, but got EOF, has a concrete value been provided to it?]; " => ["1"],
                 "MapperParsingException[object mapping for [city] tried to parse field [name] as object, but got EOF, has a concrete value been provided to it?]" => ["2", "3"]
+              }
+            },
+            import: {index: 3}
+          })
+        end
+
+        specify do
+          skip_on_version_lt('2.0', 'format of exception was changed')
+          outer_payload = nil
+          ActiveSupport::Notifications.subscribe('import_objects.chewy') do |name, start, finish, id, payload|
+            outer_payload = payload
+          end
+
+          city.import dummy_cities, batch_size: 2
+          expect(outer_payload).to eq({
+            type: CitiesIndex::City,
+            errors: {
+              index: {
+                {"type"=>"mapper_parsing_exception", "reason"=>"object mapping for [name] tried to parse field [name] as object, but found a concrete value"} => ["1", "2", "3"]
               }
             },
             import: {index: 3}

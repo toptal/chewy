@@ -24,7 +24,7 @@ describe Chewy::Query::Pagination do
     describe '#total_count' do
       specify { expect(search.total_count).to eq(10) }
       specify { expect(search.limit(5).total_count).to eq(10) }
-      specify { expect(search.filter(numeric_range: {age: {gt: 20}}).limit(3).total_count).to eq(8) }
+      specify { expect(search.filter(range: {age: {gt: 20}}).limit(3).total_count).to eq(8) }
     end
 
     describe '#load' do

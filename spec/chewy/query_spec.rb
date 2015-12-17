@@ -174,10 +174,27 @@ describe Chewy::Query do
   end
 
   describe '#facets' do
-    specify { expect(subject.facets(term: {field: 'hello'})).to be_a described_class }
-    specify { expect(subject.facets(term: {field: 'hello'})).not_to eq(subject) }
-    specify { expect(subject.facets(term: {field: 'hello'}).criteria.facets).to include(term: {field: 'hello'}) }
-    specify { expect { subject.facets(term: {field: 'hello'}) }.not_to change { subject.criteria.facets } }
+    specify do
+      skip_on_version_lt('2.0')
+      expect { subject.facets }.to raise_error(Chewy::RemovedFeature).with_message('removed in elasticsearch 2.0')
+    end
+
+    specify do
+      skip_on_version_gte('2.0')
+      expect(subject.facets(term: {field: 'hello'})).to be_a described_class
+    end
+    specify do
+      skip_on_version_gte('2.0')
+      expect(subject.facets(term: {field: 'hello'})).not_to eq(subject)
+    end
+    specify do
+      skip_on_version_gte('2.0')
+      expect(subject.facets(term: {field: 'hello'}).criteria.facets).to include(term: {field: 'hello'})
+    end
+    specify do
+      skip_on_version_gte('2.0')
+      expect { subject.facets(term: {field: 'hello'}) }.not_to change { subject.criteria.facets }
+    end
 
     context 'results', :orm do
       before { stub_model(:city) }
@@ -193,17 +210,23 @@ describe Chewy::Query do
 
       before { CitiesIndex::City.import! cities }
 
-      specify { expect(CitiesIndex.facets).to eq({}) }
-      specify { expect(CitiesIndex.facets(ratings: {terms: {field: 'rating'}}).facets).to eq({
-        'ratings' => {
-          '_type' => 'terms', 'missing' => 0, 'total' => 10, 'other' => 0,
-          'terms' => [
-            {'term' => 0, 'count' => 4},
-            {'term' => 2, 'count' => 3},
-            {'term' => 1, 'count' => 3}
-          ]
-        }
-      }) }
+      specify do
+        skip_on_version_gte('2.0')
+        expect(CitiesIndex.facets).to eq({})
+      end
+      specify do
+        skip_on_version_gte('2.0')
+        expect(CitiesIndex.facets(ratings: {terms: {field: 'rating'}}).facets).to eq({
+          'ratings' => {
+            '_type' => 'terms', 'missing' => 0, 'total' => 10, 'other' => 0,
+            'terms' => [
+              {'term' => 0, 'count' => 4},
+              {'term' => 2, 'count' => 3},
+              {'term' => 1, 'count' => 3}
+            ]
+          }
+        })
+      end
     end
   end
 
@@ -357,11 +380,42 @@ describe Chewy::Query do
       ProductsIndex::Country.import!(countries.map { |h| double(h) })
     end
 
-    specify { expect { subject.query(match: {name: 'name3'}).delete_all }.to change { ProductsIndex.total }.from(9).to(8) }
-    specify { expect { subject.filter { age == [10, 20] }.delete_all }.to change { ProductsIndex.total_count }.from(9).to(7) }
-    specify { expect { subject.types(:product).delete_all }.to change { ProductsIndex::Product.total_entries }.from(3).to(0) }
-    specify { expect { ProductsIndex.delete_all }.to change { ProductsIndex.total }.from(9).to(0) }
-    specify { expect { ProductsIndex::City.delete_all }.to change { ProductsIndex.total }.from(9).to(6) }
+    specify do
+      skip_on_plugin_missing_from_version('delete-by-query', '2.0')
+      expect {
+        subject.query(match: {name: 'name3'}).delete_all
+        Chewy.client.indices.refresh(index: 'products') }.to change { ProductsIndex.total }.from(9).to(8)
+    end
+    specify do
+      skip_on_plugin_missing_from_version('delete-by-query', '2.0')
+      expect {
+        subject.filter { age == [10, 20] }.delete_all
+        Chewy.client.indices.refresh(index: 'products') }.to change { ProductsIndex.total_count }.from(9).to(7)
+    end
+    specify do
+      skip_on_plugin_missing_from_version('delete-by-query', '2.0')
+      expect {
+        subject.types(:product).delete_all
+        Chewy.client.indices.refresh(index: 'products') }.to change { ProductsIndex::Product.total_entries }.from(3).to(0)
+    end
+    specify do
+      skip_on_plugin_missing_from_version('delete-by-query', '2.0')
+      expect {
+        ProductsIndex.delete_all
+        Chewy.client.indices.refresh(index: 'products') }.to change { ProductsIndex.total }.from(9).to(0)
+    end
+    specify do
+      skip_on_plugin_missing_from_version('delete-by-query', '2.0')
+      expect {
+        ProductsIndex::City.delete_all
+        Chewy.client.indices.refresh(index: 'products') }.to change { ProductsIndex.total }.from(9).to(6)
+    end
+
+    specify do
+      skip_on_version_lt('2.0')
+      expect(Chewy.client.nodes).to receive(:info).and_return({"nodes" => {"a" => {"plugins" => {"name" => "hello"}}}})
+      expect { ProductsIndex.delete_all }.to raise_error(Chewy::PluginMissing).with_message("install delete-by-query plugin")
+    end
   end
 
   describe '#find' do

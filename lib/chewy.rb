@@ -122,7 +122,10 @@ module Chewy
     # Main elasticsearch-ruby client instance
     #
     def client
-      Thread.current[:chewy_client] ||= ::Elasticsearch::Client.new configuration
+      Thread.current[:chewy_client] ||= begin
+        klass = configuration[:client_class] || ::Elasticsearch::Client
+        klass.new configuration
+      end
     end
 
     # Sends wait_for_status request to ElasticSearch with status

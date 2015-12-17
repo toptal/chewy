@@ -110,4 +110,18 @@ describe Chewy do
     specify { expect(DevelopersIndex.exists?).to eq(false) }
     specify { expect(CompaniesIndex.exists?).to eq(false) }
   end
+
+  describe '.client' do
+    let!(:initial_client) { Thread.current[:chewy_client] }
+    let(:klass) { Class.new(::Elasticsearch::Transport::Client) }
+
+    before do
+      Thread.current[:chewy_client] = nil
+      allow(Chewy).to receive_messages(configuration: { client_class: klass })
+    end
+
+    its(:client) { is_expected.to be_a klass }
+
+    after { Thread.current[:chewy_client] = initial_client }
+  end
 end

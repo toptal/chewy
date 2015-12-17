@@ -110,4 +110,20 @@ describe Chewy do
     specify { expect(DevelopersIndex.exists?).to eq(false) }
     specify { expect(CompaniesIndex.exists?).to eq(false) }
   end
+
+  describe '.client' do
+    let!(:initial_client) { Thread.current[:chewy_client] }
+    let(:block) { proc { } }
+    let(:mock_client) { double(:client) }
+
+    before do
+      Thread.current[:chewy_client] = nil
+      allow(Chewy).to receive_messages(configuration: { transport_options: { proc: block } })
+      allow(::Elasticsearch::Client).to receive(:new).with(Chewy.configuration, &block).and_return(mock_client)
+    end
+
+    its(:client) { is_expected.to eq(mock_client) }
+
+    after { Thread.current[:chewy_client] = initial_client }
+  end
 end

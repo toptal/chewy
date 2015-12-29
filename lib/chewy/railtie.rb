@@ -10,7 +10,8 @@ module Chewy
       end
 
       def call(env)
-        if env['PATH_INFO'].start_with?(Rails.application.config.assets.prefix)
+        # For Rails applications in `api_only` mode, the `assets` config isn't present
+        if Rails.application.config.respond_to?(:assets) && env['PATH_INFO'].start_with?(Rails.application.config.assets.prefix)
           @app.call(env)
         else
           Chewy.strategy(Chewy.request_strategy) { @app.call(env) }

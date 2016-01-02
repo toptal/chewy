@@ -79,7 +79,7 @@ module Chewy
           action_objects.flat_map do |action, objects|
             method = "#{action}_bulk_entry"
             crutches = Chewy::Type::Crutch::Crutches.new self, objects
-            objects.map { |object| send(method, object, indexed_objects, crutches) }.flatten
+            objects.flat_map { |object| send(method, object, indexed_objects, crutches) }
           end
         end
 

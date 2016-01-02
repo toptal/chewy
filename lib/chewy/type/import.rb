@@ -76,10 +76,10 @@ module Chewy
       private
 
         def bulk_body(action_objects, indexed_objects = nil)
-          action_objects.inject([]) do |result, (action, objects)|
+          action_objects.flat_map do |action, objects|
             method = "#{action}_bulk_entry"
             crutches = Chewy::Type::Crutch::Crutches.new self, objects
-            result.concat(objects.map { |object| send(method, object, indexed_objects, crutches) }.flatten)
+            objects.map { |object| send(method, object, indexed_objects, crutches) }.flatten
           end
         end
 

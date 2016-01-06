@@ -14,7 +14,7 @@ describe Chewy::Strategy do
   end
 
   describe '#push' do
-    specify { expect { strategy.push(:unexistant) }.to raise_error(NameError).with_message(/uninitialized constant.*Unexistant/) }
+    specify { expect { strategy.push(:unexistant) }.to raise_error(RuntimeError).with_message("Can't find update strategy `unexistant`") }
 
     specify do
       expect { strategy.push(:atomic) }
@@ -31,6 +31,18 @@ describe Chewy::Strategy do
       expect { strategy.pop }
         .to change { strategy.current }
         .to(an_instance_of(Chewy::Strategy::Base))
+    end
+  end
+
+  describe '#wrap' do
+    specify { expect { strategy.wrap(:unexistant) {} }.to raise_error(RuntimeError).with_message("Can't find update strategy `unexistant`") }
+
+    specify do
+      expect do
+        strategy.wrap(:urgent) do
+          expect(strategy.current).to be_a(Chewy::Strategy::Urgent)
+        end
+      end.not_to change { strategy.current }
     end
   end
 

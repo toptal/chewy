@@ -56,10 +56,10 @@ module Chewy
     end
 
     def wrap name
-      push name
+      stack = push(name)
       yield
     ensure
-      pop
+      pop if stack
     end
 
   private
@@ -72,7 +72,11 @@ module Chewy
     end
 
     def resolve name
-      "Chewy::Strategy::#{name.to_s.camelize}".constantize or raise "Can't find update strategy `#{name}`"
+      "Chewy::Strategy::#{name.to_s.camelize}".safe_constantize or raise "Can't find update strategy `#{name}`"
+    rescue NameError => ex
+      # WORKAROUND: Strange behavior of `safe_constantize` with mongoid gem
+      raise "Can't find update strategy `#{name}`" if ex.name.to_s.demodulize == name.to_s.camelize
+      raise
     end
   end
 end

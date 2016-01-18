@@ -18,16 +18,6 @@ module Chewy
     include Loading
     include Pagination
 
-    RESULT_MERGER = lambda do |key, old_value, new_value|
-      if old_value.is_a?(Hash) && new_value.is_a?(Hash)
-        old_value.merge(new_value, &RESULT_MERGER)
-      elsif new_value.is_a?(Array) && new_value.count > 1
-        new_value
-      else
-        old_value.is_a?(Array) ? new_value : new_value.first
-      end
-    end
-
     delegate :each, :count, :size, to: :_collection
     alias_method :to_ary, :to_a
 
@@ -1005,8 +995,8 @@ module Chewy
 
     def _results
       @_results ||= (criteria.none? || _response == {} ? [] : _response['hits']['hits']).map do |hit|
-        attributes = (hit['_source'] || {}).merge(hit['highlight'] || {}, &RESULT_MERGER)
-        attributes.reverse_merge!(id: hit['_id'])
+        attributes = (hit['_source'] || {})
+          .reverse_merge(id: hit['_id'])
           .merge!(_score: hit['_score'])
           .merge!(_explanation: hit['_explanation'])
 

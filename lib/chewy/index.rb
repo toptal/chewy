@@ -30,7 +30,7 @@ module Chewy
     #
     def self.index_name(suggest = nil)
       if suggest
-        @index_name = build_index_name(suggest, prefix: Chewy.configuration[:prefix])
+        @index_name = build_index_name(suggest, prefix: prefix)
       else
         @index_name ||= begin
           build_index_name(
@@ -40,6 +40,12 @@ module Chewy
         end
       end
       @index_name or raise UndefinedIndex
+    end
+
+    # Prefix to use 
+    #
+    def self.prefix
+      Chewy.configuration[:prefix]
     end
 
     # Defines type for the index. Arguments depends on adapter used. For

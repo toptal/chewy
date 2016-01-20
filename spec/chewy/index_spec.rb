@@ -68,9 +68,9 @@ describe Chewy::Index do
     end
   end
 
-  describe '.prefix' do
+  describe '.default_prefix' do
     before { allow(Chewy).to receive_messages(configuration: {prefix: 'testing'}) }
-    specify { expect(Class.new(Chewy::Index).prefix).to eq('testing') }
+    specify { expect(Class.new(Chewy::Index).default_prefix).to eq('testing') }
   end
 
   describe '.define_type' do

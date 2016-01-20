@@ -30,12 +30,12 @@ module Chewy
     #
     def self.index_name(suggest = nil)
       if suggest
-        @index_name = build_index_name(suggest, prefix: prefix)
+        @index_name = build_index_name(suggest, prefix: default_prefix)
       else
         @index_name ||= begin
           build_index_name(
             name.sub(/Index\Z/, '').demodulize.underscore,
-            prefix: Chewy.configuration[:prefix]
+            prefix: default_prefix 
           ) if name
         end
       end
@@ -44,7 +44,7 @@ module Chewy
 
     # Prefix to use 
     #
-    def self.prefix
+    def self.default_prefix
       Chewy.configuration[:prefix]
     end
 

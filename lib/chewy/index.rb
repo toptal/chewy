@@ -32,7 +32,7 @@ module Chewy
       if suggest
         @index_name = build_index_name(suggest, prefix: default_prefix)
       else
-        @index_name ||= begin
+        @index_name = begin
           build_index_name(
             name.sub(/Index\Z/, '').demodulize.underscore,
             prefix: default_prefix 

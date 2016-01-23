@@ -504,8 +504,6 @@ describe Chewy::Query do
     specify { expect(subject.order(field: :asc).criteria.sort).to eq([{field: :asc}]) }
     specify { expect(subject.order({field1: :asc, field2: :desc}).criteria.sort).to eq([{field1: :asc}, {field2: :desc}]) }
     specify { expect(subject.order({field1: {order: :asc}, field2: :desc}).order([:field3], :field4).criteria.sort).to eq([{field1: {order: :asc}}, {field2: :desc}, :field3, :field4]) }
-
-
   end
 
   describe '#reorder' do

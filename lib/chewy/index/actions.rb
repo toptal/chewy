@@ -24,8 +24,8 @@ module Chewy
         # method creates index with suffix and makes unsuffixed alias
         # for it.
         #
-        #   UsersIndex.create '01-2013' # creates index `uses_01-2013` and alias `users` for it
-        #   UsersIndex.create '01-2013', alias: false # creates index `uses_01-2013` only and no alias
+        #   UsersIndex.create '01-2013' # creates index `users_01-2013` and alias `users` for it
+        #   UsersIndex.create '01-2013', alias: false # creates index `users_01-2013` only and no alias
         #
         # Suffixed index names might be used for zero-downtime mapping change, for example.
         # Description: (http://www.elasticsearch.org/blog/changing-mapping-with-zero-downtime/).

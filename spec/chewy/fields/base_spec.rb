@@ -11,6 +11,10 @@ describe Chewy::Fields::Base do
     specify { expect(field.compose(double(value: ['hello', 'world']))).to eq({name: ['hello', 'world']}) }
 
     specify { expect(described_class.new(:name).compose(double(name: 'hello'))).to eq({name: 'hello'}) }
+    specify { expect(described_class.new(:false_value).compose({false_value: false})).to eq({false_value: false}) }
+    specify { expect(described_class.new(:true_value).compose({true_value: true})).to eq({true_value: true}) }
+    specify { expect(described_class.new(:nil_value).compose({nil_value: nil})).to eq({nil_value: nil}) }
+
 
     context 'nested fields' do
       before do
@@ -62,14 +66,14 @@ describe Chewy::Fields::Base do
 
     context 'hash values' do
       let(:field) { described_class.new(:name, type: 'object') }
-      let(:object) { double(name: { key1: 'value1', key2: 'value2' }) }
+      let(:object) { double(name: { key1: 'value1', key2: 'value2'}) }
 
       before do
         field.children.push(described_class.new(:key1, value: ->(h){ h[:key1] }))
         field.children.push(described_class.new(:key2, value: ->(h){ h[:key2] }))
       end
 
-      specify{ expect(field.compose(object)).to eq({ name: { 'key1' => 'value1', 'key2' => 'value2' } }) }
+      specify{ expect(field.compose(object)).to eq({ name: { 'key1' => 'value1', 'key2' => 'value2'} }) }
     end
   end
 

@@ -39,10 +39,16 @@ module Chewy
             value.call(*objects.first(value.arity))
           end
         elsif object.is_a?(Hash)
-          object[name] || object[name.to_s]
+          if object.has_key?(name)
+            object[name]
+          else
+            object[name.to_s]
+          end
         else
           object.send(name)
         end
+
+
 
         result = if result.respond_to?(:to_ary)
           result.to_ary.map { |result| compose_children(result, *objects) }

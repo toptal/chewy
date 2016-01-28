@@ -13,8 +13,8 @@ module Chewy
       class Worker < ::ActiveJob::Base
         queue_as :chewy
 
-        def perform(type, ids)
-          type.constantize.import!(ids)
+        def perform(type, ids, options = {})
+          type.constantize.import!(ids, options)
         end
       end
 

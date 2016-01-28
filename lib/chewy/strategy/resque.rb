@@ -13,8 +13,8 @@ module Chewy
       class Worker
         @queue = :chewy
 
-        def self.perform(type, ids)
-          type.constantize.import!(ids)
+        def self.perform(type, ids, options = {})
+          type.constantize.import!(ids, options)
         end
       end
 

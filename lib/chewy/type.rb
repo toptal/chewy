@@ -53,6 +53,8 @@ module Chewy
           all.scoping { index.public_send(method, *args, &block) }
         end
         send(method, *args, &block)
+      else
+        super
       end
     end
 

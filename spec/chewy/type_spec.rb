@@ -19,5 +19,6 @@ describe Chewy::Type do
 
     specify { expect(described_class.scopes).to eq([]) }
     specify { expect(PlacesIndex::City.scopes).to match_array([:by_rating, :by_name]) }
+    specify { expect { PlacesIndex::City.non_existing_method_call }.to raise_error(NoMethodError) }
   end
 end

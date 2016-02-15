@@ -253,7 +253,7 @@ To define a multi field you have to specify any type except for `object` or `nes
 
 ```ruby
 field :full_name, type: 'string', value: ->{ full_name.strip } do
-  field :ordered, analyzer: `ordered`
+  field :ordered, analyzer: 'ordered'
   field :untouched, index: 'not_analyzed'
 end
 ```

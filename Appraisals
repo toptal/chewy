@@ -22,28 +22,30 @@
   end
 end
 
-%w(4.0 4.1 4.2).each do |version|
-  appraise "rails.#{version}.mongoid" do
-    gem 'mongoid', '~> 4.0.0'
-    gem 'activesupport', "~> #{version}.0"
-    gem 'resque', require: false
-    gem 'sidekiq', require: false
-  end
+%w(4.0 4.1 4.2).each do |activesupport|
+  %w(4.0.0 5.1.0).each do |mongoid|
+    appraise "rails.#{activesupport}.mongoid.#{mongoid}" do
+      gem 'mongoid', "> #{mongoid}"
+      gem 'activesupport', "~> #{activesupport}.0"
+      gem 'resque', require: false
+      gem 'sidekiq', require: false
+    end
 
-  appraise "rails.#{version}.mongoid.kaminari" do
-    gem 'mongoid', '~> 4.0.0'
-    gem 'activesupport', "~> #{version}.0"
-    gem 'kaminari', '0.16.3', require: false
-  end
+    appraise "rails.#{activesupport}.mongoid.#{mongoid}.kaminari" do
+      gem 'mongoid', "> #{mongoid}"
+      gem 'activesupport', "~> #{activesupport}.0"
+      gem 'kaminari', '0.16.3', require: false
+    end
 
-  appraise "rails.#{version}.mongoid.will_paginate" do
-    gem 'mongoid', '~> 4.0.0'
-    gem 'activesupport', "~> #{version}.0"
-    gem 'will_paginate', require: false
+    appraise "rails.#{activesupport}.mongoid.#{mongoid}.will_paginate" do
+      gem 'mongoid', "> #{mongoid}"
+      gem 'activesupport', "~> #{activesupport}.0"
+      gem 'will_paginate', require: false
+    end
   end
 end
 
-appraise "sequel.4.28" do
-  gem 'sequel', "~> 4.28.0"
+appraise "sequel.4.31" do
+  gem 'sequel', "~> 4.31.0"
   gem 'activesupport', '~> 4.2.0'
 end

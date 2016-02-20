@@ -2,9 +2,9 @@
 
 source "https://rubygems.org"
 
-gem "mongoid", "~> 4.0.0"
+gem "mongoid", "> 5.1.0"
 gem "activesupport", "~> 4.0.0"
-gem "will_paginate", :require => false
+gem "kaminari", "0.16.3", :require => false
 
 group :test do
   gem "guard"

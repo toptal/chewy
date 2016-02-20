@@ -2,7 +2,7 @@
 
 source "https://rubygems.org"
 
-gem "mongoid", "~> 4.0.0"
+gem "mongoid", "> 4.0.0"
 gem "activesupport", "~> 4.0.0"
 gem "resque", :require => false
 gem "sidekiq", :require => false

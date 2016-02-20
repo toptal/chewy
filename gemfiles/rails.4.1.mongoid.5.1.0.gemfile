@@ -2,8 +2,7 @@
 
 source "https://rubygems.org"
 
-gem "mongoid"
-gem "activerecord", "~> 4.1.0"
+gem "mongoid", "> 5.1.0"
 gem "activesupport", "~> 4.1.0"
 gem "resque", :require => false
 gem "sidekiq", :require => false

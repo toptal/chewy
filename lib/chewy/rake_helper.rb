@@ -2,8 +2,8 @@ module Chewy
   module RakeHelper
     class << self
 
-      def subscribe_task_stats!
-        ActiveSupport::Notifications.subscribe('import_objects.chewy') do |name, start, finish, id, payload|
+      def subscribed_task_stats(&block)
+        callback = ->(name, start, finish, id, payload) do
           duration = (finish - start).round(2)
           puts "  Imported #{payload[:type]} for #{duration}s, documents total: #{payload[:import].try(:[], :index).to_i}"
           payload[:errors].each do |action, errors|
@@ -13,6 +13,9 @@ module Chewy
               puts "        on #{documents.count} documents: #{documents}"
             end
           end if payload[:errors]
+        end
+        ActiveSupport::Notifications.subscribed(callback, 'import_objects.chewy') do
+          yield
         end
       end
 

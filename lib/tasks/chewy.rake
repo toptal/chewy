@@ -16,6 +16,8 @@ namespace :chewy do
   namespace :reset do
     desc 'Destroy, recreate and import data for all found indexes'
     task all: :environment do
+      ActiveSupport::Deprecation.warn('`rake chewy:reset:all` is deprecated and will be removed soon. Use `rake chewy:reset` instead')
+
       Chewy::RakeHelper.subscribed_task_stats do
         Chewy::RakeHelper.reset_all
       end
@@ -37,6 +39,8 @@ namespace :chewy do
   namespace :update do
     desc 'Updates data for all found indexes'
     task all: :environment do
+      ActiveSupport::Deprecation.warn('`rake chewy:update:all` is deprecated and will be removed soon. Use `rake chewy:update` instead')
+
       Chewy::RakeHelper.subscribed_task_stats do
         Chewy::RakeHelper.update_all
       end

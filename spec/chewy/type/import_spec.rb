@@ -83,7 +83,8 @@ describe Chewy::Type::Import do
       before do
         names = %w(name0 name1)
 
-        criteria = if defined?(::Mongoid)
+        criteria = case adapter
+        when :mongoid
           { :name.in => names }
         else
           { name: names }

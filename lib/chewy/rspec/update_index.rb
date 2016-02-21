@@ -150,9 +150,20 @@ RSpec::Matchers.define :update_index do |type_name, options = {}|
 
     if @updated.none?
       output << "Expected index `#{type_name}` to be updated, but it was not\n"
-    else
-      output << "Expected index `#{type_name}` to update documents #{@reindex.keys} only, but #{@missed_reindex} was updated also\n" if @missed_reindex.any?
-      output << "Expected index `#{type_name}` to delete documents #{@delete.keys} only, but #{@missed_delete} was deleted also\n" if @missed_delete.any?
+    elsif @missed_reindex.present? || @missed_delete.present?
+      message = "Expected index `#{type_name}` "
+      message << [
+        ("to update documents #{@reindex.keys}" if @reindex.present?),
+        ("to delete documents #{@delete.keys}" if @delete.present?)
+      ].compact.join(' and ')
+      message << ' only, but '
+      message << [
+        ("#{@missed_reindex} was updated" if @missed_reindex.present?),
+        ("#{@missed_delete} was deleted" if @missed_delete.present?)
+      ].compact.join(' and ')
+      message << ' also.'
+
+      output << message
     end
 
     output << @reindex.each.with_object('') do |(id, document), output|

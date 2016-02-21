@@ -62,14 +62,14 @@ describe Chewy::Type::Import do
       let!(:country2) { Chewy.strategy(:atomic) { Country.create!(id: 2, update_condition: update_condition) } }
       let!(:city) { Chewy.strategy(:atomic) { City.create!(id: 1, country: country1) } }
 
-      specify { expect { city.save! }.to update_index('cities#city').and_reindex(city) }
-      specify { expect { city.save! }.to update_index('countries#country').and_reindex(country1) }
+      specify { expect { city.save! }.to update_index('cities#city').and_reindex(city).only }
+      specify { expect { city.save! }.to update_index('countries#country').and_reindex(country1).only }
 
-      specify { expect { city.update_attributes!(country: nil) }.to update_index('cities#city').and_reindex(city) }
-      specify { expect { city.update_attributes!(country: nil) }.to update_index('countries#country').and_reindex(country1) }
+      specify { expect { city.update_attributes!(country: nil) }.to update_index('cities#city').and_reindex(city).only }
+      specify { expect { city.update_attributes!(country: nil) }.to update_index('countries#country').and_reindex(country1).only }
 
-      specify { expect { city.update_attributes!(country: country2) }.to update_index('cities#city').and_reindex(city) }
-      specify { expect { city.update_attributes!(country: country2) }.to update_index('countries#country').and_reindex(country1, country2) }
+      specify { expect { city.update_attributes!(country: country2) }.to update_index('cities#city').and_reindex(city).only }
+      specify { expect { city.update_attributes!(country: country2) }.to update_index('countries#country').and_reindex(country1, country2).only }
     end
 
     context do
@@ -86,8 +86,8 @@ describe Chewy::Type::Import do
         end
       end
 
-      specify { expect { country.save! }.to update_index('cities#city').and_reindex(country.cities) }
-      specify { expect { country.save! }.to update_index('countries#country').and_reindex(country) }
+      specify { expect { country.save! }.to update_index('cities#city').and_reindex(country.cities).only }
+      specify { expect { country.save! }.to update_index('countries#country').and_reindex(country).only }
 
       context 'conditional update' do
         let(:update_condition) { false }

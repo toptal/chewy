@@ -100,7 +100,7 @@ RSpec::Matchers.define :update_index do |type_name, options = {}|
 
     type = Chewy.derive_type(type_name)
 
-    instance_eval <<-RUBY
+    instance_eval <<-RUBY, __FILE__, __LINE__ + 1
        #{agnostic_stub} do |bulk_options|
         @updated += bulk_options[:body].map do |updated_document|
           updated_document.deep_symbolize_keys
@@ -140,7 +140,7 @@ RSpec::Matchers.define :update_index do |type_name, options = {}|
         (document[:expected_count] && document[:expected_count] == document[:real_count])
     end
 
-    @updated.any? && @missed_reindex.none? && @missed_delete.none? &&
+    @updated.present? && @missed_reindex.none? && @missed_delete.none? &&
     @reindex.all? { |_, document| document[:match_count] && document[:match_attributes] } &&
     @delete.all? { |_, document| document[:match_count] }
   end
@@ -195,7 +195,7 @@ RSpec::Matchers.define :update_index do |type_name, options = {}|
   end
 
   failure_message_when_negated do
-    if @updated.any?
+    if @updated.present?
       "Expected index `#{type_name}` not to be updated, but it was with #{
         @updated.map(&:values).flatten.group_by { |documents| documents[:_id] }.map do |id, documents|
           "\n  document id `#{id}` (#{documents.count} times)"

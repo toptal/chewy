@@ -11,19 +11,19 @@ module Chewy
       end
 
       def multi_field?
-        children.any? && !object_field?
+        children.present? && !object_field?
       end
 
       def object_field?
-        (children.any? && options[:type].blank?) || ['object', 'nested'].include?(options[:type].to_s)
+        (children.present? && options[:type].blank?) || ['object', 'nested'].include?(options[:type].to_s)
       end
 
       def mappings_hash
-        mapping = children.any? ? {
+        mapping = children.present? ? {
           (multi_field? ? :fields : :properties) => children.map(&:mappings_hash).inject(:merge)
         } : {}
         mapping.reverse_merge!(options)
-        mapping.reverse_merge!(type: (children.any? ? 'object' : 'string'))
+        mapping.reverse_merge!(type: (children.present? ? 'object' : 'string'))
         {name => mapping}
       end
 
@@ -48,13 +48,11 @@ module Chewy
           object.send(name)
         end
 
-
-
         result = if result.respond_to?(:to_ary)
-          result.to_ary.map { |result| compose_children(result, *objects) }
+          result.to_ary.map { |item| compose_children(item, *objects) }
         else
           compose_children(result, *objects)
-        end if children.any? && !multi_field?
+        end if children.present? && !multi_field?
 
         {name => result.as_json(root: false)}
       end
@@ -62,7 +60,7 @@ module Chewy
     private
 
       def compose_children(value, *parent_objects)
-        children.map { |field| field.compose(value, *parent_objects) if value }.compact.inject(:merge)
+        children.map { |field| field.compose(value, *parent_objects) }.compact.inject(:merge) if value
       end
     end
   end

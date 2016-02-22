@@ -29,7 +29,7 @@ module Chewy
           ids = pluck_ids(scope)
           result = true
 
-          while ids.any?
+          while ids.present?
             result &= yield grouped_objects(default_scope_where_ids_in(ids).all)
             break if ids.size < batch_size
             ids = pluck_ids(scope.where { |o| o.__send__(primary_key) > ids.last })

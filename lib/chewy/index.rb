@@ -35,14 +35,14 @@ module Chewy
         @index_name ||= begin
           build_index_name(
             name.sub(/Index\Z/, '').demodulize.underscore,
-            prefix: default_prefix 
+            prefix: default_prefix
           ) if name
         end
       end
       @index_name or raise UndefinedIndex
     end
 
-    # Prefix to use 
+    # Prefix to use
     #
     def self.default_prefix
       Chewy.configuration[:prefix]
@@ -108,7 +108,7 @@ module Chewy
     #   UsersIndex.types(:admin, :manager).filters { name =~ 'ro' } # the same as the first example
     #
     def self.types *args
-      if args.any?
+      if args.present?
         all.types *args
       else
         type_hash.values

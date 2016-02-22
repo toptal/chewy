@@ -353,7 +353,72 @@ describe Chewy::Type::Import do
         country.import canada
       end
 
-    end  # END root id
+    end
+
+    xcontext 'performance' do
+      let!(:cities) do
+        1000.times.map do |i|
+          City.create(name: "Name #{i}", rating: i, country_id: i.next)
+        end
+      end
+
+      context do
+        before do
+          stub_index(:cities) do
+            define_type City do
+              field :name
+              field :rating
+              field :country_id
+            end
+          end
+        end
+        before do
+          allow(CitiesIndex::City).to receive(:bulk)
+        end
+
+        specify { p Benchmark.realtime { CitiesIndex::City.import(cities) } }
+        specify { p Benchmark.realtime { CitiesIndex::City.import } }
+      end
+
+      context do
+        before do
+          stub_index(:cities) do
+            define_type City do
+              field :name, value: -> { name }
+              field :rating, value: -> { rating }
+              field :country_id, value: -> { country_id }
+              field :name1, value: -> { name }
+              field :rating1, value: -> { rating }
+              field :country_id1, value: -> { country_id }
+              field :name2, value: -> { name }
+              field :rating2, value: -> { rating }
+              field :country_id2, value: -> { country_id }
+              field :name3, value: -> { name }
+              field :rating3, value: -> { rating }
+              field :country_id3, value: -> { country_id }
+              field :name4, value: -> { name }
+              field :rating4, value: -> { rating }
+              field :country_id4, value: -> { country_id }
+              field :name5, value: -> { name }
+              field :rating5, value: -> { rating }
+              field :country_id5, value: -> { country_id }
+              field :name6, value: -> { name }
+              field :rating6, value: -> { rating }
+              field :country_id6, value: -> { country_id }
+              field :name7, value: -> { name }
+              field :rating7, value: -> { rating }
+              field :country_id7, value: -> { country_id }
+            end
+          end
+        end
+        before do
+          allow(CitiesIndex::City).to receive(:bulk)
+        end
+
+        specify { p Benchmark.realtime { CitiesIndex::City.import(cities) } }
+        specify { p Benchmark.realtime { CitiesIndex::City.import } }
+      end
+    end
   end
 
   describe '.import!', :orm do

@@ -21,7 +21,7 @@ module Chewy
         mappings = super
         mappings[name].delete(:type)
 
-        if dynamic_templates.any?
+        if dynamic_templates.present?
           mappings[name][:dynamic_templates] ||= []
           mappings[name][:dynamic_templates].concat dynamic_templates
         end

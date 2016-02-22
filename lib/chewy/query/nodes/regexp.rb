@@ -8,8 +8,8 @@ module Chewy
           @name = name.to_s
           @regexp = regexp.respond_to?(:source) ? regexp.source : regexp.to_s
           @options = args.extract_options!
-          if args.any? || @options[:flags].present?
-            @options[:flags] = FLAGS & (args.any? ? args.flatten : @options[:flags]).map(&:to_s).map(&:downcase)
+          if args.present? || @options[:flags].present?
+            @options[:flags] = FLAGS & (args.present? ? args.flatten : @options[:flags]).map(&:to_s).map(&:downcase)
           end
         end
 

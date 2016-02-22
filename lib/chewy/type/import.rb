@@ -28,7 +28,7 @@ module Chewy
               indexed_objects = build_root.parent_id && fetch_indexed_objects(action_objects.values.flatten)
               body = bulk_body(action_objects, indexed_objects)
 
-              errors = bulk(bulk_options.merge(body: body)) if body.any?
+              errors = bulk(bulk_options.merge(body: body)) if body.present?
 
               fill_payload_import payload, action_objects
               fill_payload_errors payload, errors if errors.present?
@@ -154,11 +154,13 @@ module Chewy
         end
 
         def extract_errors result
-          result && result['items'].map do |item|
+          result && result['items'].each.with_object({}) do |item, memo|
             action = item.keys.first.to_sym
             data = item.values.first
-            {action: action, id: data['_id'], error: data['error']} if data['error']
-          end.compact.group_by { |item| item[:action] }.map do |action, items|
+            if data['error']
+              (memo[action] ||= []).push(action: action, id: data['_id'], error: data['error'])
+            end
+          end.map do |action, items|
             errors = items.group_by { |item| item[:error] }.map do |error, items|
               {error => items.map { |item| item[:id] }}
             end.reduce(&:merge)

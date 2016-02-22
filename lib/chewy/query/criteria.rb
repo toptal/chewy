@@ -32,7 +32,7 @@ module Chewy
 
       STORAGES.each do |storage|
         define_method "#{storage}?" do
-          send(storage).any?
+          send(storage).present?
         end
       end
 
@@ -69,7 +69,7 @@ module Chewy
       end
 
       [:filters, :queries, :post_filters].each do |storage|
-        class_eval <<-RUBY
+        class_eval <<-RUBY, __FILE__, __LINE__ + 1
           def update_#{storage}(modifier)
             @#{storage} = #{storage} + Array.wrap(modifier).reject(&:blank?)
           end

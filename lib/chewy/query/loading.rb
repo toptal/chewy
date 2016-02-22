@@ -93,7 +93,7 @@ module Chewy
 
         loaded_objects = Hash[_results.group_by(&:class).map do |type, objects|
           next if except.include?(type.type_name)
-          next if only.any? && !only.include?(type.type_name)
+          next if only.present? && !only.include?(type.type_name)
 
           loaded = type.adapter.load(objects, options.merge(_type: type))
           [type, loaded.index_by.with_index do |loaded, i|

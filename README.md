@@ -310,7 +310,7 @@ Then you can replace Rails associations with Chewy Crutches™ technology:
 
 ```ruby
 class ProductsIndex < Chewy::Index
-  define_type Product.includes(:categories) do
+  define_type Product do
     crutch :categories do |collection| # collection here is a current batch of products
       # data is fetched with a lightweight query without objects initialization
       data = ProductCategory.joins(:category).where(product_id: collection.map(&:id)).pluck(:product_id, 'categories.name')

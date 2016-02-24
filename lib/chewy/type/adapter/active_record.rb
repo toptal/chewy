@@ -25,18 +25,18 @@ module Chewy
         def import_scope(scope, batch_size, sort_by_updated_at)
           result = true
 
-          if !sort_by_updated_at || scope.new.send(:timestamp_attributes_for_update_in_model).empty?
-            scope = scope.reorder(target_id.asc).limit(batch_size)
+          if !sort_by_updated_at || timestamp_column_name.nil?
+            scope = scope.reorder(id_column.asc).limit(batch_size)
 
             ids = pluck_ids(scope)
 
             while ids.present?
               result &= yield grouped_objects(default_scope_where_ids_in(ids))
               break if ids.size < batch_size
-              ids = pluck_ids(scope.where(target_id.gt(ids.last)))
+              ids = pluck_ids(scope.where(id_column.gt(ids.last)))
             end
           else
-            scope = scope.reorder(target_updated_at.asc, target_id.asc).limit(batch_size)
+            scope = scope.reorder(timestamp_column.asc, id_column.asc).limit(batch_size)
 
             ids = pluck_ids_and_dates(scope)
 
@@ -50,7 +50,7 @@ module Chewy
               last_id, last_updated_at = ids.last
               ids = pluck_ids_and_dates(
                 scope.where(
-                  target_updated_at.gt(last_updated_at).or( target_updated_at.eq(last_updated_at).and( target_id.gt(last_id) ) )
+                  timestamp_column.gt(last_updated_at).or( timestamp_column.eq(last_updated_at).and( id_column.gt(last_id) ) )
                 )
               )
             end
@@ -59,13 +59,12 @@ module Chewy
           result
         end
 
-        def target_id
+        def id_column
           target.arel_table[target.primary_key]
         end
 
-        def target_updated_at
-          column = target.new.send(:timestamp_attributes_for_update_in_model).first
-          target.arel_table[column]
+        def timestamp_column
+          target.arel_table[timestamp_column_name]
         end
 
         def pluck_ids(scope)
@@ -73,11 +72,11 @@ module Chewy
         end
 
         def pluck_ids_and_dates(scope)
-          scope.except(:includes).uniq.pluck(target.primary_key.to_sym, target_updated_at.name)
+          scope.except(:includes).uniq.pluck(target.primary_key.to_sym, timestamp_column_name)
         end
 
         def scope_where_ids_in(scope, ids)
-          scope.where(target_id.in(Array.wrap(ids)))
+          scope.where(id_column.in(Array.wrap(ids)))
         end
 
         def relation_class
@@ -86,6 +85,10 @@ module Chewy
 
         def object_class
           ::ActiveRecord::Base
+        end
+
+        def timestamp_column_name
+          %w[updated_at updated_on].find { |name| target.column_names.include?(name) }
         end
       end
     end

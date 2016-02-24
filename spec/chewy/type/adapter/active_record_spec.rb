@@ -117,25 +117,25 @@ describe Chewy::Type::Adapter::ActiveRecord, :active_record do
           let!(:deleted) { nil }
 
 
-          specify { expect(import(City.unscoped, batch_size: 2))
+          specify { expect(import(City.unscoped, batch_size: 2, sort_by_updated_at: true))
             .to eq([{index: cities.last(2).reverse}, {index: cities.first(1)}]) }
         end
 
         context 'batch in updated at order, all update at same time' do
           let(:update_time) { Time.now }
-          let!(:cities) { Array.new(3) { |index| City.create!(updated_at: update_time) } }
+          let!(:cities) { Array.new(3) { City.create!(updated_at: update_time) } }
           let!(:deleted) { nil }
 
-          specify { expect(import(City.unscoped, batch_size: 2))
+          specify { expect(import(City.unscoped, batch_size: 2, sort_by_updated_at: true))
             .to eq([{index: cities.first(2)}, {index: cities.last(1)}]) }
         end
 
         context 'batch in id order if no updated_at' do
           subject { described_class.new(Country) }
-          let!(:countries) { Array.new(3) { |index| Country.create! } }
+          let!(:countries) { Array.new(3) { Country.create! } }
           let!(:deleted) { nil }
 
-          specify { expect(import(Country.unscoped, batch_size: 2))
+          specify { expect(import(Country.unscoped, batch_size: 2, sort_by_updated_at: true))
             .to eq([{index: countries.first(2)}, {index: countries.last(1)}]) }
         end
       end

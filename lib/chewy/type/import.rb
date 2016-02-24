@@ -20,6 +20,7 @@ module Chewy
         def import *args
           import_options = args.extract_options!
           bulk_options = import_options.reject { |k, v| ![:refresh, :suffix].include?(k) }.reverse_merge!(refresh: true)
+          import_options[:sort_by_updated_at] = index.timestamp_ordered_import
 
           index.create!(bulk_options.slice(:suffix)) unless index.exists?
 

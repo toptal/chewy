@@ -238,4 +238,22 @@ describe Chewy::Index do
       end
     end.index_params.keys).to match_array([:mappings, :settings]) }
   end
+
+  describe '.timestamp_ordered_import' do
+    specify do
+      expect(DummiesIndex::Dummy.adapter).to receive(:import).with(sort_by_updated_at: false)
+      DummiesIndex::Dummy.import
+    end
+
+    context 'set to true' do
+      before do
+        DummiesIndex.timestamp_ordered_import(true)
+      end
+
+      specify do
+        expect(DummiesIndex::Dummy.adapter).to receive(:import).with(sort_by_updated_at: true)
+        DummiesIndex::Dummy.import
+      end
+    end
+  end
 end

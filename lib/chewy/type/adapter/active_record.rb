@@ -36,15 +36,23 @@ module Chewy
               ids = pluck_ids(scope.where(target_id.gt(ids.last)))
             end
           else
-            scope = scope.reorder(target_updated_at.asc).limit(batch_size)
+            scope = scope.reorder(target_updated_at.asc, target_id.asc).limit(batch_size)
 
             ids = pluck_ids_and_dates(scope)
+
+            # order by update_at, id
+            #
+            # row.update_at> last_updated_at || row.updated_at = last. && row.id > last_id
 
             while ids.present?
               result &= yield grouped_objects(scope_where_ids_in(scope, ids.map(&:first)))
               break if ids.size < batch_size
-              last_updated_at = ids.last.last
-              ids = pluck_ids_and_dates(scope.where(target_updated_at.gteq(last_updated_at).and( target_id.not_in(ids.map(&:first)) )   ))
+              last_id, last_updated_at = ids.last
+              ids = pluck_ids_and_dates(
+                scope.where(
+                  target_updated_at.gt(last_updated_at).or( target_updated_at.eq(last_updated_at).and( target_id.gt(last_id) ) )
+                )
+              )
             end
           end
 

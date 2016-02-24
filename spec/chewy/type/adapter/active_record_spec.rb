@@ -65,7 +65,10 @@ describe Chewy::Type::Adapter::ActiveRecord, :active_record do
   describe '#import' do
     def import(*args)
       result = []
-      subject.import(*args) { |data| result.push data }
+      subject.import(*args) do |data|
+        result.push data
+        yield if block_given?
+      end
       result
     end
 
@@ -119,6 +122,22 @@ describe Chewy::Type::Adapter::ActiveRecord, :active_record do
 
           specify { expect(import(City.unscoped, batch_size: 2, sort_by_updated_at: true))
             .to eq([{index: cities.last(2).reverse}, {index: cities.first(1)}]) }
+        end
+
+        context 'batch in updated at order when object get updated in the middle of processing' do
+          let!(:cities) { Array.new(3) { |index| City.create!(updated_at: index.hours.ago) } }
+          let!(:deleted) { nil }
+
+          specify do
+            update_is_done = false
+
+            results = import(City.unscoped, batch_size: 2, sort_by_updated_at: true) do
+              cities.last.touch unless update_is_done
+              update_is_done = true
+            end
+
+            expect(results).to eq([{index: cities.last(2).reverse}, {index: [cities.first, cities.last]}])
+          end
         end
 
         context 'batch in updated at order, all update at same time' do

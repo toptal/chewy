@@ -51,17 +51,13 @@ module Chewy
 
           scope = scope.reorder(timestamp_column.asc, id_column.asc).limit(batch_size)
 
-          ids = pluck_ids_and_dates(scope)
+          ids_and_dates = pluck_ids_and_dates(scope)
 
-          while ids.present?
-            result &= yield grouped_objects(scope_where_ids_in(scope, ids.map(&:first)))
-            break if ids.size < batch_size
-            last_id, last_updated_at = ids.last
-            ids = pluck_ids_and_dates(
-              scope.where(
-                timestamp_column.gt(last_updated_at).or( timestamp_column.eq(last_updated_at).and( id_column.gt(last_id) ) )
-              )
-            )
+          while ids_and_dates.present?
+            result &= yield grouped_objects(scope_where_ids_in(scope, ids_and_dates.map(&:first)))
+            break if ids_and_dates.size < batch_size
+            last_id, last_updated_at = ids_and_dates.last
+            ids_and_dates = pluck_ids_and_dates(scope.where(next_timestamp_ordered_batch_condition(last_id, last_updated_at)))
           end
 
           result
@@ -97,6 +93,11 @@ module Chewy
 
         def timestamp_column_name
           %w[updated_at updated_on].find { |name| target.column_names.include?(name) }
+        end
+
+        def next_timestamp_ordered_batch_condition(last_id, last_updated_at)
+          timestamp_column.gt(last_updated_at)
+            .or(timestamp_column.eq(last_updated_at).and(id_column.gt(last_id)))
         end
       end
     end

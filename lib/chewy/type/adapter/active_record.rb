@@ -23,15 +23,29 @@ module Chewy
         end
 
         def import_scope(scope, batch_size)
-          scope = scope.reorder(target_id.asc).limit(batch_size)
-
-          ids = pluck_ids(scope)
           result = true
 
-          while ids.present?
-            result &= yield grouped_objects(default_scope_where_ids_in(ids))
-            break if ids.size < batch_size
-            ids = pluck_ids(scope.where(target_id.gt(ids.last)))
+          if scope.new.send(:timestamp_attributes_for_update_in_model).empty?
+            scope = scope.reorder(target_id.asc).limit(batch_size)
+
+            ids = pluck_ids(scope)
+
+            while ids.present?
+              result &= yield grouped_objects(default_scope_where_ids_in(ids))
+              break if ids.size < batch_size
+              ids = pluck_ids(scope.where(target_id.gt(ids.last)))
+            end
+          else
+            scope = scope.reorder(target_update_at.asc).limit(batch_size)
+
+            ids = pluck_ids_and_dates(scope)
+
+            while ids.present?
+              result &= yield grouped_objects(scope_where_ids_in(scope, ids.map(&:first)))
+              break if ids.size < batch_size
+              last_update_at = ids.last.last
+              ids = pluck_ids_and_dates(scope.where(target_update_at.gteq(last_update_at).and( target_id.not_in(ids.map(&:first)) )   ))
+            end
           end
 
           result
@@ -41,8 +55,17 @@ module Chewy
           target.arel_table[target.primary_key]
         end
 
+        def target_update_at
+          column = target.new.send(:timestamp_attributes_for_update_in_model).first
+          target.arel_table[column]
+        end
+
         def pluck_ids(scope)
           scope.except(:includes).uniq.pluck(target.primary_key.to_sym)
+        end
+
+        def pluck_ids_and_dates(scope)
+          scope.except(:includes).uniq.pluck(target.primary_key.to_sym, target_update_at.name)
         end
 
         def scope_where_ids_in(scope, ids)

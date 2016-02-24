@@ -1,7 +1,9 @@
 require 'spec_helper'
+require 'timeout'
 
 describe Chewy::Type::Adapter::ActiveRecord, :active_record do
   before { stub_model(:city) }
+  before { stub_model(:country) }
 
   describe '#name' do
     specify { expect(described_class.new(City).name).to eq('City') }
@@ -104,6 +106,39 @@ describe Chewy::Type::Adapter::ActiveRecord, :active_record do
 
       specify { expect(import(cities.first, nil)).to eq([{index: [cities.first]}]) }
       specify { expect(import(cities.first.id, nil)).to eq([{index: [cities.first]}]) }
+
+      context 'TEST' do
+        around do |example|
+          Timeout.timeout(1) { example.run }
+        end
+
+        context 'batch in updated at order' do
+          let!(:cities) { Array.new(3) { |index| City.create!(updated_at: index.hours.ago) } }
+          let!(:deleted) { nil }
+
+
+          specify { expect(import(City.unscoped, batch_size: 2))
+            .to eq([{index: cities.last(2).reverse}, {index: cities.first(1)}]) }
+        end
+
+        context 'batch in updated at order, all update at same time' do
+          let(:update_time) { Time.now }
+          let!(:cities) { Array.new(3) { |index| City.create!(updated_at: update_time) } }
+          let!(:deleted) { nil }
+
+          specify { expect(import(City.unscoped, batch_size: 2))
+            .to eq([{index: cities.first(2)}, {index: cities.last(1)}]) }
+        end
+
+        context 'batch in id order if no updated_at' do
+          subject { described_class.new(Country) }
+          let!(:countries) { Array.new(3) { |index| Country.create! } }
+          let!(:deleted) { nil }
+
+          specify { expect(import(Country.unscoped, batch_size: 2))
+            .to eq([{index: countries.first(2)}, {index: countries.last(1)}]) }
+        end
+      end
     end
 
     context 'additional delete conitions' do

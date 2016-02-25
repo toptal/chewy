@@ -76,7 +76,17 @@ module Chewy
         end
 
         def pluck_ids_and_dates(scope)
-          scope.except(:includes).uniq.pluck(target.primary_key.to_sym, timestamp_column_name)
+          if Gem::Version.new(::ActiveRecord::VERSION::STRING) < Gem::Version.new('4.0')
+            scope = scope.except(:includes).uniq.select([target.primary_key.to_sym, timestamp_column_name])
+            target.connection.select_all(scope).map do |attributes|
+              init_attributes = target.initialize_attributes(attributes)
+              attributes.each_key.map do |key|
+                target.type_cast_attribute(key, init_attributes)
+              end
+            end
+          else
+            scope.except(:includes).uniq.pluck(target.primary_key.to_sym, timestamp_column_name)
+          end
         end
 
         def scope_where_ids_in(scope, ids)

@@ -4,6 +4,28 @@ module Chewy
   class Type
     module Adapter
       class ActiveRecord < Orm
+        IMPORT_OVERHEAD_LIMIT = 2
+        class InfiniteImportWarning < RuntimeError
+          def initialize(batch_size)
+            @batch_size = batch_size
+          end
+
+          def message
+            <<-MSG.strip_heredoc
+              Import process indexed already #{IMPORT_OVERHEAD_LIMIT}x
+              as many object as there were in database when import
+              started. It probably means that you are creating or
+              updating more objects that are indexed in one batch
+              during time batch get processed.
+
+              Possible solutions:
+               - Increase batch size (current size: #{@batch_size})
+               - Boost batch import by making index entry generation faster
+                 (e.g. check if your type definition do not have N+1 query
+                 problem)
+            MSG
+          end
+        end
 
         def self.accepts?(target)
           defined?(::ActiveRecord::Base) && (
@@ -33,6 +55,9 @@ module Chewy
         def import_scope_ordered_by_id(scope, batch_size)
           result = true
 
+          base_number_of_items = scope.count
+          current_number_of_items = 0
+
           scope = scope.reorder(id_column.asc).limit(batch_size)
 
           ids = pluck_ids(scope)
@@ -40,6 +65,10 @@ module Chewy
           while ids.present?
             result &= yield grouped_objects(default_scope_where_ids_in(ids))
             break if ids.size < batch_size
+
+            current_number_of_items += ids.size
+            raise InfiniteImportWarning, batch_size if current_number_of_items > IMPORT_OVERHEAD_LIMIT*base_number_of_items
+
             ids = pluck_ids(scope.where(id_column.gt(ids.last)))
           end
 
@@ -49,6 +78,9 @@ module Chewy
         def import_scope_ordered_by_timestamp(scope, batch_size)
           result = true
 
+          base_number_of_items = scope.count
+          current_number_of_items = 0
+
           scope = scope.reorder(timestamp_column.asc, id_column.asc).limit(batch_size)
 
           ids_and_dates = pluck_ids_and_dates(scope)
@@ -56,6 +88,10 @@ module Chewy
           while ids_and_dates.present?
             result &= yield grouped_objects(scope_where_ids_in(scope, ids_and_dates.map(&:first)))
             break if ids_and_dates.size < batch_size
+
+            current_number_of_items += ids_and_dates.size
+            raise InfiniteImportWarning, batch_size if current_number_of_items > IMPORT_OVERHEAD_LIMIT*base_number_of_items
+
             last_id, last_updated_at = ids_and_dates.last
             ids_and_dates = pluck_ids_and_dates(scope.where(next_timestamp_ordered_batch_condition(last_id, last_updated_at)))
           end

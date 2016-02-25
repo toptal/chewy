@@ -140,7 +140,37 @@ describe Chewy::Type::Adapter::ActiveRecord, :active_record do
           end
         end
 
-        context 'batch in updated at order, all update at same time' do
+        context 'finish even objects are updated every batch' do
+          let!(:cities) { Array.new(3) { |index| City.create!(updated_at: index.hours.ago) } }
+          let!(:deleted) { nil }
+
+          specify do
+            results = import(City.unscoped, batch_size: 2, sort_by_updated_at: true) do
+              City.order('updated_at asc').first.touch
+            end
+
+            expect(results).to eq([
+              {index: cities.last(2).reverse},
+              {index: [cities.first, cities.last]},
+              {index: [cities[1]]}
+            ])
+          end
+        end
+
+        context 'fails if there is more objects updated every batch than batch size' do
+          let!(:cities) { Array.new(3) { |index| City.create!(updated_at: index.hours.ago) } }
+          let!(:deleted) { nil }
+
+          specify do
+            expect {
+              import(City.unscoped, batch_size: 2, sort_by_updated_at: true) do
+                City.order('updated_at asc').first(2).map(&:touch)
+              end
+            }.to raise_error(Chewy::Type::Adapter::ActiveRecord::InfiniteImportWarning)
+          end
+        end
+
+        context 'and timestamp is equal' do
           let(:update_time) { Time.now }
           let!(:cities) { Array.new(3) { City.create!(updated_at: update_time) } }
           let!(:deleted) { nil }

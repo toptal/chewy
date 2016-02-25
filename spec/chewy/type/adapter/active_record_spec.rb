@@ -110,12 +110,12 @@ describe Chewy::Type::Adapter::ActiveRecord, :active_record do
       specify { expect(import(cities.first, nil)).to eq([{index: [cities.first]}]) }
       specify { expect(import(cities.first.id, nil)).to eq([{index: [cities.first]}]) }
 
-      context 'TEST' do
+      context 'timestamp ordered import' do
         around do |example|
           Timeout.timeout(1) { example.run }
         end
 
-        context 'batch in updated at order' do
+        context 'sorts by updated_at' do
           let!(:cities) { Array.new(3) { |index| City.create!(updated_at: index.hours.ago) } }
           let!(:deleted) { nil }
 
@@ -124,7 +124,7 @@ describe Chewy::Type::Adapter::ActiveRecord, :active_record do
             .to eq([{index: cities.last(2).reverse}, {index: cities.first(1)}]) }
         end
 
-        context 'batch in updated at order when object get updated in the middle of processing' do
+        context 'is aware of objects updated in the middle of processing' do
           let!(:cities) { Array.new(3) { |index| City.create!(updated_at: index.hours.ago) } }
           let!(:deleted) { nil }
 
@@ -149,7 +149,7 @@ describe Chewy::Type::Adapter::ActiveRecord, :active_record do
             .to eq([{index: cities.first(2)}, {index: cities.last(1)}]) }
         end
 
-        context 'batch in id order if no updated_at' do
+        context 'failback to id ordered import when field is missing' do
           subject { described_class.new(Country) }
           let!(:countries) { Array.new(3) { Country.create! } }
           let!(:deleted) { nil }

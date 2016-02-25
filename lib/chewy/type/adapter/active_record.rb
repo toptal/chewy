@@ -76,17 +76,8 @@ module Chewy
         end
 
         def pluck_ids_and_dates(scope)
-          if Gem::Version.new(::ActiveRecord::VERSION::STRING) < Gem::Version.new('4.0')
-            scope = scope.except(:includes).uniq.select([target.primary_key.to_sym, timestamp_column_name])
-            target.connection.select_all(scope).map do |attributes|
-              init_attributes = target.initialize_attributes(attributes)
-              attributes.each_key.map do |key|
-                target.type_cast_attribute(key, init_attributes)
-              end
-            end
-          else
-            scope.except(:includes).uniq.pluck(target.primary_key.to_sym, timestamp_column_name)
-          end
+          return pluck_ids_and_dates_failover(scope) if multifield_pluck_missing?
+          scope.except(:includes).uniq.pluck(target.primary_key.to_sym, timestamp_column_name)
         end
 
         def scope_where_ids_in(scope, ids)
@@ -108,6 +99,21 @@ module Chewy
         def next_timestamp_ordered_batch_condition(last_id, last_updated_at)
           timestamp_column.gt(last_updated_at)
             .or(timestamp_column.eq(last_updated_at).and(id_column.gt(last_id)))
+        end
+
+        def multifield_pluck_missing?
+          Gem::Version.new(::ActiveRecord::VERSION::STRING) < Gem::Version.new('4.0')
+        end
+
+        def pluck_ids_and_dates_failover(scope)
+          scope = scope.except(:includes).uniq
+            .select([target.primary_key.to_sym, timestamp_column_name])
+          target.connection.select_all(scope).map do |attributes|
+            init_attributes = target.initialize_attributes(attributes)
+            attributes.each_key.map do |key|
+              target.type_cast_attribute(key, init_attributes)
+            end
+          end
         end
       end
     end

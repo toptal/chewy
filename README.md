@@ -1083,6 +1083,11 @@ rake chewy:update[users] # updates UsersIndex only
 
 `rake chewy:reset` performs zero-downtime reindexing as described [here](https://www.elastic.co/blog/changing-mapping-with-zero-downtime). So basically rake task creates a new index with uniq suffix and then simply aliases it to the common index name. The previous index is deleted afterwards (see `Chewy::Index.reset!` for more details).
 
+You can specify batch size for import from console using environment variable.
+
+```bash
+CHEWY_BATCH_SIZE=500 rake chewy:reset
+```
 
 ### Rspec integration
 

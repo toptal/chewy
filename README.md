@@ -920,9 +920,9 @@ avg_johns_rating = all_johns.aggs
 ```
 
 It is possible to run into collisions between named aggregations. This occurs when there is more than one aggregation
- with the same name. To explicitly reference an aggregation you provide a string to the #aggs method of the form: 
+ with the same name. To explicitly reference an aggregation you provide a string to the #aggs method of the form:
  `index_name#document_type.aggregation_name`
- 
+
 Consider this example where there are two separate aggregations named `avg_rating`
 
 ```ruby
@@ -949,7 +949,7 @@ end
 
 all_docs = UsersIndex.filter {match_all}.aggs("users#user.avg_rating")
 all_docs.aggs
-# => {"users#user.avg_rating"=>{"value"=>3.5}} 
+# => {"users#user.avg_rating"=>{"value"=>3.5}}
 ```
 
 ### Script fields

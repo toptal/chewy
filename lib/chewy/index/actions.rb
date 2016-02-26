@@ -160,10 +160,15 @@ module Chewy
         #
         #   UsersIndex.reset! Time.now.to_i
         #
-        def reset! suffix = nil
+        # Import params can be provided as options:
+        #
+        #   UsersIndex.reset! Time.now.to_i, batch_size: 500   # import batch size
+        #   UsersIndex.reset! Time.now.to_i, refresh: false    # to disable index refreshing after import
+        #
+        def reset! suffix = nil, params = {}
           if suffix.present? && (indexes = self.indexes).present?
             create! suffix, alias: false
-            result = import suffix: suffix
+            result = import params.merge(suffix: suffix)
             client.indices.update_aliases body: {actions: [
               *indexes.map do |index|
                 {remove: {index: index, alias: index_name}}

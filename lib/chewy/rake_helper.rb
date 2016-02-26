@@ -19,6 +19,12 @@ module Chewy
         end
       end
 
+      def import_params
+        {}.tap do |params|
+          params[:batch_size] = ENV['CHEWY_BATCH_SIZE'].to_i if ENV['CHEWY_BATCH_SIZE']
+        end
+      end
+
       def eager_load_chewy!
         dirs = Chewy::Railtie.all_engines.map { |engine| engine.paths['app/chewy'] }.compact.map(&:existent).flatten.uniq
 
@@ -37,7 +43,7 @@ module Chewy
       def reset_index index
         index = normalize_index(index)
         puts "Resetting #{index}"
-        index.reset! (Time.now.to_f * 1000).round
+        index.reset! (Time.now.to_f * 1000).round, import_params
       end
 
       # Performs zero downtime reindexing of all documents across all indices.
@@ -50,7 +56,7 @@ module Chewy
         index = normalize_index(index)
         puts "Updating #{index}"
         if index.exists?
-          index.import
+          index.import import_params
         else
           puts "Index `#{index.index_name}` does not exists. Use rake chewy:reset[#{index.index_name}] to create and update it."
         end

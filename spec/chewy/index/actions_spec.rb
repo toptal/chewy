@@ -389,6 +389,13 @@ describe Chewy::Index::Actions do
         specify { expect(CitiesIndex.indexes).to eq([]) }
         specify { expect(Chewy.client.indices.exists(index: 'cities_2013')).to eq(false) }
       end
+
+      context do
+        specify {
+          expect(CitiesIndex::City).to receive(:import).with(suffix: '2014', batch_size: 500)
+          CitiesIndex.reset! '2014', batch_size: 500
+        }
+      end
     end
   end
 end

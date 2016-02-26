@@ -241,7 +241,7 @@ describe Chewy::Index do
 
   describe '.timestamp_ordered_import' do
     specify do
-      expect(DummiesIndex::Dummy.adapter).to receive(:import).with(sort_by_updated_at: false)
+      expect(DummiesIndex::Dummy.adapter).to receive(:import).with(timestamp_ordered: false)
       DummiesIndex::Dummy.import
     end
 
@@ -251,7 +251,7 @@ describe Chewy::Index do
       end
 
       specify do
-        expect(DummiesIndex::Dummy.adapter).to receive(:import).with(sort_by_updated_at: true)
+        expect(DummiesIndex::Dummy.adapter).to receive(:import).with(timestamp_ordered: true)
         DummiesIndex::Dummy.import
       end
     end

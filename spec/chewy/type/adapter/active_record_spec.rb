@@ -120,7 +120,7 @@ describe Chewy::Type::Adapter::ActiveRecord, :active_record do
           let!(:deleted) { nil }
 
 
-          specify { expect(import(City.unscoped, batch_size: 2, sort_by_updated_at: true))
+          specify { expect(import(City.unscoped, batch_size: 2, timestamp_ordered: true))
             .to eq([{index: cities.last(2).reverse}, {index: cities.first(1)}]) }
         end
 
@@ -131,7 +131,7 @@ describe Chewy::Type::Adapter::ActiveRecord, :active_record do
           specify do
             update_is_done = false
 
-            results = import(City.unscoped, batch_size: 2, sort_by_updated_at: true) do
+            results = import(City.unscoped, batch_size: 2, timestamp_ordered: true) do
               cities.last.touch unless update_is_done
               update_is_done = true
             end
@@ -145,7 +145,7 @@ describe Chewy::Type::Adapter::ActiveRecord, :active_record do
           let!(:deleted) { nil }
 
           specify do
-            results = import(City.unscoped, batch_size: 2, sort_by_updated_at: true) do
+            results = import(City.unscoped, batch_size: 2, timestamp_ordered: true) do
               City.order('updated_at asc').first.touch
             end
 
@@ -163,7 +163,7 @@ describe Chewy::Type::Adapter::ActiveRecord, :active_record do
 
           specify do
             expect {
-              import(City.unscoped, batch_size: 2, sort_by_updated_at: true) do
+              import(City.unscoped, batch_size: 2, timestamp_ordered: true) do
                 City.order('updated_at asc').first(2).map(&:touch)
               end
             }.to raise_error(Chewy::Type::Adapter::ActiveRecord::InfiniteImportWarning)
@@ -175,7 +175,7 @@ describe Chewy::Type::Adapter::ActiveRecord, :active_record do
           let!(:cities) { Array.new(3) { City.create!(updated_at: update_time) } }
           let!(:deleted) { nil }
 
-          specify { expect(import(City.unscoped, batch_size: 2, sort_by_updated_at: true))
+          specify { expect(import(City.unscoped, batch_size: 2, timestamp_ordered: true))
             .to eq([{index: cities.first(2)}, {index: cities.last(1)}]) }
         end
 
@@ -184,7 +184,7 @@ describe Chewy::Type::Adapter::ActiveRecord, :active_record do
           let!(:countries) { Array.new(3) { Country.create! } }
           let!(:deleted) { nil }
 
-          specify { expect(import(Country.unscoped, batch_size: 2, sort_by_updated_at: true))
+          specify { expect(import(Country.unscoped, batch_size: 2, timestamp_ordered: true))
             .to eq([{index: countries.first(2)}, {index: countries.last(1)}]) }
         end
       end

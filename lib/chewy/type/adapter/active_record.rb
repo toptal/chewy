@@ -44,8 +44,8 @@ module Chewy
           @default_scope = @default_scope.reorder(nil).limit(nil).offset(nil)
         end
 
-        def import_scope(scope, batch_size, sort_by_updated_at, &block)
-          if sort_by_updated_at && timestamp_column_name
+        def import_scope(scope, batch_size, timestamp_ordered, &block)
+          if timestamp_ordered && timestamp_column_name
             import_scope_ordered_by_timestamp(scope, batch_size, &block)
           else
             import_scope_ordered_by_id(scope, batch_size, &block)

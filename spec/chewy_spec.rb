@@ -113,13 +113,21 @@ describe Chewy do
 
   describe '.client' do
     let!(:initial_client) { Thread.current[:chewy_client] }
-    let(:block) { proc { } }
+    let(:faraday_block) { proc { } }
     let(:mock_client) { double(:client) }
+    let(:expected_client_config) { { transport_options: {} } }
 
     before do
       Thread.current[:chewy_client] = nil
-      allow(Chewy).to receive_messages(configuration: { transport_options: { proc: block } })
-      allow(::Elasticsearch::Client).to receive(:new).with(Chewy.configuration, &block).and_return(mock_client)
+      allow(Chewy).to receive_messages(configuration: { transport_options: { proc: faraday_block } })
+
+      allow(::Elasticsearch::Client).to receive(:new).with(expected_client_config) do |*args, &passed_block|
+        # RSpec's `with(…, &block)` was used previously, but doesn't actually do
+        # any verification of the passed block (even of its presence).
+        expect(passed_block.source_location).to eq(faraday_block.source_location)
+
+        mock_client
+      end
     end
 
     its(:client) { is_expected.to eq(mock_client) }

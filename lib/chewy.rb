@@ -123,8 +123,10 @@ module Chewy
     #
     def client
       Thread.current[:chewy_client] ||= begin
-        block = configuration[:transport_options].try { |c| c[:proc] }
-        ::Elasticsearch::Client.new(configuration, &block)
+        client_configuration = configuration.deep_dup
+        client_configuration.delete(:prefix) # used by Chewy, not relevant to Elasticsearch::Client
+        block = client_configuration[:transport_options].try(:delete, :proc)
+        ::Elasticsearch::Client.new(client_configuration, &block)
       end
     end
 

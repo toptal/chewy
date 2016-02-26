@@ -76,13 +76,12 @@ module Chewy
         def import *args, &block
           import_options = args.extract_options!
           batch_size = import_options[:batch_size] || BATCH_SIZE
-          timestamp_ordered = import_options.fetch(:timestamp_ordered, false)
 
           collection = args.empty? ? default_scope :
             (args.one? && args.first.is_a?(relation_class) ? args.first : args.flatten.compact)
 
           if collection.is_a?(relation_class)
-            import_scope(collection, batch_size, timestamp_ordered, &block)
+            import_scope(collection, batch_size, &block)
           else
             import_objects(collection, batch_size, &block)
           end

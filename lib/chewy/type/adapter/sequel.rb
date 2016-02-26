@@ -23,7 +23,7 @@ module Chewy
           @default_scope = @default_scope.unordered.unlimited
         end
 
-        def import_scope(scope, batch_size, _)
+        def import_scope(scope, batch_size)
           scope = scope.unordered.order(::Sequel.asc(primary_key)).limit(batch_size)
 
           ids = pluck_ids(scope)

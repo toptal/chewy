@@ -36,7 +36,19 @@ module Chewy
       # in tests with transactional fixtures or transactional
       # DatabaseCleaner strategy.
       #
-      :use_after_commit_callbacks
+      :use_after_commit_callbacks,
+
+      # Use timestamp (updated_at, updated_on) ordering for import.
+      # False by default (order by id). It makes imports last
+      # a bit longer, but it also ensures that any items created or
+      # updated during import will be indexed properly. Only
+      # ActiveRecord adapter is supported.
+      #
+      # WARNING: In rare cases in could cause infinite imports,
+      # read Chewy:Type:Adapter:ActiveRecord:InfiniteImportWarning
+      # message for details.
+      #
+      :use_timestamp_ordered_import
 
     def self.delegated
       public_instance_methods - self.superclass.public_instance_methods - Singleton.public_instance_methods
@@ -49,6 +61,7 @@ module Chewy
       @root_strategy = :base
       @request_strategy = :atomic
       @use_after_commit_callbacks = true
+      @use_timestamp_ordered_import = false
     end
 
     def transport_logger= logger

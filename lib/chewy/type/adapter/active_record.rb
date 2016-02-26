@@ -44,8 +44,8 @@ module Chewy
           @default_scope = @default_scope.reorder(nil).limit(nil).offset(nil)
         end
 
-        def import_scope(scope, batch_size, timestamp_ordered, &block)
-          if timestamp_ordered && timestamp_column_name
+        def import_scope(scope, batch_size, &block)
+          if timestamp_ordered?
             import_scope_ordered_by_timestamp(scope, batch_size, &block)
           else
             import_scope_ordered_by_id(scope, batch_size, &block)
@@ -130,6 +130,10 @@ module Chewy
 
         def timestamp_column_name
           %w[updated_at updated_on].find { |name| target.column_names.include?(name) }
+        end
+
+        def timestamp_ordered?
+          Chewy.use_timestamp_ordered_import && timestamp_column_name
         end
 
         def next_timestamp_ordered_batch_condition(last_id, last_updated_at)

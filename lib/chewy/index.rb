@@ -152,14 +152,6 @@ module Chewy
       public_methods - Chewy::Index.public_methods - type_names.map(&:to_sym)
     end
 
-    def self.timestamp_ordered_import(flag = nil)
-      if flag.nil?
-        @timestamp_ordered_import == true
-      else
-        @timestamp_ordered_import = flag
-      end
-    end
-
   private
 
     def self.build_index_name *args

@@ -27,7 +27,7 @@ module Chewy
           @default_scope = @default_scope.reorder(nil)
         end
 
-        def import_scope(scope, batch_size, _)
+        def import_scope(scope, batch_size)
           scope.batch_size(batch_size).no_timeout.pluck(:_id).each_slice(batch_size).map do |ids|
             yield grouped_objects(default_scope_where_ids_in(ids))
           end.all?

@@ -48,6 +48,8 @@ require 'chewy/repository'
 require 'chewy/runtime'
 require 'chewy/log_subscriber'
 require 'chewy/strategy'
+require 'chewy/clients'
+require 'chewy/configs'
 require 'chewy/index'
 require 'chewy/type'
 require 'chewy/fields/base'
@@ -124,12 +126,7 @@ module Chewy
     # Main elasticsearch-ruby client instance
     #
     def client
-      Thread.current[:chewy_client] ||= begin
-        client_configuration = configuration.deep_dup
-        client_configuration.delete(:prefix) # used by Chewy, not relevant to Elasticsearch::Client
-        block = client_configuration[:transport_options].try(:delete, :proc)
-        ::Elasticsearch::Client.new(client_configuration, &block)
-      end
+      Clients.default
     end
 
     # Sends wait_for_status request to ElasticSearch with status
@@ -137,16 +134,19 @@ module Chewy
     #
     # Does nothing in case of config `wait_for_status` is undefined.
     #
-    def wait_for_status
-      client.cluster.health wait_for_status: Chewy.configuration[:wait_for_status] if Chewy.configuration[:wait_for_status].present?
+    def wait_for_status(name = :default)
+      client = Clients.with_name(name)
+      client.cluster.health wait_for_status: Configs.with_name(name)[:wait_for_status] if Configs.with_name(name)[:wait_for_status].present?
     end
 
     # Deletes all corresponding indexes with current prefix from ElasticSearch.
     # Be careful, if current prefix is blank, this will destroy all the indexes.
     #
     def massacre
-      Chewy.client.indices.delete(index: [Chewy.configuration[:prefix], '*'].delete_if(&:blank?).join('_'))
-      Chewy.wait_for_status
+      Clients.clients.each do |name, client|
+        client.indices.delete(index: [Configs.with_name(name)[:prefix], '*'].delete_if(&:blank?).join('_'))
+        wait_for_status(name)
+      end
     end
     alias_method :delete_all, :massacre
 

@@ -51,6 +51,13 @@ module Chewy
     #
     repository :char_filter
 
+    def clear
+      @analyzers = {}
+      @tokenizers = {}
+      @filters = {}
+      @char_filters = {}
+    end
+
     def initialize
       @analyzers = {}
       @tokenizers = {}

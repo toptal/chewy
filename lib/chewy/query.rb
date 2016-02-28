@@ -1033,12 +1033,22 @@ module Chewy
     end
 
     def _response
-      @_response ||= ActiveSupport::Notifications.instrument 'search_query.chewy',
+      @_response ||= ActiveSupport::Notifications.instrument('search_query.chewy',
         request: _request, indexes: _indexes, types: _types,
         index: _indexes.one? ? _indexes.first : _indexes,
-        type: _types.one? ? _types.first : _types do
+        type: _types.one? ? _types.first : _types) do
+
+        clients = _indexes.map(&:client) + _types.map { |t| t.index.client }
+
+        client = clients.first
+        unless clients.all? { |c| c == client }
+          fail "Not all indexes/types use the same client."
+        end
+
+        client
+
         begin
-          Chewy.client.search(_request)
+          client.search(_request)
         rescue Elasticsearch::Transport::Transport::Errors::NotFound => e
           raise e if e.message !~ /IndexMissingException/ && e.message !~ /index_not_found_exception/
           {}

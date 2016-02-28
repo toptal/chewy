@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe Chewy::Index::Actions do
-  before { Chewy.massacre }
+  before { Chewy::Clients.purge! }
 
   before { stub_index :dummies }
 

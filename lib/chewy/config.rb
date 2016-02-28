@@ -114,6 +114,20 @@ module Chewy
     #          host: 'localhost:9250'
     #          wait_for_status: green
     #
+    #      :clients - configuration for alternative elastic search servers.
+    #
+    #        test:
+    #          hosts: 'localhost:9250'
+    #          clients:
+    #            search:
+    #              hosts: 'search.example.com:9250'
+    #
+    #         class SearchIndex < Chewy::Index
+    #           use_client :search
+    #         end
+    #
+    #       Will use alternative server for SearchIndex.
+    #
     #   3. Index settings. All the possible ElasticSearch index settings.
     #      Will be merged as defaults with index settings on every index
     #      creation.

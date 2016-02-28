@@ -9,13 +9,18 @@ module Chewy
     include Actions
     include Aliases
 
-    singleton_class.delegate :client, to: 'Chewy'
-
     class_attribute :type_hash
     self.type_hash = {}
 
     class_attribute :_settings
-    self._settings = Chewy::Index::Settings.new
+    self._settings = Chewy::Index::Settings.new({}, self)
+
+    class_attribute :client_name
+    self.client_name = :default
+
+    def self.inherited(subclass)
+      subclass._settings = Chewy::Index::Settings.new(_settings.params, subclass)
+    end
 
     # Setups or returns ElasticSearch index name
     #
@@ -39,6 +44,7 @@ module Chewy
       elsif name
         @_index_name ||= name.sub(/Index\Z/, '').demodulize.underscore
       end
+
       @_index_name
     end
 
@@ -49,7 +55,21 @@ module Chewy
     # Setups or returns pure Elasticsearch index name
     # without any prefixes/suffixes
     def self.default_prefix
-      Chewy.configuration[:prefix]
+      config[:prefix]
+    end
+
+    def self.use_client(name)
+      self.client_name = name.to_sym
+    end
+
+    # Elasticsearch::Client to use
+    #
+    def self.client
+      Clients.with_name(client_name)
+    end
+
+    def self.config
+      Configs.with_name(client_name)
     end
 
     # Defines type for the index. Arguments depends on adapter used. For
@@ -145,8 +165,8 @@ module Chewy
     # It is possible to store analyzers settings in Chewy repositories
     # and link them form index class. See `Chewy::Index::Settings` for details.
     #
-    def self.settings(params = {}, &block)
-      self._settings = Chewy::Index::Settings.new(params, &block)
+    def self.settings(params, &block)
+      self._settings = Chewy::Index::Settings.new(params, self, &block)
     end
 
     # Returns list of public class methods defined in current index
@@ -158,6 +178,8 @@ module Chewy
     def self.journal?
       types.any?(&:journal?)
     end
+
+    private
 
     def self.build_index_name(*args)
       options = args.extract_options!

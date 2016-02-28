@@ -53,6 +53,41 @@ describe Chewy::Index do
 
       specify { expect(Dummies1Index.client).to eq(Dummies2Index.client) }
     end
+
+    context "when use alternative client_name" do
+      around do |example|
+        settings = Chewy.settings.dup
+        example.run
+        Chewy.settings = settings
+      end
+
+      before do
+        Chewy.settings = Chewy.settings.merge({
+          clients: {
+            dummy: {
+              hosts: 'localhost:9251'
+            }
+          }
+        })
+        stub_index(:dummies) do
+          use_client :dummy
+        end
+      end
+
+      after do
+        Chewy::Clients.clear
+      end
+
+      specify do
+        expect(DummiesIndex.client).not_to eq(Chewy.client)
+        hosts = DummiesIndex.client.transport.hosts
+        expect(hosts.size).to eq 1
+
+        host = hosts.first
+        expect(host[:host]).to eq 'localhost'
+        expect(host[:port]).to eq 9251
+      end
+    end
   end
 
   describe '.index_name' do
@@ -62,15 +97,23 @@ describe Chewy::Index do
     specify { expect(stub_const('DevelopersIndex', Class.new(Chewy::Index)).index_name).to eq('developers') }
 
     context do
-      before { allow(Chewy).to receive_messages(configuration: { prefix: 'testing' }) }
+      before do
+        Chewy.settings = Chewy.settings.merge(prefix: 'testing')
+      end
+
       specify { expect(DummiesIndex.index_name).to eq('testing_dummies') }
       specify { expect(stub_index(:dummies) { index_name :users }.index_name).to eq('testing_users') }
     end
   end
 
   describe '.default_prefix' do
-    before { allow(Chewy).to receive_messages(configuration: { prefix: 'testing' }) }
-    specify { expect(Class.new(Chewy::Index).default_prefix).to eq('testing') }
+    before do
+      Chewy.settings = Chewy::Configs.default.merge(prefix: 'testing')
+    end
+
+    specify do
+      expect(Class.new(Chewy::Index).config[:prefix]).to eq('testing')
+    end
   end
 
   describe '.define_type' do
@@ -163,14 +206,42 @@ describe Chewy::Index do
 
     specify { expect { documents.settings_hash }.to_not change(documents._settings, :inspect) }
     specify do
-      expect(documents.settings_hash).to eq(settings: { analysis: {
-                                              analyzer: { name: { filter: %w(lowercase icu_folding names_nysiis) },
-                                                          phone: { tokenizer: 'ngram', char_filter: ['phone'] },
-                                                          sorted: { option: :baz } },
-                                              tokenizer: { ngram: { type: 'nGram', min_gram: 3, max_gram: 3 } },
-                                              char_filter: { phone: { type: 'pattern_replace', pattern: '[^\d]', replacement: '' } },
-                                              filter: { names_nysiis: { type: 'phonetic', encoder: 'nysiis', replace: false } }
-                                            } })
+      expect(documents.settings_hash).to eq({
+        settings: {
+          analysis: {
+            tokenizer: {
+              ngram: {
+                type: 'nGram', min_gram: 3, max_gram: 3
+              }
+            },
+            filter: {
+              names_nysiis: {
+                type: 'phonetic', encoder: 'nysiis', replace: false
+              }
+            },
+            char_filter: {
+              phone: {
+                type: 'pattern_replace', pattern: '[^\d]', replacement: ''
+              }
+            },
+            analyzer: {
+              name: {
+                filter: %w(lowercase icu_folding names_nysiis)
+              },
+              phone: {
+                tokenizer: 'ngram', char_filter: ['phone']
+              },
+              sorted: {
+                option: :baz
+              }
+            },
+          },
+          index: {
+            number_of_shards: 1,
+            number_of_replicas: 0
+          }
+        }
+      })
     end
   end
 
@@ -200,10 +271,28 @@ describe Chewy::Index do
   end
 
   describe '.settings_hash' do
-    before { allow(Chewy).to receive_messages(config: Chewy::Config.send(:new)) }
+    specify do
+      expect(stub_index(:documents).settings_hash).to eq({
+        settings: {
+          index: {
+            number_of_shards: 1,
+            number_of_replicas: 0
+          }
+        }
+      })
+    end
 
-    specify { expect(stub_index(:documents).settings_hash).to eq({}) }
-    specify { expect(stub_index(:documents) { settings number_of_shards: 1 }.settings_hash).to eq(settings: { number_of_shards: 1 }) }
+    specify do
+      expect(stub_index(:documents) { settings number_of_shards: 1 }.settings_hash).to eq({
+        settings: {
+          number_of_shards: 1,
+          index: {
+            number_of_shards: 1,
+            number_of_replicas: 0
+          }
+        }
+      })
+    end
   end
 
   describe '.mappings_hash' do
@@ -229,17 +318,30 @@ describe Chewy::Index do
   end
 
   describe '.index_params' do
-    before { allow(Chewy).to receive_messages(config: Chewy::Config.send(:new)) }
-
-    specify { expect(stub_index(:documents).index_params).to eq({}) }
-    specify { expect(stub_index(:documents) { settings number_of_shards: 1 }.index_params.keys).to eq([:settings]) }
     specify do
-      expect(stub_index(:documents) do
-               define_type :document do
-                 field :name, type: 'string'
-               end
-             end.index_params.keys).to eq([:mappings])
+      expect(stub_index(:documents).index_params).to eq({
+        settings: {
+          index: {
+            number_of_shards: 1,
+            number_of_replicas: 0
+          }
+        }
+      })
     end
+
+    specify do
+      expect(stub_index(:documents) { settings number_of_shards: 1 }.index_params.keys).to eq([:settings])
+    end
+
+    specify do
+      index = stub_index(:documents) do
+        define_type :document do
+          field :name, type: 'string'
+        end
+      end
+      expect(index.index_params.keys).to eq([:settings, :mappings])
+    end
+
     specify do
       expect(stub_index(:documents) do
                settings number_of_shards: 1

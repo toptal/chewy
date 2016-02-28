@@ -65,7 +65,7 @@ module Chewy
             result &&= client.indices.put_alias(index: name, name: index_name) if options[:alias] && name != index_name
           end
 
-          Chewy.wait_for_status if result
+          wait_for_status if result
           result
         end
 
@@ -79,7 +79,7 @@ module Chewy
         #
         def delete(suffix = nil)
           result = client.indices.delete index: build_index_name(suffix: suffix)
-          Chewy.wait_for_status if result
+          wait_for_status if result
           result
           # es-ruby >= 1.0.10 handles Elasticsearch::Transport::Transport::Errors::NotFound
           # by itself, rescue is for previous versions
@@ -210,6 +210,15 @@ module Chewy
         def index_settings(setting_name)
           return {} unless settings_hash.key?(:settings) || settings_hash[:settings].key?(:index)
           settings_hash[:settings][:index].slice(setting_name)
+        end
+
+        # Sends wait_for_status request to ElasticSearch with status
+        # defined in configuration.
+        #
+        # Does nothing in case of config `wait_for_status` is undefined.
+        #
+        def wait_for_status
+          client.cluster.health wait_for_status: config[:wait_for_status] if config[:wait_for_status].present?
         end
       end
     end

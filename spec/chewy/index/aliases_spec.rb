@@ -15,7 +15,7 @@ describe Chewy::Index::Aliases do
 
     context do
       before { DummiesIndex.create! }
-      before { Chewy.client.indices.put_alias index: 'dummies', name: 'dummies_2013' }
+      before { Chewy.default_client.indices.put_alias index: 'dummies', name: 'dummies_2013' }
       specify { expect(DummiesIndex.indexes).to eq([]) }
     end
 
@@ -36,8 +36,8 @@ describe Chewy::Index::Aliases do
 
     context do
       before { DummiesIndex.create! }
-      before { Chewy.client.indices.put_alias index: 'dummies', name: 'dummies_2013' }
-      before { Chewy.client.indices.put_alias index: 'dummies', name: 'dummies_2014' }
+      before { Chewy.default_client.indices.put_alias index: 'dummies', name: 'dummies_2013' }
+      before { Chewy.default_client.indices.put_alias index: 'dummies', name: 'dummies_2014' }
       specify { expect(DummiesIndex.aliases).to match_array(%w[dummies_2013 dummies_2014]) }
     end
 

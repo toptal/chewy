@@ -17,6 +17,7 @@ Chewy is an ODM and wrapper for [the official Elasticsearch client](https://gith
 * [Usage](#usage)
   * [Client settings](#client-settings)
     * [AWS ElasticSearch configuration](#aws-elastic-search)
+    * [Several servers](#several-servers)
   * [Index definition](#index-definition)
   * [Type default import options](#type-default-import-options)
   * [Multi (nested) and object field types](#multi-nested-and-object-field-types)
@@ -101,7 +102,7 @@ You can create this file manually or run `rails g chewy:install`.
 
 ```ruby
 # config/initializers/chewy.rb
-Chewy.settings = {host: 'localhost:9250'} # do not use environments
+Chewy.settings = { host: 'localhost:9250' } # do not use environments
 ```
 
 ```yaml
@@ -148,6 +149,29 @@ If you would like to use AWS's ElasticSearch using an IAM user policy, you will 
     }
   }
   ```
+
+#### Several servers
+
+You can use different ElasticSearch servers for different indexes:
+
+```yaml
+# config/chewy.yml
+production:
+  hosts: 'localhost:9250'
+  clients:
+    search:
+      hosts: 'search.example.com:9250'
+```
+
+```ruby
+class SearchIndex < Chewy::Index
+  use_client :search
+
+  ...
+end
+```
+
+Queries on SearchIndex will be sent to `search.example.com:9250`.
 
 ### Index definition
 
@@ -395,7 +419,7 @@ Product.includes(:categories).find_in_batches(1000) do |batch|
     {name: object.name, category_names: object.categories.map(&:name)}.to_json
   end
   # here we are sending every batch of data to ES
-  Chewy.client.bulk bulk_body
+  Chewy.default_client.bulk bulk_body
 end
 ```
 
@@ -432,7 +456,7 @@ Product.includes(:categories).find_in_batches(1000) do |batch|
   bulk_body = batch.map do |object|
     {name: object.name, category_names: crutches[:categories][object.id]}.to_json
   end
-  Chewy.client.bulk bulk_body
+  Chewy.default_client.bulk bulk_body
 end
 ```
 

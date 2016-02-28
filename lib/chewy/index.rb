@@ -10,13 +10,18 @@ module Chewy
     include Actions
     include Aliases
 
-    singleton_class.delegate :client, to: 'Chewy'
-
     class_attribute :type_hash
     self.type_hash = {}
 
     class_attribute :_settings
-    self._settings = Chewy::Index::Settings.new
+    self._settings = Chewy::Index::Settings.new({}, self)
+
+    class_attribute :client_name
+    self.client_name = :default
+
+    def self.inherited(subclass)
+      subclass._settings = Chewy::Index::Settings.new(_settings.params, subclass)
+    end
 
     class << self
       # @overload index_name(suggest)
@@ -108,7 +113,21 @@ module Chewy
       #
       # @return [String] prefix
       def prefix
-        Chewy.configuration[:prefix]
+        config[:prefix]
+      end
+
+      def use_client(name)
+        self.client_name = name.to_sym
+      end
+
+      # Elasticsearch::Client to use
+      #
+      def client
+        Chewy.client(client_name)
+      end
+
+      def config
+        Chewy.clients[client_name]
       end
 
       # Defines type for the index. Arguments depends on adapter used. For
@@ -205,7 +224,7 @@ module Chewy
       # and link them form index class. See `Chewy::Index::Settings` for details.
       #
       def settings(params = {}, &block)
-        self._settings = Chewy::Index::Settings.new(params, &block)
+        self._settings = Chewy::Index::Settings.new(params, self, &block)
       end
 
       # Returns list of public class methods defined in current index

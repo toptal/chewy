@@ -23,8 +23,11 @@ module Chewy
     # might be used as well.
     #
     class Settings
-      def initialize(params = {}, &block)
+      attr_reader :params
+
+      def initialize(params = {}, index = nil, &block)
         @params = params
+        @index = index
         @proc_params = block
       end
 
@@ -33,9 +36,8 @@ module Chewy
         settings.merge!((@proc_params.call || {}).deep_symbolize_keys) if @proc_params
 
         settings[:analysis] = resolve_analysis(settings[:analysis]) if settings[:analysis]
-
-        if settings[:index] || Chewy.configuration[:index]
-          settings[:index] = (Chewy.configuration[:index] || {})
+        if settings[:index] || (@index && @index.config[:index])
+          settings[:index] = ((@index && @index.config[:index]) || {})
             .deep_merge((settings[:index] || {}).deep_symbolize_keys)
         end
 

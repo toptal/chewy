@@ -118,14 +118,17 @@ describe Chewy::Index::Settings do
       end
 
       context do
-        before { allow(Chewy).to receive_messages(configuration: {index: {number_of_shards: 7, number_of_replicas: 2}}) }
+        before do
+          stub_index(:dummy)
+          allow(DummyIndex).to receive_messages(config: {index: {number_of_shards: 7, number_of_replicas: 2}})
+        end
 
         specify do
-          expect(described_class.new.to_hash)
+          expect(described_class.new({}, DummyIndex).to_hash)
             .to eq(settings: {index: {number_of_shards: 7, number_of_replicas: 2}})
         end
         specify do
-          expect(described_class.new(index: {number_of_shards: 3}).to_hash)
+          expect(described_class.new({index: {number_of_shards: 3}}, DummyIndex).to_hash)
             .to eq(settings: {index: {number_of_shards: 3, number_of_replicas: 2}})
         end
       end

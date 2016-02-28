@@ -123,34 +123,65 @@ describe Chewy do
   end
 
   describe '.massacre' do
-    before { Chewy.massacre }
+    let(:client) { Chewy.default_client }
+    subject { Chewy.massacre }
 
     before do
-      allow(Chewy).to receive_messages(configuration: Chewy.configuration.merge(prefix: 'prefix1'))
+      Chewy.settings = Chewy.clients[:default].merge(prefix: 'prefix1')
       stub_index(:admins).create!
-      allow(Chewy).to receive_messages(configuration: Chewy.configuration.merge(prefix: 'prefix2'))
+      Chewy.settings = Chewy.clients[:default].merge(prefix: 'prefix2')
       stub_index(:developers).create!
       stub_index(:companies).create!
 
       Chewy.massacre
 
-      allow(Chewy).to receive_messages(configuration: Chewy.configuration.merge(prefix: 'prefix1'))
+      Chewy.settings = Chewy.clients[:default].merge(prefix: 'prefix1')
     end
 
-    specify { expect(AdminsIndex.exists?).to eq(true) }
-    specify { expect(DevelopersIndex.exists?).to eq(false) }
-    specify { expect(CompaniesIndex.exists?).to eq(false) }
+    context 'when there is index with another prefix' do
+      let(:admins_index_name) { 'prefix1_admins' }
+
+      before do
+        client.indices.create(index: admins_index_name, body: Chewy.clients[:default])
+      end
+
+      specify do
+        expect(client.indices.exists(index: admins_index_name)).to eq(true)
+      end
+
+      context 'when there is index with specified index' do
+        before do
+          stub_index(:developers).create!
+        end
+
+        specify do
+          expect(DevelopersIndex.exists?).to eq(true)
+        end
+
+        describe '.massacre' do
+          before do
+            subject
+          end
+
+          it 'keeps indices with another prefixes' do
+            expect(client.indices.exists(index: 'prefix1_admins')).to eq(true)
+          end
+
+          it 'removes indices with prefix specifies in config' do
+            expect(client.indices.exists(index: 'prefix2_developers')).to eq(false)
+          end
+        end
+      end
+    end
   end
 
-  describe '.client' do
-    let!(:initial_client) { Thread.current[:chewy_client] }
+  describe '.default_client' do
     let(:faraday_block) { proc {} }
     let(:mock_client) { double(:client) }
-    let(:expected_client_config) { {transport_options: {}} }
 
     before do
-      Thread.current[:chewy_client] = nil
-      allow(Chewy).to receive_messages(configuration: {transport_options: {proc: faraday_block}})
+      expected_client_config = Chewy.settings.deep_dup.merge(transport_options: {}, indices_path: 'app/chewy', clients: {})
+      Chewy.settings = Chewy.settings.merge(transport_options: { proc: faraday_block })
 
       allow(::Elasticsearch::Client).to receive(:new).with(expected_client_config) do |*_args, &passed_block|
         # RSpec's `with(..., &block)` was used previously, but doesn't actually do
@@ -161,9 +192,7 @@ describe Chewy do
       end
     end
 
-    its(:client) { is_expected.to eq(mock_client) }
-
-    after { Thread.current[:chewy_client] = initial_client }
+    specify { expect(subject.default_client.connection).to eq(mock_client) }
   end
 
   describe '.create_indices' do

@@ -39,6 +39,12 @@ module Chewy
       @criteria = Criteria.new
     end
 
+    def client
+      clients = _indexes.map(&:client).uniq
+      raise('Not all indexes/types use the same client.') if clients.size != 1
+      clients.first
+    end
+
     # Comparation with other query or collection
     # If other is collection - search request is executed and
     # result is used for comparation
@@ -355,7 +361,7 @@ module Chewy
     # Returns empty hash if no facets was requested or resulted.
     #
     def facets(params = nil)
-      raise RemovedFeature, 'removed in elasticsearch 2.0' if Runtime.version >= '2.0'
+      raise RemovedFeature, 'removed in elasticsearch 2.0' if client.version >= '2.0'
       if params
         chain { criteria.update_facets params }
       else
@@ -940,8 +946,8 @@ module Chewy
     #   UsersIndex::User.filter{ age <= 42 }.delete_all
     #
     def delete_all
-      if Runtime.version >= '2.0'
-        plugins = Chewy.client.nodes.info(plugins: true)['nodes'].values.map { |item| item['plugins'] }.flatten
+      if client.version >= '2.0'
+        plugins = client.nodes.info(plugins: true)['nodes'].values.map { |item| item['plugins'] }.flatten
         raise PluginMissing, 'install delete-by-query plugin' unless plugins.find { |item| item['name'] == 'delete-by-query' }
       end
 
@@ -951,15 +957,15 @@ module Chewy
         request: request, indexes: _indexes, types: _types,
         index: _indexes.one? ? _indexes.first : _indexes,
         type: _types.one? ? _types.first : _types do
-          if Runtime.version >= '2.0'
+          if client.version >= '2.0'
             path = Elasticsearch::API::Utils.__pathify(
               Elasticsearch::API::Utils.__listify(request[:index]),
               Elasticsearch::API::Utils.__listify(request[:type]),
               '/_query'
             )
-            Chewy.client.perform_request(Elasticsearch::API::HTTP_DELETE, path, {}, request[:body]).body
+            client.perform_request(Elasticsearch::API::HTTP_DELETE, path, {}, request[:body]).body
           else
-            Chewy.client.delete_by_query(request)
+            client.delete_by_query(request)
           end
         end
     end
@@ -1052,12 +1058,13 @@ module Chewy
     end
 
     def _response
-      @_response ||= ActiveSupport::Notifications.instrument 'search_query.chewy',
+      @_response ||= ActiveSupport::Notifications.instrument('search_query.chewy',
         request: _request, indexes: _indexes, types: _types,
         index: _indexes.one? ? _indexes.first : _indexes,
-        type: _types.one? ? _types.first : _types do
+        type: _types.one? ? _types.first : _types) do
+
         begin
-          Chewy.client.search(_request)
+          client.search(_request)
         rescue Elasticsearch::Transport::Transport::Errors::NotFound => e
           raise e if e.message !~ /IndexMissingException/ && e.message !~ /index_not_found_exception/
           {}

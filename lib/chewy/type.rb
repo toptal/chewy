@@ -12,6 +12,8 @@ require 'chewy/type/adapter/sequel'
 
 module Chewy
   class Type
+    IMPORT_OPTIONS_KEYS = %i[batch_size]
+
     include Search
     include Mapping
     include Wrapper
@@ -51,6 +53,7 @@ module Chewy
     end
 
     def self.default_import_options(params)
+      params.assert_valid_keys(IMPORT_OPTIONS_KEYS)
       self._default_import_options = _default_import_options.merge(params)
     end
 

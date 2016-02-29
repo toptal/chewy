@@ -22,6 +22,9 @@ module Chewy
 
     singleton_class.delegate :index_name, :client, to: :index
 
+    class_attribute :_default_import_options
+    self._default_import_options = {}
+
     # Chewy index current type belongs to. Defined inside `Chewy.create_type`
     #
     def self.index
@@ -45,6 +48,10 @@ module Chewy
     #
     def self.scopes
       public_methods - Chewy::Type.public_methods
+    end
+
+    def self.default_import_options(params)
+      self._default_import_options = _default_import_options.merge(params)
     end
 
     def self.method_missing(method, *args, &block)

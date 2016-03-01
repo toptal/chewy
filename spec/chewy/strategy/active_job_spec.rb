@@ -43,7 +43,7 @@ if defined?(::ActiveJob)
       ::ActiveJob::Base.queue_adapter = :inline
       expect { [city, other_city].map(&:save!) }
         .to update_index(CitiesIndex::City, strategy: :active_job)
-        .and_reindex(city, other_city)
+        .and_reindex(city, other_city).only
     end
 
     specify do

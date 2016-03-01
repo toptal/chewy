@@ -28,7 +28,7 @@ if defined?(::Resque)
       with_resque do
         expect { [city, other_city].map(&:save!) }
           .to update_index(CitiesIndex::City, strategy: :resque)
-          .and_reindex(city, other_city)
+          .and_reindex(city, other_city).only
       end
     end
 

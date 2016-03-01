@@ -28,7 +28,7 @@ if defined?(::Sidekiq)
       ::Sidekiq::Testing.inline! do
         expect { [city, other_city].map(&:save!) }
           .to update_index(CitiesIndex::City, strategy: :sidekiq)
-          .and_reindex(city, other_city)
+          .and_reindex(city, other_city).only
       end
     end
 

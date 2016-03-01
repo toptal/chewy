@@ -30,6 +30,12 @@ module Chewy
       end
     end
 
+    module Rails5MigrationStrategy
+      def migrate(*args)
+        Chewy.strategy(:bypass) { super }
+      end
+    end
+
     rake_tasks do
       load 'tasks/chewy.rake'
     end
@@ -50,8 +56,13 @@ module Chewy
 
     initializer 'chewy.migration_strategy' do
       ActiveSupport.on_load(:active_record) do
-        ActiveRecord::Migration.send(:include, MigrationStrategy)
-        ActiveRecord::Migrator.send(:include, MigrationStrategy) if defined? ActiveRecord::Migrator
+        if Rails::VERSION::MAJOR >= 5
+          ActiveRecord::Migration.prepend(Rails5MigrationStrategy)
+          ActiveRecord::Migrator.prepend(Rails5MigrationStrategy) if defined? ActiveRecord::Migrator
+        else
+          ActiveRecord::Migration.send(:include, MigrationStrategy)
+          ActiveRecord::Migrator.send(:include, MigrationStrategy) if defined? ActiveRecord::Migrator
+        end
       end
     end
 

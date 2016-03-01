@@ -2,9 +2,39 @@
 
 ## Changes
 
+  * Configurable per-type defailt import options (@barthez, #341)
+
+  * Various codebase optimizations (@DNNX, @pyromaniac)
+
+  * `update_index` Rspec matcher messages improvements
+
+  * `:all` rake tasks deprecation
+
+  * Scoped notification subscriptions in rake tasks (@0x0badc0de, #335)
+
+  * Async strategies workers accept options (@dnd, #321)
+
+  * Prefix is configurable per-index (@mikeyhogarth, #314)
+
+  * Ability to pass proc for transport configuration (@feymartynov, @reidab, #302, #339)
+
+  * ElasticSearch 2 support (@sergeygaychuk, #297)
+
   * Accessing types with methods is deprecated. Use `MyIndex::MyType` constant reference instead of `MyIndex.my_type` method.
 
-  * Sequel adapter improvements by @mrbrdo
+  * Sequel adapter improvements (@mrbrdo, #294)
+
+## Bugfixes
+
+  * Mongoid atomic strategy fix (#325)
+
+  * Method missing fix (@jesjos, #324)
+
+  * Hash fields composition fix (@eproulx-petalmd, #319)
+
+  * Better errors handling in strategies (@barthez, #306)
+
+  * Assets strategies silencer fix for Rails 5 API mode (@clupprich, #303)
 
 # Version 0.8.3
 

@@ -21,6 +21,9 @@ gemfile:
   - gemfiles/rails.4.2.activerecord.gemfile
   - gemfiles/rails.4.2.activerecord.kaminari.gemfile
   - gemfiles/rails.4.2.activerecord.will_paginate.gemfile
+  - gemfiles/rails.5.0.0.beta3.activerecord.gemfile
+  - gemfiles/rails.5.0.0.beta3.activerecord.kaminari.gemfile
+  - gemfiles/rails.5.0.0.beta3.activerecord.will_paginate.gemfile
   - gemfiles/rails.4.0.mongoid.4.0.0.gemfile
   - gemfiles/rails.4.0.mongoid.4.0.0.kaminari.gemfile
   - gemfiles/rails.4.0.mongoid.4.0.0.will_paginate.gemfile
@@ -40,6 +43,7 @@ gemfile:
   - gemfiles/rails.4.2.mongoid.5.1.0.kaminari.gemfile
   - gemfiles/rails.4.2.mongoid.5.1.0.will_paginate.gemfile
   - gemfiles/sequel.4.31.gemfile
+
 matrix:
   exclude:
     - rvm: 2.2

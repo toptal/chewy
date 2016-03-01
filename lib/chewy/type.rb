@@ -12,6 +12,8 @@ require 'chewy/type/adapter/sequel'
 
 module Chewy
   class Type
+    IMPORT_OPTIONS_KEYS = %i[batch_size]
+
     include Search
     include Mapping
     include Wrapper
@@ -21,6 +23,9 @@ module Chewy
     include Import
 
     singleton_class.delegate :index_name, :client, to: :index
+
+    class_attribute :_default_import_options
+    self._default_import_options = {}
 
     # Chewy index current type belongs to. Defined inside `Chewy.create_type`
     #
@@ -45,6 +50,11 @@ module Chewy
     #
     def self.scopes
       public_methods - Chewy::Type.public_methods
+    end
+
+    def self.default_import_options(params)
+      params.assert_valid_keys(IMPORT_OPTIONS_KEYS)
+      self._default_import_options = _default_import_options.merge(params)
     end
 
     def self.method_missing(method, *args, &block)

@@ -355,6 +355,17 @@ describe Chewy::Type::Import do
 
     end
 
+    context 'default_import_options is set' do
+      before do
+        CitiesIndex::City.default_import_options(batch_size: 500)
+      end
+
+      specify {
+        expect(CitiesIndex::City.adapter).to receive(:import).with(batch_size: 500)
+        CitiesIndex::City.import
+      }
+    end
+
     xcontext 'performance' do
       let!(:cities) do
         1000.times.map do |i|

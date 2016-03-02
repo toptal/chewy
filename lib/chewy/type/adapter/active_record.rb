@@ -64,7 +64,7 @@ module Chewy
         end
       end
 
-      if defined?(::ActiveRecord && ::ActiveRecord::VERSION::MAJOR >= 5)
+      if defined?(::ActiveRecord) && ::ActiveRecord::VERSION::MAJOR >= 5
         Chewy::Type::Adapter::ActiveRecord.prepend(Rails5)
       end
     end

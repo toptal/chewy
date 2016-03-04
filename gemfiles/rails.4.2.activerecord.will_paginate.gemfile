@@ -2,7 +2,6 @@
 
 source "https://rubygems.org"
 
-gem "mongoid"
 gem "activerecord", "~> 4.2.0"
 gem "activesupport", "~> 4.2.0"
 gem "activejob", "~> 4.2.0"

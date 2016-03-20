@@ -2,7 +2,9 @@
 
 ## Changes
 
-  * Brand new import `:bulk_size` option, set desired ElasticSearch bulk size in bytes.
+  * Brand new import `:bulk_size` option, set desired ElasticSearch bulk size in bytes
+
+  * Witchcraft™ technology
 
   * Configurable per-type default import options (@barthez, #341)
 

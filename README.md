@@ -360,6 +360,43 @@ end
 
 So Chewy Crutches™ technology is able to increase your indexing performance in some cases up to a hundredfold or even more depending on your associations complexity.
 
+### Witchcraft™ technology
+
+One more experimental technology to increase import performance. As far as you know, chewy defines value proc for every imported field in mapping, so at the import time each of this procs is executed on imported object to extract result document to import. It would be great for performance to use one huge whole-document-returning proc instead. So basically the idea or Witchcraft™ technology is to compile a single document-returning proc from the type definition.
+
+```ruby
+define_type Product do
+  witchcraft!
+
+  field :title
+  field :tags, value: -> { tags.map(&:name) }
+  field :categories do
+    field :name, value: -> (product, category) { category.name }
+    field :type, value: -> (product, category, crutch) { crutch.types[category.name] }
+  end
+end
+```
+
+The type definition above will be compiled to something close to:
+
+```ruby
+-> (object, crutches) do
+  {
+    title: object.title,
+    tags: object.tags.map(&:name),
+    categories: object.categories.map do |object2|
+      {
+        name: object2.name
+        type: crutches.types[object2.name]
+      }
+    end
+  }
+end
+```
+
+And don't even ask how is it possible, it is a witchcraft.
+Obviously not every type definition might be compiled, so use reasonable formatting to make `method_source` to be able to extract field value proc sources. Also value procs with splat arguments are not supported right now. However, it is possible that your type definition will be supported by Witchcraft™ technology out of the box in the most of the cases.
+
 ### Types access
 
 You can access index-defined types with the following API:

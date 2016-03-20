@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe Chewy::Type::Import do
+describe Chewy::Type::Observe do
   describe '.update_index' do
     before do
       stub_index(:dummies) do

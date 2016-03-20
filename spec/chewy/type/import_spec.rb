@@ -395,6 +395,8 @@ describe Chewy::Type::Import do
         before do
           stub_index(:cities) do
             define_type City do
+              # witchcraft!
+
               field :name, value: -> { name }
               field :rating, value: -> { rating }
               field :country_id, value: -> { country_id }
@@ -419,6 +421,18 @@ describe Chewy::Type::Import do
               field :name7, value: -> { name }
               field :rating7, value: -> { rating }
               field :country_id7, value: -> { country_id }
+              field :name8, value: -> { name }
+              field :rating8, value: -> { rating }
+              field :country_id8, value: -> { country_id }
+              field :name9, value: -> { name }
+              field :rating9, value: -> { rating }
+              field :country_id9, value: -> { country_id }
+              field :name10, value: -> { name }
+              field :rating10, value: -> { rating }
+              field :country_id10, value: -> { country_id }
+              field :name11, value: -> { name }
+              field :rating11, value: -> { rating }
+              field :country_id11, value: -> { country_id }
             end
           end
         end

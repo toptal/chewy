@@ -2,7 +2,7 @@
 
 ## Changes
 
-  * Configurable per-type defailt import options (@barthez, #341)
+  * Configurable per-type default import options (@barthez, #341)
 
   * Various codebase optimizations (@DNNX, @pyromaniac)
 

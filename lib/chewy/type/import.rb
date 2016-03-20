@@ -151,7 +151,11 @@ module Chewy
         end
 
         def object_data object, crutches = nil
-          build_root.compose(object, crutches)[type_name.to_sym]
+          if witchcraft?
+            cauldron.brew(object, crutches)
+          else
+            build_root.compose(object, crutches)[type_name.to_sym]
+          end
         end
 
         def extract_errors result

@@ -395,7 +395,7 @@ end
 ```
 
 And don't even ask how is it possible, it is a witchcraft.
-Obviously not every type definition might be compiled, so use reasonable formatting to make `method_source` to be able to extract field value proc sources. Also value procs with splat arguments are not supported right now. However, it is possible that your type definition will be supported by Witchcraft™ technology out of the box in the most of the cases.
+Obviously not every type of definition might be compiled, so use reasonable formatting to make `method_source` be able to extract field value proc sources. Also value procs with splat arguments are not supported right now. However, it is quite possible that your type definition will be supported by Witchcraft™ technology out of the box in the most of the cases.
 
 ### Types access
 

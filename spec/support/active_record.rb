@@ -15,6 +15,7 @@ ActiveRecord::Schema.define do
     t.column :country_id, :integer
     t.column :name, :string
     t.column :rating, :integer
+    t.column :updated_at, :datetime
   end
 end
 

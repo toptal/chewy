@@ -1,7 +1,9 @@
 require 'spec_helper'
+require 'timeout'
 
 describe Chewy::Type::Adapter::ActiveRecord, :active_record do
   before { stub_model(:city) }
+  before { stub_model(:country) }
 
   describe '#name' do
     specify { expect(described_class.new(City).name).to eq('City') }
@@ -63,7 +65,10 @@ describe Chewy::Type::Adapter::ActiveRecord, :active_record do
   describe '#import' do
     def import(*args)
       result = []
-      subject.import(*args) { |data| result.push data }
+      subject.import(*args) do |data|
+        result.push data
+        yield if block_given?
+      end
       result
     end
 
@@ -104,6 +109,91 @@ describe Chewy::Type::Adapter::ActiveRecord, :active_record do
 
       specify { expect(import(cities.first, nil)).to eq([{index: [cities.first]}]) }
       specify { expect(import(cities.first.id, nil)).to eq([{index: [cities.first]}]) }
+
+      context 'timestamp ordered import' do
+        around do |example|
+          begin
+            previous_value = Chewy.use_timestamp_ordered_import
+            Chewy.use_timestamp_ordered_import = true
+            Timeout.timeout(1) { example.run }
+          ensure
+            Chewy.use_timestamp_ordered_import = previous_value
+          end
+        end
+
+        context 'sorts by updated_at' do
+          let!(:cities) { Array.new(3) { |index| City.create!(updated_at: index.hours.ago) } }
+          let!(:deleted) { nil }
+
+
+          specify { expect(import(City.unscoped, batch_size: 2))
+            .to eq([{index: cities.last(2).reverse}, {index: cities.first(1)}]) }
+        end
+
+        context 'is aware of objects updated in the middle of processing' do
+          let!(:cities) { Array.new(3) { |index| City.create!(updated_at: index.hours.ago) } }
+          let!(:deleted) { nil }
+
+          specify do
+            update_is_done = false
+
+            results = import(City.unscoped, batch_size: 2) do
+              cities.last.touch unless update_is_done
+              update_is_done = true
+            end
+
+            expect(results).to eq([{index: cities.last(2).reverse}, {index: [cities.first, cities.last]}])
+          end
+        end
+
+        context 'finish even objects are updated every batch' do
+          let!(:cities) { Array.new(3) { |index| City.create!(updated_at: index.hours.ago) } }
+          let!(:deleted) { nil }
+
+          specify do
+            results = import(City.unscoped, batch_size: 2) do
+              City.order('updated_at asc').first.touch
+            end
+
+            expect(results).to eq([
+              {index: cities.last(2).reverse},
+              {index: [cities.first, cities.last]},
+              {index: [cities[1]]}
+            ])
+          end
+        end
+
+        context 'fails if there is more objects updated every batch than batch size' do
+          let!(:cities) { Array.new(3) { |index| City.create!(updated_at: index.hours.ago) } }
+          let!(:deleted) { nil }
+
+          specify do
+            expect {
+              import(City.unscoped, batch_size: 2) do
+                City.order('updated_at asc').first(2).map(&:touch)
+              end
+            }.to raise_error(Chewy::Type::Adapter::ActiveRecord::InfiniteImportWarning)
+          end
+        end
+
+        context 'and timestamp is equal' do
+          let(:update_time) { Time.now }
+          let!(:cities) { Array.new(3) { City.create!(updated_at: update_time) } }
+          let!(:deleted) { nil }
+
+          specify { expect(import(City.unscoped, batch_size: 2))
+            .to eq([{index: cities.first(2)}, {index: cities.last(1)}]) }
+        end
+
+        context 'failback to id ordered import when field is missing' do
+          subject { described_class.new(Country) }
+          let!(:countries) { Array.new(3) { Country.create! } }
+          let!(:deleted) { nil }
+
+          specify { expect(import(Country.unscoped, batch_size: 2))
+            .to eq([{index: countries.first(2)}, {index: countries.last(1)}]) }
+        end
+      end
     end
 
     context 'additional delete conitions' do

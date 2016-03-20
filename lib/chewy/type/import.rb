@@ -3,6 +3,8 @@ module Chewy
     module Import
       extend ActiveSupport::Concern
 
+      BULK_OPTIONS = [:suffix, :bulk_size, :refresh, :consistency, :replication]
+
       module ClassMethods
         # Perform import operation for specified documents.
         # Returns true or false depending on success.
@@ -11,16 +13,19 @@ module Chewy
         #   UsersIndex::User.import User.active              # imports active users
         #   UsersIndex::User.import [1, 2, 3]                # imports users with specified ids
         #   UsersIndex::User.import users                    # imports users collection
-        #   UsersIndex::User.import refresh: false           # to disable index refreshing after import
         #   UsersIndex::User.import suffix: Time.now.to_i    # imports data to index with specified suffix if such is exists
+        #   UsersIndex::User.import refresh: false           # to disable index refreshing after import
         #   UsersIndex::User.import batch_size: 300          # import batch size
+        #   UsersIndex::User.import bulk_size: 10.megabytes  # import ElasticSearch bulk size in bytes
+        #   UsersIndex::User.import consistency: :quorum     # explicit write consistency setting for the operation (one, quorum, all)
+        #   UsersIndex::User.import replication: :async      # explicitly set the replication type (sync, async)
         #
         # See adapters documentation for more details.
         #
         def import *args
           import_options = args.extract_options!
-          bulk_options = import_options.reject { |k, v| ![:refresh, :suffix].include?(k) }.reverse_merge!(refresh: true)
-          import_options.reverse_merge! self._default_import_options
+          import_options.reverse_merge! _default_import_options
+          bulk_options = import_options.reject { |k, _| !BULK_OPTIONS.include?(k) }.reverse_merge!(refresh: true)
 
           index.create!(bulk_options.slice(:suffix)) unless index.exists?
 
@@ -40,15 +45,7 @@ module Chewy
 
         # Perform import operation for specified documents.
         # Raises Chewy::ImportFailed exception in case of import errors.
-        #
-        #   UsersIndex::User.import!                          # imports default data set
-        #   UsersIndex::User.import! User.active              # imports active users
-        #   UsersIndex::User.import! [1, 2, 3]                # imports users with specified ids
-        #   UsersIndex::User.import! users                    # imports users collection
-        #   UsersIndex::User.import! refresh: false           # to disable index refreshing after import
-        #   UsersIndex::User.import! suffix: Time.now.to_i    # imports data to index with specified suffix if such is exists
-        #   UsersIndex::User.import! batch_size: 300          # import batch size
-        #
+        # Options are completely the same as for `import` method
         # See adapters documentation for more details.
         #
         def import! *args
@@ -67,11 +64,37 @@ module Chewy
         # Adds `:suffix` option to bulk import to index with specified suffix.
         def bulk options = {}
           suffix = options.delete(:suffix)
+          bulk_size = options.delete(:bulk_size)
+          body = options.delete(:body)
+          header = { index: index.build_index_name(suffix: suffix), type: type_name }
 
-          result = client.bulk options.merge(index: index.build_index_name(suffix: suffix), type: type_name)
+          bodies = if bulk_size
+            bulk_size -= 1.kilobyte # 1 kilobyte for request header and newlines
+            raise ArgumentError.new('Import `:bulk_size` can\'t be less then 1 kilobyte') if bulk_size <= 0
+
+            body.each_with_object(['']) do |entry, result|
+              operation, meta = entry.to_a.first
+              data = meta.delete(:data)
+              entry = [{ operation => meta }, data].compact.map(&:to_json).join("\n")
+              if entry.bytesize > bulk_size
+                raise ArgumentError.new('Import `:bulk_size` seems to be less then entry size')
+              elsif result.last.bytesize + entry.bytesize > bulk_size
+                result.push(entry)
+              else
+                result[-1] = [result[-1], entry].delete_if(&:blank?).join("\n")
+              end
+            end
+          else
+            [body]
+          end
+
+          items = bodies.map do |body|
+            result = client.bulk options.merge(header).merge(body: body)
+            result.try(:[], 'items') || []
+          end.flatten
           Chewy.wait_for_status
 
-          extract_errors result
+          extract_errors items
         end
 
       private
@@ -158,8 +181,8 @@ module Chewy
           end
         end
 
-        def extract_errors result
-          result && result['items'].each.with_object({}) do |item, memo|
+        def extract_errors items
+          items.each.with_object({}) do |item, memo|
             action = item.keys.first.to_sym
             data = item.values.first
             if data['error']

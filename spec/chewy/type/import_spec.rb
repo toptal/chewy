@@ -69,6 +69,43 @@ describe Chewy::Type::Import do
       ])
     end
 
+    context ':bulk_size' do
+      specify do
+        dummy_cities.first.destroy
+
+        imported = []
+        allow(CitiesIndex.client).to receive(:bulk) { |params| imported << params[:body]; nil }
+
+        city.import dummy_cities.map(&:id), bulk_size: 1.2.kilobyte
+        expect(imported.flatten).to match_array([
+          %Q({"delete":{"_id":1}}),
+          %Q({"index":{"_id":2}}\n{"name":"name1"}\n{"index":{"_id":3}}\n{"name":"name2"})
+        ])
+      end
+
+      context do
+        let!(:dummy_cities) { 3.times.map { |i| City.create(id: i + 1, name: "name#{i}" * 20) } }
+
+        specify do
+          dummy_cities.first.destroy
+
+          imported = []
+          allow(CitiesIndex.client).to receive(:bulk) { |params| imported << params[:body]; nil }
+
+          city.import dummy_cities.map(&:id), bulk_size: 1.2.kilobyte
+          expect(imported.flatten).to match_array([
+            %Q({"delete":{"_id":1}}),
+            %Q({"index":{"_id":2}}\n{"name":"#{'name1' * 20}"}),
+            %Q({"index":{"_id":3}}\n{"name":"#{'name2' * 20}"})
+          ])
+        end
+
+        specify do
+          expect { city.import dummy_cities.map(&:id), bulk_size: 1.1.kilobyte }.to raise_error ArgumentError
+        end
+      end
+    end
+
     specify do
       expect(CitiesIndex.client).to receive(:bulk).with(hash_including(refresh: true))
       city.import dummy_cities
@@ -357,91 +394,12 @@ describe Chewy::Type::Import do
 
     context 'default_import_options is set' do
       before do
-        CitiesIndex::City.default_import_options(batch_size: 500)
+        CitiesIndex::City.default_import_options(batch_size: 500, bulk_size: 1.megabyte)
       end
 
-      specify {
-        expect(CitiesIndex::City.adapter).to receive(:import).with(batch_size: 500)
+      specify do
+        expect(CitiesIndex::City.adapter).to receive(:import).with(batch_size: 500, bulk_size: 1.megabyte)
         CitiesIndex::City.import
-      }
-    end
-
-    xcontext 'performance' do
-      let!(:cities) do
-        1000.times.map do |i|
-          City.create(name: "Name #{i}", rating: i, country_id: i.next)
-        end
-      end
-
-      context do
-        before do
-          stub_index(:cities) do
-            define_type City do
-              field :name
-              field :rating
-              field :country_id
-            end
-          end
-        end
-        before do
-          allow(CitiesIndex::City).to receive(:bulk)
-        end
-
-        specify { p Benchmark.realtime { CitiesIndex::City.import(cities) } }
-        specify { p Benchmark.realtime { CitiesIndex::City.import } }
-      end
-
-      context do
-        before do
-          stub_index(:cities) do
-            define_type City do
-              # witchcraft!
-
-              field :name, value: -> { name }
-              field :rating, value: -> { rating }
-              field :country_id, value: -> { country_id }
-              field :name1, value: -> { name }
-              field :rating1, value: -> { rating }
-              field :country_id1, value: -> { country_id }
-              field :name2, value: -> { name }
-              field :rating2, value: -> { rating }
-              field :country_id2, value: -> { country_id }
-              field :name3, value: -> { name }
-              field :rating3, value: -> { rating }
-              field :country_id3, value: -> { country_id }
-              field :name4, value: -> { name }
-              field :rating4, value: -> { rating }
-              field :country_id4, value: -> { country_id }
-              field :name5, value: -> { name }
-              field :rating5, value: -> { rating }
-              field :country_id5, value: -> { country_id }
-              field :name6, value: -> { name }
-              field :rating6, value: -> { rating }
-              field :country_id6, value: -> { country_id }
-              field :name7, value: -> { name }
-              field :rating7, value: -> { rating }
-              field :country_id7, value: -> { country_id }
-              field :name8, value: -> { name }
-              field :rating8, value: -> { rating }
-              field :country_id8, value: -> { country_id }
-              field :name9, value: -> { name }
-              field :rating9, value: -> { rating }
-              field :country_id9, value: -> { country_id }
-              field :name10, value: -> { name }
-              field :rating10, value: -> { rating }
-              field :country_id10, value: -> { country_id }
-              field :name11, value: -> { name }
-              field :rating11, value: -> { rating }
-              field :country_id11, value: -> { country_id }
-            end
-          end
-        end
-        before do
-          allow(CitiesIndex::City).to receive(:bulk)
-        end
-
-        specify { p Benchmark.realtime { CitiesIndex::City.import(cities) } }
-        specify { p Benchmark.realtime { CitiesIndex::City.import } }
       end
     end
   end

@@ -236,6 +236,23 @@ See [config.rb](lib/chewy/config.rb) for more details.
   User.plugin :chewy_observe           # just for User
   ```
 
+### Type default import options
+
+Every type has `default_import_options` configuration to specify, suddenly, default import options:
+
+```ruby
+class ProductsIndex < Chewy::Index
+  define_type Post.includes(:tags) do
+    default_import_options batch_size: 100, bulk_size: 10.megabytes, refresh: false
+
+    field :name
+    field :tags, value: -> { tags.map(&:name) }
+  end
+end
+```
+
+See [import.rb](lib/chewy/type/import.rb) for available options.
+
 ### Multi (nested) and object field types
 
 To define an objects field you can simply nest fields in the DSL:
@@ -350,7 +367,6 @@ You can access index-defined types with the following API:
 ```ruby
 UsersIndex::User # => UsersIndex::User
 UsersIndex.type_hash['user'] # => UsersIndex::User
-UsersIndex.user # => UsersIndex::User
 UsersIndex.types # => [UsersIndex::User]
 UsersIndex.type_names # => ['user']
 ```
@@ -920,9 +936,9 @@ avg_johns_rating = all_johns.aggs
 ```
 
 It is possible to run into collisions between named aggregations. This occurs when there is more than one aggregation
- with the same name. To explicitly reference an aggregation you provide a string to the #aggs method of the form: 
+ with the same name. To explicitly reference an aggregation you provide a string to the #aggs method of the form:
  `index_name#document_type.aggregation_name`
- 
+
 Consider this example where there are two separate aggregations named `avg_rating`
 
 ```ruby
@@ -949,7 +965,7 @@ end
 
 all_docs = UsersIndex.filter {match_all}.aggs("users#user.avg_rating")
 all_docs.aggs
-# => {"users#user.avg_rating"=>{"value"=>3.5}} 
+# => {"users#user.avg_rating"=>{"value"=>3.5}}
 ```
 
 ### Script fields

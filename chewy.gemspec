@@ -30,7 +30,11 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'rubysl', '~> 2.0' if RUBY_ENGINE == 'rbx'
 
   spec.add_development_dependency 'method_source'
-  spec.add_development_dependency 'unparser'
+  if RUBY_VERSION < '2.1.0'
+    spec.add_development_dependency 'unparser', '0.2.4'
+  else
+    spec.add_development_dependency 'unparser'
+  end
 
   spec.add_dependency 'activesupport', '>= 3.2'
   spec.add_dependency 'elasticsearch', '>= 1.0.0'

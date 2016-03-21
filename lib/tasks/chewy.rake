@@ -2,47 +2,27 @@ require 'chewy/rake_helper'
 
 namespace :chewy do
   desc 'Destroy, recreate and import data to specified index'
-  task :reset, [:index] => :environment do |task, args|
+  task reset: :environment do |_task, args|
     Chewy::RakeHelper.subscribed_task_stats do
+      indexes = args.extras
 
-      if args[:index].present?
-        Chewy::RakeHelper.reset_index(args[:index])
+      if indexes.empty? || indexes.first.tr!(?-, '')
+        Chewy::RakeHelper.reset_all(indexes)
       else
-        Chewy::RakeHelper.reset_all
-      end
-    end
-  end
-
-  namespace :reset do
-    desc 'Destroy, recreate and import data for all found indexes'
-    task all: :environment do
-      ActiveSupport::Deprecation.warn('`rake chewy:reset:all` is deprecated and will be removed soon. Use `rake chewy:reset` instead')
-
-      Chewy::RakeHelper.subscribed_task_stats do
-        Chewy::RakeHelper.reset_all
+        Chewy::RakeHelper.reset_index(indexes)
       end
     end
   end
 
   desc 'Updates data specified index'
-  task :update, [:index] => :environment do |task, args|
+  task update: :environment do |_task, args|
     Chewy::RakeHelper.subscribed_task_stats do
+      indexes = args.extras
 
-      if args[:index].present?
-        Chewy::RakeHelper.update_index(args[:index])
+      if indexes.empty? || indexes.first.tr!(?-, '')
+        Chewy::RakeHelper.update_all(indexes)
       else
-        Chewy::RakeHelper.update_all
-      end
-    end
-  end
-
-  namespace :update do
-    desc 'Updates data for all found indexes'
-    task all: :environment do
-      ActiveSupport::Deprecation.warn('`rake chewy:update:all` is deprecated and will be removed soon. Use `rake chewy:update` instead')
-
-      Chewy::RakeHelper.subscribed_task_stats do
-        Chewy::RakeHelper.update_all
+        Chewy::RakeHelper.update_index(indexes)
       end
     end
   end

@@ -1141,9 +1141,14 @@ Inside the Rails application, some index-maintaining rake tasks are defined.
 ```bash
 rake chewy:reset # resets all the existing indices, declared in app/chewy
 rake chewy:reset[users] # resets UsersIndex only
+rake chewy:reset[users,projects] # resets UsersIndex and ProjectsIndex
+rake chewy:reset[-users,projects] # resets every index in application except specified ones
 
 rake chewy:update # updates all the existing indices, declared in app/chewy
 rake chewy:update[users] # updates UsersIndex only
+rake chewy:update[users,projects] # updates UsersIndex and ProjectsIndex
+rake chewy:update[-users,projects] # updates every index in application except specified ones
+
 ```
 
 `rake chewy:reset` performs zero-downtime reindexing as described [here](https://www.elastic.co/blog/changing-mapping-with-zero-downtime). So basically rake task creates a new index with uniq suffix and then simply aliases it to the common index name. The previous index is deleted afterwards (see `Chewy::Index.reset!` for more details).

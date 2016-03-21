@@ -29,36 +29,46 @@ module Chewy
         end
       end
 
+      def all_indexes
+        eager_load_chewy!
+        Chewy::Index.descendants
+      end
+
       def normalize_index index
+        return index if index.is_a?(Chewy::Index)
         "#{index.to_s.gsub(/index\z/i, '').camelize}Index".constantize
       end
 
+      def normalize_indexes *indexes
+        indexes.flatten.map { |index| normalize_index(index) }
+      end
+
       # Performs zero downtime reindexing of all documents in the specified index.
-      def reset_index index
-        index = normalize_index(index)
-        puts "Resetting #{index}"
-        index.reset! (Time.now.to_f * 1000).round
-      end
-
-      # Performs zero downtime reindexing of all documents across all indices.
-      def reset_all
-        eager_load_chewy!
-        Chewy::Index.descendants.each { |index| reset_index index }
-      end
-
-      def update_index index
-        index = normalize_index(index)
-        puts "Updating #{index}"
-        if index.exists?
-          index.import
-        else
-          puts "Index `#{index.index_name}` does not exists. Use rake chewy:reset[#{index.index_name}] to create and update it."
+      def reset_index *indexes
+        normalize_indexes(indexes).each do |index|
+          puts "Resetting #{index}"
+          index.reset! (Time.now.to_f * 1000).round
         end
       end
 
-      def update_all
-        eager_load_chewy!
-        Chewy::Index.descendants.each { |index| update_index index }
+      # Performs zero downtime reindexing of all documents across all indices.
+      def reset_all *except
+        reset_index(all_indexes - normalize_indexes(except))
+      end
+
+      def update_index *indexes
+        normalize_indexes(indexes).each do |index|
+          puts "Updating #{index}"
+          if index.exists?
+            index.import
+          else
+            puts "Index `#{index.index_name}` does not exists. Use rake chewy:reset[#{index.index_name}] to create and update it."
+          end
+        end
+      end
+
+      def update_all *except
+        update_index(all_indexes - normalize_indexes(except))
       end
     end
   end

@@ -1,5 +1,7 @@
 # master
 
+# Version 0.8.4
+
 ## Changes
 
   * Brand new import `:bulk_size` option, set desired ElasticSearch bulk size in bytes

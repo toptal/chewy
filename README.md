@@ -402,9 +402,9 @@ Obviously not every type of definition might be compiled. There are some restric
 3. If you are generating fields dynamically use value proc with arguments, argumentless value procs are not supported yet:
 
   ```ruby
-    [:first_name, :last_name].each do |name|
-      field name, value: -> (o) { o.send(name) }
-    end
+  [:first_name, :last_name].each do |name|
+    field name, value: -> (o) { o.send(name) }
+  end
   ```
 
 However, it is quite possible that your type definition will be supported by Witchcraft™ technology out of the box in the most of the cases.

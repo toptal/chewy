@@ -395,7 +395,19 @@ end
 ```
 
 And don't even ask how is it possible, it is a witchcraft.
-Obviously not every type of definition might be compiled, so use reasonable formatting to make `method_source` be able to extract field value proc sources. Also value procs with splat arguments are not supported right now. However, it is quite possible that your type definition will be supported by Witchcraft™ technology out of the box in the most of the cases.
+Obviously not every type of definition might be compiled. There are some restrictions:
+
+1. Use reasonable formatting to make `method_source` be able to extract field value proc sources.
+2. Value procs with splat arguments are not supported right now.
+3. If you are generating fields dynamically use value proc with arguments, argumentless value procs are not supported yet:
+
+  ```ruby
+    [:first_name, :last_name].each do |name|
+      field name, value: -> (o) { o.send(name) }
+    end
+  ```
+
+However, it is quite possible that your type definition will be supported by Witchcraft™ technology out of the box in the most of the cases.
 
 ### Types access
 

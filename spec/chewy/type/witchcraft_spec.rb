@@ -150,5 +150,19 @@ describe Chewy::Type::Witchcraft do
         ]}.as_json) }
       end
     end
+
+    context 'dynamic fields' do
+      mapping do
+        [[:name], [:age]].each do |param|
+          field param.first, value: ->(o) { o.send(param[0]) if param[0] }
+        end
+      end
+      let(:attributes) { { name: 'Name', age: 13 } }
+
+      context do
+        let(:object) { double(attributes) }
+        specify { expect(type.cauldron.brew(object)).to eq(attributes.as_json) }
+      end
+    end
   end
 end

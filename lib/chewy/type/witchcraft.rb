@@ -40,19 +40,22 @@ module Chewy
       end
 
       class Cauldron
+        attr_reader :locals
+
         def initialize(type)
           @type = type
+          @locals = []
         end
 
         def brew(object, crutches = nil)
-          alicorn.call(object, crutches).as_json
+          alicorn.call(locals, object, crutches).as_json
         end
 
       private
 
         def alicorn
           @alicorn ||= class_eval <<-RUBY
-            -> (object0, crutches) do
+            -> (locals, object0, crutches) do
               #{composed_values(@type.root_object, 0)}
             end
           RUBY
@@ -145,6 +148,8 @@ module Chewy
           raise "No lambdas found, try to reformat your code:\n`#{proc.source}`" unless lambdas
 
           source = lambdas.first
+          proc_params = proc.parameters.map(&:second)
+
           if proc.arity == 0
             source = replace_self(source, :"object#{nesting}")
             source = replace_send(source, :"object#{nesting}")
@@ -152,10 +157,17 @@ module Chewy
             raise "Splat arguments are unsupported by witchcraft:\n`#{proc.source}"
           else
             (nesting + 1).times do |n|
-              source = replace_lvar(source, proc.parameters[n][1], :"object#{n}") if proc.parameters[n]
+              source = replace_lvar(source, proc_params[n], :"object#{n}") if proc_params[n]
             end
-            source = replace_lvar(source, proc.parameters[nesting + 1][1], :crutches) if proc.parameters[nesting + 1]
+            source = replace_lvar(source, proc_params[nesting + 1], :crutches) if proc_params[nesting + 1]
+
+            binding_variable_list(source).each do |variable|
+              locals.push(proc.binding.eval(variable.to_s))
+              source = replace_local(source, variable, locals.size - 1)
+            end
+
           end
+
           Unparser.unparse(source)
         end
 
@@ -201,6 +213,30 @@ module Chewy
           else
             node
           end
+        end
+
+        def replace_local(node, variable, local_index)
+          if node.is_a?(Parser::AST::Node)
+            if node.type == :send && node.children.to_a == [nil, variable]
+              node.updated(nil, [
+                Parser::AST::Node.new(:lvar, [:locals]),
+                :[],
+                Parser::AST::Node.new(:int, [local_index])
+              ])
+            else
+              node.updated(nil, node.children.map { |child| replace_local(child, variable, local_index) })
+            end
+          else
+            node
+          end
+        end
+
+        def binding_variable_list(node)
+          if node.type == :send && node.children[0].nil?
+            node.children[1]
+          else
+            node.children.map { |child| binding_variable_list(child) }.flatten.compact.uniq
+          end if node.is_a?(Parser::AST::Node)
         end
       end
     end

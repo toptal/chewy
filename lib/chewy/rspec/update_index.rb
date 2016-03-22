@@ -84,6 +84,10 @@ RSpec::Matchers.define :update_index do |type_name, options = {}|
   #     .to update_index(UsersIndex.user).and_reindex(user1).only }
   #
   chain(:only) do |*args|
+    if (!@reindex || @reindex.empty?) && (!@delete || @delete.empty?)
+      raise "Use `only` in conjunction with `and_reindex` or `and_delete`"
+    end
+
     @only = true
   end
 

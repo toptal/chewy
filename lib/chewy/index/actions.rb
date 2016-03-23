@@ -176,7 +176,7 @@ module Chewy
             result
           else
             purge! suffix
-            import import_ops
+            import import_opts
           end
         end
       end

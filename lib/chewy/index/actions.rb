@@ -161,9 +161,10 @@ module Chewy
         #   UsersIndex.reset! Time.now.to_i
         #
         def reset! suffix = nil, opts = {}
+          import_opts = {suffix: suffix}.merge(opts[:import_opts])
+
           if suffix.present? && (indexes = self.indexes).present?
             create! suffix, alias: false
-            import_opts = {suffix: suffix}.merge(opts[:import_opts])
             result = import import_opts
             client.indices.update_aliases body: {actions: [
               *indexes.map do |index|
@@ -175,7 +176,7 @@ module Chewy
             result
           else
             purge! suffix
-            import
+            import import_ops
           end
         end
       end

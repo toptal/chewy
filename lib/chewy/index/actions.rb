@@ -161,7 +161,7 @@ module Chewy
         #   UsersIndex.reset! Time.now.to_i
         #
         def reset! suffix = nil, opts = {}
-          import_opts = {suffix: suffix}.merge(opts[:import_opts])
+          import_opts = {suffix: suffix}.merge(opts[:import_opts] || {})
 
           if suffix.present? && (indexes = self.indexes).present?
             create! suffix, alias: false

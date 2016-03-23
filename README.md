@@ -4,11 +4,11 @@
 [![Inline docs](http://inch-ci.org/github/toptal/chewy.svg?branch=master)](http://inch-ci.org/github/toptal/chewy)
 
 <p align="right">Sponsored by</p>
-<p align="right"><a href="http://www.toptal.com/"><img src="http://www.toptal.com/assets/public/blocks/logo/big.png" alt="Toptal" width="105" height="34"></a></p>
+<p align="right"><a href="https://www.toptal.com/"><img src="https://www.toptal.com/assets/public/blocks/logo/big.png" alt="Toptal" width="105" height="34"></a></p>
 
 # Chewy
 
-Chewy is an ODM and wrapper for [the official Elasticsearch client](https://github.com/elasticsearch/elasticsearch-ruby).
+Chewy is an ODM and wrapper for [the official Elasticsearch client](https://github.com/elastic/elasticsearch-ruby).
 
 ## Why Chewy?
 
@@ -125,7 +125,7 @@ See [config.rb](lib/chewy/config.rb) for more details.
   end
   ```
 
-  [See here for mapping definitions](http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/mapping.html).
+  [See here for mapping definitions](https://www.elastic.co/guide/en/elasticsearch/reference/current/mapping.html).
 
 4. Add some index- and type-related settings. Analyzer repositories might be used as well. See `Chewy::Index.settings` docs for details:
 
@@ -161,8 +161,8 @@ See [config.rb](lib/chewy/config.rb) for more details.
   end
   ```
 
-  [See index settings here](http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/indices-update-settings.html).
-  [See root object settings here](http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/mapping-root-object-type.html).
+  [See index settings here](https://www.elastic.co/guide/en/elasticsearch/reference/current/indices-update-settings.html).
+  [See root object settings here](https://www.elastic.co/guide/en/elasticsearch/reference/current/mapping-root-object-type.html).
 
   See [mapping.rb](lib/chewy/type/mapping.rb) for more details.
 

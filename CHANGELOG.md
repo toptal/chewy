@@ -1,5 +1,11 @@
 # master
 
+## Changes
+
+  * Rake tasks support multiple indexes and exceptions: `rake chewy:reset[users,projects]`, `rake chewy:update[-projects]`
+
+  * Witchcraft™ supports dynamically generated procs with variables from closure.
+
 # Version 0.8.4
 
 ## Changes

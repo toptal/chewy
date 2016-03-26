@@ -50,13 +50,13 @@ describe :update_index do
     specify { expect { expect { DummiesIndex::Dummy.bulk body: [{index: {_id: 42, data: {}}}, {delete: {_id: 41}}] }
       .to update_index(DummiesIndex::Dummy).and_reindex(42).only }
         .to fail_matching 'to update documents ["42"] only, but ["41"] was deleted also' }
-    specify { expect { expect { DummiesIndex::Dummy.bulk body: [{index: {_id: 42, data: {}}, index: {_id: 43, data: {}}}, {delete: {_id: 41}}] }
+    specify { expect { expect { DummiesIndex::Dummy.bulk body: [{index: {_id: 42, data: {}}}, {index: {_id: 43, data: {}}}, {delete: {_id: 41}}] }
       .to update_index(DummiesIndex::Dummy).and_reindex(42).only }
         .to fail_matching 'to update documents ["42"] only, but ["43"] was updated and ["41"] was deleted also' }
     specify { expect { expect { DummiesIndex::Dummy.bulk body: [{index: {_id: 42, data: {}}}, {delete: {_id: 41}}] }
       .to update_index(DummiesIndex::Dummy).and_delete(41).only }
         .to fail_matching 'to delete documents ["41"] only, but ["42"] was updated also' }
-    specify { expect { expect { DummiesIndex::Dummy.bulk body: [{index: {_id: 42, data: {}}}, {delete: {_id: 41}, delete: {_id: 43}}] }
+    specify { expect { expect { DummiesIndex::Dummy.bulk body: [{index: {_id: 42, data: {}}}, {delete: {_id: 41}}, {delete: {_id: 43}}] }
       .to update_index(DummiesIndex::Dummy).and_delete(41).only }
         .to fail_matching 'to delete documents ["41"] only, but ["42"] was updated and ["43"] was deleted also' }
   end

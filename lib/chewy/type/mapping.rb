@@ -96,7 +96,7 @@ module Chewy
         #     field :en, value: ->(name) { name['en'] }
         #   end
         #
-        # Off course it is possible to define object fields contents dynamically
+        # Of course it is possible to define object fields contents dynamically
         # but make sure evaluation proc returns hash:
         #
         #   field :name, type: 'object', value: -> { name_translations }

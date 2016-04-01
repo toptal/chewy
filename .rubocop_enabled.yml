@@ -1,0 +1,767 @@
+# These are all the cops that are enabled in the default configuration.
+
+Style/AccessModifierIndentation:
+  Description: Check indentation of private/protected visibility modifiers.
+  Enabled: true
+
+Style/Alias:
+  Description: "Use alias_method instead of alias."
+  Enabled: true
+
+Style/AlignHash:
+  Description: >-
+                 Align the elements of a hash literal if they span more than
+                 one line.
+  Enabled: true
+
+Style/AlignParameters:
+  Description: >-
+                 Align the parameters of a method call if they span more
+                 than one line.
+  Enabled: true
+
+Style/AndOr:
+  Description: "Use &&/|| instead of and/or."
+  Enabled: true
+
+Style/ArrayJoin:
+  Description: "Use Array#join instead of Array#*."
+  Enabled: true
+
+Style/AsciiComments:
+  Description: "Use only ascii symbols in comments."
+  Enabled: true
+
+Style/AsciiIdentifiers:
+  Description: "Use only ascii symbols in identifiers."
+  Enabled: true
+
+Style/Attr:
+  Description: "Checks for uses of Module#attr."
+  Enabled: true
+
+Style/BeginBlock:
+  Description: "Avoid the use of BEGIN blocks."
+  Enabled: true
+
+Style/BlockComments:
+  Description: "Do not use block comments."
+  Enabled: true
+
+Metrics/BlockNesting:
+  Description: "Avoid excessive block nesting"
+  Enabled: true
+
+Style/BlockDelimiters:
+  Description: >-
+                Avoid using {...} for multi-line blocks (multiline chaining is
+                always ugly).
+                Prefer {...} over do...end for single-line blocks.
+  Enabled: true
+
+Style/BracesAroundHashParameters:
+  Description: "Enforce braces style inside hash parameters."
+  Enabled: true
+
+Style/CaseEquality:
+  Description: "Avoid explicit use of the case equality operator(===)."
+  Enabled: true
+
+Style/CaseIndentation:
+  Description: "Indentation of when in a case/when/[else/]end."
+  Enabled: true
+
+Style/CharacterLiteral:
+  Description: "Checks for uses of character literals."
+  Enabled: true
+
+Style/ClassAndModuleCamelCase:
+  Description: "Use CamelCase for classes and modules."
+  Enabled: true
+
+Style/ClassAndModuleChildren:
+  Description: "Checks style of children classes and modules."
+  Enabled: true
+
+Style/ClassCheck:
+  Description: "Enforces consistent use of `Object#is_a?` or `Object#kind_of?`."
+  Enabled: true
+
+Style/ClassMethods:
+  Description: "Use self when defining module/class methods."
+  Enabled: true
+
+Style/ClassVars:
+  Description: "Avoid the use of class variables."
+  Enabled: true
+
+Style/CollectionMethods:
+  Description: "Preferred collection methods."
+  Enabled: true
+
+Style/ColonMethodCall:
+  Description: "Do not use :: for method call."
+  Enabled: true
+
+Style/CommentAnnotation:
+  Description: >-
+                 Checks formatting of special comments
+                 (TODO, FIXME, OPTIMIZE, HACK, REVIEW).
+  Enabled: true
+
+Style/CommentIndentation:
+  Description: "Indentation of comments."
+  Enabled: true
+
+Style/ConstantName:
+  Description: "Constants should use SCREAMING_SNAKE_CASE."
+  Enabled: true
+
+Style/DefWithParentheses:
+  Description: "Use def with parentheses when there are arguments."
+  Enabled: true
+
+Style/DeprecatedHashMethods:
+  Description: "Checks for use of deprecated Hash methods."
+  Enabled: true
+
+Style/Documentation:
+  Description: "Document classes and non-namespace modules."
+  Enabled: true
+
+Style/DotPosition:
+  Description: "Checks the position of the dot in multi-line method calls."
+  Enabled: true
+
+Style/DoubleNegation:
+  Description: "Checks for uses of double negation (!!)."
+  Enabled: true
+
+Style/EachWithObject:
+  Description: "Prefer `each_with_object` over `inject` or `reduce`."
+  Enabled: true
+
+Style/EmptyLineBetweenDefs:
+  Description: "Use empty lines between defs."
+  Enabled: true
+
+Style/EmptyLines:
+  Description: "Don't use several empty lines in a row."
+  Enabled: true
+
+Style/EmptyLinesAroundAccessModifier:
+  Description: "Keep blank lines around access modifiers."
+  Enabled: true
+
+Style/EmptyLinesAroundBlockBody:
+  Description: "Keeps track of empty lines around expression bodies."
+  Enabled: true
+
+Style/EmptyLinesAroundClassBody:
+  Description: "Keeps track of empty lines around expression classes."
+  Enabled: true
+
+Style/EmptyLinesAroundModuleBody:
+  Description: "Keeps track of empty lines around expression modules."
+  Enabled: true
+
+Style/EmptyLiteral:
+  Description: "Prefer literals to Array.new/Hash.new/String.new."
+  Enabled: true
+
+Style/Encoding:
+  Description: "Use UTF-8 as the source file encoding."
+  Enabled: true
+
+Style/EndBlock:
+  Description: "Avoid the use of END blocks."
+  Enabled: true
+
+Style/EndOfLine:
+  Description: "Use Unix-style line endings."
+  Enabled: true
+
+Style/EvenOdd:
+  Description: "Favor the use of Fixnum#even? && Fixnum#odd?"
+  Enabled: true
+
+Style/FileName:
+  Description: "Use snake_case for source file names."
+  Enabled: true
+
+Style/FlipFlop:
+  Description: "Checks for flip flops"
+  Enabled: true
+
+Style/For:
+  Description: "Checks use of for or each in multiline loops."
+  Enabled: true
+
+Style/FormatString:
+  Description: "Enforce the use of Kernel#sprintf, Kernel#format or String#%."
+  Enabled: true
+
+Style/GlobalVars:
+  Description: "Do not introduce global variables."
+  Enabled: true
+
+Style/GuardClause:
+  Description: "Check for conditionals that can be replaced with guard clauses"
+  Enabled: true
+
+Style/HashSyntax:
+  Description: >-
+                 Prefer Ruby 1.9 hash syntax { a: 1, b: 2 } over 1.8 syntax
+                 { :a => 1, :b => 2 }.
+  Enabled: true
+
+Style/IfUnlessModifier:
+  Description: >-
+                 Favor modifier if/unless usage when you have a
+                 single-line body.
+  Enabled: true
+
+Style/IfWithSemicolon:
+  Description: "Never use if x; .... Use the ternary operator instead."
+  Enabled: true
+
+Style/IndentationConsistency:
+  Description: "Keep indentation straight."
+  Enabled: true
+
+Style/IndentationWidth:
+  Description: "Use 2 spaces for indentation."
+  Enabled: true
+
+Style/IndentArray:
+  Description: >-
+                 Checks the indentation of the first element in an array
+                 literal.
+  Enabled: true
+
+Style/IndentHash:
+  Description: "Checks the indentation of the first key in a hash literal."
+  Enabled: true
+
+Style/Lambda:
+  Description: "Use the new lambda literal syntax for single-line blocks."
+  Enabled: true
+
+Style/LambdaCall:
+  Description: "Use lambda.call(...) instead of lambda.(...)."
+  Enabled: true
+
+Style/LeadingCommentSpace:
+  Description: "Comments should start with a space."
+  Enabled: true
+
+Style/LineEndConcatenation:
+  Description: >-
+                 Use \ instead of + or << to concatenate two string literals at
+                 line end.
+  Enabled: true
+
+Metrics/LineLength:
+  Description: "Limit lines to 80 characters."
+  Enabled: true
+
+Style/MethodCallParentheses:
+  Description: "Do not use parentheses for method calls with no arguments."
+  Enabled: true
+
+Style/MethodDefParentheses:
+  Description: >-
+                 Checks if the method definitions have or don"t have
+                 parentheses.
+  Enabled: true
+
+Style/MethodName:
+  Description: "Use the configured style when naming methods."
+  Enabled: true
+
+Style/ModuleFunction:
+  Description: "Checks for usage of `extend self` in modules."
+  Enabled: true
+
+Style/MultilineBlockChain:
+  Description: "Avoid multi-line chains of blocks."
+  Enabled: true
+
+Style/MultilineIfThen:
+  Description: "Never use then for multi-line if/unless."
+  Enabled: true
+
+Style/MultilineTernaryOperator:
+  Description: >-
+                 Avoid multi-line ?: (the ternary operator);
+                 use if/unless instead.
+  Enabled: true
+
+Style/NegatedIf:
+  Description: >-
+                 Favor unless over if for negative conditions
+                 (or control flow or).
+  Enabled: true
+
+Style/NegatedWhile:
+  Description: "Favor until over while for negative conditions."
+  Enabled: true
+
+Style/NestedTernaryOperator:
+  Description: "Use one expression per branch in a ternary operator."
+  Enabled: true
+
+Style/Next:
+  Description: "Use `next` to skip iteration instead of a condition at the end."
+  Enabled: true
+
+Style/NilComparison:
+  Description: "Prefer x.nil? to x == nil."
+  Enabled: true
+
+Style/NonNilCheck:
+  Description: "Checks for redundant nil checks."
+  Enabled: true
+
+Style/Not:
+  Description: "Use ! instead of not."
+  Enabled: true
+
+Style/NumericLiterals:
+  Description: >-
+                 Add underscores to large numeric literals to improve their
+                 readability.
+  Enabled: true
+
+Style/OneLineConditional:
+  Description: >-
+                 Favor the ternary operator(?:) over
+                 if/then/else/end constructs.
+  Enabled: true
+
+Style/OpMethod:
+  Description: "When defining binary operators, name the argument other."
+  Enabled: true
+
+Style/ParenthesesAroundCondition:
+  Description: >-
+                 Don't use parentheses around the condition of an
+                 if/unless/while.
+  Enabled: true
+
+Style/PercentLiteralDelimiters:
+  Description: "Use `%`-literal delimiters consistently"
+  Enabled: true
+
+Style/PerlBackrefs:
+  Description: "Avoid Perl-style regex back references."
+  Enabled: true
+
+Style/PredicateName:
+  Description: "Check the names of predicate methods."
+  Enabled: true
+
+Style/Proc:
+  Description: "Use proc instead of Proc.new."
+  Enabled: true
+
+Style/RaiseArgs:
+  Description: "Checks the arguments passed to raise/fail."
+  Enabled: true
+
+Style/RedundantBegin:
+  Description: "Don't use begin blocks when they are not needed."
+  Enabled: true
+
+Style/RedundantException:
+  Description: "Checks for an obsolete RuntimeException argument in raise/fail."
+  Enabled: true
+
+Style/RedundantReturn:
+  Description: "Don't use return where it's not required."
+  Enabled: true
+
+Style/RedundantSelf:
+  Description: "Don't use self where it's not needed."
+  Enabled: true
+
+Style/RegexpLiteral:
+  Description: >-
+                 Use %r for regular expressions matching more than
+                 `MaxSlashes` '/' characters.
+                 Use %r only for regular expressions matching more than
+                 `MaxSlashes` '/' character.
+  Enabled: true
+
+Style/RescueModifier:
+  Description: "Avoid using rescue in its modifier form."
+  Enabled: true
+
+Style/SelfAssignment:
+  Description: "Checks for places where self-assignment shorthand should have been used."
+  Enabled: true
+
+Style/Semicolon:
+  Description: "Don't use semicolons to terminate expressions."
+  Enabled: true
+
+Style/SignalException:
+  Description: "Checks for proper usage of fail and raise."
+  Enabled: true
+
+Style/SingleLineBlockParams:
+  Description: "Enforces the names of some block params."
+  Enabled: true
+
+Style/SingleLineMethods:
+  Description: "Avoid single-line methods."
+  Enabled: true
+
+Style/SingleSpaceBeforeFirstArg:
+  Description: >-
+                 Checks that exactly one space is used between a method name
+                 and the first argument for method calls without parentheses.
+  Enabled: true
+
+Style/SpaceAfterColon:
+  Description: "Use spaces after colons."
+  Enabled: true
+
+Style/SpaceAfterComma:
+  Description: "Use spaces after commas."
+  Enabled: true
+
+Style/SpaceAfterControlKeyword:
+  Description: "Use spaces after if/elsif/unless/while/until/case/when."
+  Enabled: true
+
+Style/SpaceAfterMethodName:
+  Description: >-
+                 Never put a space between a method name and the opening
+                 parenthesis in a method definition.
+  Enabled: true
+
+Style/SpaceAfterNot:
+  Description: Tracks redundant space after the ! operator.
+  Enabled: true
+
+Style/SpaceAfterSemicolon:
+  Description: "Use spaces after semicolons."
+  Enabled: true
+
+Style/SpaceBeforeBlockBraces:
+  Description: >-
+                 Checks that the left block brace has or doesn't have space
+                 before it.
+  Enabled: true
+
+Style/SpaceBeforeComma:
+  Description: "No spaces before commas."
+  Enabled: true
+
+Style/SpaceBeforeComment:
+  Description: >-
+                 Checks for missing space between code and a comment on the
+                 same line.
+  Enabled: true
+
+Style/SpaceBeforeSemicolon:
+  Description: "No spaces before semicolons."
+  Enabled: true
+
+Style/SpaceInsideBlockBraces:
+  Description: >-
+                 Checks that block braces have or don't have surrounding space.
+                 For blocks taking parameters, checks that the left brace has
+                 or doesn"t have trailing space.
+  Enabled: true
+
+Style/SpaceAroundEqualsInParameterDefault:
+  Description: >-
+                 Checks that the equals signs in parameter default assignments
+                 have or don't have surrounding space depending on
+                 configuration.
+  Enabled: true
+
+Style/SpaceAroundOperators:
+  Description: "Use spaces around operators."
+  Enabled: true
+
+Style/SpaceBeforeModifierKeyword:
+  Description: "Put a space before the modifier keyword."
+  Enabled: true
+
+Style/SpaceInsideBrackets:
+  Description: "No spaces after [ or before ]."
+  Enabled: true
+
+Style/SpaceInsideHashLiteralBraces:
+  Description: "Use spaces inside hash literal braces - or don't."
+  Enabled: true
+
+Style/SpaceInsideParens:
+  Description: "No spaces after ( or before )."
+  Enabled: true
+
+Style/SpecialGlobalVars:
+  Description: "Avoid Perl-style global variables."
+  Enabled: true
+
+Style/StringLiterals:
+  Description: "Checks if uses of quotes match the configured preference."
+  Enabled: true
+
+Style/Tab:
+  Description: "No hard tabs."
+  Enabled: true
+
+Style/TrailingBlankLines:
+  Description: "Checks trailing blank lines and final newline."
+  Enabled: true
+
+Style/TrailingComma:
+  Description: "Checks for trailing comma in parameter lists and literals."
+  Enabled: true
+
+Style/TrailingWhitespace:
+  Description: "Avoid trailing whitespace."
+  Enabled: true
+
+Style/TrivialAccessors:
+  Description: "Prefer attr_* methods to trivial readers/writers."
+  Enabled: true
+
+Style/UnlessElse:
+  Description: >-
+                 Never use unless with else. Rewrite these with the positive
+                 case first.
+  Enabled: true
+
+Style/UnneededCapitalW:
+  Description: "Checks for %W when interpolation is not needed."
+  Enabled: true
+
+Style/CommandLiteral:
+  Description: "Checks for %x when `` would do."
+  Enabled: true
+
+Style/VariableInterpolation:
+  Description: >-
+                 Don't interpolate global, instance and class variables
+                 directly in strings.
+  Enabled: true
+
+Style/VariableName:
+  Description: "Use the configured style when naming variables."
+  Enabled: true
+
+Style/WhenThen:
+  Description: "Use when x then ... for one-line cases."
+  Enabled: true
+
+Style/WhileUntilDo:
+  Description: "Checks for redundant do after while or until."
+  Enabled: true
+
+Style/WhileUntilModifier:
+  Description: >-
+                 Favor modifier while/until usage when you have a
+                 single-line body.
+  Enabled: true
+
+Style/WordArray:
+  Description: "Use %w or %W for arrays of words."
+  Enabled: true
+
+#################### Lint ################################
+### Warnings
+
+Lint/AmbiguousOperator:
+  Description: >-
+                 Checks for ambiguous operators in the first argument of a
+                 method invocation without parentheses.
+  Enabled: true
+
+Lint/AmbiguousRegexpLiteral:
+  Description: >-
+                 Checks for ambiguous regexp literals in the first argument of
+                 a method invocation without parenthesis.
+  Enabled: true
+
+Lint/BlockAlignment:
+  Description: "Align block ends correctly."
+  Enabled: true
+
+Lint/ConditionPosition:
+  Description: "Checks for condition placed in a confusing position relative to the keyword."
+  Enabled: true
+
+Lint/Debugger:
+  Description: "Check for debugger calls."
+  Enabled: true
+
+Lint/DefEndAlignment:
+  Description: "Align ends corresponding to defs correctly."
+  Enabled: true
+
+Lint/DeprecatedClassMethods:
+  Description: "Check for deprecated class method calls."
+  Enabled: true
+
+Lint/ElseLayout:
+  Description: "Check for odd code arrangement in an else block."
+  Enabled: true
+
+Lint/EmptyEnsure:
+  Description: "Checks for empty ensure block."
+  Enabled: true
+
+Lint/EmptyInterpolation:
+  Description: "Checks for empty string interpolation."
+  Enabled: true
+
+Lint/EndAlignment:
+  Description: "Align ends correctly."
+  Enabled: true
+
+Lint/EndInMethod:
+  Description: "END blocks should not be placed inside method definitions."
+  Enabled: true
+
+Lint/EnsureReturn:
+  Description: "Never use return in an ensure block."
+  Enabled: true
+
+Lint/Eval:
+  Description: "The use of eval represents a serious security risk."
+  Enabled: true
+
+Lint/HandleExceptions:
+  Description: "Don't suppress exception."
+  Enabled: true
+
+Lint/InvalidCharacterLiteral:
+  Description: >-
+                 Checks for invalid character literals with a non-escaped
+                 whitespace character.
+  Enabled: true
+
+Lint/LiteralInCondition:
+  Description: "Checks of literals used in conditions."
+  Enabled: true
+
+Lint/LiteralInInterpolation:
+  Description: "Checks for literals used in interpolation."
+  Enabled: true
+
+Lint/Loop:
+  Description: >-
+                 Use Kernel#loop with break rather than begin/end/until or
+                 begin/end/while for post-loop tests.
+  Enabled: true
+
+Lint/ParenthesesAsGroupedExpression:
+  Description: >-
+                 Checks for method calls with a space before the opening
+                 parenthesis.
+  Enabled: true
+
+Lint/RequireParentheses:
+  Description: >-
+                 Use parentheses in the method call to avoid confusion
+                 about precedence.
+  Enabled: true
+
+Lint/RescueException:
+  Description: "Avoid rescuing the Exception class."
+  Enabled: true
+
+Lint/ShadowingOuterLocalVariable:
+  Description: >-
+                 Do not use the same name as outer local variable
+                 for block arguments or block local variables.
+  Enabled: true
+
+Lint/SpaceBeforeFirstArg:
+  Description: >-
+                 Put a space between a method name and the first argument
+                 in a method call without parentheses.
+  Enabled: true
+
+Lint/StringConversionInInterpolation:
+  Description: "Checks for Object#to_s usage in string interpolation."
+  Enabled: true
+
+Lint/UnderscorePrefixedVariableName:
+  Description: "Do not use prefix `_` for a variable that is used."
+  Enabled: true
+
+Lint/UnusedBlockArgument:
+  Description: "Checks for unused block arguments."
+  Enabled: true
+
+Lint/UnusedMethodArgument:
+  Description: "Checks for unused method arguments."
+  Enabled: true
+
+Lint/UnreachableCode:
+  Description: "Unreachable code."
+  Enabled: true
+
+Lint/UselessAccessModifier:
+  Description: "Checks for useless access modifiers."
+  Enabled: true
+
+Lint/UselessAssignment:
+  Description: "Checks for useless assignment to a local variable."
+  Enabled: true
+
+Lint/UselessComparison:
+  Description: "Checks for comparison of something with itself."
+  Enabled: true
+
+Lint/UselessElseWithoutRescue:
+  Description: "Checks for useless `else` in `begin..end` without `rescue`."
+  Enabled: true
+
+Lint/UselessSetterCall:
+  Description: "Checks for useless setter call to a local variable."
+  Enabled: true
+
+Lint/Void:
+  Description: "Possible use of operator/literal/variable in void context."
+  Enabled: true
+
+##################### Rails ##################################
+
+Rails/ActionFilter:
+  Description: "Enforces consistent use of action filter methods."
+  Enabled: true
+
+Rails/DefaultScope:
+  Description: "Checks if the argument passed to default_scope is a block."
+  Enabled: true
+
+Rails/Delegate:
+  Description: "Prefer delegate method for delegations."
+  Enabled: true
+
+Rails/HasAndBelongsToMany:
+  Description: "Prefer has_many :through to has_and_belongs_to_many."
+  Enabled: true
+
+Rails/Output:
+  Description: "Checks for calls to puts, print, etc."
+  Enabled: true
+
+Rails/ReadWriteAttribute:
+  Description: "Checks for read_attribute(:attr) and write_attribute(:attr, val)."
+  Enabled: true
+
+Rails/ScopeArgs:
+  Description: "Checks the arguments of ActiveRecord scopes."
+  Enabled: true
+
+Rails/Validation:
+  Description: "Use sexy validations."
+  Enabled: true

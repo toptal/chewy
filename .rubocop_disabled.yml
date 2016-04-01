@@ -1,0 +1,66 @@
+# These are all the cops that are disabled in the default configuration.
+
+Style/InlineComment:
+  Description: "Avoid inline comments."
+  Enabled: false
+
+Style/MethodCalledOnDoEndBlock:
+  Description: "Avoid chaining a method call on a do...end block."
+  Enabled: false
+
+Style/SymbolArray:
+  Description: "Use %i or %I for arrays of symbols."
+  Enabled: false
+
+Style/Documentation:
+  Description: "Document classes and non-namespace modules."
+  Enabled: false
+
+Style/EmptyLinesAroundAccessModifier:
+  Description: "Keep blank lines around access modifiers."
+  Enabled: false
+
+Style/EmptyLiteral:
+  Description: "Prefer literals to Array.new/Hash.new/String.new."
+  Enabled: false
+
+Style/ClassAndModuleChildren:
+  Description: "Checks style of children classes and modules."
+  Enabled: false
+
+Metrics/ClassLength:
+  Description: "Avoid classes longer than 100 lines of code."
+  Enabled: false
+
+Metrics/MethodLength:
+  Description: "Avoid methods longer than 10 lines of code."
+  Enabled: false
+
+Metrics/ParameterLists:
+  Description: "Avoid parameter lists longer than three or four parameters."
+  Enabled: false
+
+Metrics/CyclomaticComplexity:
+  Description: "Avoid complex methods."
+  Enabled: false
+
+Style/AlignArray:
+  Description: >-
+                 Align the elements of an array literal if they span more than
+                 one line.
+  Enabled: false
+
+Style/UnneededPercentQ:
+  Description: "Checks for %q/%Q when single quotes or double quotes would do."
+  Enabled: false
+
+Style/AccessorMethodName:
+  Description: Check the naming of accessor methods for get_/set_.
+  Enabled: false
+
+#################### Lint ################################
+### Warnings
+Lint/AssignmentInCondition:
+  Description: "Don't use assignment in conditions."
+  Enabled: false
+

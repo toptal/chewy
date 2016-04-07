@@ -70,14 +70,14 @@ module Chewy
 
           bodies = if bulk_size
             bulk_size -= 1.kilobyte # 1 kilobyte for request header and newlines
-            raise ArgumentError.new('Import `:bulk_size` can\'t be less then 1 kilobyte') if bulk_size <= 0
+            raise ArgumentError.new('Import `:bulk_size` can\'t be less than 1 kilobyte') if bulk_size <= 0
 
             body.each_with_object(['']) do |entry, result|
               operation, meta = entry.to_a.first
               data = meta.delete(:data)
               entry = [{ operation => meta }, data].compact.map(&:to_json).join("\n")
               if entry.bytesize > bulk_size
-                raise ArgumentError.new('Import `:bulk_size` seems to be less then entry size')
+                raise ArgumentError.new('Import `:bulk_size` seems to be less than entry size')
               elsif result.last.bytesize + entry.bytesize > bulk_size
                 result.push(entry)
               else

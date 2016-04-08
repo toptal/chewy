@@ -136,6 +136,11 @@ describe Chewy::Index do
     specify { expect(DummiesIndex.type_hash['dummy'].type_name).to eq('dummy') }
   end
 
+  describe '.type' do
+    specify { expect(DummiesIndex.type('dummy')).to eq(DummiesIndex::Dummy) }
+    specify { expect { DummiesIndex.type('not-the-dummy') }.to raise_error(Chewy::UndefinedType) }
+  end
+
   specify { expect(DummiesIndex.type_names).to eq(DummiesIndex.type_hash.keys) }
 
   describe '.types' do

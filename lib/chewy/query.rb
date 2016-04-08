@@ -1000,7 +1000,7 @@ module Chewy
           .merge!(_score: hit['_score'])
           .merge!(_explanation: hit['_explanation'])
 
-        wrapper = _derive_index(hit['_index']).type_hash[hit['_type']].new attributes
+        wrapper = _derive_index(hit['_index']).type(hit['_type']).new(attributes)
         wrapper._data = hit
         wrapper
       end

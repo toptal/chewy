@@ -416,6 +416,8 @@ You can access index-defined types with the following API:
 ```ruby
 UsersIndex::User # => UsersIndex::User
 UsersIndex.type_hash['user'] # => UsersIndex::User
+UsersIndex.type('user') # => UsersIndex::User
+UsersIndex.type('foo') # => raises error UndefinedType("Unknown type in UsersIndex: foo")
 UsersIndex.types # => [UsersIndex::User]
 UsersIndex.type_names # => ['user']
 ```

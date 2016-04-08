@@ -123,6 +123,14 @@ module Chewy
       type_hash.keys
     end
 
+    # Returns named type:
+    #
+    #    UserIndex.type('admin') # => UsersIndex::Admin
+    #
+    def self.type(type_name)
+      type_hash.fetch(type_name) { raise UndefinedType, "Unknown type in #{name}: #{type_name}" }
+    end
+
     # Used as a part of index definition DSL. Defines settings:
     #
     #   class UsersIndex < Chewy::Index

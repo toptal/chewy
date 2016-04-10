@@ -13,7 +13,7 @@ module Chewy
         #   UsersIndex::User.import User.active              # imports active users
         #   UsersIndex::User.import [1, 2, 3]                # imports users with specified ids
         #   UsersIndex::User.import users                    # imports users collection
-        #   UsersIndex::User.import suffix: Time.now.to_i    # imports data to index with specified suffix if such is exists
+        #   UsersIndex::User.import suffix: Time.now.to_i    # imports data to index with specified suffix if such exists
         #   UsersIndex::User.import refresh: false           # to disable index refreshing after import
         #   UsersIndex::User.import batch_size: 300          # import batch size
         #   UsersIndex::User.import bulk_size: 10.megabytes  # import ElasticSearch bulk size in bytes

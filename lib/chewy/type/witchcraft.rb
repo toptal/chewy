@@ -1,3 +1,4 @@
+# encoding: utf-8
 def try_require lib
   require lib
 rescue LoadError

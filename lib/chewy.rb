@@ -144,8 +144,9 @@ module Chewy
     # Be careful, if current prefix is blank, this will destroy all the indexes.
     #
     def massacre
-      Chewy.client.indices.delete(index: [Chewy.configuration[:prefix], '*'].delete_if(&:blank?).join(?_))
-      Chewy.wait_for_status
+      result = Chewy.client.indices.delete(index: [Chewy.configuration[:prefix], '*'].delete_if(&:blank?).join(?_))
+      Chewy.wait_for_status if result
+      result
     end
     alias_method :delete_all, :massacre
 

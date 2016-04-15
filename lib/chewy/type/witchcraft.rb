@@ -47,7 +47,7 @@ module Chewy
           @locals = []
         end
 
-        def brew(object, crutches = nil)
+        def brew(object, crutches = [])
           alicorn.call(locals, object, crutches).as_json
         end
 
@@ -159,13 +159,16 @@ module Chewy
             (nesting + 1).times do |n|
               source = replace_lvar(source, proc_params[n], :"object#{n}") if proc_params[n]
             end
-            source = replace_lvar(source, proc_params[nesting + 1], :crutches) if proc_params[nesting + 1]
+
+            (proc_params.size - nesting - 1).times do |n|
+              m = nesting + 1 + n
+              source = replace_crutch(source, proc_params[m], n) if proc_params[m]
+            end
 
             binding_variable_list(source).each do |variable|
               locals.push(proc.binding.eval(variable.to_s))
               source = replace_local(source, variable, locals.size - 1)
             end
-
           end
 
           Unparser.unparse(source)
@@ -209,6 +212,22 @@ module Chewy
               Parser::AST::Node.new(:lvar, [variable])
             else
               node.updated(nil, node.children.map { |child| replace_self(child, variable) })
+            end
+          else
+            node
+          end
+        end
+
+        def replace_crutch(node, variable, crutch_index)
+          if node.is_a?(Parser::AST::Node)
+            if node.type == :lvar && node.children.to_a == [variable]
+              node.updated(:send, [
+                Parser::AST::Node.new(:lvar, [:crutches]),
+                :[],
+                Parser::AST::Node.new(:int, [crutch_index])
+              ])
+            else
+              node.updated(nil, node.children.map { |child| replace_crutch(child, variable, crutch_index) })
             end
           else
             node

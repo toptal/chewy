@@ -4,8 +4,9 @@ module Chewy
       extend ActiveSupport::Concern
 
       included do
-        class_attribute :_crutches
+        class_attribute :_crutches, :_crutches_classes
         self._crutches = {}
+        self._crutches_classes = [Crutches]
       end
 
       class Crutches
@@ -23,7 +24,11 @@ module Chewy
 
       module ClassMethods
         def crutch name, &block
-          self._crutches = _crutches.merge(name.to_sym => block)
+          if block
+            self._crutches = _crutches.merge(name.to_sym => block)
+          else
+            self._crutches_classes = _crutches_classes + [name]
+          end
         end
       end
     end

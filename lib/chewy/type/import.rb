@@ -102,12 +102,14 @@ module Chewy
         def bulk_body(action_objects, indexed_objects = nil)
           action_objects.flat_map do |action, objects|
             method = "#{action}_bulk_entry"
-            crutches = Chewy::Type::Crutch::Crutches.new self, objects
+            crutches = _crutches_classes.map do |klass|
+              klass.new self, objects
+            end
             objects.flat_map { |object| send(method, object, indexed_objects, crutches) }
           end
         end
 
-        def delete_bulk_entry(object, indexed_objects = nil, crutches = nil)
+        def delete_bulk_entry(object, indexed_objects = nil, crutches = [])
           entry = {}
 
           if root_object.id
@@ -127,7 +129,7 @@ module Chewy
           [{ delete: entry }]
         end
 
-        def index_bulk_entry(object, indexed_objects = nil, crutches = nil)
+        def index_bulk_entry(object, indexed_objects = nil, crutches = [])
           entry = {}
 
           if root_object.id
@@ -173,7 +175,7 @@ module Chewy
           end
         end
 
-        def object_data object, crutches = nil
+        def object_data object, crutches = []
           if witchcraft?
             cauldron.brew(object, crutches)
           else

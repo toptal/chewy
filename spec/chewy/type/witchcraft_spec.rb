@@ -59,14 +59,14 @@ describe Chewy::Type::Witchcraft do
 
     context 'crutches' do
       mapping do
-        field :name, value: -> (o, c) { c.names[0] }
+        field :name, value: -> (o, c, c1) { c.names[0] + c1 }
       end
       let(:attributes) { { name: 'Name' } }
 
       context do
         let(:object) { double(attributes) }
         let(:crutches) { double(names: ['Other']) }
-        specify { expect(type.cauldron.brew(object, crutches)).to eq({name: 'Other'}.as_json) }
+        specify { expect(type.cauldron.brew(object, [crutches, 'Hand'])).to eq({name: 'OtherHand'}.as_json) }
       end
     end
 
@@ -141,7 +141,7 @@ describe Chewy::Type::Witchcraft do
           double(value: 'Value1', fields: [double(first: 'First1', second: 'Second1'), {first: 'First2'}]),
           double(value: 'Value2', fields: double(first: 'First3', second: 'Second2', third: 'Third'))
         ]) }
-        specify { expect(type.cauldron.brew(object, double(second: 'Crutch'))).to eq({queries: [
+        specify { expect(type.cauldron.brew(object, [double(second: 'Crutch')])).to eq({queries: [
           {fields: [
             {first: 'First1', second: 'Value1Second1'},
             {first: 'First2', second: 'Value1Crutch'}

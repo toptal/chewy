@@ -2,6 +2,10 @@
 
 ## Changes
 
+  * Advanced Crutches™ - you are able to create your own crutch classes!
+
+  * `Index.type(type_name)` method to fetch type class by name (@olleolleolle, #363)
+
   * Rake tasks support multiple indexes and exceptions: `rake chewy:reset[users,projects]`, `rake chewy:update[-projects]`
 
   * Witchcraft™ supports dynamically generated procs with variables from closure.

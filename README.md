@@ -360,6 +360,34 @@ end
 
 So Chewy Crutches™ technology is able to increase your indexing performance in some cases up to a hundredfold or even more depending on your associations complexity.
 
+#### Advanced Crutches™
+
+There is one more option of crutches usage - you are able to define a crutch class:
+
+```ruby
+class ProductCrutch
+  def initialize(type, collection)
+    @collection = collection.map(&:id)
+  end
+
+  def categoties(product_id)
+    # return pre-fetched categories for this product id
+  end
+end
+
+class ProductsIndex < Chewy::Index
+  define_type Product do
+    crutch ProductCrutch
+
+    field :name
+    # simply use crutch-fetched data as a value:
+    field :category_names, value: ->(product, _crutches, product_crutch) { product_crutch.categories(product.id) }
+  end
+end
+```
+
+So the second crutch in the block will be an instance of `ProductCrutch`. You are able to add as many crutch classes as you need. The only thing to keep in mind here: all the block crutch definitions will go to the first crutch argument in the value proc, blockless classes provided will be instantiated additionaly and passed as following arguments. So you are able to mix block crutches and custom classes.
+
 ### Witchcraft™ technology
 
 One more experimental technology to increase import performance. As far as you know, chewy defines value proc for every imported field in mapping, so at the import time each of this procs is executed on imported object to extract result document to import. It would be great for performance to use one huge whole-document-returning proc instead. So basically the idea or Witchcraft™ technology is to compile a single document-returning proc from the type definition.

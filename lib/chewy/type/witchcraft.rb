@@ -173,7 +173,7 @@ module Chewy
 
         def exctract_lambdas(node)
           if node.type == :block && node.children[0].type == :send && node.children[0].to_a == [nil, :lambda]
-            node.children[2]
+            [node.children[2]]
           else
             node.children.map { |child| exctract_lambdas(child) }.flatten.compact
           end if node.is_a?(Parser::AST::Node)

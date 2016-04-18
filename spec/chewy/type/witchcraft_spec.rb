@@ -164,5 +164,21 @@ describe Chewy::Type::Witchcraft do
         specify { expect(type.cauldron.brew(object)).to eq(attributes.as_json) }
       end
     end
+
+    context 'dynamic fields' do
+      mapping do
+        def self.custom_value(field)
+          -> (o) { o.send(field) }
+        end
+
+        field :name, value: custom_value(:name)
+      end
+      let(:attributes) { { name: 'Name' } }
+
+      context do
+        let(:object) { double(attributes) }
+        specify { expect(type.cauldron.brew(object)).to eq(attributes.as_json) }
+      end
+    end
   end
 end

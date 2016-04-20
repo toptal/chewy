@@ -9,7 +9,7 @@ module Chewy
       module ClassMethods
         # Checks index existance. Returns true or false
         #
-        #   UsersIndex.exist? #=> true
+        #   UsersIndex.exists? #=> true
         #
         def exists?
           client.indices.exists(index: index_name)

@@ -74,16 +74,16 @@ module Chewy
         #   UsersIndex::User.import users.map(&:id) # user ids will be deleted from index
         #
         def import *args, &block
-          import_options = args.extract_options!
-          batch_size = import_options[:batch_size] || BATCH_SIZE
+          options = args.extract_options!
+          options[:batch_size] ||= BATCH_SIZE
 
           collection = args.empty? ? default_scope :
             (args.one? && args.first.is_a?(relation_class) ? args.first : args.flatten.compact)
 
           if collection.is_a?(relation_class)
-            import_scope(collection, batch_size, &block)
+            import_scope(collection, options, &block)
           else
-            import_objects(collection, batch_size, &block)
+            import_objects(collection, options, &block)
           end
         end
 
@@ -101,10 +101,10 @@ module Chewy
 
       private
 
-        def import_objects(collection, batch_size)
+        def import_objects(collection, options)
           hash = Hash[identify(collection).zip(collection)]
 
-          indexed = hash.keys.each_slice(batch_size).map do |ids|
+          indexed = hash.keys.each_slice(options[:batch_size]).map do |ids|
             batch = default_scope_where_ids_in(ids)
             if batch.empty?
               true
@@ -114,7 +114,7 @@ module Chewy
             end
           end.all?
 
-          deleted = hash.keys.each_slice(batch_size).map do |group|
+          deleted = hash.keys.each_slice(options[:batch_size]).map do |group|
             yield delete: hash.values_at(*group)
           end.all?
 

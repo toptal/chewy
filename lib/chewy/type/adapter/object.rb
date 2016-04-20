@@ -33,13 +33,13 @@ module Chewy
         # ElasticSearch could know which one to delete.
         #
         def import *args, &block
-          import_options = args.extract_options!
-          batch_size = import_options.delete(:batch_size) || BATCH_SIZE
+          options = args.extract_options!
+          options[:batch_size] ||= BATCH_SIZE
 
           objects = args.empty? && @target.respond_to?(import_all_method) ?
             @target.send(import_all_method) : args.flatten.compact
 
-          import_objects(objects, batch_size, &block)
+          import_objects(objects, options, &block)
         end
 
         def load *args
@@ -59,8 +59,8 @@ module Chewy
 
       private
 
-        def import_objects(objects, batch_size)
-          objects.each_slice(batch_size).map do |group|
+        def import_objects(objects, options)
+          objects.each_slice(options[:batch_size]).map do |group|
             yield grouped_objects(group)
           end.all?
         end

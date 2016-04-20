@@ -23,15 +23,15 @@ module Chewy
           @default_scope = @default_scope.unordered.unlimited
         end
 
-        def import_scope(scope, batch_size)
-          scope = scope.unordered.order(::Sequel.asc(primary_key)).limit(batch_size)
+        def import_scope(scope, options)
+          scope = scope.unordered.order(::Sequel.asc(primary_key)).limit(options[:batch_size])
 
           ids = pluck_ids(scope)
           result = true
 
           while ids.present?
             result &= yield grouped_objects(default_scope_where_ids_in(ids).all)
-            break if ids.size < batch_size
+            break if ids.size < options[:batch_size]
             ids = pluck_ids(scope.where { |o| o.__send__(primary_key) > ids.last })
           end
 

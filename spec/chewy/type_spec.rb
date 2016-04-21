@@ -25,9 +25,10 @@ describe Chewy::Type do
     specify { expect { PlacesIndex::City.default_import_options(invalid_option: "Yeah!") }.to raise_error(ArgumentError) }
 
     context 'default_import_options is set' do
-      before { PlacesIndex::City.default_import_options(batch_size: 500) }
+      let(:converter) { -> {} }
+      before { PlacesIndex::City.default_import_options(batch_size: 500, raw_import: converter) }
 
-      specify { expect(PlacesIndex::City._default_import_options).to eq(batch_size: 500) }
+      specify { expect(PlacesIndex::City._default_import_options).to eq(batch_size: 500, raw_import: converter) }
     end
   end
 end

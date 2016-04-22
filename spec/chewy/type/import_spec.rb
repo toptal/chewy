@@ -70,6 +70,10 @@ describe Chewy::Type::Import do
     end
 
     context ':bulk_size' do
+      specify { expect(city.import(dummy_cities.first, bulk_size: 1.2.kilobyte)).to eq(true) }
+      specify { expect(city.import(dummy_cities, bulk_size: 1.2.kilobyte)).to eq(true) }
+      specify { expect { city.import(dummy_cities, bulk_size: 1.2.kilobyte) }.to update_index(city).and_reindex(dummy_cities) }
+
       specify do
         dummy_cities.first.destroy
 
@@ -78,8 +82,8 @@ describe Chewy::Type::Import do
 
         city.import dummy_cities.map(&:id), bulk_size: 1.2.kilobyte
         expect(imported.flatten).to match_array([
-          %Q({"delete":{"_id":1}}),
-          %Q({"index":{"_id":2}}\n{"name":"name1"}\n{"index":{"_id":3}}\n{"name":"name2"})
+          %Q({"delete":{"_id":1}}\n),
+          %Q({"index":{"_id":2}}\n{"name":"name1"}\n{"index":{"_id":3}}\n{"name":"name2"}\n)
         ])
       end
 
@@ -94,9 +98,9 @@ describe Chewy::Type::Import do
 
           city.import dummy_cities.map(&:id), bulk_size: 1.2.kilobyte
           expect(imported.flatten).to match_array([
-            %Q({"delete":{"_id":1}}),
-            %Q({"index":{"_id":2}}\n{"name":"#{'name1' * 20}"}),
-            %Q({"index":{"_id":3}}\n{"name":"#{'name2' * 20}"})
+            %Q({"delete":{"_id":1}}\n),
+            %Q({"index":{"_id":2}}\n{"name":"#{'name1' * 20}"}\n),
+            %Q({"index":{"_id":3}}\n{"name":"#{'name2' * 20}"}\n)
           ])
         end
 

@@ -83,7 +83,7 @@ module Chewy
               else
                 result[-1] = [result[-1], entry].delete_if(&:blank?).join("\n")
               end
-            end
+            end.map { |entry| entry + "\n" }
           else
             [body]
           end

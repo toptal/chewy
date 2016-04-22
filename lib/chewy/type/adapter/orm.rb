@@ -150,6 +150,10 @@ module Chewy
             scope
           end
         end
+
+        def grouped_objects(objects)
+          options[:delete_if] ? super : { index: objects.to_a }
+        end
       end
     end
   end

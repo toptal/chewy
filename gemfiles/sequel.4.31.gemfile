@@ -8,6 +8,7 @@ gem "activesupport", "~> 4.2.0"
 group :test do
   gem "guard"
   gem "guard-rspec"
+  gem "listen", "~> 3.0.0"
 end
 
 gemspec :path => "../"

@@ -2,7 +2,7 @@ source 'https://rubygems.org'
 
 gemspec
 
-gem 'activerecord'
+# gem 'activerecord'
 # gem 'mongoid'
 # gem 'sequel'
 
@@ -16,4 +16,5 @@ gem 'activerecord'
 group :test do
   gem 'guard'
   gem 'guard-rspec'
+  gem 'listen', '~> 3.0.0'
 end

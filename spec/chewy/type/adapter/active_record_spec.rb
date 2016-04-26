@@ -106,7 +106,7 @@ describe Chewy::Type::Adapter::ActiveRecord, :active_record do
       specify { expect(import(cities.first.id, nil)).to eq([{index: [cities.first]}]) }
     end
 
-    context 'additional delete conitions' do
+    context 'additional delete conditions' do
       let!(:cities) { 4.times.map { |i| City.create! rating: i } }
       before { cities.last(2).map(&:destroy) }
       subject { described_class.new(City) }

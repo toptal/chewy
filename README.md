@@ -409,6 +409,42 @@ Obviously not every type of definition might be compiled. There are some restric
 
 However, it is quite possible that your type definition will be supported by Witchcraft™ technology out of the box in the most of the cases.
 
+### Raw Import
+
+Another way to speed up import time is Raw Imports. This technology is only available in ActiveRecord adapter. Very often, ActiveRecord model instantiation is what consumes most of the CPU and RAM resources. Precious time is wasted on converting, say, timestamps from strings and then serializing them back to strings. Chewy can operate on raw hashes of data directly obtained from the database. All you need is to provide a way to convert that hash to a lightweight object that mimics the behaviour of the normal ActiveRecord object.
+
+```ruby
+class LightweightProduct
+  def initialize(attributes)
+    @attributes = attributes
+  end
+
+  # Depending on the database, `created_at` might
+  # be in different formats. In PostgreSQL, for example,
+  # you might see the following format:
+  #   "2016-03-22 16:23:22"
+  #
+  # Taking into account that Elastic expects something different,
+  # one might do something like the following, just to avoid
+  # unnecessary String -> DateTime -> String conversion.
+  #
+  #   "2016-03-22 16:23:22" -> "2016-03-22T16:23:22Z"
+  def created_at
+    @attributes['created_at'].tr(' ', 'T') << 'Z'
+  end
+end
+
+define_type Product do
+  default_import_options raw_import: ->(hash) {
+    LightweightProduct.new(hash)
+  }
+
+  field :created_at, 'datetime'
+end
+```
+
+Also, you can pass `:raw_import` option to the `import` method explicitly.
+
 ### Types access
 
 You can access index-defined types with the following API:

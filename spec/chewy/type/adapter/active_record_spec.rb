@@ -104,6 +104,27 @@ describe Chewy::Type::Adapter::ActiveRecord, :active_record do
 
       specify { expect(import(cities.first, nil)).to eq([{index: [cities.first]}]) }
       specify { expect(import(cities.first.id, nil)).to eq([{index: [cities.first]}]) }
+
+      context 'raw_import' do
+        let(:probe) { double }
+        let(:converter) { ->(raw_hash) { probe.call(raw_hash) } }
+        let(:moscow) { OpenStruct.new(id: 1, name: 'Moscow') }
+        let(:warsaw) { OpenStruct.new(id: 2, name: 'Warsaw') }
+        let(:madrid) { OpenStruct.new(id: 3, name: 'Madrid') }
+        before do
+          @one, @two, @three = City.all.to_a
+        end
+
+        it 'uses the raw import converter to make objects out of raw hashes from the database' do
+          expect(City).not_to receive(:new)
+
+          expect(probe).to receive(:call).with(a_hash_including('id' => @one.id, 'name' => @one.name)).and_return(moscow)
+          expect(probe).to receive(:call).with(a_hash_including('id' => @two.id, 'name' => @one.name)).and_return(warsaw)
+          expect(probe).to receive(:call).with(a_hash_including('id' => @three.id, 'name' => @three.name)).and_return(madrid)
+
+          expect(import(City.where(nil), raw_import: converter)).to eq([{index: [moscow, warsaw, madrid]}])
+        end
+      end
     end
 
     context 'additional delete conitions' do

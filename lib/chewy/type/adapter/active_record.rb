@@ -29,7 +29,13 @@ module Chewy
           result = true
 
           while ids.present?
-            result &= yield grouped_objects(default_scope_where_ids_in(ids))
+            objects =
+              if options[:raw_import]
+                raw_default_scope_where_ids_in(ids, options[:raw_import])
+              else
+                default_scope_where_ids_in(ids)
+              end
+            result &= yield grouped_objects(objects)
             break if ids.size < options[:batch_size]
             ids = pluck_ids(scope.where(target_id.gt(ids.last)))
           end
@@ -47,6 +53,11 @@ module Chewy
 
         def scope_where_ids_in(scope, ids)
           scope.where(target_id.in(Array.wrap(ids)))
+        end
+
+        def raw_default_scope_where_ids_in(ids, converter)
+          sql = default_scope_where_ids_in(ids).to_sql
+          object_class.connection.execute(sql).map(&converter)
         end
 
         def relation_class

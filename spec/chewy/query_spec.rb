@@ -127,6 +127,14 @@ describe Chewy::Query do
     specify { expect(subject.boost_factor('23', filter: { foo: :bar}).criteria.scores).to eq([{ boost_factor: 23, filter: { foo: :bar } }]) }
   end
 
+  describe '#weight' do
+    specify { expect(subject.weight('23')).to be_a described_class }
+    specify { expect(subject.weight('23')).not_to eq(subject) }
+    specify { expect(subject.weight('23').criteria.scores).to eq([ { weight: 23  } ]) }
+    specify { expect { subject.weight('23') }.not_to change { subject.criteria.scores } }
+    specify { expect(subject.weight('23', filter: { foo: :bar}).criteria.scores).to eq([{ weight: 23, filter: { foo: :bar } }]) }
+  end
+
   describe '#random_score' do
     specify { expect(subject.random_score('23')).to be_a described_class }
     specify { expect(subject.random_score('23')).not_to eq(subject) }

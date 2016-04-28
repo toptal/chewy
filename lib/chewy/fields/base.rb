@@ -54,7 +54,7 @@ module Chewy
           compose_children(result, *objects)
         end if children.present? && !multi_field?
 
-        {name => result.as_json(root: false)}
+        {name => result}
       end
 
     private

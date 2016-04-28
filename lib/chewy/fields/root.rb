@@ -17,6 +17,10 @@ module Chewy
         @options.delete(:type)
       end
 
+      def compose(*args)
+        super.as_json
+      end
+
       def mappings_hash
         mappings = super
         mappings[name].delete(:type)

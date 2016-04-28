@@ -177,7 +177,7 @@ module Chewy
           if witchcraft?
             cauldron.brew(object, crutches)
           else
-            build_root.compose(object, crutches)[type_name.to_sym]
+            build_root.compose(object, crutches)[type_name.to_s]
           end
         end
 

@@ -164,7 +164,7 @@ module Chewy
 
     def self.build_index_name *args
       options = args.extract_options!
-      [options[:prefix], args.first || index_name, options[:suffix]].reject(&:blank?).join(?_)
+      [options[:prefix], args.first, options[:suffix]].reject(&:blank?).join(?_)
     end
 
     def self.settings_hash

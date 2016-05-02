@@ -30,15 +30,9 @@ module Chewy
     #
     def self.index_name(suggest = nil)
       if suggest
-        @index_name = build_index_name(suggest, prefix: default_prefix)
-      else
-        @index_name ||= begin
-          build_index_name(
-            name.sub(/Index\Z/, '').demodulize.underscore,
-            prefix: default_prefix
-          ) if name
-        end
+        @index_name_stem = suggest
       end
+      @index_name = build_index_name(index_name_stem, prefix: default_prefix)
       @index_name or raise UndefinedIndex
     end
 
@@ -178,6 +172,10 @@ module Chewy
 
     def self.index_params
       [settings_hash, mappings_hash].inject(:merge)
+    end
+
+    def self.index_name_stem
+      @index_name_stem || name.sub(/Index\Z/, '').demodulize.underscore
     end
   end
 end

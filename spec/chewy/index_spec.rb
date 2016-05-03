@@ -66,6 +66,15 @@ describe Chewy::Index do
       specify { expect(DummiesIndex.index_name).to eq('testing_dummies') }
       specify { expect(stub_index(:dummies) { index_name :users }.index_name).to eq('testing_users') }
     end
+
+    context do
+      before { Chewy.settings = {prefix: 'tenant1'} }
+      specify {
+        expect {
+          Chewy.settings = {prefix: 'tenant2'}
+        }.to change { DummiesIndex.index_name }.from('tenant1_dummies').to('tenant2_dummies')
+      }
+    end
   end
 
   describe '.default_prefix' do

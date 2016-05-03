@@ -155,7 +155,7 @@ module Chewy
 
     def self.build_index_name *args
       options = args.extract_options!
-      [options[:prefix], args.first, options[:suffix]].reject(&:blank?).join(?_)
+      [options[:prefix], args.first || index_name_stem, options[:suffix]].reject(&:blank?).join(?_)
     end
 
     def self.settings_hash
@@ -175,8 +175,11 @@ module Chewy
     def self.index_name_stem(suggest = nil)
       if suggest
         @index_name_stem = suggest
+      elsif name
+        @index_name_stem || name.sub(/Index\Z/, '').demodulize.underscore
+      else
+        @index_name_stem or raise UndefinedIndex
       end
-      @index_name_stem || name.sub(/Index\Z/, '').demodulize.underscore
     end
   end
 end

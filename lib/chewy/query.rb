@@ -953,6 +953,14 @@ module Chewy
       ids.one? && !ids.first.is_a?(Array) ? results.first : results
     end
 
+    # Returns true if there are at least one document that matches the query
+    #
+    #   PlacesIndex.query(...).filter(...).exists?
+    #
+    def exists?
+      search_type(:count).total > 0
+    end
+
     # Returns request total time elapsed as reported by elasticsearch
     #
     #   UsersIndex.query(...).filter(...).took

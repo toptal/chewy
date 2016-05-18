@@ -37,7 +37,7 @@ describe Chewy::Type::Wrapper do
       is_expected.to respond_to(:name_highlight)
         .and have_attributes(
           name: 'Martin',
-          name_highlight: '<b>Mar</b>tin'
+          name_highlight: ['<b>Mar</b>tin']
         )
     end
   end

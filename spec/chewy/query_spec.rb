@@ -452,6 +452,17 @@ describe Chewy::Query do
     specify { expect { subject.find([10, 20]) }.to raise_error Chewy::DocumentNotFound }
   end
 
+  describe '#exists?' do
+    let(:data) { 10.times.map { |i| {id: i.next.to_s, name: "Name#{i.next}", age: 10 * i.next}.stringify_keys! } }
+
+    before { ProductsIndex::Product.import!(data.map { |h| double(h) }) }
+
+    specify { expect(subject.exists?).to eq true }
+    specify { expect(subject.limit(5).exists?).to eq true }
+    specify { expect(subject.filter(range: {age: {gt: 20}}).limit(3).exists?).to eq true }
+    specify { expect(subject.filter(range: {age: {lt: 0}}).exists?).to eq false }
+  end
+
   describe '#none' do
     specify { expect(subject.none).to be_a described_class }
     specify { expect(subject.none).not_to eq(subject) }

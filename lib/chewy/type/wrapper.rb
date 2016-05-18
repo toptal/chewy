@@ -49,6 +49,8 @@ module Chewy
         m = method.to_s
         if (name = highlight_name(m))
           highlight(name)
+        elsif (name = highlight_names(m))
+          highlights(name)
         elsif @attributes.key?(m)
           @attributes[m]
         elsif attribute_defined?(m)
@@ -60,7 +62,7 @@ module Chewy
 
       def respond_to_missing?(method, include_private = false)
         m = method.to_s
-        highlight_name(m) || @attributes.key?(m) || attribute_defined?(m) || super
+        highlight_name(m) || highlight_names(m) || @attributes.key?(m) || attribute_defined?(m) || super
       end
 
     private
@@ -69,12 +71,20 @@ module Chewy
         method.sub(/_highlight\z/, '') if method.end_with?('_highlight')
       end
 
+      def highlight_names(method)
+        method.sub(/_highlights\z/, '') if method.end_with?('_highlights')
+      end
+
       def attribute_defined?(attribute)
         self.class.root && self.class.root.children.find { |a| a.name.to_s == attribute }.present?
       end
 
       def highlight(attribute)
         _data['highlight'][attribute].first if highlight?(attribute)
+      end
+
+      def highlights(attribute)
+        _data['highlight'][attribute] if highlight?(attribute)
       end
 
       def highlight?(attribute)

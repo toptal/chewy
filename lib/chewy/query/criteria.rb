@@ -32,7 +32,7 @@ module Chewy
 
       STORAGES.each do |storage|
         define_method "#{storage}?" do
-          send(storage).present?
+          send(storage).any?
         end
       end
 

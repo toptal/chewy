@@ -40,6 +40,7 @@ describe Chewy::Query do
     specify { expect(subject.types(:product, :country).count).to eq(6) }
     specify { expect(subject.filter(term: {age: 10}).count).to eq(1) }
     specify { expect(subject.query(term: {age: 10}).count).to eq(1) }
+    specify { expect(subject.order(nil).count).to eq(9) }
     specify { expect(subject.search_type(:count).count).to eq(0) }
     specify { expect(subject.search_type(:count).total).to eq(9) }
   end

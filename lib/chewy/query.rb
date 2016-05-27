@@ -289,8 +289,8 @@ module Chewy
     #            size: 100
     #          }}
     #
-    def limit value
-      chain { criteria.update_request_options size: Integer(value) }
+    def limit value = nil, &block
+      chain { criteria.update_request_options size: block || Integer(value) }
     end
 
     # Sets elasticsearch <tt>from</tt> search request param
@@ -301,8 +301,8 @@ module Chewy
     #            from: 300
     #          }}
     #
-    def offset value
-      chain { criteria.update_request_options from: Integer(value) }
+    def offset value = nil, &block
+      chain { criteria.update_request_options from: block || Integer(value) }
     end
 
     # Elasticsearch highlight query option support
@@ -894,8 +894,8 @@ module Chewy
     #   scope = UsersIndex.aggs(max_age: { max: { field: 'age' } }).search_type(:count)
     #   max_age = scope.aggs['max_age']['value']
     #
-    def search_type val
-      chain { options.merge!(search_type: val) }
+    def search_type value
+      chain { criteria.update_search_options search_type: value }
     end
 
     # Merges two queries.
@@ -961,6 +961,16 @@ module Chewy
       search_type(:count).total > 0
     end
 
+    # Sets limit to be equal to total documents count
+    #
+    #  PlacesIndex.query(...).filter(...).unlimited
+    #
+
+    def unlimited
+      count_query = search_type(:count)
+      offset(0).limit { count_query.total }
+    end
+
     # Returns request total time elapsed as reported by elasticsearch
     #
     #   UsersIndex.query(...).filter(...).took
@@ -1004,7 +1014,6 @@ module Chewy
       @_request ||= begin
         request = criteria.request_body
         request.merge!(index: _indexes.map(&:index_name), type: _types.map(&:type_name))
-        request.merge!(search_type: options[:search_type]) if options[:search_type]
         request
       end
     end

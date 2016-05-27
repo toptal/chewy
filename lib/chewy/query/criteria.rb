@@ -5,7 +5,7 @@ module Chewy
     class Criteria
       include Compose
       ARRAY_STORAGES = [:queries, :filters, :post_filters, :sort, :fields, :types, :scores]
-      HASH_STORAGES = [:options, :request_options, :facets, :aggregations, :suggest, :script_fields]
+      HASH_STORAGES = [:options, :search_options, :request_options, :facets, :aggregations, :suggest, :script_fields]
       STORAGES = ARRAY_STORAGES + HASH_STORAGES
 
       def initialize options = {}
@@ -46,6 +46,10 @@ module Chewy
 
       def update_request_options(modifier)
         request_options.merge!(modifier)
+      end
+
+      def update_search_options(modifier)
+        search_options.merge!(modifier)
       end
 
       def update_facets(modifier)
@@ -120,7 +124,7 @@ module Chewy
 
           body = _boost_query(body)
 
-          { body: body.merge!(request_options) }
+          { body: body.merge!(_request_options) }.merge!(search_options)
         end
       end
 
@@ -152,6 +156,12 @@ module Chewy
         score[:query] = query if query
         score[:filter] = filter if filter
         body.tap { |b| b[:query] = { function_score: score } }
+      end
+
+      def _request_options
+        Hash[request_options.map do |key, value|
+          [key, value.is_a?(Proc) ? value.call : value]
+        end]
       end
 
       def _request_query

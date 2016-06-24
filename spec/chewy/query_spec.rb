@@ -96,6 +96,7 @@ describe Chewy::Query do
     specify { expect(subject.limit(10)).not_to eq(subject) }
     specify { expect(subject.limit(10).criteria.request_options).to include(size: 10) }
     specify { expect { subject.limit(10) }.not_to change { subject.criteria.request_options } }
+    specify { expect(subject.limit { 20/2 }.criteria.request_body[:body]).to include(size: 10) }
   end
 
   describe '#offset' do
@@ -103,6 +104,7 @@ describe Chewy::Query do
     specify { expect(subject.offset(10)).not_to eq(subject) }
     specify { expect(subject.offset(10).criteria.request_options).to include(from: 10) }
     specify { expect { subject.offset(10) }.not_to change { subject.criteria.request_options } }
+    specify { expect(subject.offset { 20/2 }.criteria.request_body[:body]).to include(from: 10) }
   end
 
   describe '#script_fields' do
@@ -454,7 +456,7 @@ describe Chewy::Query do
   end
 
   describe '#exists?' do
-    let(:data) { 10.times.map { |i| {id: i.next.to_s, name: "Name#{i.next}", age: 10 * i.next}.stringify_keys! } }
+    let(:data) { 10.times.map { |i| {id: i.next.to_s, name: "Name#{i.next}", age: 10 * i.next} } }
 
     before { ProductsIndex::Product.import!(data.map { |h| double(h) }) }
 
@@ -462,6 +464,18 @@ describe Chewy::Query do
     specify { expect(subject.limit(5).exists?).to eq true }
     specify { expect(subject.filter(range: {age: {gt: 20}}).limit(3).exists?).to eq true }
     specify { expect(subject.filter(range: {age: {lt: 0}}).exists?).to eq false }
+  end
+
+  describe '#unlimited' do
+    let(:data_length) { 10 }
+    let(:data) { data_length.times.map { |i| {id: i.next.to_s, name: "Name#{i.next}", age: 10 * i.next} } }
+
+    before { ProductsIndex::Product.import!(data.map { |h| double(h) }) }
+
+    specify { expect(subject.unlimited.count).to eq data_length }
+    specify { expect(subject.offset(5).unlimited.count).to eq data_length }
+    specify { expect(subject.limit(1).unlimited.count).to eq data_length }
+    specify { expect(subject.unlimited.limit(1).count).to eq 1 }
   end
 
   describe '#none' do
@@ -577,7 +591,7 @@ describe Chewy::Query do
   end
 
   describe '#search_type' do
-    specify { expect(subject.search_type(:count).options).to include(search_type: :count) }
+    specify { expect(subject.search_type(:count).criteria.search_options).to include(search_type: :count) }
   end
 
   describe '#aggregations' do

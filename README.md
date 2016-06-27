@@ -1233,7 +1233,7 @@ Just add `require 'chewy/rspec'` to your spec_helper.rb and you will get additio
 
 ### Minitest integration
 
-Add `require 'chewy/minitest/helpers'` to your test_helper.rb, and then for tests which you'd like indexing enabled, `include Chewy::Minitest::Helpers`.
+Add `require 'chewy/minitest'` to your test_helper.rb, and then for tests which you'd like indexing test hooks, `include Chewy::Minitest::Helpers`.
 
 ### DatabaseCleaner
 

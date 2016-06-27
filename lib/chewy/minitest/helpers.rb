@@ -16,7 +16,7 @@ module Chewy
       # @return (SearchIndexReceiver) for optional further assertions on the nature of the index changes.
       def assert_indexes index, strategy: :atomic, bypass_actual_index: true, &test_actions
         type = Chewy.derive_type index
-        receiver = SearchIndexReceiver.new filter: index
+        receiver = SearchIndexReceiver.new
 
         bulk_method = type.method :bulk
         # Manually mocking #bulk because we need to properly capture `self`

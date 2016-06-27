@@ -4,20 +4,15 @@
 #   method on a Chewy::Type class. (See SearchTestHelper)
 #
 # The class will capture the data from the *param on the Chewy::Type#bulk method and
-# aggregate the data for test analysis. Optionally, a (Chewy::Type) filter parameter
-# can be provided which will cause undesired indexes and deletes to be discarded.
+# aggregate the data for test analysis.
 class SearchIndexReceiver
-  # @param (Chewy::Type) filter
-  # @see SearchIndexCatcher for an explanation of the filter.
-  def initialize filter: nil
+  def initialize
     @mutations = {}
-    @filter = filter
   end
 
   # @param bulk_params the bulk_params that should be sent to the Chewy::Type#bulk method.
   # @param (Chewy::Type) type the Index::Type executing this query.
   def catch bulk_params, type
-    return if filter? type
     Array.wrap(bulk_params).map {|y| y[:body] }.flatten.each do |update|
       if body = update[:delete]
         mutation_for(type).deletes << body[:_id]
@@ -32,10 +27,10 @@ class SearchIndexReceiver
   def indexes_for index = nil
     if index
       mutation_for(index).indexes
-    elsif @filter
-      mutation_for(@filter).indexes
     else
-      @mutations.transform_values {|v| v.indexes}
+      Hash[
+        @mutations.map { |a,b| [a, b.indexes] }
+      ]
     end
   end
   alias_method :indexes, :indexes_for
@@ -45,26 +40,28 @@ class SearchIndexReceiver
   def deletes_for index = nil
     if index
       mutation_for(index).deletes
-    elsif @filter
-      mutation_for(@filter).deletes
     else
-      @mutations.transform_values {|v| v.deletes}
+      Hash[
+        @mutations.map { |a,b| [a, b.deletes] }
+      ]
     end
   end
   alias_method :deletes, :deletes_for
 
   # Check to see if a given object has been indexed.
   # @param (#id) obj the object to look for.
+  # @param Chewy::Type what type the object should be indexed as.
   # @return bool if the object was indexed.
-  def indexed? obj
-    indexes.map {|i| i[:_id]}.compact.include? obj.id
+  def indexed? obj, type
+    indexes_for(type).map {|i| i[:_id]}.include? obj.id
   end
 
   # Check to see if a given object has been deleted.
   # @param (#id) obj the object to look for.
+  # @param Chewy::Type what type the object should have been deleted from.
   # @return bool if the object was deleted.
-  def deleted? obj
-    deletes.map {|i| i[:_id]}.compact.include? obj.id
+  def deleted? obj, type
+    deletes_for(type).include? obj.id
   end
 
   # @return a list of Chewy::Type indexes changed.
@@ -78,11 +75,6 @@ class SearchIndexReceiver
   # @return (#indexes, #deletes) an object with a list of indexes and a list of deletes.
   def mutation_for type
     @mutations[type] ||= OpenStruct.new(indexes: [], deletes: [])
-  end
-
-  def filter? type
-    return false unless @filter
-    return ! type == @filter
   end
 
 end

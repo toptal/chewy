@@ -50,8 +50,7 @@ describe :minitest_helper do
       expect(
         receiver.indexes_for(DummiesIndex::Dummy)
                 .map {|index| index[:_id]}
-                .sort
-      ).to eq([41,42])
+      ).to match_array([41,42])
     end
 
     specify 'Real index is bypassed when asserting' do
@@ -75,7 +74,7 @@ describe :minitest_helper do
     specify 'pushes onto the chewy strategy stack' do
       Chewy.strategy :bypass do
         run_indexing do
-          expect(Chewy.strategy).to be(:atomic)
+          expect(Chewy.strategy.current.name).to be(:atomic)
         end
       end
     end
@@ -83,7 +82,7 @@ describe :minitest_helper do
     specify 'allows tester to specify the strategy' do
       Chewy.strategy :atomic do
         run_indexing strategy: :bypass do
-          expect(Chewy.strategy).to be(:bypass)
+          expect(Chewy.strategy.current.name).to be(:bypass)
         end
       end
     end

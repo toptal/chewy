@@ -4,17 +4,6 @@ module Chewy
       extend ActiveSupport::Concern
 
       BULK_OPTIONS = [:suffix, :bulk_size, :refresh, :consistency, :replication]
-      JOURNAL_MAPPING = {
-        _default_: {
-          properties: {
-            index_name: { type: 'string', index: 'not_analyzed' },
-            type_name: { type: 'string', index: 'not_analyzed' },
-            action: { type: 'string', index: 'not_analyzed' },
-            object_ids: { type: 'string', index: 'not_analyzed' },
-            created_at: { type: 'date', format: 'basic_date_time' }
-          }
-        }
-      }
 
       module ClassMethods
         # Perform import operation for specified documents.
@@ -25,7 +14,7 @@ module Chewy
         #   UsersIndex::User.import [1, 2, 3]                # imports users with specified ids
         #   UsersIndex::User.import users                    # imports users collection
         #   UsersIndex::User.import suffix: Time.now.to_i    # imports data to index with specified suffix if such exists
-        #   UsersIndex::User.import journal: true            # import will journal all the actions into special index
+        #   UsersIndex::User.import journal: true            # import will record all the actions into special journal index
         #   UsersIndex::User.import batch_size: 300          # import batch size
         #   UsersIndex::User.import bulk_size: 10.megabytes  # import ElasticSearch bulk size in bytes
         #   UsersIndex::User.import refresh: false           # to disable index refreshing after import
@@ -38,19 +27,18 @@ module Chewy
           import_options = args.extract_options!
           import_options.reverse_merge! _default_import_options
           bulk_options = import_options.reject { |k, _| !BULK_OPTIONS.include?(k) }.reverse_merge!(refresh: true)
-          journal = import_options.delete(:journal)
 
           index.create!(bulk_options.slice(:suffix)) unless index.exists?
-          create_journal! if journal
 
           ActiveSupport::Notifications.instrument 'import_objects.chewy', type: self do |payload|
             adapter.import(*args, import_options) do |action_objects|
-              journal_record = journal ? journal_records(action_objects) : []
+              journal = Chewy::Journal.new(self)
+              journal.add(action_objects) if import_options[:journal] || journal?
 
               indexed_objects = build_root.parent_id && fetch_indexed_objects(action_objects.values.flatten)
               body = bulk_body(action_objects, indexed_objects)
 
-              errors = bulk(bulk_options.merge(body: body.concat(journal_record))) if body.present?
+              errors = bulk(bulk_options.merge(body: body, journal: journal)) if body.present?
 
               fill_payload_import payload, action_objects
               fill_payload_errors payload, errors if errors.present?
@@ -82,6 +70,7 @@ module Chewy
           suffix = options.delete(:suffix)
           bulk_size = options.delete(:bulk_size)
           body = options.delete(:body)
+          journal = options.delete(:journal)
           header = { index: index.build_index_name(suffix: suffix), type: type_name }
 
           bodies = if bulk_size
@@ -104,6 +93,11 @@ module Chewy
             [body]
           end
 
+          if journal.any_records?
+            Chewy::Journal.create
+            bodies += [journal.bulk_body]
+          end
+
           items = bodies.map do |body|
             result = client.bulk options.merge(header).merge(body: body)
             result.try(:[], 'items') || []
@@ -113,18 +107,11 @@ module Chewy
           extract_errors items
         end
 
+        def journal?
+          _default_import_options.fetch(:journal) { Chewy.configuration[:journal] }
+        end
+
       private
-
-        def create_journal!
-          index_name = [Chewy.configuration[:prefix], 'chewy_journal'].reject(&:blank?).join(?_)
-          result = client.indices.create index: index_name, mappings: JOURNAL_MAPPING
-          Chewy.wait_for_status if result
-          result
-        end
-
-        def journal_records(action_objects)
-          []
-        end
 
         def bulk_body(action_objects, indexed_objects = nil)
           action_objects.flat_map do |action, objects|

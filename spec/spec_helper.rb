@@ -11,6 +11,8 @@ end
 require 'rspec/its'
 require 'rspec/collection_matchers'
 
+require 'timecop'
+
 Kaminari::Hooks.init if defined?(::Kaminari)
 
 require 'support/fail_helpers'

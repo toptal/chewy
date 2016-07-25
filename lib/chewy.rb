@@ -31,6 +31,7 @@ require 'chewy/index'
 require 'chewy/type'
 require 'chewy/fields/base'
 require 'chewy/fields/root'
+require 'chewy/journal'
 require 'chewy/railtie' if defined?(::Rails)
 
 begin
@@ -144,9 +145,8 @@ module Chewy
     # Be careful, if current prefix is blank, this will destroy all the indexes.
     #
     def massacre
-      result = Chewy.client.indices.delete(index: [Chewy.configuration[:prefix], '*'].delete_if(&:blank?).join(?_))
-      Chewy.wait_for_status if result
-      result
+      Chewy.client.indices.delete(index: [Chewy.configuration[:prefix], '*'].delete_if(&:blank?).join(?_))
+      Chewy.wait_for_status
     end
     alias_method :delete_all, :massacre
 

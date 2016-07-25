@@ -158,12 +158,12 @@ module Chewy
         # zero-downtime index resetting (described here:
         # http://www.elasticsearch.org/blog/changing-mapping-with-zero-downtime/).
         #
-        #   UsersIndex.reset! Time.now.to_i
+        #   UsersIndex.reset! Time.now.to_i, journal: true
         #
-        def reset! suffix = nil
+        def reset! suffix = nil, journal: false
           if suffix.present? && (indexes = self.indexes).present?
             create! suffix, alias: false
-            result = import suffix: suffix
+            result = import suffix: suffix, journal: journal
             client.indices.update_aliases body: {actions: [
               *indexes.map do |index|
                 {remove: {index: index, alias: index_name}}
@@ -174,7 +174,7 @@ module Chewy
             result
           else
             purge! suffix
-            import
+            import journal: journal
           end
         end
       end

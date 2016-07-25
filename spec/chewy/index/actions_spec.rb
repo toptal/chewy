@@ -390,5 +390,27 @@ describe Chewy::Index::Actions do
         specify { expect(Chewy.client.indices.exists(index: 'cities_2013')).to eq(false) }
       end
     end
+
+    context 'journaling' do
+      before do
+        begin
+          Chewy.client.indices.delete(index: Chewy::Journal.index_name)
+        rescue Elasticsearch::Transport::Transport::Errors::NotFound
+        end
+      end
+
+      specify do
+        CitiesIndex.reset!
+
+        expect(Chewy.client.indices.exists?(index: Chewy::Journal.index_name)).to eq false
+      end
+
+      specify do
+        CitiesIndex.reset! journal: true
+
+        expect(Chewy.client.indices.exists?(index: Chewy::Journal.index_name)).to eq true
+        expect(Chewy.client.count(index: Chewy::Journal.index_name)['count']).not_to eq 0
+      end
+    end
   end
 end

@@ -160,6 +160,10 @@ module Chewy
       public_methods - Chewy::Index.public_methods - type_names.map(&:to_sym)
     end
 
+    def self.journal?
+      types.any?(&:journal?)
+    end
+
   private
 
     def self.build_index_name *args

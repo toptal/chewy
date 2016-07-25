@@ -243,4 +243,41 @@ describe Chewy::Index do
       end
     end.index_params.keys).to match_array([:mappings, :settings]) }
   end
+
+  describe '.journal?' do
+    specify { expect(stub_index(:documents).journal?).to eq false }
+
+    context do
+      before { allow(Chewy).to receive_messages(configuration: {journal: true}) }
+      specify { expect(stub_index(:documents).journal?).to eq false }
+    end
+
+    context do
+      let(:index) do
+        stub_index(:documents) do
+          define_type :document do
+          end
+        end
+      end
+
+      specify { expect(index.journal?).to eq false }
+
+      context do
+        before { allow(Chewy).to receive_messages(configuration: {journal: true}) }
+        specify { expect(index.journal?).to eq true }
+      end
+    end
+
+    context do
+      let(:index) do
+        stub_index(:documents) do
+          define_type :document do
+            default_import_options journal: true
+          end
+        end
+      end
+
+      specify { expect(index.journal?).to eq true }
+    end
+  end
 end

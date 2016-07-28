@@ -341,6 +341,13 @@ describe Chewy::Type::Import do
 
           city.import child_city.id
         end
+
+        specify do
+          child_city.destroy
+
+          expect(city.import child_city).to eq(true)
+          expect(city.import child_city).to eq(true)
+        end
       end
     end
 

@@ -66,6 +66,15 @@ describe Chewy::Index do
       specify { expect(DummiesIndex.index_name).to eq('testing_dummies') }
       specify { expect(stub_index(:dummies) { index_name :users }.index_name).to eq('testing_users') }
     end
+
+    context 'dynamic index name' do
+      specify do
+        allow(Chewy).to receive_messages(configuration: {prefix: 'testing1'})
+        expect(DummiesIndex.index_name).to eq('testing1_dummies')
+        allow(Chewy).to receive_messages(configuration: {prefix: 'testing2'})
+        expect(DummiesIndex.index_name).to eq('testing2_dummies')
+      end
+    end
   end
 
   describe '.default_prefix' do

@@ -40,4 +40,9 @@ namespace :chewy do
       end
     end
   end
+
+  desc 'Cleans journal index'
+  task clean_journal: :environment do |_task, _args|
+    Chewy::Journal.delete!
+  end
 end

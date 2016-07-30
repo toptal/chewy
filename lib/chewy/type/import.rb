@@ -33,7 +33,7 @@ module Chewy
           ActiveSupport::Notifications.instrument 'import_objects.chewy', type: self do |payload|
             adapter.import(*args, import_options) do |action_objects|
               journal = Chewy::Journal.new(self)
-              journal.add(action_objects) if import_options[:journal] || journal?
+              journal.add(action_objects) if import_options.fetch(:journal) { journal? }
 
               indexed_objects = build_root.parent_id && fetch_indexed_objects(action_objects.values.flatten)
               body = bulk_body(action_objects, indexed_objects)

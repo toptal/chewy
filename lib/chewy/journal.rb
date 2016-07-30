@@ -80,6 +80,11 @@ module Chewy
         result
       end
 
+      def delete!
+        Chewy.client.delete_by_query index: index_name, type: type_name, body: {query: {match_all: {}}}
+        Chewy.wait_for_status
+      end
+
       def exists?
         Chewy.client.indices.exists? index: index_name
       end

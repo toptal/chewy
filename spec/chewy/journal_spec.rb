@@ -133,6 +133,10 @@ describe Chewy::Journal do
 
         Chewy::Journal.apply_changes_from(time)
         expect(PlacesIndex::City.all.to_a.length).to eq 2
+
+        Chewy::Journal.delete!
+        expect(Chewy.client.indices.exists?(index: Chewy::Journal.index_name)).to eq true
+        expect(Chewy.client.count(index: Chewy::Journal.index_name)['count']).to eq 0
       end
     end
   end

@@ -31,7 +31,6 @@ require 'chewy/index'
 require 'chewy/type'
 require 'chewy/fields/base'
 require 'chewy/fields/root'
-require 'chewy/journal'
 require 'chewy/railtie' if defined?(::Rails)
 
 begin

@@ -28,7 +28,6 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'elasticsearch-extensions'
   spec.add_development_dependency 'resque_spec'
   spec.add_development_dependency 'rubysl', '~> 2.0' if RUBY_ENGINE == 'rbx'
-  spec.add_development_dependency 'timecop'
 
   spec.add_development_dependency 'method_source'
   if RUBY_VERSION < '2.1.0'

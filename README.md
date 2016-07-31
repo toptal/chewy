@@ -22,7 +22,6 @@ Chewy is an ODM and wrapper for [the official Elasticsearch client](https://gith
   * [Crutches™ technology] (#crutches-technology)
   * [Witchcraft™ technology] (#witchcraft-technology)
   * [Raw Import] (#raw-import)
-  * [Journaling] (#journaling)
   * [Types access] (#types-access)
   * [Index manipulation] (#index-manipulation)
   * [Index update strategies] (#index-update-strategies)
@@ -479,58 +478,6 @@ end
 ```
 
 Also, you can pass `:raw_import` option to the `import` method explicitly.
-
-
-### Journaling
-
-You can record all actions that were made to the separate journal index in ElasticSearch.
-When you create/update/destroy your records, it will be saved in this special index.
-If you make something with a batch of records (e.g. during index reset) it will be saved as a one record, including primary keys of each document that was affected.
-Common journal record looks like this:
-
-```json
-{
-  "action": "index",
-  "object_id": [1, 2, 3],
-  "index_name": "...",
-  "type_name": "...",
-  "created_at": "<timestamp>"
-}
-```
-
-This feature is turned off by default.
-But you can turn it on by setting `journal` setting to `true` in `config/chewy.yml`.
-Also, you can specify journal index name. For example:
-
-```yaml
-# config/chewy.yml
-production:
-  journal: true,
-  journal_name: my_super_journal
-```
-
-Also, you can provide this option while you're importing some index:
-
-```ruby
-CityIndex.import journal: true
-```
-
-Or as a default import option for an index:
-
-```ruby
-class CityIndex
-  define_type City do
-    default_import_options journal: true
-  end
-end
-```
-
-You may be wondering why do you need it? The answer is simple: Not to lose the data.
-Imagine that:
-You reset your index in Zero Downtime manner (to separate index), and meantime somebody keeps updating the data frequently (to old index). So all these actions will be written to the journal index and you'll be able to apply them after index reset with `Chewy::Journal.apply_changes_from(Time.now - 1.hour)`.
-
-For index reset journaling is turned off even if you set `journal: true` in `config/chewy.yml` or in `default_import_options`.
-You can change it only if you pass `journal: true` parameter explicitly to `#import`.
 
 ### Types access
 

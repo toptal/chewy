@@ -47,7 +47,9 @@ module Chewy
       def reset_index *indexes
         normalize_indexes(indexes).each do |index|
           puts "Resetting #{index}"
-          index.reset! (Time.now.to_f * 1000).round
+          time = Time.now
+          index.reset! (time.to_f * 1000).round
+          Chewy::Journal.apply_changes_from(time) if index.journal?
         end
       end
 

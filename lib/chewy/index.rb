@@ -29,21 +29,21 @@ module Chewy
     #   UsersIndex.index_name # => 'dudes'
     #
     def self.index_name(suggest = nil)
-      if suggest
-        @index_name = build_index_name(suggest, prefix: default_prefix)
-      else
-        @index_name ||= begin
-          build_index_name(
-            name.sub(/Index\Z/, '').demodulize.underscore,
-            prefix: default_prefix
-          ) if name
-        end
-      end
-      @index_name or raise UndefinedIndex
+      raise UndefinedIndex unless _index_name(suggest)
+      @index_name ||= build_index_name(_index_name, prefix: default_prefix)
     end
 
-    # Prefix to use
-    #
+    def self._index_name(suggest = nil)
+      if suggest
+        @_index_name = suggest
+      elsif name
+        @_index_name ||= name.sub(/Index\Z/, '').demodulize.underscore
+      end
+      @_index_name
+    end
+
+    # Setups or returns pure Elasticsearch index name
+    # without any prefixes/suffixes
     def self.default_prefix
       Chewy.configuration[:prefix]
     end

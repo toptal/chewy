@@ -29,17 +29,8 @@ module Chewy
     #   UsersIndex.index_name # => 'dudes'
     #
     def self.index_name(suggest = nil)
-      if suggest
-        @index_name = build_index_name(suggest, prefix: default_prefix)
-      else
-        @index_name ||= begin
-          build_index_name(
-            name.sub(/Index\Z/, '').demodulize.underscore,
-            prefix: default_prefix
-          ) if name
-        end
-      end
-      @index_name or raise UndefinedIndex
+      index_name = build_index_name(index_name_stem(suggest), prefix: default_prefix)
+      index_name or raise UndefinedIndex
     end
 
     # Prefix to use
@@ -168,7 +159,7 @@ module Chewy
 
     def self.build_index_name *args
       options = args.extract_options!
-      [options[:prefix], args.first || index_name, options[:suffix]].reject(&:blank?).join(?_)
+      [options[:prefix], args.first || index_name_stem, options[:suffix]].reject(&:blank?).join(?_)
     end
 
     def self.settings_hash
@@ -182,6 +173,17 @@ module Chewy
 
     def self.index_params
       [settings_hash, mappings_hash].inject(:merge)
+    end
+
+    # set or compute index_name_stem
+    def self.index_name_stem(suggest = nil)
+      if suggest
+        @index_name_stem = suggest
+      elsif name
+        @index_name_stem || name.sub(/Index\Z/, '').demodulize.underscore
+      else
+        @index_name_stem or raise UndefinedIndex
+      end
     end
   end
 end

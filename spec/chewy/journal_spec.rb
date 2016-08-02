@@ -1,3 +1,5 @@
+require 'spec_helper'
+
 describe Chewy::Journal do
   context 'journaling', orm: true do
     before do
@@ -22,10 +24,12 @@ describe Chewy::Journal do
         Chewy.client.indices.delete(index: Chewy::Journal.index_name)
       rescue Elasticsearch::Transport::Transport::Errors::NotFound
       end
+      Chewy.settings[:prefix] = 'some_prefix'
       Timecop.freeze(time)
     end
 
     after do
+      Chewy.settings[:prefix] = nil
       Timecop.return
     end
 
@@ -128,7 +132,7 @@ describe Chewy::Journal do
         expect(Chewy::Journal.entries_from(import_time).length).to eq 4
 
         # simulate lost data
-        Chewy.client.delete(index: 'places', type: 'city', id: 1, refresh: true)
+        Chewy.client.delete(index: "#{Chewy.settings[:prefix]}_places", type: 'city', id: 1, refresh: true)
         expect(PlacesIndex::City.all.to_a.length).to eq 1
 
         Chewy::Journal.apply_changes_from(time)

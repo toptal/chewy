@@ -21,7 +21,7 @@ module Chewy
       @records +=
         action_objects.map do |action, objects|
           {
-            index_name: @index.index_name,
+            index_name: @index._index_name,
             type_name: @index.type_name,
             action: action,
             object_ids: identify(objects),

@@ -61,16 +61,14 @@ module Chewy
       end
 
       def entries_from(time)
-        query = {
-          filter: {
-            range: {
-              created_at: {
-                gte: time.to_i
-              }
-            }
-          }
-        }
-        Chewy.client.search(index: index_name, type: type_name, body: query, sort: 'created_at')['hits']['hits'].map { |r| r['_source'] }
+        # TODO: group data by index_name and type_name to group DB queries
+        query = query(time, :gte)
+        size = Chewy.client.search(index: index_name, type: type_name, body: query, search_type: 'count')['hits']['total']
+        if size > 0
+          Chewy.client.search(index: index_name, type: type_name, body: query, size: size, sort: 'created_at')['hits']['hits'].map { |r| r['_source'] }
+        else
+          []
+        end
       end
 
       def create
@@ -85,16 +83,7 @@ module Chewy
       end
 
       def clean_until(time)
-        query = {
-          query: {
-            range: {
-              created_at: {
-                lte: time.to_i
-              }
-            }
-          }
-        }
-        Chewy.client.delete_by_query index: index_name, body: query
+        Chewy.client.delete_by_query index: index_name, body: query(time, :lte, :query)
         Chewy.wait_for_status
       end
 
@@ -111,6 +100,22 @@ module Chewy
 
       def type_name
         JOURNAL_MAPPING.keys.first
+      end
+
+      def query(time, comparator, query_type = :filter)
+        {
+          query: {
+            filtered: {
+              query_type => {
+                range: {
+                  created_at: {
+                    comparator => time.to_i
+                  }
+                }
+              }
+            }
+          }
+        }
       end
     end
   end

@@ -30,7 +30,7 @@ require 'chewy/index'
 require 'chewy/type'
 require 'chewy/fields/base'
 require 'chewy/fields/root'
-require 'chewy/railtie' if defined?(::Rails)
+require 'chewy/railtie' if defined?(::Rails) && defined?(::Rails::Railtie)
 
 begin
   require 'kaminari'

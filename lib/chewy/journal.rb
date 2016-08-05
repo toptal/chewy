@@ -54,18 +54,20 @@ module Chewy
 
     class << self
       def apply_changes_from(time)
-        entries_from(time).each do |entry|
-          type = Chewy.derive_type("#{entry['index_name']}##{entry['type_name']}")
-          type.import(entry['object_ids'], journal: false)
+        group(entries_from(time)).each do |entry|
+          Chewy.derive_type(entry.full_type_name).import(entry.object_ids, journal: false)
         end
       end
 
+      def group(entries)
+        entries.group_by(&:full_type_name).map { |_, grouped_entries| grouped_entries.reduce(:merge) }
+      end
+
       def entries_from(time)
-        # TODO: group data by index_name and type_name to group DB queries
         query = query(time, :gte)
         size = Chewy.client.search(index: index_name, type: type_name, body: query, search_type: 'count')['hits']['total']
         if size > 0
-          Chewy.client.search(index: index_name, type: type_name, body: query, size: size, sort: 'created_at')['hits']['hits'].map { |r| r['_source'] }
+          Chewy.client.search(index: index_name, type: type_name, body: query, size: size, sort: 'created_at')['hits']['hits'].map { |r| Entry.new(r['_source']) }
         else
           []
         end
@@ -116,6 +118,32 @@ module Chewy
             }
           }
         }
+      end
+    end
+
+    class Entry
+      ATTRIBUTES = %w[index_name type_name action object_ids created_at].freeze
+
+      attr_accessor *ATTRIBUTES
+
+      def initialize(attributes = {})
+        attributes.slice(*ATTRIBUTES).each do |attr, value|
+          public_send("#{attr}=", value)
+        end
+      end
+
+      def full_type_name
+        "#{index_name}##{type_name}"
+      end
+
+      def merge(other)
+        return self if other.nil? || full_type_name != other.full_type_name
+        self.object_ids |= other.object_ids
+        self
+      end
+
+      def ==(other)
+        !other.nil? && full_type_name == other.full_type_name && object_ids == other.object_ids
       end
     end
   end

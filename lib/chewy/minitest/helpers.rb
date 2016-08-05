@@ -52,7 +52,7 @@ module Chewy
         end
       end
 
-      class_methods do
+      module ClassMethods
         # Declare that all tests in this file require real indexing, always.
         # In my completely unscientific experiments, this roughly doubled test runtime.
         # Use with trepidation.

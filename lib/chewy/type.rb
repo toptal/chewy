@@ -13,7 +13,7 @@ require 'chewy/type/adapter/sequel'
 
 module Chewy
   class Type
-    IMPORT_OPTIONS_KEYS = [:batch_size, :bulk_size, :refresh, :consistency, :replication, :raw_import]
+    IMPORT_OPTIONS_KEYS = [:batch_size, :bulk_size, :refresh, :consistency, :replication, :raw_import, :journal]
 
     include Search
     include Mapping
@@ -24,7 +24,7 @@ module Chewy
     include Witchcraft
     include Import
 
-    singleton_class.delegate :index_name, :client, to: :index
+    singleton_class.delegate :index_name, :_index_name, :client, to: :index
 
     class_attribute :_default_import_options
     self._default_import_options = {}

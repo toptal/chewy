@@ -42,6 +42,7 @@ Chewy is an ODM and wrapper for [the official Elasticsearch client](https://gith
     * [NewRelic integration] (#newrelic-integration)
   * [Rake tasks] (#rake-tasks)
   * [Rspec integration] (#rspec-integration)
+  * [Minitest integration] (#minitest-integration)
 * [TODO a.k.a coming soon:] (#todo-aka-coming-soon)
 * [Contributing] (#contributing)
 
@@ -1282,6 +1283,12 @@ rake chewy:update[-users,projects] # updates every index in application except s
 ### Rspec integration
 
 Just add `require 'chewy/rspec'` to your spec_helper.rb and you will get additional features: See [update_index.rb](lib/chewy/rspec/update_index.rb) for more details.
+
+### Minitest integration
+
+Add `require 'chewy/minitest'` to your test_helper.rb, and then for tests which you'd like indexing test hooks, `include Chewy::Minitest::Helpers`.
+
+### DatabaseCleaner
 
 If you use `DatabaseCleaner` in your tests with [the `transaction` strategy](https://github.com/DatabaseCleaner/database_cleaner#how-to-use), you may run into the problem that `ActiveRecord`'s models are not indexed automatically on save despite the fact that you set the callbacks to do this with the `update_index` method. The issue arises because `chewy` indexes data on `after_commit` run as default, but all `after_commit` callbacks are not run with the `DatabaseCleaner`'s' `transaction` strategy. You can solve this issue by changing the `Chewy.use_after_commit_callbacks` option. Just add the following initializer in your Rails application:
 

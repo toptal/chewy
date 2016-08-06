@@ -129,7 +129,22 @@ describe Chewy::Journal do
 
         expect(Chewy.client.count(index: Chewy::Journal.index_name)['count']).to eq 9
         expect(journal_records).to eq expected_journal
-        expect(Chewy::Journal.entries_from(import_time).length).to eq 4
+
+        journal_entries = Chewy::Journal.entries_from(import_time)
+        expect(journal_entries.length).to eq 4
+        # we have only 2 types, so we can group all journal entries(4) into 2
+        expect(Chewy::Journal.group(journal_entries)).to eq [
+          Chewy::Journal::Entry.new('index_name' => 'places',
+                                    'type_name' => 'city',
+                                    'action' => nil,
+                                    'object_ids' => [1, 2],
+                                    'created_at' => nil),
+          Chewy::Journal::Entry.new('index_name' => 'places',
+                                    'type_name' => 'country',
+                                    'action' => 'delete',
+                                    'object_ids' => [1, 2, 3],
+                                    'created_at' => destroy_time.to_i)
+        ]
 
         # simulate lost data
         Chewy.client.delete(index: "#{Chewy.settings[:prefix]}_places", type: 'city', id: 1, refresh: true)

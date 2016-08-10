@@ -12,7 +12,7 @@ describe Chewy::Config do
   its(:root_strategy) { should == :base }
   its(:request_strategy) { should == :atomic }
   its(:use_after_commit_callbacks) { should == true }
-  its(:index_definition_path) { should == 'app/chewy' }
+  its(:indices_path) { should == 'app/chewy' }
 
   describe '#transport_logger=' do
     let(:logger) { Logger.new('/dev/null') }

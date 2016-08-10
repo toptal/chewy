@@ -40,7 +40,7 @@ module Chewy
 
       # Where Chewy expects to find index definitions
       # within a Rails app folder.
-      :index_definition_path
+      :indices_path
 
     def self.delegated
       public_instance_methods - self.superclass.public_instance_methods - Singleton.public_instance_methods
@@ -53,7 +53,7 @@ module Chewy
       @root_strategy = :base
       @request_strategy = :atomic
       @use_after_commit_callbacks = true
-      @index_definition_path = 'app/chewy'
+      @indices_path = 'app/chewy'
     end
 
     def transport_logger= logger

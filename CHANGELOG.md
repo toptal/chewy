@@ -21,6 +21,8 @@
   * Rake tasks support multiple indexes and exceptions: `rake chewy:reset[users,projects]`, `rake chewy:update[-projects]`
 
   * Witchcraft™ supports dynamically generated procs with variables from closure.
+  
+  * Add the `track_scores` option to the query; `_score` to be computed and tracked even when there are no `_score` in sort. (@dmitry)
 
 ## Bugfixes
 

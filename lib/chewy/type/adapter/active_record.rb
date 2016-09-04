@@ -69,14 +69,15 @@ module Chewy
         end
       end
 
-      module Rails5
-        def pluck_ids(scope)
-          scope.except(:includes).distinct.pluck(target.primary_key.to_sym)
+      ActiveSupport.on_load(:active_record) do
+        if ::ActiveRecord::VERSION::MAJOR >= 5
+          module Rails5
+            def pluck_ids(scope)
+              scope.except(:includes).distinct.pluck(target.primary_key.to_sym)
+            end
+          end
+          Chewy::Type::Adapter::ActiveRecord.prepend(Rails5)
         end
-      end
-
-      if defined?(::ActiveRecord) && ::ActiveRecord::VERSION::MAJOR >= 5
-        Chewy::Type::Adapter::ActiveRecord.prepend(Rails5)
       end
     end
   end

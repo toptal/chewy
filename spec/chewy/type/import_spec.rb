@@ -15,7 +15,7 @@ describe Chewy::Type::Import do
     end
   end
 
-  let!(:dummy_cities) { 3.times.map { |i| City.create(id: i + 1, name: "name#{i}") } }
+  let!(:dummy_cities) { Array.new(3) { |i| City.create(id: i + 1, name: "name#{i}") } }
   let(:city) { CitiesIndex::City }
 
   describe '.import', :orm do
@@ -88,7 +88,7 @@ describe Chewy::Type::Import do
       end
 
       context do
-        let!(:dummy_cities) { 3.times.map { |i| City.create(id: i + 1, name: "name#{i}" * 20) } }
+        let!(:dummy_cities) { Array.new(3) { |i| City.create(id: i + 1, name: "name#{i}" * 20) } }
 
         specify do
           dummy_cities.first.destroy
@@ -156,7 +156,7 @@ describe Chewy::Type::Import do
     context 'instrumentation payload' do
       specify do
         outer_payload = nil
-        ActiveSupport::Notifications.subscribe('import_objects.chewy') do |name, start, finish, id, payload|
+        ActiveSupport::Notifications.subscribe('import_objects.chewy') do |_name, _start, _finish, _id, payload|
           outer_payload = payload
         end
 
@@ -167,7 +167,7 @@ describe Chewy::Type::Import do
 
       specify do
         outer_payload = nil
-        ActiveSupport::Notifications.subscribe('import_objects.chewy') do |name, start, finish, id, payload|
+        ActiveSupport::Notifications.subscribe('import_objects.chewy') do |_name, _start, _finish, _id, payload|
           outer_payload = payload
         end
 
@@ -178,7 +178,7 @@ describe Chewy::Type::Import do
 
       specify do
         outer_payload = nil
-        ActiveSupport::Notifications.subscribe('import_objects.chewy') do |name, start, finish, id, payload|
+        ActiveSupport::Notifications.subscribe('import_objects.chewy') do |_name, _start, _finish, _id, payload|
           outer_payload = payload
         end
 
@@ -198,7 +198,7 @@ describe Chewy::Type::Import do
         specify do
           skip_on_version_gte('2.0', 'format of exception changed in 2.x')
           outer_payload = nil
-          ActiveSupport::Notifications.subscribe('import_objects.chewy') do |name, start, finish, id, payload|
+          ActiveSupport::Notifications.subscribe('import_objects.chewy') do |_name, _start, _finish, _id, payload|
             outer_payload = payload
           end
 
@@ -218,7 +218,7 @@ describe Chewy::Type::Import do
         specify do
           skip_on_version_lt('2.0', 'format of exception was changed')
           outer_payload = nil
-          ActiveSupport::Notifications.subscribe('import_objects.chewy') do |name, start, finish, id, payload|
+          ActiveSupport::Notifications.subscribe('import_objects.chewy') do |_name, _start, _finish, _id, payload|
             outer_payload = payload
           end
 

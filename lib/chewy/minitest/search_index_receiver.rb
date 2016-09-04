@@ -14,10 +14,10 @@ class SearchIndexReceiver
   # @param (Chewy::Type) type the Index::Type executing this query.
   def catch bulk_params, type
     Array.wrap(bulk_params).map {|y| y[:body] }.flatten.each do |update|
-      if body = update[:delete]
-        mutation_for(type).deletes << body[:_id]
-      elsif body = update[:index]
-        mutation_for(type).indexes << body
+      if update[:delete]
+        mutation_for(type).deletes << update[:delete][:_id]
+      elsif update[:index]
+        mutation_for(type).indexes << update[:index]
       end
     end
   end
@@ -78,4 +78,3 @@ class SearchIndexReceiver
   end
 
 end
-

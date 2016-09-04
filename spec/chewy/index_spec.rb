@@ -18,8 +18,8 @@ describe Chewy::Index do
       end
     end
 
-    let!(:cities) { 2.times.map { |i| City.create! id: i + 1 } }
-    let!(:countries) { 2.times.map { |i| Country.create! id: i + 1 } }
+    let!(:cities) { Array.new(2) { |i| City.create! id: i + 1 } }
+    let!(:countries) { Array.new(2) { |i| Country.create! id: i + 1 } }
 
     specify do
       expect { PlacesIndex.import }.to update_index(PlacesIndex::City).and_reindex(cities)
@@ -114,7 +114,7 @@ describe Chewy::Index do
       end
     end
 
-    context 'type methods should be deprecated and can\'t redefine existion ones' do
+    context 'type methods should be deprecated and can\'t redefine existing ones' do
       before do
         stub_index(:places) do
           def self.city

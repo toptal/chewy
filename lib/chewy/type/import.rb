@@ -54,10 +54,10 @@ module Chewy
         #
         def import! *args
           errors = nil
-          subscriber = ActiveSupport::Notifications.subscribe('import_objects.chewy') do |*args|
-            errors = args.last[:errors]
+          subscriber = ActiveSupport::Notifications.subscribe('import_objects.chewy') do |*notification_args|
+            errors = notification_args.last[:errors]
           end
-          import *args
+          import(*args)
           raise Chewy::ImportFailed.new(self, errors) if errors.present?
           true
         ensure
@@ -81,9 +81,10 @@ module Chewy
               operation, meta = entry.to_a.first
               data = meta.delete(:data)
               entry = [{ operation => meta }, data].compact.map(&:to_json).join("\n")
-              if entry.bytesize > bulk_size
-                raise ArgumentError.new('Import `:bulk_size` seems to be less than entry size')
-              elsif result.last.bytesize + entry.bytesize > bulk_size
+
+              raise ArgumentError.new('Import `:bulk_size` seems to be less than entry size') if entry.bytesize > bulk_size
+
+              if result.last.bytesize + entry.bytesize > bulk_size
                 result.push(entry)
               else
                 result[-1] = [result[-1], entry].delete_if(&:blank?).join("\n")
@@ -98,8 +99,8 @@ module Chewy
             bodies += [journal.bulk_body]
           end
 
-          items = bodies.map do |body|
-            result = client.bulk options.merge(header).merge(body: body)
+          items = bodies.map do |item_body|
+            result = client.bulk options.merge(header).merge(body: item_body)
             result.try(:[], 'items') || []
           end.flatten
           Chewy.wait_for_status
@@ -121,7 +122,7 @@ module Chewy
           end
         end
 
-        def delete_bulk_entry(object, indexed_objects = nil, crutches = nil)
+        def delete_bulk_entry(object, indexed_objects = nil, _crutches = nil)
           entry = {}
 
           if root_object.id
@@ -136,7 +137,7 @@ module Chewy
           if root_object.parent_id
             existing_object = entry[:_id].present? && indexed_objects && indexed_objects[entry[:_id].to_s]
             return [] unless existing_object
-            entry.merge!(parent: existing_object[:parent])
+            entry[:parent] = existing_object[:parent]
           end
 
           [{ delete: entry }]
@@ -177,9 +178,9 @@ module Chewy
           end
         end
 
-        def fill_payload_errors payload, errors
-          errors.each do |action, errors|
-            errors.each do |error, documents|
+        def fill_payload_errors payload, import_errors
+          import_errors.each do |action, action_errors|
+            action_errors.each do |error, documents|
               payload[:errors] ||= {}
               payload[:errors][action] ||= {}
               payload[:errors][action][error] ||= []
@@ -203,9 +204,9 @@ module Chewy
             if data['error']
               (memo[action] ||= []).push(action: action, id: data['_id'], error: data['error'])
             end
-          end.map do |action, items|
-            errors = items.group_by { |item| item[:error] }.map do |error, items|
-              {error => items.map { |item| item[:id] }}
+          end.map do |action, action_items|
+            errors = action_items.group_by { |item| item[:error] }.map do |error, error_items|
+              {error => error_items.map { |item| item[:id] }}
             end.reduce(&:merge)
             {action => errors}
           end.reduce(&:merge) || {}
@@ -222,7 +223,7 @@ module Chewy
 
           indexed_objects = {}
 
-          while result = client.scroll(scroll_id: result['_scroll_id'], scroll: '1m') do
+          while (result = client.scroll(scroll_id: result['_scroll_id'], scroll: '1m')) do
             break if result['hits']['hits'].empty?
 
             result['hits']['hits'].map do |hit|

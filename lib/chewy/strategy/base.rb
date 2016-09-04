@@ -13,7 +13,7 @@ module Chewy
       end
       # This method called when some model tries to update index
       #
-      def update type, objects, options = {}
+      def update type, _objects, _options = {}
         raise UndefinedUpdateStrategy.new(type)
       end
 

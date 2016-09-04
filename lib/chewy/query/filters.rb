@@ -200,7 +200,7 @@ module Chewy
       #   UsersIndex.filter{ article.title =~ 'Hello' }
       #   UsersIndex.filter{ article.tags? }
       #
-      def method_missing method, *args, &block
+      def method_missing method, *args
         method = method.to_s
         if method =~ /\?\Z/
           Nodes::Exists.new method.gsub(/\?\Z/, '')

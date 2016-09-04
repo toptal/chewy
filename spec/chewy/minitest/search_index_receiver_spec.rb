@@ -3,7 +3,7 @@ require 'chewy/minitest'
 
 describe :search_index_receiver do
   def search_request item_count = 2, verb: :index
-    items = item_count.times.map do |i|
+    items = Array.new(item_count) do |i|
       {
         verb => {_id: i + 1, data: {}}
       }
@@ -27,11 +27,11 @@ describe :search_index_receiver do
   before do
     stub_index(:dummies) do
       define_type :fizz do
-        root value: ->(o){{}}
+        root value: ->(_o){{}}
       end
 
       define_type :buzz do
-        root value: ->(o){{}}
+        root value: ->(_o){{}}
       end
     end
   end

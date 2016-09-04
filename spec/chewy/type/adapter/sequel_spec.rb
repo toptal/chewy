@@ -44,7 +44,7 @@ describe Chewy::Type::Adapter::Sequel, :sequel do
     subject { described_class.new(City) }
 
     context do
-      let!(:cities) { 3.times.map { City.new.save! } }
+      let!(:cities) { Array.new(3) { City.new.save! } }
 
       it { expect(subject.identify(City.where(nil)) ).to match_array cities.map(&:id) }
       it { expect(subject.identify(cities) ).to eq cities.map(&:id) }
@@ -54,7 +54,7 @@ describe Chewy::Type::Adapter::Sequel, :sequel do
 
     context 'custom primary_key' do
       before { stub_model(:city).set_dataset :rating_cities }
-      let!(:cities) { 3.times.map { |i| City.create! { |c| c.rating = i } } }
+      let!(:cities) { Array.new(3) { |i| City.create! { |c| c.rating = i } } }
 
       specify { expect(subject.identify(City.where(nil))).to match_array([0, 1, 2]) }
       specify { expect(subject.identify(cities)).to eq([0, 1, 2]) }
@@ -71,8 +71,8 @@ describe Chewy::Type::Adapter::Sequel, :sequel do
     end
 
     context do
-      let!(:cities) { 3.times.map { City.create! } }
-      let!(:deleted) { 4.times.map { City.create!.tap(&:destroy) } }
+      let!(:cities) { Array.new(3) { City.create! } }
+      let!(:deleted) { Array.new(4) { City.create!.tap(&:destroy) } }
       subject { described_class.new(City) }
 
       specify { expect(import).to eq([{index: cities}]) }
@@ -110,7 +110,7 @@ describe Chewy::Type::Adapter::Sequel, :sequel do
     end
 
     context 'additional delete conditions' do
-      let!(:cities) { 4.times.map { |i| City.create! rating: i } }
+      let!(:cities) { Array.new(4) { |i| City.create! rating: i } }
       before { cities.last(2).map(&:destroy) }
       subject { described_class.new(City) }
 
@@ -138,8 +138,8 @@ describe Chewy::Type::Adapter::Sequel, :sequel do
 
     context 'custom primary_key' do
       before { stub_model(:city).set_dataset :rating_cities }
-      let!(:cities) { 3.times.map { |i| City.create! { |c| c.rating = i + 7 } } }
-      let!(:deleted) { 3.times.map { |i| City.create! { |c| c.rating = i + 10 }.tap(&:destroy) } }
+      let!(:cities) { Array.new(3) { |i| City.create! { |c| c.rating = i + 7 } } }
+      let!(:deleted) { Array.new(3) { |i| City.create! { |c| c.rating = i + 10 }.tap(&:destroy) } }
       subject { described_class.new(City) }
 
       specify { expect(import).to eq([{index: cities}]) }
@@ -172,8 +172,8 @@ describe Chewy::Type::Adapter::Sequel, :sequel do
     end
 
     context 'default scope' do
-      let!(:cities) { 4.times.map { |i| City.create!(rating: i/3) } }
-      let!(:deleted) { 3.times.map { |i| City.create!.tap(&:destroy) } }
+      let!(:cities) { Array.new(4) { |i| City.create!(rating: i/3) } }
+      let!(:deleted) { Array.new(3) { City.create!.tap(&:destroy) } }
       subject { described_class.new(City.where(rating: 0)) }
 
       specify { expect(import).to eq([{index: cities.first(3)}]) }
@@ -214,8 +214,8 @@ describe Chewy::Type::Adapter::Sequel, :sequel do
     end
 
     context 'error handling' do
-      let!(:cities) { 3.times.map { |i| City.create! } }
-      let!(:deleted) { 2.times.map { |i| City.create!.tap(&:destroy) } }
+      let!(:cities) { Array.new(3) { City.create! } }
+      let!(:deleted) { Array.new(2) { City.create!.tap(&:destroy) } }
       let(:ids) { (cities + deleted).map(&:id) }
       subject { described_class.new(City) }
 
@@ -224,8 +224,8 @@ describe Chewy::Type::Adapter::Sequel, :sequel do
       end
 
       context 'implicit scope' do
-        specify { expect(subject.import { |data| true }).to eq(true) }
-        specify { expect(subject.import { |data| false }).to eq(false) }
+        specify { expect(subject.import { |_data| true }).to eq(true) }
+        specify { expect(subject.import { |_data| false }).to eq(false) }
         specify { expect(subject.import(batch_size: 1, &data_comparer.curry[cities[0].id])).to eq(false) }
         specify { expect(subject.import(batch_size: 1, &data_comparer.curry[cities[1].id])).to eq(false) }
         specify { expect(subject.import(batch_size: 1, &data_comparer.curry[cities[2].id])).to eq(false) }
@@ -236,8 +236,8 @@ describe Chewy::Type::Adapter::Sequel, :sequel do
       context 'explicit scope' do
         let(:scope) { City.where(id: ids) }
 
-        specify { expect(subject.import(scope) { |data| true }).to eq(true) }
-        specify { expect(subject.import(scope) { |data| false }).to eq(false) }
+        specify { expect(subject.import(scope) { |_data| true }).to eq(true) }
+        specify { expect(subject.import(scope) { |_data| false }).to eq(false) }
         specify { expect(subject.import(scope, batch_size: 1, &data_comparer.curry[cities[0].id])).to eq(false) }
         specify { expect(subject.import(scope, batch_size: 1, &data_comparer.curry[cities[1].id])).to eq(false) }
         specify { expect(subject.import(scope, batch_size: 1, &data_comparer.curry[cities[2].id])).to eq(false) }
@@ -246,8 +246,8 @@ describe Chewy::Type::Adapter::Sequel, :sequel do
       end
 
       context 'objects' do
-        specify { expect(subject.import(cities + deleted) { |data| true }).to eq(true) }
-        specify { expect(subject.import(cities + deleted) { |data| false }).to eq(false) }
+        specify { expect(subject.import(cities + deleted) { |_data| true }).to eq(true) }
+        specify { expect(subject.import(cities + deleted) { |_data| false }).to eq(false) }
         specify { expect(subject.import(cities + deleted, batch_size: 1, &data_comparer.curry[cities[0].id])).to eq(false) }
         specify { expect(subject.import(cities + deleted, batch_size: 1, &data_comparer.curry[cities[1].id])).to eq(false) }
         specify { expect(subject.import(cities + deleted, batch_size: 1, &data_comparer.curry[cities[2].id])).to eq(false) }
@@ -256,8 +256,8 @@ describe Chewy::Type::Adapter::Sequel, :sequel do
       end
 
       context 'ids' do
-        specify { expect(subject.import(ids) { |data| true }).to eq(true) }
-        specify { expect(subject.import(ids) { |data| false }).to eq(false) }
+        specify { expect(subject.import(ids) { |_data| true }).to eq(true) }
+        specify { expect(subject.import(ids) { |_data| false }).to eq(false) }
         specify { expect(subject.import(ids, batch_size: 1, &data_comparer.curry[cities[0].id])).to eq(false) }
         specify { expect(subject.import(ids, batch_size: 1, &data_comparer.curry[cities[1].id])).to eq(false) }
         specify { expect(subject.import(ids, batch_size: 1, &data_comparer.curry[cities[2].id])).to eq(false) }
@@ -269,8 +269,8 @@ describe Chewy::Type::Adapter::Sequel, :sequel do
 
   describe '#load' do
     context do
-      let!(:cities) { 3.times.map { |i| City.create!(rating: i/2) } }
-      let!(:deleted) { 2.times.map { |i| City.create!.tap(&:destroy) } }
+      let!(:cities) { Array.new(3) { |i| City.create!(rating: i/2) } }
+      let!(:deleted) { Array.new(2) { City.create!.tap(&:destroy) } }
 
       let(:type) { double(type_name: 'user') }
 
@@ -294,8 +294,8 @@ describe Chewy::Type::Adapter::Sequel, :sequel do
 
     context 'custom primary_key' do
       before { stub_model(:city).set_dataset :rating_cities }
-      let!(:cities) { 3.times.map { |i| City.create!(country_id: i/2) { |c| c.rating = i + 7 } } }
-      let!(:deleted) { 2.times.map { |i| City.create! { |c| c.rating = i + 10 }.tap(&:destroy) } }
+      let!(:cities) { Array.new(3) { |i| City.create!(country_id: i/2) { |c| c.rating = i + 7 } } }
+      let!(:deleted) { Array.new(2) { |i| City.create! { |c| c.rating = i + 10 }.tap(&:destroy) } }
 
       let(:type) { double(type_name: 'user') }
 

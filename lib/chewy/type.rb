@@ -61,8 +61,8 @@ module Chewy
 
     def self.method_missing(method, *args, &block)
       if index.scopes.include?(method)
-        define_singleton_method method do |*args, &block|
-          all.scoping { index.public_send(method, *args, &block) }
+        define_singleton_method method do |*method_args, &method_block|
+          all.scoping { index.public_send(method, *method_args, &method_block) }
         end
         send(method, *args, &block)
       else
@@ -71,7 +71,7 @@ module Chewy
     end
 
     def self.const_missing(name)
-      to_resolve = "#{self.to_s}::#{name}"
+      to_resolve = "#{self}::#{name}"
       to_resolve[index.to_s] = ''
 
       @__resolved_constants ||= {}

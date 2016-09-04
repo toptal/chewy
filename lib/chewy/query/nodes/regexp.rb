@@ -8,9 +8,8 @@ module Chewy
           @name = name.to_s
           @regexp = regexp.respond_to?(:source) ? regexp.source : regexp.to_s
           @options = args.extract_options!
-          if args.present? || @options[:flags].present?
-            @options[:flags] = FLAGS & (args.present? ? args.flatten : @options[:flags]).map(&:to_s).map(&:downcase)
-          end
+          return if args.blank? && @options[:flags].blank?
+          @options[:flags] = FLAGS & (args.present? ? args.flatten : @options[:flags]).map(&:to_s).map(&:downcase)
         end
 
         def __render__

@@ -18,7 +18,7 @@ if defined?(::Kaminari)
     specify { expect(search.total_pages).to eq(0) }
 
     context do
-      let(:data) { 10.times.map { |i| {id: i.next.to_s, name: "Name#{i.next}", age: 10 * i.next}.stringify_keys! } }
+      let(:data) { Array.new(10) { |i| {id: i.next.to_s, name: "Name#{i.next}", age: 10 * i.next}.stringify_keys! } }
 
       before { ProductsIndex::Product.import!(data.map { |h| double(h) }) }
       before { allow(::Kaminari.config).to receive_messages(default_per_page: 3) }

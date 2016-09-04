@@ -7,18 +7,21 @@ begin
   require 'resque'
   require 'chewy/strategy/resque'
 rescue LoadError
+  nil
 end
 
 begin
   require 'sidekiq'
   require 'chewy/strategy/sidekiq'
 rescue LoadError
+  nil
 end
 
 begin
   require 'active_job'
   require 'chewy/strategy/active_job'
 rescue LoadError
+  nil
 end
 
 module Chewy
@@ -65,10 +68,9 @@ module Chewy
   private
 
     def debug string
-      if Chewy.logger && Chewy.logger.debug?
-        line = caller.detect { |line| line !~ %r{lib/chewy/strategy.rb:|lib/chewy.rb:} }
-        Chewy.logger.debug(["DEBUG: Chewy strategies stack: #{string}", line.sub(/:in\s.+$/, '')].join(' @ '))
-      end
+      return unless Chewy.logger && Chewy.logger.debug?
+      line = caller.detect { |l| l !~ %r{lib/chewy/strategy.rb:|lib/chewy.rb:} }
+      Chewy.logger.debug(["DEBUG: Chewy strategies stack: #{string}", line.sub(/:in\s.+$/, '')].join(' @ '))
     end
 
     def resolve name

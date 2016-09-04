@@ -43,7 +43,7 @@ module Chewy
         end
 
         def load *args
-          load_options = args.extract_options!
+          args.extract_options!
           objects = args.flatten
           if target.respond_to?(load_all_method)
             target.send(load_all_method, objects)

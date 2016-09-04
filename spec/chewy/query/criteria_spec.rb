@@ -268,13 +268,12 @@ describe Chewy::Query::Criteria do
       }}})
     }
     specify { expect(_filtered_query {
-        update_options(query_mode: :should); update_options(filter_mode: :or);
-        update_filters([:filter1, :filter2]); update_queries([:query1, :query2])
-      }).to eq({query: {filtered: {
-        query: {bool: {should: [:query1, :query2]}},
-        filter: {or: [:filter1, :filter2]}
-      }}})
-    }
+      update_options(query_mode: :should); update_options(filter_mode: :or);
+      update_filters([:filter1, :filter2]); update_queries([:query1, :query2])
+    }).to eq({query: {filtered: {
+      query: {bool: {should: [:query1, :query2]}},
+      filter: {or: [:filter1, :filter2]}
+    }}}) }
   end
 
   describe "#_boost_query" do

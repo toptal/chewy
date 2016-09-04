@@ -59,7 +59,7 @@ describe Chewy::Type::Witchcraft do
 
     context 'crutches' do
       mapping do
-        field :name, value: -> (o, c) { c.names[0] }
+        field :name, value: -> (_o, c) { c.names[0] }
       end
       let(:attributes) { { name: 'Name' } }
 
@@ -128,9 +128,9 @@ describe Chewy::Type::Witchcraft do
       context do
         mapping do
           field :queries do
-            field :fields, value: -> (o, q) { q.fields } do
+            field :fields, value: -> (_o, q) { q.fields } do
               field :first
-              field :second, value: -> (o, q, f, c) {
+              field :second, value: -> (_o, q, f, c) {
                 q.value + (f.respond_to?(:second) ? f.second : c.second)
               }
             end

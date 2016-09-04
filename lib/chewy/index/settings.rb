@@ -51,7 +51,7 @@ module Chewy
           result.merge!(type => resolved) if resolved.present?
         end
 
-        options.merge!(analyzer: analyzer) if analyzer.present?
+        options[:analyzer] = analyzer if analyzer.present?
         options
       end
 

@@ -9,8 +9,8 @@ describe Chewy::Query::Loading, :orm do
   end
 
   context 'multiple types' do
-    let(:cities) { 6.times.map { |i| City.create!(rating: i) } }
-    let(:countries) { 6.times.map { |i| Country.create!(rating: i) } }
+    let(:cities) { Array.new(6) { |i| City.create!(rating: i) } }
+    let(:countries) { Array.new(6) { |i| Country.create!(rating: i) } }
 
     before do
       stub_index(:places) do

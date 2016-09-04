@@ -23,6 +23,7 @@ describe Chewy::Journal do
       begin
         Chewy.client.indices.delete(index: Chewy::Journal.index_name)
       rescue Elasticsearch::Transport::Transport::Errors::NotFound
+        nil
       end
       Chewy.settings[:prefix] = 'some_prefix'
       Timecop.freeze(time)

@@ -39,7 +39,7 @@ describe Chewy::Type::Adapter::Mongoid, :mongoid do
 
   describe '#identify' do
     subject { described_class.new(City) }
-    let!(:cities) { 3.times.map { City.create! } }
+    let!(:cities) { Array.new(3) { City.create! } }
 
     specify { expect(subject.identify(City.all)).to match_array(cities.map(&:id).map(&:to_s)) }
     specify { expect(subject.identify(cities)).to eq(cities.map(&:id).map(&:to_s)) }
@@ -47,7 +47,7 @@ describe Chewy::Type::Adapter::Mongoid, :mongoid do
     specify { expect(subject.identify(cities.first(2).map(&:id))).to eq(cities.first(2).map(&:id).map(&:to_s)) }
 
     context 'non-bson ids' do
-      let!(:cities) { 3.times.map { |i| City.create! id: i+1 } }
+      let!(:cities) { Array.new(3) { |i| City.create! id: i+1 } }
 
       specify { expect(subject.identify(City.all)).to match_array(cities.map(&:id)) }
       specify { expect(subject.identify(cities)).to eq(cities.map(&:id)) }
@@ -64,8 +64,8 @@ describe Chewy::Type::Adapter::Mongoid, :mongoid do
     end
 
     context do
-      let!(:cities) { 3.times.map { |i| City.create! }.sort_by(&:id) }
-      let!(:deleted) { 4.times.map { |i| City.create!.tap(&:destroy) }.sort_by(&:id) }
+      let!(:cities) { Array.new(3) { City.create! }.sort_by(&:id) }
+      let!(:deleted) { Array.new(4) { City.create!.tap(&:destroy) }.sort_by(&:id) }
       subject { described_class.new(City) }
 
       specify { expect(import).to match([{index: match_array(cities)}]) }
@@ -103,7 +103,7 @@ describe Chewy::Type::Adapter::Mongoid, :mongoid do
     end
 
     context 'additional delete conditions' do
-      let!(:cities) { 4.times.map { |i| City.create! rating: i } }
+      let!(:cities) { Array.new(4) { |i| City.create! rating: i } }
       before { cities.last(2).map(&:destroy) }
       subject { described_class.new(City) }
 
@@ -130,8 +130,8 @@ describe Chewy::Type::Adapter::Mongoid, :mongoid do
     end
 
     context 'default scope' do
-      let!(:cities) { 4.times.map { |i| City.create!(id: i, rating: i/3) }.sort_by(&:id) }
-      let!(:deleted) { 3.times.map { |i| City.create!(id: 4 + i).tap(&:destroy) }.sort_by(&:id) }
+      let!(:cities) { Array.new(4) { |i| City.create!(id: i, rating: i/3) }.sort_by(&:id) }
+      let!(:deleted) { Array.new(3) { |i| City.create!(id: 4 + i).tap(&:destroy) }.sort_by(&:id) }
       subject { described_class.new(City.where(rating: 0)) }
 
       specify { expect(import).to eq([{index: cities.first(3)}]) }
@@ -172,8 +172,8 @@ describe Chewy::Type::Adapter::Mongoid, :mongoid do
     end
 
     context 'error handling' do
-      let!(:cities) { 6.times.map { |i| City.create! } }
-      let!(:deleted) { 4.times.map { |i| City.create!.tap(&:destroy) } }
+      let!(:cities) { Array.new(6) { City.create! } }
+      let!(:deleted) { Array.new(4) { City.create!.tap(&:destroy) } }
       let(:ids) { (cities + deleted).map(&:id) }
       subject { described_class.new(City) }
 
@@ -182,8 +182,8 @@ describe Chewy::Type::Adapter::Mongoid, :mongoid do
       end
 
       context 'implicit scope' do
-        specify { expect(subject.import { |data| true }).to eq(true) }
-        specify { expect(subject.import { |data| false }).to eq(false) }
+        specify { expect(subject.import { |_data| true }).to eq(true) }
+        specify { expect(subject.import { |_data| false }).to eq(false) }
         specify { expect(subject.import(batch_size: 2, &data_comparer.curry[cities[0].id])).to eq(false) }
         specify { expect(subject.import(batch_size: 2, &data_comparer.curry[cities[2].id])).to eq(false) }
         specify { expect(subject.import(batch_size: 2, &data_comparer.curry[cities[4].id])).to eq(false) }
@@ -194,8 +194,8 @@ describe Chewy::Type::Adapter::Mongoid, :mongoid do
       context 'explicit scope' do
         let(:scope) { City.where(:id.in => ids) }
 
-        specify { expect(subject.import(scope) { |data| true }).to eq(true) }
-        specify { expect(subject.import(scope) { |data| false }).to eq(false) }
+        specify { expect(subject.import(scope) { |_data| true }).to eq(true) }
+        specify { expect(subject.import(scope) { |_data| false }).to eq(false) }
         specify { expect(subject.import(scope, batch_size: 2, &data_comparer.curry[cities[0].id])).to eq(false) }
         specify { expect(subject.import(scope, batch_size: 2, &data_comparer.curry[cities[2].id])).to eq(false) }
         specify { expect(subject.import(scope, batch_size: 2, &data_comparer.curry[cities[4].id])).to eq(false) }
@@ -204,8 +204,8 @@ describe Chewy::Type::Adapter::Mongoid, :mongoid do
       end
 
       context 'objects' do
-        specify { expect(subject.import(cities + deleted) { |data| true }).to eq(true) }
-        specify { expect(subject.import(cities + deleted) { |data| false }).to eq(false) }
+        specify { expect(subject.import(cities + deleted) { |_data| true }).to eq(true) }
+        specify { expect(subject.import(cities + deleted) { |_data| false }).to eq(false) }
         specify { expect(subject.import(cities + deleted, batch_size: 2, &data_comparer.curry[cities[0].id])).to eq(false) }
         specify { expect(subject.import(cities + deleted, batch_size: 2, &data_comparer.curry[cities[2].id])).to eq(false) }
         specify { expect(subject.import(cities + deleted, batch_size: 2, &data_comparer.curry[cities[4].id])).to eq(false) }
@@ -214,8 +214,8 @@ describe Chewy::Type::Adapter::Mongoid, :mongoid do
       end
 
       context 'ids' do
-        specify { expect(subject.import(ids) { |data| true }).to eq(true) }
-        specify { expect(subject.import(ids) { |data| false }).to eq(false) }
+        specify { expect(subject.import(ids) { |_data| true }).to eq(true) }
+        specify { expect(subject.import(ids) { |_data| false }).to eq(false) }
         specify { expect(subject.import(ids, batch_size: 2, &data_comparer.curry[cities[0].id])).to eq(false) }
         specify { expect(subject.import(ids, batch_size: 2, &data_comparer.curry[cities[2].id])).to eq(false) }
         specify { expect(subject.import(ids, batch_size: 2, &data_comparer.curry[cities[4].id])).to eq(false) }
@@ -227,8 +227,8 @@ describe Chewy::Type::Adapter::Mongoid, :mongoid do
 
   describe '#load' do
     context do
-      let!(:cities) { 3.times.map { |i| City.create!(id: i, rating: i/2) }.sort_by(&:id) }
-      let!(:deleted) { 2.times.map { |i| City.create!(id: 3 + i).tap(&:destroy) }.sort_by(&:id) }
+      let!(:cities) { Array.new(3) { |i| City.create!(id: i, rating: i/2) }.sort_by(&:id) }
+      let!(:deleted) { Array.new(2) { |i| City.create!(id: 3 + i).tap(&:destroy) }.sort_by(&:id) }
 
       let(:type) { double(type_name: 'user') }
 

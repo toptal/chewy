@@ -14,7 +14,7 @@ module Chewy
       #   Should be set to true unless actually testing search functionality.
       #
       # @return (SearchIndexReceiver) for optional further assertions on the nature of the index changes.
-      def assert_indexes index, strategy: :atomic, bypass_actual_index: true, &test_actions
+      def assert_indexes index, strategy: :atomic, bypass_actual_index: true
         type = Chewy.derive_type index
         receiver = SearchIndexReceiver.new
 
@@ -24,7 +24,7 @@ module Chewy
           receiver.catch bulk_args, self
 
           unless bypass_actual_index
-            bulk_method.call *bulk_args
+            bulk_method.call(*bulk_args)
           end
 
           {}
@@ -33,7 +33,7 @@ module Chewy
         type.define_singleton_method :bulk, bulk_mock
 
           Chewy.strategy(strategy) do
-            test_actions.call
+            yield
           end
 
         type.define_singleton_method :bulk, bulk_method

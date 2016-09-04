@@ -11,10 +11,10 @@ describe Chewy::Fields::Root do
       field.dynamic_template 'hello', type: 'string'
       field.dynamic_template 'hello*', :integer
       field.dynamic_template 'hello.*'
-      field.dynamic_template /hello/
-      field.dynamic_template /hello.*/
+      field.dynamic_template(/hello/)
+      field.dynamic_template(/hello.*/)
       field.dynamic_template template_42: {mapping: {}, match: ''}
-      field.dynamic_template /hello\..*/
+      field.dynamic_template(/hello\..*/)
 
       expect(field.mappings_hash).to eq({product: {dynamic_templates: [
         {template_1: {mapping: {type: 'string'}, match: 'hello'}},

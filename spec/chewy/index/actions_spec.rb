@@ -287,7 +287,7 @@ describe Chewy::Index::Actions do
         define_type City
       end
     end
-    let!(:dummy_cities) { 3.times.map { |i| City.create(id: i + 1, name: "name#{i}") } }
+    let!(:dummy_cities) { Array.new(3) { |i| City.create(id: i + 1, name: "name#{i}") } }
 
     specify { expect(CitiesIndex.import).to eq(true) }
 
@@ -311,7 +311,7 @@ describe Chewy::Index::Actions do
         define_type City
       end
     end
-    let!(:dummy_cities) { 3.times.map { |i| City.create(id: i + 1, name: "name#{i}") } }
+    let!(:dummy_cities) { Array.new(3) { |i| City.create(id: i + 1, name: "name#{i}") } }
 
     specify { expect(CitiesIndex.import!).to eq(true) }
 
@@ -396,6 +396,7 @@ describe Chewy::Index::Actions do
         begin
           Chewy.client.indices.delete(index: Chewy::Journal.index_name)
         rescue Elasticsearch::Transport::Transport::Errors::NotFound
+          nil
         end
       end
 

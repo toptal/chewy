@@ -136,10 +136,9 @@ module Chewy
         #       end
         #     end
         #   end
-        def agg *args, &block
-          options = args.extract_options!
+        def agg name, &block
           build_root
-          self._agg_defs = _agg_defs.merge(args.first => block)
+          self._agg_defs = _agg_defs.merge(name => block)
         end
         alias_method :aggregation, :agg
 
@@ -164,7 +163,7 @@ module Chewy
         #   template template42: {match: 'hello*', mapping: {type: 'object'}} # or even pass a template as is
         #
         def template *args
-          build_root.dynamic_template *args
+          build_root.dynamic_template(*args)
         end
         alias_method :dynamic_template, :template
 
@@ -182,11 +181,11 @@ module Chewy
             @_current_field.children.push(field)
           end
 
-          if block
-            previous_field, @_current_field = @_current_field, field
-            block.call
-            @_current_field = previous_field
-          end
+          return unless block
+
+          previous_field, @_current_field = @_current_field, field
+          yield
+          @_current_field = previous_field
         end
 
         def build_root options = {}, &block

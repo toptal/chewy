@@ -6,7 +6,7 @@ describe :minitest_helper do
     alias_method :teardown, :after
   end
 
-  def assert_includes haystack, needle, comment
+  def assert_includes haystack, needle, _comment
     expect(haystack).to include(needle)
   end
 
@@ -19,7 +19,7 @@ describe :minitest_helper do
   before do
     stub_index(:dummies) do
       define_type :dummy do
-        root value: ->(o){{}}
+        root value: ->(_o){{}}
       end
     end
   end

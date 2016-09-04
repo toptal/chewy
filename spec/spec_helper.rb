@@ -6,6 +6,7 @@ begin
   require 'active_record'
   require 'sequel'
 rescue LoadError
+  nil
 end
 
 require 'rspec/its'

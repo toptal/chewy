@@ -16,17 +16,17 @@ module Chewy
       render_action('Delete by Query', event) { |payload| payload[:request] }
     end
 
-    def render_action action, event, &block
+    def render_action action, event
       payload = event.payload
-      description = block.call(payload)
+      description = yield(payload)
 
-      if description.present?
-        subject = payload[:type].presence || payload[:index]
-        action = "#{subject} #{action} (#{event.duration.round(1)}ms)"
-        action = color(action, GREEN, true)
+      return if description.blank?
 
-        debug("  #{action} #{description}")
-      end
+      subject = payload[:type].presence || payload[:index]
+      action = "#{subject} #{action} (#{event.duration.round(1)}ms)"
+      action = color(action, GREEN, true)
+
+      debug("  #{action} #{description}")
     end
   end
 end

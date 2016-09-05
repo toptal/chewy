@@ -2,8 +2,9 @@
 
 source "https://rubygems.org"
 
-gem "mongoid", "> 4.0.0"
-gem "activesupport", "~> 4.0.0"
+gem "activerecord", "~> 5.0.0"
+gem "activesupport", "~> 5.0.0"
+gem "activejob", "~> 5.0.0"
 gem "will_paginate", :require => false
 
 group :test do

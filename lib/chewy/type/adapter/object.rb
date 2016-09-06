@@ -36,8 +36,11 @@ module Chewy
           options = args.extract_options!
           options[:batch_size] ||= BATCH_SIZE
 
-          objects = args.empty? && @target.respond_to?(import_all_method) ?
-            @target.send(import_all_method) : args.flatten.compact
+          objects = if args.empty? && @target.respond_to?(import_all_method)
+            @target.send(import_all_method)
+          else
+            args.flatten.compact
+          end
 
           import_objects(objects, options, &block)
         end

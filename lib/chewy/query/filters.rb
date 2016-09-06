@@ -155,7 +155,7 @@ module Chewy
       #       .filter_mode(:or)
       #   end
       #
-      def has_child(type)
+      def has_child(type) # rubocop:disable Style/PredicateName
         Nodes::HasChild.new(type, @outer)
       end
 
@@ -177,7 +177,7 @@ module Chewy
       #       .filter_mode(:or)
       #   end
       #
-      def has_parent(type)
+      def has_parent(type) # rubocop:disable Style/PredicateName
         Nodes::HasParent.new(type, @outer)
       end
 
@@ -200,7 +200,7 @@ module Chewy
       #   UsersIndex.filter{ article.title =~ 'Hello' }
       #   UsersIndex.filter{ article.tags? }
       #
-      def method_missing(method, *args)
+      def method_missing(method, *args) # rubocop:disable Style/MethodMissing
         method = method.to_s
         if method =~ /\?\Z/
           Nodes::Exists.new method.gsub(/\?\Z/, '')

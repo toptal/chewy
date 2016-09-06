@@ -26,11 +26,8 @@ module Chewy
         end
 
         def query(params = nil, &block)
-          if block
-            raise 'Query DLS is not supported yet'
-          else
-            @queries.push(params)
-          end
+          raise 'Query DLS is not supported yet' if block
+          @queries.push(params)
           self
         end
 

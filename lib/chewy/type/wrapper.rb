@@ -19,23 +19,29 @@ module Chewy
         end
       end
 
-      def method_missing(method_name, *args, &block)
-        method_name.to_s.match(/_highlight\z/) do |match|
-          return highlight(match.pre_match) if highlight?(match.pre_match)
+      def method_missing(method, *args, &block)
+        m = method.to_s
+        if (name = highlight_name(m))
+          highlight(name)
+        elsif @attributes.key?(m)
+          @attributes[m]
+        elsif attribute_defined?(m)
+          nil
+        else
+          super
         end
-        return @attributes[method_name.to_s] if @attributes.key?(method_name.to_s)
-        return nil if attribute_defined?(method_name.to_s)
-        super
       end
 
-      def respond_to_missing?(method_name, include_private = false)
-        method_name.to_s.match(/_highlight\z/) { |m| highlight?(m.pre_match) } ||
-          @attributes.key?(method_name.to_s) ||
-          attribute_defined?(method_name.to_s) ||
-          super
+      def respond_to_missing?(method, include_private = false)
+        m = method.to_s
+        highlight_name(m) || @attributes.key?(m) || attribute_defined?(m) || super
       end
 
     private
+
+      def highlight_name(method)
+        method.sub(/_highlight\z/, '') if method.end_with?('_highlight')
+      end
 
       def attribute_defined?(attribute)
         self.class.root_object && self.class.root_object.children.find { |a| a.name.to_s == attribute }.present?

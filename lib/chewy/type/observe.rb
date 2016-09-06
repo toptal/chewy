@@ -18,9 +18,11 @@ module Chewy
             end
 
             reference = if type_name.is_a?(Proc)
-              type_name.arity.zero? ?
-                instance_exec(&type_name) :
+              if type_name.arity.zero?
+                instance_exec(&type_name)
+              else
                 type_name.call(self)
+              end
             else
               type_name
             end
@@ -31,11 +33,11 @@ module Chewy
 
         def extract_callback_options!(args)
           options = args.extract_options!
-          options.each_key.with_object({}) do |key, hash|
+          result = options.each_key.with_object({}) do |key, hash|
             hash[key] = options.delete(key) if [:if, :unless].include?(key)
-          end.tap do
-            args.push(options) unless options.empty?
           end
+          args.push(options) unless options.empty?
+          result
         end
       end
 

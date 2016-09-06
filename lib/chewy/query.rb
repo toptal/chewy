@@ -1045,8 +1045,11 @@ module Chewy
     def _collection
       @_collection ||= begin
         _load_objects! if criteria.options[:preload]
-        criteria.options[:preload] && criteria.options[:loaded_objects] ?
-          _results.map(&:_object) : _results
+        if criteria.options[:preload] && criteria.options[:loaded_objects]
+          _results.map(&:_object)
+        else
+          _results
+        end
       end
     end
 

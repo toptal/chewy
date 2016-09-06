@@ -251,7 +251,7 @@ describe Chewy::Type::Import do
         before do
           stub_index(:cities) do
             define_type City do
-              field :name, type: 'object', value: ->{ name == 'name1' ? name : { name: name } }
+              field :name, type: 'object', value: -> { name == 'name1' ? name : { name: name } }
             end
           end
         end
@@ -396,7 +396,6 @@ describe Chewy::Type::Import do
 
         country.import canada
       end
-
     end
 
     context 'default_import_options is set' do

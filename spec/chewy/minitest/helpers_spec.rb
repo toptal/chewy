@@ -19,25 +19,25 @@ describe :minitest_helper do
   before do
     stub_index(:dummies) do
       define_type :dummy do
-        root value: ->(_o){{}}
+        root value: ->(_o) { {} }
       end
     end
   end
 
   context 'assert_indexes' do
     specify 'doesn\'t fail when index updates correctly' do
-      expect {
+      expect do
         assert_indexes DummiesIndex::Dummy do
           DummiesIndex::Dummy.bulk body: [{ index: { _id: 42, data: {} } }, { index: { _id: 41, data: {} } }]
         end
-      }.to_not raise_error
+      end.to_not raise_error
     end
 
     specify 'fails when index doesn\'t update' do
-      expect {
+      expect do
         assert_indexes DummiesIndex::Dummy do
         end
-      }.to raise_error(RSpec::Expectations::ExpectationNotMetError)
+      end.to raise_error(RSpec::Expectations::ExpectationNotMetError)
     end
 
     specify 'SearchIndexReceiver catches the indexes' do
@@ -49,7 +49,7 @@ describe :minitest_helper do
 
       expect(
         receiver.indexes_for(DummiesIndex::Dummy)
-                .map {|index| index[:_id]}
+                .map { |index| index[:_id] }
       ).to match_array([41,42])
     end
 

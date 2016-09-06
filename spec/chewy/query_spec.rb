@@ -157,13 +157,15 @@ describe Chewy::Query do
   describe '#decay' do
     specify { expect(subject.decay(:gauss, :field)).to be_a described_class }
     specify { expect(subject.decay(:gauss, :field)).not_to eq(subject) }
-    specify { expect(subject.decay(:gauss, :field).criteria.scores).to eq([ {
-                                                                            gauss: {
-                                                                              field: {}
-                                                                            }
-                                                                          }]) }
+    specify do
+      expect(subject.decay(:gauss, :field).criteria.scores).to eq([ {
+                                                                    gauss: {
+                                                                      field: {}
+                                                                    }
+                                                                  }])
+    end
     specify { expect { subject.decay(:gauss, :field) }.not_to change { subject.criteria.scores } }
-    specify {
+    specify do
       expect(subject.decay(:gauss, :field,
         origin: '11, 12',
         scale: '2km',
@@ -182,7 +184,7 @@ describe Chewy::Query do
             filter: { foo: :bar }
           }
         ])
-    }
+    end
   end
 
   describe '#facets' do
@@ -247,7 +249,6 @@ describe Chewy::Query do
     specify { expect { subject.aggregations(aggregation1: { field: 'hello' }) }.not_to change { subject.criteria.aggregations } }
 
     context 'when requesting a named aggregation' do
-
       before do
         stub_index(:products) do
           define_type :product do
@@ -306,11 +307,13 @@ describe Chewy::Query do
         end
 
         context "when the fully qualified aggregation name is provided" do
-          specify { expect(subject
+          specify do
+            expect(subject
                                .aggregations("products#product.named_agg")
                                .criteria
                                .aggregations)
-                        .to include("products#product.named_agg" => { avg: { field: 'title.subfield1' } }) }
+                        .to include("products#product.named_agg" => { avg: { field: 'title.subfield1' } })
+          end
         end
       end
     end
@@ -331,12 +334,14 @@ describe Chewy::Query do
         before { CitiesIndex::City.import! cities }
 
         specify { expect(CitiesIndex.aggregations).to eq({}) }
-        specify { expect(CitiesIndex.aggregations(ratings: { terms: { field: 'rating' } })
+        specify do
+          expect(CitiesIndex.aggregations(ratings: { terms: { field: 'rating' } })
           .aggregations['ratings']['buckets'].map { |h| h.slice('key', 'doc_count') }).to eq([
             { 'key' => 0, 'doc_count' => 4 },
             { 'key' => 1, 'doc_count' => 3 },
             { 'key' => 2, 'doc_count' => 3 }
-          ]) }
+          ])
+        end
       end
     end
   end
@@ -363,16 +368,17 @@ describe Chewy::Query do
         before { CitiesIndex::City.import! cities }
 
         specify { expect(CitiesIndex.suggest).to eq({}) }
-        specify { expect(CitiesIndex.suggest(name: { text: 'name', term: { field: 'name' } }).suggest).to eq('name' => [
-          { 'text' => 'name', 'offset' => 0, 'length' => 4, 'options' => [
-            { 'text' => 'name0', 'score' => 0.75, 'freq' => 1 },
-            { 'text' => 'name1', 'score' => 0.75, 'freq' => 1 },
-            { 'text' => 'name2', 'score' => 0.75, 'freq' => 1 },
-            { 'text' => 'name3', 'score' => 0.75, 'freq' => 1 },
-            { 'text' => 'name4', 'score' => 0.75, 'freq' => 1 }
-          ] }
-        ])
-        }
+        specify do
+          expect(CitiesIndex.suggest(name: { text: 'name', term: { field: 'name' } }).suggest).to eq('name' => [
+            { 'text' => 'name', 'offset' => 0, 'length' => 4, 'options' => [
+              { 'text' => 'name0', 'score' => 0.75, 'freq' => 1 },
+              { 'text' => 'name1', 'score' => 0.75, 'freq' => 1 },
+              { 'text' => 'name2', 'score' => 0.75, 'freq' => 1 },
+              { 'text' => 'name3', 'score' => 0.75, 'freq' => 1 },
+              { 'text' => 'name4', 'score' => 0.75, 'freq' => 1 }
+            ] }
+          ])
+        end
       end
     end
   end
@@ -390,33 +396,38 @@ describe Chewy::Query do
 
     specify do
       skip_on_plugin_missing_from_version('delete-by-query', '2.0')
-      expect {
+      expect do
         subject.query(match: { name: 'name3' }).delete_all
-        Chewy.client.indices.refresh(index: 'products') }.to change { ProductsIndex.total }.from(9).to(8)
+        Chewy.client.indices.refresh(index: 'products')
+      end.to change { ProductsIndex.total }.from(9).to(8)
     end
     specify do
       skip_on_plugin_missing_from_version('delete-by-query', '2.0')
-      expect {
+      expect do
         subject.filter { age == [10, 20] }.delete_all
-        Chewy.client.indices.refresh(index: 'products') }.to change { ProductsIndex.total_count }.from(9).to(7)
+        Chewy.client.indices.refresh(index: 'products')
+      end.to change { ProductsIndex.total_count }.from(9).to(7)
     end
     specify do
       skip_on_plugin_missing_from_version('delete-by-query', '2.0')
-      expect {
+      expect do
         subject.types(:product).delete_all
-        Chewy.client.indices.refresh(index: 'products') }.to change { ProductsIndex::Product.total_entries }.from(3).to(0)
+        Chewy.client.indices.refresh(index: 'products')
+      end.to change { ProductsIndex::Product.total_entries }.from(3).to(0)
     end
     specify do
       skip_on_plugin_missing_from_version('delete-by-query', '2.0')
-      expect {
+      expect do
         ProductsIndex.delete_all
-        Chewy.client.indices.refresh(index: 'products') }.to change { ProductsIndex.total }.from(9).to(0)
+        Chewy.client.indices.refresh(index: 'products')
+      end.to change { ProductsIndex.total }.from(9).to(0)
     end
     specify do
       skip_on_plugin_missing_from_version('delete-by-query', '2.0')
-      expect {
+      expect do
         ProductsIndex::City.delete_all
-        Chewy.client.indices.refresh(index: 'products') }.to change { ProductsIndex.total }.from(9).to(6)
+        Chewy.client.indices.refresh(index: 'products')
+      end.to change { ProductsIndex.total }.from(9).to(6)
     end
 
     specify do
@@ -506,22 +517,26 @@ describe Chewy::Query do
     specify { expect(subject.filter(term: { field: 'hello' })).to be_a described_class }
     specify { expect(subject.filter(term: { field: 'hello' })).not_to eq(subject) }
     specify { expect { subject.filter(term: { field: 'hello' }) }.not_to change { subject.criteria.filters } }
-    specify { expect(subject.filter([{ term: { field: 'hello' } }, { term: { field: 'world' } }]).criteria.filters)
-      .to eq([{ term: { field: 'hello' } }, { term: { field: 'world' } }]) }
+    specify do
+      expect(subject.filter([{ term: { field: 'hello' } }, { term: { field: 'world' } }]).criteria.filters)
+      .to eq([{ term: { field: 'hello' } }, { term: { field: 'world' } }])
+    end
 
-    specify { expect { subject.filter{ name == 'John' } }.not_to change { subject.criteria.filters } }
-    specify { expect(subject.filter{ name == 'John' }.criteria.filters).to eq([{ term: { 'name' => 'John' } }]) }
+    specify { expect { subject.filter { name == 'John' } }.not_to change { subject.criteria.filters } }
+    specify { expect(subject.filter { name == 'John' }.criteria.filters).to eq([{ term: { 'name' => 'John' } }]) }
   end
 
   describe '#post_filter' do
     specify { expect(subject.post_filter(term: { field: 'hello' })).to be_a described_class }
     specify { expect(subject.post_filter(term: { field: 'hello' })).not_to eq(subject) }
     specify { expect { subject.post_filter(term: { field: 'hello' }) }.not_to change { subject.criteria.post_filters } }
-    specify { expect(subject.post_filter([{ term: { field: 'hello' } }, { term: { field: 'world' } }]).criteria.post_filters)
-      .to eq([{ term: { field: 'hello' } }, { term: { field: 'world' } }]) }
+    specify do
+      expect(subject.post_filter([{ term: { field: 'hello' } }, { term: { field: 'world' } }]).criteria.post_filters)
+      .to eq([{ term: { field: 'hello' } }, { term: { field: 'world' } }])
+    end
 
-    specify { expect { subject.post_filter{ name == 'John' } }.not_to change { subject.criteria.post_filters } }
-    specify { expect(subject.post_filter{ name == 'John' }.criteria.post_filters).to eq([{ term: { 'name' => 'John' } }]) }
+    specify { expect { subject.post_filter { name == 'John' } }.not_to change { subject.criteria.post_filters } }
+    specify { expect(subject.post_filter { name == 'John' }.criteria.post_filters).to eq([{ term: { 'name' => 'John' } }]) }
   end
 
   describe '#order' do
@@ -599,8 +614,10 @@ describe Chewy::Query do
   describe '#merge' do
     let(:query) { described_class.new(ProductsIndex) }
 
-    specify { expect(subject.filter { name == 'name' }.merge(query.filter { age == 42 }).criteria.filters)
-      .to eq([{ term: { 'name' => 'name' } }, { term: { 'age' => 42 } }]) }
+    specify do
+      expect(subject.filter { name == 'name' }.merge(query.filter { age == 42 }).criteria.filters)
+      .to eq([{ term: { 'name' => 'name' } }, { term: { 'age' => 42 } }])
+    end
   end
 
   describe '#to_a', :orm do
@@ -613,7 +630,7 @@ describe Chewy::Query do
           define_type :city do
             field :name
             field :rating, type: 'integer'
-            field :nested, type: 'object', value: ->{ { name: name } }
+            field :nested, type: 'object', value: -> { { name: name } }
           end
         end
       end
@@ -646,7 +663,7 @@ describe Chewy::Query do
             root _source: { enabled: false } do
               field :name
               field :rating, type: 'integer'
-              field :nested, type: 'object', value: ->{ { name: name } }
+              field :nested, type: 'object', value: -> { { name: name } }
             end
           end
         end

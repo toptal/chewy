@@ -31,11 +31,11 @@ module Chewy
 
         def extract_callback_options!(args)
           options = args.extract_options!
-          options.each_key.with_object({}) { |key, hash|
+          options.each_key.with_object({}) do |key, hash|
             hash[key] = options.delete(key) if [:if, :unless].include?(key)
-          }.tap {
+          end.tap do
             args.push(options) unless options.empty?
-          }
+          end
         end
       end
 

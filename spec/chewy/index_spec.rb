@@ -92,25 +92,25 @@ describe Chewy::Index do
       before { stub_class('City::District', City) }
 
       specify do
-        expect {
+        expect do
           Kernel.eval <<-DUMMY_CITY_INDEX
             class DummyCityIndex < Chewy::Index
               define_type City
               define_type City::District
             end
           DUMMY_CITY_INDEX
-        }.not_to raise_error
+        end.not_to raise_error
       end
 
       specify do
-        expect {
+        expect do
           Kernel.eval <<-DUMMY_CITY_INDEX
             class DummyCityIndex2 < Chewy::Index
               define_type City
               define_type City::Nothing
             end
           DUMMY_CITY_INDEX
-        }.to raise_error(NameError)
+        end.to raise_error(NameError)
       end
     end
 
@@ -163,14 +163,16 @@ describe Chewy::Index do
     let(:documents) { stub_index(:documents) { settings analysis: { analyzer: [:name, :phone, { sorted: { option: :baz } }] } } }
 
     specify { expect { documents.settings_hash }.to_not change(documents._settings, :inspect)  }
-    specify { expect(documents.settings_hash).to eq(settings: { analysis: {
-                                                      analyzer: { name: { filter: %w(lowercase icu_folding names_nysiis) },
-                                                                  phone: { tokenizer: 'ngram', char_filter: ['phone'] },
-                                                                  sorted: { option: :baz } },
-                                                      tokenizer: { ngram: { type: 'nGram', min_gram: 3, max_gram: 3 } },
-                                                      char_filter: { phone: { type: 'pattern_replace', pattern: '[^\d]', replacement: '' } },
-                                                      filter: { names_nysiis: { type: 'phonetic', encoder: 'nysiis', replace: false } }
-                                                    } }) }
+    specify do
+      expect(documents.settings_hash).to eq(settings: { analysis: {
+                                              analyzer: { name: { filter: %w(lowercase icu_folding names_nysiis) },
+                                                          phone: { tokenizer: 'ngram', char_filter: ['phone'] },
+                                                          sorted: { option: :baz } },
+                                              tokenizer: { ngram: { type: 'nGram', min_gram: 3, max_gram: 3 } },
+                                              char_filter: { phone: { type: 'pattern_replace', pattern: '[^\d]', replacement: '' } },
+                                              filter: { names_nysiis: { type: 'phonetic', encoder: 'nysiis', replace: false } }
+                                            } })
+    end
   end
 
   describe '.scopes' do
@@ -211,19 +213,23 @@ describe Chewy::Index do
   describe '.mappings_hash' do
     specify { expect(stub_index(:documents).mappings_hash).to eq({}) }
     specify { expect(stub_index(:documents) { define_type :document }.mappings_hash).to eq({}) }
-    specify { expect(stub_index(:documents) do
-      define_type :document do
-        field :name, type: 'string'
-      end
-    end.mappings_hash).to eq(mappings: { document: { properties: { name: { type: 'string' } } } }) }
-    specify { expect(stub_index(:documents) do
-      define_type :document do
-        field :name, type: 'string'
-      end
-      define_type :document2 do
-        field :name, type: 'string'
-      end
-    end.mappings_hash[:mappings].keys).to match_array([:document, :document2]) }
+    specify do
+      expect(stub_index(:documents) do
+               define_type :document do
+                 field :name, type: 'string'
+               end
+             end.mappings_hash).to eq(mappings: { document: { properties: { name: { type: 'string' } } } })
+    end
+    specify do
+      expect(stub_index(:documents) do
+               define_type :document do
+                 field :name, type: 'string'
+               end
+               define_type :document2 do
+                 field :name, type: 'string'
+               end
+             end.mappings_hash[:mappings].keys).to match_array([:document, :document2])
+    end
   end
 
   describe '.index_params' do
@@ -231,17 +237,21 @@ describe Chewy::Index do
 
     specify { expect(stub_index(:documents).index_params).to eq({}) }
     specify { expect(stub_index(:documents) { settings number_of_shards: 1 }.index_params.keys).to eq([:settings]) }
-    specify { expect(stub_index(:documents) do
-      define_type :document do
-        field :name, type: 'string'
-      end
-    end.index_params.keys).to eq([:mappings]) }
-    specify { expect(stub_index(:documents) do
-      settings number_of_shards: 1
-      define_type :document do
-        field :name, type: 'string'
-      end
-    end.index_params.keys).to match_array([:mappings, :settings]) }
+    specify do
+      expect(stub_index(:documents) do
+               define_type :document do
+                 field :name, type: 'string'
+               end
+             end.index_params.keys).to eq([:mappings])
+    end
+    specify do
+      expect(stub_index(:documents) do
+               settings number_of_shards: 1
+               define_type :document do
+                 field :name, type: 'string'
+               end
+             end.index_params.keys).to match_array([:mappings, :settings])
+    end
   end
 
   describe '.journal?' do

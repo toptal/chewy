@@ -15,7 +15,7 @@ describe Chewy::Type::Witchcraft do
 
   describe '#cauldron' do
     let(:type) { ProductsIndex::Product }
-    let(:object) { }
+    let(:object) {}
 
     context 'empty mapping' do
       mapping {}
@@ -79,14 +79,18 @@ describe Chewy::Type::Witchcraft do
           end
         end
 
-        let(:object) { double(queries: [
-          { title: 'Title1', body: 'Body1' },
-          { title: 'Title2', body: 'Body2' }
-        ]) }
-        specify { expect(type.cauldron.brew(object)).to eq({ queries: [
-          { title: 'Title1', body: 'This Body1' },
-          { title: 'Title2', body: 'This Body2' }
-        ] }.as_json) }
+        let(:object) do
+          double(queries: [
+            { title: 'Title1', body: 'Body1' },
+            { title: 'Title2', body: 'Body2' }
+          ])
+        end
+        specify do
+          expect(type.cauldron.brew(object)).to eq({ queries: [
+            { title: 'Title1', body: 'This Body1' },
+            { title: 'Title2', body: 'This Body2' }
+          ] }.as_json)
+        end
       end
 
       context do
@@ -97,14 +101,18 @@ describe Chewy::Type::Witchcraft do
           end
         end
 
-        let(:object) { double(queries: [
-          double(title: 'Title1', body: 'Body1'),
-          double(title: 'Title2', body: 'Body2')
-        ]) }
-        specify { expect(type.cauldron.brew(object)).to eq({ queries: [
-          { title: 'Title1', body: 'This Body1' },
-          { title: 'Title2', body: 'This Body2' }
-        ] }.as_json) }
+        let(:object) do
+          double(queries: [
+            double(title: 'Title1', body: 'Body1'),
+            double(title: 'Title2', body: 'Body2')
+          ])
+        end
+        specify do
+          expect(type.cauldron.brew(object)).to eq({ queries: [
+            { title: 'Title1', body: 'This Body1' },
+            { title: 'Title2', body: 'This Body2' }
+          ] }.as_json)
+        end
       end
 
       context do
@@ -115,14 +123,18 @@ describe Chewy::Type::Witchcraft do
           end
         end
 
-        let(:object) { double(queries: [
-          double(title: 'Title1', body: 'Body1'),
-          double(title: 'Title2', body: 'Body2')
-        ]) }
-        specify { expect(type.cauldron.brew(object)).to eq({ queries: [
-          { title: 'Title1', body: 'This Body1' },
-          { title: 'Title2', body: 'This Body2' }
-        ] }.as_json) }
+        let(:object) do
+          double(queries: [
+            double(title: 'Title1', body: 'Body1'),
+            double(title: 'Title2', body: 'Body2')
+          ])
+        end
+        specify do
+          expect(type.cauldron.brew(object)).to eq({ queries: [
+            { title: 'Title1', body: 'This Body1' },
+            { title: 'Title2', body: 'This Body2' }
+          ] }.as_json)
+        end
       end
 
       context do
@@ -137,17 +149,21 @@ describe Chewy::Type::Witchcraft do
           end
         end
 
-        let(:object) { double(queries: [
-          double(value: 'Value1', fields: [double(first: 'First1', second: 'Second1'), { first: 'First2' }]),
-          double(value: 'Value2', fields: double(first: 'First3', second: 'Second2', third: 'Third'))
-        ]) }
-        specify { expect(type.cauldron.brew(object, double(second: 'Crutch'))).to eq({ queries: [
-          { fields: [
-            { first: 'First1', second: 'Value1Second1' },
-            { first: 'First2', second: 'Value1Crutch' }
-          ] },
-          { fields: { first: 'First3', second: 'Value2Second2' } }
-        ] }.as_json) }
+        let(:object) do
+          double(queries: [
+            double(value: 'Value1', fields: [double(first: 'First1', second: 'Second1'), { first: 'First2' }]),
+            double(value: 'Value2', fields: double(first: 'First3', second: 'Second2', third: 'Third'))
+          ])
+        end
+        specify do
+          expect(type.cauldron.brew(object, double(second: 'Crutch'))).to eq({ queries: [
+            { fields: [
+              { first: 'First1', second: 'Value1Second1' },
+              { first: 'First2', second: 'Value1Crutch' }
+            ] },
+            { fields: { first: 'First3', second: 'Value2Second2' } }
+          ] }.as_json)
+        end
       end
     end
 

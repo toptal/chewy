@@ -113,7 +113,7 @@ describe Chewy do
 
   describe '.client' do
     let!(:initial_client) { Thread.current[:chewy_client] }
-    let(:faraday_block) { proc { } }
+    let(:faraday_block) { proc {} }
     let(:mock_client) { double(:client) }
     let(:expected_client_config) { { transport_options: {} } }
 

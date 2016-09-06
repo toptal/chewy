@@ -5,7 +5,7 @@ describe Chewy::Fields::Base do
   specify { expect(described_class.new('name', type: 'integer').options[:type]).to eq('integer') }
 
   describe '#compose' do
-    let(:field) { described_class.new(:name, value: ->(o){ o.value }) }
+    let(:field) { described_class.new(:name, value: ->(o) { o.value }) }
 
     specify { expect(field.compose(double(value: 'hello'))).to eq(name: 'hello') }
     specify { expect(field.compose(double(value: %w(hello world)))).to eq(name: %w(hello world)) }
@@ -18,24 +18,28 @@ describe Chewy::Fields::Base do
 
     context 'nested fields' do
       before do
-        field.children.push(described_class.new(:subname1, value: ->(o){ o.subvalue1 }))
-        field.children.push(described_class.new(:subname2, value: ->{ subvalue2 }))
+        field.children.push(described_class.new(:subname1, value: ->(o) { o.subvalue1 }))
+        field.children.push(described_class.new(:subname2, value: -> { subvalue2 }))
         field.children.push(described_class.new(:subname3))
       end
 
-      specify { expect(field.compose(double(value: double(subvalue1: 'hello', subvalue2: 'value', subname3: 'world'))))
-        .to eq(name: { subname1: 'hello', subname2: 'value', subname3: 'world' }) }
-      specify { expect(field.compose(double(value: [
-        double(subvalue1: 'hello1', subvalue2: 'value1', subname3: 'world1'),
-        double(subvalue1: 'hello2', subvalue2: 'value2', subname3: 'world2')
-      ]))).to eq(name: [
-        { subname1: 'hello1', subname2: 'value1', subname3: 'world1' },
-        { subname1: 'hello2', subname2: 'value2', subname3: 'world2' }
-      ]) }
+      specify do
+        expect(field.compose(double(value: double(subvalue1: 'hello', subvalue2: 'value', subname3: 'world'))))
+          .to eq(name: { subname1: 'hello', subname2: 'value', subname3: 'world' })
+      end
+      specify do
+        expect(field.compose(double(value: [
+          double(subvalue1: 'hello1', subvalue2: 'value1', subname3: 'world1'),
+          double(subvalue1: 'hello2', subvalue2: 'value2', subname3: 'world2')
+        ]))).to eq(name: [
+          { subname1: 'hello1', subname2: 'value1', subname3: 'world1' },
+          { subname1: 'hello2', subname2: 'value2', subname3: 'world2' }
+        ])
+      end
     end
 
     context 'parent objects' do
-      let!(:country) { described_class.new(:name, value: ->(country){ country.cities }) }
+      let!(:country) { described_class.new(:name, value: ->(country) { country.cities }) }
       let!(:city) { described_class.new(:name, value: ->(city, country) { city.districts.map { |district| [district, country.name] } }) }
       let!(:district) { described_class.new(:name, value: ->(district, city, country) { [district, city.name, country.name] }) }
 
@@ -44,14 +48,16 @@ describe Chewy::Fields::Base do
         city.children.push(district)
       end
 
-      specify { expect(country.compose(double(name: 'Thailand', cities: [
-        double(name: 'Bangkok', districts: %w(First Second))
-      ]))).to eq(name: [
-        { name: [
-          { name: [%w(First Thailand), 'Bangkok', 'Thailand'] },
-          { name: [%w(Second Thailand), 'Bangkok', 'Thailand'] }
-        ] }
-      ]) }
+      specify do
+        expect(country.compose(double(name: 'Thailand', cities: [
+          double(name: 'Bangkok', districts: %w(First Second))
+        ]))).to eq(name: [
+          { name: [
+            { name: [%w(First Thailand), 'Bangkok', 'Thailand'] },
+            { name: [%w(Second Thailand), 'Bangkok', 'Thailand'] }
+          ] }
+        ])
+      end
     end
 
     context 'implicit values' do
@@ -69,11 +75,11 @@ describe Chewy::Fields::Base do
       let(:object) { double(name: { key1: 'value1', key2: 'value2' }) }
 
       before do
-        field.children.push(described_class.new(:key1, value: ->(h){ h[:key1] }))
-        field.children.push(described_class.new(:key2, value: ->(h){ h[:key2] }))
+        field.children.push(described_class.new(:key1, value: ->(h) { h[:key1] }))
+        field.children.push(described_class.new(:key2, value: ->(h) { h[:key2] }))
       end
 
-      specify{ expect(field.compose(object)).to eq(name: { key1: 'value1', key2: 'value2' }) }
+      specify { expect(field.compose(object)).to eq(name: { key1: 'value1', key2: 'value2' }) }
     end
   end
 
@@ -86,21 +92,25 @@ describe Chewy::Fields::Base do
       fields2.each { |m| fields1[0].children.push(m) }
     end
 
-    specify { expect(field.mappings_hash).to eq(name: { type: :object, properties: {
-                                                  name1: { type: 'string1', fields: {
-                                                    name3: { type: 'string3' }, name4: { type: 'string4' }
-                                                  } }, name2: { type: 'string2' }
-                                                } }) }
+    specify do
+      expect(field.mappings_hash).to eq(name: { type: :object, properties: {
+                                          name1: { type: 'string1', fields: {
+                                            name3: { type: 'string3' }, name4: { type: 'string4' }
+                                          } }, name2: { type: 'string2' }
+                                        } })
+    end
 
     context do
       let(:field) { described_class.new(:name, type: :string) }
       let(:fields1) { Array.new(2) { |i| described_class.new("name#{i+1}") } }
 
-      specify { expect(field.mappings_hash).to eq(name: { type: :string, fields: {
-                                                    name1: { type: 'object', properties: {
-                                                      name3: { type: 'string3' }, name4: { type: 'string4' }
-                                                    } }, name2: { type: 'string' }
-                                                  } }) }
+      specify do
+        expect(field.mappings_hash).to eq(name: { type: :string, fields: {
+                                            name1: { type: 'object', properties: {
+                                              name3: { type: 'string3' }, name4: { type: 'string4' }
+                                            } }, name2: { type: 'string' }
+                                          } })
+      end
     end
   end
 
@@ -224,9 +234,9 @@ describe Chewy::Fields::Base do
         stub_index(:events) do
           define_type :event do
             field :id
-            field :category, value: ->{ categories } do
+            field :category, value: -> { categories } do
               field :id
-              field :licenses, value: ->{ license } do
+              field :licenses, value: -> { license } do
                 field :id
                 field :name
               end

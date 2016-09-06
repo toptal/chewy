@@ -17,7 +17,7 @@ describe :search_index_receiver do
   end
 
   def parse_request request
-    request.map {|r| r[:_id]}
+    request.map { |r| r[:_id] }
   end
 
   let(:receiver) do
@@ -27,11 +27,11 @@ describe :search_index_receiver do
   before do
     stub_index(:dummies) do
       define_type :fizz do
-        root value: ->(_o){{}}
+        root value: ->(_o) { {} }
       end
 
       define_type :buzz do
-        root value: ->(_o){{}}
+        root value: ->(_o) { {} }
       end
     end
   end
@@ -117,5 +117,4 @@ describe :search_index_receiver do
       expect(receiver.updated_indexes).to match_array([DummiesIndex::Fizz, DummiesIndex::Buzz])
     end
   end
-
 end

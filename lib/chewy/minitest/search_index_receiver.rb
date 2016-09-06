@@ -13,7 +13,7 @@ class SearchIndexReceiver
   # @param bulk_params the bulk_params that should be sent to the Chewy::Type#bulk method.
   # @param (Chewy::Type) type the Index::Type executing this query.
   def catch bulk_params, type
-    Array.wrap(bulk_params).map {|y| y[:body] }.flatten.each do |update|
+    Array.wrap(bulk_params).map { |y| y[:body] }.flatten.each do |update|
       if update[:delete]
         mutation_for(type).deletes << update[:delete][:_id]
       elsif update[:index]
@@ -53,7 +53,7 @@ class SearchIndexReceiver
   # @param Chewy::Type what type the object should be indexed as.
   # @return bool if the object was indexed.
   def indexed? obj, type
-    indexes_for(type).map {|i| i[:_id]}.include? obj.id
+    indexes_for(type).map { |i| i[:_id] }.include? obj.id
   end
 
   # Check to see if a given object has been deleted.

@@ -28,9 +28,11 @@ describe Chewy::Fields::Root do
     end
 
     context do
-      subject(:field) { described_class.new('product', dynamic_templates: [
-        { template_42: { mapping: {}, match: '' } }
-      ]) }
+      subject(:field) do
+        described_class.new('product', dynamic_templates: [
+          { template_42: { mapping: {}, match: '' } }
+        ])
+      end
 
       specify do
         field.dynamic_template 'hello', type: 'string'

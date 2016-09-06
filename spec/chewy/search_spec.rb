@@ -83,12 +83,12 @@ describe Chewy::Search do
     specify { expect(PlacesIndex.order(:name).by_rating(1).map(&:rating)).to eq([1, 1]) }
     specify { expect(PlacesIndex.order(:name).by_rating(1).map(&:class)).to match_array([PlacesIndex::City, PlacesIndex::Country]) }
 
-    specify { expect(PlacesIndex::City.by_rating {2}.map(&:rating)).to eq([2]) }
-    specify { expect(PlacesIndex::City.by_rating {2}.map(&:class)).to eq([PlacesIndex::City]) }
-    specify { expect(PlacesIndex::City.by_rating {2}.by_name(2).map(&:rating)).to eq([2]) }
-    specify { expect(PlacesIndex::City.by_rating {2}.by_name(2).map(&:class)).to eq([PlacesIndex::City]) }
-    specify { expect(PlacesIndex::City.order(:name).by_rating {2}.map(&:rating)).to eq([2]) }
-    specify { expect(PlacesIndex::City.order(:name).by_rating {2}.map(&:class)).to eq([PlacesIndex::City]) }
+    specify { expect(PlacesIndex::City.by_rating { 2 }.map(&:rating)).to eq([2]) }
+    specify { expect(PlacesIndex::City.by_rating { 2 }.map(&:class)).to eq([PlacesIndex::City]) }
+    specify { expect(PlacesIndex::City.by_rating { 2 }.by_name(2).map(&:rating)).to eq([2]) }
+    specify { expect(PlacesIndex::City.by_rating { 2 }.by_name(2).map(&:class)).to eq([PlacesIndex::City]) }
+    specify { expect(PlacesIndex::City.order(:name).by_rating { 2 }.map(&:rating)).to eq([2]) }
+    specify { expect(PlacesIndex::City.order(:name).by_rating { 2 }.map(&:class)).to eq([PlacesIndex::City]) }
 
     specify { expect(PlacesIndex::Country.by_rating(3).map(&:rating)).to eq([3]) }
     specify { expect(PlacesIndex::Country.by_rating(3).map(&:class)).to eq([PlacesIndex::Country]) }

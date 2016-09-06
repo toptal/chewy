@@ -32,5 +32,4 @@ describe Chewy::Query::Pagination do
       specify { expect(search.limit(5).load.total_count).to eq(10) }
     end
   end
-
 end

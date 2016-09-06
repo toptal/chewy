@@ -9,9 +9,9 @@ module Chewy
 
         def __render__
           if @options.key?(:cache)
-            {fquery: {query: @query, _cache: !!@options[:cache]}}
+            { fquery: { query: @query, _cache: !!@options[:cache] } }
           else
-            {query: @query}
+            { query: @query }
           end
         end
       end

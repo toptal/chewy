@@ -63,9 +63,9 @@ describe Chewy::Type::Import do
 
       city.import dummy_cities.map(&:id), batch_size: 2
       expect(imported.flatten).to match_array([
-        {index: {_id: 2, data: {'name' => 'name1'}}},
-        {index: {_id: 3, data: {'name' => 'name2'}}},
-        {delete: {_id: dummy_cities.first.id}}
+        { index: { _id: 2, data: { 'name' => 'name1' } } },
+        { index: { _id: 3, data: { 'name' => 'name2' } } },
+        { delete: { _id: dummy_cities.first.id } }
       ])
     end
 
@@ -82,8 +82,8 @@ describe Chewy::Type::Import do
 
         city.import dummy_cities.map(&:id), bulk_size: 1.2.kilobyte
         expect(imported.flatten).to match_array([
-          %Q({"delete":{"_id":1}}\n),
-          %Q({"index":{"_id":2}}\n{"name":"name1"}\n{"index":{"_id":3}}\n{"name":"name2"}\n)
+          %({"delete":{"_id":1}}\n),
+          %({"index":{"_id":2}}\n{"name":"name1"}\n{"index":{"_id":3}}\n{"name":"name2"}\n)
         ])
       end
 
@@ -98,9 +98,9 @@ describe Chewy::Type::Import do
 
           city.import dummy_cities.map(&:id), bulk_size: 1.2.kilobyte
           expect(imported.flatten).to match_array([
-            %Q({"delete":{"_id":1}}\n),
-            %Q({"index":{"_id":2}}\n{"name":"#{'name1' * 20}"}\n),
-            %Q({"index":{"_id":3}}\n{"name":"#{'name2' * 20}"}\n)
+            %({"delete":{"_id":1}}\n),
+            %({"index":{"_id":2}}\n{"name":"#{'name1' * 20}"}\n),
+            %({"index":{"_id":3}}\n{"name":"#{'name2' * 20}"}\n)
           ])
         end
 
@@ -162,7 +162,7 @@ describe Chewy::Type::Import do
 
         dummy_cities.first.destroy
         city.import dummy_cities
-        expect(outer_payload).to eq({type: CitiesIndex::City, import: {delete: 1, index: 2}})
+        expect(outer_payload).to eq(type: CitiesIndex::City, import: { delete: 1, index: 2 })
       end
 
       specify do
@@ -173,7 +173,7 @@ describe Chewy::Type::Import do
 
         dummy_cities.first.destroy
         city.import dummy_cities, batch_size: 2
-        expect(outer_payload).to eq({type: CitiesIndex::City, import: {delete: 1, index: 2}})
+        expect(outer_payload).to eq(type: CitiesIndex::City, import: { delete: 1, index: 2 })
       end
 
       specify do
@@ -183,7 +183,7 @@ describe Chewy::Type::Import do
         end
 
         city.import dummy_cities, batch_size: 2
-        expect(outer_payload).to eq({type: CitiesIndex::City, import: {index: 3}})
+        expect(outer_payload).to eq(type: CitiesIndex::City, import: { index: 3 })
       end
 
       context do
@@ -203,16 +203,14 @@ describe Chewy::Type::Import do
           end
 
           city.import dummy_cities, batch_size: 2
-          expect(outer_payload).to eq({
-            type: CitiesIndex::City,
+          expect(outer_payload).to eq(type: CitiesIndex::City,
             errors: {
               index: {
                 "WriteFailureException; nested: MapperParsingException[object mapping for [city] tried to parse field [name] as object, but got EOF, has a concrete value been provided to it?]; " => ["1"],
                 "MapperParsingException[object mapping for [city] tried to parse field [name] as object, but got EOF, has a concrete value been provided to it?]" => ["2", "3"]
               }
             },
-            import: {index: 3}
-          })
+            import: { index: 3 })
         end
 
         specify do
@@ -223,15 +221,13 @@ describe Chewy::Type::Import do
           end
 
           city.import dummy_cities, batch_size: 2
-          expect(outer_payload).to eq({
-            type: CitiesIndex::City,
+          expect(outer_payload).to eq(type: CitiesIndex::City,
             errors: {
               index: {
-                {"type"=>"mapper_parsing_exception", "reason"=>"object mapping for [name] tried to parse field [name] as object, but found a concrete value"} => ["1", "2", "3"]
+                { "type"=>"mapper_parsing_exception", "reason"=>"object mapping for [name] tried to parse field [name] as object, but found a concrete value" } => ["1", "2", "3"]
               }
             },
-            import: {index: 3}
-          })
+            import: { index: 3 })
         end
       end
     end
@@ -255,7 +251,7 @@ describe Chewy::Type::Import do
         before do
           stub_index(:cities) do
             define_type City do
-              field :name, type: 'object', value: ->{ name == 'name1' ? name : {name: name} }
+              field :name, type: 'object', value: ->{ name == 'name1' ? name : { name: name } }
             end
           end
         end

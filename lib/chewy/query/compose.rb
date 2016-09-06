@@ -23,7 +23,7 @@ module Chewy
         elsif query.present?
           { query: query }
         else
-          { }
+          {}
         end
       end
 

@@ -206,9 +206,9 @@ module Chewy
             end
           end.map do |action, action_items|
             errors = action_items.group_by { |item| item[:error] }.map do |error, error_items|
-              {error => error_items.map { |item| item[:id] }}
+              { error => error_items.map { |item| item[:id] } }
             end.reduce(&:merge)
-            {action => errors}
+            { action => errors }
           end.reduce(&:merge) || {}
         end
 
@@ -227,7 +227,7 @@ module Chewy
             break if result['hits']['hits'].empty?
 
             result['hits']['hits'].map do |hit|
-              parent = hit.has_key?('_parent') ? hit['_parent'] : hit['fields']['_parent']
+              parent = hit.key?('_parent') ? hit['_parent'] : hit['fields']['_parent']
               indexed_objects[hit['_id']] = { parent: parent }
             end
           end

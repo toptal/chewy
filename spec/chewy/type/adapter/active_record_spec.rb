@@ -72,38 +72,38 @@ describe Chewy::Type::Adapter::ActiveRecord, :active_record do
       let!(:deleted) { Array.new(4) { City.create!.tap(&:destroy) } }
       subject { described_class.new(City) }
 
-      specify { expect(import).to eq([{index: cities}]) }
+      specify { expect(import).to eq([{ index: cities }]) }
       specify { expect(import nil).to eq([]) }
 
-      specify { expect(import(City.order(:id))).to eq([{index: cities}]) }
+      specify { expect(import(City.order(:id))).to eq([{ index: cities }]) }
       specify { expect(import(City.order(:id), batch_size: 2))
-        .to eq([{index: cities.first(2)}, {index: cities.last(1)}]) }
+        .to eq([{ index: cities.first(2) }, { index: cities.last(1) }]) }
 
-      specify { expect(import(cities)).to eq([{index: cities}]) }
+      specify { expect(import(cities)).to eq([{ index: cities }]) }
       specify { expect(import(cities, batch_size: 2))
-          .to eq([{index: cities.first(2)}, {index: cities.last(1)}]) }
+          .to eq([{ index: cities.first(2) }, { index: cities.last(1) }]) }
       specify { expect(import(cities, deleted))
-        .to eq([{index: cities}, {delete: deleted}]) }
+        .to eq([{ index: cities }, { delete: deleted }]) }
       specify { expect(import(cities, deleted, batch_size: 2)).to eq([
-        {index: cities.first(2)},
-        {index: cities.last(1)},
-        {delete: deleted.first(2)},
-        {delete: deleted.last(2)}]) }
+        { index: cities.first(2) },
+        { index: cities.last(1) },
+        { delete: deleted.first(2) },
+        { delete: deleted.last(2) }]) }
 
-      specify { expect(import(cities.map(&:id))).to eq([{index: cities}]) }
-      specify { expect(import(deleted.map(&:id))).to eq([{delete: deleted.map(&:id)}]) }
+      specify { expect(import(cities.map(&:id))).to eq([{ index: cities }]) }
+      specify { expect(import(deleted.map(&:id))).to eq([{ delete: deleted.map(&:id) }]) }
       specify { expect(import(cities.map(&:id), batch_size: 2))
-        .to eq([{index: cities.first(2)}, {index: cities.last(1)}]) }
+        .to eq([{ index: cities.first(2) }, { index: cities.last(1) }]) }
       specify { expect(import(cities.map(&:id), deleted.map(&:id)))
-        .to eq([{index: cities}, {delete: deleted.map(&:id)}]) }
+        .to eq([{ index: cities }, { delete: deleted.map(&:id) }]) }
       specify { expect(import(cities.map(&:id), deleted.map(&:id), batch_size: 2)).to eq([
-        {index: cities.first(2)},
-        {index: cities.last(1)},
-        {delete: deleted.first(2).map(&:id)},
-        {delete: deleted.last(2).map(&:id)}]) }
+        { index: cities.first(2) },
+        { index: cities.last(1) },
+        { delete: deleted.first(2).map(&:id) },
+        { delete: deleted.last(2).map(&:id) }]) }
 
-      specify { expect(import(cities.first, nil)).to eq([{index: [cities.first]}]) }
-      specify { expect(import(cities.first.id, nil)).to eq([{index: [cities.first]}]) }
+      specify { expect(import(cities.first, nil)).to eq([{ index: [cities.first] }]) }
+      specify { expect(import(cities.first.id, nil)).to eq([{ index: [cities.first] }]) }
 
       context 'raw_import' do
         let(:probe) { double }
@@ -122,7 +122,7 @@ describe Chewy::Type::Adapter::ActiveRecord, :active_record do
           expect(probe).to receive(:call).with(a_hash_including('id' => @two.id, 'name' => @one.name)).and_return(warsaw)
           expect(probe).to receive(:call).with(a_hash_including('id' => @three.id, 'name' => @three.name)).and_return(madrid)
 
-          expect(import(City.where(nil), raw_import: converter)).to eq([{index: [moscow, warsaw, madrid]}])
+          expect(import(City.where(nil), raw_import: converter)).to eq([{ index: [moscow, warsaw, madrid] }])
         end
       end
     end
@@ -160,33 +160,33 @@ describe Chewy::Type::Adapter::ActiveRecord, :active_record do
       let!(:deleted) { Array.new(3) { |i| City.create! { |c| c.rating = i + 10 }.tap(&:destroy) } }
       subject { described_class.new(City) }
 
-      specify { expect(import).to eq([{index: cities}]) }
+      specify { expect(import).to eq([{ index: cities }]) }
 
-      specify { expect(import(City.order(:rating))).to eq([{index: cities}]) }
+      specify { expect(import(City.order(:rating))).to eq([{ index: cities }]) }
       specify { expect(import(City.order(:rating), batch_size: 2))
-        .to eq([{index: cities.first(2)}, {index: cities.last(1)}]) }
+        .to eq([{ index: cities.first(2) }, { index: cities.last(1) }]) }
 
-      specify { expect(import(cities)).to eq([{index: cities}]) }
+      specify { expect(import(cities)).to eq([{ index: cities }]) }
       specify { expect(import(cities, batch_size: 2))
-          .to eq([{index: cities.first(2)}, {index: cities.last(1)}]) }
+          .to eq([{ index: cities.first(2) }, { index: cities.last(1) }]) }
       specify { expect(import(cities, deleted))
-        .to eq([{index: cities}, {delete: deleted}]) }
+        .to eq([{ index: cities }, { delete: deleted }]) }
       specify { expect(import(cities, deleted, batch_size: 2)).to eq([
-        {index: cities.first(2)},
-        {index: cities.last(1)},
-        {delete: deleted.first(2)},
-        {delete: deleted.last(1)}]) }
+        { index: cities.first(2) },
+        { index: cities.last(1) },
+        { delete: deleted.first(2) },
+        { delete: deleted.last(1) }]) }
 
-      specify { expect(import(cities.map(&:id))).to eq([{index: cities}]) }
+      specify { expect(import(cities.map(&:id))).to eq([{ index: cities }]) }
       specify { expect(import(cities.map(&:id), batch_size: 2))
-        .to eq([{index: cities.first(2)}, {index: cities.last(1)}]) }
+        .to eq([{ index: cities.first(2) }, { index: cities.last(1) }]) }
       specify { expect(import(cities.map(&:id), deleted.map(&:id)))
-        .to eq([{index: cities}, {delete: deleted.map(&:id)}]) }
+        .to eq([{ index: cities }, { delete: deleted.map(&:id) }]) }
       specify { expect(import(cities.map(&:id), deleted.map(&:id), batch_size: 2)).to eq([
-        {index: cities.first(2)},
-        {index: cities.last(1)},
-        {delete: deleted.first(2).map(&:id)},
-        {delete: deleted.last(1).map(&:id)}]) }
+        { index: cities.first(2) },
+        { index: cities.last(1) },
+        { delete: deleted.first(2).map(&:id) },
+        { delete: deleted.last(1).map(&:id) }]) }
     end
 
     context 'default scope' do
@@ -194,41 +194,41 @@ describe Chewy::Type::Adapter::ActiveRecord, :active_record do
       let!(:deleted) { Array.new(3) { City.create!.tap(&:destroy) } }
       subject { described_class.new(City.where(rating: 0)) }
 
-      specify { expect(import).to eq([{index: cities.first(3)}]) }
+      specify { expect(import).to eq([{ index: cities.first(3) }]) }
 
       specify { expect(import(City.where('rating < 2')))
-        .to eq([{index: cities.first(3)}]) }
+        .to eq([{ index: cities.first(3) }]) }
       specify { expect(import(City.where('rating < 2'), batch_size: 2))
-        .to eq([{index: cities.first(2)}, {index: [cities[2]]}]) }
+        .to eq([{ index: cities.first(2) }, { index: [cities[2]] }]) }
       specify { expect(import(City.where('rating < 1')))
-        .to eq([{index: cities.first(3)}]) }
+        .to eq([{ index: cities.first(3) }]) }
       specify { expect(import(City.where('rating > 1'))).to eq([]) }
 
       specify { expect(import(cities.first(2)))
-        .to eq([{index: cities.first(2)}]) }
+        .to eq([{ index: cities.first(2) }]) }
       specify { expect(import(cities))
-        .to eq([{index: cities.first(3)}, {delete: cities.last(1)}]) }
+        .to eq([{ index: cities.first(3) }, { delete: cities.last(1) }]) }
       specify { expect(import(cities, batch_size: 2))
-        .to eq([{index: cities.first(2)}, {index: [cities[2]]}, {delete: cities.last(1)}]) }
+        .to eq([{ index: cities.first(2) }, { index: [cities[2]] }, { delete: cities.last(1) }]) }
       specify { expect(import(cities, deleted))
-        .to eq([{index: cities.first(3)}, {delete: cities.last(1) + deleted}]) }
+        .to eq([{ index: cities.first(3) }, { delete: cities.last(1) + deleted }]) }
       specify { expect(import(cities, deleted, batch_size: 3)).to eq([
-        {index: cities.first(3)},
-        {delete: cities.last(1) + deleted.first(2)},
-        {delete: deleted.last(1)}]) }
+        { index: cities.first(3) },
+        { delete: cities.last(1) + deleted.first(2) },
+        { delete: deleted.last(1) }]) }
 
       specify { expect(import(cities.first(2).map(&:id)))
-        .to eq([{index: cities.first(2)}]) }
+        .to eq([{ index: cities.first(2) }]) }
       specify { expect(import(cities.map(&:id)))
-        .to eq([{index: cities.first(3)}, {delete: [cities.last.id]}]) }
+        .to eq([{ index: cities.first(3) }, { delete: [cities.last.id] }]) }
       specify { expect(import(cities.map(&:id), batch_size: 2))
-        .to eq([{index: cities.first(2)}, {index: [cities[2]]}, {delete: [cities.last.id]}]) }
+        .to eq([{ index: cities.first(2) }, { index: [cities[2]] }, { delete: [cities.last.id] }]) }
       specify { expect(import(cities.map(&:id), deleted.map(&:id)))
-        .to eq([{index: cities.first(3)}, {delete: [cities.last.id] + deleted.map(&:id)}]) }
+        .to eq([{ index: cities.first(3) }, { delete: [cities.last.id] + deleted.map(&:id) }]) }
       specify { expect(import(cities.map(&:id), deleted.map(&:id), batch_size: 3)).to eq([
-        {index: cities.first(3)},
-        {delete: [cities.last.id] + deleted.first(2).map(&:id)},
-        {delete: deleted.last(1).map(&:id)}]) }
+        { index: cities.first(3) },
+        { delete: [cities.last.id] + deleted.first(2).map(&:id) },
+        { delete: deleted.last(1).map(&:id) }]) }
     end
 
     context 'error handling' do
@@ -301,12 +301,12 @@ describe Chewy::Type::Adapter::ActiveRecord, :active_record do
       specify { expect(subject.load(cities.map { |c| double(id: c.id) }, _type: type, scope: ->{ where(rating: 0) }))
         .to eq(cities.first(2) + [nil]) }
       specify { expect(subject.load(cities.map { |c| double(id: c.id) },
-        _type: type, scope: ->{ where(rating: 0) }, user: {scope: ->{ where(rating: 1)}}))
+        _type: type, scope: ->{ where(rating: 0) }, user: { scope: ->{ where(rating: 1)} }))
         .to eq([nil, nil] + cities.last(1)) }
       specify { expect(subject.load(cities.map { |c| double(id: c.id) }, _type: type, scope: City.where(rating: 1)))
         .to eq([nil, nil] + cities.last(1)) }
       specify { expect(subject.load(cities.map { |c| double(id: c.id) },
-        _type: type, scope: City.where(rating: 1), user: {scope: ->{ where(rating: 0)}}))
+        _type: type, scope: City.where(rating: 1), user: { scope: ->{ where(rating: 0)} }))
         .to eq(cities.first(2) + [nil]) }
     end
 
@@ -326,12 +326,12 @@ describe Chewy::Type::Adapter::ActiveRecord, :active_record do
       specify { expect(subject.load(cities.map { |c| double(id: c.id) }, _type: type, scope: ->{ where(country_id: 0) }))
         .to eq(cities.first(2) + [nil]) }
       specify { expect(subject.load(cities.map { |c| double(id: c.id) },
-        _type: type, scope: ->{ where(country_id: 0) }, user: {scope: ->{ where(country_id: 1)}}))
+        _type: type, scope: ->{ where(country_id: 0) }, user: { scope: ->{ where(country_id: 1)} }))
         .to eq([nil, nil] + cities.last(1)) }
       specify { expect(subject.load(cities.map { |c| double(id: c.id) }, _type: type, scope: City.where(country_id: 1)))
         .to eq([nil, nil] + cities.last(1)) }
       specify { expect(subject.load(cities.map { |c| double(id: c.id) },
-        _type: type, scope: City.where(country_id: 1), user: {scope: ->{ where(country_id: 0)}}))
+        _type: type, scope: City.where(country_id: 1), user: { scope: ->{ where(country_id: 0)} }))
         .to eq(cities.first(2) + [nil]) }
     end
   end

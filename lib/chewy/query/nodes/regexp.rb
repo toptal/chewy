@@ -14,15 +14,15 @@ module Chewy
 
         def __render__
           body = @options[:flags] ?
-            {value: @regexp, flags: @options[:flags].map(&:to_s).map(&:upcase).uniq.join('|')} :
+            { value: @regexp, flags: @options[:flags].map(&:to_s).map(&:upcase).uniq.join('|') } :
             @regexp
-          filter = {@name => body}
+          filter = { @name => body }
           if @options.key?(:cache)
             filter[:_cache] = !!@options[:cache]
             filter[:_cache_key] = @options[:cache].is_a?(TrueClass) || @options[:cache].is_a?(FalseClass) ?
               @regexp.underscore : @options[:cache]
           end
-          {regexp: filter}
+          { regexp: filter }
         end
       end
     end

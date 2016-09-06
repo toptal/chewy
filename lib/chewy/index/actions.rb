@@ -58,7 +58,7 @@ module Chewy
 
           if Chewy::Runtime.version >= 1.1
             body = index_params
-            body[:aliases] = {index_name => {}} if options[:alias] && name != index_name
+            body[:aliases] = { index_name => {} } if options[:alias] && name != index_name
             result = client.indices.create(index: name, body: body)
           else
             result = client.indices.create(index: name, body: index_params)
@@ -164,12 +164,12 @@ module Chewy
           if suffix.present? && (indexes = self.indexes).present?
             create! suffix, alias: false
             result = import suffix: suffix, journal: journal
-            client.indices.update_aliases body: {actions: [
+            client.indices.update_aliases body: { actions: [
               *indexes.map do |index|
-                {remove: {index: index, alias: index_name}}
+                { remove: { index: index, alias: index_name } }
               end,
-              {add: {index: build_index_name(suffix: suffix), alias: index_name}}
-            ]}
+              { add: { index: build_index_name(suffix: suffix), alias: index_name } }
+            ] }
             client.indices.delete index: indexes if indexes.present?
             result
           else

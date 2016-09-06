@@ -9,10 +9,10 @@ module Chewy
         end
 
         def __render__
-          script = {script: @script}
+          script = { script: @script }
           script[:params] = @params if @params.present?
           script[:_cache] = !!@options[:cache] if @options.key?(:cache)
-          {script: script}
+          { script: script }
         end
       end
     end

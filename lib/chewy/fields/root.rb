@@ -38,7 +38,7 @@ module Chewy
         options = args.extract_options!.deep_symbolize_keys
         if args.first
           template_name = :"template_#{dynamic_templates.count.next}"
-          template = {template_name => {mapping: options}}
+          template = { template_name => { mapping: options } }
 
           template[template_name][:match_mapping_type] = args.second.to_s if args.second.present?
 

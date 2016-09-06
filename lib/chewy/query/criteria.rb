@@ -83,7 +83,7 @@ module Chewy
       def update_sort(modifier, options = {})
         @sort = nil if options[:purge]
         modifier = Array.wrap(modifier).flatten.map do |element|
-          element.is_a?(Hash) ? element.map { |k, v| {k => v} } : element
+          element.is_a?(Hash) ? element.map { |k, v| { k => v } } : element
         end.flatten
         @sort = sort + modifier
       end

@@ -24,7 +24,7 @@ module Chewy
         } : {}
         mapping.reverse_merge!(options)
         mapping.reverse_merge!(type: (children.present? ? 'object' : 'string'))
-        {name => mapping}
+        { name => mapping }
       end
 
       def compose(object, *parent_objects)
@@ -39,7 +39,7 @@ module Chewy
             value.call(*objects.first(value.arity))
           end
         elsif object.is_a?(Hash)
-          if object.has_key?(name)
+          if object.key?(name)
             object[name]
           else
             object[name.to_s]
@@ -54,7 +54,7 @@ module Chewy
           compose_children(result, *objects)
         end if children.present? && !multi_field?
 
-        {name => result}
+        { name => result }
       end
 
     private

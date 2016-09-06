@@ -116,10 +116,10 @@ describe Chewy::Query::Filters do
   end
 
   context 'raw' do
-    let(:raw_query) { {term: {name: 'name'}} }
-    specify { expect(query { r(term: {name: 'name'}) }).to be_eql Raw(term: {name: 'name'}) }
-    specify { expect(query { r{ {term: {name: 'name'}} } }).to be_eql Raw(term: {name: 'name'}) }
-    specify { expect(query { r{ raw_query } }).to be_eql Raw(term: {name: 'name'}) }
+    let(:raw_query) { { term: { name: 'name' } } }
+    specify { expect(query { r(term: { name: 'name' }) }).to be_eql Raw(term: { name: 'name' }) }
+    specify { expect(query { r{ { term: { name: 'name' } } } }).to be_eql Raw(term: { name: 'name' }) }
+    specify { expect(query { r{ raw_query } }).to be_eql Raw(term: { name: 'name' }) }
   end
 
   context 'script' do

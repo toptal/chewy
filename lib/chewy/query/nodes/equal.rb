@@ -23,10 +23,10 @@ module Chewy
 
         def __render__
           filter = (@value.is_a?(Array) ? :terms : :term)
-          body = {@name => @value}
+          body = { @name => @value }
           body.merge!(@options.slice(:execution)) if filter == :terms
           body[:_cache] = !!@options[:cache] if @options.key?(:cache)
-          {filter => body}
+          { filter => body }
         end
       end
     end

@@ -34,8 +34,8 @@ describe Chewy::Type::Mapping do
   end
 
   describe '.agg' do
-    specify { expect(product._agg_defs[:named_agg].call).to eq({ avg: { field: 'title.subfield1' } }) }
-    specify { expect(review._agg_defs[:named_agg].call).to eq({ avg: { field: 'comments.rating' } }) }
+    specify { expect(product._agg_defs[:named_agg].call).to eq(avg: { field: 'title.subfield1' }) }
+    specify { expect(review._agg_defs[:named_agg].call).to eq(avg: { field: 'comments.rating' }) }
   end
 
   describe '.field' do
@@ -68,21 +68,21 @@ describe Chewy::Type::Mapping do
           end
         end
 
-        specify { expect(product.mappings_hash[:product][:_parent]).to eq({ type: 'project' }) }
+        specify { expect(product.mappings_hash[:product][:_parent]).to eq(type: 'project') }
       end
 
       context do
         before do
           stub_index(:products) do
             define_type :product do
-              root parent: {'type' => 'project'}, parent_id: -> { project_id } do
+              root parent: { 'type' => 'project' }, parent_id: -> { project_id } do
                 field :name, 'surname'
               end
             end
           end
         end
 
-        specify { expect(product.mappings_hash[:product][:_parent]).to eq({ type: 'project' }) }
+        specify { expect(product.mappings_hash[:product][:_parent]).to eq(type: 'project') }
       end
     end
   end

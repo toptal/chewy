@@ -66,7 +66,7 @@ describe Chewy::Type::Witchcraft do
       context do
         let(:object) { double(attributes) }
         let(:crutches) { double(names: ['Other']) }
-        specify { expect(type.cauldron.brew(object, crutches)).to eq({name: 'Other'}.as_json) }
+        specify { expect(type.cauldron.brew(object, crutches)).to eq({ name: 'Other' }.as_json) }
       end
     end
 
@@ -80,12 +80,12 @@ describe Chewy::Type::Witchcraft do
         end
 
         let(:object) { double(queries: [
-          {title: 'Title1', body: 'Body1'},
-          {title: 'Title2', body: 'Body2'}
+          { title: 'Title1', body: 'Body1' },
+          { title: 'Title2', body: 'Body2' }
         ]) }
         specify { expect(type.cauldron.brew(object)).to eq({ queries: [
-          {title: 'Title1', body: 'This Body1'},
-          {title: 'Title2', body: 'This Body2'}
+          { title: 'Title1', body: 'This Body1' },
+          { title: 'Title2', body: 'This Body2' }
         ] }.as_json) }
       end
 
@@ -102,8 +102,8 @@ describe Chewy::Type::Witchcraft do
           double(title: 'Title2', body: 'Body2')
         ]) }
         specify { expect(type.cauldron.brew(object)).to eq({ queries: [
-          {title: 'Title1', body: 'This Body1'},
-          {title: 'Title2', body: 'This Body2'}
+          { title: 'Title1', body: 'This Body1' },
+          { title: 'Title2', body: 'This Body2' }
         ] }.as_json) }
       end
 
@@ -120,8 +120,8 @@ describe Chewy::Type::Witchcraft do
           double(title: 'Title2', body: 'Body2')
         ]) }
         specify { expect(type.cauldron.brew(object)).to eq({ queries: [
-          {title: 'Title1', body: 'This Body1'},
-          {title: 'Title2', body: 'This Body2'}
+          { title: 'Title1', body: 'This Body1' },
+          { title: 'Title2', body: 'This Body2' }
         ] }.as_json) }
       end
 
@@ -138,16 +138,16 @@ describe Chewy::Type::Witchcraft do
         end
 
         let(:object) { double(queries: [
-          double(value: 'Value1', fields: [double(first: 'First1', second: 'Second1'), {first: 'First2'}]),
+          double(value: 'Value1', fields: [double(first: 'First1', second: 'Second1'), { first: 'First2' }]),
           double(value: 'Value2', fields: double(first: 'First3', second: 'Second2', third: 'Third'))
         ]) }
-        specify { expect(type.cauldron.brew(object, double(second: 'Crutch'))).to eq({queries: [
-          {fields: [
-            {first: 'First1', second: 'Value1Second1'},
-            {first: 'First2', second: 'Value1Crutch'}
-          ]},
-          {fields: {first: 'First3', second: 'Value2Second2'}}
-        ]}.as_json) }
+        specify { expect(type.cauldron.brew(object, double(second: 'Crutch'))).to eq({ queries: [
+          { fields: [
+            { first: 'First1', second: 'Value1Second1' },
+            { first: 'First2', second: 'Value1Crutch' }
+          ] },
+          { fields: { first: 'First3', second: 'Value2Second2' } }
+        ] }.as_json) }
       end
     end
 

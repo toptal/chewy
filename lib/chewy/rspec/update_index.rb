@@ -23,8 +23,8 @@ require 'i18n/core_ext/hash'
 RSpec::Matchers.define :update_index do |type_name, options = {}|
 
   if !respond_to?(:failure_message) && respond_to?(:failure_message_for_should)
-    alias :failure_message :failure_message_for_should
-    alias :failure_message_when_negated :failure_message_for_should_not
+    alias_method :failure_message, :failure_message_for_should
+    alias_method :failure_message_when_negated, :failure_message_for_should_not
   end
 
   # Specify indexed records by passing record itself or id.

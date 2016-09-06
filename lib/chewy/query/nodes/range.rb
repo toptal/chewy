@@ -3,10 +3,10 @@ module Chewy
     module Nodes
       class Range < Expr
         EXECUTION = {
-          :i => :index,
-          :index => :index,
-          :f => :fielddata,
-          :fielddata => :fielddata,
+          i: :index,
+          index: :index,
+          f: :fielddata,
+          fielddata: :fielddata,
         }
 
         def initialize name, *args
@@ -51,11 +51,11 @@ module Chewy
           body[@bounds[:left_closed] ? :gte : :gt] = @range[:gt] if @range.key?(:gt)
           body[@bounds[:right_closed] ? :lte : :lt] = @range[:lt] if @range.key?(:lt)
 
-          filter = {@name => body}
+          filter = { @name => body }
           filter[:_cache] = !!@options[:cache] if @options.key?(:cache)
           filter.merge!(@options.slice(:execution))
 
-          {range: filter}
+          { range: filter }
         end
       end
     end

@@ -5,7 +5,7 @@ describe :search_index_receiver do
   def search_request item_count = 2, verb: :index
     items = Array.new(item_count) do |i|
       {
-        verb => {_id: i + 1, data: {}}
+        verb => { _id: i + 1, data: {} }
       }
     end
 

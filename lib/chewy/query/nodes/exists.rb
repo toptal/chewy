@@ -12,7 +12,7 @@ module Chewy
         end
 
         def __render__
-          {exists: {field: @name}}
+          { exists: { field: @name } }
         end
       end
     end

@@ -69,7 +69,7 @@ class SearchIndexReceiver
     @mutations.keys
   end
 
-  private
+private
   # Get the mutation object for a given type.
   # @param (Chewy::Type) type the index type to fetch.
   # @return (#indexes, #deletes) an object with a list of indexes and a list of deletes.

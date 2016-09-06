@@ -3,7 +3,7 @@ module Chewy
     module Nodes
       class MatchAll < Expr
         def __render__
-          {match_all: {}}
+          { match_all: {} }
         end
       end
     end

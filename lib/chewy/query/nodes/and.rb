@@ -14,9 +14,9 @@ module Chewy
         def __render__
           nodes = @nodes.map(&:__render__)
           if @options.key?(:cache)
-            {and: {filters: nodes, _cache: !!@options[:cache]}}
+            { and: { filters: nodes, _cache: !!@options[:cache] } }
           else
-            {and: nodes}
+            { and: nodes }
           end
         end
       end

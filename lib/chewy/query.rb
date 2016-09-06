@@ -40,11 +40,7 @@ module Chewy
     #   UsersIndex.filter(term: {name: 'Johny'}) == UsersIndex.filter(term: {name: 'Winnie'}) # => false
     #
     def == other
-      super || if other.is_a?(self.class)
-        other.criteria == criteria
-      else
-        to_a == other
-      end
+      super || other.is_a?(self.class) ? other.criteria == criteria : other == to_a
     end
 
     # Adds <tt>explain</tt> parameter to search request.
@@ -1013,7 +1009,8 @@ module Chewy
     def _request
       @_request ||= begin
         request = criteria.request_body
-        request.merge!(index: _indexes.map(&:index_name), type: _types.map(&:type_name))
+        request[:index] = _indexes.map(&:index_name)
+        request[:type] = _types.map(&:type_name)
         request
       end
     end

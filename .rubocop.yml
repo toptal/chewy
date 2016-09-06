@@ -1,0 +1,34 @@
+inherit_from: .rubocop_todo.yml
+
+Lint/EndAlignment:
+  AlignWith: variable
+
+Style/AccessModifierIndentation:
+  EnforcedStyle: outdent
+
+Style/Alias:
+  EnforcedStyle: prefer_alias_method
+
+Style/AlignHash:
+  EnforcedLastArgumentHashStyle: always_ignore
+
+Style/AlignParameters:
+  EnforcedStyle: with_fixed_indentation
+
+Style/AndOr:
+  EnforcedStyle: conditionals
+
+Style/CaseIndentation:
+  IndentWhenRelativeTo: end
+
+Style/DoubleNegation:
+  Enabled: false
+
+Style/IndentArray:
+  EnforcedStyle: consistent
+
+Style/MultilineMethodCallIndentation:
+  EnforcedStyle: indented
+
+Style/MultilineOperationIndentation:
+  EnforcedStyle: indented

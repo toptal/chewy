@@ -20,9 +20,9 @@ describe Chewy::Query do
   end
 
   context 'integration' do
-    let(:products) { 3.times.map { |i| {id: i.next.to_s, name: "Name#{i.next}", age: 10 * i.next}.stringify_keys! } }
-    let(:cities) { 3.times.map { |i| {id: i.next.to_s}.stringify_keys! } }
-    let(:countries) { 3.times.map { |i| {id: i.next.to_s}.stringify_keys! } }
+    let(:products) { Array.new(3) { |i| {id: i.next.to_s, name: "Name#{i.next}", age: 10 * i.next}.stringify_keys! } }
+    let(:cities) { Array.new(3) { |i| {id: i.next.to_s}.stringify_keys! } }
+    let(:countries) { Array.new(3) { |i| {id: i.next.to_s}.stringify_keys! } }
     before do
       ProductsIndex::Product.import!(products.map { |h| double(h) })
       ProductsIndex::City.import!(cities.map { |h| double(h) })
@@ -46,7 +46,7 @@ describe Chewy::Query do
   end
 
   describe '#==' do
-    let(:data) { 3.times.map { |i| {id: i.next.to_s, name: "Name#{i.next}", age: 10 * i.next}.stringify_keys! } }
+    let(:data) { Array.new(3) { |i| {id: i.next.to_s, name: "Name#{i.next}", age: 10 * i.next}.stringify_keys! } }
     before { ProductsIndex::Product.import!(data.map { |h| double(h) }) }
 
     specify { expect(subject.query(match: 'hello')).to eq(subject.query(match: 'hello')) }
@@ -210,7 +210,7 @@ describe Chewy::Query do
 
     context 'results', :orm do
       before { stub_model(:city) }
-      let(:cities) { 10.times.map { |i| City.create! id: i + 1, name: "name#{i}", rating: i % 3 } }
+      let(:cities) { Array.new(10) { |i| City.create! id: i + 1, name: "name#{i}", rating: i % 3 } }
 
       before do
         stub_index(:cities) do
@@ -319,7 +319,7 @@ describe Chewy::Query do
 
     context 'results', :orm do
       before { stub_model(:city) }
-      let(:cities) { 10.times.map { |i| City.create! id: i + 1, name: "name#{i}", rating: i % 3 } }
+      let(:cities) { Array.new(10) { |i| City.create! id: i + 1, name: "name#{i}", rating: i % 3 } }
 
       context do
         before do
@@ -351,7 +351,7 @@ describe Chewy::Query do
 
     context 'results', :orm do
       before { stub_model(:city) }
-      let(:cities) { 10.times.map { |i| City.create! id: i + 1, name: "name#{i}" } }
+      let(:cities) { Array.new(10) { |i| City.create! id: i + 1, name: "name#{i}" } }
 
       context do
         before do
@@ -382,9 +382,9 @@ describe Chewy::Query do
   end
 
   describe '#delete_all' do
-    let(:products) { 3.times.map { |i| {id: i.next.to_s, name: "Name#{i.next}", age: 10 * i.next}.stringify_keys! } }
-    let(:cities) { 3.times.map { |i| {id: i.next.to_s}.stringify_keys! } }
-    let(:countries) { 3.times.map { |i| {id: i.next.to_s}.stringify_keys! } }
+    let(:products) { Array.new(3) { |i| {id: i.next.to_s, name: "Name#{i.next}", age: 10 * i.next}.stringify_keys! } }
+    let(:cities) { Array.new(3) { |i| {id: i.next.to_s}.stringify_keys! } }
+    let(:countries) { Array.new(3) { |i| {id: i.next.to_s}.stringify_keys! } }
 
     before do
       ProductsIndex::Product.import!(products.map { |h| double(h) })
@@ -431,9 +431,9 @@ describe Chewy::Query do
   end
 
   describe '#find' do
-    let(:products) { 3.times.map { |i| {id: i.next.to_s, name: "Name#{i.next}", age: 10 * i.next}.stringify_keys! } }
-    let(:cities) { 1.times.map { |i| {id: '4'}.stringify_keys! } }
-    let(:countries) { 1.times.map { |i| {id: '4'}.stringify_keys! } }
+    let(:products) { Array.new(3) { |i| {id: i.next.to_s, name: "Name#{i.next}", age: 10 * i.next}.stringify_keys! } }
+    let(:cities) { Array.new(1) { {id: '4'}.stringify_keys! } }
+    let(:countries) { Array.new(1) { {id: '4'}.stringify_keys! } }
 
     before do
       ProductsIndex::Product.import!(products.map { |h| double(h) })
@@ -456,7 +456,7 @@ describe Chewy::Query do
   end
 
   describe '#exists?' do
-    let(:data) { 10.times.map { |i| {id: i.next.to_s, name: "Name#{i.next}", age: 10 * i.next} } }
+    let(:data) { Array.new(10) { |i| {id: i.next.to_s, name: "Name#{i.next}", age: 10 * i.next} } }
 
     before { ProductsIndex::Product.import!(data.map { |h| double(h) }) }
 
@@ -468,7 +468,7 @@ describe Chewy::Query do
 
   describe '#unlimited' do
     let(:data_length) { 10 }
-    let(:data) { data_length.times.map { |i| {id: i.next.to_s, name: "Name#{i.next}", age: 10 * i.next} } }
+    let(:data) { Array.new(data_length) { |i| {id: i.next.to_s, name: "Name#{i.next}", age: 10 * i.next} } }
 
     before { ProductsIndex::Product.import!(data.map { |h| double(h) }) }
 
@@ -609,7 +609,7 @@ describe Chewy::Query do
 
   describe '#to_a', :orm do
     before { stub_model(:city) }
-    let(:cities) { 3.times.map { |i| City.create! id: i + 1, name: "name#{i}", rating: i } }
+    let(:cities) { Array.new(3) { |i| City.create! id: i + 1, name: "name#{i}", rating: i } }
 
     context do
       before do

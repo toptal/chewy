@@ -114,13 +114,13 @@ module Chewy
         if options[:simple]
           { body: body.presence || { query: { match_all: {} } } }
         else
-          body.merge!(post_filter: _request_post_filter) if post_filters?
-          body.merge!(facets: facets) if facets?
-          body.merge!(aggregations: aggregations) if aggregations?
-          body.merge!(suggest: suggest) if suggest?
-          body.merge!(sort: sort) if sort?
-          body.merge!(_source: fields) if fields?
-          body.merge!(script_fields: script_fields) if script_fields?
+          body[:post_filter] = _request_post_filter if post_filters?
+          body[:facets] = facets if facets?
+          body[:aggregations] = aggregations if aggregations?
+          body[:suggest] = suggest if suggest?
+          body[:sort] = sort if sort?
+          body[:_source] = fields if fields?
+          body[:script_fields] = script_fields if script_fields?
 
           body = _boost_query(body)
 

@@ -83,7 +83,7 @@ RSpec::Matchers.define :update_index do |type_name, options = {}|
   #   specify { expect { [user1, user2].map(&:save!) }
   #     .to update_index(UsersIndex.user).and_reindex(user1).only }
   #
-  chain(:only) do |*args|
+  chain(:only) do |*_args|
     if @reindex.blank? && @delete.blank?
       raise 'Use `only` in conjunction with `and_reindex` or `and_delete`'
     end
@@ -102,10 +102,9 @@ RSpec::Matchers.define :update_index do |type_name, options = {}|
     @missed_delete = []
     @updated = []
 
-    type = Chewy.derive_type(type_name)
-
     instance_eval <<-RUBY, __FILE__, __LINE__ + 1
-       #{agnostic_stub} do |bulk_options|
+      type = Chewy.derive_type(type_name)
+      #{agnostic_stub} do |bulk_options|
         @updated += bulk_options[:body].map do |updated_document|
           updated_document.deep_symbolize_keys
         end
@@ -117,15 +116,15 @@ RSpec::Matchers.define :update_index do |type_name, options = {}|
     Chewy.strategy(options[:strategy] || :atomic) { block.call }
 
     @updated.each do |updated_document|
-      if body = updated_document[:index]
-        if document = @reindex[body[:_id].to_s]
+      if (body = updated_document[:index])
+        if (document = @reindex[body[:_id].to_s])
           document[:real_count] += 1
           document[:real_attributes].merge!(body[:data])
         else
           @missed_reindex.push(body[:_id].to_s) if @only
         end
-      elsif body = updated_document[:delete]
-        if document = @delete[body[:_id].to_s]
+      elsif (body = updated_document[:delete])
+        if (document = @delete[body[:_id].to_s])
           document[:real_count] += 1
         else
           @missed_delete.push(body[:_id].to_s) if @only
@@ -170,28 +169,28 @@ RSpec::Matchers.define :update_index do |type_name, options = {}|
       output << message
     end
 
-    output << @reindex.each.with_object('') do |(id, document), output|
+    output << @reindex.each.with_object('') do |(id, document), result|
       unless document[:match_count] && document[:match_attributes]
-        output << "Expected document with id `#{id}` to be reindexed"
+        result << "Expected document with id `#{id}` to be reindexed"
         if document[:real_count] > 0
-          output << "\n   #{document[:expected_count]} times, but was reindexed #{document[:real_count]} times" if document[:expected_count] && !document[:match_count]
-          output << "\n   with #{document[:expected_attributes]}, but it was reindexed with #{document[:real_attributes]}" if document[:expected_attributes].present? && !document[:match_attributes]
+          result << "\n   #{document[:expected_count]} times, but was reindexed #{document[:real_count]} times" if document[:expected_count] && !document[:match_count]
+          result << "\n   with #{document[:expected_attributes]}, but it was reindexed with #{document[:real_attributes]}" if document[:expected_attributes].present? && !document[:match_attributes]
         else
-          output << ", but it was not"
+          result << ", but it was not"
         end
-        output << "\n"
+        result << "\n"
       end
     end
 
-    output << @delete.each.with_object('') do |(id, document), output|
+    output << @delete.each.with_object('') do |(id, document), result|
       unless document[:match_count]
-        output << "Expected document with id `#{id}` to be deleted"
-        if document[:real_count] > 0 && document[:expected_count] && !document[:match_count]
-          output << "\n   #{document[:expected_count]} times, but was deleted #{document[:real_count]} times"
-        else
-          output << ", but it was not"
-        end
-        output << "\n"
+        result << "Expected document with id `#{id}` to be deleted"
+        result << if document[:real_count] > 0 && document[:expected_count]
+                    "\n   #{document[:expected_count]} times, but was deleted #{document[:real_count]} times"
+                  else
+                    ", but it was not"
+                  end
+        result << "\n"
       end
     end
 
@@ -250,9 +249,8 @@ RSpec::Matchers.define :update_index do |type_name, options = {}|
   def array_difference first, second
     difference = first.to_ary.dup
     second.to_ary.each do |element|
-      if index = difference.index(element)
-        difference.delete_at(index)
-      end
+      index = difference.index(element)
+      difference.delete_at(index) if index
     end
     difference.none?
   end

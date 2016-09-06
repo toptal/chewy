@@ -109,7 +109,7 @@ module Chewy
     #
     def self.types *args
       if args.present?
-        all.types *args
+        all.types(*args)
       else
         type_hash.values
       end
@@ -163,8 +163,6 @@ module Chewy
     def self.journal?
       types.any?(&:journal?)
     end
-
-  private
 
     def self.build_index_name *args
       options = args.extract_options!

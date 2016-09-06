@@ -1,9 +1,10 @@
-def try_require lib
-  require lib
+begin
+  require 'method_source'
+  require 'parser/current'
+  require 'unparser'
 rescue LoadError
+  nil
 end
-
-%w[method_source parser/current unparser].each { |lib| try_require lib }
 
 module Chewy
   class Type
@@ -97,15 +98,15 @@ module Chewy
             <<-RUBY
               (if #{object}.is_a?(Hash)
                 {
-                  #{non_proc_fields.map do |field|
-                    fetcher = "#{object}.has_key?(:#{field.name}) ? #{object}[:#{field.name}] : #{object}['#{field.name}']"
-                    "#{field.name}: #{composed_value(field, fetcher, nesting)}"
+                  #{non_proc_fields.map do |f|
+                    fetcher = "#{object}.has_key?(:#{f.name}) ? #{object}[:#{f.name}] : #{object}['#{f.name}']"
+                    "#{f.name}: #{composed_value(f, fetcher, nesting)}"
                   end.join(', ')}
                 }
               else
                 {
-                  #{non_proc_fields.map do |field|
-                    "#{field.name}: #{composed_value(field, "#{object}.#{field.name}", nesting)}"
+                  #{non_proc_fields.map do |f|
+                    "#{f.name}: #{composed_value(f, "#{object}.#{f.name}", nesting)}"
                   end.join(', ')}
                 }
               end)
@@ -121,8 +122,8 @@ module Chewy
           if proc_fields.present?
             <<-RUBY
               {
-                #{proc_fields.map do |field|
-                  "#{field.name}: (#{composed_value(field, source_for(field.value, nesting), nesting)})"
+                #{proc_fields.map do |f|
+                  "#{f.name}: (#{composed_value(f, source_for(f.value, nesting), nesting)})"
                 end.join(', ')}
               }
             RUBY

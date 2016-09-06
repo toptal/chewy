@@ -86,5 +86,6 @@ class BigDecimal
     end
   rescue TypeError
     # can't dup, so use superclass implementation
+    nil
   end
 end

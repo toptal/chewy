@@ -96,8 +96,8 @@ module Chewy
           next if only.present? && !only.include?(type.type_name)
 
           loaded = type.adapter.load(objects, options.merge(_type: type))
-          [type, loaded.index_by.with_index do |loaded, i|
-            objects[i]._object = loaded
+          [type, loaded.index_by.with_index do |loaded_object, i|
+            objects[i]._object = loaded_object
             objects[i]
           end]
         end.compact]

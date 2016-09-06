@@ -18,7 +18,7 @@ module Chewy
               filter: filter
             } } }
           end
-          filtered[:query][:filtered].merge!(strategy: options[:strategy].to_s) if options[:strategy].present?
+          filtered[:query][:filtered][:strategy] = options[:strategy].to_s if options[:strategy].present?
           filtered
         elsif query.present?
           { query: query }

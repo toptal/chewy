@@ -12,7 +12,7 @@ module Chewy
         @id = @options.delete(:id) || options.delete(:_id)
         @parent = @options.delete(:parent) || options.delete(:_parent)
         @parent_id = @options.delete(:parent_id)
-        @value ||= ->(_) { _ }
+        @value ||= ->(val) { val }
         @dynamic_templates = []
         @options.delete(:type)
       end

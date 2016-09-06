@@ -15,7 +15,7 @@ describe Chewy::Type::Actions, :orm do
     end
   end
 
-  let!(:dummy_cities) { 3.times.map { |i| City.create(name: "name#{i}") } }
+  let!(:dummy_cities) { Array.new(3) { |i| City.create(name: "name#{i}") } }
   let(:city) { CitiesIndex::City }
 
   before do

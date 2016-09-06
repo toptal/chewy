@@ -38,6 +38,7 @@ begin
   require 'kaminari'
   require 'chewy/query/pagination/kaminari'
 rescue LoadError
+  nil
 end
 
 begin
@@ -45,6 +46,7 @@ begin
   require 'will_paginate/collection'
   require 'chewy/query/pagination/will_paginate'
 rescue LoadError
+  nil
 end
 
 ActiveSupport.on_load(:active_record) do
@@ -53,6 +55,7 @@ ActiveSupport.on_load(:active_record) do
   begin
     require 'will_paginate/active_record'
   rescue LoadError
+    nil
   end
 end
 
@@ -65,6 +68,7 @@ ActiveSupport.on_load(:mongoid) do
     require 'will_paginate/mongoid'
     require 'chewy/query/pagination/will_paginate'
   rescue LoadError
+    nil
   end
 end
 
@@ -97,7 +101,7 @@ module Chewy
       class_name = "#{index_name.camelize}Index"
       index = class_name.safe_constantize
       raise Chewy::UnderivableType.new("Can not find index named `#{class_name}`") unless index && index < Chewy::Index
-      type = if type_name.present?
+      if type_name.present?
         index.type_hash[type_name] or raise Chewy::UnderivableType.new("Index `#{class_name}` doesn`t have type named `#{type_name}`")
       elsif index.types.one?
         index.types.first
@@ -111,13 +115,13 @@ module Chewy
     def create_type index, target, options = {}, &block
       type = Class.new(Chewy::Type)
 
-      adapter = adapters.find { |adapter| adapter.accepts?(target) }.new(target, options)
+      adapter = adapters.find { |klass| klass.accepts?(target) }.new(target, options)
 
       index.const_set(adapter.name, type)
       type.send(:define_singleton_method, :index) { index }
       type.send(:define_singleton_method, :adapter) { adapter }
 
-      type.class_eval &block if block
+      type.class_eval(&block) if block
       type
     end
 
@@ -189,11 +193,11 @@ module Chewy
     def config
       Chewy::Config.instance
     end
-    delegate *Chewy::Config.delegated, to: :config
+    delegate(*Chewy::Config.delegated, to: :config)
 
     def repository
       Chewy::Repository.instance
     end
-    delegate *Chewy::Repository.delegated, to: :repository
+    delegate(*Chewy::Repository.delegated, to: :repository)
   end
 end

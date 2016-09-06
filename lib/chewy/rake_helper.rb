@@ -2,8 +2,8 @@ module Chewy
   module RakeHelper
     class << self
 
-      def subscribed_task_stats(&block)
-        callback = ->(name, start, finish, id, payload) do
+      def subscribed_task_stats
+        callback = ->(_name, start, finish, _id, payload) do
           duration = (finish - start).round(2)
           puts "  Imported #{payload[:type]} for #{duration}s, documents total: #{payload[:import].try(:[], :index).to_i}"
           payload[:errors].each do |action, errors|
@@ -48,7 +48,7 @@ module Chewy
         normalize_indexes(indexes).each do |index|
           puts "Resetting #{index}"
           time = Time.now
-          index.reset! (time.to_f * 1000).round
+          index.reset!((time.to_f * 1000).round)
           if index.journal?
             Chewy::Journal.create
             Chewy::Journal.apply_changes_from(time)

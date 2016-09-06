@@ -6,7 +6,7 @@ describe :update_index do
   before do
     stub_index(:dummies) do
       define_type :dummy do
-        root value: ->(o){{}}
+        root value: ->(_o){{}}
       end
     end
   end

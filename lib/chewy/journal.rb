@@ -124,7 +124,7 @@ module Chewy
     class Entry
       ATTRIBUTES = %w[index_name type_name action object_ids created_at].freeze
 
-      attr_accessor *ATTRIBUTES
+      attr_accessor(*ATTRIBUTES)
 
       def initialize(attributes = {})
         attributes.slice(*ATTRIBUTES).each do |attr, value|

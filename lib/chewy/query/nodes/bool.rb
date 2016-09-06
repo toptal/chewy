@@ -11,7 +11,7 @@ module Chewy
 
         METHODS.each do |method|
           define_method method do |*exprs|
-            instance_variable_get("@#{method}").push(*exprs)
+            instance_variable_get("@#{method}").concat(exprs)
             self
           end
         end

@@ -11,7 +11,7 @@ describe Chewy::Query::Filters do
 
   %w(field group and or not raw exists missing prefix regexp range equal query script).each do |method|
     define_method method.camelize do |*args|
-      "Chewy::Query::Nodes::#{method.camelize}".constantize.new *args
+      "Chewy::Query::Nodes::#{method.camelize}".constantize.new(*args)
     end
   end
 

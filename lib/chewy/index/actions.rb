@@ -31,7 +31,7 @@ module Chewy
         # Description: (http://www.elasticsearch.org/blog/changing-mapping-with-zero-downtime/).
         #
         def create *args
-          create! *args
+          create!(*args)
         rescue Elasticsearch::Transport::Transport::Errors::BadRequest
           false
         end
@@ -58,7 +58,7 @@ module Chewy
 
           if Chewy::Runtime.version >= 1.1
             body = index_params
-            body.merge!(aliases: {index_name => {}}) if options[:alias] && name != index_name
+            body[:aliases] = {index_name => {}} if options[:alias] && name != index_name
             result = client.indices.create(index: name, body: body)
           else
             result = client.indices.create(index: name, body: index_params)

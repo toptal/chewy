@@ -79,8 +79,8 @@ describe Chewy::Fields::Base do
 
   describe '#mappings_hash' do
     let(:field) { described_class.new(:name, type: :object) }
-    let(:fields1) { 2.times.map { |i| described_class.new("name#{i+1}", type: "string#{i+1}") } }
-    let(:fields2) { 2.times.map { |i| described_class.new("name#{i+3}", type: "string#{i+3}") } }
+    let(:fields1) { Array.new(2) { |i| described_class.new("name#{i+1}", type: "string#{i+1}") } }
+    let(:fields2) { Array.new(2) { |i| described_class.new("name#{i+3}", type: "string#{i+3}") } }
     before do
       fields1.each { |m| field.children.push(m) }
       fields2.each { |m| fields1[0].children.push(m) }
@@ -94,7 +94,7 @@ describe Chewy::Fields::Base do
 
     context do
       let(:field) { described_class.new(:name, type: :string) }
-      let(:fields1) { 2.times.map { |i| described_class.new("name#{i+1}") } }
+      let(:fields1) { Array.new(2) { |i| described_class.new("name#{i+1}") } }
 
       specify { expect(field.mappings_hash).to eq({name: {type: :string, fields: {
         name1: {type: 'object', properties: {

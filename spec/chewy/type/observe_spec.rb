@@ -8,7 +8,7 @@ describe Chewy::Type::Observe do
       end
     end
 
-    let(:backreferenced) { 3.times.map { |i| double(id: i) } }
+    let(:backreferenced) { Array.new(3) { |i| double(id: i) } }
 
     specify { expect { DummiesIndex::Dummy.update_index(backreferenced) }
       .to raise_error Chewy::UndefinedUpdateStrategy }
@@ -23,10 +23,10 @@ describe Chewy::Type::Observe do
 
     before do
       city_countries_update_proc = if adapter == :sequel
-          ->(*) { previous_changes.try(:[], :country_id) || country }
-        else
-          ->(*) { changes['country_id'] || previous_changes['country_id'] || country }
-        end
+        ->(*) { previous_changes.try(:[], :country_id) || country }
+      else
+        ->(*) { changes['country_id'] || previous_changes['country_id'] || country }
+      end
 
       stub_model(:city) do
         update_index(->(city) { "cities##{city.class.name.underscore}" }) { self }
@@ -75,7 +75,7 @@ describe Chewy::Type::Observe do
     context do
       let!(:country) do
         Chewy.strategy(:atomic) do
-          cities = 2.times.map { |i| City.create!(id: i) }
+          cities = Array.new(2) { |i| City.create!(id: i) }
           if adapter == :sequel
             Country.create(id: 1, update_condition: update_condition).tap do |country|
               cities.each { |city| country.add_city(city) }

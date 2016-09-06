@@ -17,7 +17,7 @@ describe Chewy::Query::Pagination do
   specify { expect(search.total_count).to eq(0) }
 
   context do
-    let(:data) { 10.times.map { |i| {id: i.next.to_s, name: "Name#{i.next}", age: 10 * i.next}.stringify_keys! } }
+    let(:data) { Array.new(10) { |i| {id: i.next.to_s, name: "Name#{i.next}", age: 10 * i.next}.stringify_keys! } }
 
     before { ProductsIndex::Product.import!(data.map { |h| double(h) }) }
 

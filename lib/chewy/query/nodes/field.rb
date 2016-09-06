@@ -74,7 +74,7 @@ module Chewy
           Not.new(self =~ value)
         end
 
-        def method_missing method, *args, &block
+        def method_missing method, *args
           method = method.to_s
           if method =~ /\?\Z/
             Nodes::Exists.new [@name, method.gsub(/\?\Z/, '')].join(?.)

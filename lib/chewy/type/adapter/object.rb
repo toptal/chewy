@@ -4,7 +4,7 @@ module Chewy
   class Type
     module Adapter
       class Object < Base
-        def initialize *args
+        def initialize(*args)
           @options = args.extract_options!
           @target = args.first
         end
@@ -13,7 +13,7 @@ module Chewy
           @name ||= (options[:name] || @target).to_s.camelize.demodulize
         end
 
-        def identify collection
+        def identify(collection)
           Array.wrap(collection)
         end
 
@@ -32,7 +32,7 @@ module Chewy
         # But to be destroyed objects need to respond to `id` method as well, so
         # ElasticSearch could know which one to delete.
         #
-        def import *args, &block
+        def import(*args, &block)
           options = args.extract_options!
           options[:batch_size] ||= BATCH_SIZE
 
@@ -42,7 +42,7 @@ module Chewy
           import_objects(objects, options, &block)
         end
 
-        def load *args
+        def load(*args)
           args.extract_options!
           objects = args.flatten
           if target.respond_to?(load_all_method)

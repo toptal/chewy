@@ -34,11 +34,11 @@ module Chewy
         mappings
       end
 
-      def dynamic_template *args
+      def dynamic_template(*args)
         options = args.extract_options!.deep_symbolize_keys
         if args.first
           template_name = :"template_#{dynamic_templates.count.next}"
-          template = {template_name => {mapping: options}}
+          template = { template_name => { mapping: options } }
 
           template[template_name][:match_mapping_type] = args.second.to_s if args.second.present?
 
@@ -57,13 +57,13 @@ module Chewy
 
       def compose_parent(object)
         if parent_id
-          parent_id.arity == 0 ? object.instance_exec(&parent_id) : parent_id.call(object)
+          parent_id.arity.zero? ? object.instance_exec(&parent_id) : parent_id.call(object)
         end
       end
 
       def compose_id(object)
         if id
-          id.arity == 0 ? object.instance_exec(&id) : id.call(object)
+          id.arity.zero? ? object.instance_exec(&id) : id.call(object)
         end
       end
     end

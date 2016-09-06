@@ -11,7 +11,7 @@ CONFIG = {
       uri: 'mongodb://127.0.0.1:27017/chewy_mongoid_test'
     }
   }
-}
+}.freeze
 
 Mongoid.configure do |config|
   config.load_configuration(CONFIG)
@@ -49,7 +49,7 @@ module MongoidClassHelpers
     :mongoid
   end
 
-  def stub_model name, superclass = nil, &block
+  def stub_model(name, superclass = nil, &block)
     mixin = "MongoidClassHelpers::#{name.to_s.camelize}".safe_constantize || Mongoid::Document
     superclass ||= Class.new do
       include mixin

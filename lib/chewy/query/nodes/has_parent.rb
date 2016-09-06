@@ -5,6 +5,7 @@ module Chewy
     module Nodes
       class HasParent < HasRelation
       private
+
         def _relation
           :has_parent
         end

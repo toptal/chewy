@@ -2,11 +2,11 @@ module Chewy
   class Query
     module Nodes
       class Expr < Base
-        def & other
+        def &(other)
           Nodes::And.new self, other
         end
 
-        def | other
+        def |(other)
           Nodes::Or.new self, other
         end
 

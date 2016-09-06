@@ -10,12 +10,18 @@ describe Chewy::Type::Observe do
 
     let(:backreferenced) { Array.new(3) { |i| double(id: i) } }
 
-    specify { expect { DummiesIndex::Dummy.update_index(backreferenced) }
-      .to raise_error Chewy::UndefinedUpdateStrategy }
-    specify { expect { DummiesIndex::Dummy.update_index([]) }
-      .not_to update_index('dummies#dummy') }
-    specify { expect { DummiesIndex::Dummy.update_index(nil) }
-      .not_to update_index('dummies#dummy') }
+    specify do
+      expect { DummiesIndex::Dummy.update_index(backreferenced) }
+        .to raise_error Chewy::UndefinedUpdateStrategy
+    end
+    specify do
+      expect { DummiesIndex::Dummy.update_index([]) }
+        .not_to update_index('dummies#dummy')
+    end
+    specify do
+      expect { DummiesIndex::Dummy.update_index(nil) }
+        .not_to update_index('dummies#dummy')
+    end
   end
 
   context 'integration', :orm do
@@ -35,7 +41,7 @@ describe Chewy::Type::Observe do
 
       stub_model(:country) do
         update_index('cities#city', if: -> { update_condition }) { cities }
-        update_index(->{ "countries##{self.class.name.underscore}" }, :self)
+        update_index(-> { "countries##{self.class.name.underscore}" }, :self)
         attr_accessor :update_condition
       end
 

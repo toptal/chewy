@@ -52,42 +52,53 @@ describe Chewy::Type::Adapter::Object do
       subject { described_class.new('product') }
 
       specify { expect(import).to eq([]) }
-      specify { expect(import nil).to eq([]) }
+      specify { expect(import(nil)).to eq([]) }
 
-      specify { expect(import(objects)).to eq([{index: objects}]) }
-      specify { expect(import(objects, batch_size: 2))
-          .to eq([{index: objects.first(2)}, {index: objects.last(1)}]) }
-      specify { expect(import(objects, deleted)).to eq([{index: objects, delete: deleted}]) }
-      specify { expect(import(objects, deleted, batch_size: 2)).to eq([
-          {index: objects.first(2)},
-          {index: objects.last(1), delete: deleted.first(1)},
-          {delete: deleted.last(1)}]) }
+      specify { expect(import(objects)).to eq([{ index: objects }]) }
+      specify do
+        expect(import(objects, batch_size: 2))
+          .to eq([{ index: objects.first(2) }, { index: objects.last(1) }])
+      end
+      specify { expect(import(objects, deleted)).to eq([{ index: objects, delete: deleted }]) }
+      specify do
+        expect(import(objects, deleted, batch_size: 2)).to eq([
+          { index: objects.first(2) },
+          { index: objects.last(1), delete: deleted.first(1) },
+          { delete: deleted.last(1) }
+        ])
+      end
 
-      specify { expect(import(objects.first, nil)).to eq([{index: [objects.first]}]) }
+      specify { expect(import(objects.first, nil)).to eq([{ index: [objects.first] }]) }
 
       context 'initial data' do
-        subject { described_class.new ->{ objects } }
+        subject { described_class.new -> { objects } }
 
-        specify { expect(import).to eq([{index: objects}]) }
-        specify { expect(import nil).to eq([]) }
+        specify { expect(import).to eq([{ index: objects }]) }
+        specify { expect(import(nil)).to eq([]) }
 
-        specify { expect(import(objects[0..1])).to eq([{index: objects[0..1]}]) }
-        specify { expect(import(batch_size: 2))
-          .to eq([{index: objects.first(2)}, {index: objects.last(1)}]) }
+        specify { expect(import(objects[0..1])).to eq([{ index: objects[0..1] }]) }
+        specify do
+          expect(import(batch_size: 2))
+            .to eq([{ index: objects.first(2) }, { index: objects.last(1) }])
+        end
       end
 
       context do
         subject { described_class.new('product', delete_if: :delete?) }
-        let(:deleted) { [
-          double(delete?: true, destroyed?: true),
-          double(delete?: true, destroyed?: false),
-          double(delete?: false, destroyed?: true),
-          double(delete?: false, destroyed?: false)
-        ] }
+        let(:deleted) do
+          [
+            double(delete?: true, destroyed?: true),
+            double(delete?: true, destroyed?: false),
+            double(delete?: false, destroyed?: true),
+            double(delete?: false, destroyed?: false)
+          ]
+        end
 
-        specify { expect(import(deleted)).to eq([
-          { delete: deleted[0..2], index: deleted.last(1) }
-        ]) }
+        specify do
+          expect(import(deleted)).to eq([
+            { delete: deleted[0..2], index: deleted.last(1) }
+          ])
+        end
       end
     end
 
@@ -120,7 +131,12 @@ describe Chewy::Type::Adapter::Object do
 
     [:wrap, :load_one].each do |load_method|
       context do
-        before { allow(Product).to receive(load_method) { |object| allow(object).to receive_messages(wrapped?: true); object } }
+        before do
+          allow(Product).to receive(load_method) { |object|
+                              allow(object).to receive_messages(wrapped?: true)
+                              object
+                            }
+        end
         subject { described_class.new(Product) }
         let(:objects) { Array.new(3) { double(wrapped?: false) } }
 

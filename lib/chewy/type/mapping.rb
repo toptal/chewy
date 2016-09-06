@@ -31,8 +31,8 @@ module Chewy
         #     end
         #   end
         #
-        def root options = {}, &block
-          raise "Root is already defined" if root_object
+        def root(options = {}, &block)
+          raise 'Root is already defined' if root_object
           build_root(options, &block)
         end
 
@@ -109,7 +109,7 @@ module Chewy
         #     field :sorted, analyzer: 'sorted'
         #   end
         #
-        def field *args, &block
+        def field(*args, &block)
           options = args.extract_options!
           build_root
 
@@ -136,7 +136,7 @@ module Chewy
         #       end
         #     end
         #   end
-        def agg name, &block
+        def agg(name, &block)
           build_root
           self._agg_defs = _agg_defs.merge(name => block)
         end
@@ -162,7 +162,7 @@ module Chewy
         #   template /tit.+/, 'string', mapping_hash # "match_mapping_type" as the optionsl second argument
         #   template template42: {match: 'hello*', mapping: {type: 'object'}} # or even pass a template as is
         #
-        def template *args
+        def template(*args)
           build_root.dynamic_template(*args)
         end
         alias_method :dynamic_template, :template
@@ -175,7 +175,7 @@ module Chewy
 
       private
 
-        def expand_nested field, &block
+        def expand_nested(field, &block)
           if @_current_field
             field.parent = @_current_field
             @_current_field.children.push(field)
@@ -183,12 +183,13 @@ module Chewy
 
           return unless block
 
-          previous_field, @_current_field = @_current_field, field
+          previous_field = @_current_field
+          @_current_field = field
           yield
           @_current_field = previous_field
         end
 
-        def build_root options = {}, &block
+        def build_root(options = {}, &block)
           return root_object if root_object
           self.root_object = Chewy::Fields::Root.new(type_name, options)
           expand_nested(root_object, &block)

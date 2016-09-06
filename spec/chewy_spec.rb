@@ -19,11 +19,11 @@ describe Chewy do
       end
     end
 
-    specify { expect { described_class.derive_type('developers_index#developers') }.to raise_error Chewy::UnderivableType, /DevelopersIndexIndex/ }
-    specify { expect { described_class.derive_type('some#developers') }.to raise_error Chewy::UnderivableType, /SomeIndex/ }
-    specify { expect { described_class.derive_type('borogoves#developers') }.to raise_error Chewy::UnderivableType, /Borogoves/ }
-    specify { expect { described_class.derive_type('developers#borogoves') }.to raise_error Chewy::UnderivableType, /DevelopersIndex.*borogoves/ }
-    specify { expect { described_class.derive_type('namespace/autocomplete') }.to raise_error Chewy::UnderivableType, /AutocompleteIndex.*namespace\/autocomplete#type_name/ }
+    specify { expect { described_class.derive_type('developers_index#developers') }.to raise_error(Chewy::UnderivableType, /DevelopersIndexIndex/) }
+    specify { expect { described_class.derive_type('some#developers') }.to raise_error(Chewy::UnderivableType, /SomeIndex/) }
+    specify { expect { described_class.derive_type('borogoves#developers') }.to raise_error(Chewy::UnderivableType, /Borogoves/) }
+    specify { expect { described_class.derive_type('developers#borogoves') }.to raise_error(Chewy::UnderivableType, /DevelopersIndex.*borogoves/) }
+    specify { expect { described_class.derive_type('namespace/autocomplete') }.to raise_error(Chewy::UnderivableType, %r{AutocompleteIndex.*namespace/autocomplete#type_name}) }
 
     specify { expect(described_class.derive_type(DevelopersIndex::Developer)).to eq(DevelopersIndex::Developer) }
     specify { expect(described_class.derive_type('developers')).to eq(DevelopersIndex::Developer) }
@@ -113,7 +113,7 @@ describe Chewy do
 
   describe '.client' do
     let!(:initial_client) { Thread.current[:chewy_client] }
-    let(:faraday_block) { proc { } }
+    let(:faraday_block) { proc {} }
     let(:mock_client) { double(:client) }
     let(:expected_client_config) { { transport_options: {} } }
 

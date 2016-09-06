@@ -112,7 +112,7 @@ module Chewy
               end)
             RUBY
           else
-            "{}"
+            '{}'
           end
         end
 
@@ -128,7 +128,7 @@ module Chewy
               }
             RUBY
           else
-            "{}"
+            '{}'
           end
         end
 
@@ -151,7 +151,7 @@ module Chewy
           source = lambdas.first
           proc_params = proc.parameters.map(&:second)
 
-          if proc.arity == 0
+          if proc.arity.zero?
             source = replace_self(source, :"object#{nesting}")
             source = replace_send(source, :"object#{nesting}")
           elsif proc.arity < 0

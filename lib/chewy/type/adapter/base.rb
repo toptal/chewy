@@ -9,7 +9,7 @@ module Chewy
 
         # Returns `true` if this adapter is applicable for the given target.
         #
-        def self.accepts? _target
+        def self.accepts?(_target)
           true
         end
 
@@ -32,7 +32,7 @@ module Chewy
         # For ORM/ODM it will be an array of ids for simple objects -
         # just objects themselves
         #
-        def identify _collection
+        def identify(_collection)
           raise NotImplementedError
         end
 
@@ -43,7 +43,7 @@ module Chewy
         #
         # Returns true id all the block call returns true and false otherwise
         #
-        def import *_args
+        def import(*_args)
           raise NotImplementedError
         end
 
@@ -53,7 +53,7 @@ module Chewy
         #   load(double(id: 1), double(id: 2), double(id: 3)) #=>
         #     # [<Product id: 1>, nil, <Product id: 3>], assuming, #2 was not found
         #
-        def load *_args
+        def load(*_args)
           raise NotImplementedError
         end
 

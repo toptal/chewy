@@ -6,7 +6,7 @@ module Chewy
       class Orm < Base
         attr_reader :default_scope
 
-        def initialize *args
+        def initialize(*args)
           @options = args.extract_options!
           class_or_relation = args.first
           if class_or_relation.is_a?(relation_class)
@@ -23,7 +23,7 @@ module Chewy
           @name ||= (options[:name].presence || target.name).to_s.camelize.demodulize
         end
 
-        def identify collection
+        def identify(collection)
           if collection.is_a?(relation_class)
             pluck_ids(collection)
           else
@@ -73,7 +73,7 @@ module Chewy
         #   # or
         #   UsersIndex::User.import users.map(&:id) # user ids will be deleted from index
         #
-        def import *args, &block
+        def import(*args, &block)
           options = args.extract_options!
           options[:batch_size] ||= BATCH_SIZE
 
@@ -87,7 +87,7 @@ module Chewy
           end
         end
 
-        def load *args
+        def load(*args)
           load_options = args.extract_options!
           objects = args.flatten
 
@@ -137,7 +137,7 @@ module Chewy
           target.where(nil)
         end
 
-        def model_of_relation relation
+        def model_of_relation(relation)
           relation.klass
         end
 

@@ -1,6 +1,5 @@
 require 'spec_helper'
 
-
 if defined?(::WillPaginate)
   describe Chewy::Query::Pagination::WillPaginate do
     before { Chewy.massacre }
@@ -16,10 +15,10 @@ if defined?(::WillPaginate)
 
     let(:search) { ProductsIndex.order(:age) }
 
-    specify { expect(search.total_pages).to eq(1) } #defaults to 1 on will_paginate
+    specify { expect(search.total_pages).to eq(1) } # defaults to 1 on will_paginate
 
     context do
-      let(:data) { Array.new(10) { |i| {id: i.next.to_s, name: "Name#{i.next}", age: 10 * i.next}.stringify_keys! } }
+      let(:data) { Array.new(10) { |i| { id: i.next.to_s, name: "Name#{i.next}", age: 10 * i.next }.stringify_keys! } }
 
       before { ProductsIndex::Product.import!(data.map { |h| double(h) }) }
       before { allow(::WillPaginate).to receive_messages(per_page: 3) }
@@ -30,7 +29,7 @@ if defined?(::WillPaginate)
         specify { expect(search.page(2).map { |e| e.attributes.except('_score', '_explanation') }).to eq(data[3..5]) }
       end
 
-      describe "#paginate" do
+      describe '#paginate' do
         specify { expect(search.paginate(page: 2, per_page: 4).map { |e| e.attributes.except('_score', '_explanation') }).to eq(data[4..7]) }
         specify { expect(search.paginate(per_page: 2, page: 3).page(3).map { |e| e.attributes.except('_score', '_explanation') }).to eq(data[4..5]) }
         specify { expect(search.paginate(per_page: 5).map { |e| e.attributes.except('_score', '_explanation') }).to eq(data[0..4]) }
@@ -44,7 +43,7 @@ if defined?(::WillPaginate)
 
       describe '#total_entries' do
         specify { expect(search.paginate(page: 1, per_page: 4).total_entries).to eq(10) }
-        specify { expect(search.filter(numeric_range: {age: {gt: 20}}).limit(3).total_entries).to eq(8) }
+        specify { expect(search.filter(numeric_range: { age: { gt: 20 } }).limit(3).total_entries).to eq(8) }
       end
 
       describe '#load' do
@@ -52,8 +51,8 @@ if defined?(::WillPaginate)
         specify { expect(search.paginate(per_page: 2, page: 3).load.first.age).to eq(50) }
         specify { expect(search.paginate(per_page: 2, page: 3).load.page(2).load.first.age).to eq(30) }
 
-        specify { expect(search.paginate(per_page:4, page:1).load.total_count).to eq(10) }
-        specify { expect(search.paginate(per_page:2, page:3).load.total_pages).to eq(5) }
+        specify { expect(search.paginate(per_page: 4, page: 1).load.total_count).to eq(10) }
+        specify { expect(search.paginate(per_page: 2, page: 3).load.total_pages).to eq(5) }
       end
     end
   end

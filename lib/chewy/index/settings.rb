@@ -1,6 +1,5 @@
 module Chewy
   class Index
-
     # Stores ElasticSearch index settings and resolves `analysis`
     # hash. At first, you need to store some analyzers or other
     # analysis options to the corresponding repository:
@@ -37,7 +36,7 @@ module Chewy
             .deep_merge((settings[:index] || {}).deep_symbolize_keys)
         end
 
-        settings.present? ? {settings: settings} : {}
+        settings.present? ? { settings: settings } : {}
       end
 
     private
@@ -67,7 +66,7 @@ module Chewy
             else
               name_or_hash = name_or_hash.to_sym
               resolved = repository[name_or_hash]
-              resolved ? {name_or_hash => resolved} : {}
+              resolved ? { name_or_hash => resolved } : {}
             end
             result.merge!(options)
           end

@@ -58,7 +58,7 @@ module Chewy
           scope.where(primary_key_with_table_name => Array.wrap(ids))
         end
 
-        def model_of_relation relation
+        def model_of_relation(relation)
           relation.model
         end
 

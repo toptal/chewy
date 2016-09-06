@@ -18,11 +18,12 @@ module Chewy
         query_class.scopes.last || query_class.new(self)
       end
 
-      def search_string query, options = {}
+      def search_string(query, options = {})
         options = options.merge(
           index: all._indexes.map(&:index_name),
           type: all._types.map(&:type_name),
-          q: query)
+          q: query
+        )
         Chewy.client.search(options)
       end
 
@@ -42,7 +43,7 @@ module Chewy
         end
       end
 
-      def delegate_scoped source, destination, methods
+      def delegate_scoped(source, destination, methods)
         methods.each do |method|
           destination.class_eval do
             define_method method do |*args, &block|

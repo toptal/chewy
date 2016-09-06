@@ -30,7 +30,7 @@ module Chewy
         # Suffixed index names might be used for zero-downtime mapping change, for example.
         # Description: (http://www.elasticsearch.org/blog/changing-mapping-with-zero-downtime/).
         #
-        def create *args
+        def create(*args)
           create!(*args)
         rescue Elasticsearch::Transport::Transport::Errors::BadRequest
           false
@@ -52,13 +52,13 @@ module Chewy
         # Suffixed index names might be used for zero-downtime mapping change, for example.
         # Description: (http://www.elasticsearch.org/blog/changing-mapping-with-zero-downtime/).
         #
-        def create! *args
+        def create!(*args)
           options = args.extract_options!.reverse_merge!(alias: true)
           name = build_index_name(suffix: args.first)
 
           if Chewy::Runtime.version >= 1.1
             body = index_params
-            body[:aliases] = {index_name => {}} if options[:alias] && name != index_name
+            body[:aliases] = { index_name => {} } if options[:alias] && name != index_name
             result = client.indices.create(index: name, body: body)
           else
             result = client.indices.create(index: name, body: index_params)
@@ -77,7 +77,7 @@ module Chewy
         #
         #   UsersIndex.delete '01-2014' # deletes `users_01-2014` index
         #
-        def delete suffix = nil
+        def delete(suffix = nil)
           result = client.indices.delete index: build_index_name(suffix: suffix)
           Chewy.wait_for_status if result
           result
@@ -96,7 +96,7 @@ module Chewy
         #
         #   UsersIndex.delete '01-2014' # deletes `users_01-2014` index
         #
-        def delete! suffix = nil
+        def delete!(suffix = nil)
           # es-ruby >= 1.0.10 handles Elasticsearch::Transport::Transport::Errors::NotFound
           # by itself, so it is raised here
           delete(suffix) or raise Elasticsearch::Transport::Transport::Errors::NotFound
@@ -108,7 +108,7 @@ module Chewy
         #   UsersIndex.purge # deletes and creates `users` index
         #   UsersIndex.purge '01-2014' # deletes `users` and `users_01-2014` indexes, creates `users_01-2014`
         #
-        def purge suffix = nil
+        def purge(suffix = nil)
           delete if suffix.present?
           delete suffix
           create suffix
@@ -121,7 +121,7 @@ module Chewy
         #   UsersIndex.purge! # deletes and creates `users` index
         #   UsersIndex.purge! '01-2014' # deletes `users` and `users_01-2014` indexes, creates `users_01-2014`
         #
-        def purge! suffix = nil
+        def purge!(suffix = nil)
           delete if suffix.present? && exists?
           delete suffix
           create! suffix
@@ -160,16 +160,16 @@ module Chewy
         #
         #   UsersIndex.reset! Time.now.to_i, journal: true
         #
-        def reset! suffix = nil, journal: false
+        def reset!(suffix = nil, journal: false)
           if suffix.present? && (indexes = self.indexes).present?
             create! suffix, alias: false
             result = import suffix: suffix, journal: journal
-            client.indices.update_aliases body: {actions: [
+            client.indices.update_aliases body: { actions: [
               *indexes.map do |index|
-                {remove: {index: index, alias: index_name}}
+                { remove: { index: index, alias: index_name } }
               end,
-              {add: {index: build_index_name(suffix: suffix), alias: index_name}}
-            ]}
+              { add: { index: build_index_name(suffix: suffix), alias: index_name } }
+            ] }
             client.indices.delete index: indexes if indexes.present?
             result
           else

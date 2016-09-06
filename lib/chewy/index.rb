@@ -107,7 +107,7 @@ module Chewy
     #   UsersIndex.filters { name =~ 'ro' }.types(:admin, :manager)
     #   UsersIndex.types(:admin, :manager).filters { name =~ 'ro' } # the same as the first example
     #
-    def self.types *args
+    def self.types(*args)
       if args.present?
         all.types(*args)
       else
@@ -164,9 +164,9 @@ module Chewy
       types.any?(&:journal?)
     end
 
-    def self.build_index_name *args
+    def self.build_index_name(*args)
       options = args.extract_options!
-      [options[:prefix], args.first || index_name, options[:suffix]].reject(&:blank?).join(?_)
+      [options[:prefix], args.first || index_name, options[:suffix]].reject(&:blank?).join('_')
     end
 
     def self.settings_hash
@@ -175,7 +175,7 @@ module Chewy
 
     def self.mappings_hash
       mappings = types.map(&:mappings_hash).inject(:merge)
-      mappings.present? ? {mappings: mappings} : {}
+      mappings.present? ? { mappings: mappings } : {}
     end
 
     def self.index_params

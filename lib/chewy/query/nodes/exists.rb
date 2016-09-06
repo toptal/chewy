@@ -2,7 +2,7 @@ module Chewy
   class Query
     module Nodes
       class Exists < Expr
-        def initialize name, options = {}
+        def initialize(name, options = {})
           @name = name.to_s
           @options = options
         end
@@ -12,7 +12,7 @@ module Chewy
         end
 
         def __render__
-          {exists: {field: @name}}
+          { exists: { field: @name } }
         end
       end
     end

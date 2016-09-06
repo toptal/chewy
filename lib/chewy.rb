@@ -73,7 +73,6 @@ ActiveSupport.on_load(:mongoid) do
 end
 
 module Chewy
-
   @adapters = [
     Chewy::Type::Adapter::ActiveRecord,
     Chewy::Type::Adapter::Mongoid,
@@ -94,25 +93,25 @@ module Chewy
     #
     # If index has more then one type - it raises Chewy::UnderivableType.
     #
-    def derive_type name
+    def derive_type(name)
       return name if name.is_a?(Class) && name < Chewy::Type
 
       index_name, type_name = name.split('#', 2)
       class_name = "#{index_name.camelize}Index"
       index = class_name.safe_constantize
-      raise Chewy::UnderivableType.new("Can not find index named `#{class_name}`") unless index && index < Chewy::Index
+      raise Chewy::UnderivableType, "Can not find index named `#{class_name}`" unless index && index < Chewy::Index
       if type_name.present?
-        index.type_hash[type_name] or raise Chewy::UnderivableType.new("Index `#{class_name}` doesn`t have type named `#{type_name}`")
+        index.type_hash[type_name] or raise Chewy::UnderivableType, "Index `#{class_name}` doesn`t have type named `#{type_name}`"
       elsif index.types.one?
         index.types.first
       else
-        raise Chewy::UnderivableType.new("Index `#{class_name}` has more than one type, please specify type via `#{index_name}#type_name`")
+        raise Chewy::UnderivableType, "Index `#{class_name}` has more than one type, please specify type via `#{index_name}#type_name`"
       end
     end
 
     # Creates Chewy::Type ancestor defining index and adapter methods.
     #
-    def create_type index, target, options = {}, &block
+    def create_type(index, target, options = {}, &block)
       type = Class.new(Chewy::Type)
 
       adapter = adapters.find { |klass| klass.accepts?(target) }.new(target, options)
@@ -149,7 +148,7 @@ module Chewy
     # Be careful, if current prefix is blank, this will destroy all the indexes.
     #
     def massacre
-      Chewy.client.indices.delete(index: [Chewy.configuration[:prefix], '*'].delete_if(&:blank?).join(?_))
+      Chewy.client.indices.delete(index: [Chewy.configuration[:prefix], '*'].delete_if(&:blank?).join('_'))
       Chewy.wait_for_status
     end
     alias_method :delete_all, :massacre
@@ -177,7 +176,7 @@ module Chewy
     #   Chewy.strategy.pop
     #   city3.do_update! # index updated again
     #
-    def strategy name = nil, &block
+    def strategy(name = nil, &block)
       Thread.current[:chewy_strategy] ||= Chewy::Strategy.new
       if name
         if block

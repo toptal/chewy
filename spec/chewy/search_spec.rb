@@ -71,8 +71,8 @@ describe Chewy::Search do
       end
     end
 
-    let!(:cities) { Array.new(3) { |i| City.create! rating: i + 1, name: "Name#{i+1}" } }
-    let!(:countries) { Array.new(3) { |i| Country.create! rating: i + 1, name: "Name#{i+4}" } }
+    let!(:cities) { Array.new(3) { |i| City.create! rating: i + 1, name: "Name#{i + 1}" } }
+    let!(:countries) { Array.new(3) { |i| Country.create! rating: i + 1, name: "Name#{i + 4}" } }
 
     before { PlacesIndex.import! city: cities, country: countries }
 
@@ -83,12 +83,12 @@ describe Chewy::Search do
     specify { expect(PlacesIndex.order(:name).by_rating(1).map(&:rating)).to eq([1, 1]) }
     specify { expect(PlacesIndex.order(:name).by_rating(1).map(&:class)).to match_array([PlacesIndex::City, PlacesIndex::Country]) }
 
-    specify { expect(PlacesIndex::City.by_rating {2}.map(&:rating)).to eq([2]) }
-    specify { expect(PlacesIndex::City.by_rating {2}.map(&:class)).to eq([PlacesIndex::City]) }
-    specify { expect(PlacesIndex::City.by_rating {2}.by_name(2).map(&:rating)).to eq([2]) }
-    specify { expect(PlacesIndex::City.by_rating {2}.by_name(2).map(&:class)).to eq([PlacesIndex::City]) }
-    specify { expect(PlacesIndex::City.order(:name).by_rating {2}.map(&:rating)).to eq([2]) }
-    specify { expect(PlacesIndex::City.order(:name).by_rating {2}.map(&:class)).to eq([PlacesIndex::City]) }
+    specify { expect(PlacesIndex::City.by_rating { 2 }.map(&:rating)).to eq([2]) }
+    specify { expect(PlacesIndex::City.by_rating { 2 }.map(&:class)).to eq([PlacesIndex::City]) }
+    specify { expect(PlacesIndex::City.by_rating { 2 }.by_name(2).map(&:rating)).to eq([2]) }
+    specify { expect(PlacesIndex::City.by_rating { 2 }.by_name(2).map(&:class)).to eq([PlacesIndex::City]) }
+    specify { expect(PlacesIndex::City.order(:name).by_rating { 2 }.map(&:rating)).to eq([2]) }
+    specify { expect(PlacesIndex::City.order(:name).by_rating { 2 }.map(&:class)).to eq([PlacesIndex::City]) }
 
     specify { expect(PlacesIndex::Country.by_rating(3).map(&:rating)).to eq([3]) }
     specify { expect(PlacesIndex::Country.by_rating(3).map(&:class)).to eq([PlacesIndex::Country]) }

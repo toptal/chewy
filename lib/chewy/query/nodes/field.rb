@@ -2,7 +2,7 @@ module Chewy
   class Query
     module Nodes
       class Field < Base
-        def initialize name, *args
+        def initialize(name, *args)
           @name = name.to_s
           @args = args
         end
@@ -16,23 +16,23 @@ module Chewy
           self
         end
 
-        def > value
+        def >(value)
           Nodes::Range.new @name, *__options_merge__(gt: value)
         end
 
-        def < value
+        def <(value)
           Nodes::Range.new @name, *__options_merge__(lt: value)
         end
 
-        def >= value
+        def >=(value)
           Nodes::Range.new @name, *__options_merge__(gt: value, left_closed: true)
         end
 
-        def <= value
+        def <=(value)
           Nodes::Range.new @name, *__options_merge__(lt: value, right_closed: true)
         end
 
-        def == value
+        def ==(value)
           case value
           when nil
             Nodes::Missing.new @name, existence: false, null_value: true
@@ -52,7 +52,7 @@ module Chewy
           end
         end
 
-        def != value
+        def !=(value)
           case value
           when nil
             Nodes::Exists.new @name
@@ -61,7 +61,7 @@ module Chewy
           end
         end
 
-        def =~ value
+        def =~(value)
           case value
           when ::Regexp
             Nodes::Regexp.new @name, value, *@args
@@ -70,16 +70,16 @@ module Chewy
           end
         end
 
-        def !~ value
+        def !~(value)
           Not.new(self =~ value)
         end
 
-        def method_missing method, *args
+        def method_missing(method, *args)
           method = method.to_s
           if method =~ /\?\Z/
-            Nodes::Exists.new [@name, method.gsub(/\?\Z/, '')].join(?.)
+            Nodes::Exists.new [@name, method.gsub(/\?\Z/, '')].join('.')
           else
-            self.class.new [@name, method].join(?.), *args
+            self.class.new [@name, method].join('.'), *args
           end
         end
 
@@ -89,13 +89,13 @@ module Chewy
 
       private
 
-        def __options_merge__! additional = {}
+        def __options_merge__!(additional = {})
           options = @args.extract_options!
           options = options.merge(additional)
           @args.push(options)
         end
 
-        def __options_merge__ additional = {}
+        def __options_merge__(additional = {})
           options = @args.extract_options!
           options = options.merge(additional)
           @args + [options]

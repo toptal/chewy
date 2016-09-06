@@ -4,11 +4,11 @@ module Chewy
   class Query
     class Criteria
       include Compose
-      ARRAY_STORAGES = [:queries, :filters, :post_filters, :sort, :fields, :types, :scores]
-      HASH_STORAGES = [:options, :search_options, :request_options, :facets, :aggregations, :suggest, :script_fields]
+      ARRAY_STORAGES = [:queries, :filters, :post_filters, :sort, :fields, :types, :scores].freeze
+      HASH_STORAGES = [:options, :search_options, :request_options, :facets, :aggregations, :suggest, :script_fields].freeze
       STORAGES = ARRAY_STORAGES + HASH_STORAGES
 
-      def initialize options = {}
+      def initialize(options = {})
         @options = options.merge(
           query_mode: Chewy.query_mode,
           filter_mode: Chewy.filter_mode,
@@ -16,7 +16,7 @@ module Chewy
         )
       end
 
-      def == other
+      def ==(other)
         other.is_a?(self.class) && storages == other.storages
       end
 
@@ -83,7 +83,7 @@ module Chewy
       def update_sort(modifier, options = {})
         @sort = nil if options[:purge]
         modifier = Array.wrap(modifier).flatten.map do |element|
-          element.is_a?(Hash) ? element.map { |k, v| {k => v} } : element
+          element.is_a?(Hash) ? element.map { |k, v| { k => v } } : element
         end.flatten
         @sort = sort + modifier
       end
@@ -97,14 +97,14 @@ module Chewy
         end
       end
 
-      def merge! other
+      def merge!(other)
         STORAGES.each do |storage|
           send("update_#{storage}", other.send(storage))
         end
         self
       end
 
-      def merge other
+      def merge(other)
         clone.merge!(other)
       end
 

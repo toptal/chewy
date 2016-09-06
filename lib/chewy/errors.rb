@@ -12,7 +12,7 @@ module Chewy
   end
 
   class UndefinedUpdateStrategy < Error
-    def initialize _type
+    def initialize(_type)
       super <<-MESSAGE
 Index update strategy is undefined in current context.
 Please wrap your code with `Chewy.strategy(:strategy_name) block.`
@@ -24,7 +24,7 @@ Please wrap your code with `Chewy.strategy(:strategy_name) block.`
   end
 
   class ImportFailed < Error
-    def initialize type, import_errors
+    def initialize(type, import_errors)
       message = "Import failed for `#{type}` with:\n"
       import_errors.each do |action, action_errors|
         message << "    #{action.to_s.humanize} errors:\n"

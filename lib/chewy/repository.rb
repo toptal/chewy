@@ -5,10 +5,10 @@ module Chewy
     attr_reader :analyzers, :tokenizers, :filters, :char_filters
 
     def self.delegated
-      public_instance_methods - self.superclass.public_instance_methods - Singleton.public_instance_methods
+      public_instance_methods - superclass.public_instance_methods - Singleton.public_instance_methods
     end
 
-    def self.repository name
+    def self.repository(name)
       plural_name = name.to_s.pluralize
 
       class_eval <<-METHOD, __FILE__, __LINE__ + 1

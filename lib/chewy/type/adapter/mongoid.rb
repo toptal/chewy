@@ -4,14 +4,13 @@ module Chewy
   class Type
     module Adapter
       class Mongoid < Orm
-
         def self.accepts?(target)
           defined?(::Mongoid::Document) && (
             target.is_a?(Class) && target.ancestors.include?(::Mongoid::Document) ||
             target.is_a?(::Mongoid::Criteria))
         end
 
-        def identify collection
+        def identify(collection)
           super(collection).map { |id| id.is_a?(BSON::ObjectId) ? id.to_s : id }
         end
 

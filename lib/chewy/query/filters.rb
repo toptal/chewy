@@ -28,7 +28,7 @@ module Chewy
     #
     #
     class Filters
-      def initialize outer = nil, &block
+      def initialize(outer = nil, &block)
         @block = block
         @outer = outer || eval('self', block.binding)
       end
@@ -42,7 +42,7 @@ module Chewy
       #
       #   UsersIndex.filter{ name == o{ name } } # => {filter: {term: {name: 'Friend'}}}
       #
-      def o &block
+      def o(&block)
         @outer.instance_exec(&block)
       end
 
@@ -62,7 +62,7 @@ module Chewy
       #
       #   UsersIndex.filter{ f{ field } == 'Name' } == UsersIndex.filter{ name == 'Name' } # => true
       #
-      def f name = nil, *args, &block
+      def f(name = nil, *args, &block)
         name = block ? o(&block) : name
         Nodes::Field.new name, *args
       end
@@ -82,7 +82,7 @@ module Chewy
       #   UsersIndex.filter{ s{ script } } == UsersIndex.filter{ s('doc["num1"].value > 1') } # => true
       #   UsersIndex.filter{ s(param1: 42) { script } } == UsersIndex.filter{ s('doc["num1"].value > 1', param1: 42) } # => true
       #
-      def s *args, &block
+      def s(*args, &block)
         params = args.extract_options!
         script = block ? o(&block) : args.first
         Nodes::Script.new script, params
@@ -100,7 +100,7 @@ module Chewy
       #
       #   UsersIndex.filter{ q{ query } } == UsersIndex.filter{ q(query_string: {query: 'name: hello'}) } # => true
       #
-      def q query = nil, &block
+      def q(query = nil, &block)
         Nodes::Query.new block ? o(&block) : query
       end
 
@@ -119,7 +119,7 @@ module Chewy
       #   UsersIndex.filter{ r{ filter } } == UsersIndex.filter{ r(term: {name: 'Name'}) } # => true
       #   UsersIndex.filter{ r{ filter } } == UsersIndex.filter(term: {name: 'Name'}) # => true
       #
-      def r raw = nil, &block
+      def r(raw = nil, &block)
         Nodes::Raw.new block ? o(&block) : raw
       end
 
@@ -155,7 +155,7 @@ module Chewy
       #       .filter_mode(:or)
       #   end
       #
-      def has_child type
+      def has_child(type)
         Nodes::HasChild.new(type, @outer)
       end
 
@@ -177,7 +177,7 @@ module Chewy
       #       .filter_mode(:or)
       #   end
       #
-      def has_parent type
+      def has_parent(type)
         Nodes::HasParent.new(type, @outer)
       end
 
@@ -200,7 +200,7 @@ module Chewy
       #   UsersIndex.filter{ article.title =~ 'Hello' }
       #   UsersIndex.filter{ article.tags? }
       #
-      def method_missing method, *args
+      def method_missing(method, *args)
         method = method.to_s
         if method =~ /\?\Z/
           Nodes::Exists.new method.gsub(/\?\Z/, '')

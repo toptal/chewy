@@ -3,7 +3,7 @@ module Chewy
     module Import
       extend ActiveSupport::Concern
 
-      BULK_OPTIONS = [:suffix, :bulk_size, :refresh, :consistency, :replication]
+      BULK_OPTIONS = [:suffix, :bulk_size, :refresh, :consistency, :replication].freeze
 
       module ClassMethods
         # Perform import operation for specified documents.
@@ -23,7 +23,7 @@ module Chewy
         #
         # See adapters documentation for more details.
         #
-        def import *args
+        def import(*args)
           import_options = args.extract_options!
           import_options.reverse_merge! _default_import_options
           bulk_options = import_options.reject { |k, _| !BULK_OPTIONS.include?(k) }.reverse_merge!(refresh: true)
@@ -52,7 +52,7 @@ module Chewy
         # Options are completely the same as for `import` method
         # See adapters documentation for more details.
         #
-        def import! *args
+        def import!(*args)
           errors = nil
           subscriber = ActiveSupport::Notifications.subscribe('import_objects.chewy') do |*notification_args|
             errors = notification_args.last[:errors]
@@ -66,7 +66,7 @@ module Chewy
 
         # Wraps elasticsearch-ruby client indices bulk method.
         # Adds `:suffix` option to bulk import to index with specified suffix.
-        def bulk options = {}
+        def bulk(options = {})
           suffix = options.delete(:suffix)
           bulk_size = options.delete(:bulk_size)
           body = options.delete(:body)
@@ -75,14 +75,14 @@ module Chewy
 
           bodies = if bulk_size
             bulk_size -= 1.kilobyte # 1 kilobyte for request header and newlines
-            raise ArgumentError.new('Import `:bulk_size` can\'t be less than 1 kilobyte') if bulk_size <= 0
+            raise ArgumentError, 'Import `:bulk_size` can\'t be less than 1 kilobyte' if bulk_size <= 0
 
             body.each_with_object(['']) do |entry, result|
               operation, meta = entry.to_a.first
               data = meta.delete(:data)
               entry = [{ operation => meta }, data].compact.map(&:to_json).join("\n")
 
-              raise ArgumentError.new('Import `:bulk_size` seems to be less than entry size') if entry.bytesize > bulk_size
+              raise ArgumentError, 'Import `:bulk_size` seems to be less than entry size' if entry.bytesize > bulk_size
 
               if result.last.bytesize + entry.bytesize > bulk_size
                 result.push(entry)
@@ -169,7 +169,7 @@ module Chewy
           end
         end
 
-        def fill_payload_import payload, action_objects
+        def fill_payload_import(payload, action_objects)
           imported = Hash[action_objects.map { |action, objects| [action, objects.count] }]
           imported.each do |action, count|
             payload[:import] ||= {}
@@ -178,7 +178,7 @@ module Chewy
           end
         end
 
-        def fill_payload_errors payload, import_errors
+        def fill_payload_errors(payload, import_errors)
           import_errors.each do |action, action_errors|
             action_errors.each do |error, documents|
               payload[:errors] ||= {}
@@ -189,7 +189,7 @@ module Chewy
           end
         end
 
-        def object_data object, crutches = nil
+        def object_data(object, crutches = nil)
           if witchcraft?
             cauldron.brew(object, crutches)
           else
@@ -197,7 +197,7 @@ module Chewy
           end
         end
 
-        def extract_errors items
+        def extract_errors(items)
           items.each.with_object({}) do |item, memo|
             action = item.keys.first.to_sym
             data = item.values.first
@@ -206,9 +206,9 @@ module Chewy
             end
           end.map do |action, action_items|
             errors = action_items.group_by { |item| item[:error] }.map do |error, error_items|
-              {error => error_items.map { |item| item[:id] }}
+              { error => error_items.map { |item| item[:id] } }
             end.reduce(&:merge)
-            {action => errors}
+            { action => errors }
           end.reduce(&:merge) || {}
         end
 
@@ -223,11 +223,11 @@ module Chewy
 
           indexed_objects = {}
 
-          while (result = client.scroll(scroll_id: result['_scroll_id'], scroll: '1m')) do
+          while (result = client.scroll(scroll_id: result['_scroll_id'], scroll: '1m'))
             break if result['hits']['hits'].empty?
 
             result['hits']['hits'].map do |hit|
-              parent = hit.has_key?('_parent') ? hit['_parent'] : hit['fields']['_parent']
+              parent = hit.key?('_parent') ? hit['_parent'] : hit['fields']['_parent']
               indexed_objects[hit['_id']] = { parent: parent }
             end
           end

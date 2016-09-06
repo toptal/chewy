@@ -45,7 +45,7 @@ module Chewy
       @stack.last
     end
 
-    def push name
+    def push(name)
       result = @stack.push resolve(name).new
       debug "[#{@stack.size}] <- #{current.name}"
       result
@@ -58,7 +58,7 @@ module Chewy
       result
     end
 
-    def wrap name
+    def wrap(name)
       stack = push(name)
       yield
     ensure
@@ -67,13 +67,13 @@ module Chewy
 
   private
 
-    def debug string
+    def debug(string)
       return unless Chewy.logger && Chewy.logger.debug?
       line = caller.detect { |l| l !~ %r{lib/chewy/strategy.rb:|lib/chewy.rb:} }
       Chewy.logger.debug(["DEBUG: Chewy strategies stack: #{string}", line.sub(/:in\s.+$/, '')].join(' @ '))
     end
 
-    def resolve name
+    def resolve(name)
       "Chewy::Strategy::#{name.to_s.camelize}".safe_constantize or raise "Can't find update strategy `#{name}`"
     rescue NameError => ex
       # WORKAROUND: Strange behavior of `safe_constantize` with mongoid gem

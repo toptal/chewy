@@ -2,7 +2,7 @@ module Chewy
   class Query
     module Nodes
       class Raw < Expr
-        def initialize raw
+        def initialize(raw)
           @raw = raw
         end
 

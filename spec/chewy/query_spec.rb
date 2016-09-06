@@ -312,7 +312,7 @@ describe Chewy::Query do
                                .aggregations("products#product.named_agg")
                                .criteria
                                .aggregations)
-                        .to include("products#product.named_agg" => { avg: { field: 'title.subfield1' } })
+              .to include("products#product.named_agg" => { avg: { field: 'title.subfield1' } })
           end
         end
       end
@@ -519,7 +519,7 @@ describe Chewy::Query do
     specify { expect { subject.filter(term: { field: 'hello' }) }.not_to change { subject.criteria.filters } }
     specify do
       expect(subject.filter([{ term: { field: 'hello' } }, { term: { field: 'world' } }]).criteria.filters)
-      .to eq([{ term: { field: 'hello' } }, { term: { field: 'world' } }])
+        .to eq([{ term: { field: 'hello' } }, { term: { field: 'world' } }])
     end
 
     specify { expect { subject.filter { name == 'John' } }.not_to change { subject.criteria.filters } }
@@ -532,7 +532,7 @@ describe Chewy::Query do
     specify { expect { subject.post_filter(term: { field: 'hello' }) }.not_to change { subject.criteria.post_filters } }
     specify do
       expect(subject.post_filter([{ term: { field: 'hello' } }, { term: { field: 'world' } }]).criteria.post_filters)
-      .to eq([{ term: { field: 'hello' } }, { term: { field: 'world' } }])
+        .to eq([{ term: { field: 'hello' } }, { term: { field: 'world' } }])
     end
 
     specify { expect { subject.post_filter { name == 'John' } }.not_to change { subject.criteria.post_filters } }
@@ -616,7 +616,7 @@ describe Chewy::Query do
 
     specify do
       expect(subject.filter { name == 'name' }.merge(query.filter { age == 42 }).criteria.filters)
-      .to eq([{ term: { 'name' => 'name' } }, { term: { 'age' => 42 } }])
+        .to eq([{ term: { 'name' => 'name' } }, { term: { 'age' => 42 } }])
     end
   end
 

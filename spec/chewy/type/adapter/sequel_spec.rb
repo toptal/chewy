@@ -81,7 +81,7 @@ describe Chewy::Type::Adapter::Sequel, :sequel do
       specify { expect(import(City.order(:id))).to eq([{ index: cities }]) }
       specify do
         expect(import(City.order(:id), batch_size: 2))
-        .to eq([{ index: cities.first(2) }, { index: cities.last(1) }])
+          .to eq([{ index: cities.first(2) }, { index: cities.last(1) }])
       end
 
       specify { expect(import(cities)).to eq([{ index: cities }]) }
@@ -91,7 +91,7 @@ describe Chewy::Type::Adapter::Sequel, :sequel do
       end
       specify do
         expect(import(cities, deleted))
-        .to eq([{ index: cities }, { delete: deleted }])
+          .to eq([{ index: cities }, { delete: deleted }])
       end
       specify do
         expect(import(cities, deleted, batch_size: 2)).to eq([
@@ -106,11 +106,11 @@ describe Chewy::Type::Adapter::Sequel, :sequel do
       specify { expect(import(deleted.map(&:id))).to eq([{ delete: deleted.map(&:id) }]) }
       specify do
         expect(import(cities.map(&:id), batch_size: 2))
-        .to eq([{ index: cities.first(2) }, { index: cities.last(1) }])
+          .to eq([{ index: cities.first(2) }, { index: cities.last(1) }])
       end
       specify do
         expect(import(cities.map(&:id), deleted.map(&:id)))
-        .to eq([{ index: cities }, { delete: deleted.map(&:id) }])
+          .to eq([{ index: cities }, { delete: deleted.map(&:id) }])
       end
       specify do
         expect(import(cities.map(&:id), deleted.map(&:id), batch_size: 2)).to eq([
@@ -169,7 +169,7 @@ describe Chewy::Type::Adapter::Sequel, :sequel do
       specify { expect(import(City.order(:rating))).to eq([{ index: cities }]) }
       specify do
         expect(import(City.order(:rating), batch_size: 2))
-        .to eq([{ index: cities.first(2) }, { index: cities.last(1) }])
+          .to eq([{ index: cities.first(2) }, { index: cities.last(1) }])
       end
 
       specify { expect(import(cities)).to eq([{ index: cities }]) }
@@ -179,7 +179,7 @@ describe Chewy::Type::Adapter::Sequel, :sequel do
       end
       specify do
         expect(import(cities, deleted))
-        .to eq([{ index: cities }, { delete: deleted }])
+          .to eq([{ index: cities }, { delete: deleted }])
       end
       specify do
         expect(import(cities, deleted, batch_size: 2)).to eq([
@@ -193,11 +193,11 @@ describe Chewy::Type::Adapter::Sequel, :sequel do
       specify { expect(import(cities.map(&:rating))).to eq([{ index: cities }]) }
       specify do
         expect(import(cities.map(&:rating), batch_size: 2))
-        .to eq([{ index: cities.first(2) }, { index: cities.last(1) }])
+          .to eq([{ index: cities.first(2) }, { index: cities.last(1) }])
       end
       specify do
         expect(import(cities.map(&:rating), deleted.map(&:rating)))
-        .to eq([{ index: cities }, { delete: deleted.map(&:rating) }])
+          .to eq([{ index: cities }, { delete: deleted.map(&:rating) }])
       end
       specify do
         expect(import(cities.map(&:rating), deleted.map(&:rating), batch_size: 2)).to eq([
@@ -218,33 +218,33 @@ describe Chewy::Type::Adapter::Sequel, :sequel do
 
       specify do
         expect(import(City.where('rating < 2')))
-        .to eq([{ index: cities.first(3) }])
+          .to eq([{ index: cities.first(3) }])
       end
       specify do
         expect(import(City.where('rating < 2'), batch_size: 2))
-        .to eq([{ index: cities.first(2) }, { index: [cities[2]] }])
+          .to eq([{ index: cities.first(2) }, { index: [cities[2]] }])
       end
       specify do
         expect(import(City.where('rating < 1')))
-        .to eq([{ index: cities.first(3) }])
+          .to eq([{ index: cities.first(3) }])
       end
       specify { expect(import(City.where('rating > 1'))).to eq([]) }
 
       specify do
         expect(import(cities.first(2)))
-        .to eq([{ index: cities.first(2) }])
+          .to eq([{ index: cities.first(2) }])
       end
       specify do
         expect(import(cities))
-        .to eq([{ index: cities.first(3) }, { delete: cities.last(1) }])
+          .to eq([{ index: cities.first(3) }, { delete: cities.last(1) }])
       end
       specify do
         expect(import(cities, batch_size: 2))
-        .to eq([{ index: cities.first(2) }, { index: [cities[2]] }, { delete: cities.last(1) }])
+          .to eq([{ index: cities.first(2) }, { index: [cities[2]] }, { delete: cities.last(1) }])
       end
       specify do
         expect(import(cities, deleted))
-        .to eq([{ index: cities.first(3) }, { delete: cities.last(1) + deleted }])
+          .to eq([{ index: cities.first(3) }, { delete: cities.last(1) + deleted }])
       end
       specify do
         expect(import(cities, deleted, batch_size: 3)).to eq([
@@ -256,19 +256,19 @@ describe Chewy::Type::Adapter::Sequel, :sequel do
 
       specify do
         expect(import(cities.first(2).map(&:id)))
-        .to eq([{ index: cities.first(2) }])
+          .to eq([{ index: cities.first(2) }])
       end
       specify do
         expect(import(cities.map(&:id)))
-        .to eq([{ index: cities.first(3) }, { delete: [cities.last.id] }])
+          .to eq([{ index: cities.first(3) }, { delete: [cities.last.id] }])
       end
       specify do
         expect(import(cities.map(&:id), batch_size: 2))
-        .to eq([{ index: cities.first(2) }, { index: [cities[2]] }, { delete: [cities.last.id] }])
+          .to eq([{ index: cities.first(2) }, { index: [cities[2]] }, { delete: [cities.last.id] }])
       end
       specify do
         expect(import(cities.map(&:id), deleted.map(&:id)))
-        .to eq([{ index: cities.first(3) }, { delete: [cities.last.id] + deleted.map(&:id) }])
+          .to eq([{ index: cities.first(3) }, { delete: [cities.last.id] + deleted.map(&:id) }])
       end
       specify do
         expect(import(cities.map(&:id), deleted.map(&:id), batch_size: 3)).to eq([
@@ -348,21 +348,21 @@ describe Chewy::Type::Adapter::Sequel, :sequel do
       specify { expect(subject.load((cities + deleted).map { |c| double(id: c.id) }, _type: type)).to eq([*cities, nil, nil]) }
       specify do
         expect(subject.load(cities.map { |c| double(id: c.id) }, _type: type, scope: -> { where(rating: 0) }))
-        .to eq(cities.first(2) + [nil])
+          .to eq(cities.first(2) + [nil])
       end
       specify do
         expect(subject.load(cities.map { |c| double(id: c.id) },
           _type: type, scope: -> { where(rating: 0) }, user: { scope: -> { where(rating: 1) } }))
-        .to eq([nil, nil] + cities.last(1))
+          .to eq([nil, nil] + cities.last(1))
       end
       xspecify do
         expect(subject.load(cities.map { |c| double(id: c.id) }, _type: type, scope: City.where(rating: 1)))
-        .to eq([nil, nil] + cities.last(1))
+          .to eq([nil, nil] + cities.last(1))
       end
       specify do
         expect(subject.load(cities.map { |c| double(id: c.id) },
           _type: type, scope: City.where(rating: 1), user: { scope: -> { where(rating: 0) } }))
-        .to eq(cities.first(2) + [nil])
+          .to eq(cities.first(2) + [nil])
       end
     end
 
@@ -381,21 +381,21 @@ describe Chewy::Type::Adapter::Sequel, :sequel do
       specify { expect(subject.load((cities + deleted).map { |c| double(rating: c.rating) }, _type: type)).to eq([*cities, nil, nil]) }
       specify do
         expect(subject.load(cities.map { |c| double(rating: c.rating) }, _type: type, scope: -> { where(country_id: 0) }))
-        .to eq(cities.first(2) + [nil])
+          .to eq(cities.first(2) + [nil])
       end
       specify do
         expect(subject.load(cities.map { |c| double(rating: c.rating) },
           _type: type, scope: -> { where(country_id: 0) }, user: { scope: -> { where(country_id: 1) } }))
-        .to eq([nil, nil] + cities.last(1))
+          .to eq([nil, nil] + cities.last(1))
       end
       xspecify do
         expect(subject.load(cities.map { |c| double(rating: c.rating) }, _type: type, scope: City.where(country_id: 1)))
-        .to eq([nil, nil] + cities.last(1))
+          .to eq([nil, nil] + cities.last(1))
       end
       specify do
         expect(subject.load(cities.map { |c| double(rating: c.rating) },
           _type: type, scope: City.where(country_id: 1), user: { scope: -> { where(country_id: 0) } }))
-        .to eq(cities.first(2) + [nil])
+          .to eq(cities.first(2) + [nil])
       end
     end
   end

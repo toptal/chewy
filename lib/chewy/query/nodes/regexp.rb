@@ -4,7 +4,7 @@ module Chewy
       class Regexp < Expr
         FLAGS = %w(all anystring automaton complement empty intersection interval none)
 
-        def initialize name, regexp, *args
+        def initialize(name, regexp, *args)
           @name = name.to_s
           @regexp = regexp.respond_to?(:source) ? regexp.source : regexp.to_s
           @options = args.extract_options!

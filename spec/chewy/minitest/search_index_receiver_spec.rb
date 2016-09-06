@@ -2,7 +2,7 @@ require 'spec_helper'
 require 'chewy/minitest'
 
 describe :search_index_receiver do
-  def search_request item_count = 2, verb: :index
+  def search_request(item_count = 2, verb: :index)
     items = Array.new(item_count) do |i|
       {
         verb => { _id: i + 1, data: {} }
@@ -16,7 +16,7 @@ describe :search_index_receiver do
     ]
   end
 
-  def parse_request request
+  def parse_request(request)
     request.map { |r| r[:_id] }
   end
 

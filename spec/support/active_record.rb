@@ -25,7 +25,7 @@ module ActiveRecordClassHelpers
     :active_record
   end
 
-  def stub_model name, superclass = nil, &block
+  def stub_model(name, superclass = nil, &block)
     stub_class(name, superclass || ActiveRecord::Base, &block)
   end
 end

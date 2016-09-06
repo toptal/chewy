@@ -94,7 +94,7 @@ module Chewy
     #
     # If index has more then one type - it raises Chewy::UnderivableType.
     #
-    def derive_type name
+    def derive_type(name)
       return name if name.is_a?(Class) && name < Chewy::Type
 
       index_name, type_name = name.split('#', 2)
@@ -112,7 +112,7 @@ module Chewy
 
     # Creates Chewy::Type ancestor defining index and adapter methods.
     #
-    def create_type index, target, options = {}, &block
+    def create_type(index, target, options = {}, &block)
       type = Class.new(Chewy::Type)
 
       adapter = adapters.find { |klass| klass.accepts?(target) }.new(target, options)
@@ -177,7 +177,7 @@ module Chewy
     #   Chewy.strategy.pop
     #   city3.do_update! # index updated again
     #
-    def strategy name = nil, &block
+    def strategy(name = nil, &block)
       Thread.current[:chewy_strategy] ||= Chewy::Strategy.new
       if name
         if block

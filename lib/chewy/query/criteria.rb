@@ -8,7 +8,7 @@ module Chewy
       HASH_STORAGES = [:options, :search_options, :request_options, :facets, :aggregations, :suggest, :script_fields]
       STORAGES = ARRAY_STORAGES + HASH_STORAGES
 
-      def initialize options = {}
+      def initialize(options = {})
         @options = options.merge(
           query_mode: Chewy.query_mode,
           filter_mode: Chewy.filter_mode,
@@ -16,7 +16,7 @@ module Chewy
         )
       end
 
-      def == other
+      def ==(other)
         other.is_a?(self.class) && storages == other.storages
       end
 
@@ -97,14 +97,14 @@ module Chewy
         end
       end
 
-      def merge! other
+      def merge!(other)
         STORAGES.each do |storage|
           send("update_#{storage}", other.send(storage))
         end
         self
       end
 
-      def merge other
+      def merge(other)
         clone.merge!(other)
       end
 

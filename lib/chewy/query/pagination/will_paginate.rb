@@ -12,7 +12,7 @@ module Chewy
           @page_multiplier = @current_page - 1
           @per_page = (options[:per_page] || @per_page || ::WillPaginate.per_page).to_i
 
-          #call Chewy::Query methods to limit results
+          # call Chewy::Query methods to limit results
           limit(@per_page).offset(@page_multiplier * @per_page)
         end
 

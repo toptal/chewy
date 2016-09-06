@@ -161,45 +161,6 @@ Style/IfUnlessModifierOfIfUnless:
   Exclude:
     - 'lib/chewy/type/witchcraft.rb'
 
-# Offense count: 1
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle, SupportedStyles.
-# SupportedStyles: normal, rails
-Style/IndentationConsistency:
-  Exclude:
-    - 'lib/chewy/minitest/helpers.rb'
-
-# Offense count: 2
-# Cop supports --auto-correct.
-# Configuration parameters: Width.
-Style/IndentationWidth:
-  Exclude:
-    - 'lib/chewy/query.rb'
-
-# Offense count: 4
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle, SupportedStyles.
-# SupportedStyles: line_count_dependent, lambda, literal
-Style/Lambda:
-  Exclude:
-    - 'lib/chewy/minitest/helpers.rb'
-    - 'lib/chewy/rake_helper.rb'
-    - 'spec/chewy/type/witchcraft_spec.rb'
-
-# Offense count: 2
-# Cop supports --auto-correct.
-Style/LeadingCommentSpace:
-  Exclude:
-    - 'lib/chewy/query/pagination/will_paginate.rb'
-    - 'spec/chewy/query/pagination/will_paginage_spec.rb'
-
-# Offense count: 199
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle, SupportedStyles.
-# SupportedStyles: require_parentheses, require_no_parentheses, require_no_parentheses_except_multiline
-Style/MethodDefParentheses:
-  Enabled: false
-
 # Offense count: 3
 Style/MethodMissing:
   Exclude:
@@ -219,30 +180,6 @@ Style/MultilineBlockChain:
   Exclude:
     - 'lib/chewy/type/import.rb'
     - 'lib/chewy/type/observe.rb'
-
-# Offense count: 1
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle, SupportedStyles.
-# SupportedStyles: symmetrical, new_line, same_line
-Style/MultilineMethodCallBraceLayout:
-  Exclude:
-    - 'lib/chewy/search.rb'
-
-# Offense count: 131
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle, SupportedStyles, IndentationWidth.
-# SupportedStyles: aligned, indented, indented_relative_to_receiver
-Style/MultilineMethodCallIndentation:
-  Exclude:
-    - 'spec/chewy/query/filters_spec.rb'
-    - 'spec/chewy/query/nodes/has_child_spec.rb'
-    - 'spec/chewy/query/nodes/has_parent_spec.rb'
-    - 'spec/chewy/query_spec.rb'
-    - 'spec/chewy/rspec/update_index_spec.rb'
-    - 'spec/chewy/type/adapter/active_record_spec.rb'
-    - 'spec/chewy/type/adapter/mongoid_spec.rb'
-    - 'spec/chewy/type/adapter/object_spec.rb'
-    - 'spec/chewy/type/adapter/sequel_spec.rb'
 
 # Offense count: 2
 # Cop supports --auto-correct.
@@ -480,14 +417,6 @@ Style/SpaceInsideStringInterpolation:
 # SupportedStyles: single_quotes, double_quotes
 Style/StringLiterals:
   Enabled: false
-
-# Offense count: 1
-# Cop supports --auto-correct.
-# Configuration parameters: IgnoredMethods.
-# IgnoredMethods: respond_to, define_method
-Style/SymbolProc:
-  Exclude:
-    - 'lib/chewy/backports/deep_dup.rb'
 
 # Offense count: 2
 # Cop supports --auto-correct.

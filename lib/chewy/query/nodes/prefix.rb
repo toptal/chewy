@@ -2,7 +2,7 @@ module Chewy
   class Query
     module Nodes
       class Prefix < Expr
-        def initialize name, value, options = {}
+        def initialize(name, value, options = {})
           @name = name.to_s
           @value, @options = value, options
         end

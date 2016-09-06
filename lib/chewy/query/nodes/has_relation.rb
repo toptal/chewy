@@ -6,7 +6,7 @@ module Chewy
       class HasRelation < Expr
         include Compose
 
-        def initialize type, outer = nil
+        def initialize(type, outer = nil)
           @type = type.to_s
           @outer = outer
           @query_mode = :must
@@ -15,17 +15,17 @@ module Chewy
           @filters = []
         end
 
-        def query_mode mode
+        def query_mode(mode)
           @query_mode = mode
           self
         end
 
-        def filter_mode mode
+        def filter_mode(mode)
           @filter_mode = mode
           self
         end
 
-        def query params = nil, &block
+        def query(params = nil, &block)
           if block
             raise 'Query DLS is not supported yet'
           else
@@ -34,7 +34,7 @@ module Chewy
           self
         end
 
-        def filter params = nil, &block
+        def filter(params = nil, &block)
           if block
             @filters.push(Chewy::Query::Filters.new(@outer, &block).__render__)
           else

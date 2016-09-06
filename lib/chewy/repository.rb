@@ -8,7 +8,7 @@ module Chewy
       public_instance_methods - self.superclass.public_instance_methods - Singleton.public_instance_methods
     end
 
-    def self.repository name
+    def self.repository(name)
       plural_name = name.to_s.pluralize
 
       class_eval <<-METHOD, __FILE__, __LINE__ + 1

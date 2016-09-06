@@ -44,7 +44,7 @@ describe Chewy::Type::Witchcraft do
     context 'simple lambdas' do
       mapping do
         field :name
-        field :age, value: -> (obj) {
+        field :age, value: lambda { |obj|
           obj.age if obj
         }
         field :tags, value: -> { tags.map(&:to_sym) }
@@ -142,7 +142,7 @@ describe Chewy::Type::Witchcraft do
           field :queries do
             field :fields, value: -> (_o, q) { q.fields } do
               field :first
-              field :second, value: -> (_o, q, f, c) {
+              field :second, value: lambda { |_o, q, f, c|
                 q.value + (f.respond_to?(:second) ? f.second : c.second)
               }
             end

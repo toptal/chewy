@@ -2,7 +2,7 @@ module Chewy
   class Query
     module Nodes
       class Query < Expr
-        def initialize query, options = {}
+        def initialize(query, options = {})
           @query = query
           @options = options
         end

@@ -4,7 +4,7 @@ module Chewy
       class Bool < Expr
         METHODS = %w(must must_not should)
 
-        def initialize options = {}
+        def initialize(options = {})
           @options = options
           @must, @must_not, @should = [], [], []
         end

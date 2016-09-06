@@ -34,7 +34,7 @@ module Chewy
         mappings
       end
 
-      def dynamic_template *args
+      def dynamic_template(*args)
         options = args.extract_options!.deep_symbolize_keys
         if args.first
           template_name = :"template_#{dynamic_templates.count.next}"

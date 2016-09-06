@@ -9,7 +9,7 @@ module Chewy
           fielddata: :fielddata,
         }
 
-        def initialize name, *args
+        def initialize(name, *args)
           @name = name.to_s
           @options = args.extract_options!
           @range = @options.reject { |k, _v| ![:gt, :lt].include?(k) }
@@ -18,7 +18,7 @@ module Chewy
           @options[:execution] = execution if execution
         end
 
-        def & other
+        def &(other)
           if other.is_a?(self.class) && other.__name__ == @name
             state = __state__.merge(other.__state__)
 

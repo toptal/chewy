@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe Chewy::Query::Filters do
-  def Bool options
+  def Bool(options)
     Chewy::Query::Nodes::Bool.new.tap do |bool|
       bool.must(*options[:must]) if options[:must].present?
       bool.must_not(*options[:must_not]) if options[:must_not].present?
@@ -15,7 +15,7 @@ describe Chewy::Query::Filters do
     end
   end
 
-  def query &block
+  def query(&block)
     Chewy::Query::Filters.new(&block).__result__
   end
 
@@ -42,15 +42,15 @@ describe Chewy::Query::Filters do
     specify { expect(query { email != %w(email1 email2) }).to be_eql Not(Equal(:email, %w(email1 email2))) }
     specify do
       expect(query { email(execution: :bool) == %w(email1 email2) })
-      .to be_eql Equal(:email, %w(email1 email2), execution: :bool)
+        .to be_eql Equal(:email, %w(email1 email2), execution: :bool)
     end
     specify do
       expect(query { email(:bool) == %w(email1 email2) })
-      .to be_eql Equal(:email, %w(email1 email2), execution: :bool)
+        .to be_eql Equal(:email, %w(email1 email2), execution: :bool)
     end
     specify do
       expect(query { email(:b) == %w(email1 email2) })
-      .to be_eql Equal(:email, %w(email1 email2), execution: :bool)
+        .to be_eql Equal(:email, %w(email1 email2), execution: :bool)
     end
   end
 
@@ -61,7 +61,7 @@ describe Chewy::Query::Filters do
     specify do
       query do
         must(email == 'email').should(address != 'address', age == 42)
-        .must_not(sex == 'm').must(name == 'name')
+          .must_not(sex == 'm').must(name == 'name')
       end.should be_eql Bool(
         must: [Equal(:email, 'email'), Equal(:name, 'name')],
         must_not: [Equal(:sex, 'm')],
@@ -141,57 +141,57 @@ describe Chewy::Query::Filters do
   context 'and or not' do
     specify do
       expect(query { (email == 'email') & (name == 'name') })
-      .to be_eql And(Equal(:email, 'email'), Equal(:name, 'name'))
+        .to be_eql And(Equal(:email, 'email'), Equal(:name, 'name'))
     end
     specify do
       expect(query { (email == 'email') | (name == 'name') })
-      .to be_eql Or(Equal(:email, 'email'), Equal(:name, 'name'))
+        .to be_eql Or(Equal(:email, 'email'), Equal(:name, 'name'))
     end
     specify { expect(query { !(email == 'email') }).to be_eql Not(Equal(:email, 'email')) }
 
     specify do
       expect(query { (email == 'email') & (name == 'name') | (address != 'address') })
-      .to be_eql Or(
-        And(
-          Equal(:email, 'email'),
-          Equal(:name, 'name')
-        ),
-        Not(Equal(:address, 'address'))
-      )
+        .to be_eql Or(
+          And(
+            Equal(:email, 'email'),
+            Equal(:name, 'name')
+          ),
+          Not(Equal(:address, 'address'))
+        )
     end
     specify do
       expect(query { (email == 'email') & ((name == 'name') | (address != 'address')) })
-      .to be_eql And(
-        Equal(:email, 'email'),
-        Or(
-          Equal(:name, 'name'),
-          Not(Equal(:address, 'address')),
+        .to be_eql And(
+          Equal(:email, 'email'),
+          Or(
+            Equal(:name, 'name'),
+            Not(Equal(:address, 'address')),
+          )
         )
-      )
     end
     specify do
       expect(query { (email == 'email') & ((name == 'name') & (address != 'address')) })
-      .to be_eql And(
-        Equal(:email, 'email'),
-        Equal(:name, 'name'),
-        Not(Equal(:address, 'address')),
-      )
+        .to be_eql And(
+          Equal(:email, 'email'),
+          Equal(:name, 'name'),
+          Not(Equal(:address, 'address')),
+        )
     end
     specify do
       expect(query { ((email == 'email') | (name == 'name')) | (address != 'address') })
-      .to be_eql Or(
-        Equal(:email, 'email'),
-        Equal(:name, 'name'),
-        Not(Equal(:address, 'address')),
-      )
+        .to be_eql Or(
+          Equal(:email, 'email'),
+          Equal(:name, 'name'),
+          Not(Equal(:address, 'address')),
+        )
     end
     specify do
       expect(query { !((email == 'email') | (name == 'name')) })
-      .to be_eql Not(Or(Equal(:email, 'email'), Equal(:name, 'name')))
+        .to be_eql Not(Or(Equal(:email, 'email'), Equal(:name, 'name')))
     end
     specify do
       expect(query { !!((email == 'email') | (name == 'name')) })
-      .to be_eql Or(Equal(:email, 'email'), Equal(:name, 'name'))
+        .to be_eql Or(Equal(:email, 'email'), Equal(:name, 'name'))
     end
   end
 end

@@ -6,7 +6,7 @@ describe :minitest_helper do
     alias_method :teardown, :after
   end
 
-  def assert_includes haystack, needle, _comment
+  def assert_includes(haystack, needle, _comment)
     expect(haystack).to include(needle)
   end
 

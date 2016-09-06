@@ -214,7 +214,7 @@ RSpec::Matchers.define :update_index do |type_name, options = {}|
     end
   end
 
-  def extract_documents *args
+  def extract_documents(*args)
     options = args.extract_options!
 
     expected_count = options[:times] || options[:count]
@@ -232,7 +232,7 @@ RSpec::Matchers.define :update_index do |type_name, options = {}|
     end]
   end
 
-  def compare_attributes expected, real
+  def compare_attributes(expected, real)
     expected.inject(true) do |result, (key, value)|
       equal = if value.is_a?(Array) && real[key].is_a?(Array)
         array_difference(value, real[key]) && array_difference(real[key], value)
@@ -245,7 +245,7 @@ RSpec::Matchers.define :update_index do |type_name, options = {}|
     end
   end
 
-  def array_difference first, second
+  def array_difference(first, second)
     difference = first.to_ary.dup
     second.to_ary.each do |element|
       index = difference.index(element)

@@ -9,7 +9,7 @@ module Chewy
       end
 
       class Crutches
-        def initialize type, collection
+        def initialize(type, collection)
           @type, @collection = type, collection
           @type._crutches.keys.each do |name|
             singleton_class.class_eval <<-METHOD, __FILE__, __LINE__ + 1
@@ -22,7 +22,7 @@ module Chewy
       end
 
       module ClassMethods
-        def crutch name, &block
+        def crutch(name, &block)
           self._crutches = _crutches.merge(name.to_sym => block)
         end
       end

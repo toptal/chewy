@@ -79,7 +79,7 @@ describe Chewy::Type::Adapter::Object do
         specify { expect(import(objects[0..1])).to eq([{ index: objects[0..1] }]) }
         specify do
           expect(import(batch_size: 2))
-          .to eq([{ index: objects.first(2) }, { index: objects.last(1) }])
+            .to eq([{ index: objects.first(2) }, { index: objects.last(1) }])
         end
       end
 

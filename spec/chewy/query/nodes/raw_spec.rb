@@ -2,7 +2,7 @@ require 'spec_helper'
 
 describe Chewy::Query::Nodes::Raw do
   describe '#__render__' do
-    def render &block
+    def render(&block)
       Chewy::Query::Filters.new(&block).__render__
     end
 

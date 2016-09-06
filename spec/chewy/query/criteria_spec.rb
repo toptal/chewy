@@ -258,7 +258,7 @@ describe Chewy::Query::Criteria do
   end
 
   describe '#request_body' do
-    def request_body &block
+    def request_body(&block)
       subject.instance_exec(&block) if block
       subject.request_body
     end
@@ -309,7 +309,7 @@ describe Chewy::Query::Criteria do
   end
 
   describe '#_filtered_query' do
-    def _filtered_query options = {}, &block
+    def _filtered_query(options = {}, &block)
       subject.instance_exec(&block) if block
       subject.send(:_filtered_query, subject.send(:_request_query), subject.send(:_request_filter), options)
     end
@@ -384,7 +384,7 @@ describe Chewy::Query::Criteria do
   end
 
   describe '#_request_filter' do
-    def _request_filter &block
+    def _request_filter(&block)
       subject.instance_exec(&block) if block
       subject.send(:_request_filter)
     end
@@ -441,7 +441,7 @@ describe Chewy::Query::Criteria do
   end
 
   describe '#_request_post_filter' do
-    def _request_post_filter &block
+    def _request_post_filter(&block)
       subject.instance_exec(&block) if block
       subject.send(:_request_post_filter)
     end
@@ -476,7 +476,7 @@ describe Chewy::Query::Criteria do
   end
 
   describe '#_request_types' do
-    def _request_types &block
+    def _request_types(&block)
       subject.instance_exec(&block) if block
       subject.send(:_request_types)
     end
@@ -490,7 +490,7 @@ describe Chewy::Query::Criteria do
   end
 
   describe '#_queries_join' do
-    def _queries_join *args
+    def _queries_join(*args)
       subject.send(:_queries_join, *args)
     end
 
@@ -522,7 +522,7 @@ describe Chewy::Query::Criteria do
   end
 
   describe '#_filters_join' do
-    def _filters_join *args
+    def _filters_join(*args)
       subject.send(:_filters_join, *args)
     end
 

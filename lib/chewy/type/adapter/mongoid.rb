@@ -11,7 +11,7 @@ module Chewy
             target.is_a?(::Mongoid::Criteria))
         end
 
-        def identify collection
+        def identify(collection)
           super(collection).map { |id| id.is_a?(BSON::ObjectId) ? id.to_s : id }
         end
 

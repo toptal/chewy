@@ -2,7 +2,7 @@ module Chewy
   class Query
     module Nodes
       class Not < Expr
-        def initialize expr, options = {}
+        def initialize(expr, options = {})
           @expr = expr
           @options = options
         end

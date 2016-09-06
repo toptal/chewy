@@ -2,7 +2,7 @@ module Chewy
   class Query
     module Nodes
       class And < Expr
-        def initialize *nodes
+        def initialize(*nodes)
           @options = nodes.extract_options!
           @nodes = nodes.flatten.map { |node| node.is_a?(self.class) ? node.__nodes__ : node }.flatten
         end

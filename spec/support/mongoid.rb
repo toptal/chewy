@@ -49,7 +49,7 @@ module MongoidClassHelpers
     :mongoid
   end
 
-  def stub_model name, superclass = nil, &block
+  def stub_model(name, superclass = nil, &block)
     mixin = "MongoidClassHelpers::#{name.to_s.camelize}".safe_constantize || Mongoid::Document
     superclass ||= Class.new do
       include mixin

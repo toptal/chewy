@@ -13,7 +13,7 @@ module Chewy
           :fielddata => :fielddata,
         }
 
-        def initialize name, value, *args
+        def initialize(name, value, *args)
           @name = name.to_s
           @value = value
           @options = args.extract_options!

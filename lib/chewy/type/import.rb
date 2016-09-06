@@ -23,7 +23,7 @@ module Chewy
         #
         # See adapters documentation for more details.
         #
-        def import *args
+        def import(*args)
           import_options = args.extract_options!
           import_options.reverse_merge! _default_import_options
           bulk_options = import_options.reject { |k, _| !BULK_OPTIONS.include?(k) }.reverse_merge!(refresh: true)
@@ -52,7 +52,7 @@ module Chewy
         # Options are completely the same as for `import` method
         # See adapters documentation for more details.
         #
-        def import! *args
+        def import!(*args)
           errors = nil
           subscriber = ActiveSupport::Notifications.subscribe('import_objects.chewy') do |*notification_args|
             errors = notification_args.last[:errors]
@@ -66,7 +66,7 @@ module Chewy
 
         # Wraps elasticsearch-ruby client indices bulk method.
         # Adds `:suffix` option to bulk import to index with specified suffix.
-        def bulk options = {}
+        def bulk(options = {})
           suffix = options.delete(:suffix)
           bulk_size = options.delete(:bulk_size)
           body = options.delete(:body)
@@ -169,7 +169,7 @@ module Chewy
           end
         end
 
-        def fill_payload_import payload, action_objects
+        def fill_payload_import(payload, action_objects)
           imported = Hash[action_objects.map { |action, objects| [action, objects.count] }]
           imported.each do |action, count|
             payload[:import] ||= {}
@@ -178,7 +178,7 @@ module Chewy
           end
         end
 
-        def fill_payload_errors payload, import_errors
+        def fill_payload_errors(payload, import_errors)
           import_errors.each do |action, action_errors|
             action_errors.each do |error, documents|
               payload[:errors] ||= {}
@@ -189,7 +189,7 @@ module Chewy
           end
         end
 
-        def object_data object, crutches = nil
+        def object_data(object, crutches = nil)
           if witchcraft?
             cauldron.brew(object, crutches)
           else
@@ -197,7 +197,7 @@ module Chewy
           end
         end
 
-        def extract_errors items
+        def extract_errors(items)
           items.each.with_object({}) do |item, memo|
             action = item.keys.first.to_sym
             data = item.values.first

@@ -3,7 +3,7 @@ module Chewy
     class << self
 
       def subscribed_task_stats
-        callback = ->(_name, start, finish, _id, payload) do
+        callback = lambda do |_name, start, finish, _id, payload|
           duration = (finish - start).round(2)
           puts "  Imported #{payload[:type]} for #{duration}s, documents total: #{payload[:import].try(:[], :index).to_i}"
           payload[:errors].each do |action, errors|
@@ -34,17 +34,17 @@ module Chewy
         Chewy::Index.descendants
       end
 
-      def normalize_index index
+      def normalize_index(index)
         return index if index.is_a?(Chewy::Index)
         "#{index.to_s.gsub(/index\z/i, '').camelize}Index".constantize
       end
 
-      def normalize_indexes *indexes
+      def normalize_indexes(*indexes)
         indexes.flatten.map { |index| normalize_index(index) }
       end
 
       # Performs zero downtime reindexing of all documents in the specified index.
-      def reset_index *indexes
+      def reset_index(*indexes)
         normalize_indexes(indexes).each do |index|
           puts "Resetting #{index}"
           time = Time.now
@@ -57,11 +57,11 @@ module Chewy
       end
 
       # Performs zero downtime reindexing of all documents across all indices.
-      def reset_all *except
+      def reset_all(*except)
         reset_index(all_indexes - normalize_indexes(except))
       end
 
-      def update_index *indexes
+      def update_index(*indexes)
         normalize_indexes(indexes).each do |index|
           puts "Updating #{index}"
           if index.exists?
@@ -72,7 +72,7 @@ module Chewy
         end
       end
 
-      def update_all *except
+      def update_all(*except)
         update_index(all_indexes - normalize_indexes(except))
       end
     end

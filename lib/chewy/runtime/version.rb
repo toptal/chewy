@@ -4,7 +4,7 @@ module Chewy
       include Comparable
       attr_reader :major, :minor, :patch
 
-      def initialize version
+      def initialize(version)
         @major, @minor, @patch = *(version.to_s.split('.', 3) + [0]*3).first(3).map(&:to_i)
       end
 
@@ -12,7 +12,7 @@ module Chewy
         [major, minor, patch].join('.')
       end
 
-      def <=> other
+      def <=>(other)
         other = self.class.new(other) unless other.is_a?(self.class)
         [
           major <=> other.major,

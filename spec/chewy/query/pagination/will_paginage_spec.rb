@@ -16,7 +16,7 @@ if defined?(::WillPaginate)
 
     let(:search) { ProductsIndex.order(:age) }
 
-    specify { expect(search.total_pages).to eq(1) } #defaults to 1 on will_paginate
+    specify { expect(search.total_pages).to eq(1) } # defaults to 1 on will_paginate
 
     context do
       let(:data) { Array.new(10) { |i| { id: i.next.to_s, name: "Name#{i.next}", age: 10 * i.next }.stringify_keys! } }

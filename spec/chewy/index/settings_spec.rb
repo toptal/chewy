@@ -14,10 +14,10 @@ describe Chewy::Index::Settings do
     specify { expect(described_class.new(number_of_nodes: 3, analysis: { analyzer: { analyzer1: {} } }).to_hash)
       .to eq(settings: { number_of_nodes: 3, analysis: { analyzer: { analyzer1: {} } } }) }
     specify { expect(described_class.new(number_of_nodes: 3, analysis: {
-                                           analyzer: { analyzer1: { tokenizer: 'tokenizer1', filter: ['filter1', 'filter2'] } }
+                                           analyzer: { analyzer1: { tokenizer: 'tokenizer1', filter: %w(filter1 filter2) } }
                                          }).to_hash)
       .to eq(settings: { number_of_nodes: 3, analysis: {
-               analyzer: { analyzer1: { tokenizer: 'tokenizer1', filter: ['filter1', 'filter2'] } }
+               analyzer: { analyzer1: { tokenizer: 'tokenizer1', filter: %w(filter1 filter2) } }
              } }) }
     specify { expect(described_class.new(number_of_nodes: 3, analysis: { analyser: ['analyzer1'] }).to_hash)
       .to eq(settings: { number_of_nodes: 3, analysis: {} }) }
@@ -26,10 +26,10 @@ describe Chewy::Index::Settings do
       before { Chewy.tokenizer :tokenizer1, options: 42 }
 
       specify { expect(described_class.new(number_of_nodes: 3, analysis: {
-                                             analyzer: { analyzer1: { tokenizer: 'tokenizer1', filter: ['filter1', 'filter2'] } }
+                                             analyzer: { analyzer1: { tokenizer: 'tokenizer1', filter: %w(filter1 filter2) } }
                                            }).to_hash)
         .to eq(settings: { number_of_nodes: 3, analysis: {
-                 analyzer: { analyzer1: { tokenizer: 'tokenizer1', filter: ['filter1', 'filter2'] } },
+                 analyzer: { analyzer1: { tokenizer: 'tokenizer1', filter: %w(filter1 filter2) } },
                  tokenizer: { tokenizer1: { options: 42 } }
                } }) }
     end
@@ -42,11 +42,11 @@ describe Chewy::Index::Settings do
       end
 
       specify { expect(described_class.new(number_of_nodes: 3, analysis: {
-                                             analyzer: { analyzer1: { tokenizer: 'tokenizer1', filter: ['filter1', 'filter2'] } },
+                                             analyzer: { analyzer1: { tokenizer: 'tokenizer1', filter: %w(filter1 filter2) } },
                                              filter: ['filter3', { filter4: { options: 45 } }]
                                            }).to_hash)
         .to eq(settings: { number_of_nodes: 3, analysis: {
-                 analyzer: { analyzer1: { tokenizer: 'tokenizer1', filter: ['filter1', 'filter2'] } },
+                 analyzer: { analyzer1: { tokenizer: 'tokenizer1', filter: %w(filter1 filter2) } },
                  filter: { filter2: { options: 42 }, filter3: { options: 43 }, filter4: { options: 45 } }
                } }) }
     end

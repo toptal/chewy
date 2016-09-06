@@ -8,7 +8,7 @@ describe Chewy::Fields::Base do
     let(:field) { described_class.new(:name, value: ->(o){ o.value }) }
 
     specify { expect(field.compose(double(value: 'hello'))).to eq(name: 'hello') }
-    specify { expect(field.compose(double(value: ['hello', 'world']))).to eq(name: ['hello', 'world']) }
+    specify { expect(field.compose(double(value: %w(hello world)))).to eq(name: %w(hello world)) }
 
     specify { expect(described_class.new(:name).compose(double(name: 'hello'))).to eq(name: 'hello') }
     specify { expect(described_class.new(:false_value).compose(false_value: false)).to eq(false_value: false) }
@@ -45,11 +45,11 @@ describe Chewy::Fields::Base do
       end
 
       specify { expect(country.compose(double(name: 'Thailand', cities: [
-        double(name: 'Bangkok', districts: ['First', 'Second'])
+        double(name: 'Bangkok', districts: %w(First Second))
       ]))).to eq(name: [
         { name: [
-          { name: [['First', 'Thailand'], 'Bangkok', 'Thailand'] },
-          { name: [['Second', 'Thailand'], 'Bangkok', 'Thailand'] }
+          { name: [%w(First Thailand), 'Bangkok', 'Thailand'] },
+          { name: [%w(Second Thailand), 'Bangkok', 'Thailand'] }
         ] }
       ]) }
     end

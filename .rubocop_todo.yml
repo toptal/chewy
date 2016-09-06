@@ -189,15 +189,6 @@ Style/IfUnlessModifierOfIfUnless:
   Exclude:
     - 'lib/chewy/type/witchcraft.rb'
 
-# Offense count: 11
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle, SupportedStyles, IndentationWidth.
-# SupportedStyles: special_inside_parentheses, consistent, align_brackets
-Style/IndentArray:
-  Exclude:
-    - 'spec/chewy/query_spec.rb'
-    - 'spec/chewy/type/adapter/object_spec.rb'
-
 # Offense count: 1
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyle, SupportedStyles.
@@ -250,17 +241,6 @@ Style/MethodMissing:
 Style/MethodName:
   Exclude:
     - 'spec/chewy/query/filters_spec.rb'
-
-# Offense count: 17
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle, SupportedStyles.
-# SupportedStyles: symmetrical, new_line, same_line
-Style/MultilineArrayBraceLayout:
-  Exclude:
-    - 'spec/chewy/type/adapter/active_record_spec.rb'
-    - 'spec/chewy/type/adapter/mongoid_spec.rb'
-    - 'spec/chewy/type/adapter/object_spec.rb'
-    - 'spec/chewy/type/adapter/sequel_spec.rb'
 
 # Offense count: 3
 Style/MultilineBlockChain:
@@ -602,22 +582,3 @@ Style/TrailingCommaInLiteral:
 Style/WhileUntilDo:
   Exclude:
     - 'lib/chewy/type/import.rb'
-
-# Offense count: 86
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle, SupportedStyles, MinSize, WordRegex.
-# SupportedStyles: percent, brackets
-Style/WordArray:
-  Exclude:
-    - 'lib/chewy/fields/base.rb'
-    - 'spec/chewy/fields/base_spec.rb'
-    - 'spec/chewy/index/actions_spec.rb'
-    - 'spec/chewy/index/aliases_spec.rb'
-    - 'spec/chewy/index/settings_spec.rb'
-    - 'spec/chewy/index_spec.rb'
-    - 'spec/chewy/query/criteria_spec.rb'
-    - 'spec/chewy/query/filters_spec.rb'
-    - 'spec/chewy/query/nodes/equal_spec.rb'
-    - 'spec/chewy/query_spec.rb'
-    - 'spec/chewy/rspec/update_index_spec.rb'
-    - 'spec/chewy/type/import_spec.rb'

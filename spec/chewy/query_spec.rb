@@ -170,18 +170,18 @@ describe Chewy::Query do
         offset: '5km',
         decay: 0.4,
         filter: { foo: :bar }).criteria.scores).to eq([
-        {
-          gauss: {
-            field: {
-              origin: '11, 12',
-              scale: '2km',
-              offset: '5km',
-              decay: 0.4
-            }
-          },
-          filter: { foo: :bar }
-        }
-      ])
+          {
+            gauss: {
+              field: {
+                origin: '11, 12',
+                scale: '2km',
+                offset: '5km',
+                decay: 0.4
+              }
+            },
+            filter: { foo: :bar }
+          }
+        ])
     }
   end
 
@@ -231,10 +231,10 @@ describe Chewy::Query do
         expect(CitiesIndex.facets(ratings: { terms: { field: 'rating' } }).facets).to eq('ratings' => {
                                                                                            '_type' => 'terms', 'missing' => 0, 'total' => 10, 'other' => 0,
                                                                                            'terms' => [
-              { 'term' => 0, 'count' => 4 },
-              { 'term' => 2, 'count' => 3 },
-              { 'term' => 1, 'count' => 3 }
-            ]
+                                                                                             { 'term' => 0, 'count' => 4 },
+                                                                                             { 'term' => 2, 'count' => 3 },
+                                                                                             { 'term' => 1, 'count' => 3 }
+                                                                                           ]
                                                                                          })
       end
     end
@@ -333,10 +333,10 @@ describe Chewy::Query do
         specify { expect(CitiesIndex.aggregations).to eq({}) }
         specify { expect(CitiesIndex.aggregations(ratings: { terms: { field: 'rating' } })
           .aggregations['ratings']['buckets'].map { |h| h.slice('key', 'doc_count') }).to eq([
-          { 'key' => 0, 'doc_count' => 4 },
-          { 'key' => 1, 'doc_count' => 3 },
-          { 'key' => 2, 'doc_count' => 3 }
-        ]) }
+            { 'key' => 0, 'doc_count' => 4 },
+            { 'key' => 1, 'doc_count' => 3 },
+            { 'key' => 2, 'doc_count' => 3 }
+          ]) }
       end
     end
   end
@@ -364,14 +364,14 @@ describe Chewy::Query do
 
         specify { expect(CitiesIndex.suggest).to eq({}) }
         specify { expect(CitiesIndex.suggest(name: { text: 'name', term: { field: 'name' } }).suggest).to eq('name' => [
-            { 'text' => 'name', 'offset' => 0, 'length' => 4, 'options' => [
-                { 'text' => 'name0', 'score' => 0.75, 'freq' => 1 },
-                { 'text' => 'name1', 'score' => 0.75, 'freq' => 1 },
-                { 'text' => 'name2', 'score' => 0.75, 'freq' => 1 },
-                { 'text' => 'name3', 'score' => 0.75, 'freq' => 1 },
-                { 'text' => 'name4', 'score' => 0.75, 'freq' => 1 }
-              ] }
-          ])
+          { 'text' => 'name', 'offset' => 0, 'length' => 4, 'options' => [
+            { 'text' => 'name0', 'score' => 0.75, 'freq' => 1 },
+            { 'text' => 'name1', 'score' => 0.75, 'freq' => 1 },
+            { 'text' => 'name2', 'score' => 0.75, 'freq' => 1 },
+            { 'text' => 'name3', 'score' => 0.75, 'freq' => 1 },
+            { 'text' => 'name4', 'score' => 0.75, 'freq' => 1 }
+          ] }
+        ])
         }
       end
     end
@@ -551,8 +551,8 @@ describe Chewy::Query do
     specify { expect(subject.only(:field)).not_to eq(subject) }
     specify { expect { subject.only(:field) }.not_to change { subject.criteria.fields } }
 
-    specify { expect(subject.only(:field1, :field2).criteria.fields).to match_array(['field1', 'field2']) }
-    specify { expect(subject.only([:field1, :field2]).only(:field3).criteria.fields).to match_array(['field1', 'field2', 'field3']) }
+    specify { expect(subject.only(:field1, :field2).criteria.fields).to match_array(%w(field1 field2)) }
+    specify { expect(subject.only([:field1, :field2]).only(:field3).criteria.fields).to match_array(%w(field1 field2 field3)) }
   end
 
   describe '#only!' do
@@ -560,7 +560,7 @@ describe Chewy::Query do
     specify { expect(subject.only!(:field)).not_to eq(subject) }
     specify { expect { subject.only!(:field) }.not_to change { subject.criteria.fields } }
 
-    specify { expect(subject.only!(:field1, :field2).criteria.fields).to match_array(['field1', 'field2']) }
+    specify { expect(subject.only!(:field1, :field2).criteria.fields).to match_array(%w(field1 field2)) }
     specify { expect(subject.only!([:field1, :field2]).only!(:field3).criteria.fields).to match_array(['field3']) }
     specify { expect(subject.only([:field1, :field2]).only!(:field3).criteria.fields).to match_array(['field3']) }
   end
@@ -571,8 +571,8 @@ describe Chewy::Query do
     specify { expect { subject.types(:product) }.not_to change { subject.criteria.types } }
 
     specify { expect(subject.types(:user).criteria.types).to eq(['user']) }
-    specify { expect(subject.types(:product, :city).criteria.types).to match_array(['product', 'city']) }
-    specify { expect(subject.types([:product, :city]).types(:country).criteria.types).to match_array(['product', 'city', 'country']) }
+    specify { expect(subject.types(:product, :city).criteria.types).to match_array(%w(product city)) }
+    specify { expect(subject.types([:product, :city]).types(:country).criteria.types).to match_array(%w(product city country)) }
   end
 
   describe '#types!' do
@@ -581,7 +581,7 @@ describe Chewy::Query do
     specify { expect { subject.types!(:product) }.not_to change { subject.criteria.types } }
 
     specify { expect(subject.types!(:user).criteria.types).to eq(['user']) }
-    specify { expect(subject.types!(:product, :city).criteria.types).to match_array(['product', 'city']) }
+    specify { expect(subject.types!(:product, :city).criteria.types).to match_array(%w(product city)) }
     specify { expect(subject.types!([:product, :city]).types!(:country).criteria.types).to match_array(['country']) }
     specify { expect(subject.types([:product, :city]).types!(:country).criteria.types).to match_array(['country']) }
   end

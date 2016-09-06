@@ -59,9 +59,10 @@ describe Chewy::Type::Adapter::Object do
           .to eq([{ index: objects.first(2) }, { index: objects.last(1) }]) }
       specify { expect(import(objects, deleted)).to eq([{ index: objects, delete: deleted }]) }
       specify { expect(import(objects, deleted, batch_size: 2)).to eq([
-          { index: objects.first(2) },
-          { index: objects.last(1), delete: deleted.first(1) },
-          { delete: deleted.last(1) }]) }
+        { index: objects.first(2) },
+        { index: objects.last(1), delete: deleted.first(1) },
+        { delete: deleted.last(1) }
+      ]) }
 
       specify { expect(import(objects.first, nil)).to eq([{ index: [objects.first] }]) }
 

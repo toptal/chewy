@@ -109,22 +109,22 @@ describe Chewy::Query::Criteria do
     specify { expect { subject.update_fields(:field) }.to change { subject.fields? }.to(true) }
     specify { expect { subject.update_fields(:field) }.to change { subject.fields }.to(['field']) }
     specify { expect { subject.update_fields([:field, :field]) }.to change { subject.fields }.to(['field']) }
-    specify { expect { subject.update_fields([:field1, :field2]) }.to change { subject.fields }.to(['field1', 'field2']) }
+    specify { expect { subject.update_fields([:field1, :field2]) }.to change { subject.fields }.to(%w(field1 field2)) }
     specify { expect { subject.tap { |s| s.update_fields(:field1) }.update_fields([:field2, :field3]) }
-      .to change { subject.fields }.to(['field1', 'field2', 'field3']) }
+      .to change { subject.fields }.to(%w(field1 field2 field3)) }
     specify { expect { subject.tap { |s| s.update_fields(:field1) }.update_fields([:field2, :field3], purge: true) }
-      .to change { subject.fields }.to(['field2', 'field3']) }
+      .to change { subject.fields }.to(%w(field2 field3)) }
   end
 
   describe '#update_types' do
     specify { expect { subject.update_types(:type) }.to change { subject.types? }.to(true) }
     specify { expect { subject.update_types(:type) }.to change { subject.types }.to(['type']) }
     specify { expect { subject.update_types([:type, :type]) }.to change { subject.types }.to(['type']) }
-    specify { expect { subject.update_types([:type1, :type2]) }.to change { subject.types }.to(['type1', 'type2']) }
+    specify { expect { subject.update_types([:type1, :type2]) }.to change { subject.types }.to(%w(type1 type2)) }
     specify { expect { subject.tap { |s| s.update_types(:type1) }.update_types([:type2, :type3]) }
-      .to change { subject.types }.to(['type1', 'type2', 'type3']) }
+      .to change { subject.types }.to(%w(type1 type2 type3)) }
     specify { expect { subject.tap { |s| s.update_types(:type1) }.update_types([:type2, :type3], purge: true) }
-      .to change { subject.types }.to(['type2', 'type3']) }
+      .to change { subject.types }.to(%w(type2 type3)) }
   end
 
   describe '#merge' do
@@ -154,9 +154,9 @@ describe Chewy::Query::Criteria do
     specify { expect(subject.tap { |c| c.update_sort(:field1) }
       .merge(criteria.tap { |c| c.update_sort(:field2) }).sort).to eq([:field1, :field2]) }
     specify { expect(subject.tap { |c| c.update_fields(:field1) }
-      .merge(criteria.tap { |c| c.update_fields(:field2) }).fields).to eq(['field1', 'field2']) }
+      .merge(criteria.tap { |c| c.update_fields(:field2) }).fields).to eq(%w(field1 field2)) }
     specify { expect(subject.tap { |c| c.update_types(:type1) }
-      .merge(criteria.tap { |c| c.update_types(:type2) }).types).to eq(['type1', 'type2']) }
+      .merge(criteria.tap { |c| c.update_types(:type2) }).types).to eq(%w(type1 type2)) }
   end
 
   describe '#merge!' do
@@ -184,9 +184,9 @@ describe Chewy::Query::Criteria do
     specify { expect(subject.tap { |c| c.update_sort(:field1) }
       .merge!(criteria.tap { |c| c.update_sort(:field2) }).sort).to eq([:field1, :field2]) }
     specify { expect(subject.tap { |c| c.update_fields(:field1) }
-      .merge!(criteria.tap { |c| c.update_fields(:field2) }).fields).to eq(['field1', 'field2']) }
+      .merge!(criteria.tap { |c| c.update_fields(:field2) }).fields).to eq(%w(field1 field2)) }
     specify { expect(subject.tap { |c| c.update_types(:type1) }
-      .merge!(criteria.tap { |c| c.update_types(:type2) }).types).to eq(['type1', 'type2']) }
+      .merge!(criteria.tap { |c| c.update_types(:type2) }).types).to eq(%w(type1 type2)) }
   end
 
   describe '#request_body' do

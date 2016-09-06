@@ -207,7 +207,7 @@ describe Chewy::Type::Import do
             errors: {
               index: {
                 "WriteFailureException; nested: MapperParsingException[object mapping for [city] tried to parse field [name] as object, but got EOF, has a concrete value been provided to it?]; " => ["1"],
-                "MapperParsingException[object mapping for [city] tried to parse field [name] as object, but got EOF, has a concrete value been provided to it?]" => ["2", "3"]
+                "MapperParsingException[object mapping for [city] tried to parse field [name] as object, but got EOF, has a concrete value been provided to it?]" => %w(2 3)
               }
             },
             import: { index: 3 })
@@ -224,7 +224,7 @@ describe Chewy::Type::Import do
           expect(outer_payload).to eq(type: CitiesIndex::City,
             errors: {
               index: {
-                { "type"=>"mapper_parsing_exception", "reason"=>"object mapping for [name] tried to parse field [name] as object, but found a concrete value" } => ["1", "2", "3"]
+                { "type"=>"mapper_parsing_exception", "reason"=>"object mapping for [name] tried to parse field [name] as object, but found a concrete value" } => %w(1 2 3)
               }
             },
             import: { index: 3 })

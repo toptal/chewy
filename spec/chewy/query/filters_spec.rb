@@ -38,14 +38,14 @@ describe Chewy::Query::Filters do
   context 'term' do
     specify { expect(query { email == 'email' }).to be_eql Equal(:email, 'email') }
     specify { expect(query { name != 'name' }).to be_eql Not(Equal(:name, 'name')) }
-    specify { expect(query { email == ['email1', 'email2'] }).to be_eql Equal(:email, ['email1', 'email2']) }
-    specify { expect(query { email != ['email1', 'email2'] }).to be_eql Not(Equal(:email, ['email1', 'email2'])) }
-    specify { expect(query { email(execution: :bool) == ['email1', 'email2'] })
-      .to be_eql Equal(:email, ['email1', 'email2'], execution: :bool) }
-    specify { expect(query { email(:bool) == ['email1', 'email2'] })
-      .to be_eql Equal(:email, ['email1', 'email2'], execution: :bool) }
-    specify { expect(query { email(:b) == ['email1', 'email2'] })
-      .to be_eql Equal(:email, ['email1', 'email2'], execution: :bool) }
+    specify { expect(query { email == %w(email1 email2) }).to be_eql Equal(:email, %w(email1 email2)) }
+    specify { expect(query { email != %w(email1 email2) }).to be_eql Not(Equal(:email, %w(email1 email2))) }
+    specify { expect(query { email(execution: :bool) == %w(email1 email2) })
+      .to be_eql Equal(:email, %w(email1 email2), execution: :bool) }
+    specify { expect(query { email(:bool) == %w(email1 email2) })
+      .to be_eql Equal(:email, %w(email1 email2), execution: :bool) }
+    specify { expect(query { email(:b) == %w(email1 email2) })
+      .to be_eql Equal(:email, %w(email1 email2), execution: :bool) }
   end
 
   context 'bool' do

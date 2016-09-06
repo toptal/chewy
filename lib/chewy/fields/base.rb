@@ -15,7 +15,7 @@ module Chewy
       end
 
       def object_field?
-        (children.present? && options[:type].blank?) || ['object', 'nested'].include?(options[:type].to_s)
+        (children.present? && options[:type].blank?) || %w(object nested).include?(options[:type].to_s)
       end
 
       def mappings_hash

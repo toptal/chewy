@@ -134,10 +134,10 @@ describe :update_index do
       }.to fail_matching('Expected document with id `42` to be reindexed, but it was not') }
 
       [
-        [{ a: ['one', 'two'] }, { a: ['one', 'two'] }],
-        [{ a: ['one', 'two'] }, { a: ['two', 'one'] }],
-        [{ a: ['one', 'one', 'two'] }, { a: ['one', 'two', 'one'] }],
-        [{ a: { b: ['one', 'one', 'two'] } }, { a: { b: ['one', 'two', 'one'] } }],
+        [{ a: %w(one two) }, { a: %w(one two) }],
+        [{ a: %w(one two) }, { a: %w(two one) }],
+        [{ a: %w(one one two) }, { a: %w(one two one) }],
+        [{ a: { b: %w(one one two) } }, { a: { b: %w(one two one) } }],
         [{ a: 1, b: 1 }, { a: 1 }]
       ].each do |(data, with)|
         specify { expect {
@@ -146,10 +146,10 @@ describe :update_index do
       end
 
       [
-        [{ a: ['one', 'two'] }, { a: ['one', 'one', 'two'] }],
-        [{ a: ['one', 'one', 'two'] }, { a: ['one', 'two'] }],
-        [{ a: ['one', 'two'] }, { a: 1 }],
-        [{ a: 1 }, { a: ['one', 'two'] }],
+        [{ a: %w(one two) }, { a: %w(one one two) }],
+        [{ a: %w(one one two) }, { a: %w(one two) }],
+        [{ a: %w(one two) }, { a: 1 }],
+        [{ a: 1 }, { a: %w(one two) }],
         [{ a: 1 }, { a: 1, b: 1 }]
       ].each do |(data, with)|
         specify { expect {

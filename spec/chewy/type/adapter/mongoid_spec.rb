@@ -84,7 +84,8 @@ describe Chewy::Type::Adapter::Mongoid, :mongoid do
         { index: cities.first(2) },
         { index: cities.last(1) },
         { delete: deleted.first(2) },
-        { delete: deleted.last(2) }]) }
+        { delete: deleted.last(2) }
+      ]) }
 
       specify { expect(import(cities.map(&:id))).to eq([{ index: cities }]) }
       specify { expect(import(deleted.map(&:id))).to eq([{ delete: deleted.map(&:id) }]) }
@@ -96,7 +97,8 @@ describe Chewy::Type::Adapter::Mongoid, :mongoid do
         { index: cities.first(2) },
         { index: cities.last(1) },
         { delete: deleted.first(2).map(&:id) },
-        { delete: deleted.last(2).map(&:id) }]) }
+        { delete: deleted.last(2).map(&:id) }
+      ]) }
 
       specify { expect(import(cities.first, nil)).to eq([{ index: [cities.first] }]) }
       specify { expect(import(cities.first.id, nil)).to eq([{ index: [cities.first] }]) }
@@ -155,7 +157,8 @@ describe Chewy::Type::Adapter::Mongoid, :mongoid do
       specify { expect(import(cities, deleted, batch_size: 3)).to eq([
         { index: cities.first(3) },
         { delete: cities.last(1) + deleted.first(2) },
-        { delete: deleted.last(1) }]) }
+        { delete: deleted.last(1) }
+      ]) }
 
       specify { expect(import(cities.first(2).map(&:id)))
         .to eq([{ index: cities.first(2) }]) }
@@ -168,7 +171,8 @@ describe Chewy::Type::Adapter::Mongoid, :mongoid do
       specify { expect(import(cities.map(&:id), deleted.map(&:id), batch_size: 3)).to eq([
         { index: cities.first(3) },
         { delete: [cities.last.id] + deleted.first(2).map(&:id) },
-        { delete: deleted.last(1).map(&:id) }]) }
+        { delete: deleted.last(1).map(&:id) }
+      ]) }
     end
 
     context 'error handling' do

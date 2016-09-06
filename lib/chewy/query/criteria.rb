@@ -4,8 +4,8 @@ module Chewy
   class Query
     class Criteria
       include Compose
-      ARRAY_STORAGES = [:queries, :filters, :post_filters, :sort, :fields, :types, :scores]
-      HASH_STORAGES = [:options, :search_options, :request_options, :facets, :aggregations, :suggest, :script_fields]
+      ARRAY_STORAGES = [:queries, :filters, :post_filters, :sort, :fields, :types, :scores].freeze
+      HASH_STORAGES = [:options, :search_options, :request_options, :facets, :aggregations, :suggest, :script_fields].freeze
       STORAGES = ARRAY_STORAGES + HASH_STORAGES
 
       def initialize(options = {})

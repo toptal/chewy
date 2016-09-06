@@ -10,7 +10,8 @@ module Chewy
 
       class Crutches
         def initialize(type, collection)
-          @type, @collection = type, collection
+          @type = type
+          @collection = collection
           @type._crutches.keys.each do |name|
             singleton_class.class_eval <<-METHOD, __FILE__, __LINE__ + 1
               def #{name}

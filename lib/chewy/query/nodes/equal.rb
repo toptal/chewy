@@ -10,8 +10,8 @@ module Chewy
           :b => :bool,
           :bool => :bool,
           :f => :fielddata,
-          :fielddata => :fielddata,
-        }
+          :fielddata => :fielddata
+        }.freeze
 
         def initialize(name, value, *args)
           @name = name.to_s

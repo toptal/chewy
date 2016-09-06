@@ -29,7 +29,7 @@ class SearchIndexReceiver
       mutation_for(index).indexes
     else
       Hash[
-        @mutations.map { |a,b| [a, b.indexes] }
+        @mutations.map { |a, b| [a, b.indexes] }
       ]
     end
   end
@@ -42,7 +42,7 @@ class SearchIndexReceiver
       mutation_for(index).deletes
     else
       Hash[
-        @mutations.map { |a,b| [a, b.deletes] }
+        @mutations.map { |a, b| [a, b.deletes] }
       ]
     end
   end
@@ -70,11 +70,11 @@ class SearchIndexReceiver
   end
 
 private
+
   # Get the mutation object for a given type.
   # @param (Chewy::Type) type the index type to fetch.
   # @return (#indexes, #deletes) an object with a list of indexes and a list of deletes.
   def mutation_for(type)
     @mutations[type] ||= OpenStruct.new(indexes: [], deletes: [])
   end
-
 end

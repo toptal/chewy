@@ -48,7 +48,7 @@ if defined?(::ActiveJob)
 
     specify do
       expect(CitiesIndex::City).to receive(:import!).with([city.id, other_city.id], suffix: '201601')
-      Chewy::Strategy::ActiveJob::Worker.new.perform("CitiesIndex::City", [city.id, other_city.id], suffix: '201601')
+      Chewy::Strategy::ActiveJob::Worker.new.perform('CitiesIndex::City', [city.id, other_city.id], suffix: '201601')
     end
   end
 end

@@ -23,9 +23,7 @@ module Chewy
         bulk_mock = lambda do |*bulk_args|
           receiver.catch bulk_args, self
 
-          unless bypass_actual_index
-            bulk_method.call(*bulk_args)
-          end
+          bulk_method.call(*bulk_args) unless bypass_actual_index
 
           {}
         end
@@ -74,7 +72,6 @@ module Chewy
           Chewy.massacre
         end
       end
-
     end
   end
 end

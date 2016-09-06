@@ -52,7 +52,7 @@ describe Chewy::Type::Adapter::Object do
       subject { described_class.new('product') }
 
       specify { expect(import).to eq([]) }
-      specify { expect(import nil).to eq([]) }
+      specify { expect(import(nil)).to eq([]) }
 
       specify { expect(import(objects)).to eq([{ index: objects }]) }
       specify do
@@ -74,7 +74,7 @@ describe Chewy::Type::Adapter::Object do
         subject { described_class.new -> { objects } }
 
         specify { expect(import).to eq([{ index: objects }]) }
-        specify { expect(import nil).to eq([]) }
+        specify { expect(import(nil)).to eq([]) }
 
         specify { expect(import(objects[0..1])).to eq([{ index: objects[0..1] }]) }
         specify do
@@ -131,7 +131,12 @@ describe Chewy::Type::Adapter::Object do
 
     [:wrap, :load_one].each do |load_method|
       context do
-        before { allow(Product).to receive(load_method) { |object| allow(object).to receive_messages(wrapped?: true); object } }
+        before do
+          allow(Product).to receive(load_method) { |object|
+                              allow(object).to receive_messages(wrapped?: true)
+                              object
+                            }
+        end
         subject { described_class.new(Product) }
         let(:objects) { Array.new(3) { double(wrapped?: false) } }
 

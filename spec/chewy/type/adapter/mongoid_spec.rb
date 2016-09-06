@@ -47,7 +47,7 @@ describe Chewy::Type::Adapter::Mongoid, :mongoid do
     specify { expect(subject.identify(cities.first(2).map(&:id))).to eq(cities.first(2).map(&:id).map(&:to_s)) }
 
     context 'non-bson ids' do
-      let!(:cities) { Array.new(3) { |i| City.create! id: i+1 } }
+      let!(:cities) { Array.new(3) { |i| City.create! id: i + 1 } }
 
       specify { expect(subject.identify(City.all)).to match_array(cities.map(&:id)) }
       specify { expect(subject.identify(cities)).to eq(cities.map(&:id)) }
@@ -69,7 +69,7 @@ describe Chewy::Type::Adapter::Mongoid, :mongoid do
       subject { described_class.new(City) }
 
       specify { expect(import).to match([{ index: match_array(cities) }]) }
-      specify { expect(import nil).to eq([]) }
+      specify { expect(import(nil)).to eq([]) }
 
       specify { expect(import(City.order(:id.asc))).to eq([{ index: cities }]) }
       specify do
@@ -152,7 +152,7 @@ describe Chewy::Type::Adapter::Mongoid, :mongoid do
     end
 
     context 'default scope' do
-      let!(:cities) { Array.new(4) { |i| City.create!(id: i, rating: i/3) }.sort_by(&:id) }
+      let!(:cities) { Array.new(4) { |i| City.create!(id: i, rating: i / 3) }.sort_by(&:id) }
       let!(:deleted) { Array.new(3) { |i| City.create!(id: 4 + i).tap(&:destroy) }.sort_by(&:id) }
       subject { described_class.new(City.where(rating: 0)) }
 
@@ -228,7 +228,10 @@ describe Chewy::Type::Adapter::Mongoid, :mongoid do
       subject { described_class.new(City) }
 
       let(:data_comparer) do
-        ->(id, data) { objects = data[:index] || data[:delete]; !objects.map { |o| o.respond_to?(:id) ? o.id : o }.include?(id) }
+        lambda do |id, data|
+          objects = data[:index] || data[:delete]
+          !objects.map { |o| o.respond_to?(:id) ? o.id : o }.include?(id)
+        end
       end
 
       context 'implicit scope' do
@@ -277,7 +280,7 @@ describe Chewy::Type::Adapter::Mongoid, :mongoid do
 
   describe '#load' do
     context do
-      let!(:cities) { Array.new(3) { |i| City.create!(id: i, rating: i/2) }.sort_by(&:id) }
+      let!(:cities) { Array.new(3) { |i| City.create!(id: i, rating: i / 2) }.sort_by(&:id) }
       let!(:deleted) { Array.new(2) { |i| City.create!(id: 3 + i).tap(&:destroy) }.sort_by(&:id) }
 
       let(:type) { double(type_name: 'user') }

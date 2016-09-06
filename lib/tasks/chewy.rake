@@ -6,7 +6,7 @@ namespace :chewy do
     Chewy::RakeHelper.subscribed_task_stats do
       indexes = args.extras
 
-      if indexes.empty? || indexes.first.tr!(?-, '')
+      if indexes.empty? || indexes.first.tr!('-', '')
         Chewy::RakeHelper.reset_all(indexes)
       else
         Chewy::RakeHelper.reset_index(indexes)
@@ -19,7 +19,7 @@ namespace :chewy do
     Chewy::RakeHelper.subscribed_task_stats do
       indexes = args.extras
 
-      if indexes.empty? || indexes.first.tr!(?-, '')
+      if indexes.empty? || indexes.first.tr!('-', '')
         Chewy::RakeHelper.update_all(indexes)
       else
         Chewy::RakeHelper.update_index(indexes)

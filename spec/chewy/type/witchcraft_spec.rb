@@ -28,7 +28,7 @@ describe Chewy::Type::Witchcraft do
         field :age
         field :tags
       end
-      let(:attributes) { { name: 'Name', age: 13, tags: %w[Ruby RoR] } }
+      let(:attributes) { { name: 'Name', age: 13, tags: %w(Ruby RoR) } }
 
       context do
         let(:object) { double(attributes) }
@@ -49,7 +49,7 @@ describe Chewy::Type::Witchcraft do
         }
         field :tags, value: -> { tags.map(&:to_sym) }
       end
-      let(:attributes) { { name: 'Name', age: 13, tags: %w[Ruby RoR] } }
+      let(:attributes) { { name: 'Name', age: 13, tags: %w(Ruby RoR) } }
 
       context do
         let(:object) { double(attributes) }

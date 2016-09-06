@@ -4,7 +4,8 @@ module Chewy
       class Prefix < Expr
         def initialize(name, value, options = {})
           @name = name.to_s
-          @value, @options = value, options
+          @value = value
+          @options = options
         end
 
         def __render__

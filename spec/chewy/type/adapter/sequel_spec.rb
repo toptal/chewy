@@ -7,24 +7,24 @@ describe Chewy::Type::Adapter::Sequel, :sequel do
   end
 
   describe '#name' do
-    it { expect( described_class.new(City).name ).to eq 'City' }
-    it { expect( described_class.new(City.order(:id)).name ).to eq 'City' }
-    it { expect( described_class.new(City, name: 'town').name ).to eq 'Town' }
+    it { expect(described_class.new(City).name).to eq 'City' }
+    it { expect(described_class.new(City.order(:id)).name).to eq 'City' }
+    it { expect(described_class.new(City, name: 'town').name).to eq 'Town' }
 
     context do
       before { stub_model('namespace/city') }
 
-      it { expect( described_class.new(Namespace::City).name ).to eq 'City' }
-      it { expect( described_class.new(Namespace::City.order(:id)).name ).to eq 'City' }
+      it { expect(described_class.new(Namespace::City).name).to eq 'City' }
+      it { expect(described_class.new(Namespace::City.order(:id)).name).to eq 'City' }
     end
   end
 
   describe '#default_scope' do
-    it { expect( described_class.new(City).default_scope.sql ).to eql City.where(nil).sql }
-    it { expect( described_class.new(City.order(:id)).default_scope.sql ).to eql City.where(nil).sql }
-    it { expect( described_class.new(City.limit(10)).default_scope.sql ).to eql City.where(nil).sql  }
-    it { expect( described_class.new(City.offset(10)).default_scope.sql ).to eql City.where(nil).sql }
-    it { expect( described_class.new(City.where(rating: 10)).default_scope.sql ).to eql City.where(rating: 10).sql }
+    it { expect(described_class.new(City).default_scope.sql).to eql City.where(nil).sql }
+    it { expect(described_class.new(City.order(:id)).default_scope.sql).to eql City.where(nil).sql }
+    it { expect(described_class.new(City.limit(10)).default_scope.sql).to eql City.where(nil).sql  }
+    it { expect(described_class.new(City.offset(10)).default_scope.sql).to eql City.where(nil).sql }
+    it { expect(described_class.new(City.where(rating: 10)).default_scope.sql).to eql City.where(rating: 10).sql }
   end
 
   describe '#type_name' do
@@ -46,10 +46,10 @@ describe Chewy::Type::Adapter::Sequel, :sequel do
     context do
       let!(:cities) { Array.new(3) { City.new.save! } }
 
-      it { expect(subject.identify(City.where(nil)) ).to match_array cities.map(&:id) }
-      it { expect(subject.identify(cities) ).to eq cities.map(&:id) }
-      it { expect(subject.identify(cities.first) ).to eq([cities.first.id]) }
-      it { expect(subject.identify(cities.first(2).map(&:id)) ).to eq cities.first(2).map(&:id) }
+      it { expect(subject.identify(City.where(nil))).to match_array cities.map(&:id) }
+      it { expect(subject.identify(cities)).to eq cities.map(&:id) }
+      it { expect(subject.identify(cities.first)).to eq([cities.first.id]) }
+      it { expect(subject.identify(cities.first(2).map(&:id))).to eq cities.first(2).map(&:id) }
     end
 
     context 'custom primary_key' do
@@ -76,7 +76,7 @@ describe Chewy::Type::Adapter::Sequel, :sequel do
       subject { described_class.new(City) }
 
       specify { expect(import).to eq([{ index: cities }]) }
-      specify { expect(import nil).to eq([]) }
+      specify { expect(import(nil)).to eq([]) }
 
       specify { expect(import(City.order(:id))).to eq([{ index: cities }]) }
       specify do
@@ -210,7 +210,7 @@ describe Chewy::Type::Adapter::Sequel, :sequel do
     end
 
     context 'default scope' do
-      let!(:cities) { Array.new(4) { |i| City.create!(rating: i/3) } }
+      let!(:cities) { Array.new(4) { |i| City.create!(rating: i / 3) } }
       let!(:deleted) { Array.new(3) { City.create!.tap(&:destroy) } }
       subject { described_class.new(City.where(rating: 0)) }
 
@@ -286,7 +286,10 @@ describe Chewy::Type::Adapter::Sequel, :sequel do
       subject { described_class.new(City) }
 
       let(:data_comparer) do
-        ->(id, data) { objects = data[:index] || data[:delete]; !objects.map { |o| o.respond_to?(:id) ? o.id : o }.include?(id) }
+        lambda do |id, data|
+          objects = data[:index] || data[:delete]
+          !objects.map { |o| o.respond_to?(:id) ? o.id : o }.include?(id)
+        end
       end
 
       context 'implicit scope' do
@@ -335,7 +338,7 @@ describe Chewy::Type::Adapter::Sequel, :sequel do
 
   describe '#load' do
     context do
-      let!(:cities) { Array.new(3) { |i| City.create!(rating: i/2) } }
+      let!(:cities) { Array.new(3) { |i| City.create!(rating: i / 2) } }
       let!(:deleted) { Array.new(2) { City.create!.tap(&:destroy) } }
 
       let(:type) { double(type_name: 'user') }
@@ -368,7 +371,7 @@ describe Chewy::Type::Adapter::Sequel, :sequel do
 
     context 'custom primary_key' do
       before { stub_model(:city).set_dataset :rating_cities }
-      let!(:cities) { Array.new(3) { |i| City.create!(country_id: i/2) { |c| c.rating = i + 7 } } }
+      let!(:cities) { Array.new(3) { |i| City.create!(country_id: i / 2) { |c| c.rating = i + 7 } } }
       let!(:deleted) { Array.new(2) { |i| City.create! { |c| c.rating = i + 10 }.tap(&:destroy) } }
 
       let(:type) { double(type_name: 'user') }

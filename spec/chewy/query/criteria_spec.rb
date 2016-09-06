@@ -67,7 +67,10 @@ describe Chewy::Query::Criteria do
     specify { expect { subject.update_queries(field: 'hello') }.to change { subject.queries? }.to(true) }
     specify { expect { subject.update_queries(field: 'hello') }.to change { subject.queries }.to([field: 'hello']) }
     specify do
-      expect { subject.update_queries(field: 'hello'); subject.update_queries(field: 'world') }
+      expect do
+        subject.update_queries(field: 'hello')
+        subject.update_queries(field: 'world')
+      end
         .to change { subject.queries }.to([{ field: 'hello' }, { field: 'world' }])
     end
     specify do
@@ -80,7 +83,10 @@ describe Chewy::Query::Criteria do
     specify { expect { subject.update_filters(field: 'hello') }.to change { subject.filters? }.to(true) }
     specify { expect { subject.update_filters(field: 'hello') }.to change { subject.filters }.to([{ field: 'hello' }]) }
     specify do
-      expect { subject.update_filters(field: 'hello'); subject.update_filters(field: 'world') }
+      expect do
+        subject.update_filters(field: 'hello')
+        subject.update_filters(field: 'world')
+      end
         .to change { subject.filters }.to([{ field: 'hello' }, { field: 'world' }])
     end
     specify do
@@ -93,7 +99,10 @@ describe Chewy::Query::Criteria do
     specify { expect { subject.update_post_filters(field: 'hello') }.to change { subject.post_filters? }.to(true) }
     specify { expect { subject.update_post_filters(field: 'hello') }.to change { subject.post_filters }.to([{ field: 'hello' }]) }
     specify do
-      expect { subject.update_post_filters(field: 'hello'); subject.update_post_filters(field: 'world') }
+      expect do
+        subject.update_post_filters(field: 'hello')
+        subject.update_post_filters(field: 'world')
+      end
         .to change { subject.post_filters }.to([{ field: 'hello' }, { field: 'world' }])
     end
     specify do
@@ -173,7 +182,7 @@ describe Chewy::Query::Criteria do
     end
     specify do
       expect(subject.tap { |c| c.update_scores(script: 'hello') }
-      .merge(criteria.tap { |c| c.update_scores(script: 'foobar') }).scores).to eq([{ script: 'hello' }, { script: 'foobar' } ])
+      .merge(criteria.tap { |c| c.update_scores(script: 'foobar') }).scores).to eq([{ script: 'hello' }, { script: 'foobar' }])
     end
     specify do
       expect(subject.tap { |c| c.update_aggregations(field1: 'hello') }
@@ -274,7 +283,7 @@ describe Chewy::Query::Criteria do
              end).to eq(body: { query: { function_score: { functions: [{ script_score: { script: '_score' } }] } } }) end
     specify do
       expect(request_body do
-               update_scores(script_score: { script: "boost_me" })
+               update_scores(script_score: { script: 'boost_me' })
                update_queries(:query)
                update_options(boost_mode: :add)
                update_options(score_mode: :avg)
@@ -291,16 +300,21 @@ describe Chewy::Query::Criteria do
     end
     specify do
       expect(request_body do
-               update_request_options(from: 10); update_sort(:field); update_fields(:field); update_queries(:query)
+               update_request_options(from: 10)
+               update_sort(:field)
+               update_fields(:field)
+               update_queries(:query)
              end).to eq(body: { query: :query, from: 10, sort: [:field], _source: ['field'] }) end
 
     specify do
       expect(request_body do
-               update_queries(:query); update_filters(:filters);
+               update_queries(:query)
+               update_filters(:filters)
              end).to eq(body: { query: { filtered: { query: :query, filter: :filters } } }) end
     specify do
       expect(request_body do
-               update_queries(:query); update_post_filters(:post_filter);
+               update_queries(:query)
+               update_post_filters(:post_filter)
              end).to eq(body: { query: :query, post_filter: :post_filter }) end
     specify do
       expect(request_body do
@@ -322,11 +336,17 @@ describe Chewy::Query::Criteria do
         .to eq(query: { bool: { must: [:query1, :query2] } })
     end
     specify do
-      expect(_filtered_query { update_options(query_mode: :should); update_queries([:query1, :query2]) })
+      expect(_filtered_query do
+        update_options(query_mode: :should)
+        update_queries([:query1, :query2])
+      end)
         .to eq(query: { bool: { should: [:query1, :query2] } })
     end
     specify do
-      expect(_filtered_query { update_options(query_mode: :dis_max); update_queries([:query1, :query2]) })
+      expect(_filtered_query do
+        update_options(query_mode: :dis_max)
+        update_queries([:query1, :query2])
+      end)
         .to eq(query: { dis_max: { queries: [:query1, :query2] } })
     end
 
@@ -340,14 +360,20 @@ describe Chewy::Query::Criteria do
     end
 
     specify do
-      expect(_filtered_query { update_filters([:filter1, :filter2]); update_queries([:query1, :query2]) })
+      expect(_filtered_query do
+        update_filters([:filter1, :filter2])
+        update_queries([:query1, :query2])
+      end)
         .to eq(query: { filtered: {
                  query: { bool: { must: [:query1, :query2] } },
                  filter: { and: [:filter1, :filter2] }
                } })
     end
     specify do
-      expect(_filtered_query(strategy: 'query_first') { update_filters([:filter1, :filter2]); update_queries([:query1, :query2]) })
+      expect(_filtered_query(strategy: 'query_first') do
+        update_filters([:filter1, :filter2])
+        update_queries([:query1, :query2])
+      end)
         .to eq(query: { filtered: {
                  query: { bool: { must: [:query1, :query2] } },
                  filter: { and: [:filter1, :filter2] },
@@ -356,8 +382,10 @@ describe Chewy::Query::Criteria do
     end
     specify do
       expect(_filtered_query do
-               update_options(query_mode: :should); update_options(filter_mode: :or);
-               update_filters([:filter1, :filter2]); update_queries([:query1, :query2])
+               update_options(query_mode: :should)
+               update_options(filter_mode: :or)
+               update_filters([:filter1, :filter2])
+               update_queries([:query1, :query2])
              end).to eq(query: { filtered: {
                           query: { bool: { should: [:query1, :query2] } },
                           filter: { or: [:filter1, :filter2] }
@@ -365,7 +393,7 @@ describe Chewy::Query::Criteria do
     end
   end
 
-  describe "#_boost_query" do
+  describe '#_boost_query' do
     specify { expect(subject.send(:_boost_query, query: :query)).to eq(query: :query) }
     specify do
       subject.update_scores(boost_factor: 5)
@@ -402,40 +430,71 @@ describe Chewy::Query::Criteria do
         .to eq(and: [:filter1, :filter2])
     end
     specify do
-      expect(_request_filter { update_options(filter_mode: :or); update_filters([:filter1, :filter2]) })
+      expect(_request_filter do
+        update_options(filter_mode: :or)
+        update_filters([:filter1, :filter2])
+      end)
         .to eq(or: [:filter1, :filter2])
     end
     specify do
-      expect(_request_filter { update_options(filter_mode: :must); update_filters([:filter1, :filter2]) })
+      expect(_request_filter do
+        update_options(filter_mode: :must)
+        update_filters([:filter1, :filter2])
+      end)
         .to eq(bool: { must: [:filter1, :filter2] })
     end
     specify do
-      expect(_request_filter { update_options(filter_mode: :should); update_filters([:filter1, :filter2]) })
+      expect(_request_filter do
+        update_options(filter_mode: :should)
+        update_filters([:filter1, :filter2])
+      end)
         .to eq(bool: { should: [:filter1, :filter2] })
     end
     specify do
-      expect(_request_filter { update_options(filter_mode: :must_not); update_filters([:filter1, :filter2]) })
+      expect(_request_filter do
+        update_options(filter_mode: :must_not)
+        update_filters([:filter1, :filter2])
+      end)
         .to eq(bool: { must_not: [:filter1, :filter2] })
     end
 
     specify do
-      expect(_request_filter { update_types([:type1, :type2]); update_filters([:filter1, :filter2]) })
+      expect(_request_filter do
+        update_types([:type1, :type2])
+        update_filters([:filter1, :filter2])
+      end)
         .to eq(and: [{ or: [{ type: { value: 'type1' } }, { type: { value: 'type2' } }] }, :filter1, :filter2])
     end
     specify do
-      expect(_request_filter { update_options(filter_mode: :or); update_types([:type1, :type2]); update_filters([:filter1, :filter2]) })
+      expect(_request_filter do
+        update_options(filter_mode: :or)
+        update_types([:type1, :type2])
+        update_filters([:filter1, :filter2])
+      end)
         .to eq(and: [{ or: [{ type: { value: 'type1' } }, { type: { value: 'type2' } }] }, { or: [:filter1, :filter2] }])
     end
     specify do
-      expect(_request_filter { update_options(filter_mode: :must); update_types([:type1, :type2]); update_filters([:filter1, :filter2]) })
+      expect(_request_filter do
+        update_options(filter_mode: :must)
+        update_types([:type1, :type2])
+        update_filters([:filter1, :filter2])
+      end)
         .to eq(and: [{ or: [{ type: { value: 'type1' } }, { type: { value: 'type2' } }] }, { bool: { must: [:filter1, :filter2] } }])
     end
     specify do
-      expect(_request_filter { update_options(filter_mode: :should); update_types([:type1, :type2]); update_filters([:filter1, :filter2]) })
+      expect(_request_filter do
+        update_options(filter_mode: :should)
+        update_types([:type1, :type2])
+        update_filters([:filter1, :filter2])
+      end)
         .to eq(and: [{ or: [{ type: { value: 'type1' } }, { type: { value: 'type2' } }] }, { bool: { should: [:filter1, :filter2] } }])
     end
     specify do
-      expect(_request_filter { update_options(filter_mode: :must_not); update_types([:type1, :type2]); update_filters([:filter1, :filter2]) })
+      expect(_request_filter do
+        update_options(filter_mode: :must_not)
+        update_types([:type1, :type2])
+        update_filters([:filter1, :filter2])
+      end)
         .to eq(and: [{ or: [{ type: { value: 'type1' } }, { type: { value: 'type2' } }] }, { bool: { must_not: [:filter1, :filter2] } }])
     end
   end
@@ -453,15 +512,24 @@ describe Chewy::Query::Criteria do
         .to eq(and: [:post_filter1, :post_filter2])
     end
     specify do
-      expect(_request_post_filter { update_options(post_filter_mode: :or); update_post_filters([:post_filter1, :post_filter2]) })
+      expect(_request_post_filter do
+        update_options(post_filter_mode: :or)
+        update_post_filters([:post_filter1, :post_filter2])
+      end)
         .to eq(or: [:post_filter1, :post_filter2])
     end
     specify do
-      expect(_request_post_filter { update_options(post_filter_mode: :must); update_post_filters([:post_filter1, :post_filter2]) })
+      expect(_request_post_filter do
+        update_options(post_filter_mode: :must)
+        update_post_filters([:post_filter1, :post_filter2])
+      end)
         .to eq(bool: { must: [:post_filter1, :post_filter2] })
     end
     specify do
-      expect(_request_post_filter { update_options(post_filter_mode: :should); update_post_filters([:post_filter1, :post_filter2]) })
+      expect(_request_post_filter do
+        update_options(post_filter_mode: :should)
+        update_post_filters([:post_filter1, :post_filter2])
+      end)
         .to eq(bool: { should: [:post_filter1, :post_filter2] })
     end
 

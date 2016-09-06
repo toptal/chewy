@@ -4,7 +4,6 @@ module Chewy
   class Type
     module Adapter
       class Mongoid < Orm
-
         def self.accepts?(target)
           defined?(::Mongoid::Document) && (
             target.is_a?(Class) && target.ancestors.include?(::Mongoid::Document) ||

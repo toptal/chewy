@@ -96,7 +96,7 @@ describe Chewy::Query do
     specify { expect(subject.limit(10)).not_to eq(subject) }
     specify { expect(subject.limit(10).criteria.request_options).to include(size: 10) }
     specify { expect { subject.limit(10) }.not_to change { subject.criteria.request_options } }
-    specify { expect(subject.limit { 20/2 }.criteria.request_body[:body]).to include(size: 10) }
+    specify { expect(subject.limit { 20 / 2 }.criteria.request_body[:body]).to include(size: 10) }
   end
 
   describe '#offset' do
@@ -104,7 +104,7 @@ describe Chewy::Query do
     specify { expect(subject.offset(10)).not_to eq(subject) }
     specify { expect(subject.offset(10).criteria.request_options).to include(from: 10) }
     specify { expect { subject.offset(10) }.not_to change { subject.criteria.request_options } }
-    specify { expect(subject.offset { 20/2 }.criteria.request_body[:body]).to include(from: 10) }
+    specify { expect(subject.offset { 20 / 2 }.criteria.request_body[:body]).to include(from: 10) }
   end
 
   describe '#script_fields' do
@@ -117,7 +117,7 @@ describe Chewy::Query do
   describe '#script_score' do
     specify { expect(subject.script_score('23')).to be_a described_class }
     specify { expect(subject.script_score('23')).not_to eq(subject) }
-    specify { expect(subject.script_score('23').criteria.scores).to eq([ { script_score: { script: '23' } } ]) }
+    specify { expect(subject.script_score('23').criteria.scores).to eq([{ script_score: { script: '23' } }]) }
     specify { expect { subject.script_score('23') }.not_to change { subject.criteria.scores } }
     specify { expect(subject.script_score('23 * factor', params: { factor: 0.5 }).criteria.scores).to eq([{ script_score: { script: '23 * factor', params: { factor: 0.5 } } }]) }
   end
@@ -125,7 +125,7 @@ describe Chewy::Query do
   describe '#boost_factor' do
     specify { expect(subject.boost_factor('23')).to be_a described_class }
     specify { expect(subject.boost_factor('23')).not_to eq(subject) }
-    specify { expect(subject.boost_factor('23').criteria.scores).to eq([ { boost_factor: 23  } ]) }
+    specify { expect(subject.boost_factor('23').criteria.scores).to eq([{ boost_factor: 23 }]) }
     specify { expect { subject.boost_factor('23') }.not_to change { subject.criteria.scores } }
     specify { expect(subject.boost_factor('23', filter: { foo: :bar }).criteria.scores).to eq([{ boost_factor: 23, filter: { foo: :bar } }]) }
   end
@@ -133,7 +133,7 @@ describe Chewy::Query do
   describe '#weight' do
     specify { expect(subject.weight('23')).to be_a described_class }
     specify { expect(subject.weight('23')).not_to eq(subject) }
-    specify { expect(subject.weight('23').criteria.scores).to eq([ { weight: 23  } ]) }
+    specify { expect(subject.weight('23').criteria.scores).to eq([{ weight: 23 }]) }
     specify { expect { subject.weight('23') }.not_to change { subject.criteria.scores } }
     specify { expect(subject.weight('23', filter: { foo: :bar }).criteria.scores).to eq([{ weight: 23, filter: { foo: :bar } }]) }
   end
@@ -141,7 +141,7 @@ describe Chewy::Query do
   describe '#random_score' do
     specify { expect(subject.random_score('23')).to be_a described_class }
     specify { expect(subject.random_score('23')).not_to eq(subject) }
-    specify { expect(subject.random_score('23').criteria.scores).to eq([ { random_score: { seed: 23 } } ]) }
+    specify { expect(subject.random_score('23').criteria.scores).to eq([{ random_score: { seed: 23 } }]) }
     specify { expect { subject.random_score('23') }.not_to change { subject.criteria.scores } }
     specify { expect(subject.random_score('23', filter: { foo: :bar }).criteria.scores).to eq([{ random_score: { seed: 23 }, filter: { foo: :bar } }]) }
   end
@@ -149,7 +149,7 @@ describe Chewy::Query do
   describe '#field_value_score' do
     specify { expect(subject.field_value_factor(field: :boost)).to be_a described_class }
     specify { expect(subject.field_value_factor(field: :boost)).not_to eq(subject) }
-    specify { expect(subject.field_value_factor(field: :boost).criteria.scores).to eq([ { field_value_factor: { field: :boost } } ]) }
+    specify { expect(subject.field_value_factor(field: :boost).criteria.scores).to eq([{ field_value_factor: { field: :boost } }]) }
     specify { expect { subject.field_value_factor(field: :boost) }.not_to change { subject.criteria.scores } }
     specify { expect(subject.field_value_factor({ field: :boost }, filter: { foo: :bar }).criteria.scores).to eq([{ field_value_factor: { field: :boost }, filter: { foo: :bar } }]) }
   end
@@ -158,7 +158,7 @@ describe Chewy::Query do
     specify { expect(subject.decay(:gauss, :field)).to be_a described_class }
     specify { expect(subject.decay(:gauss, :field)).not_to eq(subject) }
     specify do
-      expect(subject.decay(:gauss, :field).criteria.scores).to eq([ {
+      expect(subject.decay(:gauss, :field).criteria.scores).to eq([{
                                                                     gauss: {
                                                                       field: {}
                                                                     }
@@ -302,17 +302,17 @@ describe Chewy::Query do
           end
         end
 
-        it "is the aggregation definition that was last defined" do
+        it 'is the aggregation definition that was last defined' do
           expect(subject.aggregations(:named_agg).criteria.aggregations).to include(named_agg: { avg: { field: 'comments.rating' } })
         end
 
-        context "when the fully qualified aggregation name is provided" do
+        context 'when the fully qualified aggregation name is provided' do
           specify do
             expect(subject
-                               .aggregations("products#product.named_agg")
+                               .aggregations('products#product.named_agg')
                                .criteria
                                .aggregations)
-              .to include("products#product.named_agg" => { avg: { field: 'title.subfield1' } })
+              .to include('products#product.named_agg' => { avg: { field: 'title.subfield1' } })
           end
         end
       end
@@ -432,8 +432,8 @@ describe Chewy::Query do
 
     specify do
       skip_on_version_lt('2.0')
-      expect(Chewy.client.nodes).to receive(:info).and_return("nodes" => { "a" => { "plugins" => { "name" => "hello" } } })
-      expect { ProductsIndex.delete_all }.to raise_error(Chewy::PluginMissing).with_message("install delete-by-query plugin")
+      expect(Chewy.client.nodes).to receive(:info).and_return('nodes' => { 'a' => { 'plugins' => { 'name' => 'hello' } } })
+      expect { ProductsIndex.delete_all }.to raise_error(Chewy::PluginMissing).with_message('install delete-by-query plugin')
     end
   end
 

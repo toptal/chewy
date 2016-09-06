@@ -17,7 +17,7 @@ module Chewy
       end
 
       def update(type, objects, options = {})
-        ActiveSupport::Deprecation.warn("`urgent: true` option is deprecated and is not effective inside `:atomic` strategy, use `Chewy.strategy(:urgent)` strategy instead") if options.key?(:urgent)
+        ActiveSupport::Deprecation.warn('`urgent: true` option is deprecated and is not effective inside `:atomic` strategy, use `Chewy.strategy(:urgent)` strategy instead') if options.key?(:urgent)
 
         @stash[type] ||= []
         @stash[type] |= type.send(:build_root).id ? Array.wrap(objects) : type.adapter.identify(objects)

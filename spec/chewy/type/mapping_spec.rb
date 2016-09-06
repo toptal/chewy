@@ -87,7 +87,7 @@ describe Chewy::Type::Mapping do
     end
   end
 
-  context "no root element call" do
+  context 'no root element call' do
     before do
       stub_index(:products) do
         define_type :product do

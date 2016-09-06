@@ -51,7 +51,7 @@ module Chewy
     end
 
     initializer 'chewy.logger', after: 'active_record.logger' do
-      ActiveSupport.on_load(:active_record)  { Chewy.logger ||= ActiveRecord::Base.logger }
+      ActiveSupport.on_load(:active_record) { Chewy.logger ||= ActiveRecord::Base.logger }
     end
 
     initializer 'chewy.migration_strategy' do

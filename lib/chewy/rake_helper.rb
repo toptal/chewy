@@ -1,7 +1,6 @@
 module Chewy
   module RakeHelper
     class << self
-
       def subscribed_task_stats
         callback = lambda do |_name, start, finish, _id, payload|
           duration = (finish - start).round(2)
@@ -20,7 +19,7 @@ module Chewy
       end
 
       def eager_load_chewy!
-        dirs = Chewy::Railtie.all_engines.map { |engine| engine.paths[ Chewy.configuration[:indices_path] ] }.compact.map(&:existent).flatten.uniq
+        dirs = Chewy::Railtie.all_engines.map { |engine| engine.paths[Chewy.configuration[:indices_path]] }.compact.map(&:existent).flatten.uniq
 
         dirs.each do |dir|
           Dir.glob(File.join(dir, '**/*.rb')).each do |file|

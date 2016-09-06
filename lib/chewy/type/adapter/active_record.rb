@@ -4,7 +4,6 @@ module Chewy
   class Type
     module Adapter
       class ActiveRecord < Orm
-
         def self.accepts?(target)
           defined?(::ActiveRecord::Base) && (
             target.is_a?(Class) && target < ::ActiveRecord::Base ||

@@ -8,7 +8,6 @@ describe Chewy::Query::Nodes::HasChild do
 
     specify { expect(render { has_child('child') }).to eq(has_child: { type: 'child' }) }
 
-
     specify do
       expect(render { has_child('child').filter(term: { name: 'name' }) })
         .to eq(has_child: { type: 'child', filter: { term: { name: 'name' } } })

@@ -7,7 +7,7 @@ module Chewy
 
         attr_reader :current_page, :per_page
 
-        def paginate(options={})
+        def paginate(options = {})
           @current_page = ::WillPaginate::PageNumber(options[:page] || @current_page || 1)
           @page_multiplier = @current_page - 1
           @per_page = (options[:per_page] || @per_page || ::WillPaginate.per_page).to_i

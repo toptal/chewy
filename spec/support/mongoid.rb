@@ -11,7 +11,7 @@ CONFIG = {
       uri: 'mongodb://127.0.0.1:27017/chewy_mongoid_test'
     }
   }
-}
+}.freeze
 
 Mongoid.configure do |config|
   config.load_configuration(CONFIG)

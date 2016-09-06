@@ -1,6 +1,5 @@
 require 'spec_helper'
 
-
 if defined?(::WillPaginate)
   describe Chewy::Query::Pagination::WillPaginate do
     before { Chewy.massacre }
@@ -30,7 +29,7 @@ if defined?(::WillPaginate)
         specify { expect(search.page(2).map { |e| e.attributes.except('_score', '_explanation') }).to eq(data[3..5]) }
       end
 
-      describe "#paginate" do
+      describe '#paginate' do
         specify { expect(search.paginate(page: 2, per_page: 4).map { |e| e.attributes.except('_score', '_explanation') }).to eq(data[4..7]) }
         specify { expect(search.paginate(per_page: 2, page: 3).page(3).map { |e| e.attributes.except('_score', '_explanation') }).to eq(data[4..5]) }
         specify { expect(search.paginate(per_page: 5).map { |e| e.attributes.except('_score', '_explanation') }).to eq(data[0..4]) }
@@ -52,8 +51,8 @@ if defined?(::WillPaginate)
         specify { expect(search.paginate(per_page: 2, page: 3).load.first.age).to eq(50) }
         specify { expect(search.paginate(per_page: 2, page: 3).load.page(2).load.first.age).to eq(30) }
 
-        specify { expect(search.paginate(per_page:4, page:1).load.total_count).to eq(10) }
-        specify { expect(search.paginate(per_page:2, page:3).load.total_pages).to eq(5) }
+        specify { expect(search.paginate(per_page: 4, page: 1).load.total_count).to eq(10) }
+        specify { expect(search.paginate(per_page: 2, page: 3).load.total_pages).to eq(5) }
       end
     end
   end

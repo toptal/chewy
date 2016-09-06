@@ -8,7 +8,7 @@ module Chewy
           options = args.extract_options!
           method = args.first
 
-          Proc.new do
+          proc do
             backreference = if method && method.to_s == 'self'
               self
             elsif method
@@ -18,7 +18,7 @@ module Chewy
             end
 
             reference = if type_name.is_a?(Proc)
-              type_name.arity == 0 ?
+              type_name.arity.zero? ?
                 instance_exec(&type_name) :
                 type_name.call(self)
             else

@@ -77,9 +77,9 @@ module Chewy
         def method_missing(method, *args)
           method = method.to_s
           if method =~ /\?\Z/
-            Nodes::Exists.new [@name, method.gsub(/\?\Z/, '')].join(?.)
+            Nodes::Exists.new [@name, method.gsub(/\?\Z/, '')].join('.')
           else
-            self.class.new [@name, method].join(?.), *args
+            self.class.new [@name, method].join('.'), *args
           end
         end
 

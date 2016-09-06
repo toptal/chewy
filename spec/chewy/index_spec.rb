@@ -162,7 +162,7 @@ describe Chewy::Index do
 
     let(:documents) { stub_index(:documents) { settings analysis: { analyzer: [:name, :phone, { sorted: { option: :baz } }] } } }
 
-    specify { expect { documents.settings_hash }.to_not change(documents._settings, :inspect)  }
+    specify { expect { documents.settings_hash }.to_not change(documents._settings, :inspect) }
     specify do
       expect(documents.settings_hash).to eq(settings: { analysis: {
                                               analyzer: { name: { filter: %w(lowercase icu_folding names_nysiis) },

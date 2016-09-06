@@ -6,8 +6,8 @@ module Chewy
           i: :index,
           index: :index,
           f: :fielddata,
-          fielddata: :fielddata,
-        }
+          fielddata: :fielddata
+        }.freeze
 
         def initialize(name, *args)
           @name = name.to_s

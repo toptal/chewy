@@ -76,7 +76,7 @@ describe Chewy::Query::Filters do
     specify { expect(query { emails.first? }).to be_eql Exists('emails.first') }
     specify { expect(query { !!emails.first? }).to be_eql Exists('emails.first') }
     specify { expect(query { emails != nil }).to be_eql Exists('emails') }
-    specify { expect(query { !(emails == nil) }).to be_eql Exists('emails') }
+    specify { expect(query { emails != nil }).to be_eql Exists('emails') }
   end
 
   context 'missing' do
@@ -165,7 +165,7 @@ describe Chewy::Query::Filters do
           Equal(:email, 'email'),
           Or(
             Equal(:name, 'name'),
-            Not(Equal(:address, 'address')),
+            Not(Equal(:address, 'address'))
           )
         )
     end
@@ -174,7 +174,7 @@ describe Chewy::Query::Filters do
         .to be_eql And(
           Equal(:email, 'email'),
           Equal(:name, 'name'),
-          Not(Equal(:address, 'address')),
+          Not(Equal(:address, 'address'))
         )
     end
     specify do
@@ -182,7 +182,7 @@ describe Chewy::Query::Filters do
         .to be_eql Or(
           Equal(:email, 'email'),
           Equal(:name, 'name'),
-          Not(Equal(:address, 'address')),
+          Not(Equal(:address, 'address'))
         )
     end
     specify do

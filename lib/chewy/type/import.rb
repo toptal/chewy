@@ -3,7 +3,7 @@ module Chewy
     module Import
       extend ActiveSupport::Concern
 
-      BULK_OPTIONS = [:suffix, :bulk_size, :refresh, :consistency, :replication]
+      BULK_OPTIONS = [:suffix, :bulk_size, :refresh, :consistency, :replication].freeze
 
       module ClassMethods
         # Perform import operation for specified documents.
@@ -75,14 +75,14 @@ module Chewy
 
           bodies = if bulk_size
             bulk_size -= 1.kilobyte # 1 kilobyte for request header and newlines
-            raise ArgumentError.new('Import `:bulk_size` can\'t be less than 1 kilobyte') if bulk_size <= 0
+            raise ArgumentError, 'Import `:bulk_size` can\'t be less than 1 kilobyte' if bulk_size <= 0
 
             body.each_with_object(['']) do |entry, result|
               operation, meta = entry.to_a.first
               data = meta.delete(:data)
               entry = [{ operation => meta }, data].compact.map(&:to_json).join("\n")
 
-              raise ArgumentError.new('Import `:bulk_size` seems to be less than entry size') if entry.bytesize > bulk_size
+              raise ArgumentError, 'Import `:bulk_size` seems to be less than entry size' if entry.bytesize > bulk_size
 
               if result.last.bytesize + entry.bytesize > bulk_size
                 result.push(entry)
@@ -223,7 +223,7 @@ module Chewy
 
           indexed_objects = {}
 
-          while (result = client.scroll(scroll_id: result['_scroll_id'], scroll: '1m')) do
+          while (result = client.scroll(scroll_id: result['_scroll_id'], scroll: '1m'))
             break if result['hits']['hits'].empty?
 
             result['hits']['hits'].map do |hit|

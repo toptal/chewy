@@ -57,13 +57,13 @@ module Chewy
 
       def compose_parent(object)
         if parent_id
-          parent_id.arity == 0 ? object.instance_exec(&parent_id) : parent_id.call(object)
+          parent_id.arity.zero? ? object.instance_exec(&parent_id) : parent_id.call(object)
         end
       end
 
       def compose_id(object)
         if id
-          id.arity == 0 ? object.instance_exec(&id) : id.call(object)
+          id.arity.zero? ? object.instance_exec(&id) : id.call(object)
         end
       end
     end

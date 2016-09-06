@@ -32,7 +32,7 @@ module Chewy
         #   end
         #
         def root(options = {}, &block)
-          raise "Root is already defined" if root_object
+          raise 'Root is already defined' if root_object
           build_root(options, &block)
         end
 
@@ -183,7 +183,8 @@ module Chewy
 
           return unless block
 
-          previous_field, @_current_field = @_current_field, field
+          previous_field = @_current_field
+          @_current_field = field
           yield
           @_current_field = previous_field
         end

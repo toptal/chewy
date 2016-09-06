@@ -143,8 +143,8 @@ RSpec::Matchers.define :update_index do |type_name, options = {}|
     end
 
     @updated.present? && @missed_reindex.none? && @missed_delete.none? &&
-    @reindex.all? { |_, document| document[:match_count] && document[:match_attributes] } &&
-    @delete.all? { |_, document| document[:match_count] }
+      @reindex.all? { |_, document| document[:match_count] && document[:match_attributes] } &&
+      @delete.all? { |_, document| document[:match_count] }
   end
 
   failure_message do
@@ -175,7 +175,7 @@ RSpec::Matchers.define :update_index do |type_name, options = {}|
           result << "\n   #{document[:expected_count]} times, but was reindexed #{document[:real_count]} times" if document[:expected_count] && !document[:match_count]
           result << "\n   with #{document[:expected_attributes]}, but it was reindexed with #{document[:real_attributes]}" if document[:expected_attributes].present? && !document[:match_attributes]
         else
-          result << ", but it was not"
+          result << ', but it was not'
         end
         result << "\n"
       end
@@ -187,7 +187,7 @@ RSpec::Matchers.define :update_index do |type_name, options = {}|
         result << if document[:real_count] > 0 && document[:expected_count]
                     "\n   #{document[:expected_count]} times, but was deleted #{document[:real_count]} times"
                   else
-                    ", but it was not"
+                    ', but it was not'
                   end
         result << "\n"
       end
@@ -198,19 +198,17 @@ RSpec::Matchers.define :update_index do |type_name, options = {}|
 
   failure_message_when_negated do
     if @updated.present?
-      "Expected index `#{type_name}` not to be updated, but it was with #{
-        @updated.map(&:values).flatten.group_by { |documents| documents[:_id] }.map do |id, documents|
-          "\n  document id `#{id}` (#{documents.count} times)"
-        end.join
-      }\n"
+      "Expected index `#{type_name}` not to be updated, but it was with #{@updated.map(&:values).flatten.group_by { |documents| documents[:_id] }.map do |id, documents|
+                                                                            "\n  document id `#{id}` (#{documents.count} times)"
+                                                                          end.join}\n"
     end
   end
 
   def agnostic_stub
     if defined?(Mocha) && RSpec.configuration.mock_framework.to_s == 'RSpec::Core::MockingAdapters::Mocha'
-      "type.stubs(:bulk).with"
+      'type.stubs(:bulk).with'
     else
-      "allow(type).to receive(:bulk)"
+      'allow(type).to receive(:bulk)'
     end
   end
 

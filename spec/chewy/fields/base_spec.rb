@@ -15,7 +15,6 @@ describe Chewy::Fields::Base do
     specify { expect(described_class.new(:true_value).compose(true_value: true)).to eq(true_value: true) }
     specify { expect(described_class.new(:nil_value).compose(nil_value: nil)).to eq(nil_value: nil) }
 
-
     context 'nested fields' do
       before do
         field.children.push(described_class.new(:subname1, value: ->(o) { o.subvalue1 }))
@@ -85,8 +84,8 @@ describe Chewy::Fields::Base do
 
   describe '#mappings_hash' do
     let(:field) { described_class.new(:name, type: :object) }
-    let(:fields1) { Array.new(2) { |i| described_class.new("name#{i+1}", type: "string#{i+1}") } }
-    let(:fields2) { Array.new(2) { |i| described_class.new("name#{i+3}", type: "string#{i+3}") } }
+    let(:fields1) { Array.new(2) { |i| described_class.new("name#{i + 1}", type: "string#{i + 1}") } }
+    let(:fields2) { Array.new(2) { |i| described_class.new("name#{i + 3}", type: "string#{i + 3}") } }
     before do
       fields1.each { |m| field.children.push(m) }
       fields2.each { |m| fields1[0].children.push(m) }
@@ -102,7 +101,7 @@ describe Chewy::Fields::Base do
 
     context do
       let(:field) { described_class.new(:name, type: :string) }
-      let(:fields1) { Array.new(2) { |i| described_class.new("name#{i+1}") } }
+      let(:fields1) { Array.new(2) { |i| described_class.new("name#{i + 1}") } }
 
       specify do
         expect(field.mappings_hash).to eq(name: { type: :string, fields: {
@@ -154,7 +153,7 @@ describe Chewy::Fields::Base do
 
       specify do
         expect(EventsIndex::Event.root_object.compose(
-          id: 1, category: { id: 2, licenses: { id: 3, name: 'Name' } }
+                 id: 1, category: { id: 2, licenses: { id: 3, name: 'Name' } }
         )).to eq('event' => { 'id' => 1, 'category' => { 'id' => 2, 'licenses' => { 'id' => 3, 'name' => 'Name' } } })
       end
 
@@ -192,7 +191,7 @@ describe Chewy::Fields::Base do
 
       specify do
         expect(EventsIndex::Event.root_object.compose(
-          double(id: 1, category: double(id: 2, licenses: double(id: 3, name: 'Name')))
+                 double(id: 1, category: double(id: 2, licenses: double(id: 3, name: 'Name')))
         )).to eq('event' => { 'id' => 1, 'category' => { 'id' => 2, 'licenses' => { 'id' => 3, 'name' => 'Name' } } })
       end
 
@@ -247,7 +246,7 @@ describe Chewy::Fields::Base do
 
       specify do
         expect(EventsIndex::Event.root_object.compose(
-          double(id: 1, categories: double(id: 2, license: double(id: 3, name: 'Name')))
+                 double(id: 1, categories: double(id: 2, license: double(id: 3, name: 'Name')))
         )).to eq('event' => { 'id' => 1, 'category' => { 'id' => 2, 'licenses' => { 'id' => 3, 'name' => 'Name' } } })
       end
     end
@@ -282,7 +281,7 @@ describe Chewy::Fields::Base do
 
       specify do
         expect(EventsIndex::Event.root_object.compose(
-          double(id: 1, name: 'Jonny', category: double(id: 2, as_json: { 'name' => 'Borogoves' }))
+                 double(id: 1, name: 'Jonny', category: double(id: 2, as_json: { 'name' => 'Borogoves' }))
         )).to eq('event' => {
                    'id' => 1,
                    'name' => 'Jonny',
@@ -292,10 +291,10 @@ describe Chewy::Fields::Base do
 
       specify do
         expect(EventsIndex::Event.root_object.compose(
-          double(id: 1, name: 'Jonny', category: [
-            double(id: 2, as_json: { 'name' => 'Borogoves1' }),
-            double(id: 3, as_json: { 'name' => 'Borogoves2' })
-          ])
+                 double(id: 1, name: 'Jonny', category: [
+                   double(id: 2, as_json: { 'name' => 'Borogoves1' }),
+                   double(id: 3, as_json: { 'name' => 'Borogoves2' })
+                 ])
         )).to eq('event' => {
                    'id' => 1,
                    'name' => 'Jonny',
@@ -372,7 +371,7 @@ describe Chewy::Fields::Base do
 
         specify do
           expect(CitiesIndex::City.root_object.compose(
-            City.create!(id: 1, country: Country.create!(id: 1, name: 'Country'))
+                   City.create!(id: 1, country: Country.create!(id: 1, name: 'Country'))
           )).to eq('city' => { 'id' => 1, 'country' => { 'id' => 1, 'name' => 'Country' } })
         end
       end

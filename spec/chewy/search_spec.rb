@@ -71,8 +71,8 @@ describe Chewy::Search do
       end
     end
 
-    let!(:cities) { Array.new(3) { |i| City.create! rating: i + 1, name: "Name#{i+1}" } }
-    let!(:countries) { Array.new(3) { |i| Country.create! rating: i + 1, name: "Name#{i+4}" } }
+    let!(:cities) { Array.new(3) { |i| City.create! rating: i + 1, name: "Name#{i + 1}" } }
+    let!(:countries) { Array.new(3) { |i| Country.create! rating: i + 1, name: "Name#{i + 4}" } }
 
     before { PlacesIndex.import! city: cities, country: countries }
 

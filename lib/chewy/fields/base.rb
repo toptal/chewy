@@ -5,7 +5,8 @@ module Chewy
       attr_accessor :parent
 
       def initialize(name, options = {})
-        @name, @options = name.to_sym, options.deep_symbolize_keys
+        @name = name.to_sym
+        @options = options.deep_symbolize_keys
         @value = @options.delete(:value)
         @children = []
       end
@@ -31,7 +32,7 @@ module Chewy
         objects = ([object] + parent_objects.flatten).uniq
 
         result = if value && value.is_a?(Proc)
-          if value.arity == 0
+          if value.arity.zero?
             object.instance_exec(&value)
           elsif value.arity < 0
             value.call(*object)

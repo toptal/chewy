@@ -42,11 +42,11 @@ module Chewy
       end
 
       def highlight(attribute)
-        _data["highlight"][attribute].first
+        _data['highlight'][attribute].first
       end
 
       def highlight?(attribute)
-        _data.key?("highlight") && _data["highlight"].key?(attribute)
+        _data.key?('highlight') && _data['highlight'].key?(attribute)
       end
     end
   end

@@ -50,7 +50,7 @@ describe :minitest_helper do
       expect(
         receiver.indexes_for(DummiesIndex::Dummy)
                 .map { |index| index[:_id] }
-      ).to match_array([41,42])
+      ).to match_array([41, 42])
     end
 
     specify 'Real index is bypassed when asserting' do

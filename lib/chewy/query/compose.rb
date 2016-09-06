@@ -1,7 +1,6 @@
 module Chewy
   class Query
     module Compose
-
     protected
 
       def _filtered_query(query, filter, options = {})

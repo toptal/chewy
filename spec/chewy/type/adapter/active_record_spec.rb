@@ -73,7 +73,7 @@ describe Chewy::Type::Adapter::ActiveRecord, :active_record do
       subject { described_class.new(City) }
 
       specify { expect(import).to eq([{ index: cities }]) }
-      specify { expect(import nil).to eq([]) }
+      specify { expect(import(nil)).to eq([]) }
 
       specify { expect(import(City.order(:id))).to eq([{ index: cities }]) }
       specify do
@@ -228,7 +228,7 @@ describe Chewy::Type::Adapter::ActiveRecord, :active_record do
     end
 
     context 'default scope' do
-      let!(:cities) { Array.new(4) { |i| City.create!(rating: i/3) } }
+      let!(:cities) { Array.new(4) { |i| City.create!(rating: i / 3) } }
       let!(:deleted) { Array.new(3) { City.create!.tap(&:destroy) } }
       subject { described_class.new(City.where(rating: 0)) }
 
@@ -304,7 +304,10 @@ describe Chewy::Type::Adapter::ActiveRecord, :active_record do
       subject { described_class.new(City) }
 
       let(:data_comparer) do
-        ->(id, data) { objects = data[:index] || data[:delete]; !objects.map { |o| o.respond_to?(:id) ? o.id : o }.include?(id) }
+        lambda do |id, data|
+          objects = data[:index] || data[:delete]
+          !objects.map { |o| o.respond_to?(:id) ? o.id : o }.include?(id)
+        end
       end
 
       context 'implicit scope' do
@@ -353,7 +356,7 @@ describe Chewy::Type::Adapter::ActiveRecord, :active_record do
 
   describe '#load' do
     context do
-      let!(:cities) { Array.new(3) { |i| City.create!(rating: i/2) } }
+      let!(:cities) { Array.new(3) { |i| City.create!(rating: i / 2) } }
       let!(:deleted) { Array.new(2) { City.create!.tap(&:destroy) } }
 
       let(:type) { double(type_name: 'user') }
@@ -386,7 +389,7 @@ describe Chewy::Type::Adapter::ActiveRecord, :active_record do
 
     context 'custom primary_key' do
       before { stub_model(:city) { self.primary_key = 'rating' } }
-      let!(:cities) { Array.new(3) { |i| City.create!(country_id: i/2) { |c| c.rating = i + 7 } } }
+      let!(:cities) { Array.new(3) { |i| City.create!(country_id: i / 2) { |c| c.rating = i + 7 } } }
       let!(:deleted) { Array.new(2) { |i| City.create! { |c| c.rating = i + 10 }.tap(&:destroy) } }
 
       let(:type) { double(type_name: 'user') }

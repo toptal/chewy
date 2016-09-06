@@ -43,7 +43,7 @@ module Chewy
       :indices_path
 
     def self.delegated
-      public_instance_methods - self.superclass.public_instance_methods - Singleton.public_instance_methods
+      public_instance_methods - superclass.public_instance_methods - Singleton.public_instance_methods
     end
 
     def initialize

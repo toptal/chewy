@@ -51,7 +51,10 @@ describe Chewy::Strategy::Atomic, :orm do
     end
 
     specify do
-      expect { country.save!; other_country.destroy }
+      expect do
+        country.save!
+        other_country.destroy
+      end
         .to update_index(CountriesIndex::Country, strategy: :atomic)
         .and_reindex('HL').and_delete('WD').only
     end

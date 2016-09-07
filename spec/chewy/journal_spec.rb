@@ -154,11 +154,13 @@ describe Chewy::Journal do
         Chewy::Journal.apply_changes_from(time)
         expect(PlacesIndex::City.all.to_a.length).to eq 2
 
-        Chewy::Journal.clean_until(import_time)
+        expect(Chewy::Journal.clean_until(import_time)).to eq 7
         expect(Chewy.client.count(index: Chewy::Journal.index_name)['count']).to eq 2
 
-        Chewy::Journal.delete!
-        expect(Chewy.client.count(index: Chewy::Journal.index_name)['count']).to eq 0
+        expect(Chewy::Journal.delete!).to be_truthy
+        expect { Chewy::Journal.delete! }.to raise_error(Elasticsearch::Transport::Transport::Errors::NotFound)
+        expect(Chewy::Journal.delete).to eq false
+        expect(Chewy::Journal.exists?).to eq false
       end
     end
   end

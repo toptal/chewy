@@ -77,7 +77,7 @@ module Chewy
             bulk_size -= 1.kilobyte # 1 kilobyte for request header and newlines
             raise ArgumentError, 'Import `:bulk_size` can\'t be less than 1 kilobyte' if bulk_size <= 0
 
-            body.each_with_object(['']) do |entry, result|
+            entries = body.each_with_object(['']) do |entry, result|
               operation, meta = entry.to_a.first
               data = meta.delete(:data)
               entry = [{ operation => meta }, data].compact.map(&:to_json).join("\n")
@@ -89,7 +89,8 @@ module Chewy
               else
                 result[-1] = [result[-1], entry].delete_if(&:blank?).join("\n")
               end
-            end.map { |entry| entry + "\n" }
+            end
+            entries.map { |entry| entry + "\n" }
           else
             [body]
           end
@@ -198,13 +199,15 @@ module Chewy
         end
 
         def extract_errors(items)
-          items.each.with_object({}) do |item, memo|
+          items = items.each.with_object({}) do |item, memo|
             action = item.keys.first.to_sym
             data = item.values.first
             if data['error']
               (memo[action] ||= []).push(action: action, id: data['_id'], error: data['error'])
             end
-          end.map do |action, action_items|
+          end
+
+          items.map do |action, action_items|
             errors = action_items.group_by { |item| item[:error] }.map do |error, error_items|
               { error => error_items.map { |item| item[:id] } }
             end.reduce(&:merge)

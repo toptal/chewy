@@ -16,65 +16,69 @@ module Chewy
           self
         end
 
-        def >(value)
-          Nodes::Range.new @name, *__options_merge__(gt: value)
+        def >(other)
+          Nodes::Range.new @name, *__options_merge__(gt: other)
         end
 
-        def <(value)
-          Nodes::Range.new @name, *__options_merge__(lt: value)
+        def <(other)
+          Nodes::Range.new @name, *__options_merge__(lt: other)
         end
 
-        def >=(value)
-          Nodes::Range.new @name, *__options_merge__(gt: value, left_closed: true)
+        def >=(other)
+          Nodes::Range.new @name, *__options_merge__(gt: other, left_closed: true)
         end
 
-        def <=(value)
-          Nodes::Range.new @name, *__options_merge__(lt: value, right_closed: true)
+        def <=(other)
+          Nodes::Range.new @name, *__options_merge__(lt: other, right_closed: true)
         end
 
-        def ==(value)
-          case value
+        def ==(other)
+          case other
           when nil
-            Nodes::Missing.new @name, existence: false, null_value: true
+            nil?
           when ::Regexp
-            Nodes::Regexp.new @name, value, *@args
+            Nodes::Regexp.new @name, other, *@args
           when ::Range
-            Nodes::Range.new @name, *__options_merge__(gt: value.first, lt: value.last)
+            Nodes::Range.new @name, *__options_merge__(gt: other.first, lt: other.last)
           else
-            if value.is_a?(Array) && value.first.is_a?(::Range)
+            if other.is_a?(Array) && other.first.is_a?(::Range)
               Nodes::Range.new @name, *__options_merge__(
-                gt: value.first.first, lt: value.first.last,
+                gt: other.first.first, lt: other.first.last,
                 left_closed: true, right_closed: true
               )
             else
-              Nodes::Equal.new @name, value, *@args
+              Nodes::Equal.new @name, other, *@args
             end
           end
         end
 
-        def !=(value)
-          case value
+        def !=(other)
+          case other
           when nil
             Nodes::Exists.new @name
           else
-            Nodes::Not.new self == value
+            Nodes::Not.new self == other
           end
         end
 
-        def =~(value)
-          case value
+        def =~(other)
+          case other
           when ::Regexp
-            Nodes::Regexp.new @name, value, *@args
+            Nodes::Regexp.new @name, other, *@args
           else
-            Nodes::Prefix.new @name, value, @args.extract_options!
+            Nodes::Prefix.new @name, other, @args.extract_options!
           end
         end
 
-        def !~(value)
-          Not.new(self =~ value)
+        def !~(other)
+          Not.new(self =~ other)
         end
 
-        def method_missing(method, *args)
+        def nil?
+          Nodes::Missing.new @name, existence: false, null_value: true
+        end
+
+        def method_missing(method, *args) # rubocop:disable Style/MethodMissing
           method = method.to_s
           if method =~ /\?\Z/
             Nodes::Exists.new [@name, method.gsub(/\?\Z/, '')].join('.')

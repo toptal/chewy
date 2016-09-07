@@ -147,7 +147,7 @@ module Chewy
         #   class CarsIndex < Chewy::Index
         #     define_type Car do
         #       template 'model.*', type: 'string', analyzer: 'special'
-        #       field 'model', type: 'object' # here we can put { ru: 'Мерседес', en: 'Mercedes' }
+        #       field 'model', type: 'object' # here we can put { de: 'Der Mercedes', en: 'Mercedes' }
         #                                     # and template will be applyed to this field
         #     end
         #   end

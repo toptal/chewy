@@ -20,9 +20,11 @@ module Chewy
       end
 
       def mappings_hash
-        mapping = children.present? ? {
-          (multi_field? ? :fields : :properties) => children.map(&:mappings_hash).inject(:merge)
-        } : {}
+        mapping = if children.present?
+          { (multi_field? ? :fields : :properties) => children.map(&:mappings_hash).inject(:merge) }
+        else
+          {}
+        end
         mapping.reverse_merge!(options)
         mapping.reverse_merge!(type: (children.present? ? 'object' : 'string'))
         { name => mapping }

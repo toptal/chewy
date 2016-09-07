@@ -173,11 +173,12 @@ module Chewy
         end
 
         def exctract_lambdas(node)
+          return unless node.is_a?(Parser::AST::Node)
           if node.type == :block && node.children[0].type == :send && node.children[0].to_a == [nil, :lambda]
             [node.children[2]]
           else
             node.children.map { |child| exctract_lambdas(child) }.flatten.compact
-          end if node.is_a?(Parser::AST::Node)
+          end
         end
 
         def replace_lvar(node, old_variable, new_variable)
@@ -233,11 +234,12 @@ module Chewy
         end
 
         def binding_variable_list(node)
+          return unless node.is_a?(Parser::AST::Node)
           if node.type == :send && node.children[0].nil?
             node.children[1]
           else
             node.children.map { |child| binding_variable_list(child) }.flatten.compact.uniq
-          end if node.is_a?(Parser::AST::Node)
+          end
         end
       end
     end

@@ -119,14 +119,14 @@ RSpec::Matchers.define :update_index do |type_name, options = {}|
         if (document = @reindex[body[:_id].to_s])
           document[:real_count] += 1
           document[:real_attributes].merge!(body[:data])
-        else
-          @missed_reindex.push(body[:_id].to_s) if @only
+        elsif @only
+          @missed_reindex.push(body[:_id].to_s)
         end
       elsif (body = updated_document[:delete])
         if (document = @delete[body[:_id].to_s])
           document[:real_count] += 1
-        else
-          @missed_delete.push(body[:_id].to_s) if @only
+        elsif @only
+          @missed_delete.push(body[:_id].to_s)
         end
       end
     end

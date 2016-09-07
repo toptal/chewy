@@ -75,8 +75,10 @@ describe Chewy::Query::Filters do
     specify { expect(query { !!email? }).to be_eql Exists(:email) }
     specify { expect(query { emails.first? }).to be_eql Exists('emails.first') }
     specify { expect(query { !!emails.first? }).to be_eql Exists('emails.first') }
-    specify { expect(query { emails != nil }).to be_eql Exists('emails') }
-    specify { expect(query { emails != nil }).to be_eql Exists('emails') }
+    specify { expect(query { emails != nil }).to be_eql Exists('emails') } # rubocop:disable Style/NonNilCheck
+    specify { expect(query { emails.first != nil }).to be_eql Exists('emails.first') } # rubocop:disable Style/NonNilCheck
+    specify { expect(query { !emails.nil? }).to be_eql Exists('emails') }
+    specify { expect(query { !emails.first.nil? }).to be_eql Exists('emails.first') }
   end
 
   context 'missing' do
@@ -84,8 +86,10 @@ describe Chewy::Query::Filters do
     specify { expect(query { !email? }).to be_eql Missing(:email, null_value: true) }
     specify { expect(query { !emails.first }).to be_eql Missing('emails.first') }
     specify { expect(query { !emails.first? }).to be_eql Missing('emails.first', null_value: true) }
-    specify { expect(query { emails == nil }).to be_eql Missing('emails', existence: false, null_value: true) }
-    specify { expect(query { emails.first == nil }).to be_eql Missing('emails.first', existence: false, null_value: true) }
+    specify { expect(query { emails == nil }).to be_eql Missing('emails', existence: false, null_value: true) } # rubocop:disable Style/NilComparison
+    specify { expect(query { emails.first == nil }).to be_eql Missing('emails.first', existence: false, null_value: true) } # rubocop:disable Style/NilComparison
+    specify { expect(query { emails.nil? }).to be_eql Missing('emails', existence: false, null_value: true) }
+    specify { expect(query { emails.first.nil? }).to be_eql Missing('emails.first', existence: false, null_value: true) }
   end
 
   context 'range' do

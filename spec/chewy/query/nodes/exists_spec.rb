@@ -10,8 +10,8 @@ describe Chewy::Query::Nodes::Exists do
 
     specify { expect(render { !!name? }).to eq(exists: { field: 'name' }) }
     specify { expect(render { !!name }).to eq(exists: { field: 'name' }) }
-    specify { expect(render { name != nil }).to eq(exists: { field: 'name' }) }
-    specify { expect(render { name != nil }).to eq(exists: { field: 'name' }) }
+    specify { expect(render { name != nil }).to eq(exists: { field: 'name' }) } # rubocop:disable Style/NonNilCheck
+    specify { expect(render { !name.nil? }).to eq(exists: { field: 'name' }) }
 
     specify { expect(render { ~name? }).to eq(exists: { field: 'name' }) }
   end

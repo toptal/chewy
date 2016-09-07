@@ -35,7 +35,7 @@ module Chewy
         def ==(other)
           case other
           when nil
-            Nodes::Missing.new @name, existence: false, null_value: true
+            nil?
           when ::Regexp
             Nodes::Regexp.new @name, other, *@args
           when ::Range
@@ -72,6 +72,10 @@ module Chewy
 
         def !~(other)
           Not.new(self =~ other)
+        end
+
+        def nil?
+          Nodes::Missing.new @name, existence: false, null_value: true
         end
 
         def method_missing(method, *args) # rubocop:disable Style/MethodMissing

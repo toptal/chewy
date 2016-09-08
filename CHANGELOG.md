@@ -2,9 +2,33 @@
 
 ## Changes
 
+  * Confugurable `Chewy.indices_path` (@robacarp, #414)
+
+  * [Journaling](https://github.com/toptal/chewy/#journaling) implementation (@sergey-kintsel, #409)
+
+  * Minitest helpers (@robacarp, #396)
+
+  * `Chewy::Query#unlimited` to fetch all the records (@sergey-kintsel, #393)
+
+  * `Chewy::Query#exists?` (@sergey-kintsel, #386)
+
+  * Import otimizations (#381, #376)
+
+  * Additional import optimization technique - [raw import](https://github.com/toptal/chewy/#raw-import) (@DNNX, #375)
+
+  * `weight` scoring dunction was added to the search DSL (@sevab, #380)
+
   * Rake tasks support multiple indexes and exceptions: `rake chewy:reset[users,projects]`, `rake chewy:update[-projects]`
 
   * Witchcraft™ supports dynamically generated procs with variables from closure.
+
+## Bugfixes
+
+  * Fix routing_missing_exception on delete with parent missing (@guigs, #398)
+
+  * Sequesl custom primary keys handling fix (@okliv, #385)
+
+  * Bulk import fixes (@0x0badc0de, #374)
 
 # Version 0.8.4
 

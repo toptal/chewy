@@ -59,13 +59,25 @@ describe Chewy::Query::Criteria do
   end
 
   describe '#update_script_fields' do
-    specify { expect { subject.update_script_fields(distance: { script: "doc['coordinates'].distanceInMiles(lat, lon)" }) }.to change { subject.script_fields? }.to(true) }
-    specify { expect { subject.update_script_fields(distance_km: { script: "doc['coordinates'].distanceInKm(lat, lon)" }) }.to change { subject.script_fields }.to(distance_km: { script: "doc['coordinates'].distanceInKm(lat, lon)" }) }
+    specify do
+      expect { subject.update_script_fields(distance: { script: "doc['coordinates'].distanceInMiles(lat, lon)" }) }
+        .to change { subject.script_fields? }.to(true)
+    end
+    specify do
+      expect { subject.update_script_fields(distance_km: { script: "doc['coordinates'].distanceInKm(lat, lon)" }) }
+        .to change { subject.script_fields }.to(distance_km: { script: "doc['coordinates'].distanceInKm(lat, lon)" })
+    end
   end
 
   describe '#update_queries' do
-    specify { expect { subject.update_queries(field: 'hello') }.to change { subject.queries? }.to(true) }
-    specify { expect { subject.update_queries(field: 'hello') }.to change { subject.queries }.to([field: 'hello']) }
+    specify do
+      expect { subject.update_queries(field: 'hello') }
+        .to change { subject.queries? }.to(true)
+    end
+    specify do
+      expect { subject.update_queries(field: 'hello') }
+        .to change { subject.queries }.to([field: 'hello'])
+    end
     specify do
       expect do
         subject.update_queries(field: 'hello')
@@ -112,20 +124,59 @@ describe Chewy::Query::Criteria do
   end
 
   describe '#update_sort' do
-    specify { expect { subject.update_sort(:field) }.to change { subject.sort? }.to(true) }
+    specify do
+      expect { subject.update_sort(:field) }
+        .to change { subject.sort? }.to(true)
+    end
 
-    specify { expect { subject.update_sort([:field]) }.to change { subject.sort }.to([:field]) }
-    specify { expect { subject.update_sort([:field1, :field2]) }.to change { subject.sort }.to([:field1, :field2]) }
-    specify { expect { subject.update_sort([{ field: :asc }]) }.to change { subject.sort }.to([{ field: :asc }]) }
-    specify { expect { subject.update_sort([:field1, field2: { order: :asc }]) }.to change { subject.sort }.to([:field1, { field2: { order: :asc } }]) }
-    specify { expect { subject.update_sort([{ field1: { order: :asc } }, :field2]) }.to change { subject.sort }.to([{ field1: { order: :asc } }, :field2]) }
-    specify { expect { subject.update_sort([field1: :asc, field2: { order: :asc }]) }.to change { subject.sort }.to([{ field1: :asc }, { field2: { order: :asc } }]) }
-    specify { expect { subject.update_sort([{ field1: { order: :asc } }, :field2, :field3]) }.to change { subject.sort }.to([{ field1: { order: :asc } }, :field2, :field3]) }
-    specify { expect { subject.update_sort([{ field1: { order: :asc } }, [:field2, :field3]]) }.to change { subject.sort }.to([{ field1: { order: :asc } }, :field2, :field3]) }
-    specify { expect { subject.update_sort([{ field1: { order: :asc } }, [:field2], :field3]) }.to change { subject.sort }.to([{ field1: { order: :asc } }, :field2, :field3]) }
-    specify { expect { subject.update_sort([{ field1: { order: :asc }, field2: :desc }, [:field3], :field4]) }.to change { subject.sort }.to([{ field1: { order: :asc } }, { field2: :desc }, :field3, :field4]) }
-    specify { expect { subject.tap { |s| s.update_sort([field1: { order: :asc }, field2: :desc]) }.update_sort([[:field3], :field4]) }.to change { subject.sort }.to([{ field1: { order: :asc } }, { field2: :desc }, :field3, :field4]) }
-    specify { expect { subject.tap { |s| s.update_sort([field1: { order: :asc }, field2: :desc]) }.update_sort([[:field3], :field4], purge: true) }.to change { subject.sort }.to([:field3, :field4]) }
+    specify do
+      expect { subject.update_sort([:field]) }
+        .to change { subject.sort }.to([:field])
+    end
+    specify do
+      expect { subject.update_sort([:field1, :field2]) }
+        .to change { subject.sort }.to([:field1, :field2])
+    end
+    specify do
+      expect { subject.update_sort([{ field: :asc }]) }
+        .to change { subject.sort }.to([{ field: :asc }])
+    end
+    specify do
+      expect { subject.update_sort([:field1, field2: { order: :asc }]) }
+        .to change { subject.sort }.to([:field1, { field2: { order: :asc } }])
+    end
+    specify do
+      expect { subject.update_sort([{ field1: { order: :asc } }, :field2]) }
+        .to change { subject.sort }.to([{ field1: { order: :asc } }, :field2])
+    end
+    specify do
+      expect { subject.update_sort([field1: :asc, field2: { order: :asc }]) }
+        .to change { subject.sort }.to([{ field1: :asc }, { field2: { order: :asc } }])
+    end
+    specify do
+      expect { subject.update_sort([{ field1: { order: :asc } }, :field2, :field3]) }
+        .to change { subject.sort }.to([{ field1: { order: :asc } }, :field2, :field3])
+    end
+    specify do
+      expect { subject.update_sort([{ field1: { order: :asc } }, [:field2, :field3]]) }
+        .to change { subject.sort }.to([{ field1: { order: :asc } }, :field2, :field3])
+    end
+    specify do
+      expect { subject.update_sort([{ field1: { order: :asc } }, [:field2], :field3]) }
+        .to change { subject.sort }.to([{ field1: { order: :asc } }, :field2, :field3])
+    end
+    specify do
+      expect { subject.update_sort([{ field1: { order: :asc }, field2: :desc }, [:field3], :field4]) }
+        .to change { subject.sort }.to([{ field1: { order: :asc } }, { field2: :desc }, :field3, :field4])
+    end
+    specify do
+      expect { subject.tap { |s| s.update_sort([field1: { order: :asc }, field2: :desc]) }.update_sort([[:field3], :field4]) }
+        .to change { subject.sort }.to([{ field1: { order: :asc } }, { field2: :desc }, :field3, :field4])
+    end
+    specify do
+      expect { subject.tap { |s| s.update_sort([field1: { order: :asc }, field2: :desc]) }.update_sort([[:field3], :field4], purge: true) }
+        .to change { subject.sort }.to([:field3, :field4])
+    end
   end
 
   describe '#update_fields' do
@@ -166,51 +217,60 @@ describe Chewy::Query::Criteria do
 
     specify do
       expect(subject.tap { |c| c.update_options(opt1: 'hello') }
-      .merge(criteria.tap { |c| c.update_options(opt2: 'hello') }).options).to include(opt1: 'hello', opt2: 'hello')
+        .merge(criteria.tap { |c| c.update_options(opt2: 'hello') }).options)
+        .to include(opt1: 'hello', opt2: 'hello')
     end
     specify do
       expect(subject.tap { |c| c.update_request_options(opt1: 'hello') }
-      .merge(criteria.tap { |c| c.update_request_options(opt2: 'hello') }).request_options).to include(opt1: 'hello', opt2: 'hello')
+        .merge(criteria.tap { |c| c.update_request_options(opt2: 'hello') }).request_options)
+        .to include(opt1: 'hello', opt2: 'hello')
     end
     specify do
       expect(subject.tap { |c| c.update_facets(field1: 'hello') }
-      .merge(criteria.tap { |c| c.update_facets(field1: 'hello') }).facets).to eq(field1: 'hello')
+        .merge(criteria.tap { |c| c.update_facets(field1: 'hello') }).facets)
+        .to eq(field1: 'hello')
     end
     specify do
       expect(subject.tap { |c| c.update_script_fields(distance_m: { script: "doc['coordinates'].distanceInMiles(lat, lon)" }) }
-      .merge(criteria.tap { |c| c.update_script_fields(distance_km: { script: "doc['coordinates'].distanceInKm(lat, lon)" }) }).script_fields).to eq(distance_m: { script: "doc['coordinates'].distanceInMiles(lat, lon)" }, distance_km: { script: "doc['coordinates'].distanceInKm(lat, lon)" })
+        .merge(criteria.tap { |c| c.update_script_fields(distance_km: { script: "doc['coordinates'].distanceInKm(lat, lon)" }) }).script_fields)
+        .to eq(distance_m: { script: "doc['coordinates'].distanceInMiles(lat, lon)" }, distance_km: { script: "doc['coordinates'].distanceInKm(lat, lon)" })
     end
     specify do
       expect(subject.tap { |c| c.update_scores(script: 'hello') }
-      .merge(criteria.tap { |c| c.update_scores(script: 'foobar') }).scores).to eq([{ script: 'hello' }, { script: 'foobar' }])
+        .merge(criteria.tap { |c| c.update_scores(script: 'foobar') }).scores)
+        .to eq([{ script: 'hello' }, { script: 'foobar' }])
     end
     specify do
       expect(subject.tap { |c| c.update_aggregations(field1: 'hello') }
-      .merge(criteria.tap { |c| c.update_aggregations(field1: 'hello') }).aggregations).to eq(field1: 'hello')
+        .merge(criteria.tap { |c| c.update_aggregations(field1: 'hello') }).aggregations)
+        .to eq(field1: 'hello')
     end
     specify do
       expect(subject.tap { |c| c.update_queries(field1: 'hello') }
-      .merge(criteria.tap { |c| c.update_queries(field2: 'hello') }).queries).to eq([{ field1: 'hello' }, { field2: 'hello' }])
+        .merge(criteria.tap { |c| c.update_queries(field2: 'hello') }).queries)
+        .to eq([{ field1: 'hello' }, { field2: 'hello' }])
     end
     specify do
       expect(subject.tap { |c| c.update_filters(field1: 'hello') }
-      .merge(criteria.tap { |c| c.update_filters(field2: 'hello') }).filters).to eq([{ field1: 'hello' }, { field2: 'hello' }])
+        .merge(criteria.tap { |c| c.update_filters(field2: 'hello') }).filters)
+        .to eq([{ field1: 'hello' }, { field2: 'hello' }])
     end
     specify do
       expect(subject.tap { |c| c.update_post_filters(field1: 'hello') }
-      .merge(criteria.tap { |c| c.update_post_filters(field2: 'hello') }).post_filters).to eq([{ field1: 'hello' }, { field2: 'hello' }])
+        .merge(criteria.tap { |c| c.update_post_filters(field2: 'hello') }).post_filters)
+        .to eq([{ field1: 'hello' }, { field2: 'hello' }])
     end
     specify do
       expect(subject.tap { |c| c.update_sort(:field1) }
-      .merge(criteria.tap { |c| c.update_sort(:field2) }).sort).to eq([:field1, :field2])
+        .merge(criteria.tap { |c| c.update_sort(:field2) }).sort).to eq([:field1, :field2])
     end
     specify do
       expect(subject.tap { |c| c.update_fields(:field1) }
-      .merge(criteria.tap { |c| c.update_fields(:field2) }).fields).to eq(%w(field1 field2))
+        .merge(criteria.tap { |c| c.update_fields(:field2) }).fields).to eq(%w(field1 field2))
     end
     specify do
       expect(subject.tap { |c| c.update_types(:type1) }
-      .merge(criteria.tap { |c| c.update_types(:type2) }).types).to eq(%w(type1 type2))
+        .merge(criteria.tap { |c| c.update_types(:type2) }).types).to eq(%w(type1 type2))
     end
   end
 
@@ -222,47 +282,58 @@ describe Chewy::Query::Criteria do
 
     specify do
       expect(subject.tap { |c| c.update_options(opt1: 'hello') }
-      .merge!(criteria.tap { |c| c.update_options(opt2: 'hello') }).options).to include(opt1: 'hello', opt2: 'hello')
+        .merge!(criteria.tap { |c| c.update_options(opt2: 'hello') }).options)
+        .to include(opt1: 'hello', opt2: 'hello')
     end
     specify do
       expect(subject.tap { |c| c.update_request_options(opt1: 'hello') }
-      .merge!(criteria.tap { |c| c.update_request_options(opt2: 'hello') }).request_options).to include(opt1: 'hello', opt2: 'hello')
+        .merge!(criteria.tap { |c| c.update_request_options(opt2: 'hello') }).request_options)
+        .to include(opt1: 'hello', opt2: 'hello')
     end
     specify do
       expect(subject.tap { |c| c.update_facets(field1: 'hello') }
-      .merge!(criteria.tap { |c| c.update_facets(field1: 'hello') }).facets).to eq(field1: 'hello')
+        .merge!(criteria.tap { |c| c.update_facets(field1: 'hello') }).facets)
+        .to eq(field1: 'hello')
     end
     specify do
       expect(subject.tap { |c| c.update_script_fields(distance_m: { script: "doc['coordinates'].distanceInMiles(lat, lon)" }) }
-      .merge(criteria.tap { |c| c.update_script_fields(distance_km: { script: "doc['coordinates'].distanceInKm(lat, lon)" }) }).script_fields).to eq(distance_m: { script: "doc['coordinates'].distanceInMiles(lat, lon)" }, distance_km: { script: "doc['coordinates'].distanceInKm(lat, lon)" })
+        .merge(criteria.tap { |c| c.update_script_fields(distance_km: { script: "doc['coordinates'].distanceInKm(lat, lon)" }) }).script_fields)
+        .to eq(distance_m: { script: "doc['coordinates'].distanceInMiles(lat, lon)" }, distance_km: { script: "doc['coordinates'].distanceInKm(lat, lon)" })
     end
     specify do
       expect(subject.tap { |c| c.update_aggregations(field1: 'hello') }
-      .merge!(criteria.tap { |c| c.update_aggregations(field1: 'hello') }).aggregations).to eq(field1: 'hello')
+        .merge!(criteria.tap { |c| c.update_aggregations(field1: 'hello') }).aggregations)
+        .to eq(field1: 'hello')
     end
     specify do
       expect(subject.tap { |c| c.update_queries(field1: 'hello') }
-      .merge!(criteria.tap { |c| c.update_queries(field2: 'hello') }).queries).to eq([{ field1: 'hello' }, { field2: 'hello' }])
+        .merge!(criteria.tap { |c| c.update_queries(field2: 'hello') }).queries)
+        .to eq([{ field1: 'hello' }, { field2: 'hello' }])
     end
     specify do
       expect(subject.tap { |c| c.update_filters(field1: 'hello') }
-      .merge!(criteria.tap { |c| c.update_filters(field2: 'hello') }).filters).to eq([{ field1: 'hello' }, { field2: 'hello' }])
+        .merge!(criteria.tap { |c| c.update_filters(field2: 'hello') }).filters)
+        .to eq([{ field1: 'hello' }, { field2: 'hello' }])
     end
     specify do
       expect(subject.tap { |c| c.update_post_filters(field1: 'hello') }
-      .merge!(criteria.tap { |c| c.update_post_filters(field2: 'hello') }).post_filters).to eq([{ field1: 'hello' }, { field2: 'hello' }])
+        .merge!(criteria.tap { |c| c.update_post_filters(field2: 'hello') }).post_filters)
+        .to eq([{ field1: 'hello' }, { field2: 'hello' }])
     end
     specify do
       expect(subject.tap { |c| c.update_sort(:field1) }
-      .merge!(criteria.tap { |c| c.update_sort(:field2) }).sort).to eq([:field1, :field2])
+        .merge!(criteria.tap { |c| c.update_sort(:field2) }).sort)
+        .to eq([:field1, :field2])
     end
     specify do
       expect(subject.tap { |c| c.update_fields(:field1) }
-      .merge!(criteria.tap { |c| c.update_fields(:field2) }).fields).to eq(%w(field1 field2))
+        .merge!(criteria.tap { |c| c.update_fields(:field2) }).fields)
+        .to eq(%w(field1 field2))
     end
     specify do
       expect(subject.tap { |c| c.update_types(:type1) }
-      .merge!(criteria.tap { |c| c.update_types(:type2) }).types).to eq(%w(type1 type2))
+        .merge!(criteria.tap { |c| c.update_types(:type2) }).types)
+        .to eq(%w(type1 type2))
     end
   end
 
@@ -394,20 +465,26 @@ describe Chewy::Query::Criteria do
   end
 
   describe '#_boost_query' do
-    specify { expect(subject.send(:_boost_query, query: :query)).to eq(query: :query) }
+    specify do
+      expect(subject.send(:_boost_query, query: :query))
+        .to eq(query: :query)
+    end
     specify do
       subject.update_scores(boost_factor: 5)
-      expect(subject.send(:_boost_query, query: :query)).to eq(query: { function_score: { functions: [{ boost_factor: 5 }], query: :query } })
+      expect(subject.send(:_boost_query, query: :query))
+        .to eq(query: { function_score: { functions: [{ boost_factor: 5 }], query: :query } })
     end
     specify do
       subject.update_scores(boost_factor: 5)
       subject.update_options(boost_mode: :multiply)
       subject.update_options(score_mode: :add)
-      expect(subject.send(:_boost_query, query: :query)).to eq(query: { function_score: { functions: [{ boost_factor: 5 }], query: :query, boost_mode: :multiply, score_mode: :add } })
+      expect(subject.send(:_boost_query, query: :query))
+        .to eq(query: { function_score: { functions: [{ boost_factor: 5 }], query: :query, boost_mode: :multiply, score_mode: :add } })
     end
     specify do
       subject.update_scores(boost_factor: 5)
-      expect(subject.send(:_boost_query, query: :query, filter: :filter)).to eq(query: { function_score: { functions: [{ boost_factor: 5 }], query: { filtered: { query: :query, filter: :filter } } } })
+      expect(subject.send(:_boost_query, query: :query, filter: :filter))
+        .to eq(query: { function_score: { functions: [{ boost_factor: 5 }], query: { filtered: { query: :query, filter: :filter } } } })
     end
   end
 

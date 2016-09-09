@@ -204,6 +204,15 @@ describe Chewy::Type::Import do
           end
         end
 
+        let(:write_failure_exception) do
+          'WriteFailureException; nested: MapperParsingException[object mapping for [city] ' \
+            'tried to parse field [name] as object, but got EOF, has a concrete value been provided to it?]; '
+        end
+        let(:mapper_parsing_exception) do
+          'MapperParsingException[object mapping for [city] tried to parse field [name] ' \
+            'as object, but got EOF, has a concrete value been provided to it?]'
+        end
+
         specify do
           skip_on_version_gte('2.0', 'format of exception changed in 2.x')
           outer_payload = nil
@@ -215,8 +224,8 @@ describe Chewy::Type::Import do
           expect(outer_payload).to eq(type: CitiesIndex::City,
             errors: {
               index: {
-                'WriteFailureException; nested: MapperParsingException[object mapping for [city] tried to parse field [name] as object, but got EOF, has a concrete value been provided to it?]; ' => ['1'],
-                'MapperParsingException[object mapping for [city] tried to parse field [name] as object, but got EOF, has a concrete value been provided to it?]' => %w(2 3)
+                write_failure_exception => ['1'],
+                mapper_parsing_exception => %w(2 3)
               }
             },
             import: { index: 3 })
@@ -233,7 +242,10 @@ describe Chewy::Type::Import do
           expect(outer_payload).to eq(type: CitiesIndex::City,
             errors: {
               index: {
-                { 'type' => 'mapper_parsing_exception', 'reason' => 'object mapping for [name] tried to parse field [name] as object, but found a concrete value' } => %w(1 2 3)
+                {
+                  'type' => 'mapper_parsing_exception',
+                  'reason' => 'object mapping for [name] tried to parse field [name] as object, but found a concrete value'
+                } => %w(1 2 3)
               }
             },
             import: { index: 3 })

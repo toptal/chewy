@@ -126,7 +126,7 @@ module Chewy
     def yaml_settings
       @yaml_settings ||= begin
         if defined?(Rails)
-          file = Rails.root.join(*%w(config chewy.yml)) # rubocop:disable Lint/UnneededSplatExpansion
+          file = Rails.root.join('config', 'chewy.yml')
 
           if File.exist?(file)
             yaml = ERB.new(File.read(file)).result

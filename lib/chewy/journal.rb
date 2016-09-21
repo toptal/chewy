@@ -7,7 +7,7 @@ module Chewy
           type_name: { type: 'string', index: 'not_analyzed' },
           action: { type: 'string', index: 'not_analyzed' },
           object_ids: { type: 'string', index: 'not_analyzed' },
-          created_at: { type: 'date', format: 'basic_date_time' }
+          created_at: { type: 'date' }
         }
       }
     }.freeze

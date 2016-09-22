@@ -43,6 +43,45 @@ describe Chewy::Type::Import do
       end
     end
 
+    describe 'using scopes with includes' do
+      if const_defined?('::ActiveRecord') && ::ActiveRecord::VERSION::MAJOR > 4
+        before do
+          stub_model(:country) do
+            has_many :cities
+
+            scope :with_cities, -> { includes(:cities).where.not(cities: { id: nil }) }
+          end
+
+          stub_model(:city) do
+            belongs_to :country
+          end
+
+          stub_index(:countries) do
+            define_type Country.with_cities do
+              field :name
+            end
+          end
+
+          Country.create(name: 'Russia', cities: City.create([{ name: 'Moscow' }, { name: 'Sevastopol' }]))
+          Country.create(name: 'China', cities: City.create([{ name: 'Beijing' }, { name: 'Shanghai' }]))
+          Country.create(name: 'Malta')
+        end
+
+        specify do
+          outer_payload = nil
+
+          ActiveSupport::Notifications.subscribe('import_objects.chewy') do |_name, _start, _finish, _id, payload|
+            outer_payload = payload
+          end
+
+          expect { CountriesIndex.import }.not_to raise_error
+          expect(outer_payload).to eq(type: CountriesIndex::Country, import: { index: 2 })
+        end
+      else
+        specify { skip 'only supported with ActiveRecord >= 4' }
+      end
+    end
+
     specify do
       dummy_cities.first.destroy
       expect { city.import dummy_cities }

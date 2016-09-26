@@ -64,6 +64,7 @@ describe Chewy do
       it { is_expected.to be < Chewy::Type }
       its(:name) { should == 'CitiesIndex::City' }
       its(:index) { should == CitiesIndex }
+      its(:derivable_index_name) { should == 'cities' }
       its(:type_name) { should == 'city' }
     end
 
@@ -77,6 +78,7 @@ describe Chewy do
       it { is_expected.to be < Chewy::Type }
       its(:name) { should == 'Namespace::CitiesIndex::City' }
       its(:index) { should == Namespace::CitiesIndex }
+      its(:derivable_index_name) { should == 'namespace/cities' }
       its(:type_name) { should == 'city' }
     end
 

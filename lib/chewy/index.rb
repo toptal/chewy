@@ -42,6 +42,10 @@ module Chewy
       @_index_name
     end
 
+    def self.derivable_index_name
+      @_derivable_index_name ||= name.sub(/Index\Z/, '').underscore
+    end
+
     # Setups or returns pure Elasticsearch index name
     # without any prefixes/suffixes
     def self.default_prefix

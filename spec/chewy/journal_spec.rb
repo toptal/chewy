@@ -144,11 +144,11 @@ describe Chewy::Journal do
                                         'action' => nil,
                                         'object_ids' => [1, 2],
                                         'created_at' => nil),
-                                        Chewy::Journal::Entry.new('index_name' => "#{namespace}places",
-                                                                  'type_name' => 'country',
-                                                                  'action' => 'delete',
-                                                                  'object_ids' => [1, 2, 3],
-                                                                  'created_at' => destroy_time.to_i)
+              Chewy::Journal::Entry.new('index_name' => "#{namespace}places",
+                                        'type_name' => 'country',
+                                        'action' => 'delete',
+                                        'object_ids' => [1, 2, 3],
+                                        'created_at' => destroy_time.to_i)
             ]
 
             # simulate lost data
@@ -166,7 +166,6 @@ describe Chewy::Journal do
             expect(Chewy::Journal.delete).to eq false
             expect(Chewy::Journal.exists?).to eq false
           end
-
         end
       end
     end

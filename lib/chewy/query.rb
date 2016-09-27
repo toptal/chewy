@@ -329,7 +329,7 @@ module Chewy
     #
     # UsersIndex.query(...).track_scores(true)
     #
-    def track_scores value
+    def track_scores(value)
       chain { criteria.update_request_options track_scores: value }
     end
 

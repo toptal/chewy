@@ -24,7 +24,7 @@ module Chewy
     include Witchcraft
     include Import
 
-    singleton_class.delegate :index_name, :_index_name, :client, to: :index
+    singleton_class.delegate :index_name, :_index_name, :derivable_index_name, :client, to: :index
 
     class_attribute :_default_import_options
     self._default_import_options = {}

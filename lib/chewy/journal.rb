@@ -48,6 +48,10 @@ module Chewy
       @records.any?
     end
 
+    def apply_changes_from(time)
+      Chewy::Journal.apply_changes_from(time, only: @index)
+    end
+
   private
 
     def identify(objects)
@@ -55,8 +59,8 @@ module Chewy
     end
 
     class << self
-      def apply_changes_from(time)
-        group(entries_from(time)).each do |entry|
+      def apply_changes_from(time, options = {})
+        group(entries_from(time, options[:only])).each do |entry|
           Chewy.derive_type(entry.full_type_name).import(entry.object_ids, journal: false)
         end
       end
@@ -65,8 +69,8 @@ module Chewy
         entries.group_by(&:full_type_name).map { |_, grouped_entries| grouped_entries.reduce(:merge) }
       end
 
-      def entries_from(time)
-        query = query(time, :gte)
+      def entries_from(time, index = nil)
+        query = query(time, :gte, index)
         size = Chewy.client.search(index: index_name, type: type_name, body: query, search_type: 'count')['hits']['total']
         if size > 0
           Chewy.client.search(index: index_name, type: type_name, body: query, size: size, sort: 'created_at')['hits']['hits'].map { |r| Entry.new(r['_source']) }
@@ -94,7 +98,7 @@ module Chewy
       end
 
       def clean_until(time)
-        query = query(time, :lte, :query)
+        query = query(time, :lte, nil, false)
         search_query = query.merge(fields: ['_id'], size: DELETE_BATCH_SIZE)
 
         count = Chewy.client.count(index: index_name, body: query)['count']
@@ -123,18 +127,57 @@ module Chewy
         JOURNAL_MAPPING.keys.first
       end
 
-      def query(time, comparator, query_type = :filter)
-        {
-          query: {
-            filtered: {
-              query_type => {
-                range: {
-                  created_at: {
-                    comparator => time.to_i
+      def query(time, comparator, index = nil, use_filter = true)
+        filter_query =
+          if use_filter
+            if index.present?
+              {
+                filter: {
+                  bool: {
+                    must: [
+                      range_filter(comparator, time),
+                      index_filter(index)
+                    ]
                   }
                 }
               }
+            else
+              {
+                filter: range_filter(comparator, time)
+              }
+            end
+          elsif index.present?
+            {
+              query: range_filter(comparator, time),
+              filter: index_filter(index)
             }
+          else
+            {
+              query: range_filter(comparator, time)
+            }
+          end
+
+        {
+          query: {
+            filtered: filter_query
+          }
+        }
+      end
+
+      def range_filter(comparator, time)
+        {
+          range: {
+            created_at: {
+              comparator => time.to_i
+            }
+          }
+        }
+      end
+
+      def index_filter(index)
+        {
+          term: {
+            index_name: index.derivable_index_name
           }
         }
       end

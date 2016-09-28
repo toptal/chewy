@@ -107,6 +107,14 @@ describe Chewy::Query do
     specify { expect(subject.offset { 20 / 2 }.criteria.request_body[:body]).to include(from: 10) }
   end
 
+  describe '#track_scores' do
+    specify { expect(subject.track_scores(true)).to be_a described_class }
+    specify { expect(subject.track_scores(true)).not_to eq(subject) }
+    specify { expect(subject.track_scores(true).criteria.request_options).to include(track_scores: true) }
+    specify { expect { subject.track_scores(true) }.not_to change { subject.criteria.request_options } }
+    specify { expect(subject.track_scores(false).criteria.request_body[:body]).to include(track_scores: false) }
+  end
+
   describe '#script_fields' do
     specify { expect(subject.script_fields(distance: 'test()')).to be_a described_class }
     specify { expect(subject.script_fields(distance: 'test()')).not_to eq(subject) }

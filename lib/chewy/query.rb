@@ -325,6 +325,14 @@ module Chewy
       chain { criteria.update_request_options min_score: value }
     end
 
+    # Elasticsearch track_scores option support
+    #
+    # UsersIndex.query(...).track_scores(true)
+    #
+    def track_scores(value)
+      chain { criteria.update_request_options track_scores: value }
+    end
+
     # Adds facets section to the search request.
     # All the chained facets a merged and added to the
     # search request

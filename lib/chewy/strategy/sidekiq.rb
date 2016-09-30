@@ -13,6 +13,8 @@ module Chewy
       class Worker
         include ::Sidekiq::Worker
 
+        sidekiq_options queue: :chewy
+
         def perform(type, ids, options = {})
           type.constantize.import!(ids, options)
         end

@@ -48,10 +48,6 @@ module Chewy
       @records.any?
     end
 
-    def apply_changes_from(time)
-      Chewy::Journal.apply_changes_from(time, only: @index)
-    end
-
   private
 
     def identify(objects)
@@ -69,8 +65,8 @@ module Chewy
         entries.group_by(&:full_type_name).map { |_, grouped_entries| grouped_entries.reduce(:merge) }
       end
 
-      def entries_from(time, index = nil)
-        query = query(time, :gte, index)
+      def entries_from(time, indices = [])
+        query = query(time, :gte, indices)
         size = Chewy.client.search(index: index_name, type: type_name, body: query, search_type: 'count')['hits']['total']
         if size > 0
           Chewy.client.search(index: index_name, type: type_name, body: query, size: size, sort: 'created_at')['hits']['hits'].map { |r| Entry.new(r['_source']) }
@@ -127,41 +123,51 @@ module Chewy
         JOURNAL_MAPPING.keys.first
       end
 
-      def query(time, comparator, index = nil, use_filter = true)
-        filter_query =
-          if use_filter
-            if index.present?
-              {
-                filter: {
-                  bool: {
-                    must: [
-                      range_filter(comparator, time),
-                      index_filter(index)
-                    ]
-                  }
-                }
-              }
-            else
-              {
-                filter: range_filter(comparator, time)
-              }
-            end
-          elsif index.present?
-            {
-              query: range_filter(comparator, time),
-              filter: index_filter(index)
-            }
-          else
-            {
-              query: range_filter(comparator, time)
-            }
-          end
-
+      def query(time, comparator, indices, use_filter = true)
+        indices ||= []
         {
           query: {
-            filtered: filter_query
+            filtered: use_filter ? using_filter_query(time, comparator, indices) : using_query_query(time, comparator, indices)
           }
         }
+      end
+
+      def using_filter_query(time, comparator, indices)
+        if indices.any?
+          {
+            filter: {
+              bool: {
+                must: [
+                  range_filter(comparator, time),
+                  bool: {
+                    should: indices.collect { |i| index_filter(i) }
+                  }
+                ]
+              }
+            }
+          }
+        else
+          {
+            filter: range_filter(comparator, time)
+          }
+        end
+      end
+
+      def using_query_query(time, comparator, indices)
+        if indices.any?
+          {
+            query: range_filter(comparator, time),
+            filter: {
+              bool: {
+                should: indices.collect { |i| index_filter(i) }
+              }
+            }
+          }
+        else
+          {
+            query: range_filter(comparator, time)
+          }
+        end
       end
 
       def range_filter(comparator, time)

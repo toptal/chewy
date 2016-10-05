@@ -210,9 +210,16 @@ describe Chewy::Journal do
           expect(CountryIndex.all.to_a.length).to eq 1
 
           # Replay on specific index
-          Chewy::Journal.new(CityIndex).apply_changes_from(time)
+          Chewy::Journal.apply_changes_from(time, only: [CityIndex])
           expect(CityIndex.all.to_a.length).to eq 2
           expect(CountryIndex.all.to_a.length).to eq 1
+
+          # Replay on both
+          Chewy.client.delete(index: 'city', type: 'city', id: 1, refresh: true)
+          expect(CityIndex.all.to_a.length).to eq 1
+          Chewy::Journal.apply_changes_from(time, only: [CityIndex, CountryIndex])
+          expect(CityIndex.all.to_a.length).to eq 2
+          expect(CountryIndex.all.to_a.length).to eq 2
         end
       end
     end

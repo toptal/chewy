@@ -50,7 +50,7 @@ module Chewy
           index.reset!((time.to_f * 1000).round)
           if index.journal?
             Chewy::Journal.create
-            Chewy::Journal.apply_changes_from(time, only: index)
+            Chewy::Journal.apply_changes_from(time, only: [index])
           end
         end
       end

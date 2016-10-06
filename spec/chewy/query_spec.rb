@@ -195,6 +195,14 @@ describe Chewy::Query do
     end
   end
 
+  describe '#preference' do
+    specify { expect(subject.preference(:_primary)).to be_a described_class }
+    specify { expect(subject.preference(:_primary)).not_to eq(subject) }
+    specify { expect(subject.preference(:_primary).criteria.search_options).to include(preference: :_primary) }
+    specify { expect { subject.preference(:_primary) }.not_to change { subject.criteria.search_options } }
+    specify { expect(subject.preference(:_primary).criteria.request_body).to include(preference: :_primary) }
+  end
+
   describe '#facets' do
     specify do
       skip_on_version_lt('2.0')

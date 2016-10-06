@@ -24,6 +24,8 @@
   
   * Add the `track_scores` option to the query; `_score` to be computed and tracked even when there are no `_score` in sort. (@dmitry)
 
+  * Added `Query#preference` for specifying shard replicas to query against. (@menglewis)
+
 ## Bugfixes
 
   * Fix routing_missing_exception on delete with parent missing (@guigs, #398)

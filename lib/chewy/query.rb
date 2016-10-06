@@ -515,6 +515,15 @@ module Chewy
       chain { criteria.update_scores scoring }
     end
 
+    # Sets <tt>preference</tt> for request.
+    # For instance, one can use <tt>preference=_primary</tt> to execute only on the primary shards.
+    #
+    #   scope = UsersIndex.preference(:_primary)
+    #
+    def preference(value)
+      chain { criteria.update_search_options preference: value }
+    end
+
     # Sets elasticsearch <tt>aggregations</tt> search request param
     #
     #  UsersIndex.filter{ name == 'Johny' }.aggregations(category_id: {terms: {field: 'category_ids'}})

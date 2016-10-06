@@ -19,3 +19,4 @@ tmp
 .rvmrc
 _site
 .sass-cache
+.idea/

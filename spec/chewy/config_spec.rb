@@ -51,10 +51,97 @@ describe Chewy::Config do
   end
 
   describe '#configuration' do
-    before { subject.settings = { indices_path: 'app/custom_indices_path' } }
 
-    specify do
-      expect(subject.configuration).to include(indices_path: 'app/custom_indices_path')
+    let(:configuration) { subject.configuration }
+    before { subject.settings = settings }
+
+    describe 'custom settings' do
+
+      let(:settings) { { indices_path: 'app/custom_indices_path'} }
+
+      specify do
+        expect(configuration).to include(indices_path: 'app/custom_indices_path')
+      end
+    end
+
+    describe 'host value' do
+
+      let(:settings) { { host: host } }
+
+      context 'when host value is a string' do
+
+        let(:host) { 'localhost:9200' }
+
+        it 'returns the host value as is' do
+          expect(configuration[:host]).to eq(host)
+        end
+      end
+
+      context 'when host value is a Proc' do
+
+        let(:host_lambda_value) { 'localhost:9222' }
+        let(:host) { lambda { host_lambda_value } }
+
+        it 'executes the lambda and sets host to the return value' do
+          expect(configuration[:host]).to eq(host_lambda_value)
+        end
+      end
+    end
+
+    describe 'host value' do
+
+      let(:settings) { { host: host } }
+
+      context 'when host value is a string' do
+
+        let(:host) { 'localhost:9200' }
+
+        it 'returns the host value as is' do
+          expect(configuration[:host]).to eq(host)
+        end
+      end
+
+      context 'when host value is a lambda' do
+
+        let(:host_lambda_value) { 'localhost:9222' }
+        let(:host) { lambda { host_lambda_value } }
+
+        it 'executes the lambda and sets host to the return value' do
+          expect(configuration[:host]).to eq(host_lambda_value)
+        end
+      end
+    end
+  end
+
+  describe '#client_key' do
+
+    before { subject.settings = settings }
+
+    context 'when instance_identifier is not set' do
+
+      let(:settings) { {} }
+
+      it 'returns :chewy_client' do
+        expect(subject.client_key).to eq(:chewy_client)
+      end
+    end
+
+    context 'when instance_identifier is a string' do
+
+      let(:settings) { { instance_identifier: 'acme' } }
+
+      it 'returns a client key that includes the instance_identifier' do
+        expect(subject.client_key).to eq(:chewy_client_acme)
+      end
+    end
+
+    context 'when instance_identifier is a Proc' do
+
+      let(:settings) { { instance_identifier: lambda { 'acme_proc' } } }
+
+      it 'returns a client key the value returned from the Proc' do
+        expect(subject.client_key).to eq(:chewy_client_acme_proc)
+      end
     end
   end
 end

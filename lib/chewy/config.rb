@@ -114,6 +114,12 @@ module Chewy
         configuration[:logger] = transport_logger if transport_logger
         configuration[:indices_path] ||= indices_path if indices_path
         configuration.merge!(tracer: transport_tracer) if transport_tracer
+
+        configuration.each_pair do |key, value|
+          configuration[key] = value_for(value)
+        end
+
+        configuration
       end
     end
 
@@ -122,7 +128,23 @@ module Chewy
       self.settings = options
     end
 
+    def client_key
+      if dynamic_client_key?
+        "chewy_client_#{value_for(instance_identifier)}".to_sym
+      else
+        :chewy_client
+      end
+    end
+
   private
+
+    def dynamic_client_key?
+      @dynamic_client_key ||= instance_identifier.present?
+    end
+
+    def instance_identifier
+      @instance_identifier ||= settings.symbolize_keys[:instance_identifier]
+    end
 
     def yaml_settings
       @yaml_settings ||= begin
@@ -135,6 +157,14 @@ module Chewy
             hash[Rails.env].try(:deep_symbolize_keys) if hash
           end
         end || {}
+      end
+    end
+
+    def value_for(proc_or_string)
+      if proc_or_string.is_a?(Proc)
+        proc_or_string.call
+      else
+        proc_or_string
       end
     end
   end

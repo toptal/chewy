@@ -117,6 +117,23 @@ The logger may be set explicitly:
 Chewy.logger = Logger.new(STDOUT)
 ```
 
+#### Multi Tenant/Instance Setup
+It is possible to provide a `Proc` value for any setting key to have this called at runtime.
+This is useful particularly to use if you wish to run a multi-tenanted environment where tenants may have a dedicated elastic search instance.
+
+**Important:** You should specify an `instance_identifier` as a `Proc` when running multiple instances. 
+The `Proc` should return a unique identifer for the current tenant or instance.
+If you do not provide this then internally the ES client will be cached incorrectly and your tenants may result in sending queries to the wrong instance.
+
+For example:
+
+  ```ruby
+  Chewy.settings = {
+    host:                Proc.new { some_host_value },
+    instance_identifier: Proc.new { some_unique_instance_identifier }
+  }
+  ```
+
 See [config.rb](lib/chewy/config.rb) for more details.
 
 ### Index definition

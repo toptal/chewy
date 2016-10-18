@@ -131,7 +131,7 @@ module Chewy
     # Main elasticsearch-ruby client instance
     #
     def client
-      Thread.current[:chewy_client] ||= begin
+      Thread.current[client_key] ||= begin
         client_configuration = configuration.deep_dup
         client_configuration.delete(:prefix) # used by Chewy, not relevant to Elasticsearch::Client
         block = client_configuration[:transport_options].try(:delete, :proc)

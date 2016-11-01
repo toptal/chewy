@@ -1005,6 +1005,14 @@ module Chewy
     def timed_out
       _response['timed_out']
     end
+    
+    # Returns request max_score as reported by elasticsearch
+    #
+    #   UsersIndex.query(...).filter(...).max_score
+    #   
+    def max_score
+      _response['hits']['max_score']
+    end
 
   protected
 

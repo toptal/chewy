@@ -135,10 +135,10 @@ describe Chewy::Journal do
             expect(Chewy.client.count(index: Chewy::Journal.index_name)['count']).to eq 9
             expect(journal_records).to eq expected_journal
 
-            journal_entries = Chewy::Journal.entries_from(import_time)
+            journal_entries = Chewy::Journal::Entry.since(import_time)
             expect(journal_entries.length).to eq 4
             # we have only 2 types, so we can group all journal entries(4) into 2
-            expect(Chewy::Journal.group(journal_entries)).to eq [
+            expect(Chewy::Journal::Entry.group(journal_entries)).to eq [
               Chewy::Journal::Entry.new('index_name' => "#{namespace}places",
                                         'type_name' => 'city',
                                         'action' => nil,
@@ -155,10 +155,10 @@ describe Chewy::Journal do
             Chewy.client.delete(index: "#{Chewy.settings[:prefix]}_places", type: 'city', id: 1, refresh: true)
             expect(places_index::City.all.to_a.length).to eq 1
 
-            Chewy::Journal.apply_changes_from(time)
+            Chewy::Journal::Apply.since(time)
             expect(places_index::City.all.to_a.length).to eq 2
 
-            expect(Chewy::Journal.clean_until(import_time)).to eq 7
+            expect(Chewy::Journal::Clean.until(import_time)).to eq 7
             expect(Chewy.client.count(index: Chewy::Journal.index_name)['count']).to eq 2
 
             expect(Chewy::Journal.delete!).to be_truthy
@@ -166,60 +166,6 @@ describe Chewy::Journal do
             expect(Chewy::Journal.delete).to eq false
             expect(Chewy::Journal.exists?).to eq false
           end
-        end
-      end
-    end
-
-    context '.apply_changes_from with an index filter' do
-      let(:time) { Time.now }
-
-      before do
-        stub_model(:city) do
-          update_index 'city', :self
-        end
-        stub_model(:country) do
-          update_index 'country', :self
-        end
-
-        stub_index('city') do
-          define_type City do
-            default_import_options journal: true
-          end
-        end
-        stub_index('country') do
-          define_type Country do
-            default_import_options journal: true
-          end
-        end
-
-        Chewy.massacre
-        Timecop.freeze(time)
-      end
-
-      specify do
-        Chewy.strategy(:urgent) do
-          Array.new(2) { |i| City.create!(id: i + 1) }
-          Array.new(2) { |i| Country.create!(id: i + 1) }
-          expect(CityIndex.all.to_a.length).to eq 2
-          expect(CountryIndex.all.to_a.length).to eq 2
-
-          # simulate lost data
-          Chewy.client.delete(index: 'city', type: 'city', id: 1, refresh: true)
-          Chewy.client.delete(index: 'country', type: 'country', id: 1, refresh: true)
-          expect(CityIndex.all.to_a.length).to eq 1
-          expect(CountryIndex.all.to_a.length).to eq 1
-
-          # Replay on specific index
-          Chewy::Journal.apply_changes_from(time, only: [CityIndex])
-          expect(CityIndex.all.to_a.length).to eq 2
-          expect(CountryIndex.all.to_a.length).to eq 1
-
-          # Replay on both
-          Chewy.client.delete(index: 'city', type: 'city', id: 1, refresh: true)
-          expect(CityIndex.all.to_a.length).to eq 1
-          Chewy::Journal.apply_changes_from(time, only: [CityIndex, CountryIndex])
-          expect(CityIndex.all.to_a.length).to eq 2
-          expect(CountryIndex.all.to_a.length).to eq 2
         end
       end
     end

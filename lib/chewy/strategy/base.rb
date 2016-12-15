@@ -21,8 +21,7 @@ module Chewy
       # This method called when strategy pops from the
       # strategies stack
       #
-      def leave
-      end
+      def leave; end
     end
   end
 end

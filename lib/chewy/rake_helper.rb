@@ -5,13 +5,15 @@ module Chewy
         callback = lambda do |_name, start, finish, _id, payload|
           duration = (finish - start).round(2)
           puts "  Imported #{payload[:type]} for #{duration}s, documents total: #{payload[:import].try(:[], :index).to_i}"
-          payload[:errors].each do |action, errors|
-            puts "    #{action.to_s.humanize} errors:"
-            errors.each do |error, documents|
-              puts "      `#{error}`"
-              puts "        on #{documents.count} documents: #{documents}"
+          if payload[:errors]
+            payload[:errors].each do |action, errors|
+              puts "    #{action.to_s.humanize} errors:"
+              errors.each do |error, documents|
+                puts "      `#{error}`"
+                puts "        on #{documents.count} documents: #{documents}"
+              end
             end
-          end if payload[:errors]
+          end
         end
         ActiveSupport::Notifications.subscribed(callback, 'import_objects.chewy') do
           yield

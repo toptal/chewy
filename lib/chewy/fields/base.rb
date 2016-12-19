@@ -51,11 +51,13 @@ module Chewy
           object.send(name)
         end
 
-        result = if result.respond_to?(:to_ary)
-          result.to_ary.map { |item| compose_children(item, *objects) }
-        else
-          compose_children(result, *objects)
-        end if children.present? && !multi_field?
+        if children.present? && !multi_field?
+          result = if result.respond_to?(:to_ary)
+            result.to_ary.map { |item| compose_children(item, *objects) }
+          else
+            compose_children(result, *objects)
+          end
+        end
 
         { name => result }
       end

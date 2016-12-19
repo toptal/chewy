@@ -20,7 +20,7 @@ require 'i18n/core_ext/hash'
 #   specify { expect { user1.destroy!; user2.save! } }
 #     .to update_index(UsersIndex::User).and_reindex(user2).and_delete(user1) }
 #
-RSpec::Matchers.define :update_index do |type_name, options = {}|
+RSpec::Matchers.define :update_index do |type_name, options = {}| # rubocop:disable BlockLength
   if !respond_to?(:failure_message) && respond_to?(:failure_message_for_should)
     alias_method :failure_message, :failure_message_for_should
     alias_method :failure_message_when_negated, :failure_message_for_should_not
@@ -94,7 +94,7 @@ RSpec::Matchers.define :update_index do |type_name, options = {}|
     true
   end
 
-  match do |block|
+  match do |block| # rubocop:disable BlockLength
     @reindex ||= {}
     @delete ||= {}
     @missed_reindex = []
@@ -147,7 +147,7 @@ RSpec::Matchers.define :update_index do |type_name, options = {}|
       @delete.all? { |_, document| document[:match_count] }
   end
 
-  failure_message do
+  failure_message do # rubocop:disable BlockLength
     output = ''
 
     if @updated.none?

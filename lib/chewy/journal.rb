@@ -1,3 +1,8 @@
+require 'chewy/journal/entry'
+require 'chewy/journal/query'
+require 'chewy/journal/apply'
+require 'chewy/journal/clean'
+
 module Chewy
   class Journal
     JOURNAL_MAPPING = {
@@ -11,8 +16,6 @@ module Chewy
         }
       }
     }.freeze
-
-    DELETE_BATCH_SIZE = 10_000
 
     def initialize(index)
       @records = []
@@ -55,24 +58,19 @@ module Chewy
     end
 
     class << self
-      def apply_changes_from(time, options = {})
-        group(entries_from(time, options[:only])).each do |entry|
-          Chewy.derive_type(entry.full_type_name).import(entry.object_ids, journal: false)
-        end
+      def exists?
+        Chewy.client.indices.exists? index: index_name
       end
 
-      def group(entries)
-        entries.group_by(&:full_type_name).map { |_, grouped_entries| grouped_entries.reduce(:merge) }
+      def index_name
+        [
+          Chewy.configuration[:prefix],
+          Chewy.configuration[:journal_name] || 'chewy_journal'
+        ].reject(&:blank?).join('_')
       end
 
-      def entries_from(time, indices = [])
-        query = query(time, :gte, indices)
-        size = Chewy.client.search(index: index_name, type: type_name, body: query, search_type: 'count')['hits']['total']
-        if size > 0
-          Chewy.client.search(index: index_name, type: type_name, body: query, size: size, sort: 'created_at')['hits']['hits'].map { |r| Entry.new(r['_source']) }
-        else
-          []
-        end
+      def type_name
+        JOURNAL_MAPPING.keys.first
       end
 
       def create
@@ -93,125 +91,16 @@ module Chewy
         false
       end
 
-      def clean_until(time)
-        query = query(time, :lte, nil, false)
-        search_query = query.merge(fields: ['_id'], size: DELETE_BATCH_SIZE)
-
-        count = Chewy.client.count(index: index_name, body: query)['count']
-
-        (count.to_f / DELETE_BATCH_SIZE).ceil.times do
-          ids = Chewy.client.search(index: index_name, body: search_query)['hits']['hits'].map { |doc| doc['_id'] }
-          Chewy.client.bulk body: ids.map { |id| { delete: { _index: index_name, _type: type_name, _id: id } } }, refresh: true
-        end
-
-        Chewy.wait_for_status
-        count
+      def apply_changes_from(*args)
+        Apply.since(*args)
       end
 
-      def exists?
-        Chewy.client.indices.exists? index: index_name
+      def entries_from(*args)
+        Entry.since(*args)
       end
 
-      def index_name
-        [
-          Chewy.configuration[:prefix],
-          Chewy.configuration[:journal_name] || 'chewy_journal'
-        ].reject(&:blank?).join('_')
-      end
-
-      def type_name
-        JOURNAL_MAPPING.keys.first
-      end
-
-      def query(time, comparator, indices, use_filter = true)
-        indices ||= []
-        {
-          query: {
-            filtered: use_filter ? using_filter_query(time, comparator, indices) : using_query_query(time, comparator, indices)
-          }
-        }
-      end
-
-      def using_filter_query(time, comparator, indices)
-        if indices.any?
-          {
-            filter: {
-              bool: {
-                must: [
-                  range_filter(comparator, time),
-                  bool: {
-                    should: indices.collect { |i| index_filter(i) }
-                  }
-                ]
-              }
-            }
-          }
-        else
-          {
-            filter: range_filter(comparator, time)
-          }
-        end
-      end
-
-      def using_query_query(time, comparator, indices)
-        if indices.any?
-          {
-            query: range_filter(comparator, time),
-            filter: {
-              bool: {
-                should: indices.collect { |i| index_filter(i) }
-              }
-            }
-          }
-        else
-          {
-            query: range_filter(comparator, time)
-          }
-        end
-      end
-
-      def range_filter(comparator, time)
-        {
-          range: {
-            created_at: {
-              comparator => time.to_i
-            }
-          }
-        }
-      end
-
-      def index_filter(index)
-        {
-          term: {
-            index_name: index.derivable_index_name
-          }
-        }
-      end
-    end
-
-    class Entry
-      ATTRIBUTES = %w(index_name type_name action object_ids created_at).freeze
-
-      attr_accessor(*ATTRIBUTES)
-
-      def initialize(attributes = {})
-        attributes.slice(*ATTRIBUTES).each do |attr, value|
-          public_send("#{attr}=", value)
-        end
-      end
-
-      def full_type_name
-        "#{index_name}##{type_name}"
-      end
-
-      def merge(other)
-        return self if other.nil? || full_type_name != other.full_type_name
-        self.object_ids |= other.object_ids
-        self
-      end
-
-      def ==(other)
-        !other.nil? && full_type_name == other.full_type_name && object_ids == other.object_ids
+      def clean_until(*args)
+        Clean.until(*args)
       end
     end
   end

@@ -30,13 +30,14 @@ namespace :chewy do
   desc 'Applies changes that were done from specified moment (as a timestamp)'
   task apply_changes_from: :environment do |_task, args|
     Chewy::RakeHelper.subscribed_task_stats do
-      timestamp = args.extras
+      params = args.extras
 
-      if timestamp.empty?
+      if params.empty?
         puts 'Please specify a timestamp like chewy:apply_changes_from[1469528705]'
       else
-        time = Time.at(timestamp.first.to_i)
-        Chewy::Journal.apply_changes_from(time)
+        timestamp, retries = params
+        time = Time.at(timestamp.to_i)
+        Chewy::Journal::Apply.since(time, retries: (retries.to_i if retries))
       end
     end
   end
@@ -45,7 +46,7 @@ namespace :chewy do
   task clean_journal: :environment do |_task, args|
     timestamp = args.extras.first
     if timestamp
-      Chewy::Journal.clean_until(Time.at(timestamp.to_i))
+      Chewy::Journal::Clean.until(Time.at(timestamp.to_i))
     else
       Chewy::Journal.delete!
     end

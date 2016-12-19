@@ -528,7 +528,7 @@ end
 
 You may be wondering why do you need it? The answer is simple: Not to lose the data.
 Imagine that:
-You reset your index in Zero Downtime manner (to separate index), and meantime somebody keeps updating the data frequently (to old index). So all these actions will be written to the journal index and you'll be able to apply them after index reset with `Chewy::Journal.apply_changes_from(Time.now - 1.hour)`.
+You reset your index in Zero Downtime manner (to separate index), and meantime somebody keeps updating the data frequently (to old index). So all these actions will be written to the journal index and you'll be able to apply them after index reset with `Chewy::Journal::Apply.since(1.hour.ago.to_i)`.
 
 For index reset journaling is turned off even if you set `journal: true` in `config/chewy.yml` or in `default_import_options`.
 You can change it only if you pass `journal: true` parameter explicitly to `#import`.

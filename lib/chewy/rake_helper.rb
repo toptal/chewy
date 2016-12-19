@@ -2,19 +2,26 @@ module Chewy
   module RakeHelper
     class << self
       def subscribed_task_stats
-        callback = lambda do |_name, start, finish, _id, payload|
+        import_callback = lambda do |_name, start, finish, _id, payload|
           duration = (finish - start).round(2)
           puts "  Imported #{payload[:type]} for #{duration}s, documents total: #{payload[:import].try(:[], :index).to_i}"
-          payload[:errors].each do |action, errors|
-            puts "    #{action.to_s.humanize} errors:"
-            errors.each do |error, documents|
-              puts "      `#{error}`"
-              puts "        on #{documents.count} documents: #{documents}"
+          if payload[:errors]
+            payload[:errors].each do |action, errors|
+              puts "    #{action.to_s.humanize} errors:"
+              errors.each do |error, documents|
+                puts "      `#{error}`"
+                puts "        on #{documents.count} documents: #{documents}"
+              end
             end
-          end if payload[:errors]
+          end
         end
-        ActiveSupport::Notifications.subscribed(callback, 'import_objects.chewy') do
-          yield
+        journal_callback = lambda do |_, _, _, _, payload|
+          puts "Applying journal. Stage #{payload[:stage]}"
+        end
+        ActiveSupport::Notifications.subscribed(journal_callback, 'apply_journal.chewy') do
+          ActiveSupport::Notifications.subscribed(import_callback, 'import_objects.chewy') do
+            yield
+          end
         end
       end
 
@@ -50,7 +57,7 @@ module Chewy
           index.reset!((time.to_f * 1000).round)
           if index.journal?
             Chewy::Journal.create
-            Chewy::Journal.apply_changes_from(time, only: [index])
+            Chewy::Journal::Apply.since(time, only: [index])
           end
         end
       end

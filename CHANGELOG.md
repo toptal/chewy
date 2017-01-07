@@ -1,10 +1,16 @@
 # master
 
+# Version 0.9.0
+
 ## Changes
 
-  * Confugurable `Chewy.indices_path` (@robacarp, #414)
+  * Add `preference` param to Query (@menglewis, #443)
 
-  * [Journaling](https://github.com/toptal/chewy/#journaling) implementation (@sergey-kintsel, #409)
+  * Add the `track_scores` option to the query; `_score` to be computed and tracked even when there are no `_score` in sort. (@dmitry, #417)
+
+  * Confugurable `Chewy.indices_path` (@robacarp, #414, #433, #439)
+
+  * [Journaling](https://github.com/toptal/chewy/#journaling) implementation (@sergey-kintsel, #409, #425, #428, #432, #434, #463)
 
   * Minitest helpers (@robacarp, #396)
 
@@ -21,12 +27,12 @@
   * Rake tasks support multiple indexes and exceptions: `rake chewy:reset[users,projects]`, `rake chewy:update[-projects]`
 
   * Witchcraft™ supports dynamically generated procs with variables from closure.
-  
-  * Add the `track_scores` option to the query; `_score` to be computed and tracked even when there are no `_score` in sort. (@dmitry)
 
   * Added `Query#preference` for specifying shard replicas to query against. (@menglewis)
 
 ## Bugfixes
+
+  * `.script_fields` method in the Index class (@dmitry, #415)
 
   * Fix routing_missing_exception on delete with parent missing (@guigs, #398)
 

@@ -32,3 +32,11 @@ Style/MultilineMethodCallIndentation:
 
 Style/MultilineOperationIndentation:
   EnforcedStyle: indented
+
+Metrics/BlockLength:
+  Exclude:
+    - "**/*_spec.rb"
+
+Metrics/ModuleLength:
+  Exclude:
+    - "**/*_spec.rb"

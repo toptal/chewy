@@ -3,8 +3,7 @@ sudo: false
 services:
   - mongodb
 rvm:
-  - 2.2.5
-  - 2.3.1
+  - 2.3.3
 gemfile:
   - gemfiles/rails.4.2.activerecord.gemfile
   - gemfiles/rails.4.2.activerecord.kaminari.gemfile
@@ -12,25 +11,17 @@ gemfile:
   - gemfiles/rails.5.0.activerecord.gemfile
   - gemfiles/rails.5.0.activerecord.kaminari.gemfile
   - gemfiles/rails.5.0.activerecord.will_paginate.gemfile
-  - gemfiles/rails.4.2.mongoid.4.0.gemfile
-  - gemfiles/rails.4.2.mongoid.4.0.kaminari.gemfile
-  - gemfiles/rails.4.2.mongoid.4.0.will_paginate.gemfile
   - gemfiles/rails.4.2.mongoid.5.1.gemfile
   - gemfiles/rails.4.2.mongoid.5.1.kaminari.gemfile
   - gemfiles/rails.4.2.mongoid.5.1.will_paginate.gemfile
-  - gemfiles/sequel.4.38.gemfile
-matrix:
-  include:
-    - rvm: 2.1
-      gemfile: gemfiles/rails.3.2.activerecord.gemfile
-    - rvm: 2.1
-      gemfile: gemfiles/rails.3.2.activerecord.kaminari.gemfile
-    - rvm: 2.1
-      gemfile: gemfiles/rails.3.2.activerecord.will_paginate.gemfile
+  - gemfiles/rails.5.0.mongoid.6.0.gemfile
+  - gemfiles/rails.5.0.mongoid.6.0.kaminari.gemfile
+  - gemfiles/rails.5.0.mongoid.6.0.will_paginate.gemfile
+  - gemfiles/sequel.4.42.gemfile
 before_install:
-  - curl -s https://download.elastic.co/elasticsearch/elasticsearch/elasticsearch-1.7.5.tar.gz | tar xz -C /tmp
+  - curl -s https://download.elasticsearch.org/elasticsearch/release/org/elasticsearch/distribution/tar/elasticsearch/2.4.3/elasticsearch-2.4.3.tar.gz | tar xz -C /tmp
 before_script:
-  - TEST_CLUSTER_COMMAND="/tmp/elasticsearch-1.7.5/bin/elasticsearch" rake es:start
+  - TEST_CLUSTER_COMMAND="/tmp/elasticsearch-2.4.3/bin/elasticsearch" rake es:start
 script:
   - bundle exec rspec
   - bundle exec rubocop

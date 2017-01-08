@@ -2,14 +2,13 @@
 
 source "https://rubygems.org"
 
-gem "mongoid", "~> 4.0.0"
-gem "activesupport", "~> 4.2.0"
+gem "mongoid", "~> 6.0.0"
+gem "activesupport", "~> 5.0.0"
 gem "will_paginate", :require => false
 
 group :test do
   gem "guard"
   gem "guard-rspec"
-  gem "listen", "~> 3.0.0"
 end
 
 gemspec :path => "../"

@@ -29,11 +29,10 @@ Gem::Specification.new do |spec| # rubocop:disable BlockLength
   spec.add_development_dependency 'resque_spec'
   spec.add_development_dependency 'timecop'
   spec.add_development_dependency 'rubocop'
-  spec.add_development_dependency 'rubysl', '~> 2.0' if RUBY_ENGINE == 'rbx'
 
   spec.add_development_dependency 'method_source'
   spec.add_development_dependency 'unparser'
 
-  spec.add_dependency 'activesupport', '>= 3.2'
-  spec.add_dependency 'elasticsearch', '>= 1.0.0'
+  spec.add_dependency 'activesupport', '>= 4.0'
+  spec.add_dependency 'elasticsearch', '>= 2.0.0'
 end

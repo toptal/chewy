@@ -163,7 +163,28 @@ module Chewy
         def reset!(suffix = nil, journal: false)
           if suffix.present? && (indexes = self.indexes).present?
             create! suffix, alias: false
+
+            use_enhance = Chewy.use_enhance_index_settings_while_resetting
+            if use_enhance
+              name = build_index_name(suffix: suffix)
+              client.indices.put_settings index: name, body: { index: { number_of_replicas: 0, refresh_interval: -1 } }
+            end
+
             result = import suffix: suffix, journal: journal
+
+            if use_enhance
+              settings = {}.tap do |s|
+                if settings_hash[:settings] && settings_hash[:settings][:index]
+                  index_settings = settings_hash[:settings][:index]
+                  s[:number_of_replicas] = index_settings[:number_of_replicas] if index_settings.has_key?(:number_of_replicas)
+                  s[:refresh_interval] = index_settings[:refresh_interval] || '1s' if index_settings.has_key?(:refresh_interval)
+                end
+              end
+
+              #Putting back original settings before switching aliases
+              client.indices.put_settings index: name, body: { index: settings }
+            end
+
             client.indices.update_aliases body: { actions: [
               *indexes.map do |index|
                 { remove: { index: index, alias: index_name } }

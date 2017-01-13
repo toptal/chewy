@@ -394,30 +394,27 @@ describe Chewy::Index::Actions do
     context 'use_enhance_index_settings_while_resetting' do
       let(:suffix) { Time.now.to_i }
       let(:name) { CitiesIndex.build_index_name(suffix: suffix) }
-      let(:before_body) {
+      let(:before_import_body) do
         {
           index: {
             number_of_replicas: 0,
             refresh_interval: -1
           }
         }
-      }
-      let(:setting_hash) {
+      end
+      let(:after_import_body) do
         {
-          settings: {
-            index: {
-              number_of_replicas: 0,
-              refresh_interval: '1s'
-            }
+          index: {
+            number_of_replicas: 0,
+            refresh_interval: '1s'
           }
         }
-      }
+      end
       before { CitiesIndex.reset!('2013') }
       before { allow(Chewy).to receive(:use_enhance_index_settings_while_resetting).and_return(true) }
       specify do
-        allow(CitiesIndex).to receive(:settings_hash).and_return(setting_hash)
-        expect(CitiesIndex.client.indices).to receive(:put_settings).with(index: name, body: before_body).once
-        expect(CitiesIndex.client.indices).to receive(:put_settings).with(index: name, body: setting_hash[:settings]).once
+        expect(CitiesIndex.client.indices).to receive(:put_settings).with(index: name, body: before_import_body).once
+        expect(CitiesIndex.client.indices).to receive(:put_settings).with(index: name, body: after_import_body).once
         expect(CitiesIndex).to receive(:import).with(suffix: suffix, journal: false, refresh: false).and_call_original
         expect(CitiesIndex.reset!(suffix)).to eq(true)
       end

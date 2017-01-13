@@ -171,14 +171,14 @@ module Chewy
 
                 import_result = import suffix: suffix, journal: journal, refresh: false
 
-                settings = {}
-                if settings_hash[:settings] && settings_hash[:settings][:index]
-                  index_settings = settings_hash[:settings][:index]
-                  settings[:number_of_replicas] = index_settings[:number_of_replicas] if index_settings.key?(:number_of_replicas)
-                  settings[:refresh_interval] = index_settings.fetch(:refresh_interval, '1s')
-                else
-                  settings[:refresh_interval] = '1s'
-                end
+                settings =
+                  if settings_hash[:settings] && settings_hash[:settings][:index]
+                    settings_hash[:settings][:index].select do |k, _|
+                      [:number_of_replicas, :refresh_interval].include?(k)
+                    end
+                  end
+
+                settings[:refresh_interval] = '1s' unless settings.key?(:refresh_interval)
 
                 client.indices.put_settings index: name, body: { index: settings }
                 import_result

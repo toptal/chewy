@@ -177,7 +177,7 @@ module Chewy
                 if settings_hash[:settings] && settings_hash[:settings][:index]
                   index_settings = settings_hash[:settings][:index]
                   s[:number_of_replicas] = index_settings[:number_of_replicas] if index_settings.has_key?(:number_of_replicas)
-                  s[:refresh_interval] = index_settings[:refresh_interval] || '1s' if index_settings.has_key?(:refresh_interval)
+                  s[:refresh_interval] = index_settings.fetch(:refresh_interval, '1s')
                 end
               end
 

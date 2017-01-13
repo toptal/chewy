@@ -392,9 +392,9 @@ describe Chewy::Index::Actions do
     end
 
     context 'use_enhance_index_settings_while_resetting' do
-      let(:suffix){ Time.now.to_i }
-      let(:name){ CitiesIndex.build_index_name(suffix: suffix) }
-      let(:before_body){
+      let(:suffix) { Time.now.to_i }
+      let(:name) { CitiesIndex.build_index_name(suffix: suffix) }
+      let(:before_body) {
         {
           index: {
             number_of_replicas: 0,
@@ -402,7 +402,7 @@ describe Chewy::Index::Actions do
           }
         }
       }
-      let(:setting_hash){
+      let(:setting_hash) {
         {
           settings: {
             index: {
@@ -416,9 +416,9 @@ describe Chewy::Index::Actions do
       before { allow(Chewy).to receive(:use_enhance_index_settings_while_resetting).and_return(true) }
       specify do
         allow(CitiesIndex).to receive(:settings_hash).and_return(setting_hash)
-        expect(CitiesIndex.client.indices).to receive(:put_settings).with({index: name, body: before_body}).once
-        expect(CitiesIndex.client.indices).to receive(:put_settings).with({index: name, body: setting_hash[:settings]}).once
-        expect(CitiesIndex).to receive(:import).with({suffix: suffix, journal: false, refresh: false}).and_call_original
+        expect(CitiesIndex.client.indices).to receive(:put_settings).with(index: name, body: before_body).once
+        expect(CitiesIndex.client.indices).to receive(:put_settings).with(index: name, body: setting_hash[:settings]).once
+        expect(CitiesIndex).to receive(:import).with(suffix: suffix, journal: false, refresh: false).and_call_original
         expect(CitiesIndex.reset!(suffix)).to eq(true)
       end
     end

@@ -42,16 +42,15 @@ module Chewy
       # within a Rails app folder.
       :indices_path,
 
-
-      #Optimize index settings when resetting
-      #https://www.elastic.co/guide/en/elasticsearch/reference/current/indices-update-settings.html
-      #Before reset,
+      # Optimize index settings when resetting
+      # https://www.elastic.co/guide/en/elasticsearch/reference/current/indices-update-settings.html
+      # Before reset,
       # - set refresh_interval -1 (disabled)
       # - set replicas to 0
-      #After reset, set back original index settings
+      # After reset, set back original index settings
       :use_enhance_index_settings_while_resetting,
 
-      #Refresh or not when import async (sidekiq, resque, activejob)
+      # Refresh or not when import async (sidekiq, resque, activejob)
       :disable_refresh_async
 
     def self.delegated

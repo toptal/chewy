@@ -164,26 +164,26 @@ module Chewy
           if suffix.present? && (indexes = self.indexes).present?
             create! suffix, alias: false
 
-            use_enhance = Chewy.use_enhance_index_settings_while_resetting
-            if use_enhance
-              name = build_index_name(suffix: suffix)
-              client.indices.put_settings index: name, body: { index: { number_of_replicas: 0, refresh_interval: -1 } }
-            end
+            result =
+              if Chewy.use_enhance_index_settings_while_resetting
+                name = build_index_name(suffix: suffix)
+                client.indices.put_settings index: name, body: { index: { number_of_replicas: 0, refresh_interval: -1 } }
 
-            result = import suffix: suffix, journal: journal
+                import_result = import suffix: suffix, journal: journal, refresh: false
 
-            if use_enhance
-              settings = {}.tap do |s|
-                if settings_hash[:settings] && settings_hash[:settings][:index]
-                  index_settings = settings_hash[:settings][:index]
-                  s[:number_of_replicas] = index_settings[:number_of_replicas] if index_settings.has_key?(:number_of_replicas)
-                  s[:refresh_interval] = index_settings.fetch(:refresh_interval, '1s')
+                settings = {}.tap do |s|
+                  if settings_hash[:settings] && settings_hash[:settings][:index]
+                    index_settings = settings_hash[:settings][:index]
+                    s[:number_of_replicas] = index_settings[:number_of_replicas] if index_settings.has_key?(:number_of_replicas)
+                    s[:refresh_interval] = index_settings.fetch(:refresh_interval, '1s')
+                  end
                 end
-              end
 
-              #Putting back original settings before switching aliases
-              client.indices.put_settings index: name, body: { index: settings }
-            end
+                client.indices.put_settings index: name, body: { index: settings }
+                import_result
+              else
+                import suffix: suffix, journal: journal
+              end
 
             client.indices.update_aliases body: { actions: [
               *indexes.map do |index|

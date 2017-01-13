@@ -406,8 +406,8 @@ describe Chewy::Index::Actions do
         {
           settings: {
             index: {
-              number_of_replicas: 1,
-              refresh_interval: '2s'
+              number_of_replicas: 0,
+              refresh_interval: '1s'
             }
           }
         }
@@ -418,6 +418,7 @@ describe Chewy::Index::Actions do
         allow(CitiesIndex).to receive(:settings_hash).and_return(setting_hash)
         expect(CitiesIndex.client.indices).to receive(:put_settings).with({index: name, body: before_body}).once
         expect(CitiesIndex.client.indices).to receive(:put_settings).with({index: name, body: setting_hash[:settings]}).once
+        expect(CitiesIndex).to receive(:import).with({suffix: suffix, journal: false, refresh: false}).and_call_original
         expect(CitiesIndex.reset!(suffix)).to eq(true)
       end
     end

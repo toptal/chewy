@@ -125,7 +125,7 @@ describe Chewy::Index do
       end
 
       specify { expect(PlacesIndex.city).to be_nil }
-      specify { expect(PlacesIndex.country).to be < Chewy::Type }
+      specify { expect(PlacesIndex::Country).to be < Chewy::Type }
     end
   end
 

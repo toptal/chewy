@@ -11,6 +11,7 @@ describe Chewy::Config do
   its(:post_filter_mode) { should be_nil }
   its(:root_strategy) { should == :base }
   its(:request_strategy) { should == :atomic }
+  its(:use_enhance_index_settings_while_resetting) { should == false }
   its(:use_after_commit_callbacks) { should == true }
   its(:indices_path) { should == 'app/chewy' }
 

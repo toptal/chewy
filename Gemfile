@@ -3,6 +3,7 @@ source 'https://rubygems.org'
 gemspec
 
 gem 'activerecord'
+gem 'rubocop', '0.46.0'
 # gem 'mongoid'
 # gem 'sequel'
 

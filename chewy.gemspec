@@ -28,7 +28,7 @@ Gem::Specification.new do |spec| # rubocop:disable BlockLength
   spec.add_development_dependency 'elasticsearch-extensions'
   spec.add_development_dependency 'resque_spec'
   spec.add_development_dependency 'timecop'
-  spec.add_development_dependency 'rubocop'
+  spec.add_development_dependency 'rubocop', '0.46.0'
   spec.add_development_dependency 'rubysl', '~> 2.0' if RUBY_ENGINE == 'rbx'
 
   spec.add_development_dependency 'method_source'

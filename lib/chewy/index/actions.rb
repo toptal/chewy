@@ -200,7 +200,7 @@ module Chewy
 
         def extract_index_settings(*args)
           return {} unless settings_hash.key?(:settings) || settings_hash[:settings].key?(:index)
-          settings_hash[:settings][:index].select { |k, _| args.include?(k) }
+          settings_hash[:settings][:index].slice(*args)
         end
       end
     end

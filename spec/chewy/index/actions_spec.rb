@@ -410,13 +410,52 @@ describe Chewy::Index::Actions do
           }
         }
       end
+
       before { CitiesIndex.reset!('2013') }
-      before { allow(Chewy).to receive(:use_enhance_index_settings_while_resetting).and_return(true) }
-      specify do
-        expect(CitiesIndex.client.indices).to receive(:put_settings).with(index: name, body: before_import_body).once
-        expect(CitiesIndex.client.indices).to receive(:put_settings).with(index: name, body: after_import_body).once
-        expect(CitiesIndex).to receive(:import).with(suffix: suffix, journal: false, refresh: false).and_call_original
-        expect(CitiesIndex.reset!(suffix)).to eq(true)
+      before { allow(Chewy).to receive(:use_enhance_index_settings_while_resetting).and_return(use_enhance) }
+
+      context 'activated' do
+        let(:use_enhance){ true }
+        specify do
+          expect(CitiesIndex.client.indices).to receive(:put_settings).with(index: name, body: before_import_body).once
+          expect(CitiesIndex.client.indices).to receive(:put_settings).with(index: name, body: after_import_body).once
+          expect(CitiesIndex).to receive(:import).with(suffix: suffix, journal: false, refresh: false).and_call_original
+          expect(CitiesIndex.reset!(suffix)).to eq(true)
+        end
+
+        context 'refresh_interval already defined' do
+          before do
+            stub_index(:cities) do
+              settings index: {refresh_interval: '2s'}
+              define_type City
+            end
+          end
+
+          let(:after_import_body) do
+            {
+              index: {
+                number_of_replicas: 0,
+                refresh_interval: '2s'
+              }
+            }
+          end
+
+          specify do
+            expect(CitiesIndex.client.indices).to receive(:put_settings).with(index: name, body: before_import_body).once
+            expect(CitiesIndex.client.indices).to receive(:put_settings).with(index: name, body: after_import_body).once
+            expect(CitiesIndex).to receive(:import).with(suffix: suffix, journal: false, refresh: false).and_call_original
+            expect(CitiesIndex.reset!(suffix)).to eq(true)
+          end
+        end
+      end
+
+      context 'not activated' do
+        let(:use_enhance){ false }
+        specify do
+          expect(CitiesIndex.client.indices).not_to receive(:put_settings)
+          expect(CitiesIndex).to receive(:import).with(suffix: suffix, journal: false).and_call_original
+          expect(CitiesIndex.reset!(suffix)).to eq(true)
+        end
       end
     end
 

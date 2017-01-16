@@ -164,27 +164,12 @@ module Chewy
           if suffix.present? && (indexes = self.indexes).present?
             create! suffix, alias: false
 
-            result =
-              if Chewy.use_enhance_index_settings_while_resetting
-                name = build_index_name(suffix: suffix)
-                client.indices.put_settings index: name, body: { index: { number_of_replicas: 0, refresh_interval: -1 } }
-
-                import_result = import suffix: suffix, journal: journal, refresh: false
-
-                settings =
-                  if settings_hash[:settings] && settings_hash[:settings][:index]
-                    settings_hash[:settings][:index].select do |k, _|
-                      [:number_of_replicas, :refresh_interval].include?(k)
-                    end
-                  end
-
-                settings[:refresh_interval] = '1s' unless settings.key?(:refresh_interval)
-
-                client.indices.put_settings index: name, body: { index: settings }
-                import_result
-              else
-                import suffix: suffix, journal: journal
-              end
+            import_args = { suffix: suffix, journal: journal }
+            use_enhance = Chewy.use_enhance_index_settings_while_resetting
+            replicas_and_refresh suffix: suffix, number_of_replicas: 0, refresh_interval: -1 if use_enhance
+            import_args[:refresh] = false if use_enhance
+            result = import import_args
+            replicas_and_refresh suffix: suffix if use_enhance
 
             client.indices.update_aliases body: { actions: [
               *indexes.map do |index|
@@ -198,6 +183,24 @@ module Chewy
             purge! suffix
             import journal: journal
           end
+        end
+
+      private
+
+        def replicas_and_refresh(*args)
+          options = args.extract_options!
+          name = build_index_name suffix: options[:suffix]
+
+          index_settings = options.slice :number_of_replicas, :refresh_interval
+          index_settings = extract_index_settings :number_of_replicas, :refresh_interval if index_settings.empty?
+          index_settings[:refresh_interval] = '1s' unless index_settings.key?(:refresh_interval)
+
+          client.indices.put_settings index: name, body: { index: index_settings }
+        end
+
+        def extract_index_settings(*args)
+          return {} unless settings_hash.key?(:settings) || settings_hash[:settings].key?(:index)
+          settings_hash[:settings][:index].select { |k, _| args.include?(k) }
         end
       end
     end

@@ -144,7 +144,7 @@ module Chewy
 
           if File.exist?(file)
             yaml = ERB.new(File.read(file)).result
-            hash = YAML.load(yaml)
+            hash = YAML.safe_load(yaml)
             hash[Rails.env].try(:deep_symbolize_keys) if hash
           end
         end || {}

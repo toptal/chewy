@@ -20,11 +20,12 @@ module Chewy
       end
 
       def mappings_hash
-        mapping = if children.present?
-          { (multi_field? ? :fields : :properties) => children.map(&:mappings_hash).inject(:merge) }
-        else
-          {}
-        end
+        mapping =
+          if children.present?
+            { (multi_field? ? :fields : :properties) => children.map(&:mappings_hash).inject(:merge) }
+          else
+            {}
+          end
         mapping.reverse_merge!(options)
         mapping.reverse_merge!(type: (children.present? ? 'object' : 'string'))
         { name => mapping }
@@ -33,30 +34,32 @@ module Chewy
       def compose(object, *parent_objects)
         objects = ([object] + parent_objects.flatten).uniq
 
-        result = if value && value.is_a?(Proc)
-          if value.arity.zero?
-            object.instance_exec(&value)
-          elsif value.arity < 0
-            value.call(*object)
+        result =
+          if value && value.is_a?(Proc)
+            if value.arity.zero?
+              object.instance_exec(&value)
+            elsif value.arity < 0
+              value.call(*object)
+            else
+              value.call(*objects.first(value.arity))
+            end
+          elsif object.is_a?(Hash)
+            if object.key?(name)
+              object[name]
+            else
+              object[name.to_s]
+            end
           else
-            value.call(*objects.first(value.arity))
+            object.send(name)
           end
-        elsif object.is_a?(Hash)
-          if object.key?(name)
-            object[name]
-          else
-            object[name.to_s]
-          end
-        else
-          object.send(name)
-        end
 
         if children.present? && !multi_field?
-          result = if result.respond_to?(:to_ary)
-            result.to_ary.map { |item| compose_children(item, *objects) }
-          else
-            compose_children(result, *objects)
-          end
+          result =
+            if result.respond_to?(:to_ary)
+              result.to_ary.map { |item| compose_children(item, *objects) }
+            else
+              compose_children(result, *objects)
+            end
         end
 
         { name => result }

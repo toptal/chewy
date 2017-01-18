@@ -129,6 +129,27 @@ describe Chewy::Type::Import do
       city.import dummy_cities, refresh: false
     end
 
+    context ':progress' do
+      specify do
+        expect do
+          city.import dummy_cities, progress: true
+        end.to output("Imported 3 items\r").to_stdout
+      end
+
+      specify do
+        expect do
+          city.import dummy_cities, progress: true, batch_size: 2
+        end.to output("Imported 2 items\rImported 3 items\r").to_stdout
+      end
+
+      specify do
+        expect do
+          city.import dummy_cities, progress: true, batch_size: 1
+        end.to output("Imported 1 items\rImported 2 items\rImported 3 items\r").to_stdout
+      end
+    end
+
+
     context 'scoped' do
       before do
         names = %w(name0 name1)

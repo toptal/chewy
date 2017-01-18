@@ -54,7 +54,7 @@ module Chewy
         normalize_indexes(indexes).each do |index|
           puts "Resetting #{index}"
           time = Time.now
-          index.reset!((time.to_f * 1000).round)
+          index.reset!((time.to_f * 1000).round, progress: ENV['PROGRESS'])
           if index.journal?
             Chewy::Journal.create
             Chewy::Journal::Apply.since(time, only: [index])

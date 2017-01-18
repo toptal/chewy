@@ -20,6 +20,7 @@ module Chewy
         #   UsersIndex::User.import bulk_size: 10.megabytes  # import ElasticSearch bulk size in bytes
         #   UsersIndex::User.import consistency: :quorum     # explicit write consistency setting for the operation (one, quorum, all)
         #   UsersIndex::User.import replication: :async      # explicitly set the replication type (sync, async)
+        #   UsersIndex::User.import progress: true           # print progress as import takes place (after each batch)
         #
         # See adapters documentation for more details.
         #
@@ -27,6 +28,7 @@ module Chewy
           import_options = args.extract_options!
           import_options.reverse_merge! _default_import_options
           bulk_options = import_options.reject { |k, _| !BULK_OPTIONS.include?(k) }.reverse_merge!(refresh: true)
+          total_imported = 0
 
           index.create!(bulk_options.slice(:suffix)) unless index.exists?
 
@@ -42,6 +44,10 @@ module Chewy
 
               fill_payload_import payload, action_objects
               fill_payload_errors payload, errors if errors.present?
+
+              total_imported += action_objects.values.flatten.length
+              print "Imported #{total_imported} items\r" if import_options[:progress]
+
               !errors.present?
             end
           end

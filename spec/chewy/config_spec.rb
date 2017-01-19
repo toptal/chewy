@@ -13,7 +13,8 @@ describe Chewy::Config do
   its(:request_strategy) { should == :atomic }
   its(:use_after_commit_callbacks) { should == true }
   its(:indices_path) { should == 'app/chewy' }
-  its(:use_enhance_index_settings_while_resetting) { should == false }
+  its(:reset_disable_refresh_interval) { should == false }
+  its(:reset_no_replicas) { should == false }
   its(:disable_refresh_async) { should == false }
 
   describe '#transport_logger=' do

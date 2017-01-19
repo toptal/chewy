@@ -391,31 +391,25 @@ describe Chewy::Index::Actions do
       end
     end
 
-    context 'use_enhance_index_settings_while_resetting' do
+    context 'reset_disable_refresh_interval' do
       let(:suffix) { Time.now.to_i }
       let(:name) { CitiesIndex.build_index_name(suffix: suffix) }
       let(:before_import_body) do
         {
-          index: {
-            number_of_replicas: 0,
-            refresh_interval: -1
-          }
+          index: { refresh_interval: -1 }
         }
       end
       let(:after_import_body) do
         {
-          index: {
-            number_of_replicas: 0,
-            refresh_interval: '1s'
-          }
+          index: { refresh_interval: '1s' }
         }
       end
 
       before { CitiesIndex.reset!('2013') }
-      before { allow(Chewy).to receive(:use_enhance_index_settings_while_resetting).and_return(use_enhance) }
+      before { allow(Chewy).to receive(:reset_disable_refresh_interval).and_return(reset_disable_refresh_interval) }
 
       context 'activated' do
-        let(:use_enhance) { true }
+        let(:reset_disable_refresh_interval) { true }
         specify do
           expect(CitiesIndex.client.indices).to receive(:put_settings).with(index: name, body: before_import_body).once
           expect(CitiesIndex.client.indices).to receive(:put_settings).with(index: name, body: after_import_body).once
@@ -433,10 +427,7 @@ describe Chewy::Index::Actions do
 
           let(:after_import_body) do
             {
-              index: {
-                number_of_replicas: 0,
-                refresh_interval: '2s'
-              }
+              index: { refresh_interval: '2s' }
             }
           end
 
@@ -450,10 +441,47 @@ describe Chewy::Index::Actions do
       end
 
       context 'not activated' do
-        let(:use_enhance) { false }
+        let(:reset_disable_refresh_interval) { false }
         specify do
           expect(CitiesIndex.client.indices).not_to receive(:put_settings)
-          expect(CitiesIndex).to receive(:import).with(suffix: suffix, journal: false).and_call_original
+          expect(CitiesIndex).to receive(:import).with(suffix: suffix, journal: false, refresh: true).and_call_original
+          expect(CitiesIndex.reset!(suffix)).to eq(true)
+        end
+      end
+    end
+
+    context 'reset_no_replicas' do
+      let(:suffix) { Time.now.to_i }
+      let(:name) { CitiesIndex.build_index_name(suffix: suffix) }
+      let(:before_import_body) do
+        {
+          index: { number_of_replicas: 0 }
+        }
+      end
+      let(:after_import_body) do
+        {
+          index: { number_of_replicas: 0 }
+        }
+      end
+
+      before { CitiesIndex.reset!('2013') }
+      before { allow(Chewy).to receive(:reset_no_replicas).and_return(reset_no_replicas) }
+
+      context 'activated' do
+        let(:reset_no_replicas) { true }
+        specify do
+          expect(CitiesIndex.client.indices).to receive(:put_settings).with(index: name, body: before_import_body).once
+          expect(CitiesIndex.client.indices).to receive(:put_settings).with(index: name, body: after_import_body).once
+          expect(CitiesIndex).to receive(:import).with(suffix: suffix, journal: false, refresh: true).and_call_original
+          expect(CitiesIndex.reset!(suffix)).to eq(true)
+        end
+      end
+
+      context 'not activated' do
+        let(:reset_no_replicas) { false }
+        specify do
+          expect(CitiesIndex.client.indices).not_to receive(:put_settings)
+          expect(CitiesIndex).to receive(:import).with(suffix: suffix, journal: false, refresh: true).and_call_original
           expect(CitiesIndex.reset!(suffix)).to eq(true)
         end
       end

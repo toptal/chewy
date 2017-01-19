@@ -164,12 +164,9 @@ module Chewy
           if suffix.present? && (indexes = self.indexes).present?
             create! suffix, alias: false
 
-            import_args = { suffix: suffix, journal: journal }
-            use_enhance = Chewy.use_enhance_index_settings_while_resetting
-            replicas_and_refresh suffix: suffix, number_of_replicas: 0, refresh_interval: -1 if use_enhance
-            import_args[:refresh] = false if use_enhance
-            result = import import_args
-            replicas_and_refresh suffix: suffix if use_enhance
+            optimize_index_settings suffix
+            result = import suffix: suffix, journal: journal, refresh: !Chewy.reset_disable_refresh_interval
+            original_index_settings suffix
 
             client.indices.update_aliases body: { actions: [
               *indexes.map do |index|
@@ -187,20 +184,32 @@ module Chewy
 
       private
 
-        def replicas_and_refresh(*args)
-          options = args.extract_options!
-          name = build_index_name suffix: options[:suffix]
-
-          index_settings = options.slice :number_of_replicas, :refresh_interval
-          index_settings = extract_index_settings :number_of_replicas, :refresh_interval if index_settings.empty?
-          index_settings[:refresh_interval] = '1s' unless index_settings.key?(:refresh_interval)
-
-          client.indices.put_settings index: name, body: { index: index_settings }
+        def optimize_index_settings(suffix)
+          settings = {}
+          settings[:refresh_interval] = -1 if Chewy.reset_disable_refresh_interval
+          settings[:number_of_replicas] = 0 if Chewy.reset_no_replicas
+          update_settings suffix: suffix, settings: settings if settings.any?
         end
 
-        def extract_index_settings(*args)
+        def original_index_settings(suffix)
+          settings = {}
+          if Chewy.reset_disable_refresh_interval
+            settings.merge! index_settings(:refresh_interval)
+            settings[:refresh_interval] = '1s' if settings.empty?
+          end
+          settings.merge! index_settings(:number_of_replicas) if Chewy.reset_no_replicas
+          update_settings suffix: suffix, settings: settings if settings.any?
+        end
+
+        def update_settings(*args)
+          options = args.extract_options!
+          name = build_index_name suffix: options[:suffix]
+          client.indices.put_settings index: name, body: { index: options[:settings] }
+        end
+
+        def index_settings(setting_name)
           return {} unless settings_hash.key?(:settings) || settings_hash[:settings].key?(:index)
-          settings_hash[:settings][:index].slice(*args)
+          settings_hash[:settings][:index].slice(setting_name)
         end
       end
     end

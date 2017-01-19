@@ -42,13 +42,14 @@ module Chewy
       # within a Rails app folder.
       :indices_path,
 
-      # Optimize index settings when resetting
+      # Set index refresh_interval setting to -1 before reset and put the original value after.
+      # If setting not present, put back to default 1s
       # https://www.elastic.co/guide/en/elasticsearch/reference/current/indices-update-settings.html
-      # Before reset,
-      # - set refresh_interval -1 (disabled)
-      # - set replicas to 0
-      # After reset, set back original index settings
-      :use_enhance_index_settings_while_resetting,
+      :reset_disable_refresh_interval,
+
+      # Set number_of_replicas to 0 before reset and put the original value after
+      # https://www.elastic.co/guide/en/elasticsearch/reference/current/indices-update-settings.html
+      :reset_no_replicas,
 
       # Refresh or not when import async (sidekiq, resque, activejob)
       :disable_refresh_async
@@ -64,7 +65,8 @@ module Chewy
       @root_strategy = :base
       @request_strategy = :atomic
       @use_after_commit_callbacks = true
-      @use_enhance_index_settings_while_resetting = false
+      @reset_disable_refresh_interval = false
+      @reset_no_replicas = false
       @disable_refresh_async = false
       @indices_path = 'app/chewy'
     end

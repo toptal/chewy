@@ -35,5 +35,5 @@ Gem::Specification.new do |spec| # rubocop:disable BlockLength
   spec.add_development_dependency 'unparser'
 
   spec.add_dependency 'activesupport', '>= 3.2'
-  spec.add_dependency 'elasticsearch', '>= 1.0.0'
+  spec.add_dependency 'elasticsearch', '5.0.0'
 end

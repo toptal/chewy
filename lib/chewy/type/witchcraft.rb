@@ -1,6 +1,6 @@
 begin
   require 'method_source'
-  # require 'parser/current'
+  require 'parser/current'
   require 'unparser'
 rescue LoadError
   nil

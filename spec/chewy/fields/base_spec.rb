@@ -320,7 +320,11 @@ describe Chewy::Fields::Base do
             Country.has_many :cities, order: :id
           end
         when :mongoid
-          City.belongs_to :country
+          if Mongoid::VERSION.start_with?('6')
+            City.belongs_to :country, optional: true
+          else
+            City.belongs_to :country
+          end
           Country.has_many :cities, order: :id.asc
         when :sequel
           City.many_to_one :country

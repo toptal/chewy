@@ -117,11 +117,6 @@ module Chewy
       end
     end
 
-    def configuration=(options)
-      ActiveSupport::Deprecation.warn("`Chewy.configuration = {foo: 'bar'}` method is deprecated and will be removed soon, use `Chewy.settings = {foo: 'bar'}` method instead")
-      self.settings = options
-    end
-
   private
 
     def yaml_settings
@@ -131,7 +126,7 @@ module Chewy
 
           if File.exist?(file)
             yaml = ERB.new(File.read(file)).result
-            hash = YAML.load(yaml)
+            hash = YAML.safe_load(yaml)
             hash[Rails.env].try(:deep_symbolize_keys) if hash
           end
         end || {}

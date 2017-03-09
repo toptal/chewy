@@ -111,7 +111,6 @@ RSpec::Matchers.define :update_index do |type_name, options = {}| # rubocop:disa
       end
     RUBY
 
-    ActiveSupport::Deprecation.warn('`atomic: false` option is removed and not effective anymore, use `strategy: :atomic` option instead') if options.key?(:atomic)
     Chewy.strategy(options[:strategy] || :atomic) { block.call }
 
     @updated.each do |updated_document|

@@ -8,7 +8,7 @@ module Chewy
     #   end
     #
     class Bypass < Base
-      def update(type, objects, options = {}); end
+      def update(type, objects, _options = {}); end
     end
   end
 end

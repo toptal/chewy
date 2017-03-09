@@ -16,5 +16,4 @@ gem 'activerecord'
 group :test do
   gem 'guard'
   gem 'guard-rspec'
-  gem 'listen', '~> 3.0.0'
 end

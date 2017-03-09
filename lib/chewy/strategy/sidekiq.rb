@@ -13,8 +13,6 @@ module Chewy
       class Worker
         include ::Sidekiq::Worker
 
-        sidekiq_options queue: :chewy
-
         def perform(type, ids, options = {})
           type.constantize.import!(ids, options)
         end
@@ -22,8 +20,19 @@ module Chewy
 
       def leave
         @stash.each do |type, ids|
-          Chewy::Strategy::Sidekiq::Worker.perform_async(type.name, ids) unless ids.empty?
+          next if ids.empty?
+          ::Sidekiq::Client.push(
+            'queue' => sidekiq_queue,
+            'class' => Chewy::Strategy::Sidekiq::Worker,
+            'args'  => [type.name, ids]
+          )
         end
+      end
+
+    private
+
+      def sidekiq_queue
+        Chewy.settings.fetch(:sidekiq, {})[:queue] || 'chewy'
       end
     end
   end

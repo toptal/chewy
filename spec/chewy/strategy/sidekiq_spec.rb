@@ -25,6 +25,8 @@ if defined?(::Sidekiq)
     end
 
     specify do
+      Chewy.settings[:sidekiq] = { queue: 'low' }
+      expect(::Sidekiq::Client).to receive(:push).with(hash_including('queue' => 'low')).and_call_original
       ::Sidekiq::Testing.inline! do
         expect { [city, other_city].map(&:save!) }
           .to update_index(CitiesIndex::City, strategy: :sidekiq)

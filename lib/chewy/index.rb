@@ -145,8 +145,8 @@ module Chewy
     # It is possible to store analyzers settings in Chewy repositories
     # and link them form index class. See `Chewy::Index::Settings` for details.
     #
-    def self.settings(params)
-      self._settings = Chewy::Index::Settings.new params
+    def self.settings(params = {}, &block)
+      self._settings = Chewy::Index::Settings.new(params, &block)
     end
 
     # Returns list of public class methods defined in current index

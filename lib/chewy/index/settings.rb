@@ -23,12 +23,14 @@ module Chewy
     # might be used as well.
     #
     class Settings
-      def initialize(params = {})
+      def initialize(params = {}, &block)
         @params = params
+        @proc_params = block
       end
 
       def to_hash
         settings = @params.deep_symbolize_keys
+        settings.merge!((@proc_params.call || {}).deep_symbolize_keys) if @proc_params
 
         settings[:analysis] = resolve_analysis(settings[:analysis]) if settings[:analysis]
         if settings[:index] || Chewy.configuration[:index]

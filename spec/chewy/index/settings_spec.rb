@@ -33,11 +33,11 @@ describe Chewy::Index::Settings do
     end
 
     specify do
-      Synonyms = Class.new do
+      stub_const('Synonyms', Class.new do
         def self.synonyms
           ['kaftan => dress']
         end
-      end
+      end)
       expect(
         described_class.new do
           {

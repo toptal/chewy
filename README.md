@@ -105,6 +105,21 @@ development:
   host: 'localhost:9200'
 ```
 
+The resulting config merges both hashes. Client options are passed as is to `Elasticsearch::Transport::Client` except for the `:prefix`, which is used internally by Chewy to create prefixed index names:
+
+```ruby
+  Chewy.settings = {prefix: 'test'}
+  UsersIndex.index_name # => 'test_users'
+```
+
+The logger may be set explicitly:
+
+```ruby
+Chewy.logger = Logger.new(STDOUT)
+```
+
+See [config.rb](lib/chewy/config.rb) for more details.
+
 #### Aws Elastic Search
 If you would like to use AWS's ElasticSearch using an IAM user policy, you will need to sign your requests for the `es:*` action by injecting the appropriate headers passing a proc to `transport_options`. 
 
@@ -124,21 +139,6 @@ If you would like to use AWS's ElasticSearch using an IAM user policy, you will 
     }
   }
   ```
-
-The resulting config merges both hashes. Client options are passed as is to `Elasticsearch::Transport::Client` except for the `:prefix`, which is used internally by Chewy to create prefixed index names:
-
-```ruby
-  Chewy.settings = {prefix: 'test'}
-  UsersIndex.index_name # => 'test_users'
-```
-
-The logger may be set explicitly:
-
-```ruby
-Chewy.logger = Logger.new(STDOUT)
-```
-
-See [config.rb](lib/chewy/config.rb) for more details.
 
 ### Index definition
 

@@ -202,5 +202,24 @@ module Chewy
       Chewy::Repository.instance
     end
     delegate(*Chewy::Repository.delegated, to: :repository)
+
+    def create_indices
+      Chewy::Index.descendants.each(&:create)
+    end
+
+    def create_indices!
+      Chewy::Index.descendants.each(&:create!)
+    end
+
+    def eager_load!
+      return unless defined?(Chewy::Railtie)
+      dirs = Chewy::Railtie.all_engines.map { |engine| engine.paths[Chewy.configuration[:indices_path]] }.compact.map(&:existent).flatten.uniq
+
+      dirs.each do |dir|
+        Dir.glob(File.join(dir, '**/*.rb')).each do |file|
+          require_dependency file
+        end
+      end
+    end
   end
 end

@@ -25,18 +25,8 @@ module Chewy
         end
       end
 
-      def eager_load_chewy!
-        dirs = Chewy::Railtie.all_engines.map { |engine| engine.paths[Chewy.configuration[:indices_path]] }.compact.map(&:existent).flatten.uniq
-
-        dirs.each do |dir|
-          Dir.glob(File.join(dir, '**/*.rb')).each do |file|
-            require_dependency file
-          end
-        end
-      end
-
       def all_indexes
-        eager_load_chewy!
+        Chewy.eager_load!
         Chewy::Index.descendants
       end
 

@@ -15,6 +15,32 @@ describe Chewy::Type::Import do
     end
   end
 
+  describe 'index creation on import' do
+    let(:dummy_city) { City.create }
+
+    specify 'lazy (default)' do
+      expect(CitiesIndex).to receive(:exists?).and_call_original
+      expect(CitiesIndex).to receive(:create!).and_call_original
+      CitiesIndex::City.import(dummy_city)
+    end
+
+    context 'skip' do
+      before do
+        # To avoid flaky issues when previous specs were run
+        expect(Chewy::Index).to receive(:descendants).and_return([CitiesIndex])
+        Chewy.create_indices
+        Chewy.config.settings[:skip_index_creation_on_import] = true
+      end
+      after { Chewy.config.settings[:skip_index_creation_on_import] = nil }
+
+      specify do
+        expect(CitiesIndex).not_to receive(:exists?)
+        expect(CitiesIndex).not_to receive(:create!)
+        CitiesIndex::City.import(dummy_city)
+      end
+    end
+  end
+
   let!(:dummy_cities) { Array.new(3) { |i| City.create(id: i + 1, name: "name#{i}") } }
   let(:city) { CitiesIndex::City }
 

@@ -22,6 +22,7 @@ Chewy is an ODM and wrapper for [the official Elasticsearch client](https://gith
   * [Crutches™ technology] (#crutches-technology)
   * [Witchcraft™ technology] (#witchcraft-technology)
   * [Raw Import] (#raw-import)
+  * [Index creation during import] (#index-creation-during-import)
   * [Journaling] (#journaling)
   * [Types access] (#types-access)
   * [Index manipulation] (#index-manipulation)
@@ -480,6 +481,12 @@ end
 ```
 
 Also, you can pass `:raw_import` option to the `import` method explicitly.
+
+### Index creation during import
+
+By default, when you perform import Chewy checks whether an index exists and creates it if it's absent.
+You can turn off this feature to decrease Elasticsearch hits count.
+To do so you need to set `skip_index_creation_on_import` parameter to `false` in your `config/chewy.yml`
 
 
 ### Journaling

@@ -513,7 +513,7 @@ Also, you can specify journal index name. For example:
 ```yaml
 # config/chewy.yml
 production:
-  journal: true,
+  journal: true
   journal_name: my_super_journal
 ```
 

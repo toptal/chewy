@@ -19,6 +19,27 @@ require 'singleton'
 
 require 'elasticsearch'
 
+def try_require(path)
+  require path
+rescue LoadError
+  nil
+end
+
+try_require 'kaminari'
+try_require 'kaminari/core'
+try_require 'will_paginate'
+try_require 'will_paginate/collection'
+
+ActiveSupport.on_load(:active_record) do
+  try_require 'will_paginate/active_record'
+  try_require 'kaminari/activerecord'
+end
+
+ActiveSupport.on_load(:mongoid) do
+  try_require 'will_paginate/mongoid'
+  try_require 'kaminari/mongoid'
+end
+
 require 'chewy/version'
 require 'chewy/errors'
 require 'chewy/config'
@@ -34,29 +55,8 @@ require 'chewy/fields/root'
 require 'chewy/journal'
 require 'chewy/railtie' if defined?(::Rails::Railtie)
 
-begin
-  require 'kaminari'
-  require 'chewy/query/pagination/kaminari'
-rescue LoadError
-  nil
-end
-
-begin
-  require 'will_paginate'
-  require 'will_paginate/collection'
-  require 'chewy/query/pagination/will_paginate'
-rescue LoadError
-  nil
-end
-
 ActiveSupport.on_load(:active_record) do
   extend Chewy::Type::Observe::ActiveRecordMethods
-
-  begin
-    require 'will_paginate/active_record'
-  rescue LoadError
-    nil
-  end
 end
 
 ActiveSupport.on_load(:mongoid) do
@@ -66,13 +66,6 @@ ActiveSupport.on_load(:mongoid) do
         include Chewy::Type::Observe::MongoidMethods
       end
     end
-  end
-
-  begin
-    require 'will_paginate/mongoid'
-    require 'chewy/query/pagination/will_paginate'
-  rescue LoadError
-    nil
   end
 end
 

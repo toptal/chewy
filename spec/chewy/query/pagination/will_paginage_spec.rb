@@ -56,4 +56,8 @@ if defined?(::WillPaginate)
       end
     end
   end
+else
+  describe do
+    xit 'Skips WillPaginate specs'
+  end
 end

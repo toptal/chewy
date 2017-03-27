@@ -5,7 +5,8 @@ source "https://rubygems.org"
 gem "activerecord", "~> 5.0.0"
 gem "activesupport", "~> 5.0.0"
 gem "activejob", "~> 5.0.0"
-gem "kaminari", "~> 0.17.0", :require => false
+gem "kaminari-core", "~> 1.0.0", :require => false
+gem "kaminari-activerecord", :require => false
 
 group :test do
   gem "guard"

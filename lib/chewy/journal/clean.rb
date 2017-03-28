@@ -4,8 +4,8 @@ module Chewy
       DELETE_BATCH_SIZE = 10_000
 
       def until(time)
-        query = Query.new(time, :lte, nil, false).to_h
-        search_query = query.merge(fields: ['_id'], size: DELETE_BATCH_SIZE)
+        query = Query.new(time, :lte, nil).to_h
+        search_query = query.merge(_source: [], size: DELETE_BATCH_SIZE)
         index_name = Journal.index_name
 
         count = Chewy.client.count(index: index_name, body: query)['count']

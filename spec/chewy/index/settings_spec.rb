@@ -32,6 +32,27 @@ describe Chewy::Index::Settings do
         .to eq(settings: { number_of_nodes: 3, analysis: {} })
     end
 
+    specify do
+      stub_const('Synonyms', Class.new do
+        def self.synonyms
+          ['kaftan => dress']
+        end
+      end)
+      expect(
+        described_class.new do
+          {
+            analysis: { filter: { synonym: { type: 'synonym', synonyms: Synonyms.synonyms } } }
+          }
+        end.to_hash
+      ).to eq(settings: {
+                analysis: { filter: {
+                  synonym: {
+                    type: 'synonym', synonyms: ['kaftan => dress']
+                  }
+                } }
+              })
+    end
+
     context do
       before { Chewy.tokenizer :tokenizer1, options: 42 }
 

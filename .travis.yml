@@ -2,35 +2,40 @@ language: ruby
 sudo: false
 services:
   - mongodb
+jdk:
+  - oraclejdk8
 rvm:
   - 2.2.5
-  - 2.3.1
+  - 2.3.3
+env:
+  - ES_VERSION=2.4.4
+  - ES_VERSION=5.1.2 TEST_CLUSTER_NODES=1
 gemfile:
   - gemfiles/rails.4.2.activerecord.gemfile
   - gemfiles/rails.4.2.activerecord.kaminari.gemfile
   - gemfiles/rails.4.2.activerecord.will_paginate.gemfile
   - gemfiles/rails.5.0.activerecord.gemfile
-  - gemfiles/rails.5.0.activerecord.kaminari.gemfile
+  - gemfiles/rails.5.0.activerecord.kaminari_one.gemfile
   - gemfiles/rails.5.0.activerecord.will_paginate.gemfile
-  - gemfiles/rails.4.2.mongoid.4.0.gemfile
-  - gemfiles/rails.4.2.mongoid.4.0.kaminari.gemfile
-  - gemfiles/rails.4.2.mongoid.4.0.will_paginate.gemfile
   - gemfiles/rails.4.2.mongoid.5.1.gemfile
   - gemfiles/rails.4.2.mongoid.5.1.kaminari.gemfile
   - gemfiles/rails.4.2.mongoid.5.1.will_paginate.gemfile
-  - gemfiles/sequel.4.38.gemfile
+  - gemfiles/rails.5.0.mongoid.6.0.gemfile
+  - gemfiles/rails.5.0.mongoid.6.0.kaminari_one.gemfile
+  - gemfiles/rails.5.0.mongoid.6.0.will_paginate.gemfile
+  - gemfiles/sequel.4.42.gemfile
 matrix:
-  include:
-    - rvm: 2.1
-      gemfile: gemfiles/rails.3.2.activerecord.gemfile
-    - rvm: 2.1
-      gemfile: gemfiles/rails.3.2.activerecord.kaminari.gemfile
-    - rvm: 2.1
-      gemfile: gemfiles/rails.3.2.activerecord.will_paginate.gemfile
+  exclude:
+  - rvm: 2.2.5
+    env: ES_VERSION=5.1.2 TEST_CLUSTER_NODES=1
+  allow_failures:
+  - env: ES_VERSION=5.1.2 TEST_CLUSTER_NODES=1
+
 before_install:
-  - curl -s https://download.elastic.co/elasticsearch/elasticsearch/elasticsearch-1.7.5.tar.gz | tar xz -C /tmp
+  - curl -s https://download.elasticsearch.org/elasticsearch/release/org/elasticsearch/distribution/tar/elasticsearch/2.4.4/elasticsearch-2.4.4.tar.gz | tar xz -C /tmp
+  - curl -s https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-5.1.2.tar.gz | tar xz -C /tmp
 before_script:
-  - TEST_CLUSTER_COMMAND="/tmp/elasticsearch-1.7.5/bin/elasticsearch" rake es:start
+  - TEST_CLUSTER_COMMAND=/tmp/elasticsearch-$ES_VERSION/bin/elasticsearch TEST_CLUSTER_LOGS=/tmp/log rake es:start
 script:
   - bundle exec rspec
   - bundle exec rubocop

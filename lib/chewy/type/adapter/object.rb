@@ -52,9 +52,6 @@ module Chewy
             target.send(load_all_method, objects)
           elsif target.respond_to?(load_one_method)
             objects.map { |object| target.send(load_one_method, object) }
-          elsif target.respond_to?(:wrap)
-            ActiveSupport::Deprecation.warn('Loading with `wrap` method is deprecated. Rename it to `load_one` or pass `load_one_method: :my_load_method` option to `define_type`')
-            objects.map { |object| target.wrap(object) }
           else
             objects
           end

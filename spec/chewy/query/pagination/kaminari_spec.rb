@@ -41,7 +41,7 @@ if defined?(::Kaminari)
 
       describe '#total_count' do
         specify { expect(search.per(4).page(1).total_count).to eq(10) }
-        specify { expect(search.filter(numeric_range: { age: { gt: 20 } }).limit(3).total_count).to eq(8) }
+        specify { expect(search.filter(range: { age: { gt: 20 } }).limit(3).total_count).to eq(8) }
       end
 
       describe '#load' do
@@ -53,5 +53,9 @@ if defined?(::Kaminari)
         specify { expect(search.per(2).page(3).load.total_pages).to eq(5) }
       end
     end
+  end
+else
+  describe do
+    xit 'Skips Kaminari specs'
   end
 end

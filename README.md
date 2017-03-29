@@ -12,39 +12,40 @@ Chewy is an ODM and wrapper for [the official Elasticsearch client](https://gith
 
 ## Table of Contents
 
-* [Why Chewy?] (#why-chewy)
-* [Usage] (#usage)
-  * [Client settings] (#client-settings)
-  * [Index definition] (#index-definition)
-  * [Type default import options] (#type-default-import-options)
-  * [Multi (nested) and object field types] (#multi-nested-and-object-field-types)
-  * [Geo Point fields] (#geo-point-fields)
-  * [Crutches™ technology] (#crutches-technology)
-  * [Witchcraft™ technology] (#witchcraft-technology)
-  * [Raw Import] (#raw-import)
-  * [Journaling] (#journaling)
-  * [Types access] (#types-access)
-  * [Index manipulation] (#index-manipulation)
-  * [Index update strategies] (#index-update-strategies)
-    * [Nesting] (#nesting)
-    * [Non-block notation] (#non-block-notation)
-    * [Designing your own strategies] (#designing-your-own-strategies)
-  * [Rails application strategies integration] (#rails-application-strategies-integration)
-  * [Index querying] (#index-querying)
-  * [Additional query action.] (#additional-query-action)
-  * [Filters query DSL] (#filters-query-dsl)
-  * [Faceting] (#faceting)
-  * [Aggregations] (#aggregations)
-  * [Script fields] (#script-fields)
-  * [Script scoring] (#script-scoring)
-  * [Boost Factor] (#boost-factor)
-  * [Objects loading] (#objects-loading)
-    * [NewRelic integration] (#newrelic-integration)
-  * [Rake tasks] (#rake-tasks)
-  * [Rspec integration] (#rspec-integration)
-  * [Minitest integration] (#minitest-integration)
-* [TODO a.k.a coming soon:] (#todo-aka-coming-soon)
-* [Contributing] (#contributing)
+* [Why Chewy?](#why-chewy)
+* [Usage](#usage)
+  * [Client settings](#client-settings)
+  * [Index definition](#index-definition)
+  * [Type default import options](#type-default-import-options)
+  * [Multi (nested) and object field types](#multi-nested-and-object-field-types)
+  * [Geo Point fields](#geo-point-fields)
+  * [Crutches™ technology](#crutches-technology)
+  * [Witchcraft™ technology](#witchcraft-technology)
+  * [Raw Import](#raw-import)
+  * [Index creation during import](#index-creation-during-import)
+  * [Journaling](#journaling)
+  * [Types access](#types-access)
+  * [Index manipulation](#index-manipulation)
+  * [Index update strategies](#index-update-strategies)
+    * [Nesting](#nesting)
+    * [Non-block notation](#non-block-notation)
+    * [Designing your own strategies](#designing-your-own-strategies)
+  * [Rails application strategies integration](#rails-application-strategies-integration)
+  * [Index querying](#index-querying)
+  * [Additional query action.](#additional-query-action)
+  * [Filters query DSL](#filters-query-dsl)
+  * [Faceting](#faceting)
+  * [Aggregations](#aggregations)
+  * [Script fields](#script-fields)
+  * [Script scoring](#script-scoring)
+  * [Boost Factor](#boost-factor)
+  * [Objects loading](#objects-loading)
+    * [NewRelic integration](#newrelic-integration)
+  * [Rake tasks](#rake-tasks)
+  * [Rspec integration](#rspec-integration)
+  * [Minitest integration](#minitest-integration)
+* [TODO a.k.a coming soon](#todo-aka-coming-soon)
+* [Contributing](#contributing)
 
 ## Why Chewy?
 
@@ -481,6 +482,12 @@ end
 
 Also, you can pass `:raw_import` option to the `import` method explicitly.
 
+### Index creation during import
+
+By default, when you perform import Chewy checks whether an index exists and creates it if it's absent.
+You can turn off this feature to decrease Elasticsearch hits count.
+To do so you need to set `skip_index_creation_on_import` parameter to `false` in your `config/chewy.yml`
+
 
 ### Journaling
 
@@ -506,7 +513,7 @@ Also, you can specify journal index name. For example:
 ```yaml
 # config/chewy.yml
 production:
-  journal: true,
+  journal: true
   journal_name: my_super_journal
 ```
 

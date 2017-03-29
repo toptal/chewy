@@ -89,14 +89,6 @@ module Chewy
     def self.define_type(target, options = {}, &block)
       type_class = Chewy.create_type(self, target, options, &block)
       self.type_hash = type_hash.merge(type_class.type_name => type_class)
-
-      return if respond_to?(type_class.type_name)
-      class_eval <<-METHOD, __FILE__, __LINE__ + 1
-        def self.#{type_class.type_name}
-          ActiveSupport::Deprecation.warn("`#{self}.#{type_class.type_name}` accessor is deprecated and will be removed soon. Use `#{type_class}` directly instead.")
-          type_hash['#{type_class.type_name}']
-        end
-      METHOD
     end
 
     # Types method has double usage.
@@ -153,14 +145,14 @@ module Chewy
     # It is possible to store analyzers settings in Chewy repositories
     # and link them form index class. See `Chewy::Index::Settings` for details.
     #
-    def self.settings(params)
-      self._settings = Chewy::Index::Settings.new params
+    def self.settings(params = {}, &block)
+      self._settings = Chewy::Index::Settings.new(params, &block)
     end
 
     # Returns list of public class methods defined in current index
     #
     def self.scopes
-      public_methods - Chewy::Index.public_methods - type_names.map(&:to_sym)
+      public_methods - Chewy::Index.public_methods
     end
 
     def self.journal?

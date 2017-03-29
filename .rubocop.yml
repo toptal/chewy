@@ -35,5 +35,9 @@ Style/MultilineOperationIndentation:
 
 Metrics/BlockLength:
   Exclude:
-    - "**/*_spec.rb"
-    - "**/*.rake"
+    - '**/*_spec.rb'
+    - '**/*.rake'
+
+Metrics/ModuleLength:
+  Exclude:
+    - '**/*_spec.rb'

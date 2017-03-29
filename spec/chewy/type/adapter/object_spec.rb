@@ -129,27 +129,25 @@ describe Chewy::Type::Adapter::Object do
       specify { expect(subject.load(objects)).to eq(objects) }
     end
 
-    [:wrap, :load_one].each do |load_method|
-      context do
-        before do
-          allow(Product).to receive(load_method) { |object|
-                              allow(object).to receive_messages(wrapped?: true)
-                              object
-                            }
-        end
-        subject { described_class.new(Product) }
-        let(:objects) { Array.new(3) { double(wrapped?: false) } }
-
-        specify { expect(subject.load(objects)).to satisfy { |objects| objects.all?(&:wrapped?) } }
+    context do
+      before do
+        allow(Product).to receive(:load_one) { |object|
+                            allow(object).to receive_messages(wrapped?: true)
+                            object
+                          }
       end
+      subject { described_class.new(Product) }
+      let(:objects) { Array.new(3) { double(wrapped?: false) } }
 
-      context do
-        before { allow(Product).to receive(load_method) { |_object| nil } }
-        subject { described_class.new(Product) }
-        let(:objects) { Array.new(3) { double(wrapped?: false) } }
+      specify { expect(subject.load(objects)).to satisfy { |objects| objects.all?(&:wrapped?) } }
+    end
 
-        specify { expect(subject.load(objects)).to satisfy { |objects| objects.all?(&:nil?) } }
-      end
+    context do
+      before { allow(Product).to receive(:load_one) { |_object| nil } }
+      subject { described_class.new(Product) }
+      let(:objects) { Array.new(3) { double(wrapped?: false) } }
+
+      specify { expect(subject.load(objects)).to satisfy { |objects| objects.all?(&:nil?) } }
     end
   end
 end

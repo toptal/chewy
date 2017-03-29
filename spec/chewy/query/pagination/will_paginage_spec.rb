@@ -43,7 +43,7 @@ if defined?(::WillPaginate)
 
       describe '#total_entries' do
         specify { expect(search.paginate(page: 1, per_page: 4).total_entries).to eq(10) }
-        specify { expect(search.filter(numeric_range: { age: { gt: 20 } }).limit(3).total_entries).to eq(8) }
+        specify { expect(search.filter(range: { age: { gt: 20 } }).limit(3).total_entries).to eq(8) }
       end
 
       describe '#load' do
@@ -55,5 +55,9 @@ if defined?(::WillPaginate)
         specify { expect(search.paginate(per_page: 2, page: 3).load.total_pages).to eq(5) }
       end
     end
+  end
+else
+  describe do
+    xit 'Skips WillPaginate specs'
   end
 end

@@ -18,7 +18,7 @@ module Chewy
       def self.since(time, indices = [])
         query = Query.new(time, :gte, indices).to_h
         parameters = { index: Journal.index_name, type: Journal.type_name, body: query }
-        size = Chewy.client.search(search_type: 'count', **parameters)['hits']['total']
+        size = Chewy.client.count(parameters)['count']
         if size > 0
           Chewy.client
             .search(size: size, sort: 'created_at', **parameters)['hits']['hits']

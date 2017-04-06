@@ -49,6 +49,12 @@ module Chewy
         adapter.type_name
       end
 
+      # Returns index and type names as a string identifier
+      #
+      def full_name
+        @full_name ||= [index_name, type_name].join('#')
+      end
+
       # Returns list of public class methods defined in current type
       #
       def scopes

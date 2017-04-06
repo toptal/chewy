@@ -1,17 +1,14 @@
 require 'chewy/query'
+require 'chewy/search/response'
+require 'chewy/search/parameters'
+require 'chewy/search/request'
 
 module Chewy
   module Search
     extend ActiveSupport::Concern
 
     included do
-      singleton_class.delegate :explain, :query_mode, :filter_mode, :post_filter_mode,
-        :timeout, :limit, :offset, :highlight, :min_score, :rescore, :facets, :script_score,
-        :boost_factor, :weight, :random_score, :field_value_factor, :decay, :aggregations,
-        :suggest, :none, :strategy, :query, :filter, :post_filter, :boost_mode,
-        :score_mode, :order, :reorder, :only, :types, :delete_all, :find, :total,
-        :total_count, :total_entries, :unlimited, :script_fields, :track_scores, :preference,
-        to: :all
+      singleton_class.delegate(*query_base_class.delegated_methods, to: :all)
     end
 
     module ClassMethods
@@ -30,9 +27,13 @@ module Chewy
 
     private
 
+      def query_base_class
+        Chewy::Query
+      end
+
       def query_class
         @query_class ||= begin
-          query_class = Class.new(Chewy::Query)
+          query_class = Class.new(query_base_class)
           if self < Chewy::Type
             index_scopes = index.scopes - scopes
 

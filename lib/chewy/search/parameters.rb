@@ -1,3 +1,4 @@
+require 'chewy/search/parameters/query'
 require 'chewy/search/parameters/limit'
 require 'chewy/search/parameters/offset'
 require 'chewy/search/parameters/order'

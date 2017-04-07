@@ -19,6 +19,12 @@ describe Chewy::Search::Parameters::Order do
         .to change { subject.value }
         .from('foo' => nil, 'bar' => nil).to('foo' => {})
     end
+
+    specify do
+      expect { subject.replace(nil) }
+        .to change { subject.value }
+        .from('foo' => nil, 'bar' => nil).to({})
+    end
   end
 
   describe '#update' do
@@ -27,6 +33,8 @@ describe Chewy::Search::Parameters::Order do
         .to change { subject.value }
         .from('foo' => nil, 'bar' => nil).to('foo' => {}, 'bar' => nil)
     end
+
+    specify { expect { subject.update(nil) }.not_to change { subject.value } }
   end
 
   describe '#merge' do
@@ -35,6 +43,8 @@ describe Chewy::Search::Parameters::Order do
         .to change { subject.value }
         .from('foo' => nil, 'bar' => nil).to('foo' => {}, 'bar' => nil)
     end
+
+    specify { expect { subject.merge(described_class.new) }.not_to change { subject.value } }
   end
 
   describe '#render' do

@@ -94,6 +94,12 @@ describe Chewy::Search::Request do
     specify { expect(described_class.new(ProductsIndex).limit(10)).not_to eq(described_class.new(ProductsIndex).limit(20)) }
   end
 
+  describe '#query' do
+    specify { expect(subject.query(match: { foo: 'bar' }).render[:body]).to include(query: { match: { foo: 'bar' } }) }
+    specify { expect(subject.query { match foo: 'bar' }.render[:body]).to include(query: { match: { foo: 'bar' } }) }
+    specify { expect(subject.query(match: { foo: 'bar' }).query { multi_match foo: 'bar' }.render[:body]).to include(query: { multi_match: { foo: 'bar' } }) }
+  end
+
   describe '#limit' do
     specify { expect(subject.limit(10).render[:body]).to include(size: 10) }
     specify { expect(subject.limit(10).limit(20).render[:body]).to include(size: 20) }

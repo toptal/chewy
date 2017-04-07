@@ -28,6 +28,11 @@ module Chewy
         @response ||= Response.new(perform)
       end
 
+      def query(value = nil, &block)
+        raise ArgumentError, 'wrong number of arguments (given 0, expected 1 or block)' unless value || block
+        modify(:query) { replace(block || value) }
+      end
+
       def limit(value)
         modify(:limit) { replace(value) }
       end
@@ -36,12 +41,12 @@ module Chewy
         modify(:offset) { replace(value) }
       end
 
-      def order(*values)
-        modify(:order) { update(values) }
+      def order(value, *values)
+        modify(:order) { update([value, *values]) }
       end
 
-      def reorder(*values)
-        modify(:order) { replace(values) }
+      def reorder(value, *values)
+        modify(:order) { replace([value, *values]) }
       end
 
       def render

@@ -49,6 +49,12 @@ module Chewy
         modify(:order) { replace([value, *values]) }
       end
 
+      %i(track_scores request_cache explain version profile).each do |name|
+        define_method name do |value = true|
+          modify(name) { replace(value) }
+        end
+      end
+
       def render
         {
           index: _indexes.map(&:index_name).uniq,

@@ -132,6 +132,13 @@ describe Chewy::Search::Request do
     specify { expect { subject.reorder(:foo) }.not_to change { subject.render } }
   end
 
+  %i(track_scores request_cache explain version profile).each do |name|
+    describe "##{name}" do
+      specify { expect(subject.send(name).render[:body]).to include(name => true) }
+      specify { expect(subject.send(name).send(name, false).render).not_to have_key(:body) }
+    end
+  end
+
   describe '#render' do
     specify do
       expect(subject.render)

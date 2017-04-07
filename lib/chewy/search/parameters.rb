@@ -2,13 +2,18 @@ require 'chewy/search/parameters/query'
 require 'chewy/search/parameters/limit'
 require 'chewy/search/parameters/offset'
 require 'chewy/search/parameters/order'
+require 'chewy/search/parameters/track_scores'
+require 'chewy/search/parameters/request_cache'
+require 'chewy/search/parameters/explain'
+require 'chewy/search/parameters/version'
+require 'chewy/search/parameters/profile'
 
 module Chewy
   module Search
     class Parameters
       def self.storages
         @storages ||= Hash.new do |hash, name|
-          hash[name] = "Chewy::Search::Parameters::#{name.to_s.classify}".constantize
+          hash[name] = "Chewy::Search::Parameters::#{name.to_s.camelize}".constantize
         end
       end
 

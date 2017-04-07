@@ -8,7 +8,7 @@ module Chewy
           @value.merge!(normalize(value))
         end
 
-        def to_body
+        def render
           return if @value.blank?
 
           sort = @value.map do |(field, options)|

@@ -95,40 +95,40 @@ describe Chewy::Search::Request do
   end
 
   describe '#limit' do
-    specify { expect(subject.limit(10).to_body).to include(size: 10) }
-    specify { expect(subject.limit(10).limit(20).to_body).to include(size: 20) }
-    specify { expect(subject.limit(10).limit(nil).to_body).not_to have_key(:size) }
-    specify { expect { subject.limit(10) }.not_to change { subject.to_body } }
+    specify { expect(subject.limit(10).render[:body]).to include(size: 10) }
+    specify { expect(subject.limit(10).limit(20).render[:body]).to include(size: 20) }
+    specify { expect(subject.limit(10).limit(nil).render).not_to have_key(:body) }
+    specify { expect { subject.limit(10) }.not_to change { subject.render } }
   end
 
   describe '#offset' do
-    specify { expect(subject.offset(10).to_body).to include(from: 10) }
-    specify { expect(subject.offset(10).offset(20).to_body).to include(from: 20) }
-    specify { expect(subject.offset(10).offset(nil).to_body).not_to have_key(:from) }
-    specify { expect { subject.offset(10) }.not_to change { subject.to_body } }
+    specify { expect(subject.offset(10).render[:body]).to include(from: 10) }
+    specify { expect(subject.offset(10).offset(20).render[:body]).to include(from: 20) }
+    specify { expect(subject.offset(10).offset(nil).render).not_to have_key(:body) }
+    specify { expect { subject.offset(10) }.not_to change { subject.render } }
   end
 
   describe '#order' do
-    specify { expect(subject.order(:foo).to_body).to include(sort: ['foo']) }
-    specify { expect(subject.order(foo: 42).order(nil).to_body).to include(sort: ['foo' => 42]) }
-    specify { expect(subject.order(foo: 42).order(foo: 43).to_body).to include(sort: ['foo' => 43]) }
-    specify { expect(subject.order(:foo).order(:bar, :baz).to_body).to include(sort: %w(foo bar baz)) }
-    specify { expect(subject.order(nil).to_body).not_to have_key(:sort) }
-    specify { expect { subject.order(:foo) }.not_to change { subject.to_body } }
+    specify { expect(subject.order(:foo).render[:body]).to include(sort: ['foo']) }
+    specify { expect(subject.order(foo: 42).order(nil).render[:body]).to include(sort: ['foo' => 42]) }
+    specify { expect(subject.order(foo: 42).order(foo: 43).render[:body]).to include(sort: ['foo' => 43]) }
+    specify { expect(subject.order(:foo).order(:bar, :baz).render[:body]).to include(sort: %w(foo bar baz)) }
+    specify { expect(subject.order(nil).render).not_to have_key(:sort) }
+    specify { expect { subject.order(:foo) }.not_to change { subject.render } }
   end
 
   describe '#reorder' do
-    specify { expect(subject.reorder(:foo).to_body).to include(sort: ['foo']) }
-    specify { expect(subject.reorder(:foo).reorder(:bar, :baz).to_body).to include(sort: %w(bar baz)) }
-    specify { expect(subject.reorder(foo: 42).reorder(foo: 43).to_body).to include(sort: ['foo' => 43]) }
-    specify { expect(subject.reorder(foo: 42).reorder(nil).to_body).not_to have_key(:sort) }
-    specify { expect(subject.reorder(nil).to_body).not_to have_key(:sort) }
-    specify { expect { subject.reorder(:foo) }.not_to change { subject.to_body } }
+    specify { expect(subject.reorder(:foo).render[:body]).to include(sort: ['foo']) }
+    specify { expect(subject.reorder(:foo).reorder(:bar, :baz).render[:body]).to include(sort: %w(bar baz)) }
+    specify { expect(subject.reorder(foo: 42).reorder(foo: 43).render[:body]).to include(sort: ['foo' => 43]) }
+    specify { expect(subject.reorder(foo: 42).reorder(nil).render).not_to have_key(:body) }
+    specify { expect(subject.reorder(nil).render).not_to have_key(:sort) }
+    specify { expect { subject.reorder(:foo) }.not_to change { subject.render } }
   end
 
-  describe '#to_body' do
+  describe '#render' do
     specify do
-      expect(subject.to_body)
+      expect(subject.render)
         .to match(
           index: %w(products),
           type: array_including(%w(product city country))

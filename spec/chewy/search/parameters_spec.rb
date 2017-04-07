@@ -81,9 +81,10 @@ describe Chewy::Search::Parameters do
     end
   end
 
-  describe '#to_body' do
+  describe '#render' do
     subject { described_class.new(offset: 10, order: 'foo') }
 
-    specify { expect(subject.to_body).to eq(from: 10, sort: ['foo']) }
+    specify { expect(subject.render).to eq(body: { from: 10, sort: ['foo'] }) }
+    specify { expect(described_class.new.render).to eq({}) }
   end
 end

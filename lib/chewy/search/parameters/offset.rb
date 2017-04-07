@@ -5,7 +5,7 @@ module Chewy
   module Search
     class Parameters
       class Offset < Limit
-        def to_body
+        def render
           { from: @value } if @value
         end
       end

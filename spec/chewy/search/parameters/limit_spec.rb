@@ -23,8 +23,8 @@ describe Chewy::Search::Parameters::Limit do
     specify { expect { subject.merge(described_class.new) }.not_to change { subject.value } }
   end
 
-  describe '#to_body' do
-    specify { expect(subject.to_body).to eq(nil) }
-    specify { expect(described_class.new('42').to_body).to eq(size: 42) }
+  describe '#render' do
+    specify { expect(subject.render).to eq(nil) }
+    specify { expect(described_class.new('42').render).to eq(size: 42) }
   end
 end

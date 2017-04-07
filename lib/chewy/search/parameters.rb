@@ -43,10 +43,11 @@ module Chewy
         self.class.new(storages)
       end
 
-      def to_body
-        @storages.values.inject({}) do |result, storage|
-          result.merge!(storage.to_body || {})
+      def render
+        body = @storages.values.inject({}) do |result, storage|
+          result.merge!(storage.render || {})
         end
+        body.present? ? { body: body } : {}
       end
 
     protected

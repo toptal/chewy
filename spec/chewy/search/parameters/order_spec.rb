@@ -37,9 +37,9 @@ describe Chewy::Search::Parameters::Order do
     end
   end
 
-  describe '#to_body' do
-    specify { expect(described_class.new.to_body).to be_nil }
-    specify { expect(described_class.new(:foo).to_body).to eq(sort: ['foo']) }
-    specify { expect(described_class.new([:foo, { bar: 42 }, :baz]).to_body).to eq(sort: ['foo', { 'bar' => 42 }, 'baz']) }
+  describe '#render' do
+    specify { expect(described_class.new.render).to be_nil }
+    specify { expect(described_class.new(:foo).render).to eq(sort: ['foo']) }
+    specify { expect(described_class.new([:foo, { bar: 42 }, :baz]).render).to eq(sort: ['foo', { 'bar' => 42 }, 'baz']) }
   end
 end

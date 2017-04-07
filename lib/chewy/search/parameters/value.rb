@@ -21,7 +21,7 @@ module Chewy
           update(other.value)
         end
 
-        def to_body
+        def render
           raise NotImplementedError
         end
 

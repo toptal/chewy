@@ -44,11 +44,11 @@ module Chewy
         modify(:order) { replace(values) }
       end
 
-      def to_body
+      def render
         {
           index: _indexes.map(&:index_name).uniq,
           type: _types.map(&:type_name).uniq
-        }.merge(@parameters.to_body)
+        }.merge(@parameters.render)
       end
 
     protected
@@ -79,7 +79,7 @@ module Chewy
       end
 
       def perform
-        Chewy.client.search(to_body)
+        Chewy.client.search(render)
       rescue Elasticsearch::Transport::Transport::Errors::NotFound
         {}
       end

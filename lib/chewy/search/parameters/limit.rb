@@ -4,7 +4,7 @@ module Chewy
   module Search
     class Parameters
       class Limit < Value
-        def to_body
+        def render
           { size: @value } if @value
         end
 

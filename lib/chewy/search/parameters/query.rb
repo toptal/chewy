@@ -5,10 +5,6 @@ module Chewy
   module Search
     class Parameters
       class Query < Value
-        def render
-          { query: @value } if @value.present?
-        end
-
       private
 
         def normalize(value)

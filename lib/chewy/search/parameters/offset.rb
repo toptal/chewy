@@ -5,9 +5,7 @@ module Chewy
   module Search
     class Parameters
       class Offset < Limit
-        def render
-          { from: @value } if @value
-        end
+        self.param_name = :from
       end
     end
   end

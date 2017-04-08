@@ -1,9 +1,9 @@
-require 'chewy/search/parameters/bool'
+require 'chewy/search/parameters/version'
 
 module Chewy
   module Search
     class Parameters
-      class Explain < Bool
+      class Explain < Version
       end
     end
   end

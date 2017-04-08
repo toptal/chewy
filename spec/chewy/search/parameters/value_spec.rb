@@ -3,6 +3,23 @@ require 'spec_helper'
 describe Chewy::Search::Parameters::Value do
   subject { described_class.new }
 
+  describe '.param_name' do
+    specify { expect(described_class.param_name).to eq(:value) }
+
+    context do
+      before { stub_class('Namespace::CustomParamName', Class.new(described_class)) }
+      specify { expect(Namespace::CustomParamName.param_name).to eq(:custom_param_name) }
+    end
+  end
+
+  describe '.param_name=' do
+    before { stub_class('Namespace::Whatever', Class.new(described_class)) }
+    specify do
+      expect { Namespace::Whatever.param_name = :custom }
+        .to change { Namespace::Whatever.param_name }.from(:whatever).to(:custom)
+    end
+  end
+
   describe '#initialize' do
     specify { expect(subject.value).to be_nil }
     specify { expect(described_class.new(a: 1).value).to eq(a: 1) }
@@ -33,5 +50,11 @@ describe Chewy::Search::Parameters::Value do
   describe '#merge' do
     let(:other) { described_class.new(['something']) }
     specify { expect { subject.merge(other) }.to change { subject.value }.from(nil).to(['something']) }
+  end
+
+  describe '#render' do
+    specify { expect(subject.render).to be_nil }
+    specify { expect(described_class.new(false).render).to be_nil }
+    specify { expect(described_class.new('42').render).to eq(value: '42') }
   end
 end

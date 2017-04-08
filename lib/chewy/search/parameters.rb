@@ -7,6 +7,8 @@ require 'chewy/search/parameters/request_cache'
 require 'chewy/search/parameters/explain'
 require 'chewy/search/parameters/version'
 require 'chewy/search/parameters/profile'
+require 'chewy/search/parameters/search_type'
+require 'chewy/search/parameters/preference'
 
 module Chewy
   module Search

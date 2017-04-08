@@ -55,6 +55,12 @@ module Chewy
         end
       end
 
+      %i(search_type preference).each do |name|
+        define_method name do |value|
+          modify(name) { replace(value) }
+        end
+      end
+
       def render
         {
           index: _indexes.map(&:index_name).uniq,

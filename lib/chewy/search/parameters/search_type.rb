@@ -3,13 +3,11 @@ require 'chewy/search/parameters/value'
 module Chewy
   module Search
     class Parameters
-      class Limit < Value
-        self.param_name = :size
-
+      class SearchType < Value
       private
 
         def normalize(value)
-          Integer(value) if value
+          value.to_s if value.present?
         end
       end
     end

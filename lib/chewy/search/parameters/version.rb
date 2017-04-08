@@ -1,9 +1,14 @@
-require 'chewy/search/parameters/bool'
+require 'chewy/search/parameters/value'
 
 module Chewy
   module Search
     class Parameters
-      class Version < Bool
+      class Version < Value
+      private
+
+        def normalize(value)
+          !!value
+        end
       end
     end
   end

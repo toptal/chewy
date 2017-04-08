@@ -2,7 +2,12 @@ module Chewy
   module Search
     class Parameters
       class Value
+        singleton_class.send :attr_writer, :param_name
         attr_reader :value
+
+        def self.param_name
+          @param_name ||= name.demodulize.underscore.to_sym
+        end
 
         def initialize(value = nil)
           replace(value)
@@ -22,7 +27,7 @@ module Chewy
         end
 
         def render
-          raise NotImplementedError
+          { self.class.param_name => @value } if @value.present?
         end
 
       private

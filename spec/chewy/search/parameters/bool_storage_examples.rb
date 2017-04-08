@@ -1,11 +1,7 @@
 require 'spec_helper'
 
-shared_examples :bool do |param_name|
+shared_examples :bool_storage do |param_name|
   subject { described_class.new(true) }
-
-  describe '.param_name' do
-    specify { expect(described_class.param_name).to eq(param_name) }
-  end
 
   describe '#initialize' do
     specify { expect(subject.value).to eq(true) }

@@ -98,20 +98,16 @@ describe Chewy::Search::Request do
     specify { expect(subject.query(match: { foo: 'bar' }).render[:body]).to include(query: { match: { foo: 'bar' } }) }
     specify { expect(subject.query { match foo: 'bar' }.render[:body]).to include(query: { match: { foo: 'bar' } }) }
     specify { expect(subject.query(match: { foo: 'bar' }).query { multi_match foo: 'bar' }.render[:body]).to include(query: { multi_match: { foo: 'bar' } }) }
+    specify { expect { subject.query(match: { foo: 'bar' }) }.not_to change { subject.render } }
   end
 
-  describe '#limit' do
-    specify { expect(subject.limit(10).render[:body]).to include(size: 10) }
-    specify { expect(subject.limit(10).limit(20).render[:body]).to include(size: 20) }
-    specify { expect(subject.limit(10).limit(nil).render).not_to have_key(:body) }
-    specify { expect { subject.limit(10) }.not_to change { subject.render } }
-  end
-
-  describe '#offset' do
-    specify { expect(subject.offset(10).render[:body]).to include(from: 10) }
-    specify { expect(subject.offset(10).offset(20).render[:body]).to include(from: 20) }
-    specify { expect(subject.offset(10).offset(nil).render).not_to have_key(:body) }
-    specify { expect { subject.offset(10) }.not_to change { subject.render } }
+  { limit: :size, offset: :from, terminate_after: :terminate_after }.each do |name, param_name|
+    describe "##{name}" do
+      specify { expect(subject.send(name, 10).render[:body]).to include(param_name => 10) }
+      specify { expect(subject.send(name, 10).send(name, 20).render[:body]).to include(param_name => 20) }
+      specify { expect(subject.send(name, 10).send(name, nil).render).not_to have_key(:body) }
+      specify { expect { subject.send(name, 10) }.not_to change { subject.render } }
+    end
   end
 
   describe '#order' do
@@ -136,6 +132,7 @@ describe Chewy::Search::Request do
     describe "##{name}" do
       specify { expect(subject.send(name).render[:body]).to include(name => true) }
       specify { expect(subject.send(name).send(name, false).render).not_to have_key(:body) }
+      specify { expect { subject.send(name) }.not_to change { subject.render } }
     end
   end
 
@@ -144,6 +141,7 @@ describe Chewy::Search::Request do
       specify { expect(subject.send(name, :foo).render[:body]).to include(name => 'foo') }
       specify { expect(subject.send(name, :foo).send(name, :bar).render[:body]).to include(name => 'bar') }
       specify { expect(subject.send(name, :foo).send(name, nil).render).not_to have_key(:body) }
+      specify { expect { subject.send(name, :foo) }.not_to change { subject.render } }
     end
   end
 

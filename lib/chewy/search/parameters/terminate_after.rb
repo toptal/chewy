@@ -3,8 +3,7 @@ require 'chewy/search/parameters/limit'
 module Chewy
   module Search
     class Parameters
-      class Offset < Limit
-        self.param_name = :from
+      class TerminateAfter < Limit
       end
     end
   end

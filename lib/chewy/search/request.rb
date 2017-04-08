@@ -33,14 +33,6 @@ module Chewy
         modify(:query) { replace(block || value) }
       end
 
-      def limit(value)
-        modify(:limit) { replace(value) }
-      end
-
-      def offset(value)
-        modify(:offset) { replace(value) }
-      end
-
       def order(value, *values)
         modify(:order) { update([value, *values]) }
       end
@@ -55,7 +47,7 @@ module Chewy
         end
       end
 
-      %i(search_type preference).each do |name|
+      %i(search_type preference limit offset terminate_after).each do |name|
         define_method name do |value|
           modify(name) { replace(value) }
         end

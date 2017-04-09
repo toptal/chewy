@@ -57,4 +57,10 @@ describe Chewy::Search::Parameters::Value do
     specify { expect(described_class.new(false).render).to be_nil }
     specify { expect(described_class.new('42').render).to eq(value: '42') }
   end
+
+  describe '#render_to' do
+    specify { expect(subject.render_to({})).to eq({}) }
+    specify { expect(described_class.new(false).render_to({})).to eq({}) }
+    specify { expect(described_class.new('42').render_to({})).to eq(value: '42') }
+  end
 end

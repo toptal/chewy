@@ -94,11 +94,13 @@ describe Chewy::Search::Request do
     specify { expect(described_class.new(ProductsIndex).limit(10)).not_to eq(described_class.new(ProductsIndex).limit(20)) }
   end
 
-  describe '#query' do
-    specify { expect(subject.query(match: { foo: 'bar' }).render[:body]).to include(query: { match: { foo: 'bar' } }) }
-    specify { expect(subject.query { match foo: 'bar' }.render[:body]).to include(query: { match: { foo: 'bar' } }) }
-    specify { expect(subject.query(match: { foo: 'bar' }).query { multi_match foo: 'bar' }.render[:body]).to include(query: { multi_match: { foo: 'bar' } }) }
-    specify { expect { subject.query(match: { foo: 'bar' }) }.not_to change { subject.render } }
+  %i(query post_filter).each do |name|
+    describe "##{name}" do
+      specify { expect(subject.send(name, match: { foo: 'bar' }).render[:body]).to include(name => { match: { foo: 'bar' } }) }
+      specify { expect(subject.send(name) { match foo: 'bar' }.render[:body]).to include(name => { match: { foo: 'bar' } }) }
+      specify { expect(subject.send(name, match: { foo: 'bar' }).send(name) { multi_match foo: 'bar' }.render[:body]).to include(name => { multi_match: { foo: 'bar' } }) }
+      specify { expect { subject.send(name, match: { foo: 'bar' }) }.not_to change { subject.render } }
+    end
   end
 
   { limit: :size, offset: :from, terminate_after: :terminate_after }.each do |name, param_name|

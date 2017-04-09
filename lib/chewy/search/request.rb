@@ -28,9 +28,10 @@ module Chewy
         @response ||= Response.new(perform)
       end
 
-      def query(value = nil, &block)
-        raise ArgumentError, 'wrong number of arguments (given 0, expected 1 or block)' unless value || block
-        modify(:query) { replace(block || value) }
+      %i(query post_filter).each do |name|
+        define_method name do |value = nil, &block|
+          modify(name) { replace(block || value) }
+        end
       end
 
       def order(value, *values)

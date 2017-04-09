@@ -30,6 +30,10 @@ module Chewy
           { self.class.param_name => @value } if @value.present?
         end
 
+        def render_to(container)
+          container.merge!(render || {})
+        end
+
       private
 
         def initialize_clone(other)

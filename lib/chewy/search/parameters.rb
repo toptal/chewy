@@ -1,4 +1,5 @@
 require 'chewy/search/parameters/query'
+require 'chewy/search/parameters/post_filter'
 require 'chewy/search/parameters/limit'
 require 'chewy/search/parameters/offset'
 require 'chewy/search/parameters/order'
@@ -54,7 +55,7 @@ module Chewy
 
       def render
         body = @storages.values.inject({}) do |result, storage|
-          result.merge!(storage.render || {})
+          storage.render_to(result)
         end
         body.present? ? { body: body } : {}
       end

@@ -138,7 +138,7 @@ describe Chewy::Search::Request do
     end
   end
 
-  %i(search_type preference).each do |name|
+  %i(search_type preference timeout).each do |name|
     describe "##{name}" do
       specify { expect(subject.send(name, :foo).render[:body]).to include(name => 'foo') }
       specify { expect(subject.send(name, :foo).send(name, :bar).render[:body]).to include(name => 'bar') }

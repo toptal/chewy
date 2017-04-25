@@ -6,7 +6,7 @@ module Chewy
       # include Loading
       # include Pagination
 
-      delegate :collection, to: :response
+      delegate :collection, :results, :objects, to: :response
       delegate :each, :size, to: :collection
       alias_method :to_ary, :to_a
 
@@ -25,7 +25,7 @@ module Chewy
       end
 
       def response
-        @response ||= Response.new(perform)
+        @response ||= Response.new(perform, indexes: _indexes, **parameters[:load].value)
       end
 
       %i(query post_filter).each do |name|
@@ -52,6 +52,14 @@ module Chewy
         define_method name do |value|
           modify(name) { replace(value) }
         end
+      end
+
+      def load(options = nil)
+        modify(:load) { replace(load_options: options, loaded_objects: true) }
+      end
+
+      def preload(options = nil)
+        modify(:load) { replace(options) }
       end
 
       def render

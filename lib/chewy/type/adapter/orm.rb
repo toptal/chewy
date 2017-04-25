@@ -99,9 +99,13 @@ module Chewy
           additional_scope = load_options[load_options[:_type].type_name.to_sym].try(:[], :scope) || load_options[:scope]
 
           scope = all_scope_where_ids_in(objects.map(&primary_key))
-          loaded_objects = load_scope_objects(scope, additional_scope).index_by { |object| object.public_send(primary_key).to_s }
+          loaded_objects = load_scope_objects(scope, additional_scope).index_by do |object|
+            object.public_send(primary_key).to_s
+          end
 
-          objects.map { |object| loaded_objects[object.public_send(primary_key).to_s] }
+          objects.map do |object|
+            loaded_objects[object.public_send(primary_key).to_s]
+          end
         end
 
       private

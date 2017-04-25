@@ -55,7 +55,7 @@ describe Chewy::Search::Request do
       specify { expect(subject.size).to eq(9) }
     end
 
-    context 'everythig' do
+    xcontext 'everythig' do
       subject { described_class.new }
 
       specify { expect(subject.limit(20).count).to eq(12) }
@@ -64,7 +64,7 @@ describe Chewy::Search::Request do
 
     specify { expect(subject.count).to eq(9) }
     specify { expect(subject.size).to eq(9) }
-    # specify { expect(subject.first._data).to be_a Hash }
+    specify { expect(subject.first._data).to be_a Hash }
     specify { expect(subject.limit(6).count).to eq(6) }
     specify { expect(subject.offset(6).count).to eq(3) }
     # specify { expect(subject.query(match: { name: 'name3' }).highlight(fields: { name: {} }).first.name).to eq('Name3') }
@@ -73,7 +73,7 @@ describe Chewy::Search::Request do
     # specify { expect(subject.types(:product).count).to eq(3) }
     # specify { expect(subject.types(:product, :country).count).to eq(6) }
     # specify { expect(subject.filter(term: { age: 10 }).count).to eq(1) }
-    # specify { expect(subject.query(term: { age: 10 }).count).to eq(1) }
+    specify { expect(subject.query(term: { age: 10 }).count).to eq(1) }
     specify { expect(subject.order(nil).count).to eq(9) }
     # specify { expect(subject.search_type(:count).count).to eq(0) }
     # specify { expect(subject.search_type(:count).total).to eq(9) }
@@ -144,6 +144,43 @@ describe Chewy::Search::Request do
       specify { expect(subject.send(name, :foo).send(name, :bar).render[:body]).to include(name => 'bar') }
       specify { expect(subject.send(name, :foo).send(name, nil).render).not_to have_key(:body) }
       specify { expect { subject.send(name, :foo) }.not_to change { subject.render } }
+    end
+  end
+
+  context 'loading/preloading', :orm do
+    before do
+      stub_model(:city)
+      stub_model(:country)
+
+      stub_index(:places) do
+        define_type City do
+          field :rating, type: 'integer'
+        end
+
+        define_type Country do
+          field :rating, type: 'integer'
+        end
+      end
+    end
+
+    before { PlacesIndex.import!(cities: cities, countries: countries) }
+
+    let(:cities) { Array.new(2) { |i| City.create!(rating: i) } }
+    let(:countries) { Array.new(2) { |i| Country.create!(rating: i + 2) } }
+
+    subject { described_class.new(PlacesIndex).order(:rating) }
+
+    describe '#objects' do
+      specify { expect(subject.objects).to eq([*cities, *countries]) }
+    end
+
+    describe '#load' do
+      specify { expect(subject.load(only: 'city')).to eq([*cities, nil, nil]) }
+    end
+
+    describe '#preload' do
+      specify { expect(subject.preload(only: 'city').map(&:class).uniq).to eq([PlacesIndex::City, PlacesIndex::Country]) }
+      specify { expect(subject.preload(only: 'city').objects).to eq([*cities, nil, nil]) }
     end
   end
 

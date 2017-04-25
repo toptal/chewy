@@ -11,6 +11,7 @@ require 'chewy/search/parameters/profile'
 require 'chewy/search/parameters/search_type'
 require 'chewy/search/parameters/preference'
 require 'chewy/search/parameters/terminate_after'
+require 'chewy/search/parameters/load'
 
 module Chewy
   module Search
@@ -28,12 +29,11 @@ module Chewy
         @storages = Hash.new do |hash, name|
           hash[name] = self.class.storages[name].new
         end
-        initial = initial.map do |name, value|
+        initial.each_with_object(@storages) do |(name, value), result|
           storage_class = self.class.storages[name]
           storage = value.is_a?(storage_class) ? value : storage_class.new(value)
-          [name, storage]
-        end.to_h
-        @storages.merge!(initial)
+          result[name] = storage
+        end
       end
 
       def ==(other)
@@ -55,7 +55,7 @@ module Chewy
 
       def render
         body = @storages.values.inject({}) do |result, storage|
-          storage.render_to(result)
+          result.merge!(storage.render || {})
         end
         body.present? ? { body: body } : {}
       end

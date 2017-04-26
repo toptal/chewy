@@ -16,6 +16,7 @@ require 'chewy/search/parameters/source'
 require 'chewy/search/parameters/stored_fields'
 require 'chewy/search/parameters/script_fields'
 require 'chewy/search/parameters/suggest'
+require 'chewy/search/parameters/docvalue_fields'
 require 'chewy/search/parameters/load'
 
 module Chewy

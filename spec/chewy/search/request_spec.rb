@@ -182,6 +182,14 @@ describe Chewy::Search::Request do
     end
   end
 
+  describe '#docvalue_fields' do
+    specify { expect(subject.docvalue_fields(:foo).render[:body]).to include(docvalue_fields: ['foo']) }
+    specify { expect(subject.docvalue_fields([:foo, :bar]).docvalue_fields(nil).render[:body]).to include(docvalue_fields: %w(foo bar)) }
+    specify { expect(subject.docvalue_fields(:foo).docvalue_fields(:foo, :bar).render[:body]).to include(docvalue_fields: %w(foo bar)) }
+    specify { expect(subject.docvalue_fields(nil).render).not_to have_key(:body) }
+    specify { expect { subject.docvalue_fields(:foo) }.not_to change { subject.render } }
+  end
+
   context 'loading/preloading', :orm do
     before do
       stub_model(:city)

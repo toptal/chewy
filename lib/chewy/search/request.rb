@@ -34,8 +34,10 @@ module Chewy
         end
       end
 
-      def order(value, *values)
-        modify(:order) { update([value, *values]) }
+      %i(order docvalue_fields).each do |name|
+        define_method name do |value, *values|
+          modify(name) { update([value, *values]) }
+        end
       end
 
       def reorder(value, *values)

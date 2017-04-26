@@ -13,6 +13,7 @@ require 'chewy/search/parameters/preference'
 require 'chewy/search/parameters/terminate_after'
 require 'chewy/search/parameters/timeout'
 require 'chewy/search/parameters/load'
+require 'chewy/search/parameters/source'
 
 module Chewy
   module Search

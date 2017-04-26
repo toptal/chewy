@@ -117,7 +117,7 @@ describe Chewy::Search::Request do
     specify { expect(subject.order(foo: 42).order(nil).render[:body]).to include(sort: ['foo' => 42]) }
     specify { expect(subject.order(foo: 42).order(foo: 43).render[:body]).to include(sort: ['foo' => 43]) }
     specify { expect(subject.order(:foo).order(:bar, :baz).render[:body]).to include(sort: %w(foo bar baz)) }
-    specify { expect(subject.order(nil).render).not_to have_key(:sort) }
+    specify { expect(subject.order(nil).render).not_to have_key(:body) }
     specify { expect { subject.order(:foo) }.not_to change { subject.render } }
   end
 
@@ -126,7 +126,7 @@ describe Chewy::Search::Request do
     specify { expect(subject.reorder(:foo).reorder(:bar, :baz).render[:body]).to include(sort: %w(bar baz)) }
     specify { expect(subject.reorder(foo: 42).reorder(foo: 43).render[:body]).to include(sort: ['foo' => 43]) }
     specify { expect(subject.reorder(foo: 42).reorder(nil).render).not_to have_key(:body) }
-    specify { expect(subject.reorder(nil).render).not_to have_key(:sort) }
+    specify { expect(subject.reorder(nil).render).not_to have_key(:body) }
     specify { expect { subject.reorder(:foo) }.not_to change { subject.render } }
   end
 
@@ -145,6 +145,19 @@ describe Chewy::Search::Request do
       specify { expect(subject.send(name, :foo).send(name, nil).render).not_to have_key(:body) }
       specify { expect { subject.send(name, :foo) }.not_to change { subject.render } }
     end
+  end
+
+  describe '#source' do
+    specify { expect(subject.source(:foo).render[:body]).to include(_source: ['foo']) }
+    specify { expect(subject.source(:foo).source(nil).render[:body]).to include(_source: ['foo']) }
+    specify { expect(subject.source(excludes: :foo).render[:body]).to include(_source: { excludes: %w(foo) }) }
+    specify { expect(subject.source(excludes: :foo).source(excludes: [:foo, :bar]).render[:body]).to include(_source: { excludes: %w(foo bar) }) }
+    specify { expect(subject.source(excludes: :foo).source(:bar).render[:body]).to include(_source: { includes: %w(bar), excludes: %w(foo) }) }
+    specify { expect(subject.source(excludes: :foo).source(false).render[:body]).to include(_source: false) }
+    specify { expect(subject.source(excludes: :foo).source(false).source(excludes: :bar).render[:body]).to include(_source: { excludes: %w(foo bar) }) }
+    specify { expect(subject.source(excludes: :foo).source(false).source(true).render[:body]).to include(_source: { excludes: %w(foo) }) }
+    specify { expect(subject.source(nil).render).not_to have_key(:_source) }
+    specify { expect { subject.source(:foo) }.not_to change { subject.render } }
   end
 
   context 'loading/preloading', :orm do

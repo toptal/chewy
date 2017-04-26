@@ -54,6 +54,10 @@ module Chewy
         end
       end
 
+      def source(value, *values)
+        modify(:source) { update(values.empty? ? value : [value, *values]) }
+      end
+
       def load(options = nil)
         modify(:load) { replace(load_options: options, loaded_objects: true) }
       end

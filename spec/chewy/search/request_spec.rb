@@ -173,6 +173,15 @@ describe Chewy::Search::Request do
     specify { expect { subject.stored_fields(:foo) }.not_to change { subject.render } }
   end
 
+  %i(script_fields suggest).each do |name|
+    describe "##{name}" do
+      specify { expect(subject.send(name, foo: { bar: 42 }).render[:body]).to include(name => { 'foo' => { bar: 42 } }) }
+      specify { expect(subject.send(name, foo: { bar: 42 }).send(name, moo: { baz: 43 }).render[:body]).to include(name => { 'foo' => { bar: 42 }, 'moo' => { baz: 43 } }) }
+      specify { expect(subject.send(name, foo: { bar: 42 }).send(name, nil).render[:body]).to include(name => { 'foo' => { bar: 42 } }) }
+      specify { expect { subject.send(name, foo: { bar: 42 }) }.not_to change { subject.render } }
+    end
+  end
+
   context 'loading/preloading', :orm do
     before do
       stub_model(:city)

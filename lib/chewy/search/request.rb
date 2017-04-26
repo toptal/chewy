@@ -70,6 +70,12 @@ module Chewy
         modify(:load) { replace(options) }
       end
 
+      %i(script_fields suggest).each do |name|
+        define_method name do |value|
+          modify(name) { update(value) }
+        end
+      end
+
       def render
         {
           index: _indexes.map(&:index_name).uniq,

@@ -190,6 +190,13 @@ describe Chewy::Search::Request do
     specify { expect { subject.docvalue_fields(:foo) }.not_to change { subject.render } }
   end
 
+  describe '#indices_boost' do
+    specify { expect(subject.indices_boost(foo: 1.2).render[:body]).to include(indices_boost: [{ 'foo' => 1.2 }]) }
+    specify { expect(subject.indices_boost(foo: 1.2).indices_boost(moo: 1.3).render[:body]).to include(indices_boost: [{ 'foo' => 1.2 }, { 'moo' => 1.3 }]) }
+    specify { expect(subject.indices_boost(foo: 1.2).indices_boost(nil).render[:body]).to include(indices_boost: [{ 'foo' => 1.2 }]) }
+    specify { expect { subject.indices_boost(foo: 1.2) }.not_to change { subject.render } }
+  end
+
   context 'loading/preloading', :orm do
     before do
       stub_model(:city)

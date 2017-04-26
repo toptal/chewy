@@ -72,7 +72,7 @@ module Chewy
         modify(:load) { replace(options) }
       end
 
-      %i(script_fields suggest).each do |name|
+      %i(script_fields suggest indices_boost).each do |name|
         define_method name do |value|
           modify(name) { update(value) }
         end

@@ -197,6 +197,13 @@ describe Chewy::Search::Request do
     specify { expect { subject.indices_boost(foo: 1.2) }.not_to change { subject.render } }
   end
 
+  describe '#min_score' do
+    specify { expect(subject.min_score(1.2).render[:body]).to include(min_score: 1.2) }
+    specify { expect(subject.min_score(1.2).min_score(0.5).render[:body]).to include(min_score: 0.5) }
+    specify { expect(subject.min_score(1.2).min_score(nil).render).not_to have_key(:body) }
+    specify { expect { subject.min_score(1.2) }.not_to change { subject.render } }
+  end
+
   context 'loading/preloading', :orm do
     before do
       stub_model(:city)

@@ -50,7 +50,7 @@ module Chewy
         end
       end
 
-      %i(search_type preference limit offset terminate_after timeout).each do |name|
+      %i(search_type preference limit offset terminate_after timeout min_score).each do |name|
         define_method name do |value|
           modify(name) { replace(value) }
         end

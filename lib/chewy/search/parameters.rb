@@ -18,6 +18,7 @@ require 'chewy/search/parameters/script_fields'
 require 'chewy/search/parameters/suggest'
 require 'chewy/search/parameters/docvalue_fields'
 require 'chewy/search/parameters/indices_boost'
+require 'chewy/search/parameters/min_score'
 require 'chewy/search/parameters/load'
 
 module Chewy

@@ -7,7 +7,7 @@ describe Chewy::Search::Parameters::IndicesBoost do
     specify { expect(described_class.new.value).to eq({}) }
     specify { expect(described_class.new(nil).value).to eq({}) }
     specify { expect(subject.value).to eq('index' => 1.2) }
-    specify { expect(described_class.new(index: '1.2', other: 0).value).to eq('index' => 1.2, 'other' => 0) }
+    specify { expect(described_class.new(index: '1.2', other: 2).value).to eq('index' => 1.2, 'other' => 2.0) }
   end
 
   describe '#replace' do

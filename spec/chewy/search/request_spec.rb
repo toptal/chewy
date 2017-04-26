@@ -204,6 +204,13 @@ describe Chewy::Search::Request do
     specify { expect { subject.min_score(1.2) }.not_to change { subject.render } }
   end
 
+  describe '#search_after' do
+    specify { expect(subject.search_after(:foo, :bar).render[:body]).to include(search_after: [:foo, :bar]) }
+    specify { expect(subject.search_after([:foo, :bar]).search_after(:baz).render[:body]).to include(search_after: [:baz]) }
+    specify { expect(subject.search_after(:foo).search_after(nil).render).not_to have_key(:body) }
+    specify { expect { subject.search_after(:foo) }.not_to change { subject.render } }
+  end
+
   context 'loading/preloading', :orm do
     before do
       stub_model(:city)

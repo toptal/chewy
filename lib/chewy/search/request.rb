@@ -56,12 +56,14 @@ module Chewy
         end
       end
 
-      def source(value, *values)
-        modify(:source) { update(values.empty? ? value : [value, *values]) }
+      %i(source stored_fields).each do |name|
+        define_method name do |value, *values|
+          modify(name) { update(values.empty? ? value : [value, *values]) }
+        end
       end
 
-      def stored_fields(value, *values)
-        modify(:stored_fields) { update(values.empty? ? value : [value, *values]) }
+      def search_after(value, *values)
+        modify(:search_after) { replace(values.empty? ? value : [value, *values]) }
       end
 
       def load(options = nil)

@@ -58,6 +58,10 @@ module Chewy
         modify(:source) { update(values.empty? ? value : [value, *values]) }
       end
 
+      def stored_fields(value, *values)
+        modify(:stored_fields) { update(values.empty? ? value : [value, *values]) }
+      end
+
       def load(options = nil)
         modify(:load) { replace(load_options: options, loaded_objects: true) }
       end

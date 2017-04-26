@@ -149,15 +149,28 @@ describe Chewy::Search::Request do
 
   describe '#source' do
     specify { expect(subject.source(:foo).render[:body]).to include(_source: ['foo']) }
-    specify { expect(subject.source(:foo).source(nil).render[:body]).to include(_source: ['foo']) }
+    specify { expect(subject.source(:foo, :bar).source(nil).render[:body]).to include(_source: %w(foo bar)) }
+    specify { expect(subject.source([:foo, :bar]).source(nil).render[:body]).to include(_source: %w(foo bar)) }
     specify { expect(subject.source(excludes: :foo).render[:body]).to include(_source: { excludes: %w(foo) }) }
+    specify { expect(subject.source(excludes: :foo).source(excludes: [:foo, :bar]).render[:body]).to include(_source: { excludes: %w(foo bar) }) }
     specify { expect(subject.source(excludes: :foo).source(excludes: [:foo, :bar]).render[:body]).to include(_source: { excludes: %w(foo bar) }) }
     specify { expect(subject.source(excludes: :foo).source(:bar).render[:body]).to include(_source: { includes: %w(bar), excludes: %w(foo) }) }
     specify { expect(subject.source(excludes: :foo).source(false).render[:body]).to include(_source: false) }
     specify { expect(subject.source(excludes: :foo).source(false).source(excludes: :bar).render[:body]).to include(_source: { excludes: %w(foo bar) }) }
     specify { expect(subject.source(excludes: :foo).source(false).source(true).render[:body]).to include(_source: { excludes: %w(foo) }) }
-    specify { expect(subject.source(nil).render).not_to have_key(:_source) }
+    specify { expect(subject.source(nil).render).not_to have_key(:body) }
     specify { expect { subject.source(:foo) }.not_to change { subject.render } }
+  end
+
+  describe '#stored_fields' do
+    specify { expect(subject.stored_fields(:foo).render[:body]).to include(stored_fields: ['foo']) }
+    specify { expect(subject.stored_fields([:foo, :bar]).stored_fields(nil).render[:body]).to include(stored_fields: %w(foo bar)) }
+    specify { expect(subject.stored_fields(:foo).stored_fields(:foo, :bar).render[:body]).to include(stored_fields: %w(foo bar)) }
+    specify { expect(subject.stored_fields(:foo).stored_fields(false).render[:body]).to include(stored_fields: '_none_') }
+    specify { expect(subject.stored_fields(:foo).stored_fields(false).stored_fields(:bar).render[:body]).to include(stored_fields: %w(foo bar)) }
+    specify { expect(subject.stored_fields(:foo).stored_fields(false).stored_fields(true).render[:body]).to include(stored_fields: %w(foo)) }
+    specify { expect(subject.stored_fields(nil).render).not_to have_key(:body) }
+    specify { expect { subject.stored_fields(:foo) }.not_to change { subject.render } }
   end
 
   context 'loading/preloading', :orm do

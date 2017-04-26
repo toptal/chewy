@@ -12,8 +12,9 @@ require 'chewy/search/parameters/search_type'
 require 'chewy/search/parameters/preference'
 require 'chewy/search/parameters/terminate_after'
 require 'chewy/search/parameters/timeout'
-require 'chewy/search/parameters/load'
 require 'chewy/search/parameters/source'
+require 'chewy/search/parameters/stored_fields'
+require 'chewy/search/parameters/load'
 
 module Chewy
   module Search

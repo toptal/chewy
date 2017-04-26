@@ -150,7 +150,7 @@ describe Chewy::Search::Parameters::Source do
 
     context do
       before { subject.update(false) }
-      specify { expect(described_class.new(false).render).to eq(_source: false) }
+      specify { expect(subject.render).to eq(_source: false) }
     end
   end
 end

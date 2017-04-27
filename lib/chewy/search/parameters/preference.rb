@@ -1,9 +1,10 @@
-require 'chewy/search/parameters/search_type'
+require 'chewy/search/parameters/value'
 
 module Chewy
   module Search
     class Parameters
-      class Preference < SearchType
+      class Preference < Value
+        include StringStorage
       end
     end
   end

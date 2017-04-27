@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-shared_examples :query_filter_storage do |param_name|
+shared_examples :query_storage do |param_name|
   subject { described_class.new(match: { foo: 'bar' }) }
 
   describe '#initialize' do

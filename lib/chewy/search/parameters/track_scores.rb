@@ -1,9 +1,10 @@
-require 'chewy/search/parameters/version'
+require 'chewy/search/parameters/value'
 
 module Chewy
   module Search
     class Parameters
-      class TrackScores < Version
+      class TrackScores < Value
+        include BoolStorage
       end
     end
   end

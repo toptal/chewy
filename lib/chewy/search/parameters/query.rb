@@ -1,9 +1,10 @@
-require 'chewy/search/parameters/post_filter'
+require 'chewy/search/parameters/value'
 
 module Chewy
   module Search
     class Parameters
-      class Query < PostFilter
+      class Query < Value
+        include QueryStorage
       end
     end
   end

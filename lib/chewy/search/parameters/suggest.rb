@@ -1,9 +1,10 @@
-require 'chewy/search/parameters/script_fields'
+require 'chewy/search/parameters/value'
 
 module Chewy
   module Search
     class Parameters
-      class Suggest < ScriptFields
+      class Suggest < Value
+        include HashStorage
       end
     end
   end

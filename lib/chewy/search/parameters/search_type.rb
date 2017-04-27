@@ -4,11 +4,7 @@ module Chewy
   module Search
     class Parameters
       class SearchType < Value
-      private
-
-        def normalize(value)
-          value.to_s if value.present?
-        end
+        include StringStorage
       end
     end
   end

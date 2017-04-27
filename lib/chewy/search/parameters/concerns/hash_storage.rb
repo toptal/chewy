@@ -1,17 +1,15 @@
-require 'chewy/search/parameters/value'
-
 module Chewy
   module Search
     class Parameters
-      class Rescore < Value
+      module HashStorage
         def update(value)
-          @value |= normalize(value)
+          @value.merge!(normalize(value))
         end
 
       private
 
         def normalize(value)
-          Array.wrap(value).flatten(1).reject(&:blank?)
+          (value || {}).stringify_keys
         end
       end
     end

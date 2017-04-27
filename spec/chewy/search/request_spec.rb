@@ -197,6 +197,13 @@ describe Chewy::Search::Request do
     specify { expect { subject.indices_boost(foo: 1.2) }.not_to change { subject.render } }
   end
 
+  describe '#rescore' do
+    specify { expect(subject.rescore(foo: 42).render[:body]).to include(rescore: [{ foo: 42 }]) }
+    specify { expect(subject.rescore(foo: 42).rescore(moo: 43).render[:body]).to include(rescore: [{ foo: 42 }, { moo: 43 }]) }
+    specify { expect(subject.rescore(foo: 42).rescore(nil).render[:body]).to include(rescore: [{ foo: 42 }]) }
+    specify { expect { subject.rescore(foo: 42) }.not_to change { subject.render } }
+  end
+
   describe '#min_score' do
     specify { expect(subject.min_score(1.2).render[:body]).to include(min_score: 1.2) }
     specify { expect(subject.min_score(1.2).min_score(0.5).render[:body]).to include(min_score: 0.5) }

@@ -1,17 +1,13 @@
-require 'chewy/search/parameters/value'
+require 'chewy/search/parameters/rescore'
 
 module Chewy
   module Search
     class Parameters
-      class DocvalueFields < Value
-        def update(value)
-          @value |= normalize(value)
-        end
-
+      class DocvalueFields < Rescore
       private
 
         def normalize(value)
-          Array.wrap(value).flatten.reject(&:blank?).map(&:to_s)
+          super.map(&:to_s)
         end
       end
     end

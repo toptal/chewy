@@ -67,9 +67,9 @@ describe Chewy::Search::Request do
     specify { expect(subject.first._data).to be_a Hash }
     specify { expect(subject.limit(6).count).to eq(6) }
     specify { expect(subject.offset(6).count).to eq(3) }
-    # specify { expect(subject.query(match: { name: 'name3' }).highlight(fields: { name: {} }).first.name).to eq('Name3') }
-    # specify { expect(subject.query(match: { name: 'name3' }).highlight(fields: { name: {} }).first.name_highlight).to eq('<em>Name3</em>') }
-    # specify { expect(subject.query(match: { name: 'name3' }).highlight(fields: { name: {} }).first._data['_source']['name']).to eq('Name3') }
+    specify { expect(subject.query(match: { name: 'name3' }).highlight(fields: { name: {} }).first.name).to eq('Name3') }
+    specify { expect(subject.query(match: { name: 'name3' }).highlight(fields: { name: {} }).first.name_highlight).to eq('<em>Name3</em>') }
+    specify { expect(subject.query(match: { name: 'name3' }).highlight(fields: { name: {} }).first._data['_source']['name']).to eq('Name3') }
     # specify { expect(subject.types(:product).count).to eq(3) }
     # specify { expect(subject.types(:product, :country).count).to eq(6) }
     # specify { expect(subject.filter(term: { age: 10 }).count).to eq(1) }
@@ -173,7 +173,7 @@ describe Chewy::Search::Request do
     specify { expect { subject.stored_fields(:foo) }.not_to change { subject.render } }
   end
 
-  %i(script_fields suggest).each do |name|
+  %i(script_fields suggest highlight).each do |name|
     describe "##{name}" do
       specify { expect(subject.send(name, foo: { bar: 42 }).render[:body]).to include(name => { 'foo' => { bar: 42 } }) }
       specify { expect(subject.send(name, foo: { bar: 42 }).send(name, moo: { baz: 43 }).render[:body]).to include(name => { 'foo' => { bar: 42 }, 'moo' => { baz: 43 } }) }

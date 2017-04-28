@@ -27,6 +27,7 @@ require 'chewy/search/parameters/indices_boost'
 require 'chewy/search/parameters/min_score'
 require 'chewy/search/parameters/search_after'
 require 'chewy/search/parameters/rescore'
+require 'chewy/search/parameters/highlight'
 require 'chewy/search/parameters/load'
 
 module Chewy

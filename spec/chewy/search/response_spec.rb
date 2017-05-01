@@ -51,6 +51,15 @@ describe Chewy::Search::Response, :orm do
     end
   end
 
+  describe '#total' do
+    specify { expect(subject.total).to eq(4) }
+
+    context do
+      let(:raw_response) { {} }
+      specify { expect(subject.total).to eq(0) }
+    end
+  end
+
   describe '#results' do
     specify { expect(subject.results).to be_a(Array) }
     specify { expect(subject.results).to have(4).items }

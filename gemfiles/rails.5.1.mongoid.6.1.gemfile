@@ -3,13 +3,14 @@
 source "https://rubygems.org"
 
 gem "sequel"
-gem "activejob", "~> 4.2.0"
+gem "activejob", "~> 5.1.0"
 gem "resque", require: false
 gem "sidekiq", require: false
-gem "kaminari", "~> 0.17.0", require: false
+gem "kaminari", require: false
 gem "will_paginate", require: false
-gem "mongoid", "~> 5.1.0"
-gem "activesupport", "~> 4.2.0"
+gem "mongoid", "~> 6.1.0"
+gem "activesupport", "~> 5.1.0"
+gem "kaminari-core", "~> 1.0.0", require: false
 
 group :test do
   gem "guard"

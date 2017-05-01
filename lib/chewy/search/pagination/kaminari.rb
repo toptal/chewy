@@ -1,11 +1,12 @@
 module Chewy
-  class Query
+  module Search
     module Pagination
       module Kaminari
         extend ActiveSupport::Concern
 
         included do
           include ::Kaminari::PageScopeMethods
+          prepend PrependedMethods
 
           delegate :default_per_page, :max_per_page, :max_pages, to: :_kaminari_config
 
@@ -16,12 +17,16 @@ module Chewy
           METHOD
         end
 
-        def limit_value
-          (criteria.request_options[:size].presence || default_per_page).to_i
-        end
+        module PrependedMethods
+        private
 
-        def offset_value
-          criteria.request_options[:from].to_i
+          def limit_value
+            (super || default_per_page).to_i
+          end
+
+          def offset_value
+            super.to_i
+          end
         end
 
       private
@@ -33,5 +38,3 @@ module Chewy
     end
   end
 end
-
-Chewy::Query.send :include, Chewy::Query::Pagination::Kaminari

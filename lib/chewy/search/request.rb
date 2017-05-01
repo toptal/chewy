@@ -3,12 +3,12 @@ module Chewy
     class Request
       include Enumerable
       # include Scoping
-      # include Loading
-      # include Pagination
 
-      delegate :collection, :results, :objects, to: :response
+      delegate :collection, :results, :objects, :total, to: :response
       delegate :each, :size, to: :collection
       alias_method :to_ary, :to_a
+      alias_method :total_count, :total
+      alias_method :total_entries, :total
 
       attr_reader :_indexes, :_types, :parameters
 
@@ -118,6 +118,14 @@ module Chewy
         Chewy.client.search(render)
       rescue Elasticsearch::Transport::Transport::Errors::NotFound
         {}
+      end
+
+      def limit_value
+        parameters[:limit].value
+      end
+
+      def offset_value
+        parameters[:offset].value
       end
     end
   end

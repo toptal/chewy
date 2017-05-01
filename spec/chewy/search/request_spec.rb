@@ -62,6 +62,12 @@ describe Chewy::Search::Request do
       specify { expect(subject.limit(20).size).to eq(12) }
     end
 
+    describe '#total' do
+      specify { expect(subject.limit(6).total).to eq(9) }
+      specify { expect(subject.limit(6).total_count).to eq(9) }
+      specify { expect(subject.offset(6).total_entries).to eq(9) }
+    end
+
     specify { expect(subject.count).to eq(9) }
     specify { expect(subject.size).to eq(9) }
     specify { expect(subject.first._data).to be_a Hash }

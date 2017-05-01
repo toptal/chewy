@@ -12,6 +12,10 @@ module Chewy
         @hits ||= @body.fetch('hits', {}).fetch('hits', [])
       end
 
+      def total
+        @total ||= @body['hits'].try(:[], 'total') || 0
+      end
+
       def results
         @results ||= hits.map do |hit|
           attributes = (hit['_source'] || {})

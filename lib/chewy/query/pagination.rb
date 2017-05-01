@@ -1,6 +1,3 @@
-require 'chewy/query/pagination/kaminari' if defined?(::Kaminari)
-require 'chewy/query/pagination/will_paginate' if defined?(::WillPaginate)
-
 module Chewy
   class Query
     module Pagination
@@ -14,6 +11,16 @@ module Chewy
 
       alias_method :total_count, :total
       alias_method :total_entries, :total
+
+    private
+
+      def limit_value
+        criteria.request_options[:size]
+      end
+
+      def offset_value
+        criteria.request_options[:from]
+      end
     end
   end
 end

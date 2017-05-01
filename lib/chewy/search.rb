@@ -1,19 +1,17 @@
 require 'chewy/query'
+require 'chewy/search/request'
 require 'chewy/search/response'
 require 'chewy/search/parameters'
-require 'chewy/search/request'
+require 'chewy/search/pagination/kaminari'
+require 'chewy/search/pagination/will_paginate'
 
 module Chewy
   module Search
     extend ActiveSupport::Concern
 
-    included do
-      singleton_class.delegate(*query_base_class.delegated_methods, to: :all)
-    end
-
     module ClassMethods
       def all
-        query_class.scopes.last || query_class.new(self)
+        search_class.scopes.last || search_class.new(self)
       end
 
       def search_string(query, options = {})
@@ -25,23 +23,31 @@ module Chewy
         Chewy.client.search(options)
       end
 
-    private
-
-      def query_base_class
-        Chewy::Query
+      def method_missing(name, *args, &block)
+        if Chewy.search_class.delegated_methods.include?(name)
+          all.send(name, *args, &block)
+        else
+          super
+        end
       end
 
-      def query_class
-        @query_class ||= begin
-          query_class = Class.new(query_base_class)
+      def respond_to_missing?(name, _)
+        Chewy.search_class.delegated_methods.include?(name) || super
+      end
+
+    private
+
+      def search_class
+        @search_class ||= begin
+          search_class = Class.new(Chewy.search_class)
           if self < Chewy::Type
             index_scopes = index.scopes - scopes
 
-            delegate_scoped index, query_class, index_scopes
+            delegate_scoped index, search_class, index_scopes
             delegate_scoped index, self, index_scopes
           end
-          delegate_scoped self, query_class, scopes
-          const_set('Query', query_class)
+          delegate_scoped self, search_class, scopes
+          const_set('Query', search_class)
         end
       end
 

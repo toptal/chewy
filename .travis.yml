@@ -12,18 +12,12 @@ env:
   - ES_VERSION=5.2.2 TEST_CLUSTER_NODES=1
 gemfile:
   - gemfiles/rails.4.2.activerecord.gemfile
-  - gemfiles/rails.4.2.activerecord.kaminari.gemfile
-  - gemfiles/rails.4.2.activerecord.will_paginate.gemfile
+  - gemfiles/rails.4.2.activerecord.gemfile
   - gemfiles/rails.5.0.activerecord.gemfile
-  - gemfiles/rails.5.0.activerecord.kaminari_one.gemfile
-  - gemfiles/rails.5.0.activerecord.will_paginate.gemfile
   - gemfiles/rails.4.2.mongoid.5.1.gemfile
-  - gemfiles/rails.4.2.mongoid.5.1.kaminari.gemfile
-  - gemfiles/rails.4.2.mongoid.5.1.will_paginate.gemfile
-  - gemfiles/rails.5.0.mongoid.6.0.gemfile
-  - gemfiles/rails.5.0.mongoid.6.0.kaminari_one.gemfile
-  - gemfiles/rails.5.0.mongoid.6.0.will_paginate.gemfile
-  - gemfiles/sequel.4.42.gemfile
+  - gemfiles/rails.5.1.mongoid.6.0.gemfile
+  - gemfiles/rails.5.1.mongoid.6.1.gemfile
+  - gemfiles/sequel.4.45.gemfile
 matrix:
   exclude:
   - rvm: 2.2.5

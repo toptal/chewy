@@ -1,11 +1,13 @@
 module Chewy
-  class Query
+  module Search
     module Pagination
       module WillPaginate
         extend ActiveSupport::Concern
-        include ::WillPaginate::CollectionMethods
 
-        attr_reader :current_page, :per_page
+        included do
+          include ::WillPaginate::CollectionMethods
+          attr_reader :current_page, :per_page
+        end
 
         def paginate(options = {})
           @current_page = ::WillPaginate::PageNumber(options[:page] || @current_page || 1)
@@ -23,5 +25,3 @@ module Chewy
     end
   end
 end
-
-Chewy::Query.send :include, Chewy::Query::Pagination::WillPaginate

@@ -133,6 +133,20 @@ module Chewy
       end
     end
 
+    # Chewy search request DSL base class, used by every index.
+    #
+    def search_class
+      @search_class ||= begin
+        search_class = Class.new(Chewy::Query)
+        if defined?(::Kaminari)
+          search_class.include Chewy::Search::Pagination::Kaminari
+        elsif defined?(::WillPaginate)
+          search_class.include Chewy::Search::Pagination::WillPaginate
+        end
+        search_class
+      end
+    end
+
     # Sends wait_for_status request to ElasticSearch with status
     # defined in configuration.
     #

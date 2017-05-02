@@ -1,6 +1,5 @@
 require 'chewy/query/criteria'
 require 'chewy/query/filters'
-require 'chewy/query/scoping'
 require 'chewy/query/loading'
 require 'chewy/query/pagination'
 
@@ -14,9 +13,9 @@ module Chewy
   #
   class Query
     include Enumerable
-    include Scoping
     include Loading
     include Pagination
+    include Chewy::Search::Scoping
 
     delegate :each, :count, :size, to: :_collection
     alias_method :to_ary, :to_a

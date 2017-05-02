@@ -16,6 +16,7 @@ describe Chewy::Config do
   its(:reset_disable_refresh_interval) { should == false }
   its(:reset_no_replicas) { should == false }
   its(:disable_refresh_async) { should == false }
+  its(:search_class) { should be < Chewy::Query }
 
   describe '#transport_logger=' do
     let(:logger) { Logger.new('/dev/null') }
@@ -50,6 +51,83 @@ describe Chewy::Config do
     specify do
       expect { subject.transport_tracer = tracer }
         .to change { subject.configuration[:tracer] }.from(nil).to(tracer)
+    end
+  end
+
+  describe '#search_class=' do
+    specify do
+      expect { subject.search_class = Chewy::Search::Request }
+        .to change { subject.search_class }
+        .from(be < Chewy::Query)
+        .to(be < Chewy::Search::Request)
+    end
+
+    context do
+      before { hide_const('Kaminari') }
+
+      specify do
+        expect(subject.search_class.included_modules)
+          .to include(Chewy::Search::Pagination::WillPaginate)
+      end
+    end
+  end
+
+  describe '#search_class' do
+    context 'nothing is defined' do
+      before do
+        hide_const('Kaminari')
+        hide_const('WillPaginate')
+      end
+
+      specify do
+        expect(subject.search_class.included_modules)
+          .not_to include(Chewy::Search::Pagination::Kaminari)
+      end
+
+      specify do
+        expect(subject.search_class.included_modules)
+          .not_to include(Chewy::Search::Pagination::WillPaginate)
+      end
+    end
+
+    context 'kaminari' do
+      before { hide_const('WillPaginate') }
+
+      specify do
+        expect(subject.search_class.included_modules)
+          .to include(Chewy::Search::Pagination::Kaminari)
+      end
+
+      specify do
+        expect(subject.search_class.included_modules)
+          .not_to include(Chewy::Search::Pagination::WillPaginate)
+      end
+    end
+
+    context 'will_paginate' do
+      before { hide_const('Kaminari') }
+
+      specify do
+        expect(subject.search_class.included_modules)
+          .not_to include(Chewy::Search::Pagination::Kaminari)
+      end
+
+      specify do
+        expect(subject.search_class.included_modules)
+          .to include(Chewy::Search::Pagination::WillPaginate)
+      end
+    end
+
+    context 'both are defined' do
+      specify do
+        expect(subject.search_class.included_modules)
+          .to include(Chewy::Search::Pagination::Kaminari)
+      end
+
+      specify do
+        expect(subject.search_class.included_modules)
+          .not_to include(Chewy::Search::Pagination::WillPaginate)
+      end
     end
   end
 

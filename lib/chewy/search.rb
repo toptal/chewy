@@ -1,3 +1,4 @@
+require 'chewy/search/scoping'
 require 'chewy/query'
 require 'chewy/search/request'
 require 'chewy/search/response'
@@ -24,7 +25,7 @@ module Chewy
       end
 
       def method_missing(name, *args, &block)
-        if Chewy.search_class.delegated_methods.include?(name)
+        if search_class.delegated_methods.include?(name)
           all.send(name, *args, &block)
         else
           super
@@ -32,23 +33,25 @@ module Chewy
       end
 
       def respond_to_missing?(name, _)
-        Chewy.search_class.delegated_methods.include?(name) || super
+        search_class.delegated_methods.include?(name) || super
+      end
+
+      def search_class
+        @search_class ||= build_search_class(Chewy.search_class)
       end
 
     private
 
-      def search_class
-        @search_class ||= begin
-          search_class = Class.new(Chewy.search_class)
-          if self < Chewy::Type
-            index_scopes = index.scopes - scopes
+      def build_search_class(base)
+        search_class = Class.new(base)
+        if self < Chewy::Type
+          index_scopes = index.scopes - scopes
 
-            delegate_scoped index, search_class, index_scopes
-            delegate_scoped index, self, index_scopes
-          end
-          delegate_scoped self, search_class, scopes
-          const_set('Query', search_class)
+          delegate_scoped index, search_class, index_scopes
+          delegate_scoped index, self, index_scopes
         end
+        delegate_scoped self, search_class, scopes
+        const_set('Query', search_class)
       end
 
       def delegate_scoped(source, destination, methods)

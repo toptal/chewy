@@ -2,7 +2,7 @@ module Chewy
   module Search
     class Request
       include Enumerable
-      # include Scoping
+      include Scoping
 
       delegate :collection, :results, :objects, :total, to: :response
       delegate :each, :size, to: :collection
@@ -11,6 +11,15 @@ module Chewy
       alias_method :total_entries, :total
 
       attr_reader :_indexes, :_types, :parameters
+
+      def self.delegated_methods
+        %i(query post_filter order reorder docvalue_fields
+           track_scores request_cache explain version profile
+           search_type preference limit offset terminate_after
+           timeout min_score source stored_fields search_after
+           load preload script_fields suggest indices_boost
+           rescore highlight)
+      end
 
       def initialize(*indexes_or_types)
         @_types = indexes_or_types.select { |klass| klass < Chewy::Type }

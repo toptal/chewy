@@ -15,6 +15,13 @@ describe Chewy::Search do
   describe '.all' do
     specify { expect(ProductsIndex.all).to be_a(Chewy::Query) }
     specify { expect(product.all).to be_a(Chewy::Query) }
+
+    context do
+      before { allow(Chewy).to receive_messages(search_class: Chewy::Search::Request) }
+
+      specify { expect(ProductsIndex.all).to be_a(Chewy::Search::Request) }
+      specify { expect(product.all).to be_a(Chewy::Search::Request) }
+    end
   end
 
   describe '.search_string' do

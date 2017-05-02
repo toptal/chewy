@@ -1,5 +1,5 @@
 module Chewy
-  class Query
+  module Search
     module Scoping
       extend ActiveSupport::Concern
 

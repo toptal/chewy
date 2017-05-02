@@ -52,7 +52,10 @@ module Chewy
       :reset_no_replicas,
 
       # Refresh or not when import async (sidekiq, resque, activejob)
-      :disable_refresh_async
+      :disable_refresh_async,
+
+      # Chewy search request DSL base class, used by every index.
+      :search_class
 
     def self.delegated
       public_instance_methods - superclass.public_instance_methods - Singleton.public_instance_methods
@@ -69,6 +72,7 @@ module Chewy
       @reset_no_replicas = false
       @disable_refresh_async = false
       @indices_path = 'app/chewy'
+      self.search_class = Chewy::Query
     end
 
     def transport_logger=(logger)
@@ -79,6 +83,10 @@ module Chewy
     def transport_tracer=(tracer)
       Chewy.client.transport.tracer = tracer
       @transport_tracer = tracer
+    end
+
+    def search_class=(base)
+      @search_class = build_search_class(base)
     end
 
     # Chewy core configurations. There is two ways to set it up:
@@ -145,6 +153,16 @@ module Chewy
             hash[Rails.env].try(:deep_symbolize_keys) if hash
           end
         end || {}
+      end
+    end
+
+    def build_search_class(base)
+      Class.new(base).tap do |search_class|
+        if defined?(::Kaminari)
+          search_class.include Chewy::Search::Pagination::Kaminari
+        elsif defined?(::WillPaginate)
+          search_class.include Chewy::Search::Pagination::WillPaginate
+        end
       end
     end
   end

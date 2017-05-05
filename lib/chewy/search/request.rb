@@ -57,7 +57,7 @@ module Chewy
       %i(and or not).each do |name|
         define_method name do |other|
           %i(query filter post_filter).inject(self) do |scope, storage|
-            scope.send(storage).__send__(name, other.parameters[storage].value)
+            scope.send(storage).send(name, other.parameters[storage].value)
           end
         end
       end

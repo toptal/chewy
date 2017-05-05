@@ -3,6 +3,7 @@ require 'chewy/query'
 require 'chewy/search/request'
 require 'chewy/search/response'
 require 'chewy/search/parameters'
+require 'chewy/search/query_proxy'
 require 'chewy/search/pagination/kaminari'
 require 'chewy/search/pagination/will_paginate'
 

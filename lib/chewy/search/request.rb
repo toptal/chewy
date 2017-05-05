@@ -13,7 +13,7 @@ module Chewy
       attr_reader :_indexes, :_types, :parameters
 
       def self.delegated_methods
-        %i(query post_filter order reorder docvalue_fields
+        %i(query filter post_filter order reorder docvalue_fields
            track_scores request_cache explain version profile
            search_type preference limit offset terminate_after
            timeout min_score source stored_fields search_after
@@ -37,9 +37,28 @@ module Chewy
         @response ||= Response.new(perform, indexes: _indexes, **parameters[:load].value)
       end
 
-      %i(query post_filter).each do |name|
+      def render
+        {
+          index: _indexes.map(&:index_name).uniq,
+          type: _types.map(&:type_name).uniq
+        }.merge(@parameters.render)
+      end
+
+      %i(query filter post_filter).each do |name|
         define_method name do |value = nil, &block|
-          modify(name) { replace(block || value) }
+          if block || value
+            modify(name) { must(block || value) }
+          else
+            Chewy::Search::QueryProxy.new(name, self)
+          end
+        end
+      end
+
+      %i(and or not).each do |name|
+        define_method name do |other|
+          %i(query filter post_filter).inject(self) do |scope, storage|
+            scope.send(storage).__send__(name, other.parameters[storage].value)
+          end
         end
       end
 
@@ -87,13 +106,6 @@ module Chewy
         define_method name do |value|
           modify(name) { update(value) }
         end
-      end
-
-      def render
-        {
-          index: _indexes.map(&:index_name).uniq,
-          type: _types.map(&:type_name).uniq
-        }.merge(@parameters.render)
       end
 
     protected

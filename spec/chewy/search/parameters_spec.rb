@@ -86,5 +86,25 @@ describe Chewy::Search::Parameters do
 
     specify { expect(subject.render).to eq(body: { from: 10, sort: ['foo'] }) }
     specify { expect(described_class.new.render).to eq({}) }
+
+    context do
+      subject { described_class.new(query: { foo: 'bar' }, filter: { moo: 'baz' }) }
+      specify { expect(subject.render).to eq(body: { query: { bool: { must: { foo: 'bar' }, filter: { moo: 'baz' } } } }) }
+    end
+
+    context do
+      subject { described_class.new(query: { should: { foo: 'bar' } }, filter: { moo: 'baz' }) }
+      specify { expect(subject.render).to eq(body: { query: { bool: { must: { foo: 'bar' }, filter: { moo: 'baz' } } } }) }
+    end
+
+    context do
+      subject { described_class.new(query: { must_not: { foo: 'bar' } }, filter: { moo: 'baz' }) }
+      specify { expect(subject.render).to eq(body: { query: { bool: { must_not: { foo: 'bar' }, filter: { moo: 'baz' } } } }) }
+    end
+
+    context do
+      subject { described_class.new(filter: { moo: 'baz' }) }
+      specify { expect(subject.render).to eq(body: { query: { bool: { filter: { moo: 'baz' } } } }) }
+    end
   end
 end

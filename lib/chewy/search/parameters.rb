@@ -1,34 +1,5 @@
-require 'chewy/search/parameters/concerns/bool_storage'
-require 'chewy/search/parameters/concerns/hash_storage'
-require 'chewy/search/parameters/concerns/integer_storage'
-require 'chewy/search/parameters/concerns/string_storage'
-require 'chewy/search/parameters/concerns/query_storage'
-require 'chewy/search/parameters/value'
-require 'chewy/search/parameters/query'
-require 'chewy/search/parameters/post_filter'
-require 'chewy/search/parameters/limit'
-require 'chewy/search/parameters/offset'
-require 'chewy/search/parameters/order'
-require 'chewy/search/parameters/track_scores'
-require 'chewy/search/parameters/request_cache'
-require 'chewy/search/parameters/explain'
-require 'chewy/search/parameters/version'
-require 'chewy/search/parameters/profile'
-require 'chewy/search/parameters/search_type'
-require 'chewy/search/parameters/preference'
-require 'chewy/search/parameters/terminate_after'
-require 'chewy/search/parameters/timeout'
-require 'chewy/search/parameters/source'
-require 'chewy/search/parameters/stored_fields'
-require 'chewy/search/parameters/script_fields'
-require 'chewy/search/parameters/suggest'
-require 'chewy/search/parameters/docvalue_fields'
-require 'chewy/search/parameters/indices_boost'
-require 'chewy/search/parameters/min_score'
-require 'chewy/search/parameters/search_after'
-require 'chewy/search/parameters/rescore'
-require 'chewy/search/parameters/highlight'
-require 'chewy/search/parameters/load'
+Dir.glob(File.join(File.dirname(__FILE__), 'parameters', 'concerns', '*.rb')).each { |f| require f }
+Dir.glob(File.join(File.dirname(__FILE__), 'parameters', '*.rb')).each { |f| require f }
 
 module Chewy
   module Search
@@ -71,9 +42,21 @@ module Chewy
       end
 
       def render
-        body = @storages.values.inject({}) do |result, storage|
+        body = @storages.except(:filter).values.inject({}) do |result, storage|
           result.merge!(storage.render || {})
         end
+
+        filter = @storages[:filter].render
+        if filter
+          if body[:query] && body[:query][:bool]
+            body[:query][:bool].merge!(filter)
+          elsif body[:query]
+            body[:query] = { bool: { must: body[:query] }.merge!(filter) }
+          else
+            body[:query] = { bool: filter }
+          end
+        end
+
         body.present? ? { body: body } : {}
       end
 

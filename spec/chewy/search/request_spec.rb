@@ -78,11 +78,9 @@ describe Chewy::Search::Request do
     specify { expect(subject.query(match: { name: 'name3' }).highlight(fields: { name: {} }).first._data['_source']['name']).to eq('Name3') }
     # specify { expect(subject.types(:product).count).to eq(3) }
     # specify { expect(subject.types(:product, :country).count).to eq(6) }
-    # specify { expect(subject.filter(term: { age: 10 }).count).to eq(1) }
+    specify { expect(subject.filter(term: { age: 10 }).count).to eq(1) }
     specify { expect(subject.query(term: { age: 10 }).count).to eq(1) }
     specify { expect(subject.order(nil).count).to eq(9) }
-    # specify { expect(subject.search_type(:count).count).to eq(0) }
-    # specify { expect(subject.search_type(:count).total).to eq(9) }
   end
 
   describe '#==' do
@@ -100,12 +98,111 @@ describe Chewy::Search::Request do
     specify { expect(described_class.new(ProductsIndex).limit(10)).not_to eq(described_class.new(ProductsIndex).limit(20)) }
   end
 
+  describe '#render' do
+    specify do
+      expect(subject.render)
+        .to match(
+          index: %w(products),
+          type: array_including(%w(product city country))
+        )
+    end
+  end
+
   %i(query post_filter).each do |name|
     describe "##{name}" do
       specify { expect(subject.send(name, match: { foo: 'bar' }).render[:body]).to include(name => { match: { foo: 'bar' } }) }
       specify { expect(subject.send(name) { match foo: 'bar' }.render[:body]).to include(name => { match: { foo: 'bar' } }) }
-      specify { expect(subject.send(name, match: { foo: 'bar' }).send(name) { multi_match foo: 'bar' }.render[:body]).to include(name => { multi_match: { foo: 'bar' } }) }
+      specify do
+        expect(subject.send(name, match: { foo: 'bar' }).send(name) { multi_match foo: 'bar' }.render[:body])
+          .to include(name => { bool: { must: [{ match: { foo: 'bar' } }, { multi_match: { foo: 'bar' } }] } })
+      end
       specify { expect { subject.send(name, match: { foo: 'bar' }) }.not_to change { subject.render } }
+      specify do
+        expect(subject.send(name).should(match: { foo: 'bar' }).send(name).must_not { multi_match foo: 'bar' }.render[:body])
+          .to include(name => { bool: { should: { match: { foo: 'bar' } }, must_not: { multi_match: { foo: 'bar' } } } })
+      end
+
+      context do
+        let(:other_scope) { subject.send(name).should { multi_match foo: 'bar' }.send(name) { match foo: 'bar' } }
+
+        specify do
+          expect(subject.send(name).not(other_scope).render[:body])
+            .to include(name => { bool: { must_not: { bool: { must: { match: { foo: 'bar' } }, should: { multi_match: { foo: 'bar' } } } } } })
+        end
+      end
+    end
+  end
+
+  describe '#filter' do
+    specify { expect(subject.filter(match: { foo: 'bar' }).render[:body]).to include(query: { bool: { filter: { match: { foo: 'bar' } } } }) }
+    specify { expect(subject.filter { match foo: 'bar' }.render[:body]).to include(query: { bool: { filter: { match: { foo: 'bar' } } } }) }
+    specify do
+      expect(subject.filter(match: { foo: 'bar' }).filter { multi_match foo: 'bar' }.render[:body])
+        .to include(query: { bool: { filter: { bool: { must: [{ match: { foo: 'bar' } }, { multi_match: { foo: 'bar' } }] } } } })
+    end
+    specify { expect { subject.filter(match: { foo: 'bar' }) }.not_to change { subject.render } }
+    specify do
+      expect(subject.filter.should(match: { foo: 'bar' }).filter.must_not { multi_match foo: 'bar' }.render[:body])
+        .to include(query: { bool: { filter: { bool: { should: { match: { foo: 'bar' } }, must_not: { multi_match: { foo: 'bar' } } } } } })
+    end
+
+    context do
+      let(:other_scope) { subject.filter.should { multi_match foo: 'bar' }.filter { match foo: 'bar' } }
+
+      specify do
+        expect(subject.filter.not(other_scope).render[:body])
+          .to include(query: { bool: { filter: { bool: { must_not: { bool: { must: { match: { foo: 'bar' } }, should: { multi_match: { foo: 'bar' } } } } } } } })
+      end
+    end
+  end
+
+  context do
+    let(:first_scope) { subject.query(foo: 'bar').filter.should(moo: 'baz').post_filter.must_not(boo: 'baf').limit(10) }
+    let(:second_scope) { subject.filter(foo: 'bar').post_filter.should(moo: 'baz').query.must_not(boo: 'baf').limit(20) }
+
+    describe '#and' do
+      specify do
+        expect(first_scope.and(second_scope).render[:body]).to eq(
+          query: { bool: {
+            must: [{ foo: 'bar' }, { bool: { must_not: { boo: 'baf' } } }],
+            filter: { bool: { must: [{ moo: 'baz' }, { foo: 'bar' }] } }
+          } },
+          post_filter: { bool: { must: [{ bool: { must_not: { boo: 'baf' } } }, { moo: 'baz' }] } },
+          size: 10
+        )
+      end
+      specify { expect { first_scope.and(second_scope) }.not_to change { first_scope.render } }
+      specify { expect { first_scope.and(second_scope) }.not_to change { second_scope.render } }
+    end
+
+    describe '#or' do
+      specify do
+        expect(first_scope.or(second_scope).render[:body]).to eq(
+          query: { bool: {
+            should: [{ foo: 'bar' }, { bool: { must_not: { boo: 'baf' } } }],
+            filter: { bool: { should: [{ moo: 'baz' }, { foo: 'bar' }] } }
+          } },
+          post_filter: { bool: { should: [{ bool: { must_not: { boo: 'baf' } } }, { moo: 'baz' }] } },
+          size: 10
+        )
+      end
+      specify { expect { first_scope.or(second_scope) }.not_to change { first_scope.render } }
+      specify { expect { first_scope.or(second_scope) }.not_to change { second_scope.render } }
+    end
+
+    describe '#not' do
+      specify do
+        expect(first_scope.not(second_scope).render[:body]).to eq(
+          query: { bool: {
+            must: { foo: 'bar' }, must_not: { bool: { must_not: { boo: 'baf' } } },
+            filter: { bool: { should: { moo: 'baz' }, must_not: { foo: 'bar' } } }
+          } },
+          post_filter: { bool: { must_not: [{ boo: 'baf' }, { moo: 'baz' }] } },
+          size: 10
+        )
+      end
+      specify { expect { first_scope.not(second_scope) }.not_to change { first_scope.render } }
+      specify { expect { first_scope.not(second_scope) }.not_to change { second_scope.render } }
     end
   end
 
@@ -258,16 +355,6 @@ describe Chewy::Search::Request do
     describe '#preload' do
       specify { expect(subject.preload(only: 'city').map(&:class).uniq).to eq([PlacesIndex::City, PlacesIndex::Country]) }
       specify { expect(subject.preload(only: 'city').objects).to eq([*cities, nil, nil]) }
-    end
-  end
-
-  describe '#render' do
-    specify do
-      expect(subject.render)
-        .to match(
-          index: %w(products),
-          type: array_including(%w(product city country))
-        )
     end
   end
 end

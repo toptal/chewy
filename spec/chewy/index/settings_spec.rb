@@ -117,11 +117,11 @@ describe Chewy::Index::Settings do
 
         specify do
           expect(described_class.new({}, DummyIndex).to_hash)
-            .to eq({ settings: { index: { number_of_shards: 7, number_of_replicas: 2}}})
+            .to eq(settings: { index: { number_of_shards: 7, number_of_replicas: 2 } })
         end
         specify do
           expect(described_class.new({ index: { number_of_shards: 3 } }, DummyIndex).to_hash)
-            .to eq({ settings: { index: { number_of_shards: 3, number_of_replicas: 2 } } })
+            .to eq(settings: { index: { number_of_shards: 3, number_of_replicas: 2 } })
         end
       end
     end

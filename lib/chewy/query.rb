@@ -1037,15 +1037,9 @@ module Chewy
         request: _request, indexes: _indexes, types: _types,
         index: _indexes.one? ? _indexes.first : _indexes,
         type: _types.one? ? _types.first : _types) do
-
         clients = _indexes.map(&:client) + _types.map { |t| t.index.client }
-
         client = clients.first
-        unless clients.all? { |c| c == client }
-          fail "Not all indexes/types use the same client."
-        end
-
-        client
+        raise 'Not all indexes/types use the same client.' unless clients.all? { |c| c == client }
 
         begin
           client.search(_request)

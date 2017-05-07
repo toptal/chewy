@@ -54,7 +54,7 @@ describe Chewy::Index do
       specify { expect(Dummies1Index.client).to eq(Dummies2Index.client) }
     end
 
-    context "when use alternative client_name" do
+    context 'when use alternative client_name' do
       around do |example|
         settings = Chewy.settings.dup
         example.run
@@ -62,13 +62,13 @@ describe Chewy::Index do
       end
 
       before do
-        Chewy.settings = Chewy.settings.merge({
+        Chewy.settings = Chewy.settings.merge(
           clients: {
             dummy: {
               hosts: 'localhost:9251'
             }
           }
-        })
+        )
         stub_index(:dummies) do
           use_client :dummy
         end
@@ -206,7 +206,7 @@ describe Chewy::Index do
 
     specify { expect { documents.settings_hash }.to_not change(documents._settings, :inspect) }
     specify do
-      expect(documents.settings_hash).to eq({
+      expect(documents.settings_hash).to eq(
         settings: {
           analysis: {
             tokenizer: {
@@ -234,14 +234,14 @@ describe Chewy::Index do
               sorted: {
                 option: :baz
               }
-            },
+            }
           },
           index: {
             number_of_shards: 1,
             number_of_replicas: 0
           }
         }
-      })
+      )
     end
   end
 
@@ -272,18 +272,18 @@ describe Chewy::Index do
 
   describe '.settings_hash' do
     specify do
-      expect(stub_index(:documents).settings_hash).to eq({
+      expect(stub_index(:documents).settings_hash).to eq(
         settings: {
           index: {
             number_of_shards: 1,
             number_of_replicas: 0
           }
         }
-      })
+      )
     end
 
     specify do
-      expect(stub_index(:documents) { settings number_of_shards: 1 }.settings_hash).to eq({
+      expect(stub_index(:documents) { settings number_of_shards: 1 }.settings_hash).to eq(
         settings: {
           number_of_shards: 1,
           index: {
@@ -291,7 +291,7 @@ describe Chewy::Index do
             number_of_replicas: 0
           }
         }
-      })
+      )
     end
   end
 
@@ -319,14 +319,14 @@ describe Chewy::Index do
 
   describe '.index_params' do
     specify do
-      expect(stub_index(:documents).index_params).to eq({
+      expect(stub_index(:documents).index_params).to eq(
         settings: {
           index: {
             number_of_shards: 1,
             number_of_replicas: 0
           }
         }
-      })
+      )
     end
 
     specify do

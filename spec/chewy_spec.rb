@@ -108,8 +108,8 @@ describe Chewy do
       Chewy::Clients.purge!
     end
 
-    context "when there is index with another prefix" do
-      let(:admins_index_name) { "prefix1_admins" }
+    context 'when there is index with another prefix' do
+      let(:admins_index_name) { 'prefix1_admins' }
 
       before do
         client.indices.create(index: admins_index_name, body: Chewy::Configs.default)
@@ -119,7 +119,7 @@ describe Chewy do
         expect(client.indices.exists(index: admins_index_name)).to eq(true)
       end
 
-      context "when there is index with specified index" do
+      context 'when there is index with specified index' do
         before do
           stub_index(:developers).create!
         end
@@ -128,16 +128,16 @@ describe Chewy do
           expect(DevelopersIndex.exists?).to eq(true)
         end
 
-        describe ".massacre" do
+        describe '.massacre' do
           before do
             subject
           end
 
-          it "keeps indices with another prefixes" do
+          it 'keeps indices with another prefixes' do
             expect(client.indices.exists(index: 'prefix1_admins')).to eq(true)
           end
 
-          it "removes indices with prefix specifies in config" do
+          it 'removes indices with prefix specifies in config' do
             expect(client.indices.exists(index: 'prefix2_developers')).to eq(false)
           end
         end

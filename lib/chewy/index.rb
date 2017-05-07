@@ -179,8 +179,6 @@ module Chewy
       types.any?(&:journal?)
     end
 
-    private
-
     def self.build_index_name(*args)
       options = args.extract_options!
       [options[:prefix], args.first || index_name, options[:suffix]].reject(&:blank?).join('_')

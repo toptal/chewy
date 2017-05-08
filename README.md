@@ -15,6 +15,7 @@ Chewy is an ODM and wrapper for [the official Elasticsearch client](https://gith
 * [Why Chewy?](#why-chewy)
 * [Usage](#usage)
   * [Client settings](#client-settings)
+    * [AWS ElasticSearch configuration] (#aws-elastic-search)
   * [Index definition](#index-definition)
   * [Type default import options](#type-default-import-options)
   * [Multi (nested) and object field types](#multi-nested-and-object-field-types)
@@ -119,6 +120,26 @@ Chewy.logger = Logger.new(STDOUT)
 ```
 
 See [config.rb](lib/chewy/config.rb) for more details.
+
+#### Aws Elastic Search
+If you would like to use AWS's ElasticSearch using an IAM user policy, you will need to sign your requests for the `es:*` action by injecting the appropriate headers passing a proc to `transport_options`. 
+
+```ruby
+ Chewy.settings = {
+    host: 'http://my-es-instance-on-aws.us-east-1.es.amazonaws.com:80',
+    transport_options: {
+      headers: { content_type: 'application/json' },
+      proc: -> (f) do
+          f.request :aws_signers_v4,
+                    service_name: 'es',
+                    region: 'us-east-1',
+                    credentials: Aws::Credentials.new(
+                      ENV['AWS_ACCESS_KEY'],
+                      ENV['AWS_SECRET_ACCESS_KEY'])
+      end
+    }
+  }
+  ```
 
 ### Index definition
 

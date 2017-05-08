@@ -40,7 +40,19 @@ module Chewy
 
       # Where Chewy expects to find index definitions
       # within a Rails app folder.
-      :indices_path
+      :indices_path,
+
+      # Set index refresh_interval setting to -1 before reset and put the original value after.
+      # If setting not present, put back to default 1s
+      # https://www.elastic.co/guide/en/elasticsearch/reference/current/indices-update-settings.html
+      :reset_disable_refresh_interval,
+
+      # Set number_of_replicas to 0 before reset and put the original value after
+      # https://www.elastic.co/guide/en/elasticsearch/reference/current/indices-update-settings.html
+      :reset_no_replicas,
+
+      # Refresh or not when import async (sidekiq, resque, activejob)
+      :disable_refresh_async
 
     def self.delegated
       public_instance_methods - superclass.public_instance_methods - Singleton.public_instance_methods
@@ -53,6 +65,9 @@ module Chewy
       @root_strategy = :base
       @request_strategy = :atomic
       @use_after_commit_callbacks = true
+      @reset_disable_refresh_interval = false
+      @reset_no_replicas = false
+      @disable_refresh_async = false
       @indices_path = 'app/chewy'
     end
 

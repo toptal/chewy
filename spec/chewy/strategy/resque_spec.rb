@@ -36,5 +36,11 @@ if defined?(::Resque)
       expect(CitiesIndex::City).to receive(:import!).with([city.id, other_city.id], suffix: '201601')
       Chewy::Strategy::Resque::Worker.perform('CitiesIndex::City', [city.id, other_city.id], suffix: '201601')
     end
+
+    specify do
+      allow(Chewy).to receive(:disable_refresh_async).and_return(true)
+      expect(CitiesIndex::City).to receive(:import!).with([city.id, other_city.id], suffix: '201601', refresh: false)
+      Chewy::Strategy::Resque::Worker.perform('CitiesIndex::City', [city.id, other_city.id], suffix: '201601')
+    end
   end
 end

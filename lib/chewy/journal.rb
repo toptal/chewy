@@ -38,7 +38,7 @@ module Chewy
     def bulk_body
       @records.map do |record|
         {
-          create: {
+          index: {
             _index: self.class.index_name,
             _type: self.class.type_name,
             data: record

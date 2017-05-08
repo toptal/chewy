@@ -136,4 +136,43 @@ describe Chewy do
 
     after { Thread.current[:chewy_client] = initial_client }
   end
+
+  describe '.create_indices' do
+    before do
+      stub_index(:cities)
+      stub_index(:places)
+
+      # To avoid flaky issues when previous specs were run
+      allow(Chewy::Index).to receive(:descendants).and_return([CitiesIndex, PlacesIndex])
+
+      Chewy.massacre
+    end
+
+    specify do
+      expect(CitiesIndex.exists?).to eq false
+      expect(PlacesIndex.exists?).to eq false
+
+      CitiesIndex.create!
+
+      expect(CitiesIndex.exists?).to eq true
+      expect(PlacesIndex.exists?).to eq false
+
+      expect { Chewy.create_indices }.not_to raise_error
+
+      expect(CitiesIndex.exists?).to eq true
+      expect(PlacesIndex.exists?).to eq true
+    end
+
+    specify '.create_indices!' do
+      expect(CitiesIndex.exists?).to eq false
+      expect(PlacesIndex.exists?).to eq false
+
+      expect { Chewy.create_indices! }.not_to raise_error
+
+      expect(CitiesIndex.exists?).to eq true
+      expect(PlacesIndex.exists?).to eq true
+
+      expect { Chewy.create_indices! }.to raise_error(Elasticsearch::Transport::Transport::Errors::BadRequest)
+    end
+  end
 end

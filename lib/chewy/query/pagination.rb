@@ -1,3 +1,6 @@
+require 'chewy/query/pagination/kaminari' if defined?(::Kaminari)
+require 'chewy/query/pagination/will_paginate' if defined?(::WillPaginate)
+
 module Chewy
   class Query
     module Pagination

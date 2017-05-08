@@ -14,6 +14,7 @@ module Chewy
         include ::Sidekiq::Worker
 
         def perform(type, ids, options = {})
+          options[:refresh] = !Chewy.disable_refresh_async if Chewy.disable_refresh_async
           type.constantize.import!(ids, options)
         end
       end

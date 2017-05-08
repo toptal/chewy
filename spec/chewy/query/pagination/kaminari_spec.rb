@@ -54,4 +54,8 @@ if defined?(::Kaminari)
       end
     end
   end
+else
+  describe do
+    xit 'Skips Kaminari specs'
+  end
 end

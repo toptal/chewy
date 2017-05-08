@@ -28,7 +28,7 @@ module Chewy
           import_options.reverse_merge! _default_import_options
           bulk_options = import_options.reject { |k, _| !BULK_OPTIONS.include?(k) }.reverse_merge!(refresh: true)
 
-          index.create!(bulk_options.slice(:suffix)) unless index.exists?
+          assure_index_existence(bulk_options.slice(:suffix))
 
           ActiveSupport::Notifications.instrument 'import_objects.chewy', type: self do |payload|
             adapter.import(*args, import_options) do |action_objects|
@@ -236,6 +236,11 @@ module Chewy
           end
 
           indexed_objects
+        end
+
+        def assure_index_existence(index_options)
+          return if Chewy.configuration[:skip_index_creation_on_import]
+          index.create!(index_options) unless index.exists?
         end
       end
     end

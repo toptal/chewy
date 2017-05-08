@@ -9,7 +9,7 @@ rvm:
   - 2.3.3
 env:
   - ES_VERSION=2.4.4
-  - ES_VERSION=5.2.2 TEST_CLUSTER_NODES=1
+  - ES_VERSION=5.4.0 TEST_CLUSTER_NODES=1
 gemfile:
   - gemfiles/rails.4.2.activerecord.gemfile
   - gemfiles/rails.4.2.activerecord.gemfile
@@ -21,13 +21,13 @@ gemfile:
 matrix:
   exclude:
   - rvm: 2.2.5
-    env: ES_VERSION=5.2.2 TEST_CLUSTER_NODES=1
+    env: ES_VERSION=5.4.0 TEST_CLUSTER_NODES=1
   allow_failures:
-  - env: ES_VERSION=5.2.2 TEST_CLUSTER_NODES=1
+  - env: ES_VERSION=5.4.0 TEST_CLUSTER_NODES=1
 
 before_install:
   - curl -s https://download.elasticsearch.org/elasticsearch/release/org/elasticsearch/distribution/tar/elasticsearch/2.4.4/elasticsearch-2.4.4.tar.gz | tar xz -C /tmp
-  - curl -s https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-5.2.2.tar.gz | tar xz -C /tmp
+  - curl -s https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-5.4.0.tar.gz | tar xz -C /tmp
 before_script:
   - TEST_CLUSTER_COMMAND=/tmp/elasticsearch-$ES_VERSION/bin/elasticsearch TEST_CLUSTER_LOGS=/tmp/log rake es:start
 script:

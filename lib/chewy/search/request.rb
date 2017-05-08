@@ -18,7 +18,7 @@ module Chewy
            search_type preference limit offset terminate_after
            timeout min_score source stored_fields search_after
            load preload script_fields suggest indices_boost
-           rescore highlight)
+           rescore highlight total total_count total_entries)
       end
 
       def initialize(*indexes_or_types)

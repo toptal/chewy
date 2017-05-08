@@ -16,7 +16,7 @@ describe Chewy::Config do
   its(:reset_disable_refresh_interval) { should == false }
   its(:reset_no_replicas) { should == false }
   its(:disable_refresh_async) { should == false }
-  its(:search_class) { should be < Chewy::Query }
+  its(:search_class) { should be < Chewy::Search::Request }
 
   describe '#transport_logger=' do
     let(:logger) { Logger.new('/dev/null') }
@@ -56,10 +56,10 @@ describe Chewy::Config do
 
   describe '#search_class=' do
     specify do
-      expect { subject.search_class = Chewy::Search::Request }
+      expect { subject.search_class = Chewy::Query }
         .to change { subject.search_class }
-        .from(be < Chewy::Query)
-        .to(be < Chewy::Search::Request)
+        .from(be < Chewy::Search::Request)
+        .to(be < Chewy::Query)
     end
 
     context do

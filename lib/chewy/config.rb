@@ -72,7 +72,7 @@ module Chewy
       @reset_no_replicas = false
       @disable_refresh_async = false
       @indices_path = 'app/chewy'
-      self.search_class = Chewy::Query
+      self.search_class = Chewy::Search::Request
     end
 
     def transport_logger=(logger)

@@ -76,8 +76,8 @@ describe Chewy::Search::Request do
     specify { expect(subject.query(match: { name: 'name3' }).highlight(fields: { name: {} }).first.name).to eq('Name3') }
     specify { expect(subject.query(match: { name: 'name3' }).highlight(fields: { name: {} }).first.name_highlight).to eq('<em>Name3</em>') }
     specify { expect(subject.query(match: { name: 'name3' }).highlight(fields: { name: {} }).first._data['_source']['name']).to eq('Name3') }
-    # specify { expect(subject.types(:product).count).to eq(3) }
-    # specify { expect(subject.types(:product, :country).count).to eq(6) }
+    specify { expect(subject.types(:product, :something).count).to eq(3) }
+    specify { expect(subject.types(:product, :country).count).to eq(6) }
     specify { expect(subject.filter(term: { age: 10 }).count).to eq(1) }
     specify { expect(subject.query(term: { age: 10 }).count).to eq(1) }
     specify { expect(subject.order(nil).count).to eq(9) }
@@ -291,6 +291,14 @@ describe Chewy::Search::Request do
     specify { expect(subject.docvalue_fields(:foo).docvalue_fields(:foo, :bar).render[:body]).to include(docvalue_fields: %w(foo bar)) }
     specify { expect(subject.docvalue_fields(nil).render).not_to have_key(:body) }
     specify { expect { subject.docvalue_fields(:foo) }.not_to change { subject.render } }
+  end
+
+  describe '#types' do
+    specify { expect(subject.types(:product).render[:type]).to contain_exactly('product') }
+    specify { expect(subject.types([:product, :city]).types(nil).render[:type]).to match_array(%w(product city)) }
+    specify { expect(subject.types(:product).types(:product, :city, :something).render[:type]).to match_array(%w(product city)) }
+    specify { expect(subject.types(nil).render).not_to have_key(:body) }
+    specify { expect { subject.types(:product) }.not_to change { subject.render } }
   end
 
   describe '#indices_boost' do

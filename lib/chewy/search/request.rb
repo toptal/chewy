@@ -18,7 +18,7 @@ module Chewy
            search_type preference limit offset terminate_after
            timeout min_score source stored_fields search_after
            load preload script_fields suggest indices_boost
-           rescore highlight total total_count total_entries)
+           rescore highlight total total_count total_entries types)
       end
 
       def initialize(*indexes_or_types)
@@ -38,10 +38,7 @@ module Chewy
       end
 
       def render
-        {
-          index: _indexes.map(&:index_name).uniq,
-          type: _types.map(&:type_name).uniq
-        }.merge(@parameters.render)
+        { index: index_names, type: type_names }.merge(@parameters.render)
       end
 
       %i(query filter post_filter).each do |name|
@@ -62,7 +59,7 @@ module Chewy
         end
       end
 
-      %i(order docvalue_fields).each do |name|
+      %i(order docvalue_fields types).each do |name|
         define_method name do |value, *values|
           modify(name) { update([value, *values]) }
         end
@@ -147,6 +144,18 @@ module Chewy
 
       def offset_value
         parameters[:offset].value
+      end
+
+      def index_names
+        @index_names ||= _indexes.map(&:index_name).uniq
+      end
+
+      def type_names
+        @type_names ||= if parameters[:types].value.present?
+          _types.map(&:type_name).uniq & parameters[:types].value
+        else
+          _types.map(&:type_name).uniq
+        end
       end
     end
   end

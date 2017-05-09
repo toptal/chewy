@@ -42,7 +42,7 @@ module Chewy
       end
 
       def render
-        body = @storages.except(:filter).values.inject({}) do |result, storage|
+        body = @storages.except(:filter, :types).values.inject({}) do |result, storage|
           result.merge!(storage.render || {})
         end
 

@@ -144,8 +144,8 @@ describe Chewy::Index do
 
   describe '.types' do
     specify { expect(DummiesIndex.types).to eq(DummiesIndex.type_hash.values) }
-    specify { expect(DummiesIndex.types(:dummy)).to be_a Chewy::Query }
-    specify { expect(DummiesIndex.types(:user)).to be_a Chewy::Query }
+    specify { expect(DummiesIndex.types(:dummy)).to be_a Chewy::Search::Request }
+    specify { expect(DummiesIndex.types(:user)).to be_a Chewy::Search::Request }
   end
 
   describe '.settings' do

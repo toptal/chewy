@@ -107,18 +107,20 @@ module Chewy
       end
 
       def delete_all
-        request = render_base.merge(body: parameters.render_query || {})
-
         ActiveSupport::Notifications.instrument 'delete_query.chewy',
-          request: request, indexes: _indexes, types: _types,
+          request: render_simple, indexes: _indexes, types: _types,
           index: _indexes.one? ? _indexes.first : _indexes,
           type: _types.one? ? _types.first : _types do
             if Runtime.version < '5.0'
-              delete_by_query_plugin(request)
+              delete_by_query_plugin(render_simple)
             else
-              Chewy.client.delete_by_query(request)
+              Chewy.client.delete_by_query(render_simple)
             end
           end
+      end
+
+      def count
+        @count ||= Chewy.client.count(render_simple)['count']
       end
 
     protected
@@ -176,6 +178,10 @@ module Chewy
 
       def render_base
         @render_base ||= { index: index_names, type: type_names }
+      end
+
+      def render_simple
+        @render_simple ||= render_base.merge(body: parameters.render_query || {})
       end
 
       def delete_by_query_plugin(request)

@@ -68,19 +68,75 @@ describe Chewy::Search::Request do
       specify { expect(subject.offset(6).total_entries).to eq(9) }
     end
 
-    specify { expect(subject.count).to eq(9) }
-    specify { expect(subject.size).to eq(9) }
+    describe '#delete_all' do
+      specify do
+        expect do
+          subject.query(match: { name: 'name3' }).delete_all
+          Chewy.client.indices.refresh(index: 'products')
+        end.to change { described_class.new(ProductsIndex).total }.from(9).to(8)
+      end
+      specify do
+        expect do
+          subject.filter(range: { age: { gte: 10, lte: 20 } }).delete_all
+          Chewy.client.indices.refresh(index: 'products')
+        end.to change { described_class.new(ProductsIndex).total_count }.from(9).to(7)
+      end
+      specify do
+        expect do
+          subject.types(:product).delete_all
+          Chewy.client.indices.refresh(index: 'products')
+        end.to change { described_class.new(ProductsIndex::Product).total_entries }.from(3).to(0)
+      end
+      specify do
+        expect do
+          subject.delete_all
+          Chewy.client.indices.refresh(index: 'products')
+        end.to change { described_class.new(ProductsIndex).total }.from(9).to(0)
+      end
+      specify do
+        expect do
+          described_class.new(ProductsIndex::City).delete_all
+          Chewy.client.indices.refresh(index: 'products')
+        end.to change { described_class.new(ProductsIndex).total }.from(9).to(6)
+      end
+
+      specify do
+        outer_payload = nil
+        ActiveSupport::Notifications.subscribe('delete_query.chewy') do |_name, _start, _finish, _id, payload|
+          outer_payload = payload
+        end
+        subject.query(match: { name: 'name3' }).delete_all
+        expect(outer_payload).to eq(
+          index: ProductsIndex,
+          indexes: [ProductsIndex],
+          request: { index: ['products'], type: %w(product city country), body: { query: { match: { name: 'name3' } } } },
+          type: [ProductsIndex::Product, ProductsIndex::City, ProductsIndex::Country],
+          types: [ProductsIndex::Product, ProductsIndex::City, ProductsIndex::Country]
+        )
+      end
+    end
+
+    describe '#count' do
+      specify { expect(subject.size).to eq(9) }
+      specify { expect(subject.count).to eq(9) }
+      specify { expect(subject.limit(6).size).to eq(6) }
+      specify { expect(subject.limit(6).count).to eq(9) }
+      specify { expect(subject.offset(6).size).to eq(3) }
+      specify { expect(subject.offset(6).count).to eq(9) }
+      specify { expect(subject.types(:product, :something).count).to eq(3) }
+      specify { expect(subject.types(:product, :country).count).to eq(6) }
+      specify { expect(subject.filter(term: { age: 10 }).count).to eq(1) }
+      specify { expect(subject.query(term: { age: 10 }).count).to eq(1) }
+      specify { expect(subject.order(nil).count).to eq(9) }
+    end
+
+    describe '#highlight' do
+      specify { expect(subject.query(match: { name: 'name3' }).highlight(fields: { name: {} }).first.name).to eq('Name3') }
+      specify { expect(subject.query(match: { name: 'name3' }).highlight(fields: { name: {} }).first.name_highlight).to eq('<em>Name3</em>') }
+      specify { expect(subject.query(match: { name: 'name3' }).highlight(fields: { name: {} }).first._data['_source']['name']).to eq('Name3') }
+    end
+
     specify { expect(subject.first._data).to be_a Hash }
-    specify { expect(subject.limit(6).count).to eq(6) }
-    specify { expect(subject.offset(6).count).to eq(3) }
-    specify { expect(subject.query(match: { name: 'name3' }).highlight(fields: { name: {} }).first.name).to eq('Name3') }
-    specify { expect(subject.query(match: { name: 'name3' }).highlight(fields: { name: {} }).first.name_highlight).to eq('<em>Name3</em>') }
-    specify { expect(subject.query(match: { name: 'name3' }).highlight(fields: { name: {} }).first._data['_source']['name']).to eq('Name3') }
-    specify { expect(subject.types(:product, :something).count).to eq(3) }
-    specify { expect(subject.types(:product, :country).count).to eq(6) }
-    specify { expect(subject.filter(term: { age: 10 }).count).to eq(1) }
-    specify { expect(subject.query(term: { age: 10 }).count).to eq(1) }
-    specify { expect(subject.order(nil).count).to eq(9) }
   end
 
   describe '#==' do
@@ -363,64 +419,6 @@ describe Chewy::Search::Request do
     describe '#preload' do
       specify { expect(subject.preload(only: 'city').map(&:class).uniq).to eq([PlacesIndex::City, PlacesIndex::Country]) }
       specify { expect(subject.preload(only: 'city').objects).to eq([*cities, nil, nil]) }
-    end
-  end
-
-  describe '#delete_all' do
-    let(:products) { Array.new(3) { |i| { id: i.next.to_s, name: "Name#{i.next}", age: 10 * i.next }.stringify_keys! } }
-    let(:cities) { Array.new(3) { |i| { id: i.next.to_s }.stringify_keys! } }
-    let(:countries) { Array.new(3) { |i| { id: i.next.to_s }.stringify_keys! } }
-
-    before do
-      ProductsIndex::Product.import!(products.map { |h| double(h) })
-      ProductsIndex::City.import!(cities.map { |h| double(h) })
-      ProductsIndex::Country.import!(countries.map { |h| double(h) })
-    end
-
-    specify do
-      expect do
-        subject.query(match: { name: 'name3' }).delete_all
-        Chewy.client.indices.refresh(index: 'products')
-      end.to change { described_class.new(ProductsIndex).total }.from(9).to(8)
-    end
-    specify do
-      expect do
-        subject.filter(range: { age: { gte: 10, lte: 20 } }).delete_all
-        Chewy.client.indices.refresh(index: 'products')
-      end.to change { described_class.new(ProductsIndex).total_count }.from(9).to(7)
-    end
-    specify do
-      expect do
-        subject.types(:product).delete_all
-        Chewy.client.indices.refresh(index: 'products')
-      end.to change { described_class.new(ProductsIndex::Product).total_entries }.from(3).to(0)
-    end
-    specify do
-      expect do
-        subject.delete_all
-        Chewy.client.indices.refresh(index: 'products')
-      end.to change { described_class.new(ProductsIndex).total }.from(9).to(0)
-    end
-    specify do
-      expect do
-        described_class.new(ProductsIndex::City).delete_all
-        Chewy.client.indices.refresh(index: 'products')
-      end.to change { described_class.new(ProductsIndex).total }.from(9).to(6)
-    end
-
-    specify do
-      outer_payload = nil
-      ActiveSupport::Notifications.subscribe('delete_query.chewy') do |_name, _start, _finish, _id, payload|
-        outer_payload = payload
-      end
-      subject.query(match: { name: 'name3' }).delete_all
-      expect(outer_payload).to eq(
-        index: ProductsIndex,
-        indexes: [ProductsIndex],
-        request: { index: ['products'], type: %w(product city country), body: { query: { match: { name: 'name3' } } } },
-        type: [ProductsIndex::Product, ProductsIndex::City, ProductsIndex::Country],
-        types: [ProductsIndex::Product, ProductsIndex::City, ProductsIndex::Country]
-      )
     end
   end
 end

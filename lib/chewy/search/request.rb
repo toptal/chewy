@@ -18,7 +18,8 @@ module Chewy
            search_type preference limit offset terminate_after
            timeout min_score source stored_fields search_after
            load preload script_fields suggest indices_boost
-           rescore highlight total total_count total_entries types)
+           rescore highlight total total_count total_entries
+           types delete_all)
       end
 
       def initialize(*indexes_or_types)
@@ -38,7 +39,7 @@ module Chewy
       end
 
       def render
-        { index: index_names, type: type_names }.merge(@parameters.render)
+        @render ||= render_base.merge(@parameters.render)
       end
 
       %i(query filter post_filter).each do |name|
@@ -105,6 +106,21 @@ module Chewy
         end
       end
 
+      def delete_all
+        request = render_base.merge(body: parameters.render_query || {})
+
+        ActiveSupport::Notifications.instrument 'delete_query.chewy',
+          request: request, indexes: _indexes, types: _types,
+          index: _indexes.one? ? _indexes.first : _indexes,
+          type: _types.one? ? _types.first : _types do
+            if Runtime.version < '5.0'
+              delete_by_query_plugin(request)
+            else
+              Chewy.client.delete_by_query(request)
+            end
+          end
+      end
+
     protected
 
       def initialize_clone(other)
@@ -156,6 +172,19 @@ module Chewy
         else
           _types.map(&:type_name).uniq
         end
+      end
+
+      def render_base
+        @render_base ||= { index: index_names, type: type_names }
+      end
+
+      def delete_by_query_plugin(request)
+        path = Elasticsearch::API::Utils.__pathify(
+          Elasticsearch::API::Utils.__listify(request[:index]),
+          Elasticsearch::API::Utils.__listify(request[:type]),
+          '/_query'
+        )
+        Chewy.client.perform_request(Elasticsearch::API::HTTP_DELETE, path, {}, request[:body]).body
       end
     end
   end

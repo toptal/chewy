@@ -42,22 +42,27 @@ module Chewy
       end
 
       def render
-        body = @storages.except(:filter, :types).values.inject({}) do |result, storage|
+        body = @storages.except(:filter, :query, :types).values.inject({}) do |result, storage|
           result.merge!(storage.render || {})
         end
-
-        filter = @storages[:filter].render
-        if filter
-          if body[:query] && body[:query][:bool]
-            body[:query][:bool].merge!(filter)
-          elsif body[:query]
-            body[:query] = { bool: { must: body[:query] }.merge!(filter) }
-          else
-            body[:query] = { bool: filter }
-          end
-        end
-
+        body.merge!(render_query || {})
         body.present? ? { body: body } : {}
+      end
+
+      def render_query
+        filter = @storages[:filter].render
+        query = @storages[:query].render
+
+        return query unless filter
+
+        if query && query[:query][:bool]
+          query[:query][:bool].merge!(filter)
+          query
+        elsif query
+          { query: { bool: { must: query[:query] }.merge!(filter) } }
+        else
+          { query: { bool: filter } }
+        end
       end
 
     protected

@@ -38,7 +38,7 @@ describe Chewy::Search do
     end
 
     specify do
-      expect(ProductsIndex.client).to receive(:search).with(hash_including(index: ['products'], type: []))
+      expect(ProductsIndex.client).to receive(:search).with(hash_including(index: ['products'], type: %w(product product2)))
       ProductsIndex.search_string('hello')
     end
 

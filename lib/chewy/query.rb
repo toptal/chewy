@@ -942,17 +942,28 @@ module Chewy
     #   UsersIndex::User.filter{ age <= 42 }.delete_all
     #
     def delete_all
-      if Runtime.version > '2.0'
+      if Runtime.version >= '2.0'
         plugins = Chewy.client.nodes.info(plugins: true)['nodes'].values.map { |item| item['plugins'] }.flatten
         raise PluginMissing, 'install delete-by-query plugin' unless plugins.find { |item| item['name'] == 'delete-by-query' }
       end
+
       request = chain { criteria.update_options simple: true }.send(:_request)
+
       ActiveSupport::Notifications.instrument 'delete_query.chewy',
         request: request, indexes: _indexes, types: _types,
         index: _indexes.one? ? _indexes.first : _indexes,
         type: _types.one? ? _types.first : _types do
-        Chewy.client.delete_by_query(request)
-      end
+          if Runtime.version >= '2.0'
+            path = Elasticsearch::API::Utils.__pathify(
+              Elasticsearch::API::Utils.__listify(request[:index]),
+              Elasticsearch::API::Utils.__listify(request[:type]),
+              '/_query'
+            )
+            Chewy.client.perform_request(Elasticsearch::API::HTTP_DELETE, path, {}, request[:body]).body
+          else
+            Chewy.client.delete_by_query(request)
+          end
+        end
     end
 
     # Find all records matching a query.

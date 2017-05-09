@@ -24,7 +24,6 @@ describe Chewy::Type::Actions, :orm do
 
   describe '.reset' do
     specify do
-      skip_on_plugin_missing_from_version('delete-by-query', '2.0')
       expect { city.reset }.to update_index(city)
     end
   end

@@ -429,4 +429,18 @@ describe Chewy::Search::Request do
       specify { expect(subject.preload(only: 'city').objects).to eq([*cities, nil, nil]) }
     end
   end
+
+  describe '#only' do
+    subject { described_class.new(ProductsIndex).limit(10).offset(10) }
+
+    specify { expect(subject.only(:limit)).to eq(described_class.new(ProductsIndex).limit(10)) }
+    specify { expect { subject.only(:limit) }.not_to change { subject.render } }
+  end
+
+  describe '#except' do
+    subject { described_class.new(ProductsIndex).limit(10).offset(10) }
+
+    specify { expect(subject.except(:limit)).to eq(described_class.new(ProductsIndex).offset(10)) }
+    specify { expect { subject.except(:limit) }.not_to change { subject.render } }
+  end
 end

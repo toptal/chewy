@@ -34,9 +34,20 @@ module Chewy
         @storages[name] = storage
       end
 
+      def only!(names)
+        @storages.slice!(*assert_storages(names))
+      end
+
+      def except!(names)
+        names = names.map(&:to_sym)
+        @storages.except!(*assert_storages(names))
+      end
+
       def merge(other)
         storages = (@storages.keys | other.storages.keys).map do |name|
-          [name, @storages[name].clone.tap { |c| c.merge(other.storages[name]) }]
+          merged_storage = @storages[name].clone
+          merged_storage.merge(other.storages[name]) if other.storages.key?(name)
+          [name, merged_storage]
         end.to_h
         self.class.new(storages)
       end
@@ -74,6 +85,14 @@ module Chewy
       def compare_storages(other)
         keys = (@storages.keys | other.storages.keys)
         @storages.values_at(*keys) == other.storages.values_at(*keys)
+      end
+
+      def assert_storages(names)
+        raise ArgumentError, 'No storage names were passed' if names.empty?
+        names = names.map(&:to_sym)
+        unknown_storages = names - self.class.storages.keys
+        raise ArgumentError, "Unknown storages: #{unknown_storages}" if unknown_storages.present?
+        names
       end
     end
   end

@@ -17,6 +17,10 @@ module Chewy
           { sort: sort }
         end
 
+        def ==(other)
+          super && value.keys == other.value.keys
+        end
+
       private
 
         def normalize(value)

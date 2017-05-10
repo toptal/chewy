@@ -129,6 +129,16 @@ module Chewy
       end
       alias_method :exist?, :exists?
 
+      def only(value, *values)
+        names = [value, *values].flatten(1)
+        chain { parameters.only!(names) }
+      end
+
+      def except(value, *values)
+        names = [value, *values].flatten(1)
+        chain { parameters.except!(names) }
+      end
+
     protected
 
       def initialize_clone(other)
@@ -153,7 +163,7 @@ module Chewy
       end
 
       def reset
-        @response = nil
+        @response, @render, @render_base, @render_simple, @type_names, @index_names = nil
       end
 
       def perform

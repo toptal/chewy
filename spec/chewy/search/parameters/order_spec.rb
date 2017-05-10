@@ -52,4 +52,14 @@ describe Chewy::Search::Parameters::Order do
     specify { expect(described_class.new(:foo).render).to eq(sort: ['foo']) }
     specify { expect(described_class.new([:foo, { bar: 42 }, :baz]).render).to eq(sort: ['foo', { 'bar' => 42 }, 'baz']) }
   end
+
+  describe '#==' do
+    specify { expect(described_class.new).to eq(described_class.new) }
+    specify { expect(described_class.new(:foo)).to eq(described_class.new(:foo)) }
+    specify { expect(described_class.new(:foo)).not_to eq(described_class.new(:bar)) }
+    specify { expect(described_class.new([:foo, :bar])).to eq(described_class.new([:foo, :bar])) }
+    specify { expect(described_class.new([:foo, :bar])).not_to eq(described_class.new([:bar, :foo])) }
+    specify { expect(described_class.new(foo: { a: 42 })).to eq(described_class.new(foo: { a: 42 })) }
+    specify { expect(described_class.new(foo: { a: 42 })).not_to eq(described_class.new(foo: { b: 42 })) }
+  end
 end

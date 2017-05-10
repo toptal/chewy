@@ -443,4 +443,17 @@ describe Chewy::Search::Request do
     specify { expect(subject.except(:limit)).to eq(described_class.new(ProductsIndex).offset(10)) }
     specify { expect { subject.except(:limit) }.not_to change { subject.render } }
   end
+
+  describe '#merge' do
+    let(:first) { described_class.new(ProductsIndex).limit(10).offset(10) }
+    let(:second) { described_class.new(ProductsIndex).offset(20).order(:foo) }
+
+    specify { expect(first.merge(second)).to eq(described_class.new(ProductsIndex).limit(10).offset(20).order(:foo)) }
+    specify { expect { first.merge(second) }.not_to change { first.render } }
+    specify { expect { first.merge(second) }.not_to change { second.render } }
+
+    specify { expect(second.merge(first)).to eq(described_class.new(ProductsIndex).limit(10).offset(10).order(:foo)) }
+    specify { expect { second.merge(first) }.not_to change { first.render } }
+    specify { expect { second.merge(first) }.not_to change { second.render } }
+  end
 end

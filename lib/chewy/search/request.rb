@@ -130,13 +130,15 @@ module Chewy
       alias_method :exist?, :exists?
 
       def only(value, *values)
-        names = [value, *values].flatten(1)
-        chain { parameters.only!(names) }
+        chain { parameters.only!([value, *values].flatten(1)) }
       end
 
       def except(value, *values)
-        names = [value, *values].flatten(1)
-        chain { parameters.except!(names) }
+        chain { parameters.except!([value, *values].flatten(1)) }
+      end
+
+      def merge(other)
+        chain { parameters.merge!(other.parameters) }
       end
 
     protected
@@ -155,7 +157,7 @@ module Chewy
       end
 
       def modify(name, &block)
-        chain { parameters.modify(name, &block) }
+        chain { parameters.modify!(name, &block) }
       end
 
       def chain(&block)

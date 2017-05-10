@@ -28,10 +28,10 @@ module Chewy
         super || other.is_a?(self.class) && compare_storages(other)
       end
 
-      def modify(name, &block)
-        storage = @storages[name].clone
-        storage.instance_exec(&block)
-        @storages[name] = storage
+      def modify!(name, &block)
+        @storages[name] = @storages[name].clone.tap do |s|
+          s.instance_exec(&block)
+        end
       end
 
       def only!(names)
@@ -39,17 +39,13 @@ module Chewy
       end
 
       def except!(names)
-        names = names.map(&:to_sym)
         @storages.except!(*assert_storages(names))
       end
 
-      def merge(other)
-        storages = (@storages.keys | other.storages.keys).map do |name|
-          merged_storage = @storages[name].clone
-          merged_storage.merge(other.storages[name]) if other.storages.key?(name)
-          [name, merged_storage]
-        end.to_h
-        self.class.new(storages)
+      def merge!(other)
+        other.storages.each do |name, storage|
+          modify!(name) { merge(storage) }
+        end
       end
 
       def render

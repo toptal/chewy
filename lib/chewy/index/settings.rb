@@ -33,6 +33,7 @@ module Chewy
         settings.merge!((@proc_params.call || {}).deep_symbolize_keys) if @proc_params
 
         settings[:analysis] = resolve_analysis(settings[:analysis]) if settings[:analysis]
+
         if settings[:index] || Chewy.configuration[:index]
           settings[:index] = (Chewy.configuration[:index] || {})
             .deep_merge((settings[:index] || {}).deep_symbolize_keys)

@@ -31,22 +31,22 @@ describe Chewy::Search::Parameters do
     specify { expect(described_class.new(limit: 10)).not_to eq(described_class.new(limit: 10, offset: 20)) }
   end
 
-  describe '#modify' do
+  describe '#modify!' do
     it 'updates the storage value' do
-      expect { subject.modify(:limit) { replace(42) } }
+      expect { subject.modify!(:limit) { replace(42) } }
         .to change { subject[:limit].value }
         .from(nil).to(42)
     end
 
     it 'replaces the storage' do
-      expect { subject.modify(:limit) { replace(42) } }
+      expect { subject.modify!(:limit) { replace(42) } }
         .to change { subject[:limit].object_id }
     end
 
     it 'doesn\'t change the old object' do
-      subject.modify(:limit) { replace(42) }
+      subject.modify!(:limit) { replace(42) }
       old_limit = subject[:limit]
-      subject.modify(:limit) { replace(43) }
+      subject.modify!(:limit) { replace(43) }
       expect(old_limit.value).to eq(42)
     end
   end
@@ -69,27 +69,21 @@ describe Chewy::Search::Parameters do
     specify { expect { subject.except!([]) }.to raise_error ArgumentError }
   end
 
-  describe '#merge' do
+  describe '#merge!' do
     let(:first) { described_class.new(offset: 10, order: 'foo') }
     let(:second) { described_class.new(limit: 20, offset: 20, order: 'bar') }
 
-    context do
-      subject! { first.merge(second) }
-
-      specify { expect(subject).to be_a(described_class) }
-      specify { expect(first).to eq(described_class.new(offset: 10, order: 'foo')) }
-      specify { expect(second).to eq(described_class.new(limit: 20, offset: 20, order: 'bar')) }
-      specify { expect(subject).to eq(described_class.new(limit: 20, offset: 20, order: %w(foo bar))) }
+    specify do
+      expect { first.merge!(second) }.to change { first.clone }
+        .to(described_class.new(limit: 20, offset: 20, order: %w(foo bar)))
     end
+    specify { expect { first.merge!(second) }.not_to change { second.clone } }
 
-    context do
-      subject! { second.merge(first) }
-
-      specify { expect(subject).to be_a(described_class) }
-      specify { expect(first).to eq(described_class.new(offset: 10, order: 'foo')) }
-      specify { expect(second).to eq(described_class.new(limit: 20, offset: 20, order: 'bar')) }
-      specify { expect(subject).to eq(described_class.new(limit: 20, offset: 10, order: %w(bar foo))) }
+    specify do
+      expect { second.merge!(first) }.to change { second.clone }
+        .to(described_class.new(limit: 20, offset: 10, order: %w(bar foo)))
     end
+    specify { expect { second.merge!(first) }.not_to change { first.clone } }
 
     context 'spawns new storages for the merge' do
       let(:names) { %i(limit offset order) }

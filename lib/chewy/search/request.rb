@@ -41,6 +41,7 @@ module Chewy
       def render
         @render ||= render_base.merge(@parameters.render)
       end
+      alias_method :inspect, :render
 
       %i(query filter post_filter).each do |name|
         define_method name do |value = nil, &block|
@@ -120,8 +121,13 @@ module Chewy
       end
 
       def count
-        @count ||= Chewy.client.count(render_simple)['count']
+        Chewy.client.count(render_simple)['count']
       end
+
+      def exists?
+        limit(0).terminate_after(1).total != 0
+      end
+      alias_method :exist?, :exists?
 
     protected
 

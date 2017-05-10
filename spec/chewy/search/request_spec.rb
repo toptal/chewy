@@ -34,6 +34,8 @@ describe Chewy::Search::Request do
       CitiesIndex::City.import!(cities.map { |h| double(h) })
     end
 
+    specify { expect(subject.first._data).to be_a Hash }
+
     context 'another index' do
       subject { described_class.new(CitiesIndex) }
 
@@ -66,6 +68,12 @@ describe Chewy::Search::Request do
       specify { expect(subject.limit(6).total).to eq(9) }
       specify { expect(subject.limit(6).total_count).to eq(9) }
       specify { expect(subject.offset(6).total_entries).to eq(9) }
+    end
+
+    describe '#highlight' do
+      specify { expect(subject.query(match: { name: 'name3' }).highlight(fields: { name: {} }).first.name).to eq('Name3') }
+      specify { expect(subject.query(match: { name: 'name3' }).highlight(fields: { name: {} }).first.name_highlight).to eq('<em>Name3</em>') }
+      specify { expect(subject.query(match: { name: 'name3' }).highlight(fields: { name: {} }).first._data['_source']['name']).to eq('Name3') }
     end
 
     describe '#delete_all' do
@@ -114,14 +122,22 @@ describe Chewy::Search::Request do
           types: [ProductsIndex::Product, ProductsIndex::City, ProductsIndex::Country]
         )
       end
+
+      describe '#exists?' do
+        specify { expect(subject.exists?).to be(true) }
+        specify { expect(subject.filter(match: { name: 'foo' }).exist?).to be(false) }
+      end
+    end
+
+    describe '#size' do
+      specify { expect(subject.size).to eq(9) }
+      specify { expect(subject.limit(6).size).to eq(6) }
+      specify { expect(subject.offset(6).size).to eq(3) }
     end
 
     describe '#count' do
-      specify { expect(subject.size).to eq(9) }
       specify { expect(subject.count).to eq(9) }
-      specify { expect(subject.limit(6).size).to eq(6) }
       specify { expect(subject.limit(6).count).to eq(9) }
-      specify { expect(subject.offset(6).size).to eq(3) }
       specify { expect(subject.offset(6).count).to eq(9) }
       specify { expect(subject.types(:product, :something).count).to eq(3) }
       specify { expect(subject.types(:product, :country).count).to eq(6) }
@@ -129,14 +145,6 @@ describe Chewy::Search::Request do
       specify { expect(subject.query(term: { age: 10 }).count).to eq(1) }
       specify { expect(subject.order(nil).count).to eq(9) }
     end
-
-    describe '#highlight' do
-      specify { expect(subject.query(match: { name: 'name3' }).highlight(fields: { name: {} }).first.name).to eq('Name3') }
-      specify { expect(subject.query(match: { name: 'name3' }).highlight(fields: { name: {} }).first.name_highlight).to eq('<em>Name3</em>') }
-      specify { expect(subject.query(match: { name: 'name3' }).highlight(fields: { name: {} }).first._data['_source']['name']).to eq('Name3') }
-    end
-
-    specify { expect(subject.first._data).to be_a Hash }
   end
 
   describe '#==' do

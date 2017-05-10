@@ -16,6 +16,7 @@ module Chewy
       configuration = Configs.with_name(name)
       config = configuration.deep_dup
       config.delete(:prefix) # used by Chewy, not relevant to Elasticsearch::Client
+      config[:adapter] = config[:adapter].to_sym if config.key?(:adapter)
       block = config[:transport_options].try(:delete, :proc)
       ::Elasticsearch::Client.new(config, &block)
     end

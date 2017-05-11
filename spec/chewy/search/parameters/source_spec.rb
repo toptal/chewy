@@ -16,30 +16,30 @@ describe Chewy::Search::Parameters::Source do
     specify { expect(described_class.new(includes: :foo, excludes: 42, enabled: false).value).to eq(includes: %w(foo), excludes: %w(42), enabled: true) }
   end
 
-  describe '#replace' do
+  describe '#replace!' do
     specify do
-      expect { subject.replace(nil) }
+      expect { subject.replace!(nil) }
         .to change { subject.value }
         .from(includes: %w(foo bar), excludes: [], enabled: true)
         .to(includes: [], excludes: [], enabled: true)
     end
 
     specify do
-      expect { subject.replace([:foo, :baz]) }
+      expect { subject.replace!([:foo, :baz]) }
         .to change { subject.value }
         .from(includes: %w(foo bar), excludes: [], enabled: true)
         .to(includes: %w(foo baz), excludes: [], enabled: true)
     end
 
     specify do
-      expect { subject.replace(excludes: 42) }
+      expect { subject.replace!(excludes: 42) }
         .to change { subject.value }
         .from(includes: %w(foo bar), excludes: [], enabled: true)
         .to(includes: [], excludes: %w(42), enabled: true)
     end
 
     specify do
-      expect { subject.replace(false) }
+      expect { subject.replace!(false) }
         .to change { subject.value }
         .from(includes: %w(foo bar), excludes: [], enabled: true)
         .to(includes: [], excludes: [], enabled: false)
@@ -49,7 +49,7 @@ describe Chewy::Search::Parameters::Source do
       before { subject.update(false) }
 
       specify do
-        expect { subject.replace(true) }
+        expect { subject.replace!(true) }
           .to change { subject.value }
           .from(includes: %w(foo bar), excludes: [], enabled: false)
           .to(includes: [], excludes: [], enabled: true)
@@ -97,29 +97,29 @@ describe Chewy::Search::Parameters::Source do
     end
   end
 
-  describe '#merge' do
+  describe '#merge!' do
     specify do
-      expect { subject.merge(described_class.new) }
+      expect { subject.merge!(described_class.new) }
         .not_to change { subject.value }
         .from(includes: %w(foo bar), excludes: [], enabled: true)
     end
 
     specify do
-      expect { subject.merge(described_class.new([:foo, :baz])) }
+      expect { subject.merge!(described_class.new([:foo, :baz])) }
         .to change { subject.value }
         .from(includes: %w(foo bar), excludes: [], enabled: true)
         .to(includes: %w(foo bar baz), excludes: [], enabled: true)
     end
 
     specify do
-      expect { subject.merge(described_class.new(excludes: 42)) }
+      expect { subject.merge!(described_class.new(excludes: 42)) }
         .to change { subject.value }
         .from(includes: %w(foo bar), excludes: [], enabled: true)
         .to(includes: %w(foo bar), excludes: %w(42), enabled: true)
     end
 
     specify do
-      expect { subject.merge(described_class.new(:baz).tap { |i| i.update(false) }) }
+      expect { subject.merge!(described_class.new(:baz).tap { |i| i.update(false) }) }
         .to change { subject.value }
         .from(includes: %w(foo bar), excludes: [], enabled: true)
         .to(includes: %w(foo bar baz), excludes: [], enabled: false)
@@ -129,7 +129,7 @@ describe Chewy::Search::Parameters::Source do
       before { subject.update(false) }
 
       specify do
-        expect { subject.merge(described_class.new(excludes: :baz).tap { |i| i.update(true) }) }
+        expect { subject.merge!(described_class.new(excludes: :baz).tap { |i| i.update(true) }) }
           .to change { subject.value }
           .from(includes: %w(foo bar), excludes: [], enabled: false)
           .to(includes: %w(foo bar), excludes: %w(baz), enabled: true)

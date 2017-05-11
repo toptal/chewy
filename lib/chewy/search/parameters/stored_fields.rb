@@ -10,7 +10,7 @@ module Chewy
           @value = new_value
         end
 
-        def merge(other)
+        def merge!(other)
           update(other.value[:stored_fields])
           update(other.value[:enabled])
         end

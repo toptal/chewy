@@ -13,7 +13,7 @@ module Chewy
           @value = new_value
         end
 
-        def merge(other)
+        def merge!(other)
           super
           update(other.value[:enabled])
         end

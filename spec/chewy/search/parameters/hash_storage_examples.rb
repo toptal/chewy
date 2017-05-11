@@ -9,15 +9,15 @@ shared_examples :hash_storage do |param_name|
     specify { expect(subject.value).to eq('field' => { foo: 'bar' }) }
   end
 
-  describe '#replace' do
+  describe '#replace!' do
     specify do
-      expect { subject.replace(nil) }
+      expect { subject.replace!(nil) }
         .to change { subject.value }
         .from('field' => { foo: 'bar' }).to({})
     end
 
     specify do
-      expect { subject.replace(other: { moo: 'baz' }) }
+      expect { subject.replace!(other: { moo: 'baz' }) }
         .to change { subject.value }
         .from('field' => { foo: 'bar' })
         .to('other' => { moo: 'baz' })
@@ -38,14 +38,14 @@ shared_examples :hash_storage do |param_name|
     end
   end
 
-  describe '#merge' do
+  describe '#merge!' do
     specify do
-      expect { subject.merge(described_class.new) }
+      expect { subject.merge!(described_class.new) }
         .not_to change { subject.value }
     end
 
     specify do
-      expect { subject.merge(described_class.new(other: { moo: 'baz' })) }
+      expect { subject.merge!(described_class.new(other: { moo: 'baz' })) }
         .to change { subject.value }
         .from('field' => { foo: 'bar' })
         .to('field' => { foo: 'bar' }, 'other' => { moo: 'baz' })

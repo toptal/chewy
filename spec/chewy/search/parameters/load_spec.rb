@@ -12,21 +12,21 @@ describe Chewy::Search::Parameters::Load do
     specify { expect(described_class.new(load_options: { foo: '42' }, loaded_objects: true, bar: '42').value).to eq(load_options: { foo: '42' }, loaded_objects: true) }
   end
 
-  describe '#replace' do
+  describe '#replace!' do
     specify do
-      expect { subject.replace(bar: '43') }
+      expect { subject.replace!(bar: '43') }
         .to change { subject.value }
         .from(load_options: { foo: '42' }, loaded_objects: false)
         .to(load_options: { bar: '43' }, loaded_objects: false)
     end
     specify do
-      expect { subject.replace(foo: '43') }
+      expect { subject.replace!(foo: '43') }
         .to change { subject.value }
         .from(load_options: { foo: '42' }, loaded_objects: false)
         .to(load_options: { foo: '43' }, loaded_objects: false)
     end
     specify do
-      expect { subject.replace(loaded_objects: true) }
+      expect { subject.replace!(loaded_objects: true) }
         .to change { subject.value }
         .from(load_options: { foo: '42' }, loaded_objects: false)
         .to(load_options: {}, loaded_objects: true)
@@ -36,14 +36,14 @@ describe Chewy::Search::Parameters::Load do
       subject { described_class.new(loaded_objects: true) }
 
       specify do
-        expect { subject.replace(loaded_objects: false) }
+        expect { subject.replace!(loaded_objects: false) }
           .to change { subject.value }
           .from(load_options: {}, loaded_objects: true)
           .to(load_options: {}, loaded_objects: false)
       end
 
       specify do
-        expect { subject.replace(foo: '42') }
+        expect { subject.replace!(foo: '42') }
           .to change { subject.value }
           .from(load_options: {}, loaded_objects: true)
           .to(load_options: { foo: '42' }, loaded_objects: false)
@@ -88,21 +88,21 @@ describe Chewy::Search::Parameters::Load do
     end
   end
 
-  describe '#merge' do
+  describe '#merge!' do
     specify do
-      expect { subject.merge(described_class.new(bar: '43')) }
+      expect { subject.merge!(described_class.new(bar: '43')) }
         .to change { subject.value }
         .from(load_options: { foo: '42' }, loaded_objects: false)
         .to(load_options: { foo: '42', bar: '43' }, loaded_objects: false)
     end
     specify do
-      expect { subject.merge(described_class.new(foo: '43')) }
+      expect { subject.merge!(described_class.new(foo: '43')) }
         .to change { subject.value }
         .from(load_options: { foo: '42' }, loaded_objects: false)
         .to(load_options: { foo: '43' }, loaded_objects: false)
     end
     specify do
-      expect { subject.merge(described_class.new(loaded_objects: true)) }
+      expect { subject.merge!(described_class.new(loaded_objects: true)) }
         .to change { subject.value }
         .from(load_options: { foo: '42' }, loaded_objects: false)
         .to(load_options: { foo: '42' }, loaded_objects: true)
@@ -111,7 +111,7 @@ describe Chewy::Search::Parameters::Load do
     context do
       subject { described_class.new(loaded_objects: true) }
       specify do
-        expect { subject.merge(described_class.new(loaded_objects: false)) }
+        expect { subject.merge!(described_class.new(loaded_objects: false)) }
           .not_to change { subject.value }
       end
     end

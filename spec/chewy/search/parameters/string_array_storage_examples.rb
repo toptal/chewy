@@ -11,15 +11,15 @@ shared_examples :string_array_storage do |param_name|
     specify { expect(subject.value).to eq(%w(foo bar)) }
   end
 
-  describe '#replace' do
+  describe '#replace!' do
     specify do
-      expect { subject.replace(nil) }
+      expect { subject.replace!(nil) }
         .to change { subject.value }
         .from(%w(foo bar)).to([])
     end
 
     specify do
-      expect { subject.replace([:foo, :baz]) }
+      expect { subject.replace!([:foo, :baz]) }
         .to change { subject.value }
         .from(%w(foo bar)).to(%w(foo baz))
     end
@@ -38,14 +38,14 @@ shared_examples :string_array_storage do |param_name|
     end
   end
 
-  describe '#merge' do
+  describe '#merge!' do
     specify do
-      expect { subject.merge(described_class.new) }
+      expect { subject.merge!(described_class.new) }
         .not_to change { subject.value }
     end
 
     specify do
-      expect { subject.merge(described_class.new([:foo, :baz])) }
+      expect { subject.merge!(described_class.new([:foo, :baz])) }
         .to change { subject.value }
         .from(%w(foo bar)).to(%w(foo bar baz))
     end

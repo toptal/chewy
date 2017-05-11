@@ -10,14 +10,14 @@ describe Chewy::Search::Parameters::IndicesBoost do
     specify { expect(described_class.new(index: '1.2', other: 2).value).to eq('index' => 1.2, 'other' => 2.0) }
   end
 
-  describe '#replace' do
+  describe '#replace!' do
     specify do
-      expect { subject.replace(nil) }
+      expect { subject.replace!(nil) }
         .to change { subject.value }.from('index' => 1.2).to({})
     end
 
     specify do
-      expect { subject.replace(other: 3.1) }
+      expect { subject.replace!(other: 3.1) }
         .to change { subject.value }
         .from('index' => 1.2).to('other' => 3.1)
     end
@@ -52,14 +52,14 @@ describe Chewy::Search::Parameters::IndicesBoost do
     end
   end
 
-  describe '#merge' do
+  describe '#merge!' do
     specify do
-      expect { subject.merge(described_class.new) }
+      expect { subject.merge!(described_class.new) }
         .not_to change { subject.value }
     end
 
     specify do
-      expect { subject.merge(described_class.new(other: 3.1)) }
+      expect { subject.merge!(described_class.new(other: 3.1)) }
         .to change { subject.value }
         .from('index' => 1.2)
         .to('index' => 1.2, 'other' => 3.1)

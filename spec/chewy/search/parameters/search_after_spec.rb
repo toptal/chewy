@@ -9,9 +9,9 @@ describe Chewy::Search::Parameters::SearchAfter do
     specify { expect(described_class.new(nil).value).to be_nil }
   end
 
-  describe '#replace' do
-    specify { expect { subject.replace(:baz) }.to change { subject.value }.from([:foo, 42]).to([:baz]) }
-    specify { expect { subject.replace(nil) }.to change { subject.value }.from([:foo, 42]).to(nil) }
+  describe '#replace!' do
+    specify { expect { subject.replace!(:baz) }.to change { subject.value }.from([:foo, 42]).to([:baz]) }
+    specify { expect { subject.replace!(nil) }.to change { subject.value }.from([:foo, 42]).to(nil) }
   end
 
   describe '#update' do
@@ -19,9 +19,9 @@ describe Chewy::Search::Parameters::SearchAfter do
     specify { expect { subject.update(nil) }.to change { subject.value }.from([:foo, 42]).to(nil) }
   end
 
-  describe '#merge' do
-    specify { expect { subject.merge(described_class.new(:baz)) }.to change { subject.value }.from([:foo, 42]).to([:baz]) }
-    specify { expect { subject.merge(described_class.new) }.to change { subject.value }.from([:foo, 42]).to(nil) }
+  describe '#merge!' do
+    specify { expect { subject.merge!(described_class.new(:baz)) }.to change { subject.value }.from([:foo, 42]).to([:baz]) }
+    specify { expect { subject.merge!(described_class.new) }.to change { subject.value }.from([:foo, 42]).to(nil) }
   end
 
   describe '#render' do

@@ -10,9 +10,9 @@ shared_examples :bool_storage do |param_name|
     specify { expect(described_class.new(nil).value).to eq(false) }
   end
 
-  describe '#replace' do
-    specify { expect { subject.replace(false) }.to change { subject.value }.from(true).to(false) }
-    specify { expect { subject.replace(nil) }.to change { subject.value }.from(true).to(false) }
+  describe '#replace!' do
+    specify { expect { subject.replace!(false) }.to change { subject.value }.from(true).to(false) }
+    specify { expect { subject.replace!(nil) }.to change { subject.value }.from(true).to(false) }
   end
 
   describe '#update' do
@@ -20,9 +20,16 @@ shared_examples :bool_storage do |param_name|
     specify { expect { subject.update(nil) }.to change { subject.value }.from(true).to(false) }
   end
 
-  describe '#merge' do
-    specify { expect { subject.merge(described_class.new(false)) }.to change { subject.value }.from(true).to(false) }
-    specify { expect { subject.merge(described_class.new) }.to change { subject.value }.from(true).to(false) }
+  describe '#merge!' do
+    specify { expect { subject.merge!(described_class.new) }.not_to change { subject.value }.from(true) }
+    specify { expect { subject.merge!(described_class.new(true)) }.not_to change { subject.value }.from(true) }
+
+    context do
+      subject { described_class.new }
+
+      specify { expect { subject.merge!(described_class.new) }.not_to change { subject.value }.from(false) }
+      specify { expect { subject.merge!(described_class.new(true)) }.to change { subject.value }.from(false).to(true) }
+    end
   end
 
   describe '#render' do

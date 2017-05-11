@@ -33,20 +33,20 @@ describe Chewy::Search::Parameters do
 
   describe '#modify!' do
     it 'updates the storage value' do
-      expect { subject.modify!(:limit) { replace(42) } }
+      expect { subject.modify!(:limit) { replace!(42) } }
         .to change { subject[:limit].value }
         .from(nil).to(42)
     end
 
     it 'replaces the storage' do
-      expect { subject.modify!(:limit) { replace(42) } }
+      expect { subject.modify!(:limit) { replace!(42) } }
         .to change { subject[:limit].object_id }
     end
 
     it 'doesn\'t change the old object' do
-      subject.modify!(:limit) { replace(42) }
+      subject.modify!(:limit) { replace!(42) }
       old_limit = subject[:limit]
-      subject.modify!(:limit) { replace(43) }
+      subject.modify!(:limit) { replace!(43) }
       expect(old_limit.value).to eq(42)
     end
   end

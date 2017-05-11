@@ -13,15 +13,15 @@ describe Chewy::Search::Parameters::Order do
     specify { expect(described_class.new(['', 43, a: 1]).value).to eq('a' => 1, '43' => nil) }
   end
 
-  describe '#replace' do
+  describe '#replace!' do
     specify do
-      expect { subject.replace(foo: {}) }
+      expect { subject.replace!(foo: {}) }
         .to change { subject.value }
         .from('foo' => nil, 'bar' => nil).to('foo' => {})
     end
 
     specify do
-      expect { subject.replace(nil) }
+      expect { subject.replace!(nil) }
         .to change { subject.value }
         .from('foo' => nil, 'bar' => nil).to({})
     end
@@ -37,14 +37,14 @@ describe Chewy::Search::Parameters::Order do
     specify { expect { subject.update(nil) }.not_to change { subject.value } }
   end
 
-  describe '#merge' do
+  describe '#merge!' do
     specify do
-      expect { subject.merge(described_class.new(foo: {})) }
+      expect { subject.merge!(described_class.new(foo: {})) }
         .to change { subject.value }
         .from('foo' => nil, 'bar' => nil).to('foo' => {}, 'bar' => nil)
     end
 
-    specify { expect { subject.merge(described_class.new) }.not_to change { subject.value } }
+    specify { expect { subject.merge!(described_class.new) }.not_to change { subject.value } }
   end
 
   describe '#render' do

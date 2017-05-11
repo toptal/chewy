@@ -68,18 +68,18 @@ module Chewy
       end
 
       def reorder(value, *values)
-        modify(:order) { replace([value, *values]) }
+        modify(:order) { replace!([value, *values]) }
       end
 
       %i(track_scores request_cache explain version profile none).each do |name|
         define_method name do |value = true|
-          modify(name) { replace(value) }
+          modify(name) { replace!(value) }
         end
       end
 
       %i(search_type preference limit offset terminate_after timeout min_score).each do |name|
         define_method name do |value|
-          modify(name) { replace(value) }
+          modify(name) { replace!(value) }
         end
       end
 
@@ -90,15 +90,15 @@ module Chewy
       end
 
       def search_after(value, *values)
-        modify(:search_after) { replace(values.empty? ? value : [value, *values]) }
+        modify(:search_after) { replace!(values.empty? ? value : [value, *values]) }
       end
 
       def load(options = nil)
-        modify(:load) { replace(load_options: options, loaded_objects: true) }
+        modify(:load) { replace!(load_options: options, loaded_objects: true) }
       end
 
       def preload(options = nil)
-        modify(:load) { replace(options) }
+        modify(:load) { replace!(options) }
       end
 
       %i(script_fields suggest indices_boost rescore highlight).each do |name|

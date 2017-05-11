@@ -44,7 +44,7 @@ module Chewy
 
       def merge!(other)
         other.storages.each do |name, storage|
-          modify!(name) { merge(storage) }
+          modify!(name) { merge!(storage) }
         end
       end
 

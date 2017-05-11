@@ -10,9 +10,9 @@ describe Chewy::Search::Parameters::MinScore do
     specify { expect(described_class.new(nil).value).to be_nil }
   end
 
-  describe '#replace' do
-    specify { expect { subject.replace(1.4) }.to change { subject.value }.from(0.5).to(1.4) }
-    specify { expect { subject.replace(nil) }.to change { subject.value }.from(0.5).to(nil) }
+  describe '#replace!' do
+    specify { expect { subject.replace!(1.4) }.to change { subject.value }.from(0.5).to(1.4) }
+    specify { expect { subject.replace!(nil) }.to change { subject.value }.from(0.5).to(nil) }
   end
 
   describe '#update' do
@@ -20,9 +20,9 @@ describe Chewy::Search::Parameters::MinScore do
     specify { expect { subject.update(nil) }.to change { subject.value }.from(0.5).to(nil) }
   end
 
-  describe '#merge' do
-    specify { expect { subject.merge(described_class.new('2')) }.to change { subject.value }.from(0.5).to(2.0) }
-    specify { expect { subject.merge(described_class.new) }.to change { subject.value }.from(0.5).to(nil) }
+  describe '#merge!' do
+    specify { expect { subject.merge!(described_class.new('2')) }.to change { subject.value }.from(0.5).to(2.0) }
+    specify { expect { subject.merge!(described_class.new) }.to change { subject.value }.from(0.5).to(nil) }
   end
 
   describe '#render' do

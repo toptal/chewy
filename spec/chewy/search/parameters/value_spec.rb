@@ -37,9 +37,9 @@ describe Chewy::Search::Parameters::Value do
     end
   end
 
-  describe '#replace' do
-    specify { expect { subject.replace(42) }.to change { subject.value }.from(nil).to(42) }
-    specify { expect { subject.replace('42') }.to change { subject.value }.from(nil).to('42') }
+  describe '#replace!' do
+    specify { expect { subject.replace!(42) }.to change { subject.value }.from(nil).to(42) }
+    specify { expect { subject.replace!('42') }.to change { subject.value }.from(nil).to('42') }
   end
 
   describe '#update' do
@@ -47,9 +47,9 @@ describe Chewy::Search::Parameters::Value do
     specify { expect { subject.update(:symbol) }.to change { subject.value }.from(nil).to(:symbol) }
   end
 
-  describe '#merge' do
+  describe '#merge!' do
     let(:other) { described_class.new(['something']) }
-    specify { expect { subject.merge(other) }.to change { subject.value }.from(nil).to(['something']) }
+    specify { expect { subject.merge!(other) }.to change { subject.value }.from(nil).to(['something']) }
   end
 
   describe '#render' do

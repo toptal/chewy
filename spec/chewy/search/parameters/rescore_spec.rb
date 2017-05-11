@@ -11,15 +11,15 @@ describe Chewy::Search::Parameters::Rescore do
     specify { expect(subject.value).to eq([{ foo: 42 }, { bar: 43 }]) }
   end
 
-  describe '#replace' do
+  describe '#replace!' do
     specify do
-      expect { subject.replace(nil) }
+      expect { subject.replace!(nil) }
         .to change { subject.value }
         .from([{ foo: 42 }, { bar: 43 }]).to([])
     end
 
     specify do
-      expect { subject.replace(baz: 44) }
+      expect { subject.replace!(baz: 44) }
         .to change { subject.value }
         .from([{ foo: 42 }, { bar: 43 }])
         .to([{ baz: 44 }])
@@ -40,14 +40,14 @@ describe Chewy::Search::Parameters::Rescore do
     end
   end
 
-  describe '#merge' do
+  describe '#merge!' do
     specify do
-      expect { subject.merge(described_class.new) }
+      expect { subject.merge!(described_class.new) }
         .not_to change { subject.value }
     end
 
     specify do
-      expect { subject.merge(described_class.new(baz: 44)) }
+      expect { subject.merge!(described_class.new(baz: 44)) }
         .to change { subject.value }
         .from([{ foo: 42 }, { bar: 43 }])
         .to([{ foo: 42 }, { bar: 43 }, { baz: 44 }])

@@ -9,9 +9,9 @@ shared_examples :string_storage do |param_name|
     specify { expect(described_class.new('').value).to be_nil }
   end
 
-  describe '#replace' do
-    specify { expect { subject.replace('bar') }.to change { subject.value }.from('foo').to('bar') }
-    specify { expect { subject.replace('') }.to change { subject.value }.from('foo').to(nil) }
+  describe '#replace!' do
+    specify { expect { subject.replace!('bar') }.to change { subject.value }.from('foo').to('bar') }
+    specify { expect { subject.replace!('') }.to change { subject.value }.from('foo').to(nil) }
   end
 
   describe '#update' do
@@ -19,9 +19,9 @@ shared_examples :string_storage do |param_name|
     specify { expect { subject.update('') }.to change { subject.value }.from('foo').to(nil) }
   end
 
-  describe '#merge' do
-    specify { expect { subject.merge(described_class.new('bar')) }.to change { subject.value }.from('foo').to('bar') }
-    specify { expect { subject.merge(described_class.new) }.to change { subject.value }.from('foo').to(nil) }
+  describe '#merge!' do
+    specify { expect { subject.merge!(described_class.new('bar')) }.to change { subject.value }.from('foo').to('bar') }
+    specify { expect { subject.merge!(described_class.new) }.to change { subject.value }.from('foo').to(nil) }
   end
 
   describe '#render' do

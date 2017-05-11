@@ -25,18 +25,18 @@ module Chewy
         end
 
         def and(value)
-          replace(must: join(value))
+          replace!(must: join(value))
         end
 
         def or(value)
-          replace(should: join(value))
+          replace!(should: join(value))
         end
 
         def not(value)
           update(must_not: reduce(normalize(value)))
         end
 
-        def merge(other)
+        def merge!(other)
           self.and(other.value)
         end
 

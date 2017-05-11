@@ -10,19 +10,19 @@ module Chewy
         end
 
         def initialize(value = nil)
-          replace(value)
+          replace!(value)
         end
 
         def ==(other)
           super || other.class == self.class && other.value == @value
         end
 
-        def replace(value)
+        def replace!(value)
           @value = normalize(value)
         end
-        alias_method :update, :replace
+        alias_method :update, :replace!
 
-        def merge(other)
+        def merge!(other)
           update(other.value)
         end
 

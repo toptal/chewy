@@ -57,13 +57,6 @@ describe Chewy::Search::Request do
       specify { expect(subject.size).to eq(9) }
     end
 
-    xcontext 'everythig' do
-      subject { described_class.new }
-
-      specify { expect(subject.limit(20).count).to eq(12) }
-      specify { expect(subject.limit(20).size).to eq(12) }
-    end
-
     describe '#total' do
       specify { expect(subject.limit(6).total).to eq(9) }
       specify { expect(subject.limit(6).total_count).to eq(9) }
@@ -126,6 +119,16 @@ describe Chewy::Search::Request do
       describe '#exists?' do
         specify { expect(subject.exists?).to be(true) }
         specify { expect(subject.filter(match: { name: 'foo' }).exist?).to be(false) }
+      end
+
+      describe '#find' do
+        specify { expect(subject.find('1')).to be_a(ProductsIndex::Product).and have_attributes(id: '1') }
+        specify { expect(subject.limit(2).find('1', '3', '7').map(&:id)).to contain_exactly('1', '3', '7') }
+        specify { expect { subject.find('1', '3', '42') }.to raise_error Chewy::DocumentNotFound, 'Could not find documents for ids: 42' }
+        specify { expect { subject.query(match: { name: 'name3' }).find('1', '3') }.to raise_error Chewy::DocumentNotFound, 'Could not find documents for ids: 1' }
+        specify { expect { subject.query(match: { name: 'name2' }).find('1', '3') }.to raise_error Chewy::DocumentNotFound, 'Could not find documents for ids: 1 and 3' }
+        specify { expect { subject.filter(match: { name: 'name2' }).find('1', '3') }.to raise_error Chewy::DocumentNotFound, 'Could not find documents for ids: 1 and 3' }
+        specify { expect { subject.post_filter(match: { name: 'name2' }).find('1', '3') }.to raise_error Chewy::DocumentNotFound, 'Could not find documents for ids: 1 and 3' }
       end
     end
 

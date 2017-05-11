@@ -86,8 +86,7 @@ module Chewy
       def assert_storages(names)
         raise ArgumentError, 'No storage names were passed' if names.empty?
         names = names.map(&:to_sym)
-        unknown_storages = names - self.class.storages.keys
-        raise ArgumentError, "Unknown storages: #{unknown_storages}" if unknown_storages.present?
+        self.class.storages.values_at(*names)
         names
       end
     end

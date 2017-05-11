@@ -56,7 +56,7 @@ describe Chewy::Search::Parameters do
 
     specify { expect { subject.only!([:limit]) }.to change { subject.clone }.to(described_class.new(limit: 10)) }
     specify { expect { subject.only!([:offset, :order]) }.to change { subject.clone }.to(described_class.new(offset: 20, order: :foo)) }
-    specify { expect { subject.only!([:limit, :something]) }.to raise_error ArgumentError }
+    specify { expect { subject.only!([:limit, :something]) }.to raise_error NameError }
     specify { expect { subject.only!([]) }.to raise_error ArgumentError }
   end
 
@@ -65,7 +65,7 @@ describe Chewy::Search::Parameters do
 
     specify { expect { subject.except!([:limit]) }.to change { subject.clone }.to(described_class.new(offset: 20, order: :foo)) }
     specify { expect { subject.except!([:offset, :order]) }.to change { subject.clone }.to(described_class.new(limit: 10)) }
-    specify { expect { subject.except!([:limit, :something]) }.to raise_error ArgumentError }
+    specify { expect { subject.except!([:limit, :something]) }.to raise_error NameError }
     specify { expect { subject.except!([]) }.to raise_error ArgumentError }
   end
 

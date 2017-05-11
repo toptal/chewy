@@ -19,7 +19,7 @@ module Chewy
            timeout min_score source stored_fields search_after
            load preload script_fields suggest indices_boost
            rescore highlight total total_count total_entries
-           types delete_all)
+           types delete_all count exists? exist? find)
       end
 
       def initialize(*indexes_or_types)
@@ -139,6 +139,15 @@ module Chewy
 
       def merge(other)
         chain { parameters.merge!(other.parameters) }
+      end
+
+      def find(*ids)
+        ids = ids.flatten(1)
+        results = only(:query, :filter, :post_filter).filter(terms: { _id: ids }).to_a
+
+        missing_ids = ids - results.map(&:id)
+        raise Chewy::DocumentNotFound, "Could not find documents for ids: #{missing_ids.to_sentence}" if missing_ids.present?
+        results.one? ? results.first : results
       end
 
     protected

@@ -7,7 +7,7 @@ describe Chewy::Search::Parameters::MinScore do
     specify { expect(described_class.new.value).to be_nil }
     specify { expect(described_class.new('1.4').value).to eq(1.4) }
     specify { expect(described_class.new(2).value).to eq(2.0) }
-    specify { expect(described_class.new(nil).value).to eq(nil) }
+    specify { expect(described_class.new(nil).value).to be_nil }
   end
 
   describe '#replace' do
@@ -26,7 +26,7 @@ describe Chewy::Search::Parameters::MinScore do
   end
 
   describe '#render' do
-    specify { expect(described_class.new.render).to eq(nil) }
+    specify { expect(described_class.new.render).to be_nil }
     specify { expect(described_class.new('1.4').render).to eq(min_score: 1.4) }
   end
 end

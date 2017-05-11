@@ -71,7 +71,7 @@ module Chewy
         modify(:order) { replace([value, *values]) }
       end
 
-      %i(track_scores request_cache explain version profile).each do |name|
+      %i(track_scores request_cache explain version profile none).each do |name|
         define_method name do |value = true|
           modify(name) { replace(value) }
         end
@@ -178,7 +178,11 @@ module Chewy
       end
 
       def perform
-        Chewy.client.search(render)
+        if parameters[:none].value
+          {}
+        else
+          Chewy.client.search(render)
+        end
       rescue Elasticsearch::Transport::Transport::Errors::NotFound
         {}
       end

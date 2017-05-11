@@ -6,7 +6,7 @@ shared_examples :string_storage do |param_name|
   describe '#initialize' do
     specify { expect(subject.value).to eq('foo') }
     specify { expect(described_class.new(42).value).to eq('42') }
-    specify { expect(described_class.new('').value).to eq(nil) }
+    specify { expect(described_class.new('').value).to be_nil }
   end
 
   describe '#replace' do
@@ -25,7 +25,7 @@ shared_examples :string_storage do |param_name|
   end
 
   describe '#render' do
-    specify { expect(described_class.new.render).to eq(nil) }
+    specify { expect(described_class.new.render).to be_nil }
     specify { expect(subject.render).to eq(param_name => 'foo') }
   end
 end

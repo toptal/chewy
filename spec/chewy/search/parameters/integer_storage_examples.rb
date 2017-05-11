@@ -7,7 +7,7 @@ shared_examples :integer_storage do |param_name|
     specify { expect(described_class.new.value).to be_nil }
     specify { expect(described_class.new('42').value).to eq(42) }
     specify { expect(described_class.new(33.3).value).to eq(33) }
-    specify { expect(described_class.new(nil).value).to eq(nil) }
+    specify { expect(described_class.new(nil).value).to be_nil }
   end
 
   describe '#replace' do
@@ -26,7 +26,7 @@ shared_examples :integer_storage do |param_name|
   end
 
   describe '#render' do
-    specify { expect(described_class.new.render).to eq(nil) }
+    specify { expect(described_class.new.render).to be_nil }
     specify { expect(described_class.new('42').render).to eq(param_name => 42) }
   end
 end

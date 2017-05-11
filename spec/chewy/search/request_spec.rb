@@ -148,6 +148,11 @@ describe Chewy::Search::Request do
       specify { expect(subject.query(term: { age: 10 }).count).to eq(1) }
       specify { expect(subject.order(nil).count).to eq(9) }
     end
+
+    describe '#none' do
+      specify { expect(subject.none.render).not_to have_key(:body) }
+      specify { expect(subject.none).to eq([]) }
+    end
   end
 
   describe '#==' do

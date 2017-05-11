@@ -6,7 +6,7 @@ describe Chewy::Search::Parameters::SearchAfter do
   describe '#initialize' do
     specify { expect(described_class.new.value).to be_nil }
     specify { expect(described_class.new(:foo).value).to eq([:foo]) }
-    specify { expect(described_class.new(nil).value).to eq(nil) }
+    specify { expect(described_class.new(nil).value).to be_nil }
   end
 
   describe '#replace' do
@@ -25,7 +25,7 @@ describe Chewy::Search::Parameters::SearchAfter do
   end
 
   describe '#render' do
-    specify { expect(described_class.new.render).to eq(nil) }
+    specify { expect(described_class.new.render).to be_nil }
     specify { expect(described_class.new(:baz).render).to eq(search_after: [:baz]) }
     specify { expect(subject.render).to eq(search_after: [:foo, 42]) }
   end

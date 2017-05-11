@@ -26,7 +26,12 @@ shared_examples :bool_storage do |param_name|
   end
 
   describe '#render' do
-    specify { expect(described_class.new.render).to eq(nil) }
-    specify { expect(subject.render).to eq(param_name => true) }
+    specify { expect(described_class.new.render).to be_nil }
+
+    if param_name
+      specify { expect(subject.render).to eq(param_name => true) }
+    else
+      specify { expect(subject.render).to be_nil }
+    end
   end
 end

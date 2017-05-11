@@ -60,6 +60,39 @@ describe Chewy::Search::Response, :orm do
     end
   end
 
+  describe '#took' do
+    specify { expect(subject.took).to be >= 0 }
+
+    context do
+      let(:request) do
+        Chewy::Search::Request.new(PlacesIndex)
+          .query(script: { script: { inline: 'sleep(100); true', lang: 'groovy' } })
+      end
+      specify { expect(subject.took).to be > 100 }
+    end
+  end
+
+  describe '#timed_out?' do
+    specify { expect(subject.timed_out?).to eq(false) }
+
+    context do
+      let(:request) do
+        Chewy::Search::Request.new(PlacesIndex)
+          .query(script: { script: { inline: 'sleep(100); true', lang: 'groovy' } }).timeout('10ms')
+      end
+      specify { expect(subject.timed_out?).to eq(true) }
+    end
+  end
+
+  describe '#max_score' do
+    specify { expect(subject.max_score).to be_nil }
+
+    context do
+      let(:request) { Chewy::Search::Request.new(PlacesIndex).query(range: { rating: { lte: 42 } }) }
+      specify { expect(subject.max_score).to eq(1.0) }
+    end
+  end
+
   describe '#results' do
     specify { expect(subject.results).to be_a(Array) }
     specify { expect(subject.results).to have(4).items }

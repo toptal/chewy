@@ -9,11 +9,23 @@ module Chewy
       end
 
       def hits
-        @hits ||= @body.fetch('hits', {}).fetch('hits', [])
+        @hits ||= hits_root['hits'] || []
       end
 
       def total
-        @total ||= @body['hits'].try(:[], 'total') || 0
+        @total ||= hits_root['total'] || 0
+      end
+
+      def took
+        @took ||= @body['took']
+      end
+
+      def timed_out?
+        @timed_out ||= @body['timed_out']
+      end
+
+      def max_score
+        @max_score ||= hits_root['max_score']
       end
 
       def results
@@ -66,6 +78,10 @@ module Chewy
         results.map do |result|
           loaded_objects[result.class][result] if loaded_objects[result.class]
         end
+      end
+
+      def hits_root
+        @body.fetch('hits', {})
       end
     end
   end

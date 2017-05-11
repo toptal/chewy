@@ -4,7 +4,7 @@ module Chewy
   module Search
     class Parameters
       class Rescore < Value
-        def update(value)
+        def update!(value)
           @value |= normalize(value)
         end
 

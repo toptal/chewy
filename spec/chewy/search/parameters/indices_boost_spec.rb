@@ -23,29 +23,29 @@ describe Chewy::Search::Parameters::IndicesBoost do
     end
   end
 
-  describe '#update' do
+  describe '#update!' do
     specify do
-      expect { subject.update(nil) }
+      expect { subject.update!(nil) }
         .not_to change { subject.value }
     end
 
     specify do
-      expect { subject.update(other: 3.1) }
+      expect { subject.update!(other: 3.1) }
         .to change { subject.value }
         .from('index' => 1.2).to('index' => 1.2, 'other' => 3.1)
     end
 
     context do
-      before { subject.update(other: 3.1) }
+      before { subject.update!(other: 3.1) }
 
       specify do
-        expect { subject.update(index: 1.5) }
+        expect { subject.update!(index: 1.5) }
           .to change { subject.value }
           .from('index' => 1.2, 'other' => 3.1).to('index' => 1.5, 'other' => 3.1)
       end
 
       specify do
-        expect { subject.update(index: 1.5) }
+        expect { subject.update!(index: 1.5) }
           .to change { subject.value.keys }
           .from(%w(index other)).to(%w(other index))
       end
@@ -70,6 +70,6 @@ describe Chewy::Search::Parameters::IndicesBoost do
     specify { expect(described_class.new.render).to be_nil }
     specify { expect(described_class.new(index: 1.2).render).to eq(indices_boost: [{ 'index' => 1.2 }]) }
     specify { expect(described_class.new(index: 1.2, other: 1.3).render).to eq(indices_boost: [{ 'index' => 1.2 }, { 'other' => 1.3 }]) }
-    specify { expect(described_class.new(index: 1.2, other: 1.3).tap { |i| i.update(index: '1.5') }.render).to eq(indices_boost: [{ 'other' => 1.3 }, { 'index' => 1.5 }]) }
+    specify { expect(described_class.new(index: 1.2, other: 1.3).tap { |i| i.update!(index: '1.5') }.render).to eq(indices_boost: [{ 'other' => 1.3 }, { 'index' => 1.5 }]) }
   end
 end

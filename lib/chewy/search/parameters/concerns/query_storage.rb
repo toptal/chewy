@@ -6,22 +6,22 @@ module Chewy
       module QueryStorage
         DEFAULT = { must: [], should: [], must_not: [] }.freeze
 
-        def update(value)
+        def update!(value)
           @value = normalize(value).each do |key, component|
             component.unshift(*@value[key])
           end
         end
 
         def must(value)
-          update(must: value)
+          update!(must: value)
         end
 
         def should(value)
-          update(should: value)
+          update!(should: value)
         end
 
         def must_not(value)
-          update(must_not: value)
+          update!(must_not: value)
         end
 
         def and(value)
@@ -33,7 +33,7 @@ module Chewy
         end
 
         def not(value)
-          update(must_not: reduce(normalize(value)))
+          update!(must_not: reduce(normalize(value)))
         end
 
         def merge!(other)

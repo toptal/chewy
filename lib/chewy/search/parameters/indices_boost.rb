@@ -4,7 +4,7 @@ module Chewy
   module Search
     class Parameters
       class IndicesBoost < Value
-        def update(value)
+        def update!(value)
           new_value = normalize(value)
           @value.except!(*new_value.keys).merge!(new_value)
         end

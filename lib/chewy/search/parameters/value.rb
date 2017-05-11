@@ -20,10 +20,10 @@ module Chewy
         def replace!(value)
           @value = normalize(value)
         end
-        alias_method :update, :replace!
+        alias_method :update!, :replace!
 
         def merge!(other)
-          update(other.value)
+          update!(other.value)
         end
 
         def render

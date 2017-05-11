@@ -2,7 +2,7 @@ module Chewy
   module Search
     class Parameters
       module StringArrayStorage
-        def update(value)
+        def update!(value)
           @value |= normalize(value)
         end
 

@@ -36,7 +36,7 @@ describe Chewy::Search::Parameters::StoredFields do
     end
 
     context do
-      before { subject.update(false) }
+      before { subject.update!(false) }
 
       specify do
         expect { subject.replace!(true) }
@@ -47,32 +47,32 @@ describe Chewy::Search::Parameters::StoredFields do
     end
   end
 
-  describe '#update' do
+  describe '#update!' do
     specify do
-      expect { subject.update(nil) }
+      expect { subject.update!(nil) }
         .not_to change { subject.value }
         .from(stored_fields: %w(foo bar), enabled: true)
     end
 
     specify do
-      expect { subject.update([:foo, :baz]) }
+      expect { subject.update!([:foo, :baz]) }
         .to change { subject.value }
         .from(stored_fields: %w(foo bar), enabled: true)
         .to(stored_fields: %w(foo bar baz), enabled: true)
     end
 
     specify do
-      expect { subject.update(false) }
+      expect { subject.update!(false) }
         .to change { subject.value }
         .from(stored_fields: %w(foo bar), enabled: true)
         .to(stored_fields: %w(foo bar), enabled: false)
     end
 
     context do
-      before { subject.update(false) }
+      before { subject.update!(false) }
 
       specify do
-        expect { subject.update(true) }
+        expect { subject.update!(true) }
           .to change { subject.value }
           .from(stored_fields: %w(foo bar), enabled: false)
           .to(stored_fields: %w(foo bar), enabled: true)
@@ -95,17 +95,17 @@ describe Chewy::Search::Parameters::StoredFields do
     end
 
     specify do
-      expect { subject.merge!(described_class.new(:baz).tap { |i| i.update(false) }) }
+      expect { subject.merge!(described_class.new(:baz).tap { |i| i.update!(false) }) }
         .to change { subject.value }
         .from(stored_fields: %w(foo bar), enabled: true)
         .to(stored_fields: %w(foo bar baz), enabled: false)
     end
 
     context do
-      before { subject.update(false) }
+      before { subject.update!(false) }
 
       specify do
-        expect { subject.merge!(described_class.new(:baz).tap { |i| i.update(true) }) }
+        expect { subject.merge!(described_class.new(:baz).tap { |i| i.update!(true) }) }
           .to change { subject.value }
           .from(stored_fields: %w(foo bar), enabled: false)
           .to(stored_fields: %w(foo bar baz), enabled: true)
@@ -119,7 +119,7 @@ describe Chewy::Search::Parameters::StoredFields do
     specify { expect(described_class.new(false).render).to eq(stored_fields: '_none_') }
 
     context do
-      before { subject.update(false) }
+      before { subject.update!(false) }
       specify { expect(subject.render).to eq(stored_fields: '_none_') }
     end
   end

@@ -42,9 +42,9 @@ describe Chewy::Search::Parameters::Value do
     specify { expect { subject.replace!('42') }.to change { subject.value }.from(nil).to('42') }
   end
 
-  describe '#update' do
-    specify { expect { subject.update(true) }.to change { subject.value }.from(nil).to(true) }
-    specify { expect { subject.update(:symbol) }.to change { subject.value }.from(nil).to(:symbol) }
+  describe '#update!' do
+    specify { expect { subject.update!(true) }.to change { subject.value }.from(nil).to(true) }
+    specify { expect { subject.update!(:symbol) }.to change { subject.value }.from(nil).to(:symbol) }
   end
 
   describe '#merge!' do

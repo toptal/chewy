@@ -6,7 +6,7 @@ module Chewy
       class Source < Value
         self.param_name = :_source
 
-        def update(value)
+        def update!(value)
           new_value = normalize(value)
           new_value[:includes] = @value[:includes] | new_value[:includes]
           new_value[:excludes] = @value[:excludes] | new_value[:excludes]
@@ -15,7 +15,7 @@ module Chewy
 
         def merge!(other)
           super
-          update(other.value[:enabled])
+          update!(other.value[:enabled])
         end
 
         def render

@@ -26,14 +26,14 @@ describe Chewy::Search::Parameters::Rescore do
     end
   end
 
-  describe '#update' do
+  describe '#update!' do
     specify do
-      expect { subject.update(nil) }
+      expect { subject.update!(nil) }
         .not_to change { subject.value }
     end
 
     specify do
-      expect { subject.update(baz: 44) }
+      expect { subject.update!(baz: 44) }
         .to change { subject.value }
         .from([{ foo: 42 }, { bar: 43 }])
         .to([{ foo: 42 }, { bar: 43 }, { baz: 44 }])

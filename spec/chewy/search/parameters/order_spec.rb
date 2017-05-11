@@ -27,14 +27,14 @@ describe Chewy::Search::Parameters::Order do
     end
   end
 
-  describe '#update' do
+  describe '#update!' do
     specify do
-      expect { subject.update(foo: {}) }
+      expect { subject.update!(foo: {}) }
         .to change { subject.value }
         .from('foo' => nil, 'bar' => nil).to('foo' => {}, 'bar' => nil)
     end
 
-    specify { expect { subject.update(nil) }.not_to change { subject.value } }
+    specify { expect { subject.update!(nil) }.not_to change { subject.value } }
   end
 
   describe '#merge!' do

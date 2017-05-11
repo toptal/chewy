@@ -51,21 +51,21 @@ describe Chewy::Search::Parameters::Load do
     end
   end
 
-  describe '#update' do
+  describe '#update!' do
     specify do
-      expect { subject.update(bar: '43') }
+      expect { subject.update!(bar: '43') }
         .to change { subject.value }
         .from(load_options: { foo: '42' }, loaded_objects: false)
         .to(load_options: { foo: '42', bar: '43' }, loaded_objects: false)
     end
     specify do
-      expect { subject.update(foo: '43') }
+      expect { subject.update!(foo: '43') }
         .to change { subject.value }
         .from(load_options: { foo: '42' }, loaded_objects: false)
         .to(load_options: { foo: '43' }, loaded_objects: false)
     end
     specify do
-      expect { subject.update(loaded_objects: true) }
+      expect { subject.update!(loaded_objects: true) }
         .to change { subject.value }
         .from(load_options: { foo: '42' }, loaded_objects: false)
         .to(load_options: { foo: '42' }, loaded_objects: true)
@@ -75,12 +75,12 @@ describe Chewy::Search::Parameters::Load do
       subject { described_class.new(loaded_objects: true) }
 
       specify do
-        expect { subject.update(loaded_objects: false) }
+        expect { subject.update!(loaded_objects: false) }
           .not_to change { subject.value }
       end
 
       specify do
-        expect { subject.update(foo: '42') }
+        expect { subject.update!(foo: '42') }
           .to change { subject.value }
           .from(load_options: {}, loaded_objects: true)
           .to(load_options: { foo: '42' }, loaded_objects: true)

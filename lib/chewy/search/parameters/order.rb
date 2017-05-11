@@ -4,7 +4,7 @@ module Chewy
   module Search
     class Parameters
       class Order < Value
-        def update(value)
+        def update!(value)
           @value.merge!(normalize(value))
         end
 

@@ -15,9 +15,9 @@ shared_examples :integer_storage do |param_name|
     specify { expect { subject.replace!(nil) }.to change { subject.value }.from(10).to(nil) }
   end
 
-  describe '#update' do
-    specify { expect { subject.update('42') }.to change { subject.value }.from(10).to(42) }
-    specify { expect { subject.update(nil) }.to change { subject.value }.from(10).to(nil) }
+  describe '#update!' do
+    specify { expect { subject.update!('42') }.to change { subject.value }.from(10).to(42) }
+    specify { expect { subject.update!(nil) }.to change { subject.value }.from(10).to(nil) }
   end
 
   describe '#merge!' do

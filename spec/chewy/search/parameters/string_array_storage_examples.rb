@@ -25,14 +25,14 @@ shared_examples :string_array_storage do |param_name|
     end
   end
 
-  describe '#update' do
+  describe '#update!' do
     specify do
-      expect { subject.update(nil) }
+      expect { subject.update!(nil) }
         .not_to change { subject.value }
     end
 
     specify do
-      expect { subject.update([:foo, :baz]) }
+      expect { subject.update!([:foo, :baz]) }
         .to change { subject.value }
         .from(%w(foo bar)).to(%w(foo bar baz))
     end

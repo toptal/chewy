@@ -24,14 +24,14 @@ shared_examples :hash_storage do |param_name|
     end
   end
 
-  describe '#update' do
+  describe '#update!' do
     specify do
-      expect { subject.update(nil) }
+      expect { subject.update!(nil) }
         .not_to change { subject.value }
     end
 
     specify do
-      expect { subject.update(other: { moo: 'baz' }) }
+      expect { subject.update!(other: { moo: 'baz' }) }
         .to change { subject.value }
         .from('field' => { foo: 'bar' })
         .to('field' => { foo: 'bar' }, 'other' => { moo: 'baz' })

@@ -14,9 +14,9 @@ shared_examples :string_storage do |param_name|
     specify { expect { subject.replace!('') }.to change { subject.value }.from('foo').to(nil) }
   end
 
-  describe '#update' do
-    specify { expect { subject.update('bar') }.to change { subject.value }.from('foo').to('bar') }
-    specify { expect { subject.update('') }.to change { subject.value }.from('foo').to(nil) }
+  describe '#update!' do
+    specify { expect { subject.update!('bar') }.to change { subject.value }.from('foo').to('bar') }
+    specify { expect { subject.update!('') }.to change { subject.value }.from('foo').to(nil) }
   end
 
   describe '#merge!' do

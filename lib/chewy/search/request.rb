@@ -63,7 +63,7 @@ module Chewy
 
       %i(order docvalue_fields types).each do |name|
         define_method name do |value, *values|
-          modify(name) { update([value, *values]) }
+          modify(name) { update!([value, *values]) }
         end
       end
 
@@ -85,7 +85,7 @@ module Chewy
 
       %i(source stored_fields).each do |name|
         define_method name do |value, *values|
-          modify(name) { update(values.empty? ? value : [value, *values]) }
+          modify(name) { update!(values.empty? ? value : [value, *values]) }
         end
       end
 
@@ -103,7 +103,7 @@ module Chewy
 
       %i(script_fields suggest indices_boost rescore highlight).each do |name|
         define_method name do |value|
-          modify(name) { update(value) }
+          modify(name) { update!(value) }
         end
       end
 

@@ -14,9 +14,9 @@ describe Chewy::Search::Parameters::SearchAfter do
     specify { expect { subject.replace!(nil) }.to change { subject.value }.from([:foo, 42]).to(nil) }
   end
 
-  describe '#update' do
-    specify { expect { subject.update(:baz) }.to change { subject.value }.from([:foo, 42]).to([:baz]) }
-    specify { expect { subject.update(nil) }.to change { subject.value }.from([:foo, 42]).to(nil) }
+  describe '#update!' do
+    specify { expect { subject.update!(:baz) }.to change { subject.value }.from([:foo, 42]).to([:baz]) }
+    specify { expect { subject.update!(nil) }.to change { subject.value }.from([:foo, 42]).to(nil) }
   end
 
   describe '#merge!' do

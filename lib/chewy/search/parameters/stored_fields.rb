@@ -4,15 +4,15 @@ module Chewy
   module Search
     class Parameters
       class StoredFields < Value
-        def update(value)
+        def update!(value)
           new_value = normalize(value)
           new_value[:stored_fields] = @value[:stored_fields] | new_value[:stored_fields]
           @value = new_value
         end
 
         def merge!(other)
-          update(other.value[:stored_fields])
-          update(other.value[:enabled])
+          update!(other.value[:stored_fields])
+          update!(other.value[:enabled])
         end
 
         def render

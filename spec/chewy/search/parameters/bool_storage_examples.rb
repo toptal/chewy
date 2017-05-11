@@ -15,9 +15,9 @@ shared_examples :bool_storage do |param_name|
     specify { expect { subject.replace!(nil) }.to change { subject.value }.from(true).to(false) }
   end
 
-  describe '#update' do
-    specify { expect { subject.update(false) }.to change { subject.value }.from(true).to(false) }
-    specify { expect { subject.update(nil) }.to change { subject.value }.from(true).to(false) }
+  describe '#update!' do
+    specify { expect { subject.update!(false) }.to change { subject.value }.from(true).to(false) }
+    specify { expect { subject.update!(nil) }.to change { subject.value }.from(true).to(false) }
   end
 
   describe '#merge!' do

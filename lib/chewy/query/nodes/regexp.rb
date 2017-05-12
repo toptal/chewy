@@ -2,7 +2,7 @@ module Chewy
   class Query
     module Nodes
       class Regexp < Expr
-        FLAGS = %w(all anystring automaton complement empty intersection interval none).freeze
+        FLAGS = %w[all anystring automaton complement empty intersection interval none].freeze
 
         def initialize(name, regexp, *args)
           @name = name.to_s

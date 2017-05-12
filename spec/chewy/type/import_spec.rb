@@ -56,7 +56,7 @@ describe Chewy::Type::Import do
     specify { expect { city.import dummy_cities.map(&:id) }.to update_index(city).and_reindex(dummy_cities) }
 
     describe 'criteria-driven importing' do
-      let(:names) { %w(name0 name1) }
+      let(:names) { %w[name0 name1] }
 
       context 'mongoid', :mongoid do
         specify { expect { city.import(City.where(:name.in => names)) }.to update_index(city).and_reindex(dummy_cities.first(2)) }
@@ -157,7 +157,7 @@ describe Chewy::Type::Import do
 
     context 'scoped' do
       before do
-        names = %w(name0 name1)
+        names = %w[name0 name1]
 
         criteria = case adapter
         when :mongoid
@@ -251,7 +251,7 @@ describe Chewy::Type::Import do
             errors: {
               index: {
                 write_failure_exception => ['1'],
-                mapper_parsing_exception => %w(2 3)
+                mapper_parsing_exception => %w[2 3]
               }
             },
             import: { index: 3 })
@@ -271,7 +271,7 @@ describe Chewy::Type::Import do
                 {
                   'type' => 'mapper_parsing_exception',
                   'reason' => 'object mapping for [name] tried to parse field [name] as object, but found a concrete value'
-                } => %w(1 2 3)
+                } => %w[1 2 3]
               }
             },
             import: { index: 3 })

@@ -1,5 +1,8 @@
 inherit_from: .rubocop_todo.yml
 
+Lint/AmbiguousBlockAssociation:
+  Enabled: false
+
 Lint/EndAlignment:
   EnforcedStyleAlignWith: variable
 
@@ -35,6 +38,7 @@ Style/MultilineOperationIndentation:
 
 Metrics/BlockLength:
   Exclude:
+    - Appraisals
     - '**/*_spec.rb'
     - '**/*.rake'
 

@@ -4,8 +4,8 @@ module Chewy
   class Query
     class Criteria
       include Compose
-      ARRAY_STORAGES = [:queries, :filters, :post_filters, :sort, :fields, :types, :scores].freeze
-      HASH_STORAGES = [:options, :search_options, :request_options, :facets, :aggregations, :suggest, :script_fields].freeze
+      ARRAY_STORAGES = %i[queries filters post_filters sort fields types scores].freeze
+      HASH_STORAGES = %i[options search_options request_options facets aggregations suggest script_fields].freeze
       STORAGES = ARRAY_STORAGES + HASH_STORAGES
 
       def initialize(options = {})
@@ -72,7 +72,7 @@ module Chewy
         script_fields.merge!(modifier)
       end
 
-      [:filters, :queries, :post_filters].each do |storage|
+      %i[filters queries post_filters].each do |storage|
         class_eval <<-RUBY, __FILE__, __LINE__ + 1
           def update_#{storage}(modifier)
             @#{storage} = #{storage} + Array.wrap(modifier).reject(&:blank?)
@@ -88,7 +88,7 @@ module Chewy
         @sort = sort + modifier
       end
 
-      %w(fields types).each do |storage|
+      %w[fields types].each do |storage|
         define_method "update_#{storage}" do |modifier, options = {}|
           variable = "@#{storage}"
           instance_variable_set(variable, nil) if options[:purge]

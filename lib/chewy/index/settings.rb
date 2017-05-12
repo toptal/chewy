@@ -46,7 +46,7 @@ module Chewy
       def resolve_analysis(analysis)
         analyzer = resolve(analysis[:analyzer], Chewy.analyzers)
 
-        options = [:tokenizer, :filter, :char_filter].each.with_object({}) do |type, result|
+        options = %i[tokenizer filter char_filter].each.with_object({}) do |type, result|
           dependencies = collect_dependencies(type, analyzer)
           resolved = resolve(dependencies.push(analysis[type]), Chewy.send(type.to_s.pluralize))
           result.merge!(type => resolved) if resolved.present?

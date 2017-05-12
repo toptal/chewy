@@ -12,7 +12,7 @@ describe Chewy::Query::Nodes::Regexp do
     specify { expect(render { name !~ /nam.*/ }).to eq(not: { regexp: { 'name' => 'nam.*' } }) }
 
     specify do
-      expect(render { names.first(flags: [:anystring, :intersection, :borogoves]) == /nam.*/ })
+      expect(render { names.first(flags: %i[anystring intersection borogoves]) == /nam.*/ })
         .to eq(regexp: { 'names.first' => { value: 'nam.*', flags: 'ANYSTRING|INTERSECTION' } })
     end
     specify do
@@ -21,7 +21,7 @@ describe Chewy::Query::Nodes::Regexp do
     end
 
     specify do
-      expect(render { names.first(flags: [:anystring, :intersection, :borogoves]) =~ /nam.*/ })
+      expect(render { names.first(flags: %i[anystring intersection borogoves]) =~ /nam.*/ })
         .to eq(regexp: { 'names.first' => { value: 'nam.*', flags: 'ANYSTRING|INTERSECTION' } })
     end
     specify do

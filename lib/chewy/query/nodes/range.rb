@@ -12,8 +12,8 @@ module Chewy
         def initialize(name, *args)
           @name = name.to_s
           @options = args.extract_options!
-          @range = @options.reject { |k, _v| ![:gt, :lt].include?(k) }
-          @bounds = @options.reject { |k, _v| ![:left_closed, :right_closed].include?(k) }
+          @range = @options.select { |k, _v| %i[gt lt].include?(k) }
+          @bounds = @options.select { |k, _v| %i[left_closed right_closed].include?(k) }
           execution = EXECUTION[args.first.to_sym] if args.first
           @options[:execution] = execution if execution
         end

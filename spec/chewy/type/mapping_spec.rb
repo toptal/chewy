@@ -39,7 +39,7 @@ describe Chewy::Type::Mapping do
   end
 
   describe '.field' do
-    specify { expect(product.root_object.children.map(&:name)).to eq([:name, :surname, :title, :price]) }
+    specify { expect(product.root_object.children.map(&:name)).to eq(%i[name surname title price]) }
     specify { expect(product.root_object.children.map(&:parent)).to eq([product.root_object] * 4) }
 
     specify { expect(product.root_object.children[0].children.map(&:name)).to eq([]) }

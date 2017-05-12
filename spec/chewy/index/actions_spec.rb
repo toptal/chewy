@@ -35,7 +35,7 @@ describe Chewy::Index::Actions do
 
       context do
         before { DummiesIndex.create '2014' }
-        specify { expect(DummiesIndex.indexes).to match_array(%w(dummies_2013 dummies_2014)) }
+        specify { expect(DummiesIndex.indexes).to match_array(%w[dummies_2013 dummies_2014]) }
       end
     end
 
@@ -83,7 +83,7 @@ describe Chewy::Index::Actions do
 
       context do
         before { DummiesIndex.create! '2014' }
-        specify { expect(DummiesIndex.indexes).to match_array(%w(dummies_2013 dummies_2014)) }
+        specify { expect(DummiesIndex.indexes).to match_array(%w[dummies_2013 dummies_2014]) }
       end
     end
 

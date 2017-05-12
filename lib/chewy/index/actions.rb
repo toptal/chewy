@@ -137,7 +137,7 @@ module Chewy
         #
         # See [import.rb](lib/chewy/type/import.rb) for more details.
         #
-        [:import, :import!].each do |method|
+        %i[import import!].each do |method|
           class_eval <<-METHOD, __FILE__, __LINE__ + 1
             def #{method} options = {}
               objects = options.reject { |k, v| !type_names.map(&:to_sym).include?(k) }

@@ -2,7 +2,7 @@ module Chewy
   class Journal
     # Describes a journal entry and provides necessary assisting methods
     class Entry
-      ATTRIBUTES = %w(index_name type_name action object_ids created_at).freeze
+      ATTRIBUTES = %w[index_name type_name action object_ids created_at].freeze
 
       attr_accessor(*ATTRIBUTES)
 

@@ -467,11 +467,11 @@ describe Chewy::Query do
     specify { expect(subject.find(1)).to be_a(ProductsIndex::Product) }
     specify { expect(subject.find(1).id).to eq('1') }
     specify { expect(subject.find(4).id).to eq('4') }
-    specify { expect(subject.find([1]).map(&:id)).to match_array(%w(1)) }
-    specify { expect(subject.find([4]).map(&:id)).to match_array(%w(4 4)) }
-    specify { expect(subject.find([1, 3]).map(&:id)).to match_array(%w(1 3)) }
-    specify { expect(subject.find(1, 3).map(&:id)).to match_array(%w(1 3)) }
-    specify { expect(subject.find(1, 10).map(&:id)).to match_array(%w(1)) }
+    specify { expect(subject.find([1]).map(&:id)).to match_array(%w[1]) }
+    specify { expect(subject.find([4]).map(&:id)).to match_array(%w[4 4]) }
+    specify { expect(subject.find([1, 3]).map(&:id)).to match_array(%w[1 3]) }
+    specify { expect(subject.find(1, 3).map(&:id)).to match_array(%w[1 3]) }
+    specify { expect(subject.find(1, 10).map(&:id)).to match_array(%w[1]) }
 
     specify { expect { subject.find(10) }.to raise_error Chewy::DocumentNotFound }
     specify { expect { subject.find([10]) }.to raise_error Chewy::DocumentNotFound }
@@ -561,7 +561,7 @@ describe Chewy::Query do
     specify { expect { subject.order(field: 'hello') }.not_to change { subject.criteria.sort } }
 
     specify { expect(subject.order(:field).criteria.sort).to eq([:field]) }
-    specify { expect(subject.order([:field1, :field2]).criteria.sort).to eq([:field1, :field2]) }
+    specify { expect(subject.order(%i[field1 field2]).criteria.sort).to eq(%i[field1 field2]) }
     specify { expect(subject.order(field: :asc).criteria.sort).to eq([{ field: :asc }]) }
     specify { expect(subject.order(field1: :asc, field2: :desc).criteria.sort).to eq([{ field1: :asc }, { field2: :desc }]) }
     specify { expect(subject.order(field1: { order: :asc }, field2: :desc).order([:field3], :field4).criteria.sort).to eq([{ field1: { order: :asc } }, { field2: :desc }, :field3, :field4]) }
@@ -573,7 +573,7 @@ describe Chewy::Query do
     specify { expect { subject.reorder(field: 'hello') }.not_to change { subject.criteria.sort } }
 
     specify { expect(subject.order(:field1).reorder(:field2).criteria.sort).to eq([:field2]) }
-    specify { expect(subject.order(:field1).reorder(:field2).order(:field3).criteria.sort).to eq([:field2, :field3]) }
+    specify { expect(subject.order(:field1).reorder(:field2).order(:field3).criteria.sort).to eq(%i[field2 field3]) }
     specify { expect(subject.order(:field1).reorder(:field2).reorder(:field3).criteria.sort).to eq([:field3]) }
   end
 
@@ -582,8 +582,8 @@ describe Chewy::Query do
     specify { expect(subject.only(:field)).not_to eq(subject) }
     specify { expect { subject.only(:field) }.not_to change { subject.criteria.fields } }
 
-    specify { expect(subject.only(:field1, :field2).criteria.fields).to match_array(%w(field1 field2)) }
-    specify { expect(subject.only([:field1, :field2]).only(:field3).criteria.fields).to match_array(%w(field1 field2 field3)) }
+    specify { expect(subject.only(:field1, :field2).criteria.fields).to match_array(%w[field1 field2]) }
+    specify { expect(subject.only(%i[field1 field2]).only(:field3).criteria.fields).to match_array(%w[field1 field2 field3]) }
   end
 
   describe '#only!' do
@@ -591,9 +591,9 @@ describe Chewy::Query do
     specify { expect(subject.only!(:field)).not_to eq(subject) }
     specify { expect { subject.only!(:field) }.not_to change { subject.criteria.fields } }
 
-    specify { expect(subject.only!(:field1, :field2).criteria.fields).to match_array(%w(field1 field2)) }
-    specify { expect(subject.only!([:field1, :field2]).only!(:field3).criteria.fields).to match_array(['field3']) }
-    specify { expect(subject.only([:field1, :field2]).only!(:field3).criteria.fields).to match_array(['field3']) }
+    specify { expect(subject.only!(:field1, :field2).criteria.fields).to match_array(%w[field1 field2]) }
+    specify { expect(subject.only!(%i[field1 field2]).only!(:field3).criteria.fields).to match_array(['field3']) }
+    specify { expect(subject.only(%i[field1 field2]).only!(:field3).criteria.fields).to match_array(['field3']) }
   end
 
   describe '#types' do
@@ -602,8 +602,8 @@ describe Chewy::Query do
     specify { expect { subject.types(:product) }.not_to change { subject.criteria.types } }
 
     specify { expect(subject.types(:user).criteria.types).to eq(['user']) }
-    specify { expect(subject.types(:product, :city).criteria.types).to match_array(%w(product city)) }
-    specify { expect(subject.types([:product, :city]).types(:country).criteria.types).to match_array(%w(product city country)) }
+    specify { expect(subject.types(:product, :city).criteria.types).to match_array(%w[product city]) }
+    specify { expect(subject.types(%i[product city]).types(:country).criteria.types).to match_array(%w[product city country]) }
   end
 
   describe '#types!' do
@@ -612,9 +612,9 @@ describe Chewy::Query do
     specify { expect { subject.types!(:product) }.not_to change { subject.criteria.types } }
 
     specify { expect(subject.types!(:user).criteria.types).to eq(['user']) }
-    specify { expect(subject.types!(:product, :city).criteria.types).to match_array(%w(product city)) }
-    specify { expect(subject.types!([:product, :city]).types!(:country).criteria.types).to match_array(['country']) }
-    specify { expect(subject.types([:product, :city]).types!(:country).criteria.types).to match_array(['country']) }
+    specify { expect(subject.types!(:product, :city).criteria.types).to match_array(%w[product city]) }
+    specify { expect(subject.types!(%i[product city]).types!(:country).criteria.types).to match_array(['country']) }
+    specify { expect(subject.types(%i[product city]).types!(:country).criteria.types).to match_array(['country']) }
   end
 
   describe '#search_type' do

@@ -3,7 +3,7 @@ module Chewy
     module Import
       extend ActiveSupport::Concern
 
-      BULK_OPTIONS = [:suffix, :bulk_size, :refresh, :consistency, :replication].freeze
+      BULK_OPTIONS = %i[suffix bulk_size refresh consistency replication].freeze
 
       module ClassMethods
         # Perform import operation for specified documents.
@@ -26,7 +26,7 @@ module Chewy
         def import(*args)
           import_options = args.extract_options!
           import_options.reverse_merge! _default_import_options
-          bulk_options = import_options.reject { |k, _| !BULK_OPTIONS.include?(k) }.reverse_merge!(refresh: true)
+          bulk_options = import_options.select { |k, _| BULK_OPTIONS.include?(k) }.reverse_merge!(refresh: true)
 
           assure_index_existence(bulk_options.slice(:suffix))
 

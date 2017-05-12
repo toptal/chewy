@@ -13,7 +13,7 @@ require 'chewy/type/adapter/sequel'
 
 module Chewy
   class Type
-    IMPORT_OPTIONS_KEYS = [:batch_size, :bulk_size, :refresh, :consistency, :replication, :raw_import, :journal].freeze
+    IMPORT_OPTIONS_KEYS = %i[batch_size bulk_size refresh consistency replication raw_import journal].freeze
 
     include Search
     include Mapping

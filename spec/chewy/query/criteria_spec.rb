@@ -46,10 +46,10 @@ describe Chewy::Query::Criteria do
   describe '#update_scores' do
     specify { expect { subject.update_scores(:score) }.to change { subject.scores? }.to(true) }
     specify { expect { subject.update_scores(:score) }.to change { subject.scores }.to([:score]) }
-    specify { expect { subject.update_scores([:score, :score2]) }.to change { subject.scores }.to([:score, :score2]) }
+    specify { expect { subject.update_scores(%i[score score2]) }.to change { subject.scores }.to(%i[score score2]) }
     specify do
-      expect { subject.tap { |s| s.update_scores(:score1) }.update_scores([:score2, :score3]) }
-        .to change { subject.scores }.to([:score1, :score2, :score3])
+      expect { subject.tap { |s| s.update_scores(:score1) }.update_scores(%i[score2 score3]) }
+        .to change { subject.scores }.to(%i[score1 score2 score3])
     end
   end
 
@@ -134,8 +134,8 @@ describe Chewy::Query::Criteria do
         .to change { subject.sort }.to([:field])
     end
     specify do
-      expect { subject.update_sort([:field1, :field2]) }
-        .to change { subject.sort }.to([:field1, :field2])
+      expect { subject.update_sort(%i[field1 field2]) }
+        .to change { subject.sort }.to(%i[field1 field2])
     end
     specify do
       expect { subject.update_sort([{ field: :asc }]) }
@@ -158,7 +158,7 @@ describe Chewy::Query::Criteria do
         .to change { subject.sort }.to([{ field1: { order: :asc } }, :field2, :field3])
     end
     specify do
-      expect { subject.update_sort([{ field1: { order: :asc } }, [:field2, :field3]]) }
+      expect { subject.update_sort([{ field1: { order: :asc } }, %i[field2 field3]]) }
         .to change { subject.sort }.to([{ field1: { order: :asc } }, :field2, :field3])
     end
     specify do
@@ -175,37 +175,37 @@ describe Chewy::Query::Criteria do
     end
     specify do
       expect { subject.tap { |s| s.update_sort([field1: { order: :asc }, field2: :desc]) }.update_sort([[:field3], :field4], purge: true) }
-        .to change { subject.sort }.to([:field3, :field4])
+        .to change { subject.sort }.to(%i[field3 field4])
     end
   end
 
   describe '#update_fields' do
     specify { expect { subject.update_fields(:field) }.to change { subject.fields? }.to(true) }
     specify { expect { subject.update_fields(:field) }.to change { subject.fields }.to(['field']) }
-    specify { expect { subject.update_fields([:field, :field]) }.to change { subject.fields }.to(['field']) }
-    specify { expect { subject.update_fields([:field1, :field2]) }.to change { subject.fields }.to(%w(field1 field2)) }
+    specify { expect { subject.update_fields(%i[field field]) }.to change { subject.fields }.to(['field']) }
+    specify { expect { subject.update_fields(%i[field1 field2]) }.to change { subject.fields }.to(%w[field1 field2]) }
     specify do
-      expect { subject.tap { |s| s.update_fields(:field1) }.update_fields([:field2, :field3]) }
-        .to change { subject.fields }.to(%w(field1 field2 field3))
+      expect { subject.tap { |s| s.update_fields(:field1) }.update_fields(%i[field2 field3]) }
+        .to change { subject.fields }.to(%w[field1 field2 field3])
     end
     specify do
-      expect { subject.tap { |s| s.update_fields(:field1) }.update_fields([:field2, :field3], purge: true) }
-        .to change { subject.fields }.to(%w(field2 field3))
+      expect { subject.tap { |s| s.update_fields(:field1) }.update_fields(%i[field2 field3], purge: true) }
+        .to change { subject.fields }.to(%w[field2 field3])
     end
   end
 
   describe '#update_types' do
     specify { expect { subject.update_types(:type) }.to change { subject.types? }.to(true) }
     specify { expect { subject.update_types(:type) }.to change { subject.types }.to(['type']) }
-    specify { expect { subject.update_types([:type, :type]) }.to change { subject.types }.to(['type']) }
-    specify { expect { subject.update_types([:type1, :type2]) }.to change { subject.types }.to(%w(type1 type2)) }
+    specify { expect { subject.update_types(%i[type type]) }.to change { subject.types }.to(['type']) }
+    specify { expect { subject.update_types(%i[type1 type2]) }.to change { subject.types }.to(%w[type1 type2]) }
     specify do
-      expect { subject.tap { |s| s.update_types(:type1) }.update_types([:type2, :type3]) }
-        .to change { subject.types }.to(%w(type1 type2 type3))
+      expect { subject.tap { |s| s.update_types(:type1) }.update_types(%i[type2 type3]) }
+        .to change { subject.types }.to(%w[type1 type2 type3])
     end
     specify do
-      expect { subject.tap { |s| s.update_types(:type1) }.update_types([:type2, :type3], purge: true) }
-        .to change { subject.types }.to(%w(type2 type3))
+      expect { subject.tap { |s| s.update_types(:type1) }.update_types(%i[type2 type3], purge: true) }
+        .to change { subject.types }.to(%w[type2 type3])
     end
   end
 
@@ -262,15 +262,15 @@ describe Chewy::Query::Criteria do
     end
     specify do
       expect(subject.tap { |c| c.update_sort(:field1) }
-        .merge(criteria.tap { |c| c.update_sort(:field2) }).sort).to eq([:field1, :field2])
+        .merge(criteria.tap { |c| c.update_sort(:field2) }).sort).to eq(%i[field1 field2])
     end
     specify do
       expect(subject.tap { |c| c.update_fields(:field1) }
-        .merge(criteria.tap { |c| c.update_fields(:field2) }).fields).to eq(%w(field1 field2))
+        .merge(criteria.tap { |c| c.update_fields(:field2) }).fields).to eq(%w[field1 field2])
     end
     specify do
       expect(subject.tap { |c| c.update_types(:type1) }
-        .merge(criteria.tap { |c| c.update_types(:type2) }).types).to eq(%w(type1 type2))
+        .merge(criteria.tap { |c| c.update_types(:type2) }).types).to eq(%w[type1 type2])
     end
   end
 
@@ -323,17 +323,17 @@ describe Chewy::Query::Criteria do
     specify do
       expect(subject.tap { |c| c.update_sort(:field1) }
         .merge!(criteria.tap { |c| c.update_sort(:field2) }).sort)
-        .to eq([:field1, :field2])
+        .to eq(%i[field1 field2])
     end
     specify do
       expect(subject.tap { |c| c.update_fields(:field1) }
         .merge!(criteria.tap { |c| c.update_fields(:field2) }).fields)
-        .to eq(%w(field1 field2))
+        .to eq(%w[field1 field2])
     end
     specify do
       expect(subject.tap { |c| c.update_types(:type1) }
         .merge!(criteria.tap { |c| c.update_types(:type2) }).types)
-        .to eq(%w(type1 type2))
+        .to eq(%w[type1 type2])
     end
   end
 
@@ -403,51 +403,51 @@ describe Chewy::Query::Criteria do
     specify { expect(_filtered_query { update_queries(:query) }).to eq(query: :query) }
     specify { expect(_filtered_query(strategy: 'query_first') { update_queries(:query) }).to eq(query: :query) }
     specify do
-      expect(_filtered_query { update_queries([:query1, :query2]) })
-        .to eq(query: { bool: { must: [:query1, :query2] } })
+      expect(_filtered_query { update_queries(%i[query1 query2]) })
+        .to eq(query: { bool: { must: %i[query1 query2] } })
     end
     specify do
       expect(_filtered_query do
         update_options(query_mode: :should)
-        update_queries([:query1, :query2])
+        update_queries(%i[query1 query2])
       end)
-        .to eq(query: { bool: { should: [:query1, :query2] } })
+        .to eq(query: { bool: { should: %i[query1 query2] } })
     end
     specify do
       expect(_filtered_query do
         update_options(query_mode: :dis_max)
-        update_queries([:query1, :query2])
+        update_queries(%i[query1 query2])
       end)
-        .to eq(query: { dis_max: { queries: [:query1, :query2] } })
+        .to eq(query: { dis_max: { queries: %i[query1 query2] } })
     end
 
     specify do
-      expect(_filtered_query(strategy: 'query_first') { update_filters([:filter1, :filter2]) })
-        .to eq(query: { filtered: { query: { match_all: {} }, filter: { and: [:filter1, :filter2] }, strategy: 'query_first' } })
+      expect(_filtered_query(strategy: 'query_first') { update_filters(%i[filter1 filter2]) })
+        .to eq(query: { filtered: { query: { match_all: {} }, filter: { and: %i[filter1 filter2] }, strategy: 'query_first' } })
     end
     specify do
-      expect(_filtered_query { update_filters([:filter1, :filter2]) })
-        .to eq(query: { filtered: { query: { match_all: {} }, filter: { and: [:filter1, :filter2] } } })
+      expect(_filtered_query { update_filters(%i[filter1 filter2]) })
+        .to eq(query: { filtered: { query: { match_all: {} }, filter: { and: %i[filter1 filter2] } } })
     end
 
     specify do
       expect(_filtered_query do
-        update_filters([:filter1, :filter2])
-        update_queries([:query1, :query2])
+        update_filters(%i[filter1 filter2])
+        update_queries(%i[query1 query2])
       end)
         .to eq(query: { filtered: {
-                 query: { bool: { must: [:query1, :query2] } },
-                 filter: { and: [:filter1, :filter2] }
+                 query: { bool: { must: %i[query1 query2] } },
+                 filter: { and: %i[filter1 filter2] }
                } })
     end
     specify do
       expect(_filtered_query(strategy: 'query_first') do
-        update_filters([:filter1, :filter2])
-        update_queries([:query1, :query2])
+        update_filters(%i[filter1 filter2])
+        update_queries(%i[query1 query2])
       end)
         .to eq(query: { filtered: {
-                 query: { bool: { must: [:query1, :query2] } },
-                 filter: { and: [:filter1, :filter2] },
+                 query: { bool: { must: %i[query1 query2] } },
+                 filter: { and: %i[filter1 filter2] },
                  strategy: 'query_first'
                } })
     end
@@ -455,11 +455,11 @@ describe Chewy::Query::Criteria do
       expect(_filtered_query do
                update_options(query_mode: :should)
                update_options(filter_mode: :or)
-               update_filters([:filter1, :filter2])
-               update_queries([:query1, :query2])
+               update_filters(%i[filter1 filter2])
+               update_queries(%i[query1 query2])
              end).to eq(query: { filtered: {
-                          query: { bool: { should: [:query1, :query2] } },
-                          filter: { or: [:filter1, :filter2] }
+                          query: { bool: { should: %i[query1 query2] } },
+                          filter: { or: %i[filter1 filter2] }
                         } })
     end
   end
@@ -498,81 +498,81 @@ describe Chewy::Query::Criteria do
 
     specify { expect(_request_filter { update_types(:type) }).to eq(type: { value: 'type' }) }
     specify do
-      expect(_request_filter { update_types([:type1, :type2]) })
+      expect(_request_filter { update_types(%i[type1 type2]) })
         .to eq(or: [{ type: { value: 'type1' } }, { type: { value: 'type2' } }])
     end
 
     specify do
-      expect(_request_filter { update_filters([:filter1, :filter2]) })
-        .to eq(and: [:filter1, :filter2])
+      expect(_request_filter { update_filters(%i[filter1 filter2]) })
+        .to eq(and: %i[filter1 filter2])
     end
     specify do
       expect(_request_filter do
         update_options(filter_mode: :or)
-        update_filters([:filter1, :filter2])
+        update_filters(%i[filter1 filter2])
       end)
-        .to eq(or: [:filter1, :filter2])
+        .to eq(or: %i[filter1 filter2])
     end
     specify do
       expect(_request_filter do
         update_options(filter_mode: :must)
-        update_filters([:filter1, :filter2])
+        update_filters(%i[filter1 filter2])
       end)
-        .to eq(bool: { must: [:filter1, :filter2] })
+        .to eq(bool: { must: %i[filter1 filter2] })
     end
     specify do
       expect(_request_filter do
         update_options(filter_mode: :should)
-        update_filters([:filter1, :filter2])
+        update_filters(%i[filter1 filter2])
       end)
-        .to eq(bool: { should: [:filter1, :filter2] })
+        .to eq(bool: { should: %i[filter1 filter2] })
     end
     specify do
       expect(_request_filter do
         update_options(filter_mode: :must_not)
-        update_filters([:filter1, :filter2])
+        update_filters(%i[filter1 filter2])
       end)
-        .to eq(bool: { must_not: [:filter1, :filter2] })
+        .to eq(bool: { must_not: %i[filter1 filter2] })
     end
 
     specify do
       expect(_request_filter do
-        update_types([:type1, :type2])
-        update_filters([:filter1, :filter2])
+        update_types(%i[type1 type2])
+        update_filters(%i[filter1 filter2])
       end)
         .to eq(and: [{ or: [{ type: { value: 'type1' } }, { type: { value: 'type2' } }] }, :filter1, :filter2])
     end
     specify do
       expect(_request_filter do
         update_options(filter_mode: :or)
-        update_types([:type1, :type2])
-        update_filters([:filter1, :filter2])
+        update_types(%i[type1 type2])
+        update_filters(%i[filter1 filter2])
       end)
-        .to eq(and: [{ or: [{ type: { value: 'type1' } }, { type: { value: 'type2' } }] }, { or: [:filter1, :filter2] }])
+        .to eq(and: [{ or: [{ type: { value: 'type1' } }, { type: { value: 'type2' } }] }, { or: %i[filter1 filter2] }])
     end
     specify do
       expect(_request_filter do
         update_options(filter_mode: :must)
-        update_types([:type1, :type2])
-        update_filters([:filter1, :filter2])
+        update_types(%i[type1 type2])
+        update_filters(%i[filter1 filter2])
       end)
-        .to eq(and: [{ or: [{ type: { value: 'type1' } }, { type: { value: 'type2' } }] }, { bool: { must: [:filter1, :filter2] } }])
+        .to eq(and: [{ or: [{ type: { value: 'type1' } }, { type: { value: 'type2' } }] }, { bool: { must: %i[filter1 filter2] } }])
     end
     specify do
       expect(_request_filter do
         update_options(filter_mode: :should)
-        update_types([:type1, :type2])
-        update_filters([:filter1, :filter2])
+        update_types(%i[type1 type2])
+        update_filters(%i[filter1 filter2])
       end)
-        .to eq(and: [{ or: [{ type: { value: 'type1' } }, { type: { value: 'type2' } }] }, { bool: { should: [:filter1, :filter2] } }])
+        .to eq(and: [{ or: [{ type: { value: 'type1' } }, { type: { value: 'type2' } }] }, { bool: { should: %i[filter1 filter2] } }])
     end
     specify do
       expect(_request_filter do
         update_options(filter_mode: :must_not)
-        update_types([:type1, :type2])
-        update_filters([:filter1, :filter2])
+        update_types(%i[type1 type2])
+        update_filters(%i[filter1 filter2])
       end)
-        .to eq(and: [{ or: [{ type: { value: 'type1' } }, { type: { value: 'type2' } }] }, { bool: { must_not: [:filter1, :filter2] } }])
+        .to eq(and: [{ or: [{ type: { value: 'type1' } }, { type: { value: 'type2' } }] }, { bool: { must_not: %i[filter1 filter2] } }])
     end
   end
 
@@ -585,37 +585,37 @@ describe Chewy::Query::Criteria do
     specify { expect(_request_post_filter).to be_nil }
 
     specify do
-      expect(_request_post_filter { update_post_filters([:post_filter1, :post_filter2]) })
-        .to eq(and: [:post_filter1, :post_filter2])
+      expect(_request_post_filter { update_post_filters(%i[post_filter1 post_filter2]) })
+        .to eq(and: %i[post_filter1 post_filter2])
     end
     specify do
       expect(_request_post_filter do
         update_options(post_filter_mode: :or)
-        update_post_filters([:post_filter1, :post_filter2])
+        update_post_filters(%i[post_filter1 post_filter2])
       end)
-        .to eq(or: [:post_filter1, :post_filter2])
+        .to eq(or: %i[post_filter1 post_filter2])
     end
     specify do
       expect(_request_post_filter do
         update_options(post_filter_mode: :must)
-        update_post_filters([:post_filter1, :post_filter2])
+        update_post_filters(%i[post_filter1 post_filter2])
       end)
-        .to eq(bool: { must: [:post_filter1, :post_filter2] })
+        .to eq(bool: { must: %i[post_filter1 post_filter2] })
     end
     specify do
       expect(_request_post_filter do
         update_options(post_filter_mode: :should)
-        update_post_filters([:post_filter1, :post_filter2])
+        update_post_filters(%i[post_filter1 post_filter2])
       end)
-        .to eq(bool: { should: [:post_filter1, :post_filter2] })
+        .to eq(bool: { should: %i[post_filter1 post_filter2] })
     end
 
     context do
       before { allow(Chewy).to receive_messages(filter_mode: :or) }
 
       specify do
-        expect(_request_post_filter { update_post_filters([:post_filter1, :post_filter2]) })
-          .to eq(or: [:post_filter1, :post_filter2])
+        expect(_request_post_filter { update_post_filters(%i[post_filter1 post_filter2]) })
+          .to eq(or: %i[post_filter1 post_filter2])
       end
     end
   end
@@ -629,7 +629,7 @@ describe Chewy::Query::Criteria do
     specify { expect(_request_types).to be_nil }
     specify { expect(_request_types { update_types(:type1) }).to eq(type: { value: 'type1' }) }
     specify do
-      expect(_request_types { update_types([:type1, :type2]) })
+      expect(_request_types { update_types(%i[type1 type2]) })
         .to eq(or: [{ type: { value: 'type1' } }, { type: { value: 'type2' } }])
     end
   end

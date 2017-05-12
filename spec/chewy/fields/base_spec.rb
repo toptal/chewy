@@ -93,10 +93,10 @@ describe Chewy::Fields::Base do
 
     specify do
       expect(field.mappings_hash).to eq(name: {type: :object, properties: {
-                                          name1: {type: 'string1', fields: {
-                                            name3: {type: 'string3'}, name4: {type: 'string4'}
-                                          }}, name2: {type: 'string2'}
-                                        }})
+        name1: {type: 'string1', fields: {
+          name3: {type: 'string3'}, name4: {type: 'string4'}
+        }}, name2: {type: 'string2'}
+      }})
     end
 
     context do
@@ -105,10 +105,10 @@ describe Chewy::Fields::Base do
 
       specify do
         expect(field.mappings_hash).to eq(name: {type: :string, fields: {
-                                            name1: {type: 'object', properties: {
-                                              name3: {type: 'string3'}, name4: {type: 'string4'}
-                                            }}, name2: {type: 'string'}
-                                          }})
+          name1: {type: 'object', properties: {
+            name3: {type: 'string3'}, name4: {type: 'string4'}
+          }}, name2: {type: 'string'}
+        }})
       end
     end
   end
@@ -132,23 +132,23 @@ describe Chewy::Fields::Base do
 
       specify do
         expect(EventsIndex::Event.mappings_hash).to eq(event: {
-                                                         properties: {
-                                                           id: {type: 'string'},
-                                                           category: {
-                                                             type: 'object',
-                                                             properties: {
-                                                               id: {type: 'string'},
-                                                               licenses: {
-                                                                 type: 'object',
-                                                                 properties: {
-                                                                   id: {type: 'string'},
-                                                                   name: {type: 'string'}
-                                                                 }
-                                                               }
-                                                             }
-                                                           }
-                                                         }
-                                                       })
+          properties: {
+            id: {type: 'string'},
+            category: {
+              type: 'object',
+              properties: {
+                id: {type: 'string'},
+                licenses: {
+                  type: 'object',
+                  properties: {
+                    id: {type: 'string'},
+                    name: {type: 'string'}
+                  }
+                }
+              }
+            }
+          }
+        })
       end
 
       specify do
@@ -266,27 +266,27 @@ describe Chewy::Fields::Base do
 
       specify do
         expect(EventsIndex::Event.mappings_hash).to eq(event: {
-                                                         properties: {
-                                                           id: {type: 'string'},
-                                                           name: {
-                                                             type: 'string',
-                                                             fields: {
-                                                               raw: {analyzer: 'my_own', type: 'string'}
-                                                             }
-                                                           },
-                                                           category: {type: 'object'}
-                                                         }
-                                                       })
+          properties: {
+            id: {type: 'string'},
+            name: {
+              type: 'string',
+              fields: {
+                raw: {analyzer: 'my_own', type: 'string'}
+              }
+            },
+            category: {type: 'object'}
+          }
+        })
       end
 
       specify do
         expect(EventsIndex::Event.root_object.compose(
                  double(id: 1, name: 'Jonny', category: double(id: 2, as_json: {'name' => 'Borogoves'}))
         )).to eq('event' => {
-                   'id' => 1,
-                   'name' => 'Jonny',
-                   'category' => {'name' => 'Borogoves'}
-                 })
+          'id' => 1,
+          'name' => 'Jonny',
+          'category' => {'name' => 'Borogoves'}
+        })
       end
 
       specify do
@@ -296,13 +296,13 @@ describe Chewy::Fields::Base do
                    double(id: 3, as_json: {'name' => 'Borogoves2'})
                  ])
         )).to eq('event' => {
-                   'id' => 1,
-                   'name' => 'Jonny',
-                   'category' => [
-                     {'name' => 'Borogoves1'},
-                     {'name' => 'Borogoves2'}
-                   ]
-                 })
+          'id' => 1,
+          'name' => 'Jonny',
+          'category' => [
+            {'name' => 'Borogoves1'},
+            {'name' => 'Borogoves2'}
+          ]
+        })
       end
     end
 

@@ -167,10 +167,10 @@ describe Chewy::Query do
     specify { expect(subject.decay(:gauss, :field)).not_to eq(subject) }
     specify do
       expect(subject.decay(:gauss, :field).criteria.scores).to eq([{
-                                                                    gauss: {
-                                                                      field: {}
-                                                                    }
-                                                                  }])
+        gauss: {
+          field: {}
+        }
+      }])
     end
     specify { expect { subject.decay(:gauss, :field) }.not_to change { subject.criteria.scores } }
     specify do
@@ -247,13 +247,13 @@ describe Chewy::Query do
       specify do
         skip_on_version_gte('2.0')
         expect(CitiesIndex.facets(ratings: {terms: {field: 'rating'}}).facets).to eq('ratings' => {
-                                                                                       '_type' => 'terms', 'missing' => 0, 'total' => 10, 'other' => 0,
-                                                                                       'terms' => [
-                                                                                         {'term' => 0, 'count' => 4},
-                                                                                         {'term' => 2, 'count' => 3},
-                                                                                         {'term' => 1, 'count' => 3}
-                                                                                       ]
-                                                                                     })
+          '_type' => 'terms', 'missing' => 0, 'total' => 10, 'other' => 0,
+          'terms' => [
+            {'term' => 0, 'count' => 4},
+            {'term' => 2, 'count' => 3},
+            {'term' => 1, 'count' => 3}
+          ]
+        })
       end
     end
   end

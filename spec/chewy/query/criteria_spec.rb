@@ -359,15 +359,15 @@ describe Chewy::Query::Criteria do
                update_options(boost_mode: :add)
                update_options(score_mode: :avg)
              end).to eq(body: {query: {
-                          function_score: {
-                            functions: [{
-                              script_score: {script: 'boost_me'}
-                            }],
-                            query: :query,
-                            boost_mode: :add,
-                            score_mode: :avg
-                          }
-                        }})
+               function_score: {
+                 functions: [{
+                   script_score: {script: 'boost_me'}
+                 }],
+                 query: :query,
+                 boost_mode: :add,
+                 score_mode: :avg
+               }
+             }})
     end
     specify do
       expect(request_body do
@@ -436,9 +436,9 @@ describe Chewy::Query::Criteria do
         update_queries(%i[query1 query2])
       end)
         .to eq(query: {filtered: {
-                 query: {bool: {must: %i[query1 query2]}},
-                 filter: {and: %i[filter1 filter2]}
-               }})
+          query: {bool: {must: %i[query1 query2]}},
+          filter: {and: %i[filter1 filter2]}
+        }})
     end
     specify do
       expect(_filtered_query(strategy: 'query_first') do
@@ -446,10 +446,10 @@ describe Chewy::Query::Criteria do
         update_queries(%i[query1 query2])
       end)
         .to eq(query: {filtered: {
-                 query: {bool: {must: %i[query1 query2]}},
-                 filter: {and: %i[filter1 filter2]},
-                 strategy: 'query_first'
-               }})
+          query: {bool: {must: %i[query1 query2]}},
+          filter: {and: %i[filter1 filter2]},
+          strategy: 'query_first'
+        }})
     end
     specify do
       expect(_filtered_query do
@@ -458,9 +458,9 @@ describe Chewy::Query::Criteria do
                update_filters(%i[filter1 filter2])
                update_queries(%i[query1 query2])
              end).to eq(query: {filtered: {
-                          query: {bool: {should: %i[query1 query2]}},
-                          filter: {or: %i[filter1 filter2]}
-                        }})
+               query: {bool: {should: %i[query1 query2]}},
+               filter: {or: %i[filter1 filter2]}
+             }})
     end
   end
 

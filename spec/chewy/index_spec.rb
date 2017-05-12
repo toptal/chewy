@@ -164,13 +164,13 @@ describe Chewy::Index do
     specify { expect { documents.settings_hash }.to_not change(documents._settings, :inspect) }
     specify do
       expect(documents.settings_hash).to eq(settings: {analysis: {
-                                              analyzer: {name: {filter: %w[lowercase icu_folding names_nysiis]},
-                                                         phone: {tokenizer: 'ngram', char_filter: ['phone']},
-                                                         sorted: {option: :baz}},
-                                              tokenizer: {ngram: {type: 'nGram', min_gram: 3, max_gram: 3}},
-                                              char_filter: {phone: {type: 'pattern_replace', pattern: '[^\d]', replacement: ''}},
-                                              filter: {names_nysiis: {type: 'phonetic', encoder: 'nysiis', replace: false}}
-                                            }})
+        analyzer: {name: {filter: %w[lowercase icu_folding names_nysiis]},
+                   phone: {tokenizer: 'ngram', char_filter: ['phone']},
+                   sorted: {option: :baz}},
+        tokenizer: {ngram: {type: 'nGram', min_gram: 3, max_gram: 3}},
+        char_filter: {phone: {type: 'pattern_replace', pattern: '[^\d]', replacement: ''}},
+        filter: {names_nysiis: {type: 'phonetic', encoder: 'nysiis', replace: false}}
+      }})
     end
   end
 

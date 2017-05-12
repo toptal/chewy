@@ -1,8 +1,5 @@
 inherit_from: .rubocop_todo.yml
 
-Layout/SpaceInsideHashLiteralBraces:
-  EnforcedStyle: no_space
-
 Lint/AmbiguousBlockAssociation:
   Enabled: false
 
@@ -33,11 +30,17 @@ Style/DoubleNegation:
 Style/IndentArray:
   EnforcedStyle: consistent
 
+Style/IndentHash:
+  EnforcedStyle: consistent
+
 Style/MultilineMethodCallIndentation:
   EnforcedStyle: indented
 
 Style/MultilineOperationIndentation:
   EnforcedStyle: indented
+
+Style/SpaceInsideHashLiteralBraces:
+  EnforcedStyle: no_space
 
 Metrics/BlockLength:
   Exclude:

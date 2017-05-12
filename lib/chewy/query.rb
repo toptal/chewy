@@ -510,8 +510,8 @@ module Chewy
     def decay(function, field, options = {})
       field_options = options.extract!(:origin, :scale, :offset, :decay).delete_if { |_, v| v.nil? }
       scoring = options.merge(function => {
-                                field => field_options
-                              })
+        field => field_options
+      })
       chain { criteria.update_scores scoring }
     end
 

@@ -34,7 +34,7 @@ module Chewy
         def extract_callback_options!(args)
           options = args.extract_options!
           result = options.each_key.with_object({}) do |key, hash|
-            hash[key] = options.delete(key) if [:if, :unless].include?(key)
+            hash[key] = options.delete(key) if %i[if unless].include?(key)
           end
           args.push(options) unless options.empty?
           result

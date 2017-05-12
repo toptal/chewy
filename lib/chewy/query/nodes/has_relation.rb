@@ -45,13 +45,13 @@ module Chewy
           filters = _filters_join @filters, @filter_mode
 
           body = if filters && !queries
-            { filter: filters }
+            {filter: filters}
           else
             _filtered_query(queries, filters)
           end
           body ||= {}
 
-          { _relation => body.merge(type: @type) }
+          {_relation => body.merge(type: @type)}
         end
       end
     end

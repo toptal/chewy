@@ -9,7 +9,7 @@ describe Chewy::Query::Filters do
     end
   end
 
-  %w(field group and or not raw exists missing prefix regexp range equal query script).each do |method|
+  %w[field group and or not raw exists missing prefix regexp range equal query script].each do |method|
     define_method method.camelize do |*args|
       "Chewy::Query::Nodes::#{method.camelize}".constantize.new(*args)
     end
@@ -38,19 +38,19 @@ describe Chewy::Query::Filters do
   context 'term' do
     specify { expect(query { email == 'email' }).to be_eql Equal(:email, 'email') }
     specify { expect(query { name != 'name' }).to be_eql Not(Equal(:name, 'name')) }
-    specify { expect(query { email == %w(email1 email2) }).to be_eql Equal(:email, %w(email1 email2)) }
-    specify { expect(query { email != %w(email1 email2) }).to be_eql Not(Equal(:email, %w(email1 email2))) }
+    specify { expect(query { email == %w[email1 email2] }).to be_eql Equal(:email, %w[email1 email2]) }
+    specify { expect(query { email != %w[email1 email2] }).to be_eql Not(Equal(:email, %w[email1 email2])) }
     specify do
-      expect(query { email(execution: :bool) == %w(email1 email2) })
-        .to be_eql Equal(:email, %w(email1 email2), execution: :bool)
+      expect(query { email(execution: :bool) == %w[email1 email2] })
+        .to be_eql Equal(:email, %w[email1 email2], execution: :bool)
     end
     specify do
-      expect(query { email(:bool) == %w(email1 email2) })
-        .to be_eql Equal(:email, %w(email1 email2), execution: :bool)
+      expect(query { email(:bool) == %w[email1 email2] })
+        .to be_eql Equal(:email, %w[email1 email2], execution: :bool)
     end
     specify do
-      expect(query { email(:b) == %w(email1 email2) })
-        .to be_eql Equal(:email, %w(email1 email2), execution: :bool)
+      expect(query { email(:b) == %w[email1 email2] })
+        .to be_eql Equal(:email, %w[email1 email2], execution: :bool)
     end
   end
 
@@ -117,7 +117,7 @@ describe Chewy::Query::Filters do
     specify { expect(query { name == /name/ }).to be_eql Regexp(:name, 'name') }
     specify { expect(query { name !~ /name/ }).to be_eql Not(Regexp(:name, 'name')) }
     specify { expect(query { name != /name/ }).to be_eql Not(Regexp(:name, 'name')) }
-    specify { expect(query { name(:anystring, :intersection) =~ /name/ }).to be_eql Regexp(:name, 'name', flags: %w(anystring intersection)) }
+    specify { expect(query { name(:anystring, :intersection) =~ /name/ }).to be_eql Regexp(:name, 'name', flags: %w[anystring intersection]) }
   end
 
   context 'query' do
@@ -128,10 +128,10 @@ describe Chewy::Query::Filters do
   end
 
   context 'raw' do
-    let(:raw_query) { { term: { name: 'name' } } }
-    specify { expect(query { r(term: { name: 'name' }) }).to be_eql Raw(term: { name: 'name' }) }
-    specify { expect(query { r { { term: { name: 'name' } } } }).to be_eql Raw(term: { name: 'name' }) }
-    specify { expect(query { r { raw_query } }).to be_eql Raw(term: { name: 'name' }) }
+    let(:raw_query) { {term: {name: 'name'}} }
+    specify { expect(query { r(term: {name: 'name'}) }).to be_eql Raw(term: {name: 'name'}) }
+    specify { expect(query { r { {term: {name: 'name'}} } }).to be_eql Raw(term: {name: 'name'}) }
+    specify { expect(query { r { raw_query } }).to be_eql Raw(term: {name: 'name'}) }
   end
 
   context 'script' do
@@ -151,7 +151,7 @@ describe Chewy::Query::Filters do
       expect(query { (email == 'email') | (name == 'name') })
         .to be_eql Or(Equal(:email, 'email'), Equal(:name, 'name'))
     end
-    specify { expect(query { !(email == 'email') }).to be_eql Not(Equal(:email, 'email')) }
+    specify { expect(query { email != 'email' }).to be_eql Not(Equal(:email, 'email')) }
 
     specify do
       expect(query { (email == 'email') & (name == 'name') | (address != 'address') })

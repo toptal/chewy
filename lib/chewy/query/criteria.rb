@@ -4,8 +4,8 @@ module Chewy
   class Query
     class Criteria
       include Compose
-      ARRAY_STORAGES = [:queries, :filters, :post_filters, :sort, :fields, :types, :scores].freeze
-      HASH_STORAGES = [:options, :search_options, :request_options, :facets, :aggregations, :suggest, :script_fields].freeze
+      ARRAY_STORAGES = %i[queries filters post_filters sort fields types scores].freeze
+      HASH_STORAGES = %i[options search_options request_options facets aggregations suggest script_fields].freeze
       STORAGES = ARRAY_STORAGES + HASH_STORAGES
 
       def initialize(options = {})
@@ -20,7 +20,7 @@ module Chewy
         other.is_a?(self.class) && storages == other.storages
       end
 
-      { ARRAY_STORAGES => '[]', HASH_STORAGES => '{}' }.each do |storages, default|
+      {ARRAY_STORAGES => '[]', HASH_STORAGES => '{}'}.each do |storages, default|
         storages.each do |storage|
           class_eval <<-METHODS, __FILE__, __LINE__ + 1
             def #{storage}
@@ -72,7 +72,7 @@ module Chewy
         script_fields.merge!(modifier)
       end
 
-      [:filters, :queries, :post_filters].each do |storage|
+      %i[filters queries post_filters].each do |storage|
         class_eval <<-RUBY, __FILE__, __LINE__ + 1
           def update_#{storage}(modifier)
             @#{storage} = #{storage} + Array.wrap(modifier).reject(&:blank?)
@@ -83,12 +83,12 @@ module Chewy
       def update_sort(modifier, options = {})
         @sort = nil if options[:purge]
         modifier = Array.wrap(modifier).flatten.map do |element|
-          element.is_a?(Hash) ? element.map { |k, v| { k => v } } : element
+          element.is_a?(Hash) ? element.map { |k, v| {k => v} } : element
         end.flatten
         @sort = sort + modifier
       end
 
-      %w(fields types).each do |storage|
+      %w[fields types].each do |storage|
         define_method "update_#{storage}" do |modifier, options = {}|
           variable = "@#{storage}"
           instance_variable_set(variable, nil) if options[:purge]
@@ -112,7 +112,7 @@ module Chewy
         body = _filtered_query(_request_query, _request_filter, options.slice(:strategy))
 
         if options[:simple]
-          { body: body.presence || { query: { match_all: {} } } }
+          {body: body.presence || {query: {match_all: {}}}}
         else
           body[:post_filter] = _request_post_filter if post_filters?
           body[:facets] = facets if facets?
@@ -124,7 +124,7 @@ module Chewy
 
           body = _boost_query(body)
 
-          { body: body.merge!(_request_options) }.merge!(search_options)
+          {body: body.merge!(_request_options)}.merge!(search_options)
         end
       end
 
@@ -146,7 +146,7 @@ module Chewy
         query = body.delete :query
         filter = body.delete :filter
         if query && filter
-          query = { filtered: { query: query, filter: filter } }
+          query = {filtered: {query: query, filter: filter}}
           filter = nil
         end
         score = {}
@@ -155,7 +155,7 @@ module Chewy
         score[:score_mode] = options[:score_mode] if options[:score_mode]
         score[:query] = query if query
         score[:filter] = filter if filter
-        body.tap { |b| b[:query] = { function_score: score } }
+        body.tap { |b| b[:query] = {function_score: score} }
       end
 
       def _request_options
@@ -180,7 +180,7 @@ module Chewy
       end
 
       def _request_types
-        _filters_join(types.map { |type| { type: { value: type } } }, :or)
+        _filters_join(types.map { |type| {type: {value: type}} }, :or)
       end
 
       def _request_post_filter

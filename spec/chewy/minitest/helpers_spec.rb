@@ -28,7 +28,7 @@ describe :minitest_helper do
     specify 'doesn\'t fail when index updates correctly' do
       expect do
         assert_indexes DummiesIndex::Dummy do
-          DummiesIndex::Dummy.bulk body: [{ index: { _id: 42, data: {} } }, { index: { _id: 41, data: {} } }]
+          DummiesIndex::Dummy.bulk body: [{index: {_id: 42, data: {}}}, {index: {_id: 41, data: {}}}]
         end
       end.to_not raise_error
     end
@@ -42,7 +42,7 @@ describe :minitest_helper do
 
     specify 'SearchIndexReceiver catches the indexes' do
       receiver = assert_indexes DummiesIndex::Dummy do
-        DummiesIndex::Dummy.bulk body: [{ index: { _id: 42, data: {} } }, { index: { _id: 41, data: {} } }]
+        DummiesIndex::Dummy.bulk body: [{index: {_id: 42, data: {}}}, {index: {_id: 41, data: {}}}]
       end
 
       expect(receiver).to be_a(SearchIndexReceiver)
@@ -57,7 +57,7 @@ describe :minitest_helper do
       expect(DummiesIndex::Dummy).not_to receive(:bulk)
 
       assert_indexes DummiesIndex::Dummy do
-        DummiesIndex::Dummy.bulk body: [{ index: { _id: 42, data: {} } }, { index: { _id: 41, data: {} } }]
+        DummiesIndex::Dummy.bulk body: [{index: {_id: 42, data: {}}}, {index: {_id: 41, data: {}}}]
       end
     end
 
@@ -65,7 +65,7 @@ describe :minitest_helper do
       expect(DummiesIndex::Dummy).to receive(:bulk)
 
       assert_indexes DummiesIndex::Dummy, bypass_actual_index: false do
-        DummiesIndex::Dummy.bulk body: [{ index: { _id: 42, data: {} } }, { index: { _id: 41, data: {} } }]
+        DummiesIndex::Dummy.bulk body: [{index: {_id: 42, data: {}}}, {index: {_id: 41, data: {}}}]
       end
     end
   end

@@ -3,7 +3,7 @@ module Chewy
     module Import
       extend ActiveSupport::Concern
 
-      BULK_OPTIONS = [:suffix, :bulk_size, :refresh, :consistency, :replication].freeze
+      BULK_OPTIONS = %i[suffix bulk_size refresh consistency replication].freeze
 
       module ClassMethods
         # Perform import operation for specified documents.
@@ -26,7 +26,7 @@ module Chewy
         def import(*args)
           import_options = args.extract_options!
           import_options.reverse_merge! _default_import_options
-          bulk_options = import_options.reject { |k, _| !BULK_OPTIONS.include?(k) }.reverse_merge!(refresh: true)
+          bulk_options = import_options.select { |k, _| BULK_OPTIONS.include?(k) }.reverse_merge!(refresh: true)
 
           assure_index_existence(bulk_options.slice(:suffix))
 
@@ -71,7 +71,7 @@ module Chewy
           bulk_size = options.delete(:bulk_size)
           body = options.delete(:body)
           journal = options.delete(:journal)
-          header = { index: index.build_index_name(suffix: suffix), type: type_name }
+          header = {index: index.build_index_name(suffix: suffix), type: type_name}
 
           bodies = if bulk_size
             bulk_size -= 1.kilobyte # 1 kilobyte for request header and newlines
@@ -80,7 +80,7 @@ module Chewy
             entries = body.each_with_object(['']) do |entry, result|
               operation, meta = entry.to_a.first
               data = meta.delete(:data)
-              entry = [{ operation => meta }, data].compact.map(&:to_json).join("\n")
+              entry = [{operation => meta}, data].compact.map(&:to_json).join("\n")
 
               raise ArgumentError, 'Import `:bulk_size` seems to be less than entry size' if entry.bytesize > bulk_size
 
@@ -141,7 +141,7 @@ module Chewy
             entry[:parent] = existing_object[:parent]
           end
 
-          [{ delete: entry }]
+          [{delete: entry}]
         end
 
         def index_bulk_entry(object, indexed_objects = nil, crutches = nil)
@@ -164,9 +164,9 @@ module Chewy
           entry[:data] = object_data(object, crutches)
 
           if existing_object && entry[:parent].to_s != existing_object[:parent]
-            [{ delete: entry.except(:data).merge(parent: existing_object[:parent]) }, { index: entry }]
+            [{delete: entry.except(:data).merge(parent: existing_object[:parent])}, {index: entry}]
           else
-            [{ index: entry }]
+            [{index: entry}]
           end
         end
 
@@ -209,9 +209,9 @@ module Chewy
 
           items.map do |action, action_items|
             errors = action_items.group_by { |item| item[:error] }.map do |error, error_items|
-              { error => error_items.map { |item| item[:id] } }
+              {error => error_items.map { |item| item[:id] }}
             end.reduce(&:merge)
-            { action => errors }
+            {action => errors}
           end.reduce(&:merge) || {}
         end
 
@@ -220,7 +220,7 @@ module Chewy
           result = client.search index: index_name,
                                  type: type_name,
                                  fields: '_parent',
-                                 body: { filter: { ids: { values: ids } } },
+                                 body: {filter: {ids: {values: ids}}},
                                  search_type: 'scan',
                                  scroll: '1m'
 
@@ -231,7 +231,7 @@ module Chewy
 
             result['hits']['hits'].map do |hit|
               parent = hit.key?('_parent') ? hit['_parent'] : hit['fields']['_parent']
-              indexed_objects[hit['_id']] = { parent: parent }
+              indexed_objects[hit['_id']] = {parent: parent}
             end
           end
 

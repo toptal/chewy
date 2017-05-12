@@ -28,7 +28,7 @@ describe Chewy::Type::Witchcraft do
         field :age
         field :tags
       end
-      let(:attributes) { { name: 'Name', age: 13, tags: %w(Ruby RoR) } }
+      let(:attributes) { {name: 'Name', age: 13, tags: %w[Ruby RoR]} }
 
       context do
         let(:object) { double(attributes) }
@@ -49,11 +49,11 @@ describe Chewy::Type::Witchcraft do
         }
         field :tags, value: -> { tags.map(&:to_sym) }
       end
-      let(:attributes) { { name: 'Name', age: 13, tags: %w(Ruby RoR) } }
+      let(:attributes) { {name: 'Name', age: 13, tags: %w[Ruby RoR]} }
 
       context do
         let(:object) { double(attributes) }
-        specify { expect(type.cauldron.brew(object)).to eq(attributes.merge(tags: [:Ruby, :RoR]).as_json) }
+        specify { expect(type.cauldron.brew(object)).to eq(attributes.merge(tags: %i[Ruby RoR]).as_json) }
       end
     end
 
@@ -61,12 +61,12 @@ describe Chewy::Type::Witchcraft do
       mapping do
         field :name, value: ->(_o, c) { c.names[0] }
       end
-      let(:attributes) { { name: 'Name' } }
+      let(:attributes) { {name: 'Name'} }
 
       context do
         let(:object) { double(attributes) }
         let(:crutches) { double(names: ['Other']) }
-        specify { expect(type.cauldron.brew(object, crutches)).to eq({ name: 'Other' }.as_json) }
+        specify { expect(type.cauldron.brew(object, crutches)).to eq({name: 'Other'}.as_json) }
       end
     end
 
@@ -81,15 +81,15 @@ describe Chewy::Type::Witchcraft do
 
         let(:object) do
           double(queries: [
-            { title: 'Title1', body: 'Body1' },
-            { title: 'Title2', body: 'Body2' }
+            {title: 'Title1', body: 'Body1'},
+            {title: 'Title2', body: 'Body2'}
           ])
         end
         specify do
-          expect(type.cauldron.brew(object)).to eq({ queries: [
-            { title: 'Title1', body: 'This Body1' },
-            { title: 'Title2', body: 'This Body2' }
-          ] }.as_json)
+          expect(type.cauldron.brew(object)).to eq({queries: [
+            {title: 'Title1', body: 'This Body1'},
+            {title: 'Title2', body: 'This Body2'}
+          ]}.as_json)
         end
       end
 
@@ -108,10 +108,10 @@ describe Chewy::Type::Witchcraft do
           ])
         end
         specify do
-          expect(type.cauldron.brew(object)).to eq({ queries: [
-            { title: 'Title1', body: 'This Body1' },
-            { title: 'Title2', body: 'This Body2' }
-          ] }.as_json)
+          expect(type.cauldron.brew(object)).to eq({queries: [
+            {title: 'Title1', body: 'This Body1'},
+            {title: 'Title2', body: 'This Body2'}
+          ]}.as_json)
         end
       end
 
@@ -130,10 +130,10 @@ describe Chewy::Type::Witchcraft do
           ])
         end
         specify do
-          expect(type.cauldron.brew(object)).to eq({ queries: [
-            { title: 'Title1', body: 'This Body1' },
-            { title: 'Title2', body: 'This Body2' }
-          ] }.as_json)
+          expect(type.cauldron.brew(object)).to eq({queries: [
+            {title: 'Title1', body: 'This Body1'},
+            {title: 'Title2', body: 'This Body2'}
+          ]}.as_json)
         end
       end
 
@@ -151,18 +151,18 @@ describe Chewy::Type::Witchcraft do
 
         let(:object) do
           double(queries: [
-            double(value: 'Value1', fields: [double(first: 'First1', second: 'Second1'), { first: 'First2' }]),
+            double(value: 'Value1', fields: [double(first: 'First1', second: 'Second1'), {first: 'First2'}]),
             double(value: 'Value2', fields: double(first: 'First3', second: 'Second2', third: 'Third'))
           ])
         end
         specify do
-          expect(type.cauldron.brew(object, double(second: 'Crutch'))).to eq({ queries: [
-            { fields: [
-              { first: 'First1', second: 'Value1Second1' },
-              { first: 'First2', second: 'Value1Crutch' }
-            ] },
-            { fields: { first: 'First3', second: 'Value2Second2' } }
-          ] }.as_json)
+          expect(type.cauldron.brew(object, double(second: 'Crutch'))).to eq({queries: [
+            {fields: [
+              {first: 'First1', second: 'Value1Second1'},
+              {first: 'First2', second: 'Value1Crutch'}
+            ]},
+            {fields: {first: 'First3', second: 'Value2Second2'}}
+          ]}.as_json)
         end
       end
     end
@@ -173,7 +173,7 @@ describe Chewy::Type::Witchcraft do
           field param.first, value: ->(o) { o.send(param[0]) if param[0] }
         end
       end
-      let(:attributes) { { name: 'Name', age: 13 } }
+      let(:attributes) { {name: 'Name', age: 13} }
 
       context do
         let(:object) { double(attributes) }
@@ -189,7 +189,7 @@ describe Chewy::Type::Witchcraft do
 
         field :name, value: custom_value(:name)
       end
-      let(:attributes) { { name: 'Name' } }
+      let(:attributes) { {name: 'Name'} }
 
       context do
         let(:object) { double(attributes) }

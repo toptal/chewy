@@ -62,14 +62,14 @@ describe Chewy::Index do
     specify { expect(stub_const('DevelopersIndex', Class.new(Chewy::Index)).index_name).to eq('developers') }
 
     context do
-      before { allow(Chewy).to receive_messages(configuration: { prefix: 'testing' }) }
+      before { allow(Chewy).to receive_messages(configuration: {prefix: 'testing'}) }
       specify { expect(DummiesIndex.index_name).to eq('testing_dummies') }
       specify { expect(stub_index(:dummies) { index_name :users }.index_name).to eq('testing_users') }
     end
   end
 
   describe '.default_prefix' do
-    before { allow(Chewy).to receive_messages(configuration: { prefix: 'testing' }) }
+    before { allow(Chewy).to receive_messages(configuration: {prefix: 'testing'}) }
     specify { expect(Class.new(Chewy::Index).default_prefix).to eq('testing') }
   end
 
@@ -152,25 +152,25 @@ describe Chewy::Index do
     before do
       allow(Chewy).to receive_messages(config: Chewy::Config.send(:new))
 
-      Chewy.analyzer :name, filter: %w(lowercase icu_folding names_nysiis)
+      Chewy.analyzer :name, filter: %w[lowercase icu_folding names_nysiis]
       Chewy.analyzer :phone, tokenizer: 'ngram', char_filter: ['phone']
       Chewy.tokenizer :ngram, type: 'nGram', min_gram: 3, max_gram: 3
       Chewy.char_filter :phone, type: 'pattern_replace', pattern: '[^\d]', replacement: ''
       Chewy.filter :names_nysiis, type: 'phonetic', encoder: 'nysiis', replace: false
     end
 
-    let(:documents) { stub_index(:documents) { settings analysis: { analyzer: [:name, :phone, { sorted: { option: :baz } }] } } }
+    let(:documents) { stub_index(:documents) { settings analysis: {analyzer: [:name, :phone, {sorted: {option: :baz}}]} } }
 
     specify { expect { documents.settings_hash }.to_not change(documents._settings, :inspect) }
     specify do
-      expect(documents.settings_hash).to eq(settings: { analysis: {
-                                              analyzer: { name: { filter: %w(lowercase icu_folding names_nysiis) },
-                                                          phone: { tokenizer: 'ngram', char_filter: ['phone'] },
-                                                          sorted: { option: :baz } },
-                                              tokenizer: { ngram: { type: 'nGram', min_gram: 3, max_gram: 3 } },
-                                              char_filter: { phone: { type: 'pattern_replace', pattern: '[^\d]', replacement: '' } },
-                                              filter: { names_nysiis: { type: 'phonetic', encoder: 'nysiis', replace: false } }
-                                            } })
+      expect(documents.settings_hash).to eq(settings: {analysis: {
+        analyzer: {name: {filter: %w[lowercase icu_folding names_nysiis]},
+                   phone: {tokenizer: 'ngram', char_filter: ['phone']},
+                   sorted: {option: :baz}},
+        tokenizer: {ngram: {type: 'nGram', min_gram: 3, max_gram: 3}},
+        char_filter: {phone: {type: 'pattern_replace', pattern: '[^\d]', replacement: ''}},
+        filter: {names_nysiis: {type: 'phonetic', encoder: 'nysiis', replace: false}}
+      }})
     end
   end
 
@@ -188,7 +188,7 @@ describe Chewy::Index do
     end
 
     specify { expect(described_class.scopes).to eq([]) }
-    specify { expect(PlacesIndex.scopes).to match_array([:by_rating, :by_name]) }
+    specify { expect(PlacesIndex.scopes).to match_array(%i[by_rating by_name]) }
   end
 
   describe '.build_index_name' do
@@ -203,7 +203,7 @@ describe Chewy::Index do
     before { allow(Chewy).to receive_messages(config: Chewy::Config.send(:new)) }
 
     specify { expect(stub_index(:documents).settings_hash).to eq({}) }
-    specify { expect(stub_index(:documents) { settings number_of_shards: 1 }.settings_hash).to eq(settings: { number_of_shards: 1 }) }
+    specify { expect(stub_index(:documents) { settings number_of_shards: 1 }.settings_hash).to eq(settings: {number_of_shards: 1}) }
   end
 
   describe '.mappings_hash' do
@@ -214,7 +214,7 @@ describe Chewy::Index do
                define_type :document do
                  field :name, type: 'string'
                end
-             end.mappings_hash).to eq(mappings: { document: { properties: { name: { type: 'string' } } } })
+             end.mappings_hash).to eq(mappings: {document: {properties: {name: {type: 'string'}}}})
     end
     specify do
       expect(stub_index(:documents) do
@@ -224,7 +224,7 @@ describe Chewy::Index do
                define_type :document2 do
                  field :name, type: 'string'
                end
-             end.mappings_hash[:mappings].keys).to match_array([:document, :document2])
+             end.mappings_hash[:mappings].keys).to match_array(%i[document document2])
     end
   end
 
@@ -246,7 +246,7 @@ describe Chewy::Index do
                define_type :document do
                  field :name, type: 'string'
                end
-             end.index_params.keys).to match_array([:mappings, :settings])
+             end.index_params.keys).to match_array(%i[mappings settings])
     end
   end
 
@@ -254,7 +254,7 @@ describe Chewy::Index do
     specify { expect(stub_index(:documents).journal?).to eq false }
 
     context do
-      before { allow(Chewy).to receive_messages(configuration: { journal: true }) }
+      before { allow(Chewy).to receive_messages(configuration: {journal: true}) }
       specify { expect(stub_index(:documents).journal?).to eq false }
     end
 
@@ -269,7 +269,7 @@ describe Chewy::Index do
       specify { expect(index.journal?).to eq false }
 
       context do
-        before { allow(Chewy).to receive_messages(configuration: { journal: true }) }
+        before { allow(Chewy).to receive_messages(configuration: {journal: true}) }
         specify { expect(index.journal?).to eq true }
       end
     end

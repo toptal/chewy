@@ -16,19 +16,19 @@ module Chewy
       end
 
       def object_field?
-        (children.present? && options[:type].blank?) || %w(object nested).include?(options[:type].to_s)
+        (children.present? && options[:type].blank?) || %w[object nested].include?(options[:type].to_s)
       end
 
       def mappings_hash
         mapping =
           if children.present?
-            { (multi_field? ? :fields : :properties) => children.map(&:mappings_hash).inject(:merge) }
+            {(multi_field? ? :fields : :properties) => children.map(&:mappings_hash).inject(:merge)}
           else
             {}
           end
         mapping.reverse_merge!(options)
         mapping.reverse_merge!(type: (children.present? ? 'object' : 'string'))
-        { name => mapping }
+        {name => mapping}
       end
 
       def compose(object, *parent_objects)
@@ -62,7 +62,7 @@ module Chewy
             end
         end
 
-        { name => result }
+        {name => result}
       end
 
     private

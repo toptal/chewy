@@ -94,7 +94,7 @@ describe Chewy::Strategy do
           end
 
           stub_model(:city) do
-            update_index('cities#city') { { name: name } }
+            update_index('cities#city') { {name: name} }
           end
         end
 
@@ -106,7 +106,7 @@ describe Chewy::Strategy do
         context do
           before do
             stub_model(:city) do
-              update_index('cities#city') { { id: id.to_s, name: name } }
+              update_index('cities#city') { {id: id.to_s, name: name} }
             end
           end
 

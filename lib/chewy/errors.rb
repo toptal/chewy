@@ -14,8 +14,8 @@ module Chewy
   class UndefinedUpdateStrategy < Error
     def initialize(_type)
       super <<-MESSAGE
-Index update strategy is undefined in current context.
-Please wrap your code with `Chewy.strategy(:strategy_name) block.`
+  Index update strategy is undefined for current context.
+  Please wrap your code with `Chewy.strategy(:strategy_name) block.`
       MESSAGE
     end
   end

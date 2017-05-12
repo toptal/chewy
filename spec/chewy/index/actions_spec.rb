@@ -35,7 +35,7 @@ describe Chewy::Index::Actions do
 
       context do
         before { DummiesIndex.create '2014' }
-        specify { expect(DummiesIndex.indexes).to match_array(%w(dummies_2013 dummies_2014)) }
+        specify { expect(DummiesIndex.indexes).to match_array(%w[dummies_2013 dummies_2014]) }
       end
     end
 
@@ -83,7 +83,7 @@ describe Chewy::Index::Actions do
 
       context do
         before { DummiesIndex.create! '2014' }
-        specify { expect(DummiesIndex.indexes).to match_array(%w(dummies_2013 dummies_2014)) }
+        specify { expect(DummiesIndex.indexes).to match_array(%w[dummies_2013 dummies_2014]) }
       end
     end
 
@@ -396,12 +396,12 @@ describe Chewy::Index::Actions do
       let(:name) { CitiesIndex.build_index_name(suffix: suffix) }
       let(:before_import_body) do
         {
-          index: { refresh_interval: -1 }
+          index: {refresh_interval: -1}
         }
       end
       let(:after_import_body) do
         {
-          index: { refresh_interval: '1s' }
+          index: {refresh_interval: '1s'}
         }
       end
 
@@ -420,14 +420,14 @@ describe Chewy::Index::Actions do
         context 'refresh_interval already defined' do
           before do
             stub_index(:cities) do
-              settings index: { refresh_interval: '2s' }
+              settings index: {refresh_interval: '2s'}
               define_type City
             end
           end
 
           let(:after_import_body) do
             {
-              index: { refresh_interval: '2s' }
+              index: {refresh_interval: '2s'}
             }
           end
 
@@ -455,12 +455,12 @@ describe Chewy::Index::Actions do
       let(:name) { CitiesIndex.build_index_name(suffix: suffix) }
       let(:before_import_body) do
         {
-          index: { number_of_replicas: 0 }
+          index: {number_of_replicas: 0}
         }
       end
       let(:after_import_body) do
         {
-          index: { number_of_replicas: 0 }
+          index: {number_of_replicas: 0}
         }
       end
 

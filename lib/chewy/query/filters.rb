@@ -131,7 +131,7 @@ module Chewy
       #   UsersIndex.filter{ must(age < 42).should(name == 'Name1', name == 'Name2') }
       #   UsersIndex.filter{ should_not(age >= 42).must(name == 'Name1') }
       #
-      %w(must must_not should).each do |method|
+      %w[must must_not should].each do |method|
         define_method method do |*exprs|
           Nodes::Bool.new.send(method, *exprs)
         end

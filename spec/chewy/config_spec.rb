@@ -54,7 +54,7 @@ describe Chewy::Config do
   end
 
   describe '#configuration' do
-    before { subject.settings = { indices_path: 'app/custom_indices_path' } }
+    before { subject.settings = {indices_path: 'app/custom_indices_path'} }
 
     specify do
       expect(subject.configuration).to include(indices_path: 'app/custom_indices_path')

@@ -54,32 +54,32 @@ describe Chewy::Type::Adapter::Object do
       specify { expect(import).to eq([]) }
       specify { expect(import(nil)).to eq([]) }
 
-      specify { expect(import(objects)).to eq([{ index: objects }]) }
+      specify { expect(import(objects)).to eq([{index: objects}]) }
       specify do
         expect(import(objects, batch_size: 2))
-          .to eq([{ index: objects.first(2) }, { index: objects.last(1) }])
+          .to eq([{index: objects.first(2)}, {index: objects.last(1)}])
       end
-      specify { expect(import(objects, deleted)).to eq([{ index: objects, delete: deleted }]) }
+      specify { expect(import(objects, deleted)).to eq([{index: objects, delete: deleted}]) }
       specify do
         expect(import(objects, deleted, batch_size: 2)).to eq([
-          { index: objects.first(2) },
-          { index: objects.last(1), delete: deleted.first(1) },
-          { delete: deleted.last(1) }
+          {index: objects.first(2)},
+          {index: objects.last(1), delete: deleted.first(1)},
+          {delete: deleted.last(1)}
         ])
       end
 
-      specify { expect(import(objects.first, nil)).to eq([{ index: [objects.first] }]) }
+      specify { expect(import(objects.first, nil)).to eq([{index: [objects.first]}]) }
 
       context 'initial data' do
         subject { described_class.new -> { objects } }
 
-        specify { expect(import).to eq([{ index: objects }]) }
+        specify { expect(import).to eq([{index: objects}]) }
         specify { expect(import(nil)).to eq([]) }
 
-        specify { expect(import(objects[0..1])).to eq([{ index: objects[0..1] }]) }
+        specify { expect(import(objects[0..1])).to eq([{index: objects[0..1]}]) }
         specify do
           expect(import(batch_size: 2))
-            .to eq([{ index: objects.first(2) }, { index: objects.last(1) }])
+            .to eq([{index: objects.first(2)}, {index: objects.last(1)}])
         end
       end
 
@@ -96,7 +96,7 @@ describe Chewy::Type::Adapter::Object do
 
         specify do
           expect(import(deleted)).to eq([
-            { delete: deleted[0..2], index: deleted.last(1) }
+            {delete: deleted[0..2], index: deleted.last(1)}
           ])
         end
       end

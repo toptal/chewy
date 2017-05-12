@@ -28,7 +28,7 @@ describe Chewy::Type::Wrapper do
       city_type.new(name: 'Martin', age: 42)
         .tap do |city|
           city._data = {
-            'highlight' => { 'name' => ['<b>Mar</b>tin'] }
+            'highlight' => {'name' => ['<b>Mar</b>tin']}
           }
         end
     end

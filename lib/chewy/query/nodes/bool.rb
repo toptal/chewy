@@ -2,7 +2,7 @@ module Chewy
   class Query
     module Nodes
       class Bool < Expr
-        METHODS = %w(must must_not should).freeze
+        METHODS = %w[must must_not should].freeze
 
         def initialize(options = {})
           @options = options

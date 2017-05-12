@@ -2,7 +2,7 @@ module Chewy
   class Query
     module Nodes
       class Regexp < Expr
-        FLAGS = %w(all anystring automaton complement empty intersection interval none).freeze
+        FLAGS = %w[all anystring automaton complement empty intersection interval none].freeze
 
         def initialize(name, regexp, *args)
           @name = name.to_s
@@ -14,11 +14,11 @@ module Chewy
 
         def __render__
           body = if @options[:flags]
-            { value: @regexp, flags: @options[:flags].map(&:to_s).map(&:upcase).uniq.join('|') }
+            {value: @regexp, flags: @options[:flags].map(&:to_s).map(&:upcase).uniq.join('|')}
           else
             @regexp
           end
-          filter = { @name => body }
+          filter = {@name => body}
           if @options.key?(:cache)
             filter[:_cache] = !!@options[:cache]
             filter[:_cache_key] = if @options[:cache].is_a?(TrueClass) || @options[:cache].is_a?(FalseClass)
@@ -27,7 +27,7 @@ module Chewy
               @options[:cache]
             end
           end
-          { regexp: filter }
+          {regexp: filter}
         end
       end
     end

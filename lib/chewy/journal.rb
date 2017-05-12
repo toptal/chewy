@@ -8,11 +8,11 @@ module Chewy
     JOURNAL_MAPPING = {
       journal: {
         properties: {
-          index_name: { type: 'string', index: 'not_analyzed' },
-          type_name: { type: 'string', index: 'not_analyzed' },
-          action: { type: 'string', index: 'not_analyzed' },
-          object_ids: { type: 'string', index: 'not_analyzed' },
-          created_at: { type: 'date' }
+          index_name: {type: 'string', index: 'not_analyzed'},
+          type_name: {type: 'string', index: 'not_analyzed'},
+          action: {type: 'string', index: 'not_analyzed'},
+          object_ids: {type: 'string', index: 'not_analyzed'},
+          created_at: {type: 'date'}
         }
       }
     }.freeze
@@ -75,7 +75,7 @@ module Chewy
 
       def create
         return if exists?
-        Chewy.client.indices.create index: index_name, body: { settings: { index: Chewy.configuration[:index] }, mappings: JOURNAL_MAPPING }
+        Chewy.client.indices.create index: index_name, body: {settings: {index: Chewy.configuration[:index]}, mappings: JOURNAL_MAPPING}
         Chewy.wait_for_status
       end
 

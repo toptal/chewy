@@ -12,7 +12,7 @@ module Chewy
 
         (count.to_f / DELETE_BATCH_SIZE).ceil.times do
           ids = Chewy.client.search(index: index_name, body: search_query)['hits']['hits'].map { |doc| doc['_id'] }
-          Chewy.client.bulk(body: ids.map { |id| { delete: { _index: index_name, _type: Journal.type_name, _id: id } } }, refresh: true)
+          Chewy.client.bulk(body: ids.map { |id| {delete: {_index: index_name, _type: Journal.type_name, _id: id}} }, refresh: true)
         end
 
         Chewy.wait_for_status

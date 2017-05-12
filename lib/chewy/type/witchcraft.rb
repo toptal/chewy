@@ -134,7 +134,7 @@ module Chewy
 
         def non_proc_fields_for(parent)
           return [] unless parent
-          (parent.children || []).select { |field| !(field.value && field.value.is_a?(Proc)) }
+          (parent.children || []).reject { |field| (field.value && field.value.is_a?(Proc)) }
         end
 
         def proc_fields_for(parent)

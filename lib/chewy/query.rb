@@ -373,7 +373,7 @@ module Chewy
     #                  }]
     #                } } }
     def script_score(script, options = {})
-      scoring = { script_score: { script: script }.merge(options) }
+      scoring = {script_score: {script: script}.merge(options)}
       chain { criteria.update_scores scoring }
     end
 
@@ -441,7 +441,7 @@ module Chewy
     #                  }]
     #                } } }
     def random_score(seed = Time.now, options = {})
-      scoring = options.merge(random_score: { seed: seed.to_i })
+      scoring = options.merge(random_score: {seed: seed.to_i})
       chain { criteria.update_scores scoring }
     end
 
@@ -510,8 +510,8 @@ module Chewy
     def decay(function, field, options = {})
       field_options = options.extract!(:origin, :scale, :offset, :decay).delete_if { |_, v| v.nil? }
       scoring = options.merge(function => {
-                                field => field_options
-                              })
+        field => field_options
+      })
       chain { criteria.update_scores scoring }
     end
 
@@ -540,8 +540,8 @@ module Chewy
       @_named_aggs ||= _build_named_aggs
       @_fully_qualified_named_aggs ||= _build_fqn_aggs
       if params
-        params = { params => @_named_aggs[params] } if params.is_a?(Symbol)
-        params = { params => _get_fully_qualified_named_agg(params) } if params.is_a?(String) && params =~ /\A\S+#\S+\.\S+\z/
+        params = {params => @_named_aggs[params]} if params.is_a?(Symbol)
+        params = {params => _get_fully_qualified_named_agg(params)} if params.is_a?(String) && params =~ /\A\S+#\S+\.\S+\z/
         chain { criteria.update_aggregations params }
       else
         _response['aggregations'] || {}

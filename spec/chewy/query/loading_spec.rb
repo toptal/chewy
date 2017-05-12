@@ -32,11 +32,11 @@ describe Chewy::Query::Loading, :orm do
 
       context 'mongoid', :mongoid do
         specify do
-          expect(PlacesIndex.order(:rating).limit(6).load(city: { scope: -> { where(:rating.lt => 2) } }))
+          expect(PlacesIndex.order(:rating).limit(6).load(city: {scope: -> { where(:rating.lt => 2) }}))
             .to match_array(cities.first(2) + countries.first(3) + [nil])
         end
         specify do
-          expect(PlacesIndex.limit(6).load(city: { scope: -> { where(:rating.lt => 2) } }).order(:rating))
+          expect(PlacesIndex.limit(6).load(city: {scope: -> { where(:rating.lt => 2) }}).order(:rating))
             .to match_array(cities.first(2) + countries.first(3) + [nil])
         end
         specify do
@@ -44,18 +44,18 @@ describe Chewy::Query::Loading, :orm do
             .to match_array(cities.first(2) + countries.first(2) + [nil] * 2)
         end
         specify do
-          expect(PlacesIndex.order(:rating).limit(6).load(city: { scope: City.where(:rating.lt => 2) }))
+          expect(PlacesIndex.order(:rating).limit(6).load(city: {scope: City.where(:rating.lt => 2)}))
             .to match_array(cities.first(2) + countries.first(3) + [nil])
         end
       end
 
       context 'active record', :active_record do
         specify do
-          expect(PlacesIndex.order(:rating).limit(6).load(city: { scope: -> { where('rating < 2') } }))
+          expect(PlacesIndex.order(:rating).limit(6).load(city: {scope: -> { where('rating < 2') }}))
             .to match_array(cities.first(2) + countries.first(3) + [nil])
         end
         specify do
-          expect(PlacesIndex.limit(6).load(city: { scope: -> { where('rating < 2') } }).order(:rating))
+          expect(PlacesIndex.limit(6).load(city: {scope: -> { where('rating < 2') }}).order(:rating))
             .to match_array(cities.first(2) + countries.first(3) + [nil])
         end
         specify do
@@ -63,7 +63,7 @@ describe Chewy::Query::Loading, :orm do
             .to match_array(cities.first(2) + countries.first(2) + [nil] * 2)
         end
         specify do
-          expect(PlacesIndex.order(:rating).limit(6).load(city: { scope: City.where('rating < 2') }))
+          expect(PlacesIndex.order(:rating).limit(6).load(city: {scope: City.where('rating < 2')}))
             .to match_array(cities.first(2) + countries.first(3) + [nil])
         end
       end

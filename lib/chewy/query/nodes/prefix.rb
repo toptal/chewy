@@ -9,7 +9,7 @@ module Chewy
         end
 
         def __render__
-          filter = { prefix: { @name => @value } }
+          filter = {prefix: {@name => @value}}
           filter[:prefix][:_cache] = !!@options[:cache] if @options.key?(:cache)
           filter
         end

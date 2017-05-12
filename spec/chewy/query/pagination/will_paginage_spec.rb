@@ -18,7 +18,7 @@ if defined?(::WillPaginate)
     specify { expect(search.total_pages).to eq(1) } # defaults to 1 on will_paginate
 
     context do
-      let(:data) { Array.new(10) { |i| { id: i.next.to_s, name: "Name#{i.next}", age: 10 * i.next }.stringify_keys! } }
+      let(:data) { Array.new(10) { |i| {id: i.next.to_s, name: "Name#{i.next}", age: 10 * i.next}.stringify_keys! } }
 
       before { ProductsIndex::Product.import!(data.map { |h| double(h) }) }
       before { allow(::WillPaginate).to receive_messages(per_page: 3) }
@@ -43,7 +43,7 @@ if defined?(::WillPaginate)
 
       describe '#total_entries' do
         specify { expect(search.paginate(page: 1, per_page: 4).total_entries).to eq(10) }
-        specify { expect(search.filter(range: { age: { gt: 20 } }).limit(3).total_entries).to eq(8) }
+        specify { expect(search.filter(range: {age: {gt: 20}}).limit(3).total_entries).to eq(8) }
       end
 
       describe '#load' do

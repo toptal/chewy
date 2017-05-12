@@ -22,13 +22,13 @@ module Chewy
       def mappings_hash
         mapping =
           if children.present?
-            { (multi_field? ? :fields : :properties) => children.map(&:mappings_hash).inject(:merge) }
+            {(multi_field? ? :fields : :properties) => children.map(&:mappings_hash).inject(:merge)}
           else
             {}
           end
         mapping.reverse_merge!(options)
         mapping.reverse_merge!(type: (children.present? ? 'object' : 'string'))
-        { name => mapping }
+        {name => mapping}
       end
 
       def compose(object, *parent_objects)
@@ -62,7 +62,7 @@ module Chewy
             end
         end
 
-        { name => result }
+        {name => result}
       end
 
     private

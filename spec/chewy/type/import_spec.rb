@@ -92,9 +92,9 @@ describe Chewy::Type::Import do
 
       city.import dummy_cities.map(&:id), batch_size: 2
       expect(imported.flatten).to match_array([
-        { index: { _id: 2, data: { 'name' => 'name1' } } },
-        { index: { _id: 3, data: { 'name' => 'name2' } } },
-        { delete: { _id: dummy_cities.first.id } }
+        {index: {_id: 2, data: {'name' => 'name1'}}},
+        {index: {_id: 3, data: {'name' => 'name2'}}},
+        {delete: {_id: dummy_cities.first.id}}
       ])
     end
 
@@ -161,9 +161,9 @@ describe Chewy::Type::Import do
 
         criteria = case adapter
         when :mongoid
-          { :name.in => names }
+          {:name.in => names}
         else
-          { name: names }
+          {name: names}
         end
 
         stub_index(:cities) do
@@ -197,7 +197,7 @@ describe Chewy::Type::Import do
 
         dummy_cities.first.destroy
         city.import dummy_cities
-        expect(outer_payload).to eq(type: CitiesIndex::City, import: { delete: 1, index: 2 })
+        expect(outer_payload).to eq(type: CitiesIndex::City, import: {delete: 1, index: 2})
       end
 
       specify do
@@ -208,7 +208,7 @@ describe Chewy::Type::Import do
 
         dummy_cities.first.destroy
         city.import dummy_cities, batch_size: 2
-        expect(outer_payload).to eq(type: CitiesIndex::City, import: { delete: 1, index: 2 })
+        expect(outer_payload).to eq(type: CitiesIndex::City, import: {delete: 1, index: 2})
       end
 
       specify do
@@ -218,7 +218,7 @@ describe Chewy::Type::Import do
         end
 
         city.import dummy_cities, batch_size: 2
-        expect(outer_payload).to eq(type: CitiesIndex::City, import: { index: 3 })
+        expect(outer_payload).to eq(type: CitiesIndex::City, import: {index: 3})
       end
 
       context do
@@ -254,7 +254,7 @@ describe Chewy::Type::Import do
                 mapper_parsing_exception => %w[2 3]
               }
             },
-            import: { index: 3 })
+            import: {index: 3})
         end
 
         specify do
@@ -274,7 +274,7 @@ describe Chewy::Type::Import do
                 } => %w[1 2 3]
               }
             },
-            import: { index: 3 })
+            import: {index: 3})
         end
       end
     end
@@ -298,7 +298,7 @@ describe Chewy::Type::Import do
         before do
           stub_index(:cities) do
             define_type City do
-              field :name, type: 'object', value: -> { name == 'name1' ? name : { name: name } }
+              field :name, type: 'object', value: -> { name == 'name1' ? name : {name: name} }
             end
           end
         end
@@ -326,7 +326,7 @@ describe Chewy::Type::Import do
           end
 
           define_type City do
-            root parent: { type: 'country' }, parent_id: -> { country_id } do
+            root parent: {type: 'country'}, parent_id: -> { country_id } do
               field :name
             end
           end
@@ -343,7 +343,7 @@ describe Chewy::Type::Import do
 
       specify do
         expect(CountriesIndex.client).to receive(:bulk).with(hash_including(
-                                                               body: [{ index: { _id: child_city.id, parent: country.id, data: { 'name' => 'city' } } }]
+                                                               body: [{index: {_id: child_city.id, parent: country.id, data: {'name' => 'city'}}}]
         ))
 
         city.import child_city
@@ -357,8 +357,8 @@ describe Chewy::Type::Import do
 
           expect(CountriesIndex.client).to receive(:bulk).with(hash_including(
                                                                  body: [
-                                                                   { delete: { _id: child_city.id, parent: country.id.to_s } },
-                                                                   { index: { _id: child_city.id, parent: another_country.id, data: { 'name' => 'city' } } }
+                                                                   {delete: {_id: child_city.id, parent: country.id.to_s}},
+                                                                   {index: {_id: child_city.id, parent: another_country.id, data: {'name' => 'city'}}}
                                                                  ]
           ))
 
@@ -369,7 +369,7 @@ describe Chewy::Type::Import do
           child_city.destroy
 
           expect(CountriesIndex.client).to receive(:bulk).with(hash_including(
-                                                                 body: [{ delete: { _id: child_city.id, parent: country.id.to_s } }]
+                                                                 body: [{delete: {_id: child_city.id, parent: country.id.to_s}}]
           ))
 
           city.import child_city
@@ -379,7 +379,7 @@ describe Chewy::Type::Import do
           child_city.destroy
 
           expect(CountriesIndex.client).to receive(:bulk).with(hash_including(
-                                                                 body: [{ delete: { _id: child_city.id, parent: country.id.to_s } }]
+                                                                 body: [{delete: {_id: child_city.id, parent: country.id.to_s}}]
           ))
 
           city.import child_city.id
@@ -418,7 +418,7 @@ describe Chewy::Type::Import do
 
       specify do
         expect(CountriesIndex.client).to receive(:bulk).with(hash_including(
-                                                               body: [{ index: { _id: canada.country_code, data: { 'name' => 'Canada', 'rating' => 4 } } }]
+                                                               body: [{index: {_id: canada.country_code, data: {'name' => 'Canada', 'rating' => 4}}}]
         ))
 
         country.import canada
@@ -428,7 +428,7 @@ describe Chewy::Type::Import do
         canada.update_attributes(rating: 9)
 
         expect(CountriesIndex.client).to receive(:bulk).with(hash_including(
-                                                               body: [{ index: { _id: canada.country_code, data: { 'name' => 'Canada', 'rating' => 9 } } }]
+                                                               body: [{index: {_id: canada.country_code, data: {'name' => 'Canada', 'rating' => 9}}}]
         ))
 
         country.import canada
@@ -438,7 +438,7 @@ describe Chewy::Type::Import do
         canada.destroy
 
         expect(CountriesIndex.client).to receive(:bulk).with(hash_including(
-                                                               body: [{ delete: { _id: canada.country_code } }]
+                                                               body: [{delete: {_id: canada.country_code}}]
         ))
 
         country.import canada

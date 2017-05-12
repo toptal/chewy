@@ -36,7 +36,7 @@
   end
 end
 
-{ '5.1' => '4.2', '6.0' => '5.0' }.each do |(mongoid, activesupport)|
+{'5.1' => '4.2', '6.0' => '5.0'}.each do |(mongoid, activesupport)|
   appraise "rails.#{activesupport}.mongoid.#{mongoid}" do
     gem 'mongoid', "~> #{mongoid}.0"
     gem 'activesupport', "~> #{activesupport}.0"

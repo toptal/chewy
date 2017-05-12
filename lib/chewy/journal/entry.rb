@@ -17,7 +17,7 @@ module Chewy
       # @param indices [Array<Chewy::Index>] journal records related to these indices will be loaded only
       def self.since(time, indices = [])
         query = Query.new(time, :gte, indices).to_h
-        parameters = { index: Journal.index_name, type: Journal.type_name, body: query }
+        parameters = {index: Journal.index_name, type: Journal.type_name, body: query}
         size = Chewy.client.count(parameters)['count']
         if size > 0
           Chewy.client

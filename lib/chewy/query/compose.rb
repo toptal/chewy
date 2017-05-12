@@ -4,23 +4,23 @@ module Chewy
     protected
 
       def _filtered_query(query, filter, options = {})
-        query = { match_all: {} } if !query.present? && filter.present?
+        query = {match_all: {}} if !query.present? && filter.present?
 
         if filter.present?
           filtered = if query.present?
-            { query: { filtered: {
+            {query: {filtered: {
               query: query,
               filter: filter
-            } } }
+            }}}
           else
-            { query: { filtered: {
+            {query: {filtered: {
               filter: filter
-            } } }
+            }}}
           end
           filtered[:query][:filtered][:strategy] = options[:strategy].to_s if options[:strategy].present?
           filtered
         elsif query.present?
-          { query: query }
+          {query: query}
         else
           {}
         end
@@ -32,14 +32,14 @@ module Chewy
         if queries.many? || (queries.present? && logic == :must_not)
           case logic
           when :dis_max
-            { dis_max: { queries: queries } }
+            {dis_max: {queries: queries}}
           when :must, :should, :must_not
-            { bool: { logic => queries } }
+            {bool: {logic => queries}}
           else
             if logic.is_a?(Float)
-              { dis_max: { queries: queries, tie_breaker: logic } }
+              {dis_max: {queries: queries, tie_breaker: logic}}
             else
-              { bool: { should: queries, minimum_should_match: logic } }
+              {bool: {should: queries, minimum_should_match: logic}}
             end
           end
         else
@@ -53,11 +53,11 @@ module Chewy
         if filters.many? || (filters.present? && logic == :must_not)
           case logic
           when :and, :or
-            { logic => filters }
+            {logic => filters}
           when :must, :should, :must_not
-            { bool: { logic => filters } }
+            {bool: {logic => filters}}
           else
-            { bool: { should: filters, minimum_should_match: logic } }
+            {bool: {should: filters, minimum_should_match: logic}}
           end
         else
           filters.first

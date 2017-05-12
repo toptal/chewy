@@ -6,13 +6,13 @@ describe Chewy::Query::Nodes::Exists do
       Chewy::Query::Filters.new(&block).__render__
     end
 
-    specify { expect(render { name? }).to eq(exists: { field: 'name' }) }
+    specify { expect(render { name? }).to eq(exists: {field: 'name'}) }
 
-    specify { expect(render { !!name? }).to eq(exists: { field: 'name' }) }
-    specify { expect(render { !!name }).to eq(exists: { field: 'name' }) }
-    specify { expect(render { name != nil }).to eq(exists: { field: 'name' }) } # rubocop:disable Style/NonNilCheck
-    specify { expect(render { !name.nil? }).to eq(exists: { field: 'name' }) }
+    specify { expect(render { !!name? }).to eq(exists: {field: 'name'}) }
+    specify { expect(render { !!name }).to eq(exists: {field: 'name'}) }
+    specify { expect(render { name != nil }).to eq(exists: {field: 'name'}) } # rubocop:disable Style/NonNilCheck
+    specify { expect(render { !name.nil? }).to eq(exists: {field: 'name'}) }
 
-    specify { expect(render { ~name? }).to eq(exists: { field: 'name' }) }
+    specify { expect(render { ~name? }).to eq(exists: {field: 'name'}) }
   end
 end

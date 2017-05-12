@@ -170,7 +170,7 @@ module Chewy
 
     def self.mappings_hash
       mappings = types.map(&:mappings_hash).inject(:merge)
-      mappings.present? ? { mappings: mappings } : {}
+      mappings.present? ? {mappings: mappings} : {}
     end
 
     def self.index_params

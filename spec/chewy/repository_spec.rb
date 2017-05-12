@@ -14,7 +14,7 @@ describe Chewy::Repository do
     context do
       before { subject.analyzer(:name, option: :foo) }
       specify { expect(subject.analyzer(:name)).to eq(option: :foo) }
-      specify { expect(subject.analyzers).to eq(name: { option: :foo }) }
+      specify { expect(subject.analyzers).to eq(name: {option: :foo}) }
     end
   end
 
@@ -24,7 +24,7 @@ describe Chewy::Repository do
     context do
       before { subject.tokenizer(:name, option: :foo) }
       specify { expect(subject.tokenizer(:name)).to eq(option: :foo) }
-      specify { expect(subject.tokenizers).to eq(name: { option: :foo }) }
+      specify { expect(subject.tokenizers).to eq(name: {option: :foo}) }
     end
   end
 
@@ -34,7 +34,7 @@ describe Chewy::Repository do
     context do
       before { subject.filter(:name, option: :foo) }
       specify { expect(subject.filter(:name)).to eq(option: :foo) }
-      specify { expect(subject.filters).to eq(name: { option: :foo }) }
+      specify { expect(subject.filters).to eq(name: {option: :foo}) }
     end
   end
 
@@ -44,7 +44,7 @@ describe Chewy::Repository do
     context do
       before { subject.char_filter(:name, option: :foo) }
       specify { expect(subject.char_filter(:name)).to eq(option: :foo) }
-      specify { expect(subject.char_filters).to eq(name: { option: :foo }) }
+      specify { expect(subject.char_filters).to eq(name: {option: :foo}) }
     end
   end
 end

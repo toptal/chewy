@@ -2,8 +2,8 @@ module Chewy
   module Search
     class Parameters
       module HashStorage
-        def update!(value)
-          @value.merge!(normalize(value))
+        def update!(other_value)
+          value.merge!(normalize(other_value))
         end
 
       private

@@ -6,34 +6,34 @@ module Chewy
       module QueryStorage
         DEFAULT = { must: [], should: [], must_not: [] }.freeze
 
-        def update!(value)
-          @value = normalize(value).each do |key, component|
-            component.unshift(*@value[key])
+        def update!(other_value)
+          @value = normalize(other_value).each do |key, component|
+            component.unshift(*value[key])
           end
         end
 
-        def must(value)
-          update!(must: value)
+        def must(other_value)
+          update!(must: other_value)
         end
 
-        def should(value)
-          update!(should: value)
+        def should(other_value)
+          update!(should: other_value)
         end
 
-        def must_not(value)
-          update!(must_not: value)
+        def must_not(other_value)
+          update!(must_not: other_value)
         end
 
-        def and(value)
-          replace!(must: join(value))
+        def and(other_value)
+          replace!(must: join(other_value))
         end
 
-        def or(value)
-          replace!(should: join(value))
+        def or(other_value)
+          replace!(should: join(other_value))
         end
 
-        def not(value)
-          update!(must_not: reduce(normalize(value)))
+        def not(other_value)
+          update!(must_not: reduce(normalize(other_value)))
         end
 
         def merge!(other)
@@ -47,8 +47,8 @@ module Chewy
 
       private
 
-        def join(value)
-          [@value, normalize(value)].map(&method(:reduce)).compact
+        def join(other_value)
+          [value, normalize(other_value)].map(&method(:reduce)).compact
         end
 
         def reduce(value)

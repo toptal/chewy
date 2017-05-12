@@ -4,14 +4,14 @@ module Chewy
   module Search
     class Parameters
       class Order < Value
-        def update!(value)
-          @value.merge!(normalize(value))
+        def update!(other_value)
+          value.merge!(normalize(other_value))
         end
 
         def render
-          return if @value.blank?
+          return if value.blank?
 
-          sort = @value.map do |(field, options)|
+          sort = value.map do |(field, options)|
             options ? { field => options } : field
           end
           { sort: sort }

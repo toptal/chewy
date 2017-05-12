@@ -161,8 +161,8 @@ module Chewy
 
     protected
 
-      def initialize_clone(other)
-        @parameters = other.parameters.clone
+      def initialize_clone(origin)
+        @parameters = origin.parameters.clone
         reset
       end
 

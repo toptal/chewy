@@ -4,9 +4,9 @@ module Chewy
   module Search
     class Parameters
       class StoredFields < Value
-        def update!(value)
-          new_value = normalize(value)
-          new_value[:stored_fields] = @value[:stored_fields] | new_value[:stored_fields]
+        def update!(other_value)
+          new_value = normalize(other_value)
+          new_value[:stored_fields] = value[:stored_fields] | new_value[:stored_fields]
           @value = new_value
         end
 
@@ -16,21 +16,21 @@ module Chewy
         end
 
         def render
-          if !@value[:enabled]
+          if !value[:enabled]
             { self.class.param_name => '_none_' }
-          elsif @value[:stored_fields].present?
-            { self.class.param_name => @value[:stored_fields] }
+          elsif value[:stored_fields].present?
+            { self.class.param_name => value[:stored_fields] }
           end
         end
 
       private
 
-        def normalize(value)
-          stored_fields, enabled = case value
+        def normalize(raw_value)
+          stored_fields, enabled = case raw_value
           when TrueClass, FalseClass
-            [[], value]
+            [[], raw_value]
           else
-            [value, true]
+            [raw_value, true]
           end
           { stored_fields: Array.wrap(stored_fields).reject(&:blank?).map(&:to_s),
             enabled: enabled }

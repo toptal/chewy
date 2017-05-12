@@ -134,9 +134,9 @@ module Chewy
         STORAGES.map { |storage| send(storage) }
       end
 
-      def initialize_clone(other)
+      def initialize_clone(origin)
         STORAGES.each do |storage|
-          value = other.send(storage)
+          value = origin.send(storage)
           instance_variable_set("@#{storage}", value.deep_dup)
         end
       end

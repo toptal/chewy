@@ -4,13 +4,13 @@ module Chewy
   module Search
     class Parameters
       class IndicesBoost < Value
-        def update!(value)
-          new_value = normalize(value)
-          @value.except!(*new_value.keys).merge!(new_value)
+        def update!(other_value)
+          new_value = normalize(other_value)
+          value.except!(*new_value.keys).merge!(new_value)
         end
 
         def render
-          { self.class.param_name => @value.map { |k, v| { k => v } } } if @value.present?
+          { self.class.param_name => value.map { |k, v| { k => v } } } if value.present?
         end
 
       private

@@ -2,8 +2,8 @@ module Chewy
   module Search
     class Parameters
       module StringArrayStorage
-        def update!(value)
-          @value |= normalize(value)
+        def update!(other_value)
+          @value = value | normalize(other_value)
         end
 
       private

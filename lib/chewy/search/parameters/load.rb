@@ -4,11 +4,11 @@ module Chewy
   module Search
     class Parameters
       class Load < Value
-        def update!(value)
-          normalized_value = normalize(value)
-          normalized_value[:load_options].reverse_merge!(@value[:load_options])
-          normalized_value[:loaded_objects] ||= @value[:loaded_objects]
-          @value = normalized_value
+        def update!(other_value)
+          new_value = normalize(other_value)
+          new_value[:load_options].reverse_merge!(value[:load_options])
+          new_value[:loaded_objects] ||= value[:loaded_objects]
+          @value = new_value
         end
 
         def render; end

@@ -1029,8 +1029,8 @@ module Chewy
 
   protected
 
-    def initialize_clone(other)
-      @criteria = other.criteria.clone
+    def initialize_clone(origin)
+      @criteria = origin.criteria.clone
       reset
     end
 

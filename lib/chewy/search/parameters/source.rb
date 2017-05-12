@@ -6,10 +6,10 @@ module Chewy
       class Source < Value
         self.param_name = :_source
 
-        def update!(value)
-          new_value = normalize(value)
-          new_value[:includes] = @value[:includes] | new_value[:includes]
-          new_value[:excludes] = @value[:excludes] | new_value[:excludes]
+        def update!(other_value)
+          new_value = normalize(other_value)
+          new_value[:includes] = value[:includes] | new_value[:includes]
+          new_value[:excludes] = value[:excludes] | new_value[:excludes]
           @value = new_value
         end
 
@@ -19,12 +19,12 @@ module Chewy
         end
 
         def render
-          if !@value[:enabled]
+          if !value[:enabled]
             { self.class.param_name => false }
-          elsif @value[:excludes].present?
-            { self.class.param_name => @value.slice(:includes, :excludes).reject { |_, v| v.blank? } }
-          elsif @value[:includes].present?
-            { self.class.param_name => @value[:includes] }
+          elsif value[:excludes].present?
+            { self.class.param_name => value.slice(:includes, :excludes).reject { |_, v| v.blank? } }
+          elsif value[:includes].present?
+            { self.class.param_name => value[:includes] }
           end
         end
 

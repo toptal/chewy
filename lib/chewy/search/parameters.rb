@@ -74,8 +74,8 @@ module Chewy
 
     protected
 
-      def initialize_clone(other)
-        @storages = other.storages.clone
+      def initialize_clone(origin)
+        @storages = origin.storages.clone
       end
 
       def compare_storages(other)

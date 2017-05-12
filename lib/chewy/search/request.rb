@@ -20,7 +20,7 @@ module Chewy
            timeout min_score source stored_fields search_after
            load preload script_fields suggest indices_boost
            rescore highlight total total_count total_entries
-           types unlimited delete_all count exists? exist? find)
+           types delete_all count exists? exist? find)
       end
 
       def initialize(*indexes_or_types)

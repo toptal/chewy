@@ -5,6 +5,8 @@ module Chewy
     class Parameters
       class Types < Value
         include StringArrayStorage
+
+        def render; end
       end
     end
   end

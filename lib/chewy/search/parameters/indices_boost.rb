@@ -10,7 +10,7 @@ module Chewy
         end
 
         def render
-          { self.class.param_name => value.map { |k, v| { k => v } } } if value.present?
+          {self.class.param_name => value.map { |k, v| {k => v} }} if value.present?
         end
 
       private

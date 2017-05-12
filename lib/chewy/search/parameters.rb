@@ -53,7 +53,7 @@ module Chewy
           result.merge!(storage.render || {})
         end
         body.merge!(render_query || {})
-        body.present? ? { body: body } : {}
+        body.present? ? {body: body} : {}
       end
 
       def render_query
@@ -66,9 +66,9 @@ module Chewy
           query[:query][:bool].merge!(filter)
           query
         elsif query
-          { query: { bool: { must: query[:query] }.merge!(filter) } }
+          {query: {bool: {must: query[:query]}.merge!(filter)}}
         else
-          { query: { bool: filter } }
+          {query: {bool: filter}}
         end
       end
 

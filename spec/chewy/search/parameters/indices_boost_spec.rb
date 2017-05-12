@@ -47,7 +47,7 @@ describe Chewy::Search::Parameters::IndicesBoost do
       specify do
         expect { subject.update!(index: 1.5) }
           .to change { subject.value.keys }
-          .from(%w(index other)).to(%w(other index))
+          .from(%w[index other]).to(%w[other index])
       end
     end
   end
@@ -68,8 +68,8 @@ describe Chewy::Search::Parameters::IndicesBoost do
 
   describe '#render' do
     specify { expect(described_class.new.render).to be_nil }
-    specify { expect(described_class.new(index: 1.2).render).to eq(indices_boost: [{ 'index' => 1.2 }]) }
-    specify { expect(described_class.new(index: 1.2, other: 1.3).render).to eq(indices_boost: [{ 'index' => 1.2 }, { 'other' => 1.3 }]) }
-    specify { expect(described_class.new(index: 1.2, other: 1.3).tap { |i| i.update!(index: '1.5') }.render).to eq(indices_boost: [{ 'other' => 1.3 }, { 'index' => 1.5 }]) }
+    specify { expect(described_class.new(index: 1.2).render).to eq(indices_boost: [{'index' => 1.2}]) }
+    specify { expect(described_class.new(index: 1.2, other: 1.3).render).to eq(indices_boost: [{'index' => 1.2}, {'other' => 1.3}]) }
+    specify { expect(described_class.new(index: 1.2, other: 1.3).tap { |i| i.update!(index: '1.5') }.render).to eq(indices_boost: [{'other' => 1.3}, {'index' => 1.5}]) }
   end
 end

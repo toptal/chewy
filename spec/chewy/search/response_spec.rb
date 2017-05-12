@@ -44,7 +44,7 @@ describe Chewy::Search::Response, :orm do
     specify { expect(subject.hits).to all be_a(Hash) }
     specify do
       expect(subject.hits.flat_map(&:keys).uniq)
-        .to match_array(%w(_id _index _type _score _source sort))
+        .to match_array(%w[_id _index _type _score _source sort])
     end
 
     context do
@@ -68,7 +68,7 @@ describe Chewy::Search::Response, :orm do
     context do
       let(:request) do
         Chewy::Search::Request.new(PlacesIndex)
-          .query(script: { script: { inline: 'sleep(100); true', lang: 'groovy' } })
+          .query(script: {script: {inline: 'sleep(100); true', lang: 'groovy'}})
       end
       specify { expect(subject.took).to be > 100 }
     end
@@ -80,7 +80,7 @@ describe Chewy::Search::Response, :orm do
     context do
       let(:request) do
         Chewy::Search::Request.new(PlacesIndex)
-          .query(script: { script: { inline: 'sleep(100); true', lang: 'groovy' } }).timeout('10ms')
+          .query(script: {script: {inline: 'sleep(100); true', lang: 'groovy'}}).timeout('10ms')
       end
       specify { expect(subject.timed_out?).to eq(true) }
     end
@@ -90,7 +90,7 @@ describe Chewy::Search::Response, :orm do
     specify { expect(subject.max_score).to be_nil }
 
     context do
-      let(:request) { Chewy::Search::Request.new(PlacesIndex).query(range: { rating: { lte: 42 } }) }
+      let(:request) { Chewy::Search::Request.new(PlacesIndex).query(range: {rating: {lte: 42}}) }
       specify { expect(subject.max_score).to eq(1.0) }
     end
   end
@@ -112,8 +112,8 @@ describe Chewy::Search::Response, :orm do
       specify do
         expect(subject.suggest).to eq(
           'my_suggestion' => [
-            { 'text' => 'city', 'offset' => 0, 'length' => 4, 'options' => [] },
-            { 'text' => 'country', 'offset' => 5, 'length' => 7, 'options' => [] }
+            {'text' => 'city', 'offset' => 0, 'length' => 4, 'options' => []},
+            {'text' => 'country', 'offset' => 5, 'length' => 7, 'options' => []}
           ]
         )
       end
@@ -135,24 +135,24 @@ describe Chewy::Search::Response, :orm do
     end
 
     context do
-      let(:raw_response) { { 'hits' => {} } }
+      let(:raw_response) { {'hits' => {}} }
       specify { expect(subject.results).to eq([]) }
     end
 
     context do
-      let(:raw_response) { { 'hits' => { 'hits' => [] } } }
+      let(:raw_response) { {'hits' => {'hits' => []}} }
       specify { expect(subject.results).to eq([]) }
     end
 
     context do
       let(:raw_response) do
-        { 'hits' => { 'hits' => [
-          { '_index' => 'places',
-            '_type' => 'city',
-            '_id' => '1',
-            '_score' => 1.3,
-            '_source' => { 'id' => 2, 'rating' => 0 } }
-        ] } }
+        {'hits' => {'hits' => [
+          {'_index' => 'places',
+           '_type' => 'city',
+           '_id' => '1',
+           '_score' => 1.3,
+           '_source' => {'id' => 2, 'rating' => 0}}
+        ]}}
       end
       specify { expect(subject.results.first).to be_a(PlacesIndex::City) }
       specify { expect(subject.results.first.id).to eq(2) }
@@ -163,13 +163,13 @@ describe Chewy::Search::Response, :orm do
 
     context do
       let(:raw_response) do
-        { 'hits' => { 'hits' => [
-          { '_index' => 'places',
-            '_type' => 'country',
-            '_id' => '2',
-            '_score' => 1.2,
-            '_explanation' => { foo: 'bar' } }
-        ] } }
+        {'hits' => {'hits' => [
+          {'_index' => 'places',
+           '_type' => 'country',
+           '_id' => '2',
+           '_score' => 1.2,
+           '_explanation' => {foo: 'bar'}}
+        ]}}
       end
       specify { expect(subject.results.first).to be_a(PlacesIndex::Country) }
       specify { expect(subject.results.first.id).to eq('2') }
@@ -183,28 +183,28 @@ describe Chewy::Search::Response, :orm do
     specify { expect(subject.objects).to eq([*cities, *countries]) }
 
     context do
-      let(:load_options) { { only: 'city' } }
+      let(:load_options) { {only: 'city'} }
       specify { expect(subject.objects).to eq([*cities, nil, nil]) }
     end
 
     context do
-      let(:load_options) { { except: 'city' } }
+      let(:load_options) { {except: 'city'} }
       specify { expect(subject.objects).to eq([nil, nil, *countries]) }
     end
 
     context do
-      let(:load_options) { { except: %w(city country) } }
+      let(:load_options) { {except: %w[city country]} }
       specify { expect(subject.objects).to eq([nil, nil, nil, nil]) }
     end
 
     context 'scopes', :active_record do
       context do
-        let(:load_options) { { scope: -> { where('rating > 2') } } }
+        let(:load_options) { {scope: -> { where('rating > 2') }} }
         specify { expect(subject.objects).to eq([nil, nil, nil, countries.last]) }
       end
 
       context do
-        let(:load_options) { { country: { scope: -> { where('rating > 2') } } } }
+        let(:load_options) { {country: {scope: -> { where('rating > 2') }}} }
         specify { expect(subject.objects).to eq([*cities, nil, countries.last]) }
       end
     end

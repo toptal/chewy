@@ -55,8 +55,8 @@ describe Chewy::Search::Parameters do
     subject { described_class.new(limit: 10, offset: 20, order: :foo) }
 
     specify { expect { subject.only!([:limit]) }.to change { subject.clone }.to(described_class.new(limit: 10)) }
-    specify { expect { subject.only!([:offset, :order]) }.to change { subject.clone }.to(described_class.new(offset: 20, order: :foo)) }
-    specify { expect { subject.only!([:limit, :something]) }.to raise_error NameError }
+    specify { expect { subject.only!(%i[offset order]) }.to change { subject.clone }.to(described_class.new(offset: 20, order: :foo)) }
+    specify { expect { subject.only!(%i[limit something]) }.to raise_error NameError }
     specify { expect { subject.only!([]) }.to raise_error ArgumentError }
   end
 
@@ -64,8 +64,8 @@ describe Chewy::Search::Parameters do
     subject { described_class.new(limit: 10, offset: 20, order: :foo) }
 
     specify { expect { subject.except!([:limit]) }.to change { subject.clone }.to(described_class.new(offset: 20, order: :foo)) }
-    specify { expect { subject.except!([:offset, :order]) }.to change { subject.clone }.to(described_class.new(limit: 10)) }
-    specify { expect { subject.except!([:limit, :something]) }.to raise_error NameError }
+    specify { expect { subject.except!(%i[offset order]) }.to change { subject.clone }.to(described_class.new(limit: 10)) }
+    specify { expect { subject.except!(%i[limit something]) }.to raise_error NameError }
     specify { expect { subject.except!([]) }.to raise_error ArgumentError }
   end
 
@@ -75,18 +75,18 @@ describe Chewy::Search::Parameters do
 
     specify do
       expect { first.merge!(second) }.to change { first.clone }
-        .to(described_class.new(limit: 20, offset: 20, order: %w(foo bar)))
+        .to(described_class.new(limit: 20, offset: 20, order: %w[foo bar]))
     end
     specify { expect { first.merge!(second) }.not_to change { second.clone } }
 
     specify do
       expect { second.merge!(first) }.to change { second.clone }
-        .to(described_class.new(limit: 20, offset: 10, order: %w(bar foo)))
+        .to(described_class.new(limit: 20, offset: 10, order: %w[bar foo]))
     end
     specify { expect { second.merge!(first) }.not_to change { first.clone } }
 
     context 'spawns new storages for the merge' do
-      let(:names) { %i(limit offset order) }
+      let(:names) { %i[limit offset order] }
       def storage_object_ids(params)
         params.storages.values_at(*names).map(&:object_id)
       end
@@ -99,27 +99,27 @@ describe Chewy::Search::Parameters do
   describe '#render' do
     subject { described_class.new(offset: 10, order: 'foo') }
 
-    specify { expect(subject.render).to eq(body: { from: 10, sort: ['foo'] }) }
+    specify { expect(subject.render).to eq(body: {from: 10, sort: ['foo']}) }
     specify { expect(described_class.new.render).to eq({}) }
 
     context do
-      subject { described_class.new(query: { foo: 'bar' }, filter: { moo: 'baz' }) }
-      specify { expect(subject.render).to eq(body: { query: { bool: { must: { foo: 'bar' }, filter: { moo: 'baz' } } } }) }
+      subject { described_class.new(query: {foo: 'bar'}, filter: {moo: 'baz'}) }
+      specify { expect(subject.render).to eq(body: {query: {bool: {must: {foo: 'bar'}, filter: {moo: 'baz'}}}}) }
     end
 
     context do
-      subject { described_class.new(query: { should: { foo: 'bar' } }, filter: { moo: 'baz' }) }
-      specify { expect(subject.render).to eq(body: { query: { bool: { must: { foo: 'bar' }, filter: { moo: 'baz' } } } }) }
+      subject { described_class.new(query: {should: {foo: 'bar'}}, filter: {moo: 'baz'}) }
+      specify { expect(subject.render).to eq(body: {query: {bool: {must: {foo: 'bar'}, filter: {moo: 'baz'}}}}) }
     end
 
     context do
-      subject { described_class.new(query: { must_not: { foo: 'bar' } }, filter: { moo: 'baz' }) }
-      specify { expect(subject.render).to eq(body: { query: { bool: { must_not: { foo: 'bar' }, filter: { moo: 'baz' } } } }) }
+      subject { described_class.new(query: {must_not: {foo: 'bar'}}, filter: {moo: 'baz'}) }
+      specify { expect(subject.render).to eq(body: {query: {bool: {must_not: {foo: 'bar'}, filter: {moo: 'baz'}}}}) }
     end
 
     context do
-      subject { described_class.new(filter: { moo: 'baz' }) }
-      specify { expect(subject.render).to eq(body: { query: { bool: { filter: { moo: 'baz' } } } }) }
+      subject { described_class.new(filter: {moo: 'baz'}) }
+      specify { expect(subject.render).to eq(body: {query: {bool: {filter: {moo: 'baz'}}}}) }
     end
   end
 end

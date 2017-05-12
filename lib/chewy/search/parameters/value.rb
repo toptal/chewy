@@ -30,7 +30,7 @@ module Chewy
         end
 
         def render
-          { self.class.param_name => value } if value.present?
+          {self.class.param_name => value} if value.present?
         end
 
       private

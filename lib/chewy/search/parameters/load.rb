@@ -24,7 +24,7 @@ module Chewy
             value[:loaded_objects] ||= false
             value
           else
-            { load_options: value, loaded_objects: false }
+            {load_options: value, loaded_objects: false}
           end
         end
       end

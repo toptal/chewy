@@ -17,9 +17,9 @@ module Chewy
 
         def render
           if !value[:enabled]
-            { self.class.param_name => '_none_' }
+            {self.class.param_name => '_none_'}
           elsif value[:stored_fields].present?
-            { self.class.param_name => value[:stored_fields] }
+            {self.class.param_name => value[:stored_fields]}
           end
         end
 
@@ -32,8 +32,8 @@ module Chewy
           else
             [raw_value, true]
           end
-          { stored_fields: Array.wrap(stored_fields).reject(&:blank?).map(&:to_s),
-            enabled: enabled }
+          {stored_fields: Array.wrap(stored_fields).reject(&:blank?).map(&:to_s),
+           enabled: enabled}
         end
       end
     end

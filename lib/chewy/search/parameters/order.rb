@@ -12,9 +12,9 @@ module Chewy
           return if value.blank?
 
           sort = value.map do |(field, options)|
-            options ? { field => options } : field
+            options ? {field => options} : field
           end
-          { sort: sort }
+          {sort: sort}
         end
 
         def ==(other)
@@ -32,7 +32,7 @@ module Chewy
           when Hash
             value.stringify_keys
           else
-            value.present? ? { value.to_s => nil } : {}
+            value.present? ? {value.to_s => nil} : {}
           end
         end
       end

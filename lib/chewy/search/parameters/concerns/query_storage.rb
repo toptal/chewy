@@ -4,7 +4,7 @@ module Chewy
   module Search
     class Parameters
       module QueryStorage
-        DEFAULT = { must: [], should: [], must_not: [] }.freeze
+        DEFAULT = {must: [], should: [], must_not: []}.freeze
 
         def update!(other_value)
           @value = normalize(other_value).each do |key, component|
@@ -42,7 +42,7 @@ module Chewy
 
         def render
           reduced = reduce(value)
-          { self.class.param_name => reduced } if reduced.present?
+          {self.class.param_name => reduced} if reduced.present?
         end
 
       private
@@ -61,7 +61,7 @@ module Chewy
             value = value
               .reject { |_, v| v.empty? }
               .transform_values { |v| v.one? ? v.first : v }
-            { bool: value } if value.present?
+            {bool: value} if value.present?
           end
         end
 
@@ -77,7 +77,7 @@ module Chewy
 
         def normalize(value)
           value = value.symbolize_keys if value.is_a?(Hash)
-          value = { must: value } if !value.is_a?(Hash) || value.keys.present? && (value.keys & DEFAULT.keys).empty?
+          value = {must: value} if !value.is_a?(Hash) || value.keys.present? && (value.keys & DEFAULT.keys).empty?
 
           value.slice(*DEFAULT.keys).reverse_merge(DEFAULT).transform_values do |component|
             Array.wrap(component).map do |piece|

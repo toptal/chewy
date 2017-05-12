@@ -1,3 +1,5 @@
+# rubocop:disable Style/FileName
+
 appraise 'rails.4.2.activerecord' do
   gem 'activerecord', '~> 4.2.0'
   gem 'activesupport', '~> 4.2.0'
@@ -10,7 +12,7 @@ appraise 'rails.4.2.activerecord' do
   gem 'will_paginate', require: false
 end
 
-%w(4.2 5.0).each do |activesupport|
+%w[4.2 5.0].each do |activesupport|
   appraise "rails.#{activesupport}.activerecord" do
     gem 'activerecord', "~> #{activesupport}.0"
     gem 'activesupport', "~> #{activesupport}.0"
@@ -36,7 +38,7 @@ appraise 'rails.4.2.mongoid.5.1' do
   gem 'will_paginate', require: false
 end
 
-%w(6.0 6.1).each do |mongoid|
+%w[6.0 6.1].each do |mongoid|
   appraise "rails.5.1.mongoid.#{mongoid}" do
     gem 'mongoid', "~> #{mongoid}.0"
     gem 'activesupport', '~> 5.1.0'
@@ -50,7 +52,7 @@ end
   end
 end
 
-%w(4.45).each do |sequel|
+%w[4.45].each do |sequel|
   appraise "sequel.#{sequel}" do
     gem 'sequel', "~> #{sequel}.0"
     gem 'activesupport', '~> 5.0.0'

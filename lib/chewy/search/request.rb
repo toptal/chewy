@@ -14,13 +14,15 @@ module Chewy
       attr_reader :_indexes, :_types, :parameters
 
       def self.delegated_methods
-        %i(query filter post_filter order reorder docvalue_fields
-           track_scores request_cache explain version profile
-           search_type preference limit offset terminate_after
-           timeout min_score source stored_fields search_after
-           load preload script_fields suggest indices_boost
-           rescore highlight total total_count total_entries
-           types delete_all count exists? exist? find)
+        %i[
+          query filter post_filter order reorder docvalue_fields
+          track_scores request_cache explain version profile
+          search_type preference limit offset terminate_after
+          timeout min_score source stored_fields search_after
+          load preload script_fields suggest indices_boost
+          rescore highlight total total_count total_entries
+          types delete_all count exists? exist? find
+        ]
       end
 
       def initialize(*indexes_or_types)
@@ -44,7 +46,7 @@ module Chewy
       end
       alias_method :inspect, :render
 
-      %i(query filter post_filter).each do |name|
+      %i[query filter post_filter].each do |name|
         define_method name do |value = nil, &block|
           if block || value
             modify(name) { must(block || value) }
@@ -54,15 +56,15 @@ module Chewy
         end
       end
 
-      %i(and or not).each do |name|
+      %i[and or not].each do |name|
         define_method name do |other|
-          %i(query filter post_filter).inject(self) do |scope, storage|
+          %i[query filter post_filter].inject(self) do |scope, storage|
             scope.send(storage).send(name, other.parameters[storage].value)
           end
         end
       end
 
-      %i(order docvalue_fields types).each do |name|
+      %i[order docvalue_fields types].each do |name|
         define_method name do |value, *values|
           modify(name) { update!([value, *values]) }
         end
@@ -72,19 +74,19 @@ module Chewy
         modify(:order) { replace!([value, *values]) }
       end
 
-      %i(track_scores request_cache explain version profile none).each do |name|
+      %i[track_scores request_cache explain version profile none].each do |name|
         define_method name do |value = true|
           modify(name) { replace!(value) }
         end
       end
 
-      %i(search_type preference limit offset terminate_after timeout min_score).each do |name|
+      %i[search_type preference limit offset terminate_after timeout min_score].each do |name|
         define_method name do |value|
           modify(name) { replace!(value) }
         end
       end
 
-      %i(source stored_fields).each do |name|
+      %i[source stored_fields].each do |name|
         define_method name do |value, *values|
           modify(name) { update!(values.empty? ? value : [value, *values]) }
         end
@@ -102,7 +104,7 @@ module Chewy
         modify(:load) { replace!(options) }
       end
 
-      %i(script_fields indices_boost rescore highlight).each do |name|
+      %i[script_fields indices_boost rescore highlight].each do |name|
         define_method name do |value|
           modify(name) { update!(value) }
         end
@@ -152,7 +154,7 @@ module Chewy
 
       def find(*ids)
         ids = ids.flatten(1)
-        results = only(:query, :filter, :post_filter).filter(terms: { _id: ids }).to_a
+        results = only(:query, :filter, :post_filter).filter(terms: {_id: ids}).to_a
 
         missing_ids = ids - results.map(&:id)
         raise Chewy::DocumentNotFound, "Could not find documents for ids: #{missing_ids.to_sentence}" if missing_ids.present?
@@ -217,7 +219,7 @@ module Chewy
       end
 
       def render_base
-        @render_base ||= { index: index_names, type: type_names }
+        @render_base ||= {index: index_names, type: type_names}
       end
 
       def render_simple

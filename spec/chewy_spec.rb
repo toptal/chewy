@@ -117,11 +117,11 @@ describe Chewy do
     let!(:initial_client) { Thread.current[:chewy_client] }
     let(:faraday_block) { proc {} }
     let(:mock_client) { double(:client) }
-    let(:expected_client_config) { { transport_options: {} } }
+    let(:expected_client_config) { {transport_options: {}} }
 
     before do
       Thread.current[:chewy_client] = nil
-      allow(Chewy).to receive_messages(configuration: { transport_options: { proc: faraday_block } })
+      allow(Chewy).to receive_messages(configuration: {transport_options: {proc: faraday_block}})
 
       allow(::Elasticsearch::Client).to receive(:new).with(expected_client_config) do |*_args, &passed_block|
         # RSpec's `with(..., &block)` was used previously, but doesn't actually do

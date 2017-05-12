@@ -20,11 +20,11 @@ module Chewy
 
         def render
           if !value[:enabled]
-            { self.class.param_name => false }
+            {self.class.param_name => false}
           elsif value[:excludes].present?
-            { self.class.param_name => value.slice(:includes, :excludes).reject { |_, v| v.blank? } }
+            {self.class.param_name => value.slice(:includes, :excludes).reject { |_, v| v.blank? }}
           elsif value[:includes].present?
-            { self.class.param_name => value[:includes] }
+            {self.class.param_name => value[:includes]}
           end
         end
 
@@ -39,9 +39,9 @@ module Chewy
           else
             [value, [], true]
           end
-          { includes: Array.wrap(includes).reject(&:blank?).map(&:to_s),
-            excludes: Array.wrap(excludes).reject(&:blank?).map(&:to_s),
-            enabled: enabled }
+          {includes: Array.wrap(includes).reject(&:blank?).map(&:to_s),
+           excludes: Array.wrap(excludes).reject(&:blank?).map(&:to_s),
+           enabled: enabled}
         end
       end
     end

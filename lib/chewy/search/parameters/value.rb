@@ -28,7 +28,10 @@ module Chewy
           remove_instance_variable(:@value) if instance_variable_defined?(:@value)
           @raw_value = new_value
         end
-        alias_method :update!, :replace!
+
+        def update!(new_value)
+          replace!([value, normalize(new_value)].compact.last)
+        end
 
         def merge!(other)
           update!(other.value)

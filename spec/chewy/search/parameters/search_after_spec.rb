@@ -16,12 +16,12 @@ describe Chewy::Search::Parameters::SearchAfter do
 
   describe '#update!' do
     specify { expect { subject.update!(:baz) }.to change { subject.value }.from([:foo, 42]).to([:baz]) }
-    specify { expect { subject.update!(nil) }.to change { subject.value }.from([:foo, 42]).to(nil) }
+    specify { expect { subject.update!(nil) }.not_to change { subject.value }.from([:foo, 42]) }
   end
 
   describe '#merge!' do
     specify { expect { subject.merge!(described_class.new(:baz)) }.to change { subject.value }.from([:foo, 42]).to([:baz]) }
-    specify { expect { subject.merge!(described_class.new) }.to change { subject.value }.from([:foo, 42]).to(nil) }
+    specify { expect { subject.merge!(described_class.new) }.not_to change { subject.value }.from([:foo, 42]) }
   end
 
   describe '#render' do

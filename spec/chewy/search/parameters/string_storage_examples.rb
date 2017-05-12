@@ -16,12 +16,13 @@ shared_examples :string_storage do |param_name|
 
   describe '#update!' do
     specify { expect { subject.update!('bar') }.to change { subject.value }.from('foo').to('bar') }
-    specify { expect { subject.update!('') }.to change { subject.value }.from('foo').to(nil) }
+    specify { expect { subject.update!('') }.not_to change { subject.value }.from('foo') }
+    specify { expect { subject.update!(nil) }.not_to change { subject.value }.from('foo') }
   end
 
   describe '#merge!' do
     specify { expect { subject.merge!(described_class.new('bar')) }.to change { subject.value }.from('foo').to('bar') }
-    specify { expect { subject.merge!(described_class.new) }.to change { subject.value }.from('foo').to(nil) }
+    specify { expect { subject.merge!(described_class.new) }.not_to change { subject.value }.from('foo') }
   end
 
   describe '#render' do

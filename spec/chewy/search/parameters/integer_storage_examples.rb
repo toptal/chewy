@@ -17,12 +17,12 @@ shared_examples :integer_storage do |param_name|
 
   describe '#update!' do
     specify { expect { subject.update!('42') }.to change { subject.value }.from(10).to(42) }
-    specify { expect { subject.update!(nil) }.to change { subject.value }.from(10).to(nil) }
+    specify { expect { subject.update!(nil) }.not_to change { subject.value }.from(10) }
   end
 
   describe '#merge!' do
     specify { expect { subject.merge!(described_class.new('33')) }.to change { subject.value }.from(10).to(33) }
-    specify { expect { subject.merge!(described_class.new) }.to change { subject.value }.from(10).to(nil) }
+    specify { expect { subject.merge!(described_class.new) }.not_to change { subject.value }.from(10) }
   end
 
   describe '#render' do

@@ -17,12 +17,12 @@ describe Chewy::Search::Parameters::MinScore do
 
   describe '#update!' do
     specify { expect { subject.update!('1.4') }.to change { subject.value }.from(0.5).to(1.4) }
-    specify { expect { subject.update!(nil) }.to change { subject.value }.from(0.5).to(nil) }
+    specify { expect { subject.update!(nil) }.not_to change { subject.value }.from(0.5) }
   end
 
   describe '#merge!' do
     specify { expect { subject.merge!(described_class.new('2')) }.to change { subject.value }.from(0.5).to(2.0) }
-    specify { expect { subject.merge!(described_class.new) }.to change { subject.value }.from(0.5).to(nil) }
+    specify { expect { subject.merge!(described_class.new) }.not_to change { subject.value }.from(0.5) }
   end
 
   describe '#render' do

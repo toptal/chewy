@@ -2,8 +2,8 @@ module Chewy
   module Search
     class Parameters
       module BoolStorage
-        def merge!(other)
-          replace!(value || other.value)
+        def update!(new_value)
+          replace!(value || normalize(new_value))
         end
 
       private

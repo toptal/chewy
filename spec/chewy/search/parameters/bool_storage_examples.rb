@@ -16,8 +16,17 @@ shared_examples :bool_storage do |param_name|
   end
 
   describe '#update!' do
-    specify { expect { subject.update!(false) }.to change { subject.value }.from(true).to(false) }
-    specify { expect { subject.update!(nil) }.to change { subject.value }.from(true).to(false) }
+    specify { expect { subject.update!(nil) }.not_to change { subject.value }.from(true) }
+    specify { expect { subject.update!(false) }.not_to change { subject.value }.from(true) }
+    specify { expect { subject.update!(true) }.not_to change { subject.value }.from(true) }
+
+    context do
+      subject { described_class.new }
+
+      specify { expect { subject.update!(nil) }.not_to change { subject.value }.from(false) }
+      specify { expect { subject.update!(false) }.not_to change { subject.value }.from(false) }
+      specify { expect { subject.update!(true) }.to change { subject.value }.from(false).to(true) }
+    end
   end
 
   describe '#merge!' do

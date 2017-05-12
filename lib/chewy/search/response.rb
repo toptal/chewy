@@ -28,6 +28,10 @@ module Chewy
         @max_score ||= hits_root['max_score']
       end
 
+      def suggest
+        @suggest ||= @body['suggest'] || {}
+      end
+
       def results
         @results ||= hits.map do |hit|
           attributes = (hit['_source'] || {})

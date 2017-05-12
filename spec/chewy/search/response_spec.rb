@@ -9,10 +9,12 @@ describe Chewy::Search::Response, :orm do
 
     stub_index(:places) do
       define_type City do
+        field :name
         field :rating, type: 'integer'
       end
 
       define_type Country do
+        field :name
         field :rating, type: 'integer'
       end
     end
@@ -20,8 +22,8 @@ describe Chewy::Search::Response, :orm do
 
   before { PlacesIndex.import!(cities: cities, countries: countries) }
 
-  let(:cities) { Array.new(2) { |i| City.create!(rating: i) } }
-  let(:countries) { Array.new(2) { |i| Country.create!(rating: i + 2) } }
+  let(:cities) { Array.new(2) { |i| City.create!(rating: i, name: "city #{i}") } }
+  let(:countries) { Array.new(2) { |i| Country.create!(rating: i + 2, name: "country #{i}") } }
 
   let(:request) { Chewy::Search::Request.new(PlacesIndex).order(:rating) }
   let(:raw_response) { request.send(:perform) }
@@ -90,6 +92,31 @@ describe Chewy::Search::Response, :orm do
     context do
       let(:request) { Chewy::Search::Request.new(PlacesIndex).query(range: { rating: { lte: 42 } }) }
       specify { expect(subject.max_score).to eq(1.0) }
+    end
+  end
+
+  describe '#suggest' do
+    specify { expect(subject.suggest).to eq({}) }
+
+    context do
+      let(:request) do
+        Chewy::Search::Request.new(PlacesIndex).suggest(
+          my_suggestion: {
+            text: 'city country',
+            term: {
+              field: 'name'
+            }
+          }
+        )
+      end
+      specify do
+        expect(subject.suggest).to eq(
+          'my_suggestion' => [
+            { 'text' => 'city', 'offset' => 0, 'length' => 4, 'options' => [] },
+            { 'text' => 'country', 'offset' => 5, 'length' => 7, 'options' => [] }
+          ]
+        )
+      end
     end
   end
 

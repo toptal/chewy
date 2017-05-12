@@ -153,6 +153,25 @@ describe Chewy::Search::Request do
       specify { expect(subject.none.render).not_to have_key(:body) }
       specify { expect(subject.none).to eq([]) }
     end
+
+    describe '#suggest' do
+      specify do
+        expect(subject.suggest(
+          foo: {
+            text: 'name',
+            term: { field: 'name' }
+          }
+        ).suggest).to eq(
+          'foo' => [
+            { 'text' => 'name', 'offset' => 0, 'length' => 4, 'options' => [
+              { 'text' => 'name1', 'score' => 0.75, 'freq' => 1 },
+              { 'text' => 'name2', 'score' => 0.75, 'freq' => 1 },
+              { 'text' => 'name3', 'score' => 0.75, 'freq' => 1 }
+            ] }
+          ]
+        )
+      end
+    end
   end
 
   describe '#==' do
@@ -348,13 +367,20 @@ describe Chewy::Search::Request do
     specify { expect { subject.stored_fields(:foo) }.not_to change { subject.render } }
   end
 
-  %i(script_fields suggest highlight).each do |name|
+  %i(script_fields highlight).each do |name|
     describe "##{name}" do
       specify { expect(subject.send(name, foo: { bar: 42 }).render[:body]).to include(name => { 'foo' => { bar: 42 } }) }
       specify { expect(subject.send(name, foo: { bar: 42 }).send(name, moo: { baz: 43 }).render[:body]).to include(name => { 'foo' => { bar: 42 }, 'moo' => { baz: 43 } }) }
       specify { expect(subject.send(name, foo: { bar: 42 }).send(name, nil).render[:body]).to include(name => { 'foo' => { bar: 42 } }) }
       specify { expect { subject.send(name, foo: { bar: 42 }) }.not_to change { subject.render } }
     end
+  end
+
+  describe '#suggest' do
+    specify { expect(subject.suggest(foo: { bar: 42 }).render[:body]).to include(suggest: { 'foo' => { bar: 42 } }) }
+    specify { expect(subject.suggest(foo: { bar: 42 }).suggest(moo: { baz: 43 }).render[:body]).to include(suggest: { 'foo' => { bar: 42 }, 'moo' => { baz: 43 } }) }
+    specify { expect(subject.suggest(foo: { bar: 42 }).suggest(nil).render[:body]).to include(suggest: { 'foo' => { bar: 42 } }) }
+    specify { expect { subject.suggest(foo: { bar: 42 }) }.not_to change { subject.render } }
   end
 
   describe '#docvalue_fields' do

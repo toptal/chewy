@@ -3,6 +3,7 @@ module Chewy
     class Request
       include Enumerable
       include Scoping
+      UNDEFINED = Class.new.freeze
 
       delegate :collection, :results, :objects, :total, to: :response
       delegate :each, :size, to: :collection
@@ -101,9 +102,17 @@ module Chewy
         modify(:load) { replace!(options) }
       end
 
-      %i(script_fields suggest indices_boost rescore highlight).each do |name|
+      %i(script_fields indices_boost rescore highlight).each do |name|
         define_method name do |value|
           modify(name) { update!(value) }
+        end
+      end
+
+      def suggest(value = UNDEFINED)
+        if value == UNDEFINED
+          response.suggest
+        else
+          modify(:suggest) { update!(value) }
         end
       end
 

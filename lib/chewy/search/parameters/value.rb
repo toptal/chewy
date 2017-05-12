@@ -3,6 +3,7 @@ module Chewy
     class Parameters
       class Value
         singleton_class.send :attr_writer, :param_name
+        attr_reader :value
 
         def self.param_name
           @param_name ||= name.demodulize.underscore.to_sym
@@ -12,21 +13,12 @@ module Chewy
           replace!(value)
         end
 
-        def value
-          if instance_variable_defined?(:@value)
-            @value
-          else
-            @value = normalize(@raw_value)
-          end
-        end
-
         def ==(other)
           super || other.class == self.class && other.value == value
         end
 
         def replace!(new_value)
-          remove_instance_variable(:@value) if instance_variable_defined?(:@value)
-          @raw_value = new_value
+          @value = normalize(new_value)
         end
 
         def update!(new_value)

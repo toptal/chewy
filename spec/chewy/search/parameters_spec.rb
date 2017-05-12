@@ -15,7 +15,7 @@ describe Chewy::Search::Parameters do
     specify { expect(subject.storages[:limit].value).to eq(3) }
     specify { expect(subject.storages[:order].value).to eq('foo' => nil) }
 
-    specify { expect { described_class.new(offset: limit).render }.to raise_error(TypeError) }
+    specify { expect { described_class.new(offset: limit) }.to raise_error(TypeError) }
   end
 
   describe '#storages' do

@@ -15,6 +15,7 @@ Chewy is an ODM and wrapper for [the official Elasticsearch client](https://gith
 * [Why Chewy?](#why-chewy)
 * [Usage](#usage)
   * [Client settings](#client-settings)
+    * [Several servers](#several-servers)
   * [Index definition](#index-definition)
   * [Type default import options](#type-default-import-options)
   * [Multi (nested) and object field types](#multi-nested-and-object-field-types)
@@ -119,6 +120,29 @@ Chewy.logger = Logger.new(STDOUT)
 ```
 
 See [config.rb](lib/chewy/config.rb) for more details.
+
+#### Several servers
+
+You can use different ElasticSearch servers for different indexes:
+
+```yaml
+# config/chewy.yml
+production:
+  hosts: 'localhost:9250'
+  clients:
+    search:
+      hosts: 'search.example.com:9250'
+```
+
+```ruby
+class SearchIndex < Chewy::Index
+  use_client :search
+
+  ...
+end
+```
+
+Queries on SearchIndex will be sent to `search.example.com:9250`.
 
 ### Index definition
 

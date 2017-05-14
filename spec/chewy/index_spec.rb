@@ -75,7 +75,7 @@ describe Chewy::Index do
       end
 
       specify do
-        expect(DummiesIndex.client).not_to eq(Chewy.client)
+        expect(DummiesIndex.client).not_to eq(Chewy.default_client)
         hosts = DummiesIndex.client.transport.hosts
         expect(hosts.size).to eq 1
 

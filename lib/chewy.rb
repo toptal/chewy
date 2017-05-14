@@ -122,10 +122,15 @@ module Chewy
       type
     end
 
-    # Main elasticsearch-ruby client instance
+    # Main client instance
     #
-    def client(name = :default)
-      Clients.with_name(name)
+    def client(name = nil)
+      ActiveSupport::Deprecation.warn "Method 'Chewy.client' is deprecated, use 'Chewy.client(name)' or 'Chewy.default_client' instead." if name.nil?
+      Chewy::Clients.with_name(name || :default)
+    end
+
+    def default_client
+      client(:default)
     end
 
     # Sends wait_for_status request to ElasticSearch with status
@@ -143,8 +148,8 @@ module Chewy
     # Be careful, if current prefix is blank, this will destroy all the indexes.
     #
     def massacre
-      Clients.clients.each do |name, client|
-        client.indices.delete(index: [clients[name][:prefix], '*'].delete_if(&:blank?).join('_'))
+      clients.each do |name, config|
+        client(name).indices.delete(index: [config[:prefix], '*'].delete_if(&:blank?).join('_'))
         wait_for_status(name)
       end
     end
@@ -190,15 +195,6 @@ module Chewy
       Chewy::Config.instance
     end
     delegate(*Chewy::Config.delegated, to: :config)
-
-    def client(name = nil)
-      ActiveSupport::Deprecation.warn "Method 'Chewy.client' is deprecated, use 'Chewy.client(name)' or 'Chewy.default_client' instead." if name.nil?
-      Chewy::Clients.with_name(name || :default)
-    end
-
-    def default_client
-      client(:default)
-    end
 
     def repository
       Chewy::Repository.instance

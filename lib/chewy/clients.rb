@@ -3,6 +3,8 @@ require 'chewy/client'
 module Chewy
   module Clients
     class << self
+      delegate :each, to: :clients
+
       def clear
         clients.clear
       end

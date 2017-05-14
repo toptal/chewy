@@ -15,16 +15,16 @@ module ClassHelpers
   end
 
   def skip_on_version_gte(version, message = "Removed from elasticsearch #{version}")
-    skip message if Chewy::Runtime.version >= version
+    skip message if Chewy.default_client.version >= version
   end
 
   def skip_on_version_lt(version, message = "Only for elasticsearch #{version} and greater")
-    skip message if Chewy::Runtime.version < version
+    skip message if Chewy.default_client.version < version
   end
 
   def skip_on_plugin_missing_from_version(plugin, version, message = "Plugin '#{plugin}' is missing on elasticsearch > #{version}")
-    return if Chewy::Runtime.version < version
-    plugins = Chewy.client.nodes.info(plugins: true)['nodes'].values.map { |item| item['plugins'] }.flatten
+    return if Chewy.default_client.version < version
+    plugins = Chewy.default_client.nodes.info(plugins: true)['nodes'].values.map { |item| item['plugins'] }.flatten
     skip message unless plugins.find { |item| item['name'] == plugin }
   end
 end

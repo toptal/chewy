@@ -92,7 +92,7 @@ You can create this file manually or run `rails g chewy:install`.
 
 ```ruby
 # config/initializers/chewy.rb
-Chewy.settings = {host: 'localhost:9250'} # do not use environments
+Chewy.settings = { host: 'localhost:9250' } # do not use environments
 ```
 
 ```yaml
@@ -354,7 +354,7 @@ Product.includes(:categories).find_in_batches(1000) do |batch|
     {name: object.name, category_names: object.categories.map(&:name)}.to_json
   end
   # here we are sending every batch of data to ES
-  Chewy.client.bulk bulk_body
+  Chewy.default_client.bulk bulk_body
 end
 ```
 
@@ -391,7 +391,7 @@ Product.includes(:categories).find_in_batches(1000) do |batch|
   bulk_body = batch.map do |object|
     {name: object.name, category_names: crutches[:categories][object.id]}.to_json
   end
-  Chewy.client.bulk bulk_body
+  Chewy.default_client.bulk bulk_body
 end
 ```
 

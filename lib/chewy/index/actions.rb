@@ -56,7 +56,7 @@ module Chewy
           options = args.extract_options!.reverse_merge!(alias: true)
           name = build_index_name(suffix: args.first)
 
-          if Chewy::Runtime.version >= 1.1
+          if client.version >= 1.1
             body = index_params
             body[:aliases] = { index_name => {} } if options[:alias] && name != index_name
             result = client.indices.create(index: name, body: body)

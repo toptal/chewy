@@ -49,7 +49,6 @@ require 'chewy/runtime'
 require 'chewy/log_subscriber'
 require 'chewy/strategy'
 require 'chewy/clients'
-require 'chewy/configs'
 require 'chewy/index'
 require 'chewy/type'
 require 'chewy/fields/base'
@@ -125,8 +124,8 @@ module Chewy
 
     # Main elasticsearch-ruby client instance
     #
-    def client
-      Clients.default
+    def client(name = :default)
+      Clients.with_name(name)
     end
 
     # Sends wait_for_status request to ElasticSearch with status
@@ -135,8 +134,9 @@ module Chewy
     # Does nothing in case of config `wait_for_status` is undefined.
     #
     def wait_for_status(name = :default)
-      client = Clients.with_name(name)
-      client.cluster.health wait_for_status: Configs.with_name(name)[:wait_for_status] if Configs.with_name(name)[:wait_for_status].present?
+      client = client(name)
+      wait_for_status = clients[name][:wait_for_status]
+      client.cluster.health wait_for_status: wait_for_status if wait_for_status.present?
     end
 
     # Deletes all corresponding indexes with current prefix from ElasticSearch.
@@ -144,7 +144,7 @@ module Chewy
     #
     def massacre
       Clients.clients.each do |name, client|
-        client.indices.delete(index: [Configs.with_name(name)[:prefix], '*'].delete_if(&:blank?).join('_'))
+        client.indices.delete(index: [clients[name][:prefix], '*'].delete_if(&:blank?).join('_'))
         wait_for_status(name)
       end
     end
@@ -190,6 +190,15 @@ module Chewy
       Chewy::Config.instance
     end
     delegate(*Chewy::Config.delegated, to: :config)
+
+    def client(name = nil)
+      ActiveSupport::Deprecation.warn "Method 'Chewy.client' is deprecated, use 'Chewy.client(name)' or 'Chewy.default_client' instead." if name.nil?
+      Chewy::Clients.with_name(name || :default)
+    end
+
+    def default_client
+      client(:default)
+    end
 
     def repository
       Chewy::Repository.instance

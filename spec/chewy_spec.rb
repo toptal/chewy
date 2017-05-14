@@ -96,23 +96,18 @@ describe Chewy do
   end
 
   describe '.massacre' do
-    let(:client) { Chewy::Clients.default }
+    let(:client) { Chewy.default_client }
     subject { Chewy.massacre }
 
     before do
-      Chewy::Clients.purge!
-      Chewy.settings = Chewy::Configs.default.merge(prefix: 'prefix2')
-    end
-
-    after do
-      Chewy::Clients.purge!
+      Chewy.settings = Chewy.clients[:default].merge(prefix: 'prefix2')
     end
 
     context 'when there is index with another prefix' do
       let(:admins_index_name) { 'prefix1_admins' }
 
       before do
-        client.indices.create(index: admins_index_name, body: Chewy::Configs.default)
+        client.indices.create(index: admins_index_name, body: Chewy.clients[:default])
       end
 
       specify do
@@ -145,18 +140,12 @@ describe Chewy do
     end
   end
 
-  describe '.client' do
+  describe '.default_client' do
     let(:faraday_block) { proc {} }
     let(:mock_client) { double(:client) }
 
-    around do |example|
-      settings = Chewy.settings.dup
-      example.run
-      Chewy.settings = settings
-    end
-
     before do
-      expected_client_config = Chewy.settings.deep_dup.merge(transport_options: {}, indices_path: 'app/chewy')
+      expected_client_config = Chewy.settings.deep_dup.merge(transport_options: {}, indices_path: 'app/chewy', clients: {})
       Chewy.settings = Chewy.settings.merge(transport_options: { proc: faraday_block })
 
       allow(::Elasticsearch::Client).to receive(:new).with(expected_client_config) do |*_args, &passed_block|
@@ -168,9 +157,7 @@ describe Chewy do
       end
     end
 
-    its(:client) { is_expected.to eq(mock_client) }
-
-    after { Chewy::Clients.clear }
+    specify { expect(subject.default_client.connection).to eq(mock_client) }
   end
 
   describe '.create_indices' do

@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe Chewy::Runtime::Version do
+describe Chewy::Client::Version do
   describe '#major' do
     specify { expect(described_class.new('1.2.3').major).to eq(1) }
     specify { expect(described_class.new('1.2').major).to eq(1) }

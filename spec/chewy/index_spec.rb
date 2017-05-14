@@ -74,10 +74,6 @@ describe Chewy::Index do
         end
       end
 
-      after do
-        Chewy::Clients.clear
-      end
-
       specify do
         expect(DummiesIndex.client).not_to eq(Chewy.client)
         hosts = DummiesIndex.client.transport.hosts
@@ -108,7 +104,7 @@ describe Chewy::Index do
 
   describe '.default_prefix' do
     before do
-      Chewy.settings = Chewy::Configs.default.merge(prefix: 'testing')
+      Chewy.settings = Chewy.clients[:default].merge(prefix: 'testing')
     end
 
     specify do
@@ -193,8 +189,6 @@ describe Chewy::Index do
 
   describe '.settings' do
     before do
-      allow(Chewy).to receive_messages(config: Chewy::Config.send(:new))
-
       Chewy.analyzer :name, filter: %w(lowercase icu_folding names_nysiis)
       Chewy.analyzer :phone, tokenizer: 'ngram', char_filter: ['phone']
       Chewy.tokenizer :ngram, type: 'nGram', min_gram: 3, max_gram: 3

@@ -1,5 +1,13 @@
 # master
 
+## Changes
+
+  * Added [support for several elasticsearch servers](https://github.com/toptal/chewy/#client-settings) (@mainameiz)
+
+  * `Chewy.client` is deprecated, use `Chewy.client(client_name)` or `Chewy.default_client` instead.
+
+  * `Chewy::Runtime.version` is deprecated, use `Chewy.client(client_name).version` instead.
+
 # Version 0.9.0
 
 ## Changes

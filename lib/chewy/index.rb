@@ -65,11 +65,11 @@ module Chewy
     # Elasticsearch::Client to use
     #
     def self.client
-      Clients.with_name(client_name)
+      Chewy.client(client_name)
     end
 
     def self.config
-      Configs.with_name(client_name)
+      Chewy.clients[client_name]
     end
 
     # Defines type for the index. Arguments depends on adapter used. For

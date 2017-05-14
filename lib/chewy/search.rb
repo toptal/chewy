@@ -25,7 +25,7 @@ module Chewy
           type: all._types.map(&:type_name),
           q: query
         )
-        Chewy.client.search(options)
+        Chewy.default_client.search(options)
       end
 
     private

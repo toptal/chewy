@@ -1,5 +1,5 @@
 module Chewy
-  module Runtime
+  class Client
     class Version
       include Comparable
       attr_reader :major, :minor, :patch

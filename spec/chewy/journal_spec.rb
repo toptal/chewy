@@ -23,7 +23,7 @@ describe Chewy::Journal do
 
           Chewy.massacre
           begin
-            Chewy.client.indices.delete(index: Chewy::Journal.index_name)
+            Chewy.default_client.indices.delete(index: Chewy::Journal.index_name)
           rescue Elasticsearch::Transport::Transport::Errors::NotFound
             nil
           end
@@ -56,7 +56,7 @@ describe Chewy::Journal do
 
             places_index.import
 
-            expect(Chewy.client.indices.exists?(index: Chewy::Journal.index_name)).to eq true
+            expect(Chewy.default_client.indices.exists?(index: Chewy::Journal.index_name)).to eq true
 
             Timecop.freeze(update_time)
             cities.first.update_attributes!(name: 'Supername')
@@ -64,7 +64,7 @@ describe Chewy::Journal do
             Timecop.freeze(destroy_time)
             countries.last.destroy
 
-            journal_records = Chewy.client.search(index: Chewy::Journal.index_name, type: Chewy::Journal.type_name, sort: 'created_at')['hits']['hits'].map { |r| r['_source'] }
+            journal_records = Chewy.default_client.search(index: Chewy::Journal.index_name, type: Chewy::Journal.type_name, sort: 'created_at')['hits']['hits'].map { |r| r['_source'] }
 
             expected_journal = [
               {
@@ -132,7 +132,7 @@ describe Chewy::Journal do
               }
             ]
 
-            expect(Chewy.client.count(index: Chewy::Journal.index_name)['count']).to eq 9
+            expect(Chewy.default_client.count(index: Chewy::Journal.index_name)['count']).to eq 9
             expect(journal_records).to eq expected_journal
 
             journal_entries = Chewy::Journal::Entry.since(import_time)
@@ -152,14 +152,14 @@ describe Chewy::Journal do
             ]
 
             # simulate lost data
-            Chewy.client.delete(index: "#{Chewy.settings[:prefix]}_places", type: 'city', id: 1, refresh: true)
+            Chewy.default_client.delete(index: "#{Chewy.settings[:prefix]}_places", type: 'city', id: 1, refresh: true)
             expect(places_index::City.all.to_a.length).to eq 1
 
             Chewy::Journal::Apply.since(time)
             expect(places_index::City.all.to_a.length).to eq 2
 
             expect(Chewy::Journal::Clean.until(import_time)).to eq 7
-            expect(Chewy.client.count(index: Chewy::Journal.index_name)['count']).to eq 2
+            expect(Chewy.default_client.count(index: Chewy::Journal.index_name)['count']).to eq 2
 
             expect(Chewy::Journal.delete!).to be_truthy
             expect { Chewy::Journal.delete! }.to raise_error(Elasticsearch::Transport::Transport::Errors::NotFound)

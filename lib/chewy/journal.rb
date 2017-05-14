@@ -59,7 +59,7 @@ module Chewy
 
     class << self
       def exists?
-        Chewy.client.indices.exists? index: index_name
+        Chewy.default_client.indices.exists? index: index_name
       end
 
       def index_name
@@ -75,7 +75,7 @@ module Chewy
 
       def create
         return if exists?
-        Chewy.client.indices.create index: index_name, body: { settings: { index: Chewy.configuration[:index] }, mappings: JOURNAL_MAPPING }
+        Chewy.default_client.indices.create index: index_name, body: { settings: { index: Chewy.configuration[:index] }, mappings: JOURNAL_MAPPING }
         Chewy.wait_for_status
       end
 
@@ -84,7 +84,7 @@ module Chewy
       end
 
       def delete
-        result = Chewy.client.indices.delete index: index_name
+        result = Chewy.default_client.indices.delete index: index_name
         Chewy.wait_for_status if result
         result
       rescue Elasticsearch::Transport::Transport::Errors::NotFound

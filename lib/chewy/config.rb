@@ -1,3 +1,5 @@
+require 'chewy/config/clients'
+
 module Chewy
   class Config
     include Singleton
@@ -72,12 +74,16 @@ module Chewy
     end
 
     def transport_logger=(logger)
-      Chewy.client.transport.logger = logger
+      Chewy.clients.each do |name, _config|
+        Chewy.client(name).transport.logger = logger
+      end
       @transport_logger = logger
     end
 
     def transport_tracer=(tracer)
-      Chewy.client.transport.tracer = tracer
+      Chewy.clients.each do |name, _config|
+        Chewy.client(name).transport.tracer = tracer
+      end
       @transport_tracer = tracer
     end
 
@@ -142,8 +148,18 @@ module Chewy
       yaml_settings.merge(settings.deep_symbolize_keys).tap do |configuration|
         configuration[:logger] = transport_logger if transport_logger
         configuration[:indices_path] ||= indices_path if indices_path
-        configuration.merge!(tracer: transport_tracer) if transport_tracer
+        configuration[:tracer] = transport_tracer if transport_tracer
+        configuration[:clients] ||= {}
       end
+    end
+
+    def clients
+      @clients = Config::Clients.new({ default: configuration }.merge(configuration[:clients]))
+    end
+
+    def settings=(settings)
+      Chewy::Clients.clear
+      @settings = settings
     end
 
   private
@@ -155,7 +171,7 @@ module Chewy
 
           if File.exist?(file)
             yaml = ERB.new(File.read(file)).result
-            hash = YAML.safe_load(yaml, [], [], true)
+            hash = YAML.safe_load(yaml, [], [], true) # resolve aliases
             hash[Rails.env].try(:deep_symbolize_keys) if hash
           end
         end || {}

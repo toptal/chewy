@@ -31,6 +31,12 @@ module Chewy
       @criteria = Criteria.new
     end
 
+    def client
+      clients = _indexes.map(&:client).uniq
+      raise('Not all indexes/types use the same client.') if clients.size != 1
+      clients.first
+    end
+
     # Comparation with other query or collection
     # If other is collection - search request is executed and
     # result is used for comparation
@@ -347,7 +353,7 @@ module Chewy
     # Returns empty hash if no facets was requested or resulted.
     #
     def facets(params = nil)
-      raise RemovedFeature, 'removed in elasticsearch 2.0' if Runtime.version >= '2.0'
+      raise RemovedFeature, 'removed in elasticsearch 2.0' if client.version >= '2.0'
       if params
         chain { criteria.update_facets params }
       else
@@ -932,16 +938,16 @@ module Chewy
     #   UsersIndex::User.filter{ age <= 42 }.delete_all
     #
     def delete_all
-      if Runtime.version > '2.0'
-        plugins = Chewy.client.nodes.info(plugins: true)['nodes'].values.map { |item| item['plugins'] }.flatten
+      if client.version > '2.0'
+        plugins = client.nodes.info(plugins: true)['nodes'].values.map { |item| item['plugins'] }.flatten
         raise PluginMissing, 'install delete-by-query plugin' unless plugins.find { |item| item['name'] == 'delete-by-query' }
       end
       request = chain { criteria.update_options simple: true }.send(:_request)
-      ActiveSupport::Notifications.instrument 'delete_query.chewy',
+      ActiveSupport::Notifications.instrument('delete_query.chewy',
         request: request, indexes: _indexes, types: _types,
         index: _indexes.one? ? _indexes.first : _indexes,
-        type: _types.one? ? _types.first : _types do
-        Chewy.client.delete_by_query(request)
+        type: _types.one? ? _types.first : _types) do
+        client.delete_by_query(request)
       end
     end
 
@@ -1037,9 +1043,6 @@ module Chewy
         request: _request, indexes: _indexes, types: _types,
         index: _indexes.one? ? _indexes.first : _indexes,
         type: _types.one? ? _types.first : _types) do
-        clients = _indexes.map(&:client) + _types.map { |t| t.index.client }
-        client = clients.first
-        raise 'Not all indexes/types use the same client.' unless clients.all? { |c| c == client }
 
         begin
           client.search(_request)

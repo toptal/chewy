@@ -18,9 +18,9 @@ module Chewy
       def self.since(time, indices = [])
         query = Query.new(time, :gte, indices).to_h
         parameters = { index: Journal.index_name, type: Journal.type_name, body: query }
-        size = Chewy.client.count(parameters)['count']
+        size = Chewy.default_client.count(parameters)['count']
         if size > 0
-          Chewy.client
+          Chewy.default_client
             .search(size: size, sort: 'created_at', **parameters)['hits']['hits']
             .map { |r| new(r['_source']) }
         else

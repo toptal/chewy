@@ -414,41 +414,41 @@ describe Chewy::Query do
       skip_on_plugin_missing_from_version('delete-by-query', '2.0')
       expect do
         subject.query(match: { name: 'name3' }).delete_all
-        Chewy.client.indices.refresh(index: 'products')
+        Chewy.default_client.indices.refresh(index: 'products')
       end.to change { ProductsIndex.total }.from(9).to(8)
     end
     specify do
       skip_on_plugin_missing_from_version('delete-by-query', '2.0')
       expect do
         subject.filter { age == [10, 20] }.delete_all
-        Chewy.client.indices.refresh(index: 'products')
+        Chewy.default_client.indices.refresh(index: 'products')
       end.to change { ProductsIndex.total_count }.from(9).to(7)
     end
     specify do
       skip_on_plugin_missing_from_version('delete-by-query', '2.0')
       expect do
         subject.types(:product).delete_all
-        Chewy.client.indices.refresh(index: 'products')
+        Chewy.default_client.indices.refresh(index: 'products')
       end.to change { ProductsIndex::Product.total_entries }.from(3).to(0)
     end
     specify do
       skip_on_plugin_missing_from_version('delete-by-query', '2.0')
       expect do
         ProductsIndex.delete_all
-        Chewy.client.indices.refresh(index: 'products')
+        Chewy.default_client.indices.refresh(index: 'products')
       end.to change { ProductsIndex.total }.from(9).to(0)
     end
     specify do
       skip_on_plugin_missing_from_version('delete-by-query', '2.0')
       expect do
         ProductsIndex::City.delete_all
-        Chewy.client.indices.refresh(index: 'products')
+        Chewy.default_client.indices.refresh(index: 'products')
       end.to change { ProductsIndex.total }.from(9).to(6)
     end
 
     specify do
       skip_on_version_lt('2.0')
-      expect(Chewy.client.nodes).to receive(:info).and_return('nodes' => { 'a' => { 'plugins' => { 'name' => 'hello' } } })
+      expect(Chewy.default_client.nodes).to receive(:info).and_return('nodes' => { 'a' => { 'plugins' => { 'name' => 'hello' } } })
       expect { ProductsIndex.delete_all }.to raise_error(Chewy::PluginMissing).with_message('install delete-by-query plugin')
     end
   end

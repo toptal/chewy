@@ -132,7 +132,11 @@ module Chewy
       end
 
       def count
-        Chewy.client.count(render_simple)['count']
+        if instance_variable_defined?(:@response)
+          response.total
+        else
+          @count ||= Chewy.client.count(render_simple)['count']
+        end
       end
 
       def exists?
@@ -185,7 +189,7 @@ module Chewy
       end
 
       def reset
-        @response, @render, @render_base, @render_simple, @type_names, @index_names = nil
+        @response, @count, @render, @render_base, @render_simple, @type_names, @index_names = nil
       end
 
       def perform

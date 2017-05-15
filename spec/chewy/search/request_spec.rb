@@ -147,6 +147,17 @@ describe Chewy::Search::Request do
       specify { expect(subject.filter(term: {age: 10}).count).to eq(1) }
       specify { expect(subject.query(term: {age: 10}).count).to eq(1) }
       specify { expect(subject.order(nil).count).to eq(9) }
+
+      context do
+        before { expect(Chewy.client).to receive(:count).and_call_original }
+        specify { subject.count }
+      end
+
+      context do
+        before { expect(Chewy.client).not_to receive(:count) }
+        before { subject.total }
+        specify { expect(subject.limit(6).count).to eq(9) }
+      end
     end
 
     describe '#none' do

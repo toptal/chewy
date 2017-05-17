@@ -16,6 +16,10 @@ module Chewy
         @total ||= hits_root['total'] || 0
       end
 
+      def max_score
+        @max_score ||= hits_root['max_score']
+      end
+
       def took
         @took ||= @body['took']
       end
@@ -24,24 +28,13 @@ module Chewy
         @timed_out ||= @body['timed_out']
       end
 
-      def max_score
-        @max_score ||= hits_root['max_score']
-      end
-
       def suggest
         @suggest ||= @body['suggest'] || {}
       end
 
       def results
         @results ||= hits.map do |hit|
-          attributes = (hit['_source'] || {})
-            .reverse_merge(id: hit['_id'])
-            .merge!(_score: hit['_score'])
-            .merge!(_explanation: hit['_explanation'])
-
-          wrapper = derive_index(hit['_index']).type(hit['_type']).new(attributes)
-          wrapper._data = hit
-          wrapper
+          derive_type(hit['_index'], hit['_type']).build(hit)
         end
       end
 
@@ -55,37 +48,40 @@ module Chewy
 
     private
 
-      def derive_index(index_name)
-        (@derive_index ||= {})[index_name] ||= indexes_hash[index_name] ||
-          indexes_hash[indexes_hash.keys.sort_by(&:length).reverse
-            .detect { |name| index_name.start_with?(name) }]
-      end
-
-      def indexes_hash
-        @indexes_hash ||= @indexes.index_by(&:index_name)
-      end
-
       def load_objects
         only = Array.wrap(@load_options[:only]).map(&:to_s)
         except = Array.wrap(@load_options[:except]).map(&:to_s)
 
-        loaded_objects = Hash[results.group_by(&:class).map do |type, results|
-          next if except.include?(type.type_name)
-          next if only.present? && !only.include?(type.type_name)
+        hit_groups = hits.group_by { |hit| [hit['_index'], hit['_type']] }
+        loaded_objects = hit_groups.each.with_object({}) do |((index_name, type_name), hit_group), result|
+          next if except.include?(type_name)
+          next if only.present? && !only.include?(type_name)
 
-          loaded = type.adapter.load(results, @load_options.merge(_type: type))
-          [type, loaded.map.with_index do |loaded_object, i|
-            [results[i], loaded_object]
-          end.to_h]
-        end.compact]
+          type = derive_type(index_name, type_name)
+          ids = hit_group.map { |hit| hit['_id'] }
+          loaded = type.adapter.load(ids, @load_options.merge(_type: type)) || results
 
-        results.map do |result|
-          loaded_objects[result.class][result] if loaded_objects[result.class]
+          result.merge!(hit_group.zip(loaded).to_h)
         end
+
+        hits.map { |hit| loaded_objects[hit] }
       end
 
       def hits_root
         @body.fetch('hits', {})
+      end
+
+      def derive_type(index, type)
+        (@types_cache ||= {})[[index, type]] ||= derive_index(index).type(type)
+      end
+
+      def derive_index(index_name)
+        (@derive_index ||= {})[index_name] ||= indexes_hash[index_name] ||
+          indexes_hash[indexes_hash.keys.sort_by(&:length).reverse.detect { |name| index_name.start_with?(name) }]
+      end
+
+      def indexes_hash
+        @indexes_hash ||= @indexes.index_by(&:index_name)
       end
     end
   end

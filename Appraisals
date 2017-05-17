@@ -12,7 +12,7 @@ appraise 'rails.4.2.activerecord' do
   gem 'will_paginate', require: false
 end
 
-%w[4.2 5.0].each do |activesupport|
+%w[5.0 5.1].each do |activesupport|
   appraise "rails.#{activesupport}.activerecord" do
     gem 'activerecord', "~> #{activesupport}.0"
     gem 'activesupport', "~> #{activesupport}.0"

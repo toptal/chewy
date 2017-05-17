@@ -3,7 +3,23 @@ module Chewy
     module Wrapper
       extend ActiveSupport::Concern
 
-      attr_accessor :attributes, :_data, :_object
+      included do
+        attr_accessor :_data, :_object
+        attr_reader :attributes
+      end
+
+      module ClassMethods
+        def build(hit)
+          attributes = (hit['_source'] || {})
+            .reverse_merge(id: hit['_id'])
+            .merge!(_score: hit['_score'])
+            .merge!(_explanation: hit['_explanation'])
+
+          wrapper = new(attributes)
+          wrapper._data = hit
+          wrapper
+        end
+      end
 
       def initialize(attributes = {})
         @attributes = attributes.stringify_keys

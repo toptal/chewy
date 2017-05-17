@@ -1,11 +1,14 @@
+require 'chewy/search/scrolling'
+
 module Chewy
   module Search
     class Request
       include Enumerable
       include Scoping
+      include Scrolling
       UNDEFINED = Class.new.freeze
 
-      delegate :collection, :results, :objects, :total, to: :response
+      delegate :collection, :hits, :results, :objects, :total, to: :response
       delegate :each, :size, to: :collection
       alias_method :to_ary, :to_a
       alias_method :total_count, :total
@@ -22,6 +25,7 @@ module Chewy
           load preload script_fields suggest indices_boost
           rescore highlight total total_count total_entries
           types delete_all count exists? exist? find
+          scroll_batches scroll_hits scroll_results scroll_objects
         ]
       end
 
@@ -234,7 +238,7 @@ module Chewy
         path = Elasticsearch::API::Utils.__pathify(
           Elasticsearch::API::Utils.__listify(request[:index]),
           Elasticsearch::API::Utils.__listify(request[:type]),
-          '/_query'
+          '_query'
         )
         Chewy.client.perform_request(Elasticsearch::API::HTTP_DELETE, path, {}, request[:body]).body
       end

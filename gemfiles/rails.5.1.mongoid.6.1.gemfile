@@ -2,19 +2,12 @@
 
 source "https://rubygems.org"
 
-gem "sequel"
+gem "mongoid", "~> 6.1.0"
+gem "activesupport", "~> 5.1.0"
 gem "activejob", "~> 5.1.0"
 gem "resque", require: false
 gem "sidekiq", require: false
-gem "kaminari", require: false
-gem "will_paginate", require: false
-gem "mongoid", "~> 6.1.0"
-gem "activesupport", "~> 5.1.0"
 gem "kaminari-core", "~> 1.0.0", require: false
-
-group :test do
-  gem "guard"
-  gem "guard-rspec"
-end
+gem "will_paginate", require: false
 
 gemspec path: "../"

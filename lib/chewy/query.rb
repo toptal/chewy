@@ -1069,14 +1069,7 @@ module Chewy
 
     def _results
       @_results ||= (criteria.none? || _response == {} ? [] : _response['hits']['hits']).map do |hit|
-        attributes = (hit['_source'] || {})
-          .reverse_merge(id: hit['_id'])
-          .merge!(_score: hit['_score'])
-          .merge!(_explanation: hit['_explanation'])
-
-        wrapper = _derive_index(hit['_index']).type(hit['_type']).new(attributes)
-        wrapper._data = hit
-        wrapper
+        _derive_type(hit['_index'], hit['_type']).build(hit)
       end
     end
 
@@ -1089,6 +1082,10 @@ module Chewy
           _results
         end
       end
+    end
+
+    def _derive_type(index, type)
+      (@types_cache ||= {})[[index, type]] ||= _derive_index(index).type(type)
     end
 
     def _derive_index(index_name)

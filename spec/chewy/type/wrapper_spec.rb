@@ -10,35 +10,45 @@ describe Chewy::Type::Wrapper do
 
   let(:city_type) { CitiesIndex::City }
 
-  subject(:city) { city_type.new(name: 'Martin', age: 42) }
-
-  it do
-    is_expected.to respond_to(:name)
-      .and respond_to(:age)
-      .and have_attributes(
-        name: 'Martin',
-        age: 42
-      )
+  describe '.build' do
+    specify { expect(city_type.build({}).attributes).to eq('id' => nil, '_score' => nil, '_explanation' => nil) }
+    specify { expect(city_type.build('_source' => {name: 'Martin'}).attributes).to eq('id' => nil, '_score' => nil, '_explanation' => nil, 'name' => 'Martin') }
+    specify { expect(city_type.build('_id' => 42).attributes).to eq('id' => 42, '_score' => nil, '_explanation' => nil) }
+    specify { expect(city_type.build('_score' => 42, '_explanation' => {foo: 'bar'}).attributes).to eq('id' => nil, '_score' => 42, '_explanation' => {foo: 'bar'}) }
+    specify { expect(city_type.build('_score' => 42, 'borogoves' => {foo: 'bar'})._data).to eq('_score' => 42, 'borogoves' => {foo: 'bar'}) }
   end
 
-  it { expect { city.population }.to raise_error(NoMethodError) }
-
-  context 'highlight' do
-    subject(:city) do
-      city_type.new(name: 'Martin', age: 42)
-        .tap do |city|
-          city._data = {
-            'highlight' => {'name' => ['<b>Mar</b>tin']}
-          }
-        end
-    end
+  describe '#initialize' do
+    subject(:city) { city_type.new(name: 'Martin', age: 42) }
 
     it do
-      is_expected.to respond_to(:name_highlight)
+      is_expected.to respond_to(:name)
+        .and respond_to(:age)
         .and have_attributes(
           name: 'Martin',
-          name_highlight: '<b>Mar</b>tin'
+          age: 42
         )
+    end
+
+    it { expect { city.population }.to raise_error(NoMethodError) }
+
+    context 'highlight' do
+      subject(:city) do
+        city_type.new(name: 'Martin', age: 42)
+          .tap do |city|
+            city._data = {
+              'highlight' => {'name' => ['<b>Mar</b>tin']}
+            }
+          end
+      end
+
+      it do
+        is_expected.to respond_to(:name_highlight)
+          .and have_attributes(
+            name: 'Martin',
+            name_highlight: '<b>Mar</b>tin'
+          )
+      end
     end
   end
 

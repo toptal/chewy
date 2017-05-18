@@ -28,11 +28,40 @@ describe Chewy::Search::Scrolling, :orm do
   let(:request) { Chewy::Search::Request.new(PlacesIndex).order(:rating) }
 
   describe '#scroll_batches' do
-    before { expect(Chewy.client).to receive(:scroll).twice.and_call_original }
-    specify do
-      expect(request.scroll_batches(batch_size: 2).map do |batch|
-        batch.map { |hit| hit['_source']['rating'] }
-      end).to eq([[0, 1], [2, 3], [4]])
+    context do
+      before { expect(Chewy.client).to receive(:scroll).twice.and_call_original }
+      specify do
+        expect(request.scroll_batches(batch_size: 2).map do |batch|
+          batch.map { |hit| hit['_source']['rating'] }
+        end).to eq([[0, 1], [2, 3], [4]])
+      end
+    end
+
+    context do
+      before { expect(Chewy.client).to receive(:scroll).once.and_call_original }
+      specify do
+        expect(request.scroll_batches(batch_size: 3).map do |batch|
+          batch.map { |hit| hit['_source']['rating'] }
+        end).to eq([[0, 1, 2], [3, 4]])
+      end
+    end
+
+    context do
+      before { expect(Chewy.client).not_to receive(:scroll) }
+      specify do
+        expect(request.scroll_batches(batch_size: 5).map do |batch|
+          batch.map { |hit| hit['_source']['rating'] }
+        end).to eq([[0, 1, 2, 3, 4]])
+      end
+    end
+
+    context do
+      before { expect(Chewy.client).not_to receive(:scroll) }
+      specify do
+        expect(request.scroll_batches(batch_size: 10).map do |batch|
+          batch.map { |hit| hit['_source']['rating'] }
+        end).to eq([[0, 1, 2, 3, 4]])
+      end
     end
   end
 

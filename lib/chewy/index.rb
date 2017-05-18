@@ -30,7 +30,11 @@ module Chewy
     #
     def self.index_name(suggest = nil)
       raise UndefinedIndex unless _index_name(suggest)
-      @index_name ||= build_index_name(_index_name, prefix: default_prefix)
+      if suggest
+        @index_name = build_index_name(_index_name, prefix: default_prefix)
+      else
+        @index_name ||= build_index_name(_index_name, prefix: default_prefix)
+      end
     end
 
     def self._index_name(suggest = nil)

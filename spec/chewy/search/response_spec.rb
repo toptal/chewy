@@ -181,33 +181,6 @@ describe Chewy::Search::Response, :orm do
 
   describe '#objects' do
     specify { expect(subject.objects).to eq([*cities, *countries]) }
-
-    context do
-      let(:load_options) { {only: 'city'} }
-      specify { expect(subject.objects).to eq([*cities, nil, nil]) }
-    end
-
-    context do
-      let(:load_options) { {except: 'city'} }
-      specify { expect(subject.objects).to eq([nil, nil, *countries]) }
-    end
-
-    context do
-      let(:load_options) { {except: %w[city country]} }
-      specify { expect(subject.objects).to eq([nil, nil, nil, nil]) }
-    end
-
-    context 'scopes', :active_record do
-      context do
-        let(:load_options) { {scope: -> { where('rating > 2') }} }
-        specify { expect(subject.objects).to eq([nil, nil, nil, countries.last]) }
-      end
-
-      context do
-        let(:load_options) { {country: {scope: -> { where('rating > 2') }}} }
-        specify { expect(subject.objects).to eq([*cities, nil, countries.last]) }
-      end
-    end
   end
 
   describe '#collection' do

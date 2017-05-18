@@ -1,4 +1,8 @@
 require 'chewy/search/scrolling'
+require 'chewy/search/query_proxy'
+require 'chewy/search/parameters'
+require 'chewy/search/response'
+require 'chewy/search/loader'
 
 module Chewy
   module Search

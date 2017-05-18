@@ -29,7 +29,9 @@ module Chewy
         if other.is_a?(Chewy::Type)
           self.class == other.class && (respond_to?(:id) ? id == other.id : attributes == other.attributes)
         elsif other.respond_to?(:id)
-          id.to_s == other.id.to_s
+          self.class.adapter.target.is_a?(Class) &&
+            other.is_a?(self.class.adapter.target) &&
+            id.to_s == other.id.to_s
         else
           false
         end

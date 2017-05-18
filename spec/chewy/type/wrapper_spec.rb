@@ -62,7 +62,18 @@ describe Chewy::Type::Wrapper do
 
     specify { expect(city_type.new(id: '42')).to eq(City.new.tap { |m| allow(m).to receive_messages(id: 42) }) }
     specify { expect(city_type.new(id: 42)).not_to eq(City.new.tap { |m| allow(m).to receive_messages(id: 43) }) }
-
     specify { expect(city_type.new(id: 42)).not_to eq(Class.new) }
+
+    context 'models', :orm do
+      before do
+        stub_model(:city)
+        stub_index(:cities) do
+          define_type City
+        end
+      end
+      specify { expect(city_type.new(id: '42')).to eq(City.new.tap { |m| allow(m).to receive_messages(id: 42) }) }
+      specify { expect(city_type.new(id: 42)).not_to eq(City.new.tap { |m| allow(m).to receive_messages(id: 43) }) }
+      specify { expect(city_type.new(id: 42)).not_to eq(Class.new) }
+    end
   end
 end

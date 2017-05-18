@@ -20,7 +20,7 @@ describe Chewy::Search::Request do
   subject { described_class.new(ProductsIndex) }
 
   context 'index does not exist' do
-    specify { expect(subject.to_a).to eq([]) }
+    specify { expect(subject).to eq([]) }
   end
 
   context 'integration' do
@@ -438,7 +438,7 @@ describe Chewy::Search::Request do
     specify { expect { subject.search_after(:foo) }.not_to change { subject.render } }
   end
 
-  context 'loading/preloading', :orm do
+  context 'loading', :orm do
     before do
       stub_model(:city)
       stub_model(:country)
@@ -461,17 +461,14 @@ describe Chewy::Search::Request do
 
     subject { described_class.new(PlacesIndex).order(:rating) }
 
-    describe '#objects' do
-      specify { expect(subject.objects).to eq([*cities, *countries]) }
+    describe '#records' do
+      specify { expect(subject.records).to eq([*cities, *countries]) }
     end
 
     describe '#load' do
-      specify { expect(subject.load(only: 'city')).to eq([*cities, nil, nil]) }
-    end
-
-    describe '#preload' do
-      specify { expect(subject.preload(only: 'city').map(&:class).uniq).to eq([PlacesIndex::City, PlacesIndex::Country]) }
-      specify { expect(subject.preload(only: 'city').objects).to eq([*cities, nil, nil]) }
+      specify { expect(subject.load(only: 'city')).to eq([*cities, *countries]) }
+      specify { expect(subject.load(only: 'city').map(&:class).uniq).to eq([PlacesIndex::City, PlacesIndex::Country]) }
+      specify { expect(subject.load(only: 'city').records).to eq([*cities, nil, nil]) }
     end
   end
 

@@ -1,11 +1,9 @@
 module Chewy
   module Search
     class Response
-      def initialize(body, indexes: [], load_options: {}, loaded_objects: false)
+      def initialize(body, loader)
         @body = body
-        @indexes = indexes
-        @load_options = load_options
-        @loaded_objects = loaded_objects
+        @loader = loader
       end
 
       def hits
@@ -32,28 +30,21 @@ module Chewy
         @suggest ||= @body['suggest'] || {}
       end
 
-      def results
-        @results ||= hits.map do |hit|
-          loader.derive_type(hit['_index'], hit['_type']).build(hit)
+      def objects
+        @objects ||= hits.map do |hit|
+          @loader.derive_type(hit['_index'], hit['_type']).build(hit)
         end
       end
 
-      def objects
-        @objects ||= loader.load(hits)
+      def records
+        @records ||= @loader.load(hits)
       end
-
-      def collection
-        @collection ||= @loaded_objects ? objects : results
-      end
+      alias_method :documents, :records
 
     private
 
       def hits_root
         @body.fetch('hits', {})
-      end
-
-      def loader
-        @loader ||= Loader.new(indexes: @indexes, **@load_options)
       end
     end
   end

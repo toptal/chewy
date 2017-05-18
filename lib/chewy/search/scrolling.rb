@@ -41,12 +41,6 @@ module Chewy
           loader.load(batch).each { |object| yield object }
         end
       end
-
-    private
-
-      def loader
-        @loader ||= Loader.new(indexes: @_indexes, **parameters[:load].value[:load_options])
-      end
     end
   end
 end

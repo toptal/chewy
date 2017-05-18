@@ -28,15 +28,8 @@ describe Chewy::Search::Response, :orm do
   let(:request) { Chewy::Search::Request.new(PlacesIndex).order(:rating) }
   let(:raw_response) { request.send(:perform) }
   let(:load_options) { {} }
-  let(:loaded_objects) { false }
-  subject do
-    described_class.new(
-      raw_response,
-      indexes: [PlacesIndex],
-      load_options: load_options,
-      loaded_objects: loaded_objects
-    )
-  end
+  let(:loader) { Chewy::Search::Loader.new(indexes: [PlacesIndex], **load_options) }
+  subject { described_class.new(raw_response, loader) }
 
   describe '#hits' do
     specify { expect(subject.hits).to be_a(Array) }
@@ -120,28 +113,28 @@ describe Chewy::Search::Response, :orm do
     end
   end
 
-  describe '#results' do
-    specify { expect(subject.results).to be_a(Array) }
-    specify { expect(subject.results).to have(4).items }
+  describe '#objects' do
+    specify { expect(subject.objects).to be_a(Array) }
+    specify { expect(subject.objects).to have(4).items }
     specify do
-      expect(subject.results.map(&:class).uniq)
+      expect(subject.objects.map(&:class).uniq)
         .to contain_exactly(PlacesIndex::City, PlacesIndex::Country)
     end
-    specify { expect(subject.results.map(&:_data)).to eq(subject.hits) }
+    specify { expect(subject.objects.map(&:_data)).to eq(subject.hits) }
 
     context do
       let(:raw_response) { {} }
-      specify { expect(subject.results).to eq([]) }
+      specify { expect(subject.objects).to eq([]) }
     end
 
     context do
       let(:raw_response) { {'hits' => {}} }
-      specify { expect(subject.results).to eq([]) }
+      specify { expect(subject.objects).to eq([]) }
     end
 
     context do
       let(:raw_response) { {'hits' => {'hits' => []}} }
-      specify { expect(subject.results).to eq([]) }
+      specify { expect(subject.objects).to eq([]) }
     end
 
     context do
@@ -154,11 +147,11 @@ describe Chewy::Search::Response, :orm do
            '_source' => {'id' => 2, 'rating' => 0}}
         ]}}
       end
-      specify { expect(subject.results.first).to be_a(PlacesIndex::City) }
-      specify { expect(subject.results.first.id).to eq(2) }
-      specify { expect(subject.results.first.rating).to eq(0) }
-      specify { expect(subject.results.first._score).to eq(1.3) }
-      specify { expect(subject.results.first._explanation).to be_nil }
+      specify { expect(subject.objects.first).to be_a(PlacesIndex::City) }
+      specify { expect(subject.objects.first.id).to eq(2) }
+      specify { expect(subject.objects.first.rating).to eq(0) }
+      specify { expect(subject.objects.first._score).to eq(1.3) }
+      specify { expect(subject.objects.first._explanation).to be_nil }
     end
 
     context do
@@ -171,24 +164,15 @@ describe Chewy::Search::Response, :orm do
            '_explanation' => {foo: 'bar'}}
         ]}}
       end
-      specify { expect(subject.results.first).to be_a(PlacesIndex::Country) }
-      specify { expect(subject.results.first.id).to eq('2') }
-      specify { expect(subject.results.first.rating).to be_nil }
-      specify { expect(subject.results.first._score).to eq(1.2) }
-      specify { expect(subject.results.first._explanation).to eq(foo: 'bar') }
+      specify { expect(subject.objects.first).to be_a(PlacesIndex::Country) }
+      specify { expect(subject.objects.first.id).to eq('2') }
+      specify { expect(subject.objects.first.rating).to be_nil }
+      specify { expect(subject.objects.first._score).to eq(1.2) }
+      specify { expect(subject.objects.first._explanation).to eq(foo: 'bar') }
     end
   end
 
-  describe '#objects' do
-    specify { expect(subject.objects).to eq([*cities, *countries]) }
-  end
-
-  describe '#collection' do
-    specify { expect(subject.collection).to eq(subject.results) }
-
-    context do
-      let(:loaded_objects) { true }
-      specify { expect(subject.collection).to eq(subject.objects) }
-    end
+  describe '#records' do
+    specify { expect(subject.records).to eq([*cities, *countries]) }
   end
 end

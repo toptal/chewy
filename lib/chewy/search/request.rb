@@ -12,8 +12,9 @@ module Chewy
       include Scrolling
       UNDEFINED = Class.new.freeze
 
-      delegate :collection, :hits, :results, :objects, :total, to: :response
-      delegate :each, :size, to: :collection
+      delegate :hits, :objects, :records, :documents,
+        :total, :max_score, :took, :timed_out?, to: :response
+      delegate :each, :size, to: :objects
       alias_method :to_ary, :to_a
       alias_method :total_count, :total
       alias_method :total_entries, :total
@@ -26,7 +27,7 @@ module Chewy
           track_scores request_cache explain version profile
           search_type preference limit offset terminate_after
           timeout min_score source stored_fields search_after
-          load preload script_fields suggest indices_boost
+          load script_fields suggest indices_boost
           rescore highlight total total_count total_entries
           types delete_all count exists? exist? find
           scroll_batches scroll_hits scroll_results scroll_objects
@@ -42,11 +43,11 @@ module Chewy
       end
 
       def ==(other)
-        super || other.is_a?(self.class) ? compare_bodies(other) : other == to_a
+        super || other.is_a?(self.class) ? compare_bodies(other) : to_a == other
       end
 
       def response
-        @response ||= Response.new(perform, indexes: _indexes, **parameters[:load].value)
+        @response ||= Response.new(perform, loader)
       end
 
       def render
@@ -105,11 +106,7 @@ module Chewy
       end
 
       def load(options = nil)
-        modify(:load) { replace!(load_options: options, loaded_objects: true) }
-      end
-
-      def preload(options = nil)
-        modify(:load) { replace!(options) }
+        modify(:load) { update!(options) }
       end
 
       %i[script_fields indices_boost rescore highlight].each do |name|
@@ -245,6 +242,10 @@ module Chewy
           '_query'
         )
         Chewy.client.perform_request(Elasticsearch::API::HTTP_DELETE, path, {}, request[:body]).body
+      end
+
+      def loader
+        @loader ||= Loader.new(indexes: @_indexes, **parameters[:load].value)
       end
     end
   end

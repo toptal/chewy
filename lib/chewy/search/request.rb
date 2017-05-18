@@ -11,6 +11,7 @@ module Chewy
       include Scoping
       include Scrolling
       UNDEFINED = Class.new.freeze
+      PLUCK_MAPPING = {'index' => '_index', 'type' => '_type', 'id' => '_id'}.freeze
 
       delegate :hits, :objects, :records, :documents,
         :total, :max_score, :took, :timed_out?, to: :response
@@ -53,7 +54,10 @@ module Chewy
       def render
         @render ||= render_base.merge(@parameters.render)
       end
-      alias_method :inspect, :render
+
+      def inspect
+        "<Chewy::Search::Request #{render}>"
+      end
 
       %i[query filter post_filter].each do |name|
         define_method name do |value = nil, &block|
@@ -170,6 +174,25 @@ module Chewy
         results.one? ? results.first : results
       end
 
+      def pluck(*fields)
+        fields = fields.flatten(1).reject(&:blank?).map(&:to_s).map do |field|
+          PLUCK_MAPPING[field] || field
+        end
+
+        scope = except(:source, :stored_fields, :script_fields, :docvalue_fields)
+          .source(fields - PLUCK_MAPPING.values)
+
+        scope.hits.map do |hit|
+          if fields.one?
+            fetch_field(hit, fields.first)
+          else
+            fields.map do |field|
+              fetch_field(hit, field)
+            end
+          end
+        end
+      end
+
     protected
 
       def initialize_clone(origin)
@@ -246,6 +269,14 @@ module Chewy
 
       def loader
         @loader ||= Loader.new(indexes: @_indexes, **parameters[:load].value)
+      end
+
+      def fetch_field(hit, field)
+        if PLUCK_MAPPING.values.include?(field)
+          hit[field]
+        else
+          hit.fetch('_source', {})[field]
+        end
       end
     end
   end

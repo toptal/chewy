@@ -130,6 +130,21 @@ describe Chewy::Search::Request do
         specify { expect { subject.filter(match: {name: 'name2'}).find('1', '3') }.to raise_error Chewy::DocumentNotFound, 'Could not find documents for ids: 1 and 3' }
         specify { expect { subject.post_filter(match: {name: 'name2'}).find('1', '3') }.to raise_error Chewy::DocumentNotFound, 'Could not find documents for ids: 1 and 3' }
       end
+
+      describe '#pluck' do
+        specify { expect(subject.limit(5).pluck(:id)).to eq(%w[1 2 3 4 5]) }
+        specify { expect(subject.limit(5).pluck(:id, :age)).to eq([['1', 10], ['2', 20], ['3', 30], ['4', nil], ['5', nil]]) }
+        specify { expect(subject.limit(5).source(:name).pluck(:id, :age)).to eq([['1', 10], ['2', 20], ['3', 30], ['4', nil], ['5', nil]]) }
+        specify do
+          expect(subject.limit(5).pluck(:index, :type, :name)).to eq([
+            %w[products product Name1],
+            %w[products product Name2],
+            %w[products product Name3],
+            ['products', 'city', nil],
+            ['products', 'city', nil]
+          ])
+        end
+      end
     end
 
     describe '#size' do

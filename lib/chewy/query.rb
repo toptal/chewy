@@ -17,21 +17,19 @@ module Chewy
     include Pagination
     include Chewy::Search::Scoping
 
+    DELEGATED_METHODS = %i[
+      explain query_mode filter_mode post_filter_mode
+      timeout limit offset highlight min_score rescore facets script_score
+      boost_factor weight random_score field_value_factor decay aggregations
+      suggest none strategy query filter post_filter boost_mode
+      score_mode order reorder only types delete_all find total
+      total_count total_entries unlimited script_fields track_scores preference
+    ].to_set.freeze
+
     delegate :each, :count, :size, to: :_collection
     alias_method :to_ary, :to_a
 
     attr_reader :_indexes, :_types, :options, :criteria
-
-    def self.delegated_methods
-      %i[
-        explain query_mode filter_mode post_filter_mode
-        timeout limit offset highlight min_score rescore facets script_score
-        boost_factor weight random_score field_value_factor decay aggregations
-        suggest none strategy query filter post_filter boost_mode
-        score_mode order reorder only types delete_all find total
-        total_count total_entries unlimited script_fields track_scores preference
-      ]
-    end
 
     def initialize(*indexes_or_types_and_options)
       @options = indexes_or_types_and_options.extract_options!

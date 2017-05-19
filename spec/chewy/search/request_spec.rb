@@ -213,6 +213,9 @@ describe Chewy::Search::Request do
 
     specify { expect(described_class.new(ProductsIndex).limit(10)).to eq(described_class.new(ProductsIndex).limit(10)) }
     specify { expect(described_class.new(ProductsIndex).limit(10)).not_to eq(described_class.new(ProductsIndex).limit(20)) }
+
+    specify { expect(ProductsIndex.limit(10)).to eq(ProductsIndex.limit(10)) }
+    specify { expect(ProductsIndex.limit(10)).not_to eq(CitiesIndex.limit(10)) }
   end
 
   describe '#render' do
@@ -222,6 +225,17 @@ describe Chewy::Search::Request do
           index: %w[products],
           type: array_including(%w[product city country])
         )
+    end
+  end
+
+  describe '#inspect' do
+    specify do
+      expect(described_class.new(ProductsIndex).inspect)
+        .to eq('<Chewy::Search::Request {:index=>["products"], :type=>["product", "city", "country"]}>')
+    end
+    specify do
+      expect(ProductsIndex.limit(10).inspect)
+        .to eq('<ProductsIndex::Query {:index=>["products"], :type=>["product", "city", "country"], :body=>{:size=>10}}>')
     end
   end
 
@@ -270,56 +284,6 @@ describe Chewy::Search::Request do
         expect(subject.filter.not(other_scope).render[:body])
           .to include(query: {bool: {filter: {bool: {must_not: {bool: {must: {match: {foo: 'bar'}}, should: {multi_match: {foo: 'bar'}}}}}}}})
       end
-    end
-  end
-
-  context do
-    let(:first_scope) { subject.query(foo: 'bar').filter.should(moo: 'baz').post_filter.must_not(boo: 'baf').limit(10) }
-    let(:second_scope) { subject.filter(foo: 'bar').post_filter.should(moo: 'baz').query.must_not(boo: 'baf').limit(20) }
-
-    describe '#and' do
-      specify do
-        expect(first_scope.and(second_scope).render[:body]).to eq(
-          query: {bool: {
-            must: [{foo: 'bar'}, {bool: {must_not: {boo: 'baf'}}}],
-            filter: {bool: {must: [{moo: 'baz'}, {foo: 'bar'}]}}
-          }},
-          post_filter: {bool: {must: [{bool: {must_not: {boo: 'baf'}}}, {moo: 'baz'}]}},
-          size: 10
-        )
-      end
-      specify { expect { first_scope.and(second_scope) }.not_to change { first_scope.render } }
-      specify { expect { first_scope.and(second_scope) }.not_to change { second_scope.render } }
-    end
-
-    describe '#or' do
-      specify do
-        expect(first_scope.or(second_scope).render[:body]).to eq(
-          query: {bool: {
-            should: [{foo: 'bar'}, {bool: {must_not: {boo: 'baf'}}}],
-            filter: {bool: {should: [{moo: 'baz'}, {foo: 'bar'}]}}
-          }},
-          post_filter: {bool: {should: [{bool: {must_not: {boo: 'baf'}}}, {moo: 'baz'}]}},
-          size: 10
-        )
-      end
-      specify { expect { first_scope.or(second_scope) }.not_to change { first_scope.render } }
-      specify { expect { first_scope.or(second_scope) }.not_to change { second_scope.render } }
-    end
-
-    describe '#not' do
-      specify do
-        expect(first_scope.not(second_scope).render[:body]).to eq(
-          query: {bool: {
-            must: {foo: 'bar'}, must_not: {bool: {must_not: {boo: 'baf'}}},
-            filter: {bool: {should: {moo: 'baz'}, must_not: {foo: 'bar'}}}
-          }},
-          post_filter: {bool: {must_not: [{boo: 'baf'}, {moo: 'baz'}]}},
-          size: 10
-        )
-      end
-      specify { expect { first_scope.not(second_scope) }.not_to change { first_scope.render } }
-      specify { expect { first_scope.not(second_scope) }.not_to change { second_scope.render } }
     end
   end
 
@@ -512,5 +476,55 @@ describe Chewy::Search::Request do
     specify { expect(second.merge(first)).to eq(described_class.new(ProductsIndex).limit(10).offset(10).order(:foo)) }
     specify { expect { second.merge(first) }.not_to change { first.render } }
     specify { expect { second.merge(first) }.not_to change { second.render } }
+  end
+
+  context do
+    let(:first_scope) { subject.query(foo: 'bar').filter.should(moo: 'baz').post_filter.must_not(boo: 'baf').limit(10) }
+    let(:second_scope) { subject.filter(foo: 'bar').post_filter.should(moo: 'baz').query.must_not(boo: 'baf').limit(20) }
+
+    describe '#and' do
+      specify do
+        expect(first_scope.and(second_scope).render[:body]).to eq(
+          query: {bool: {
+            must: [{foo: 'bar'}, {bool: {must_not: {boo: 'baf'}}}],
+            filter: {bool: {must: [{moo: 'baz'}, {foo: 'bar'}]}}
+          }},
+          post_filter: {bool: {must: [{bool: {must_not: {boo: 'baf'}}}, {moo: 'baz'}]}},
+          size: 10
+        )
+      end
+      specify { expect { first_scope.and(second_scope) }.not_to change { first_scope.render } }
+      specify { expect { first_scope.and(second_scope) }.not_to change { second_scope.render } }
+    end
+
+    describe '#or' do
+      specify do
+        expect(first_scope.or(second_scope).render[:body]).to eq(
+          query: {bool: {
+            should: [{foo: 'bar'}, {bool: {must_not: {boo: 'baf'}}}],
+            filter: {bool: {should: [{moo: 'baz'}, {foo: 'bar'}]}}
+          }},
+          post_filter: {bool: {should: [{bool: {must_not: {boo: 'baf'}}}, {moo: 'baz'}]}},
+          size: 10
+        )
+      end
+      specify { expect { first_scope.or(second_scope) }.not_to change { first_scope.render } }
+      specify { expect { first_scope.or(second_scope) }.not_to change { second_scope.render } }
+    end
+
+    describe '#not' do
+      specify do
+        expect(first_scope.not(second_scope).render[:body]).to eq(
+          query: {bool: {
+            must: {foo: 'bar'}, must_not: {bool: {must_not: {boo: 'baf'}}},
+            filter: {bool: {should: {moo: 'baz'}, must_not: {foo: 'bar'}}}
+          }},
+          post_filter: {bool: {must_not: [{boo: 'baf'}, {moo: 'baz'}]}},
+          size: 10
+        )
+      end
+      specify { expect { first_scope.not(second_scope) }.not_to change { first_scope.render } }
+      specify { expect { first_scope.not(second_scope) }.not_to change { second_scope.render } }
+    end
   end
 end

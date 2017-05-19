@@ -1,17 +1,33 @@
-require 'chewy/search/scrolling'
-require 'chewy/search/query_proxy'
-require 'chewy/search/parameters'
-require 'chewy/search/response'
-require 'chewy/search/loader'
-
 module Chewy
   module Search
+    # The main requset DSL class. Supports multiple indexes requests.
+    #
+    # @note The class tries to be as much immutable as possible,
+    #   so most of the methods return a new instance of the class.
+    # @example
+    #   scope = Chewy::Search::Request.new(PlacesIndex)
+    #     # => <Chewy::Search::Request {:index=>["places"], :type=>["city", "country"]}>
+    #   scope.limit(20)
+    #     # => <Chewy::Search::Request {:index=>["places"], :type=>["city", "country"], :body=>{:size=>20}}>
+    #   scope.order(:name).offset(10)
+    #     # => <Chewy::Search::Request {:index=>["places"], :type=>["city", "country"], :body=>{:sort=>["name"], :from=>10}}>
+    #
     class Request
       include Enumerable
       include Scoping
       include Scrolling
       UNDEFINED = Class.new.freeze
       PLUCK_MAPPING = {'index' => '_index', 'type' => '_type', 'id' => '_id'}.freeze
+      DELEGATED_METHODS = %i[
+        query filter post_filter order reorder docvalue_fields
+        track_scores request_cache explain version profile
+        search_type preference limit offset terminate_after
+        timeout min_score source stored_fields search_after
+        load script_fields suggest indices_boost
+        rescore highlight total total_count total_entries
+        types delete_all count exists? exist? find
+        scroll_batches scroll_hits scroll_results scroll_objects
+      ].to_set.freeze
 
       delegate :hits, :objects, :records, :documents,
         :total, :max_score, :took, :timed_out?, to: :response
@@ -22,19 +38,18 @@ module Chewy
 
       attr_reader :_indexes, :_types, :parameters
 
-      def self.delegated_methods
-        %i[
-          query filter post_filter order reorder docvalue_fields
-          track_scores request_cache explain version profile
-          search_type preference limit offset terminate_after
-          timeout min_score source stored_fields search_after
-          load script_fields suggest indices_boost
-          rescore highlight total total_count total_entries
-          types delete_all count exists? exist? find
-          scroll_batches scroll_hits scroll_results scroll_objects
-        ]
-      end
-
+      # The class is initialized with the list of chewy indexes and/or
+      # types, which are later used for the request composition.
+      #
+      # @param indexes_or_types [Array<Chewy::Index, Chewy::Type>] indexes and types in any combinations
+      # @example
+      #   Chewy::Search::Request.new(PlacesIndex)
+      #     # => <Chewy::Search::Request {:index=>["places"], :type=>["city", "country"]}>
+      #   Chewy::Search::Request.new(PlacesIndex::City)
+      #     # => <Chewy::Search::Request {:index=>["places"], :type=>["city"]}>
+      #   Chewy::Search::Request.new(UsersIndex, PlacesIndex::City)
+      #     # => <Chewy::Search::Request {:index=>["users", "places"], :type=>["city", "user"]}>
+      #
       def initialize(*indexes_or_types)
         @_types = indexes_or_types.select { |klass| klass < Chewy::Type }
         @_indexes = indexes_or_types.select { |klass| klass < Chewy::Index }
@@ -43,8 +58,24 @@ module Chewy
         @parameters = Parameters.new
       end
 
+      # Compare two scopes or scope with a collection of objects.
+      # If other is a collection it performs the request to fetch
+      # data from ES.
+      #
+      # @param other [Object] any object
+      # @return [true, false] the result of comparison
+      # @example
+      #   PlacesIndex.limit(10) == PlacesIndex.limit(10) # => true
+      #   PlacesIndex.limit(10) == PlacesIndex.limit(10).to_a # => true
+      #   PlacesIndex.limit(10) == PlacesIndex.limit(10).records # => true
+      #
+      #   PlacesIndex.limit(10) == UsersIndex.limit(10) # => false
+      #   PlacesIndex.limit(10) == UsersIndex.limit(10).to_a # => false
+      #
+      #   PlacesIndex.limit(10) == Object.new # => false
+      #
       def ==(other)
-        super || other.is_a?(self.class) ? compare_bodies(other) : to_a == other
+        super || other.is_a?(Chewy::Search::Request) ? compare_internals(other) : to_a == other
       end
 
       def response
@@ -56,7 +87,7 @@ module Chewy
       end
 
       def inspect
-        "<Chewy::Search::Request #{render}>"
+        "<#{self.class} #{render}>"
       end
 
       %i[query filter post_filter].each do |name|
@@ -65,14 +96,6 @@ module Chewy
             modify(name) { must(block || value) }
           else
             Chewy::Search::QueryProxy.new(name, self)
-          end
-        end
-      end
-
-      %i[and or not].each do |name|
-        define_method name do |other|
-          %i[query filter post_filter].inject(self) do |scope, storage|
-            scope.send(storage).send(name, other.parameters[storage].value)
           end
         end
       end
@@ -127,6 +150,18 @@ module Chewy
         end
       end
 
+      def merge(other)
+        chain { parameters.merge!(other.parameters) }
+      end
+
+      %i[and or not].each do |name|
+        define_method name do |other|
+          %i[query filter post_filter].inject(self) do |scope, storage|
+            scope.send(storage).send(name, other.parameters[storage].value)
+          end
+        end
+      end
+
       def delete_all
         ActiveSupport::Notifications.instrument 'delete_query.chewy',
           request: render_simple, indexes: _indexes, types: _types,
@@ -159,10 +194,6 @@ module Chewy
 
       def except(value, *values)
         chain { parameters.except!([value, *values].flatten(1)) }
-      end
-
-      def merge(other)
-        chain { parameters.merge!(other.parameters) }
       end
 
       def find(*ids)
@@ -202,7 +233,7 @@ module Chewy
 
     private
 
-      def compare_bodies(other)
+      def compare_internals(other)
         _indexes.map(&:index_name).sort == other._indexes.map(&:index_name).sort &&
           _types.map(&:full_name).sort == other._types.map(&:full_name).sort &&
           parameters == other.parameters

@@ -1,5 +1,10 @@
 require 'chewy/search/scoping'
 require 'chewy/query'
+require 'chewy/search/scrolling'
+require 'chewy/search/query_proxy'
+require 'chewy/search/parameters'
+require 'chewy/search/response'
+require 'chewy/search/loader'
 require 'chewy/search/request'
 require 'chewy/search/pagination/kaminari'
 require 'chewy/search/pagination/will_paginate'
@@ -23,7 +28,7 @@ module Chewy
       end
 
       def method_missing(name, *args, &block)
-        if search_class.delegated_methods.include?(name)
+        if search_class::DELEGATED_METHODS.include?(name)
           all.send(name, *args, &block)
         else
           super
@@ -31,7 +36,7 @@ module Chewy
       end
 
       def respond_to_missing?(name, _)
-        search_class.delegated_methods.include?(name) || super
+        search_class::DELEGATED_METHODS.include?(name) || super
       end
 
       def search_class

@@ -3,13 +3,13 @@ Dir.glob(File.join(File.dirname(__FILE__), 'parameters', '*.rb')) { |f| require 
 
 module Chewy
   module Search
-    # This class is basically a compoung storage of the request
-    # parameter storages. It incapsulates some storage-collection-handling
+    # This class is basically a compound storage of the request
+    # parameter storages. It encapsulates some storage-collection-handling
     # logic.
     #
     # @see Chewy::Search::Request#parameters
     class Parameters
-      # Deafult storage classes warehouse. It is probably possible to
+      # Default storage classes warehouse. It is probably possible to
       # add your own classes here if necessary, but I'm not sure it will work.
       #
       # @return [{Symbol => Chewy::Search::Parameters::Storage}]
@@ -23,9 +23,14 @@ module Chewy
       attr_accessor :storages
       delegate :[], :[]=, to: :storages
 
-      # Accepts a hash of initial values as basic subobjects or
-      # parameter storage objects.
+      # Accepts an initial hash as basic values or parameter storages.
       #
+      # @example
+      #   Chewy::Search::Parameters.new(limit: 10, offset 10)
+      #   Chewy::Search::Parameters.new(
+      #     limit: Chewy::Search::Parameters::Limit.new(10),
+      #     limit: Chewy::Search::Parameters::Offset.new(10)
+      #   )
       # @param initial [{Symbol => Object, Chewy::Search::Parameters::Storage}]
       def initialize(initial = {})
         @storages = Hash.new do |hash, name|
@@ -38,7 +43,7 @@ module Chewy
         end
       end
 
-      # Compares storages by their values
+      # Compares storages by their values.
       #
       # @param other [Object] any object
       # @return [true, false]
@@ -75,7 +80,13 @@ module Chewy
       end
 
       # Takes all the storages and merges them one by one using
-      # {Chewy::Search::Parameters::Storage#merge!} method.
+      # {Chewy::Search::Parameters::Storage#merge!} method. Merging
+      # is implemented in different ways for different storages: for
+      # limit, offset and other single-value classes it is a simple
+      # value replacement, for boolean storages (explain, none) it uses
+      # a disjunction result, for compound values - merging and
+      # concatenation, for query, filter, post_filter - it is the
+      # "and" operation.
       #
       # @see Chewy::Search::Parameters::Storage#merge!
       # @return [{Symbol => Chewy::Search::Parameters::Storage}] storages from other parameters

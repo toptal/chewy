@@ -66,8 +66,9 @@ module Chewy
           replace!(should: join(other_value))
         end
 
-        # {include:#must_not} Basically, an alias for {#must_not}.
+        # Basically, an alias for {#must_not}.
         #
+        # @see #must_not
         # @see Chewy::Search::QueryProxy#not
         def not(other_value)
           update!(must_not: reduce(normalize(other_value)))

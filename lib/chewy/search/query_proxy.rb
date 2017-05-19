@@ -179,7 +179,7 @@ module Chewy
       #
       # @!method not(query_hash_or_scope = nil, &block)
       #   (see Chewy::Search::Parameters::QueryStorage#not)
-      #   The only difference from #must_not is that is accepts another scope additionally.
+      #   The only difference from {#must_not} is that is accepts another scope additionally.
       #
       #   @see Chewy::Search::Parameters::QueryStorage#not
       #   @return [Chewy::Search::Request]

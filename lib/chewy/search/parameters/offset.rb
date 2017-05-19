@@ -1,9 +1,9 @@
-require 'chewy/search/parameters/value'
+require 'chewy/search/parameters/storage'
 
 module Chewy
   module Search
     class Parameters
-      class Offset < Value
+      class Offset < Storage
         include IntegerStorage
         self.param_name = :from
       end

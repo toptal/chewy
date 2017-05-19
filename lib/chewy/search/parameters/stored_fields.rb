@@ -1,9 +1,9 @@
-require 'chewy/search/parameters/value'
+require 'chewy/search/parameters/storage'
 
 module Chewy
   module Search
     class Parameters
-      class StoredFields < Value
+      class StoredFields < Storage
         def update!(other_value)
           new_value = normalize(other_value)
           new_value[:stored_fields] = value[:stored_fields] | new_value[:stored_fields]

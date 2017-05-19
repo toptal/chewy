@@ -1,9 +1,9 @@
-require 'chewy/search/parameters/value'
+require 'chewy/search/parameters/storage'
 
 module Chewy
   module Search
     class Parameters
-      class SearchAfter < Value
+      class SearchAfter < Storage
       private
 
         def normalize(value)

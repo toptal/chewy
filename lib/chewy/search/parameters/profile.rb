@@ -1,9 +1,9 @@
-require 'chewy/search/parameters/value'
+require 'chewy/search/parameters/storage'
 
 module Chewy
   module Search
     class Parameters
-      class Profile < Value
+      class Profile < Storage
         include BoolStorage
       end
     end

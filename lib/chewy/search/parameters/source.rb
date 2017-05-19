@@ -1,9 +1,9 @@
-require 'chewy/search/parameters/value'
+require 'chewy/search/parameters/storage'
 
 module Chewy
   module Search
     class Parameters
-      class Source < Value
+      class Source < Storage
         self.param_name = :_source
 
         def update!(other_value)

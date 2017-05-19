@@ -1,9 +1,9 @@
-require 'chewy/search/parameters/value'
+require 'chewy/search/parameters/storage'
 
 module Chewy
   module Search
     class Parameters
-      class Load < Value
+      class Load < Storage
         def update!(other_value)
           value.merge!(normalize(other_value))
         end

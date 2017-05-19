@@ -1,9 +1,9 @@
-require 'chewy/search/parameters/value'
+require 'chewy/search/parameters/storage'
 
 module Chewy
   module Search
     class Parameters
-      class TerminateAfter < Value
+      class TerminateAfter < Storage
         include IntegerStorage
       end
     end

@@ -1,4 +1,4 @@
-require 'chewy/search/parameters/value'
+require 'chewy/search/parameters/storage'
 
 module Chewy
   module Search
@@ -14,7 +14,7 @@ module Chewy
       #   # => <PlacesIndex::Query {..., :body=>{:query=>{:bool=>{:must=>{:match=>{:name=>"London"}}, :filter=>{:term=>{:name=>"Moscow"}}}}}}>
       # @see https://www.elastic.co/guide/en/elasticsearch/reference/current/query-filter-context.html
       # @see Chewy::Search::Parameters::QueryStorage
-      class Filter < Value
+      class Filter < Storage
         include QueryStorage
       end
     end

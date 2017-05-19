@@ -1,9 +1,9 @@
-require 'chewy/search/parameters/value'
+require 'chewy/search/parameters/storage'
 
 module Chewy
   module Search
     class Parameters
-      class Rescore < Value
+      class Rescore < Storage
         def update!(other_value)
           @value = value | normalize(other_value)
         end

@@ -1,9 +1,9 @@
-require 'chewy/search/parameters/value'
+require 'chewy/search/parameters/storage'
 
 module Chewy
   module Search
     class Parameters
-      class IndicesBoost < Value
+      class IndicesBoost < Storage
         def update!(other_value)
           new_value = normalize(other_value)
           value.except!(*new_value.keys).merge!(new_value)

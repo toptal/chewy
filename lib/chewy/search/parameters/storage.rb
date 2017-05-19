@@ -1,7 +1,7 @@
 module Chewy
   module Search
     class Parameters
-      class Value
+      class Storage
         singleton_class.send :attr_writer, :param_name
         attr_reader :value
 

@@ -12,21 +12,21 @@ module Chewy
       # Deafult storage classes warehouse. It is probably possible to
       # add your own classes here if necessary, but I'm not sure it will work.
       #
-      # @return [{Symbol => Chewy::Query::Parameters::Value}]
+      # @return [{Symbol => Chewy::Search::Parameters::Storage}]
       def self.storages
         @storages ||= Hash.new do |hash, name|
           hash[name] = "Chewy::Search::Parameters::#{name.to_s.camelize}".constantize
         end
       end
 
-      # @return [{Symbol => Chewy::Query::Parameters::Value}]
+      # @return [{Symbol => Chewy::Search::Parameters::Storage}]
       attr_accessor :storages
       delegate :[], :[]=, to: :storages
 
       # Accepts a hash of initial values as basic subobjects or
       # parameter storage objects.
       #
-      # @param initial [{Symbol => Object, Chewy::Search::Parameters::Value}]
+      # @param initial [{Symbol => Object, Chewy::Search::Parameters::Storage}]
       def initialize(initial = {})
         @storages = Hash.new do |hash, name|
           hash[name] = self.class.storages[name].new
@@ -51,7 +51,7 @@ module Chewy
       #
       # @param name [Symbol] parameter name
       # @yield the block is executed in the cloned storage instance binding
-      # @return [Chewy::Query::Parameters::Value]
+      # @return [Chewy::Search::Parameters::Storage]
       def modify!(name, &block)
         @storages[name] = @storages[name].clone.tap do |s|
           s.instance_exec(&block)
@@ -61,7 +61,7 @@ module Chewy
       # Removes specified storages from the storages hash.
       #
       # @param names [Array<String, Symbol>]
-      # @return [{Symbol => Chewy::Query::Parameters::Value}] removed storages hash
+      # @return [{Symbol => Chewy::Search::Parameters::Storage}] removed storages hash
       def only!(names)
         @storages.slice!(*assert_storages(names))
       end
@@ -69,16 +69,16 @@ module Chewy
       # Keeps only specified storages removing everything else.
       #
       # @param names [Array<String, Symbol>]
-      # @return [{Symbol => Chewy::Query::Parameters::Value}] kept storages hash
+      # @return [{Symbol => Chewy::Search::Parameters::Storage}] kept storages hash
       def except!(names)
         @storages.except!(*assert_storages(names))
       end
 
       # Takes all the storages and merges them one by one using
-      # {Chewy::Query::Parameters::Value#merge!} method.
+      # {Chewy::Search::Parameters::Storage#merge!} method.
       #
-      # @see Chewy::Query::Parameters::Value#merge!
-      # @return [{Symbol => Chewy::Query::Parameters::Value}] storages from other parameters
+      # @see Chewy::Search::Parameters::Storage#merge!
+      # @return [{Symbol => Chewy::Search::Parameters::Storage}] storages from other parameters
       def merge!(other)
         other.storages.each do |name, storage|
           modify!(name) { merge!(storage) }

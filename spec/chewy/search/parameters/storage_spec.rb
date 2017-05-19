@@ -1,10 +1,10 @@
 require 'spec_helper'
 
-describe Chewy::Search::Parameters::Value do
+describe Chewy::Search::Parameters::Storage do
   subject { described_class.new }
 
   describe '.param_name' do
-    specify { expect(described_class.param_name).to eq(:value) }
+    specify { expect(described_class.param_name).to eq(:storage) }
 
     context do
       before { stub_class('Namespace::CustomParamName', Class.new(described_class)) }
@@ -31,7 +31,7 @@ describe Chewy::Search::Parameters::Value do
     specify { expect(described_class.new(:foo)).not_to eq(described_class.new(:bar)) }
 
     context do
-      let(:other_value) { Class.new(Chewy::Search::Parameters::Value) }
+      let(:other_value) { Class.new(described_class) }
       specify { expect(other_value.new(:foo)).not_to eq(described_class.new(:foo)) }
       specify { expect(other_value.new(:foo)).to eq(other_value.new(:foo)) }
     end
@@ -55,6 +55,6 @@ describe Chewy::Search::Parameters::Value do
   describe '#render' do
     specify { expect(subject.render).to be_nil }
     specify { expect(described_class.new(false).render).to be_nil }
-    specify { expect(described_class.new('42').render).to eq(value: '42') }
+    specify { expect(described_class.new('42').render).to eq(storage: '42') }
   end
 end

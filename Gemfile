@@ -13,7 +13,8 @@ gem 'sidekiq', require: false
 gem 'kaminari-core', require: false
 gem 'will_paginate', require: false
 
-group :test do
-  gem 'guard'
-  gem 'guard-rspec'
-end
+gem 'guard'
+gem 'guard-rspec'
+
+gem 'redcarpet'
+gem 'yard'

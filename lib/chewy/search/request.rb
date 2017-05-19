@@ -36,7 +36,7 @@ module Chewy
       alias_method :total_count, :total
       alias_method :total_entries, :total
 
-      attr_reader :_indexes, :_types, :parameters
+      attr_reader :_indexes, :_types
 
       # The class is initialized with the list of chewy indexes and/or
       # types, which are later used to compose requests.
@@ -54,7 +54,13 @@ module Chewy
         @_indexes = indexes_or_types.select { |klass| klass < Chewy::Index }
         @_types |= @_indexes.flat_map(&:types)
         @_indexes |= @_types.map(&:index)
-        @parameters = Parameters.new
+      end
+
+      # Underlying parameter storage collection.
+      #
+      # @return [Chewy::Search::Parameters]
+      def parameters
+        @parameters ||= Parameters.new
       end
 
       # Compare two scopes or scope with a collection of objects.
@@ -89,7 +95,7 @@ module Chewy
       #
       # @return [Hash] request body
       def render
-        @render ||= render_base.merge(@parameters.render)
+        @render ||= render_base.merge(parameters.render)
       end
 
       # Includes the class name and the result of rendering.
@@ -283,16 +289,100 @@ module Chewy
 
       # @!group Scopes manipulation
 
+      # Merges 2 scopes by merging their parameters.
+      #
+      # @example
+      #   scope1 = PlacesIndex.limit(10).offset(10)
+      #   scope2 = PlacesIndex.limit(20)
+      #   scope1.merge(scope2)
+      #   # => <PlacesIndex::Query {..., :body=>{:size=>20, :from=>10}}>
+      #   scope2.merge(scope1)
+      #   # => <PlacesIndex::Query {..., :body=>{:size=>10, :from=>10}}>
+      # @see Chewy::Search::Parameters#merge
+      # @param other [Chewy::Search::Request] scope to merge
+      # @return [Chewy::Search::Request] new scope
       def merge(other)
         chain { parameters.merge!(other.parameters) }
       end
 
+      # @!method and(other)
+      #   Takes "query", "filter", "post_filter" from the passed scope
+      #   and performs {Chewy::Search::QueryProxy#and} operation for each
+      #   of them. Unlike merge, every other parameter is kept unmerged
+      #   (values from the first scope are used in the result scope).
+      #
+      #   @see Chewy::Search::QueryProxy#and
+      #   @example
+      #     scope1 = PlacesIndex.filter(term: {name: 'Moscow'}).query(match: {name: 'London'})
+      #     scope2 = PlacesIndex.filter.not(term: {name: 'Berlin'}).query(match: {name: 'Washington'})
+      #     scope1.and(scope2)
+      #     # => <PlacesIndex::Query {..., :body=>{:query=>{:bool=>{
+      #     #      :must=>[{:match=>{:name=>"London"}}, {:match=>{:name=>"Washington"}}],
+      #     #      :filter=>{:bool=>{:must=>[{:term=>{:name=>"Moscow"}}, {:bool=>{:must_not=>{:term=>{:name=>"Berlin"}}}}]}}}}}}>
+      #   @param other [Chewy::Search::Request] scope to merge
+      #   @return [Chewy::Search::Request] new scope
+      #
+      # @!method or(other)
+      #   Takes "query", "filter", "post_filter" from the passed scope
+      #   and performs {Chewy::Search::QueryProxy#or} operation for each
+      #   of them. Unlike merge, every other parameter is kept unmerged
+      #   (values from the first scope are used in the result scope).
+      #
+      #   @see Chewy::Search::QueryProxy#or
+      #   @example
+      #     scope1 = PlacesIndex.filter(term: {name: 'Moscow'}).query(match: {name: 'London'})
+      #     scope2 = PlacesIndex.filter.not(term: {name: 'Berlin'}).query(match: {name: 'Washington'})
+      #     scope1.or(scope2)
+      #     # => <PlacesIndex::Query {..., :body=>{:query=>{:bool=>{
+      #     #      :should=>[{:match=>{:name=>"London"}}, {:match=>{:name=>"Washington"}}],
+      #     #      :filter=>{:bool=>{:should=>[{:term=>{:name=>"Moscow"}}, {:bool=>{:must_not=>{:term=>{:name=>"Berlin"}}}}]}}}}}}>
+      #   @param other [Chewy::Search::Request] scope to merge
+      #   @return [Chewy::Search::Request] new scope
+      #
+      # @!method not(other)
+      #   Takes "query", "filter", "post_filter" from the passed scope
+      #   and performs {Chewy::Search::QueryProxy#not} operation for each
+      #   of them. Unlike merge, every other parameter is kept unmerged
+      #   (values from the first scope are used in the result scope).
+      #
+      #   @see Chewy::Search::QueryProxy#not
+      #   @example
+      #     scope1 = PlacesIndex.filter(term: {name: 'Moscow'}).query(match: {name: 'London'})
+      #     scope2 = PlacesIndex.filter.not(term: {name: 'Berlin'}).query(match: {name: 'Washington'})
+      #     scope1.not(scope2)
+      #     # => <PlacesIndex::Query {..., :body=>{:query=>{:bool=>{
+      #     #      :must=>{:match=>{:name=>"London"}}, :must_not=>{:match=>{:name=>"Washington"}},
+      #     #      :filter=>{:bool=>{:must=>{:term=>{:name=>"Moscow"}}, :must_not=>{:bool=>{:must_not=>{:term=>{:name=>"Berlin"}}}}}}}}}}>
+      #   @param other [Chewy::Search::Request] scope to merge
+      #   @return [Chewy::Search::Request] new scope
       %i[and or not].each do |name|
         define_method name do |other|
           %i[query filter post_filter].inject(self) do |scope, parameter_name|
             scope.send(parameter_name).send(name, other.parameters[parameter_name].value)
           end
         end
+      end
+
+      # Returns a new scope containing only specified storages.
+      #
+      # @example
+      #   PlacesIndex.limit(10).offset(10).order(:name).except(:offset, :order)
+      #   # => <PlacesIndex::Query {..., :body=>{:size=>10}}>
+      # @param values [Array<String, Symbol>]
+      # @return [Chewy::Search::Request] new scope
+      def only(*values)
+        chain { parameters.only!(values.flatten(1)) }
+      end
+
+      # Returns a new scope containing all the storages except specified.
+      #
+      # @example
+      #   PlacesIndex.limit(10).offset(10).order(:name).only(:offset, :order)
+      #   # => <PlacesIndex::Query {..., :body=>{:from=>10, :sort=>["name"]}}>
+      # @param values [Array<String, Symbol>]
+      # @return [Chewy::Search::Request] new scope
+      def except(*values)
+        chain { parameters.except!(values.flatten(1)) }
       end
 
       # @!group Additional actions
@@ -322,14 +412,6 @@ module Chewy
         limit(0).terminate_after(1).total != 0
       end
       alias_method :exist?, :exists?
-
-      def only(value, *values)
-        chain { parameters.only!([value, *values].flatten(1)) }
-      end
-
-      def except(value, *values)
-        chain { parameters.except!([value, *values].flatten(1)) }
-      end
 
       def find(*ids)
         ids = ids.flatten(1)

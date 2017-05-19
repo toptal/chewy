@@ -3,9 +3,9 @@ require 'chewy/search/parameters/value'
 module Chewy
   module Search
     class Parameters
-      # This parameter storage doesn't have it's own parameter at the
+      # This parameter storage doesn't have its own parameter at the
       # ES request body. Instead, it is embedded to the root "bool"
-      # query of the "query" request paramer.
+      # query of the "query" request parameter.
       #
       # @example
       #   scope = PlacesIndex.filter(term: {name: 'Moscow'})

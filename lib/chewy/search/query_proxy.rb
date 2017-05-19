@@ -121,9 +121,9 @@ module Chewy
       #     If a scope is passed, the appropriate parameter storage value
       #     will be extracted from it and used as a second query.
       #     @example
-      #       scope = PlacesIndex.query.must_not(match: {name: 'Moscow'})
+      #       scope1 = PlacesIndex.query.must_not(match: {name: 'Moscow'})
       #       scope2 = PlacesIndex.query(match: {name: 'London'})
-      #       scope.query.and(scope2)
+      #       scope1.query.and(scope2)
       #       # => <PlacesIndex::Query {..., :body=>{:query=>{:bool=>{:must=>[{:bool=>{:must_not=>{:match=>{:name=>"Moscow"}}}}, {:match=>{:name=>"London"}}]}}}}>
       #     @param scope [Chewy::Search::Request] other scope
       #
@@ -161,9 +161,9 @@ module Chewy
       #     If a scope is passed, the appropriate parameter storage value
       #     will be extracted from it and used as a second query.
       #     @example
-      #       scope = PlacesIndex.query.must_not(match: {name: 'Moscow'})
+      #       scope1 = PlacesIndex.query.must_not(match: {name: 'Moscow'})
       #       scope2 = PlacesIndex.query(match: {name: 'London'})
-      #       scope.query.or(scope2)
+      #       scope1.query.or(scope2)
       #       # => <PlacesIndex::Query {..., :body=>{:query=>{:bool=>{:should=>[{:bool=>{:must_not=>{:match=>{:name=>"Moscow"}}}}, {:match=>{:name=>"London"}}]}}}}>
       #     @param scope [Chewy::Search::Request] other scope
       #
@@ -197,9 +197,9 @@ module Chewy
       #     If a scope is passed, the appropriate parameter storage value
       #     will be extracted from it and used as a second query.
       #     @example
-      #       scope = PlacesIndex.query.must_not(match: {name: 'Moscow'})
+      #       scope1 = PlacesIndex.query.must_not(match: {name: 'Moscow'})
       #       scope2 = PlacesIndex.query(match: {name: 'London'})
-      #       scope.query.not(scope2)
+      #       scope1.query.not(scope2)
       #       # => <PlacesIndex::Query {..., :body=>{:query=>{:bool=>{:must_not=>[{:match=>{:name=>"Moscow"}}, {:match=>{:name=>"London"}}]}}}}>
       #     @param scope [Chewy::Search::Request] other scope
       #

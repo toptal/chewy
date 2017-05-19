@@ -451,20 +451,6 @@ describe Chewy::Search::Request do
     end
   end
 
-  describe '#only' do
-    subject { described_class.new(ProductsIndex).limit(10).offset(10) }
-
-    specify { expect(subject.only(:limit)).to eq(described_class.new(ProductsIndex).limit(10)) }
-    specify { expect { subject.only(:limit) }.not_to change { subject.render } }
-  end
-
-  describe '#except' do
-    subject { described_class.new(ProductsIndex).limit(10).offset(10) }
-
-    specify { expect(subject.except(:limit)).to eq(described_class.new(ProductsIndex).offset(10)) }
-    specify { expect { subject.except(:limit) }.not_to change { subject.render } }
-  end
-
   describe '#merge' do
     let(:first) { described_class.new(ProductsIndex).limit(10).offset(10) }
     let(:second) { described_class.new(ProductsIndex).offset(20).order(:foo) }
@@ -526,5 +512,19 @@ describe Chewy::Search::Request do
       specify { expect { first_scope.not(second_scope) }.not_to change { first_scope.render } }
       specify { expect { first_scope.not(second_scope) }.not_to change { second_scope.render } }
     end
+  end
+
+  describe '#only' do
+    subject { described_class.new(ProductsIndex).limit(10).offset(10) }
+
+    specify { expect(subject.only(:limit)).to eq(described_class.new(ProductsIndex).limit(10)) }
+    specify { expect { subject.only(:limit) }.not_to change { subject.render } }
+  end
+
+  describe '#except' do
+    subject { described_class.new(ProductsIndex).limit(10).offset(10) }
+
+    specify { expect(subject.except(:limit)).to eq(described_class.new(ProductsIndex).offset(10)) }
+    specify { expect { subject.except(:limit) }.not_to change { subject.render } }
   end
 end

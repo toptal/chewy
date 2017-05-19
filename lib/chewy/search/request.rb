@@ -2,15 +2,15 @@ module Chewy
   module Search
     # The main requset DSL class. Supports multiple indexes requests.
     #
-    # @note The class tries to be as much immutable as possible,
+    # @note The class tries to be as immutable as possible,
     #   so most of the methods return a new instance of the class.
     # @example
     #   scope = Chewy::Search::Request.new(PlacesIndex)
-    #     # => <Chewy::Search::Request {:index=>["places"], :type=>["city", "country"]}>
+    #   # => <Chewy::Search::Request {:index=>["places"], :type=>["city", "country"]}>
     #   scope.limit(20)
-    #     # => <Chewy::Search::Request {:index=>["places"], :type=>["city", "country"], :body=>{:size=>20}}>
+    #   # => <Chewy::Search::Request {:index=>["places"], :type=>["city", "country"], :body=>{:size=>20}}>
     #   scope.order(:name).offset(10)
-    #     # => <Chewy::Search::Request {:index=>["places"], :type=>["city", "country"], :body=>{:sort=>["name"], :from=>10}}>
+    #   # => <Chewy::Search::Request {:index=>["places"], :type=>["city", "country"], :body=>{:sort=>["name"], :from=>10}}>
     #
     class Request
       include Enumerable
@@ -39,17 +39,16 @@ module Chewy
       attr_reader :_indexes, :_types, :parameters
 
       # The class is initialized with the list of chewy indexes and/or
-      # types, which are later used for the request composition.
+      # types, which are later used to compose requests.
       #
-      # @param indexes_or_types [Array<Chewy::Index, Chewy::Type>] indexes and types in any combinations
       # @example
       #   Chewy::Search::Request.new(PlacesIndex)
-      #     # => <Chewy::Search::Request {:index=>["places"], :type=>["city", "country"]}>
+      #   # => <Chewy::Search::Request {:index=>["places"], :type=>["city", "country"]}>
       #   Chewy::Search::Request.new(PlacesIndex::City)
-      #     # => <Chewy::Search::Request {:index=>["places"], :type=>["city"]}>
+      #   # => <Chewy::Search::Request {:index=>["places"], :type=>["city"]}>
       #   Chewy::Search::Request.new(UsersIndex, PlacesIndex::City)
-      #     # => <Chewy::Search::Request {:index=>["users", "places"], :type=>["city", "user"]}>
-      #
+      #   # => <Chewy::Search::Request {:index=>["users", "places"], :type=>["city", "user"]}>
+      # @param indexes_or_types [Array<Chewy::Index, Chewy::Type>] indexes and types in any combinations
       def initialize(*indexes_or_types)
         @_types = indexes_or_types.select { |klass| klass < Chewy::Type }
         @_indexes = indexes_or_types.select { |klass| klass < Chewy::Index }
@@ -62,8 +61,6 @@ module Chewy
       # If other is a collection it performs the request to fetch
       # data from ES.
       #
-      # @param other [Object] any object
-      # @return [true, false] the result of comparison
       # @example
       #   PlacesIndex.limit(10) == PlacesIndex.limit(10) # => true
       #   PlacesIndex.limit(10) == PlacesIndex.limit(10).to_a # => true
@@ -73,27 +70,161 @@ module Chewy
       #   PlacesIndex.limit(10) == UsersIndex.limit(10).to_a # => false
       #
       #   PlacesIndex.limit(10) == Object.new # => false
-      #
+      # @param other [Object] any object
+      # @return [true, false] the result of comparison
       def ==(other)
         super || other.is_a?(Chewy::Search::Request) ? compare_internals(other) : to_a == other
       end
 
+      # Access to ES response wrapper objects providing useful methods such as
+      # {Chewy::Search::Response#total} or {Chewy::Search::Response#max_score}.
+      #
+      # @see Chewy::Search::Response
+      # @return [Chewy::Search::Response] a response object instance
       def response
         @response ||= Response.new(perform, loader)
       end
 
+      # ES request body
+      #
+      # @return [Hash] request body
       def render
         @render ||= render_base.merge(@parameters.render)
       end
 
+      # Includes the class name and the result of rendering.
+      #
+      # @return [String]
       def inspect
         "<#{self.class} #{render}>"
       end
 
+      # @!group Chainable request modificators
+
+      # @!method query(query_hash=nil, &block)
+      #   Adds "query" parameter to the search request body.
+      #
+      #   @see https://www.elastic.co/guide/en/elasticsearch/reference/current/search-request-query.html
+      #   @see Chewy::Search::Parameters::Query
+      #   @return [Chewy::Search::Request, Chewy::Search::QueryProxy]
+      #
+      #   @overload query(query_hash)
+      #     If pure hash is passed it goes straight to the "query" parameter storage.
+      #     Acts exactly the same way as {Chewy::Search::QueryProxy#must}.
+      #
+      #     @see https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl.html
+      #     @example
+      #       PlacesIndex.query(match: {name: 'Moscow'})
+      #       # => <PlacesIndex::Query {..., :body=>{:query=>{:match=>{:name=>"Moscow"}}}}>
+      #     @param query_hash [Hash] pure query hash
+      #     @return [Chewy::Search::Request]
+      #
+      #   @overload query
+      #     If block is passed instead of a pure hash, "elasticsearch-dsl"
+      #     gem will be used to process it.
+      #     Acts exactly the same way as {Chewy::Search::QueryProxy#must} with a block.
+      #
+      #     @see https://github.com/elastic/elasticsearch-ruby/tree/master/elasticsearch-dsl
+      #     @example
+      #       PlacesIndex.query { match name: 'Moscow' }
+      #       # => <PlacesIndex::Query {..., :body=>{:query=>{:match=>{:name=>"Moscow"}}}}>
+      #     @yield the block is processed by "elasticsearch-dsl" gem
+      #     @return [Chewy::Search::Request]
+      #
+      #   @overload query
+      #     If nothing is passed it returns a proxy for additional
+      #     parameter manipulations.
+      #
+      #     @see Chewy::Search::QueryProxy
+      #     @example
+      #       PlacesIndex.query.should(match: {name: 'Moscow'}).query.not(match: {name: 'London'})
+      #       # => <PlacesIndex::Query {..., :body=>{:query=>{:bool=>{:should=>{:match=>{:name=>"Moscow"}}, :must_not=>{:match=>{:name=>"London"}}}}}}>
+      #     @return [Chewy::Search::QueryProxy]
+      #
+      # @!method filter(query_hash=nil, &block)
+      #   Adds "filter" context of the "query" parameter at the
+      #   search request body.
+      #
+      #   @see https://www.elastic.co/guide/en/elasticsearch/reference/current/query-filter-context.html
+      #   @see Chewy::Search::Parameters::Filter
+      #   @return [Chewy::Search::Request, Chewy::Search::QueryProxy]
+      #
+      #   @overload filter(query_hash)
+      #     If pure hash is passed it goes straight to the "filter" context of the "query" parameter storage.
+      #     Acts exactly the same way as {Chewy::Search::QueryProxy#must}.
+      #
+      #     @see https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl.html
+      #     @example
+      #       PlacesIndex.filter(match: {name: 'Moscow'})
+      #       # => <PlacesIndex::Query {..., :body=>{:query=>{:bool=>{:filter=>{:match=>{:name=>"Moscow"}}}}}}>
+      #     @param query_hash [Hash] pure query hash
+      #     @return [Chewy::Search::Request]
+      #
+      #   @overload filter
+      #     If block is passed instead of a pure hash, "elasticsearch-dsl"
+      #     gem will be used to process it.
+      #     Acts exactly the same way as {Chewy::Search::QueryProxy#must} with a block.
+      #
+      #     @see https://github.com/elastic/elasticsearch-ruby/tree/master/elasticsearch-dsl
+      #     @example
+      #       PlacesIndex.filter { match name: 'Moscow' }
+      #       # => <PlacesIndex::Query {..., :body=>{:query=>{:bool=>{:filter=>{:match=>{:name=>"Moscow"}}}}}}>
+      #     @yield the block is processed by "elasticsearch-dsl" gem
+      #     @return [Chewy::Search::Request]
+      #
+      #   @overload filter
+      #     If nothing is passed it returns a proxy for additional
+      #     parameter manipulations.
+      #
+      #     @see Chewy::Search::QueryProxy
+      #     @example
+      #       PlacesIndex.filter.should(match: {name: 'Moscow'}).filter.not(match: {name: 'London'})
+      #       # => <PlacesIndex::Query {..., :body=>{:query=>{:bool=>{:filter=>{:bool=>{:should=>{:match=>{:name=>"Moscow"}}, :must_not=>{:match=>{:name=>"London"}}}}}}}}>
+      #     @return [Chewy::Search::QueryProxy]
+      #
+      # @!method post_filter(query_hash=nil, &block)
+      #   Adds "post_filter" parameter to the search request body.
+      #
+      #   @see https://www.elastic.co/guide/en/elasticsearch/reference/current/search-request-post-filter.html
+      #   @see Chewy::Search::Parameters::PostFilter
+      #   @return [Chewy::Search::Request, Chewy::Search::QueryProxy]
+      #
+      #   @overload post_filter(query_hash)
+      #     If pure hash is passed it goes straight to the "post_filter" parameter storage.
+      #     Acts exactly the same way as {Chewy::Search::QueryProxy#must}.
+      #
+      #     @see https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl.html
+      #     @example
+      #       PlacesIndex.post_filter(match: {name: 'Moscow'})
+      #       # => <PlacesIndex::Query {..., :body=>{:post_filter=>{:match=>{:name=>"Moscow"}}}}>
+      #     @param query_hash [Hash] pure query hash
+      #     @return [Chewy::Search::Request]
+      #
+      #   @overload post_filter
+      #     If block is passed instead of a pure hash, "elasticsearch-dsl"
+      #     gem will be used to process it.
+      #     Acts exactly the same way as {Chewy::Search::QueryProxy#must} with a block.
+      #
+      #     @see https://github.com/elastic/elasticsearch-ruby/tree/master/elasticsearch-dsl
+      #     @example
+      #       PlacesIndex.post_filter { match name: 'Moscow' }
+      #       # => <PlacesIndex::Query {..., :body=>{:post_filter=>{:match=>{:name=>"Moscow"}}}}>
+      #     @yield the block is processed by "elasticsearch-dsl" gem
+      #     @return [Chewy::Search::Request]
+      #
+      #   @overload post_filter
+      #     If nothing is passed it returns a proxy for additional
+      #     parameter manipulations.
+      #
+      #     @see Chewy::Search::QueryProxy
+      #     @example
+      #       PlacesIndex.post_filter.should(match: {name: 'Moscow'}).post_filter.not(match: {name: 'London'})
+      #       # => <PlacesIndex::Query {..., :body=>{:post_filter=>{:bool=>{:should=>{:match=>{:name=>"Moscow"}}, :must_not=>{:match=>{:name=>"London"}}}}}}>
+      #     @return [Chewy::Search::QueryProxy]
       %i[query filter post_filter].each do |name|
-        define_method name do |value = nil, &block|
-          if block || value
-            modify(name) { must(block || value) }
+        define_method name do |query_hash = nil, &block|
+          if block || query_hash
+            modify(name) { must(block || query_hash) }
           else
             Chewy::Search::QueryProxy.new(name, self)
           end
@@ -150,17 +281,21 @@ module Chewy
         end
       end
 
+      # @!group Scopes manipulation
+
       def merge(other)
         chain { parameters.merge!(other.parameters) }
       end
 
       %i[and or not].each do |name|
         define_method name do |other|
-          %i[query filter post_filter].inject(self) do |scope, storage|
-            scope.send(storage).send(name, other.parameters[storage].value)
+          %i[query filter post_filter].inject(self) do |scope, parameter_name|
+            scope.send(parameter_name).send(name, other.parameters[parameter_name].value)
           end
         end
       end
+
+      # @!group Additional actions
 
       def delete_all
         ActiveSupport::Notifications.instrument 'delete_query.chewy',

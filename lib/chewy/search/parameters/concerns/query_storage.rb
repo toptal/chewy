@@ -3,41 +3,84 @@ require 'elasticsearch/dsl'
 module Chewy
   module Search
     class Parameters
+      # This is a basic storage implementation for "query", "filter"
+      # and "post_filter" storages. It uses "bool" query as a root
+      # structure for each of them. The "bool" root is ommited on
+      # rendering if there is only a single query in the "must" or
+      # "should" array. Besides the standard parameter storage
+      # capabilities, it provides specialized methods for the "bool"
+      # query component arrays separate update.
+      #
+      # @see https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-bool-query.html
+      # @see Chewy::Search::Parameters::Query
+      # @see Chewy::Search::Parameters::Filter
+      # @see Chewy::Search::Parameters::PostFilter
       module QueryStorage
         DEFAULT = {must: [], should: [], must_not: []}.freeze
 
-        def update!(other_value)
-          @value = normalize(other_value).each do |key, component|
-            component.unshift(*value[key])
-          end
-        end
-
+        # Directly modifies "must" array of the root "bool" query.
+        # Pushes the passed query to the end of the array.
+        #
+        # @see Chewy::Search::QueryProxy#must
         def must(other_value)
           update!(must: other_value)
         end
 
+        # Directly modifies "should" array of the root "bool" query.
+        # Pushes the passed query to the end of the array.
+        #
+        # @see Chewy::Search::QueryProxy#should
         def should(other_value)
           update!(should: other_value)
         end
 
+        # Directly modifies "must_not" array of the root "bool" query.
+        # Pushes the passed query to the end of the array.
+        #
+        # @see Chewy::Search::QueryProxy#must_not
         def must_not(other_value)
           update!(must_not: other_value)
         end
 
+        # Unlike {#must} doesn't modify "must" array, but joins 2 queries
+        # into a single "must" array of the new root "bool" query.
+        # If any of the used queries is a "bool" query from the storage
+        # and contains a single query in "must" or "should" array, it will
+        # be reduced to this query, so in some cases it will act exactly
+        # the same way as {#must}.
+        #
+        # @see Chewy::Search::QueryProxy#and
         def and(other_value)
           replace!(must: join(other_value))
         end
 
+        # Unlike {#should} doesn't modify "should" array, but joins 2 queries
+        # into a single "should" array of the new root "bool" query.
+        # If any of the used queries is a "bool" query from the storage
+        # and contains a single query in "must" or "should" array, it will
+        # be reduced to this query, so in some cases it will act exactly
+        # the same way as {#should}.
+        #
+        # @see Chewy::Search::QueryProxy#or
         def or(other_value)
           replace!(should: join(other_value))
         end
 
+        # {include:#must_not} Basically, an alias for {#must_not}.
+        #
+        # @see Chewy::Search::QueryProxy#not
         def not(other_value)
           update!(must_not: reduce(normalize(other_value)))
         end
 
         def merge!(other)
           self.and(other.value)
+        end
+
+        def update!(other_value)
+          @value = normalize(other_value).each do |key, component|
+            component.unshift(*value[key])
+          end
         end
 
         def render

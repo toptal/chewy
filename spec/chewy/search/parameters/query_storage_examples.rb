@@ -18,65 +18,6 @@ shared_examples :query_storage do |param_name|
     end
   end
 
-  describe '#replace!' do
-    specify do
-      expect { subject.replace!(must: proc { match foo: 'bar' }) }
-        .to change { subject.value }
-        .from(must: [{foo: 'bar'}], should: [{moo: 'baz'}], must_not: [])
-        .to(must: [match: {foo: 'bar'}], should: [], must_not: [])
-    end
-
-    specify do
-      expect { subject.replace!(should: {foo: 'bar'}) }
-        .to change { subject.value }
-        .from(must: [{foo: 'bar'}], should: [{moo: 'baz'}], must_not: [])
-        .to(must: [], should: [{foo: 'bar'}], must_not: [])
-    end
-
-    specify do
-      expect { subject.replace!(foobar: {foo: 'bar'}) }
-        .to change { subject.value }
-        .from(must: [{foo: 'bar'}], should: [{moo: 'baz'}], must_not: [])
-        .to(must: [{foobar: {foo: 'bar'}}], should: [], must_not: [])
-    end
-
-    specify do
-      expect { subject.replace!(nil) }
-        .to change { subject.value }
-        .from(must: [{foo: 'bar'}], should: [{moo: 'baz'}], must_not: [])
-        .to(must: [], should: [], must_not: [])
-    end
-  end
-
-  describe '#update!' do
-    specify do
-      expect { subject.update!(must: proc { match foo: 'bar' }) }
-        .to change { subject.value }
-        .from(must: [{foo: 'bar'}], should: [{moo: 'baz'}], must_not: [])
-        .to(must: [{foo: 'bar'}, {match: {foo: 'bar'}}], should: [{moo: 'baz'}], must_not: [])
-    end
-
-    specify do
-      expect { subject.update!(must_not: {moo: 'baz'}) }
-        .to change { subject.value }
-        .from(must: [{foo: 'bar'}], should: [{moo: 'baz'}], must_not: [])
-        .to(must: [{foo: 'bar'}], should: [{moo: 'baz'}], must_not: [{moo: 'baz'}])
-    end
-
-    specify do
-      expect { subject.update!(foobar: {foo: 'bar'}) }
-        .to change { subject.value }
-        .from(must: [{foo: 'bar'}], should: [{moo: 'baz'}], must_not: [])
-        .to(must: [{foo: 'bar'}, {foobar: {foo: 'bar'}}], should: [{moo: 'baz'}], must_not: [])
-    end
-
-    specify do
-      expect { subject.update!(nil) }
-        .not_to change { subject.value }
-        .from(must: [{foo: 'bar'}], should: [{moo: 'baz'}], must_not: [])
-    end
-  end
-
   describe '#must' do
     specify do
       expect { subject.must(moo: 'baz') }
@@ -220,6 +161,65 @@ shared_examples :query_storage do |param_name|
           .from(must: [{foo: 'bar'}], should: [], must_not: [])
           .to(must: [{foo: 'bar'}], should: [], must_not: [{moo: 'baz'}])
       end
+    end
+  end
+
+  describe '#replace!' do
+    specify do
+      expect { subject.replace!(must: proc { match foo: 'bar' }) }
+        .to change { subject.value }
+        .from(must: [{foo: 'bar'}], should: [{moo: 'baz'}], must_not: [])
+        .to(must: [match: {foo: 'bar'}], should: [], must_not: [])
+    end
+
+    specify do
+      expect { subject.replace!(should: {foo: 'bar'}) }
+        .to change { subject.value }
+        .from(must: [{foo: 'bar'}], should: [{moo: 'baz'}], must_not: [])
+        .to(must: [], should: [{foo: 'bar'}], must_not: [])
+    end
+
+    specify do
+      expect { subject.replace!(foobar: {foo: 'bar'}) }
+        .to change { subject.value }
+        .from(must: [{foo: 'bar'}], should: [{moo: 'baz'}], must_not: [])
+        .to(must: [{foobar: {foo: 'bar'}}], should: [], must_not: [])
+    end
+
+    specify do
+      expect { subject.replace!(nil) }
+        .to change { subject.value }
+        .from(must: [{foo: 'bar'}], should: [{moo: 'baz'}], must_not: [])
+        .to(must: [], should: [], must_not: [])
+    end
+  end
+
+  describe '#update!' do
+    specify do
+      expect { subject.update!(must: proc { match foo: 'bar' }) }
+        .to change { subject.value }
+        .from(must: [{foo: 'bar'}], should: [{moo: 'baz'}], must_not: [])
+        .to(must: [{foo: 'bar'}, {match: {foo: 'bar'}}], should: [{moo: 'baz'}], must_not: [])
+    end
+
+    specify do
+      expect { subject.update!(must_not: {moo: 'baz'}) }
+        .to change { subject.value }
+        .from(must: [{foo: 'bar'}], should: [{moo: 'baz'}], must_not: [])
+        .to(must: [{foo: 'bar'}], should: [{moo: 'baz'}], must_not: [{moo: 'baz'}])
+    end
+
+    specify do
+      expect { subject.update!(foobar: {foo: 'bar'}) }
+        .to change { subject.value }
+        .from(must: [{foo: 'bar'}], should: [{moo: 'baz'}], must_not: [])
+        .to(must: [{foo: 'bar'}, {foobar: {foo: 'bar'}}], should: [{moo: 'baz'}], must_not: [])
+    end
+
+    specify do
+      expect { subject.update!(nil) }
+        .not_to change { subject.value }
+        .from(must: [{foo: 'bar'}], should: [{moo: 'baz'}], must_not: [])
     end
   end
 

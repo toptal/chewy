@@ -108,14 +108,14 @@ module Chewy
       # @!group Chainable request modificators
 
       # @!method query(query_hash=nil, &block)
-      #   Adds "query" parameter to the search request body.
+      #   Adds `quer` parameter to the search request body.
       #
       #   @see https://www.elastic.co/guide/en/elasticsearch/reference/current/search-request-query.html
       #   @see Chewy::Search::Parameters::Query
       #   @return [Chewy::Search::Request, Chewy::Search::QueryProxy]
       #
       #   @overload query(query_hash)
-      #     If pure hash is passed it goes straight to the "query" parameter storage.
+      #     If pure hash is passed it goes straight to the `quer` parameter storage.
       #     Acts exactly the same way as {Chewy::Search::QueryProxy#must}.
       #
       #     @see https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl.html
@@ -126,7 +126,7 @@ module Chewy
       #     @return [Chewy::Search::Request]
       #
       #   @overload query
-      #     If block is passed instead of a pure hash, "elasticsearch-dsl"
+      #     If block is passed instead of a pure hash, `elasticsearch-dsl"
       #     gem will be used to process it.
       #     Acts exactly the same way as {Chewy::Search::QueryProxy#must} with a block.
       #
@@ -134,7 +134,7 @@ module Chewy
       #     @example
       #       PlacesIndex.query { match name: 'Moscow' }
       #       # => <PlacesIndex::Query {..., :body=>{:query=>{:match=>{:name=>"Moscow"}}}}>
-      #     @yield the block is processed by "elasticsearch-dsl" gem
+      #     @yield the block is processed by `elasticsearch-ds` gem
       #     @return [Chewy::Search::Request]
       #
       #   @overload query
@@ -144,11 +144,13 @@ module Chewy
       #     @see Chewy::Search::QueryProxy
       #     @example
       #       PlacesIndex.query.should(match: {name: 'Moscow'}).query.not(match: {name: 'London'})
-      #       # => <PlacesIndex::Query {..., :body=>{:query=>{:bool=>{:should=>{:match=>{:name=>"Moscow"}}, :must_not=>{:match=>{:name=>"London"}}}}}}>
+      #       # => <PlacesIndex::Query {..., :body=>{:query=>{:bool=>{
+      #       #      :should=>{:match=>{:name=>"Moscow"}},
+      #       #      :must_not=>{:match=>{:name=>"London"}}}}}}>
       #     @return [Chewy::Search::QueryProxy]
       #
       # @!method filter(query_hash=nil, &block)
-      #   Adds "filter" context of the "query" parameter at the
+      #   Adds `filte` context of the `quer` parameter at the
       #   search request body.
       #
       #   @see https://www.elastic.co/guide/en/elasticsearch/reference/current/query-filter-context.html
@@ -156,26 +158,28 @@ module Chewy
       #   @return [Chewy::Search::Request, Chewy::Search::QueryProxy]
       #
       #   @overload filter(query_hash)
-      #     If pure hash is passed it goes straight to the "filter" context of the "query" parameter storage.
+      #     If pure hash is passed it goes straight to the `filte` context of the `quer` parameter storage.
       #     Acts exactly the same way as {Chewy::Search::QueryProxy#must}.
       #
       #     @see https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl.html
       #     @example
       #       PlacesIndex.filter(match: {name: 'Moscow'})
-      #       # => <PlacesIndex::Query {..., :body=>{:query=>{:bool=>{:filter=>{:match=>{:name=>"Moscow"}}}}}}>
+      #       # => <PlacesIndex::Query {..., :body=>{:query=>{:bool=>{
+      #       #      :filter=>{:match=>{:name=>"Moscow"}}}}}}>
       #     @param query_hash [Hash] pure query hash
       #     @return [Chewy::Search::Request]
       #
       #   @overload filter
-      #     If block is passed instead of a pure hash, "elasticsearch-dsl"
+      #     If block is passed instead of a pure hash, `elasticsearch-dsl"
       #     gem will be used to process it.
       #     Acts exactly the same way as {Chewy::Search::QueryProxy#must} with a block.
       #
       #     @see https://github.com/elastic/elasticsearch-ruby/tree/master/elasticsearch-dsl
       #     @example
       #       PlacesIndex.filter { match name: 'Moscow' }
-      #       # => <PlacesIndex::Query {..., :body=>{:query=>{:bool=>{:filter=>{:match=>{:name=>"Moscow"}}}}}}>
-      #     @yield the block is processed by "elasticsearch-dsl" gem
+      #       # => <PlacesIndex::Query {..., :body=>{:query=>{:bool=>{
+      #       #      :filter=>{:match=>{:name=>"Moscow"}}}}}}>
+      #     @yield the block is processed by `elasticsearch-ds` gem
       #     @return [Chewy::Search::Request]
       #
       #   @overload filter
@@ -185,18 +189,20 @@ module Chewy
       #     @see Chewy::Search::QueryProxy
       #     @example
       #       PlacesIndex.filter.should(match: {name: 'Moscow'}).filter.not(match: {name: 'London'})
-      #       # => <PlacesIndex::Query {..., :body=>{:query=>{:bool=>{:filter=>{:bool=>{:should=>{:match=>{:name=>"Moscow"}}, :must_not=>{:match=>{:name=>"London"}}}}}}}}>
+      #       # => <PlacesIndex::Query {..., :body=>{:query=>{:bool=>{
+      #       #      :filter=>{:bool=>{:should=>{:match=>{:name=>"Moscow"}},
+      #       #      :must_not=>{:match=>{:name=>"London"}}}}}}}}>
       #     @return [Chewy::Search::QueryProxy]
       #
       # @!method post_filter(query_hash=nil, &block)
-      #   Adds "post_filter" parameter to the search request body.
+      #   Adds `post_filter` parameter to the search request body.
       #
       #   @see https://www.elastic.co/guide/en/elasticsearch/reference/current/search-request-post-filter.html
       #   @see Chewy::Search::Parameters::PostFilter
       #   @return [Chewy::Search::Request, Chewy::Search::QueryProxy]
       #
       #   @overload post_filter(query_hash)
-      #     If pure hash is passed it goes straight to the "post_filter" parameter storage.
+      #     If pure hash is passed it goes straight to the `post_filter` parameter storage.
       #     Acts exactly the same way as {Chewy::Search::QueryProxy#must}.
       #
       #     @see https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl.html
@@ -207,7 +213,7 @@ module Chewy
       #     @return [Chewy::Search::Request]
       #
       #   @overload post_filter
-      #     If block is passed instead of a pure hash, "elasticsearch-dsl"
+      #     If block is passed instead of a pure hash, `elasticsearch-dsl"
       #     gem will be used to process it.
       #     Acts exactly the same way as {Chewy::Search::QueryProxy#must} with a block.
       #
@@ -215,7 +221,7 @@ module Chewy
       #     @example
       #       PlacesIndex.post_filter { match name: 'Moscow' }
       #       # => <PlacesIndex::Query {..., :body=>{:post_filter=>{:match=>{:name=>"Moscow"}}}}>
-      #     @yield the block is processed by "elasticsearch-dsl" gem
+      #     @yield the block is processed by `elasticsearch-ds` gem
       #     @return [Chewy::Search::Request]
       #
       #   @overload post_filter
@@ -225,7 +231,9 @@ module Chewy
       #     @see Chewy::Search::QueryProxy
       #     @example
       #       PlacesIndex.post_filter.should(match: {name: 'Moscow'}).post_filter.not(match: {name: 'London'})
-      #       # => <PlacesIndex::Query {..., :body=>{:post_filter=>{:bool=>{:should=>{:match=>{:name=>"Moscow"}}, :must_not=>{:match=>{:name=>"London"}}}}}}>
+      #       # => <PlacesIndex::Query {..., :body=>{:post_filter=>{:bool=>{
+      #       #      :should=>{:match=>{:name=>"Moscow"}},
+      #       #      :must_not=>{:match=>{:name=>"London"}}}}}}>
       #     @return [Chewy::Search::QueryProxy]
       %i[query filter post_filter].each do |name|
         define_method name do |query_hash = nil, &block|
@@ -306,7 +314,7 @@ module Chewy
       end
 
       # @!method and(other)
-      #   Takes "query", "filter", "post_filter" from the passed scope
+      #   Takes `query`, `filter`, `post_filter` from the passed scope
       #   and performs {Chewy::Search::QueryProxy#and} operation for each
       #   of them. Unlike merge, every other parameter is kept unmerged
       #   (values from the first scope are used in the result scope).
@@ -323,7 +331,7 @@ module Chewy
       #   @return [Chewy::Search::Request] new scope
       #
       # @!method or(other)
-      #   Takes "query", "filter", "post_filter" from the passed scope
+      #   Takes `query`, `filter`, `post_filter` from the passed scope
       #   and performs {Chewy::Search::QueryProxy#or} operation for each
       #   of them. Unlike merge, every other parameter is kept unmerged
       #   (values from the first scope are used in the result scope).
@@ -340,7 +348,7 @@ module Chewy
       #   @return [Chewy::Search::Request] new scope
       #
       # @!method not(other)
-      #   Takes "query", "filter", "post_filter" from the passed scope
+      #   Takes `query`, `filter`, `post_filter` from the passed scope
       #   and performs {Chewy::Search::QueryProxy#not} operation for each
       #   of them. Unlike merge, every other parameter is kept unmerged
       #   (values from the first scope are used in the result scope).
@@ -387,19 +395,6 @@ module Chewy
 
       # @!group Additional actions
 
-      def delete_all
-        ActiveSupport::Notifications.instrument 'delete_query.chewy',
-          request: render_simple, indexes: _indexes, types: _types,
-          index: _indexes.one? ? _indexes.first : _indexes,
-          type: _types.one? ? _types.first : _types do
-            if Runtime.version < '5.0'
-              delete_by_query_plugin(render_simple)
-            else
-              Chewy.client.delete_by_query(render_simple)
-            end
-          end
-      end
-
       def count
         if instance_variable_defined?(:@response)
           response.total
@@ -439,6 +434,19 @@ module Chewy
             end
           end
         end
+      end
+
+      def delete_all
+        ActiveSupport::Notifications.instrument 'delete_query.chewy',
+          request: render_simple, indexes: _indexes, types: _types,
+          index: _indexes.one? ? _indexes.first : _indexes,
+          type: _types.one? ? _types.first : _types do
+            if Runtime.version < '5.0'
+              delete_by_query_plugin(render_simple)
+            else
+              Chewy.client.delete_by_query(render_simple)
+            end
+          end
       end
 
     protected

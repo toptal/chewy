@@ -19,187 +19,6 @@ describe Chewy::Search::Request do
 
   subject { described_class.new(ProductsIndex) }
 
-  context 'index does not exist' do
-    specify { expect(subject).to eq([]) }
-  end
-
-  context 'integration' do
-    let(:products) { Array.new(3) { |i| {id: i.next.to_s, name: "Name#{i.next}", age: 10 * i.next}.stringify_keys! } }
-    let(:cities) { Array.new(3) { |i| {id: (i.next + 3).to_s}.stringify_keys! } }
-    let(:countries) { Array.new(3) { |i| {id: (i.next + 6).to_s}.stringify_keys! } }
-    before do
-      ProductsIndex::Product.import!(products.map { |h| double(h) })
-      ProductsIndex::City.import!(cities.map { |h| double(h) })
-      ProductsIndex::Country.import!(countries.map { |h| double(h) })
-      CitiesIndex::City.import!(cities.map { |h| double(h) })
-    end
-
-    specify { expect(subject.first._data).to be_a Hash }
-
-    context 'another index' do
-      subject { described_class.new(CitiesIndex) }
-
-      specify { expect(subject.count).to eq(3) }
-      specify { expect(subject.size).to eq(3) }
-    end
-
-    context 'limited types' do
-      subject { described_class.new(ProductsIndex::City, ProductsIndex::Country) }
-
-      specify { expect(subject.count).to eq(6) }
-      specify { expect(subject.size).to eq(6) }
-    end
-
-    context 'mixed types' do
-      subject { described_class.new(CitiesIndex, ProductsIndex::Product) }
-
-      specify { expect(subject.count).to eq(9) }
-      specify { expect(subject.size).to eq(9) }
-    end
-
-    describe '#total' do
-      specify { expect(subject.limit(6).total).to eq(9) }
-      specify { expect(subject.limit(6).total_count).to eq(9) }
-      specify { expect(subject.offset(6).total_entries).to eq(9) }
-    end
-
-    describe '#highlight' do
-      specify { expect(subject.query(match: {name: 'name3'}).highlight(fields: {name: {}}).first.name).to eq('Name3') }
-      specify { expect(subject.query(match: {name: 'name3'}).highlight(fields: {name: {}}).first.name_highlight).to eq('<em>Name3</em>') }
-      specify { expect(subject.query(match: {name: 'name3'}).highlight(fields: {name: {}}).first._data['_source']['name']).to eq('Name3') }
-    end
-
-    describe '#delete_all' do
-      specify do
-        expect do
-          subject.query(match: {name: 'name3'}).delete_all
-          Chewy.client.indices.refresh(index: 'products')
-        end.to change { described_class.new(ProductsIndex).total }.from(9).to(8)
-      end
-      specify do
-        expect do
-          subject.filter(range: {age: {gte: 10, lte: 20}}).delete_all
-          Chewy.client.indices.refresh(index: 'products')
-        end.to change { described_class.new(ProductsIndex).total_count }.from(9).to(7)
-      end
-      specify do
-        expect do
-          subject.types(:product).delete_all
-          Chewy.client.indices.refresh(index: 'products')
-        end.to change { described_class.new(ProductsIndex::Product).total_entries }.from(3).to(0)
-      end
-      specify do
-        expect do
-          subject.delete_all
-          Chewy.client.indices.refresh(index: 'products')
-        end.to change { described_class.new(ProductsIndex).total }.from(9).to(0)
-      end
-      specify do
-        expect do
-          described_class.new(ProductsIndex::City).delete_all
-          Chewy.client.indices.refresh(index: 'products')
-        end.to change { described_class.new(ProductsIndex).total }.from(9).to(6)
-      end
-
-      specify do
-        outer_payload = nil
-        ActiveSupport::Notifications.subscribe('delete_query.chewy') do |_name, _start, _finish, _id, payload|
-          outer_payload = payload
-        end
-        subject.query(match: {name: 'name3'}).delete_all
-        expect(outer_payload).to eq(
-          index: ProductsIndex,
-          indexes: [ProductsIndex],
-          request: {index: ['products'], type: %w[product city country], body: {query: {match: {name: 'name3'}}}},
-          type: [ProductsIndex::Product, ProductsIndex::City, ProductsIndex::Country],
-          types: [ProductsIndex::Product, ProductsIndex::City, ProductsIndex::Country]
-        )
-      end
-
-      describe '#exists?' do
-        specify { expect(subject.exists?).to be(true) }
-        specify { expect(subject.filter(match: {name: 'foo'}).exist?).to be(false) }
-      end
-
-      describe '#find' do
-        specify { expect(subject.find('1')).to be_a(ProductsIndex::Product).and have_attributes(id: '1') }
-        specify { expect(subject.limit(2).find('1', '3', '7').map(&:id)).to contain_exactly('1', '3', '7') }
-        specify { expect { subject.find('1', '3', '42') }.to raise_error Chewy::DocumentNotFound, 'Could not find documents for ids: 42' }
-        specify { expect { subject.query(match: {name: 'name3'}).find('1', '3') }.to raise_error Chewy::DocumentNotFound, 'Could not find documents for ids: 1' }
-        specify { expect { subject.query(match: {name: 'name2'}).find('1', '3') }.to raise_error Chewy::DocumentNotFound, 'Could not find documents for ids: 1 and 3' }
-        specify { expect { subject.filter(match: {name: 'name2'}).find('1', '3') }.to raise_error Chewy::DocumentNotFound, 'Could not find documents for ids: 1 and 3' }
-        specify { expect { subject.post_filter(match: {name: 'name2'}).find('1', '3') }.to raise_error Chewy::DocumentNotFound, 'Could not find documents for ids: 1 and 3' }
-      end
-
-      describe '#pluck' do
-        specify { expect(subject.limit(5).pluck(:id)).to eq(%w[1 2 3 4 5]) }
-        specify { expect(subject.limit(5).pluck(:id, :age)).to eq([['1', 10], ['2', 20], ['3', 30], ['4', nil], ['5', nil]]) }
-        specify { expect(subject.limit(5).source(:name).pluck(:id, :age)).to eq([['1', 10], ['2', 20], ['3', 30], ['4', nil], ['5', nil]]) }
-        specify do
-          expect(subject.limit(5).pluck(:index, :type, :name)).to eq([
-            %w[products product Name1],
-            %w[products product Name2],
-            %w[products product Name3],
-            ['products', 'city', nil],
-            ['products', 'city', nil]
-          ])
-        end
-      end
-    end
-
-    describe '#size' do
-      specify { expect(subject.size).to eq(9) }
-      specify { expect(subject.limit(6).size).to eq(6) }
-      specify { expect(subject.offset(6).size).to eq(3) }
-    end
-
-    describe '#count' do
-      specify { expect(subject.count).to eq(9) }
-      specify { expect(subject.limit(6).count).to eq(9) }
-      specify { expect(subject.offset(6).count).to eq(9) }
-      specify { expect(subject.types(:product, :something).count).to eq(3) }
-      specify { expect(subject.types(:product, :country).count).to eq(6) }
-      specify { expect(subject.filter(term: {age: 10}).count).to eq(1) }
-      specify { expect(subject.query(term: {age: 10}).count).to eq(1) }
-      specify { expect(subject.order(nil).count).to eq(9) }
-
-      context do
-        before { expect(Chewy.client).to receive(:count).and_call_original }
-        specify { subject.count }
-      end
-
-      context do
-        before { expect(Chewy.client).not_to receive(:count) }
-        before { subject.total }
-        specify { expect(subject.limit(6).count).to eq(9) }
-      end
-    end
-
-    describe '#none' do
-      specify { expect(subject.none.render).not_to have_key(:body) }
-      specify { expect(subject.none).to eq([]) }
-    end
-
-    describe '#suggest' do
-      specify do
-        expect(subject.suggest(
-          foo: {
-            text: 'name',
-            term: {field: 'name'}
-          }
-        ).suggest).to eq(
-          'foo' => [
-            {'text' => 'name', 'offset' => 0, 'length' => 4, 'options' => [
-              {'text' => 'name1', 'score' => 0.75, 'freq' => 1},
-              {'text' => 'name2', 'score' => 0.75, 'freq' => 1},
-              {'text' => 'name3', 'score' => 0.75, 'freq' => 1}
-            ]}
-          ]
-        )
-      end
-    end
-  end
-
   describe '#==' do
     specify { expect(described_class.new(ProductsIndex)).to eq(described_class.new(ProductsIndex)) }
     specify { expect(described_class.new(ProductsIndex)).not_to eq(described_class.new(CitiesIndex)) }
@@ -526,5 +345,186 @@ describe Chewy::Search::Request do
 
     specify { expect(subject.except(:limit)).to eq(described_class.new(ProductsIndex).offset(10)) }
     specify { expect { subject.except(:limit) }.not_to change { subject.render } }
+  end
+
+  context 'index does not exist' do
+    specify { expect(subject).to eq([]) }
+  end
+
+  context 'integration' do
+    let(:products) { Array.new(3) { |i| {id: i.next.to_s, name: "Name#{i.next}", age: 10 * i.next}.stringify_keys! } }
+    let(:cities) { Array.new(3) { |i| {id: (i.next + 3).to_s}.stringify_keys! } }
+    let(:countries) { Array.new(3) { |i| {id: (i.next + 6).to_s}.stringify_keys! } }
+    before do
+      ProductsIndex::Product.import!(products.map { |h| double(h) })
+      ProductsIndex::City.import!(cities.map { |h| double(h) })
+      ProductsIndex::Country.import!(countries.map { |h| double(h) })
+      CitiesIndex::City.import!(cities.map { |h| double(h) })
+    end
+
+    specify { expect(subject.first._data).to be_a Hash }
+
+    context 'another index' do
+      subject { described_class.new(CitiesIndex) }
+
+      specify { expect(subject.count).to eq(3) }
+      specify { expect(subject.size).to eq(3) }
+    end
+
+    context 'limited types' do
+      subject { described_class.new(ProductsIndex::City, ProductsIndex::Country) }
+
+      specify { expect(subject.count).to eq(6) }
+      specify { expect(subject.size).to eq(6) }
+    end
+
+    context 'mixed types' do
+      subject { described_class.new(CitiesIndex, ProductsIndex::Product) }
+
+      specify { expect(subject.count).to eq(9) }
+      specify { expect(subject.size).to eq(9) }
+    end
+
+    describe '#none' do
+      specify { expect(subject.none.render).not_to have_key(:body) }
+      specify { expect(subject.none).to eq([]) }
+    end
+
+    describe '#highlight' do
+      specify { expect(subject.query(match: {name: 'name3'}).highlight(fields: {name: {}}).first.name).to eq('Name3') }
+      specify { expect(subject.query(match: {name: 'name3'}).highlight(fields: {name: {}}).first.name_highlight).to eq('<em>Name3</em>') }
+      specify { expect(subject.query(match: {name: 'name3'}).highlight(fields: {name: {}}).first._data['_source']['name']).to eq('Name3') }
+    end
+
+    describe '#suggest' do
+      specify do
+        expect(subject.suggest(
+          foo: {
+            text: 'name',
+            term: {field: 'name'}
+          }
+        ).suggest).to eq(
+          'foo' => [
+            {'text' => 'name', 'offset' => 0, 'length' => 4, 'options' => [
+              {'text' => 'name1', 'score' => 0.75, 'freq' => 1},
+              {'text' => 'name2', 'score' => 0.75, 'freq' => 1},
+              {'text' => 'name3', 'score' => 0.75, 'freq' => 1}
+            ]}
+          ]
+        )
+      end
+    end
+
+    describe '#size' do
+      specify { expect(subject.size).to eq(9) }
+      specify { expect(subject.limit(6).size).to eq(6) }
+      specify { expect(subject.offset(6).size).to eq(3) }
+    end
+
+    describe '#total' do
+      specify { expect(subject.limit(6).total).to eq(9) }
+      specify { expect(subject.limit(6).total_count).to eq(9) }
+      specify { expect(subject.offset(6).total_entries).to eq(9) }
+    end
+
+    describe '#count' do
+      specify { expect(subject.count).to eq(9) }
+      specify { expect(subject.limit(6).count).to eq(9) }
+      specify { expect(subject.offset(6).count).to eq(9) }
+      specify { expect(subject.types(:product, :something).count).to eq(3) }
+      specify { expect(subject.types(:product, :country).count).to eq(6) }
+      specify { expect(subject.filter(term: {age: 10}).count).to eq(1) }
+      specify { expect(subject.query(term: {age: 10}).count).to eq(1) }
+      specify { expect(subject.order(nil).count).to eq(9) }
+
+      context do
+        before { expect(Chewy.client).to receive(:count).and_call_original }
+        specify { subject.count }
+      end
+
+      context do
+        before { expect(Chewy.client).not_to receive(:count) }
+        before { subject.total }
+        specify { expect(subject.limit(6).count).to eq(9) }
+      end
+    end
+
+    describe '#exists?' do
+      specify { expect(subject.exists?).to be(true) }
+      specify { expect(subject.filter(match: {name: 'foo'}).exist?).to be(false) }
+    end
+
+    describe '#find' do
+      specify { expect(subject.find('1')).to be_a(ProductsIndex::Product).and have_attributes(id: '1') }
+      specify { expect(subject.limit(2).find('1', '3', '7').map(&:id)).to contain_exactly('1', '3', '7') }
+      specify { expect { subject.find('1', '3', '42') }.to raise_error Chewy::DocumentNotFound, 'Could not find documents for ids: 42' }
+      specify { expect { subject.query(match: {name: 'name3'}).find('1', '3') }.to raise_error Chewy::DocumentNotFound, 'Could not find documents for ids: 1' }
+      specify { expect { subject.query(match: {name: 'name2'}).find('1', '3') }.to raise_error Chewy::DocumentNotFound, 'Could not find documents for ids: 1 and 3' }
+      specify { expect { subject.filter(match: {name: 'name2'}).find('1', '3') }.to raise_error Chewy::DocumentNotFound, 'Could not find documents for ids: 1 and 3' }
+      specify { expect { subject.post_filter(match: {name: 'name2'}).find('1', '3') }.to raise_error Chewy::DocumentNotFound, 'Could not find documents for ids: 1 and 3' }
+    end
+
+    describe '#pluck' do
+      specify { expect(subject.limit(5).pluck(:id)).to eq(%w[1 2 3 4 5]) }
+      specify { expect(subject.limit(5).pluck(:id, :age)).to eq([['1', 10], ['2', 20], ['3', 30], ['4', nil], ['5', nil]]) }
+      specify { expect(subject.limit(5).source(:name).pluck(:id, :age)).to eq([['1', 10], ['2', 20], ['3', 30], ['4', nil], ['5', nil]]) }
+      specify do
+        expect(subject.limit(5).pluck(:index, :type, :name)).to eq([
+          %w[products product Name1],
+          %w[products product Name2],
+          %w[products product Name3],
+          ['products', 'city', nil],
+          ['products', 'city', nil]
+        ])
+      end
+    end
+
+    describe '#delete_all' do
+      specify do
+        expect do
+          subject.query(match: {name: 'name3'}).delete_all
+          Chewy.client.indices.refresh(index: 'products')
+        end.to change { described_class.new(ProductsIndex).total }.from(9).to(8)
+      end
+      specify do
+        expect do
+          subject.filter(range: {age: {gte: 10, lte: 20}}).delete_all
+          Chewy.client.indices.refresh(index: 'products')
+        end.to change { described_class.new(ProductsIndex).total_count }.from(9).to(7)
+      end
+      specify do
+        expect do
+          subject.types(:product).delete_all
+          Chewy.client.indices.refresh(index: 'products')
+        end.to change { described_class.new(ProductsIndex::Product).total_entries }.from(3).to(0)
+      end
+      specify do
+        expect do
+          subject.delete_all
+          Chewy.client.indices.refresh(index: 'products')
+        end.to change { described_class.new(ProductsIndex).total }.from(9).to(0)
+      end
+      specify do
+        expect do
+          described_class.new(ProductsIndex::City).delete_all
+          Chewy.client.indices.refresh(index: 'products')
+        end.to change { described_class.new(ProductsIndex).total }.from(9).to(6)
+      end
+
+      specify do
+        outer_payload = nil
+        ActiveSupport::Notifications.subscribe('delete_query.chewy') do |_name, _start, _finish, _id, payload|
+          outer_payload = payload
+        end
+        subject.query(match: {name: 'name3'}).delete_all
+        expect(outer_payload).to eq(
+          index: ProductsIndex,
+          indexes: [ProductsIndex],
+          request: {index: ['products'], type: %w[product city country], body: {query: {match: {name: 'name3'}}}},
+          type: [ProductsIndex::Product, ProductsIndex::City, ProductsIndex::Country],
+          types: [ProductsIndex::Product, ProductsIndex::City, ProductsIndex::Country]
+        )
+      end
+    end
   end
 end

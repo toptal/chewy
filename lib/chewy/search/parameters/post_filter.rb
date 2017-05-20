@@ -3,7 +3,7 @@ require 'chewy/search/parameters/storage'
 module Chewy
   module Search
     class Parameters
-      # A standard parameter storage, which updates "post_filter" parameter
+      # A standard parameter storage, which updates `post_filter` parameter
       # of the ES request.
       #
       # @example

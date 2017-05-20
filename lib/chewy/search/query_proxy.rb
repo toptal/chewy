@@ -1,7 +1,7 @@
 module Chewy
   module Search
     # This specialized proxy class is used to provide an ability
-    # of "query", "filter", "post_filter" parameters additional
+    # of `query`, `filter`, `post_filter` parameters additional
     # modification.
     #
     # @see Chewy::Search::Parameters::Query
@@ -23,23 +23,25 @@ module Chewy
       #   @return [Chewy::Search::Request]
       #
       #   @overload must(query_hash)
-      #     If pure hash is passed it is added to "must" array of the bool query.
+      #     If pure hash is passed it is added to `must` array of the bool query.
       #
       #     @see https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl.html
       #     @example
       #       PlacesIndex.query.must(match: {name: 'Moscow'}).query.must(match: {name: 'London'})
-      #       # => <PlacesIndex::Query {..., :body=>{:query=>{:bool=>{:must=>[{:match=>{:name=>"Moscow"}}, {:match=>{:name=>"London"}}]}}}}>
+      #       # => <PlacesIndex::Query {..., :body=>{:query=>{:bool=>{
+      #       #      :must=>[{:match=>{:name=>"Moscow"}}, {:match=>{:name=>"London"}}]}}}}>
       #     @param query_hash [Hash] pure query hash
       #
       #   @overload must
-      #     If block is passed instead of a pure hash, "elasticsearch-dsl"
+      #     If block is passed instead of a pure hash, `elasticsearch-dsl"
       #     gem will be used to process it.
       #
       #     @see https://github.com/elastic/elasticsearch-ruby/tree/master/elasticsearch-dsl
       #     @example
       #       PlacesIndex.query.must { match name: 'Moscow' }.query.must { match name: 'London' }
-      #       # => <PlacesIndex::Query {..., :body=>{:query=>{:bool=>{:must=>[{:match=>{:name=>"Moscow"}}, {:match=>{:name=>"London"}}]}}}}>
-      #     @yield the block is processed by "elasticsearch-dsl" gem
+      #       # => <PlacesIndex::Query {..., :body=>{:query=>{:bool=>{
+      #       #      :must=>[{:match=>{:name=>"Moscow"}}, {:match=>{:name=>"London"}}]}}}}>
+      #     @yield the block is processed by `elasticsearch-dsl` gem
       #
       # @!method should(query_hash = nil, &block)
       #   (see Chewy::Search::Parameters::QueryStorage#should)
@@ -48,23 +50,25 @@ module Chewy
       #   @return [Chewy::Search::Request]
       #
       #   @overload should(query_hash)
-      #     If pure hash is passed it is added to "should" array of the bool query.
+      #     If pure hash is passed it is added to `should` array of the bool query.
       #
       #     @see https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl.html
       #     @example
       #       PlacesIndex.query.should(match: {name: 'Moscow'}).query.should(match: {name: 'London'})
-      #       # => <PlacesIndex::Query {..., :body=>{:query=>{:bool=>{:should=>[{:match=>{:name=>"Moscow"}}, {:match=>{:name=>"London"}}]}}}}>
+      #       # => <PlacesIndex::Query {..., :body=>{:query=>{:bool=>{
+      #       #      :should=>[{:match=>{:name=>"Moscow"}}, {:match=>{:name=>"London"}}]}}}}>
       #     @param query_hash [Hash] pure query hash
       #
       #   @overload should
-      #     If block is passed instead of a pure hash, "elasticsearch-dsl"
+      #     If block is passed instead of a pure hash, `elasticsearch-dsl"
       #     gem will be used to process it.
       #
       #     @see https://github.com/elastic/elasticsearch-ruby/tree/master/elasticsearch-dsl
       #     @example
       #       PlacesIndex.query.should { match name: 'Moscow' }.query.should { match name: 'London' }
-      #       # => <PlacesIndex::Query {..., :body=>{:query=>{:bool=>{:should=>[{:match=>{:name=>"Moscow"}}, {:match=>{:name=>"London"}}]}}}}>
-      #     @yield the block is processed by "elasticsearch-dsl" gem
+      #       # => <PlacesIndex::Query {..., :body=>{:query=>{:bool=>{
+      #       #      :should=>[{:match=>{:name=>"Moscow"}}, {:match=>{:name=>"London"}}]}}}}>
+      #     @yield the block is processed by `elasticsearch-dsl` gem
       #
       # @!method must_not(query_hash = nil, &block)
       #   (see Chewy::Search::Parameters::QueryStorage#must_not)
@@ -73,23 +77,25 @@ module Chewy
       #   @return [Chewy::Search::Request]
       #
       #   @overload must_not(query_hash)
-      #     If pure hash is passed it is added to "must_not" array of the bool query.
+      #     If pure hash is passed it is added to `must_not` array of the bool query.
       #
       #     @see https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl.html
       #     @example
       #       PlacesIndex.query.must_not(match: {name: 'Moscow'}).query.must_not(match: {name: 'London'})
-      #       # => <PlacesIndex::Query {..., :body=>{:query=>{:bool=>{:must_not=>[{:match=>{:name=>"Moscow"}}, {:match=>{:name=>"London"}}]}}}}>
+      #       # => <PlacesIndex::Query {..., :body=>{:query=>{:bool=>{
+      #       #      :must_not=>[{:match=>{:name=>"Moscow"}}, {:match=>{:name=>"London"}}]}}}}>
       #     @param query_hash [Hash] pure query hash
       #
       #   @overload must_not
-      #     If block is passed instead of a pure hash, "elasticsearch-dsl"
+      #     If block is passed instead of a pure hash, `elasticsearch-dsl"
       #     gem will be used to process it.
       #
       #     @see https://github.com/elastic/elasticsearch-ruby/tree/master/elasticsearch-dsl
       #     @example
       #       PlacesIndex.query.must_not { match name: 'Moscow' }.query.must_not { match name: 'London' }
-      #       # => <PlacesIndex::Query {..., :body=>{:query=>{:bool=>{:must_not=>[{:match=>{:name=>"Moscow"}}, {:match=>{:name=>"London"}}]}}}}>
-      #     @yield the block is processed by "elasticsearch-dsl" gem
+      #       # => <PlacesIndex::Query {..., :body=>{:query=>{:bool=>{
+      #       #      :must_not=>[{:match=>{:name=>"Moscow"}}, {:match=>{:name=>"London"}}]}}}}>
+      #     @yield the block is processed by `elasticsearch-dsl` gem
       %i[must should must_not].each do |method|
         define_method method do |query_hash = nil, &block|
           raise ArgumentError, "Please provide a parameter or a block to `#{method}`" unless query_hash || block
@@ -104,17 +110,19 @@ module Chewy
       #   @return [Chewy::Search::Request]
       #
       #   @overload and(query_hash)
-      #     If pure hash is passed, the current root "bool" query and
-      #     the passed one are joined into a single "must" array of the
+      #     If pure hash is passed, the current root `bool` query and
+      #     the passed one are joined into a single `must` array of the
       #     new root query.
       #     @see https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl.html
       #     @example
       #       scope = PlacesIndex.query.must_not(match: {name: 'Moscow'})
       #       scope.query.and(match: {name: 'London'})
-      #       # => <PlacesIndex::Query {..., :body=>{:query=>{:bool=>{:must=>[{:bool=>{:must_not=>{:match=>{:name=>"Moscow"}}}}, {:match=>{:name=>"London"}}]}}}}>
+      #       # => <PlacesIndex::Query {..., :body=>{:query=>{:bool=>{
+      #       #      :must=>[{:bool=>{:must_not=>{:match=>{:name=>"Moscow"}}}}, {:match=>{:name=>"London"}}]}}}}>
       #       scope = PlacesIndex.query(match: {name: 'Moscow'})
       #       scope.query.and(match: {name: 'London'})
-      #       # => <PlacesIndex::Query {..., :body=>{:query=>{:bool=>{:must=>[{:match=>{:name=>"Moscow"}}, {:match=>{:name=>"London"}}]}}}}>
+      #       # => <PlacesIndex::Query {..., :body=>{:query=>{:bool=>{
+      #       #      :must=>[{:match=>{:name=>"Moscow"}}, {:match=>{:name=>"London"}}]}}}}>
       #     @param query_hash [Hash] pure query hash
       #
       #   @overload and(scope)
@@ -124,18 +132,20 @@ module Chewy
       #       scope1 = PlacesIndex.query.must_not(match: {name: 'Moscow'})
       #       scope2 = PlacesIndex.query(match: {name: 'London'})
       #       scope1.query.and(scope2)
-      #       # => <PlacesIndex::Query {..., :body=>{:query=>{:bool=>{:must=>[{:bool=>{:must_not=>{:match=>{:name=>"Moscow"}}}}, {:match=>{:name=>"London"}}]}}}}>
+      #       # => <PlacesIndex::Query {..., :body=>{:query=>{:bool=>{
+      #       #      :must=>[{:bool=>{:must_not=>{:match=>{:name=>"Moscow"}}}}, {:match=>{:name=>"London"}}]}}}}>
       #     @param scope [Chewy::Search::Request] other scope
       #
       #   @overload and
-      #     If block is passed instead of a pure hash, "elasticsearch-dsl"
+      #     If block is passed instead of a pure hash, `elasticsearch-dsl"
       #     gem will be used to process it.
       #     @see https://github.com/elastic/elasticsearch-ruby/tree/master/elasticsearch-dsl
       #     @example
       #       scope = PlacesIndex.query.must_not(match: {name: 'Moscow'})
       #       scope.query.and { match name: 'London' }
-      #       # => <PlacesIndex::Query {..., :body=>{:query=>{:bool=>{:must=>[{:bool=>{:must_not=>{:match=>{:name=>"Moscow"}}}}, {:match=>{:name=>"London"}}]}}}}>
-      #     @yield the block is processed by "elasticsearch-dsl" gem
+      #       # => <PlacesIndex::Query {..., :body=>{:query=>{:bool=>{
+      #       #      :must=>[{:bool=>{:must_not=>{:match=>{:name=>"Moscow"}}}}, {:match=>{:name=>"London"}}]}}}}>
+      #     @yield the block is processed by `elasticsearch-dsl` gem
       #
       # @!method or(query_hash_or_scope = nil, &block)
       #   (see Chewy::Search::Parameters::QueryStorage#or)
@@ -144,17 +154,19 @@ module Chewy
       #   @return [Chewy::Search::Request]
       #
       #   @overload or(query_hash)
-      #     If pure hash is passed, the current root "bool" query and
-      #     the passed one are joined into a single "should" array of the
+      #     If pure hash is passed, the current root `bool` query and
+      #     the passed one are joined into a single `should` array of the
       #     new root query.
       #     @see https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl.html
       #     @example
       #       scope = PlacesIndex.query.must_not(match: {name: 'Moscow'})
       #       scope.query.or(match: {name: 'London'})
-      #       # => <PlacesIndex::Query {..., :body=>{:query=>{:bool=>{:should=>[{:bool=>{:must_not=>{:match=>{:name=>"Moscow"}}}}, {:match=>{:name=>"London"}}]}}}}>
+      #       # => <PlacesIndex::Query {..., :body=>{:query=>{:bool=>{
+      #       #      :should=>[{:bool=>{:must_not=>{:match=>{:name=>"Moscow"}}}}, {:match=>{:name=>"London"}}]}}}}>
       #       scope = PlacesIndex.query(match: {name: 'Moscow'})
       #       scope.query.or(match: {name: 'London'})
-      #       # => <PlacesIndex::Query {..., :body=>{:query=>{:bool=>{:should=>[{:match=>{:name=>"Moscow"}}, {:match=>{:name=>"London"}}]}}}}>
+      #       # => <PlacesIndex::Query {..., :body=>{:query=>{:bool=>{
+      #       #      :should=>[{:match=>{:name=>"Moscow"}}, {:match=>{:name=>"London"}}]}}}}>
       #     @param query_hash [Hash] pure query hash
       #
       #   @overload or(scope)
@@ -164,18 +176,20 @@ module Chewy
       #       scope1 = PlacesIndex.query.must_not(match: {name: 'Moscow'})
       #       scope2 = PlacesIndex.query(match: {name: 'London'})
       #       scope1.query.or(scope2)
-      #       # => <PlacesIndex::Query {..., :body=>{:query=>{:bool=>{:should=>[{:bool=>{:must_not=>{:match=>{:name=>"Moscow"}}}}, {:match=>{:name=>"London"}}]}}}}>
+      #       # => <PlacesIndex::Query {..., :body=>{:query=>{:bool=>{
+      #       #      :should=>[{:bool=>{:must_not=>{:match=>{:name=>"Moscow"}}}}, {:match=>{:name=>"London"}}]}}}}>
       #     @param scope [Chewy::Search::Request] other scope
       #
       #   @overload or
-      #     If block is passed instead of a pure hash, "elasticsearch-dsl"
+      #     If block is passed instead of a pure hash, `elasticsearch-dsl"
       #     gem will be used to process it.
       #     @see https://github.com/elastic/elasticsearch-ruby/tree/master/elasticsearch-dsl
       #     @example
       #       scope = PlacesIndex.query.must_not(match: {name: 'Moscow'})
       #       scope.query.or { match name: 'London' }
-      #       # => <PlacesIndex::Query {..., :body=>{:query=>{:bool=>{:should=>[{:bool=>{:must_not=>{:match=>{:name=>"Moscow"}}}}, {:match=>{:name=>"London"}}]}}}}>
-      #     @yield the block is processed by "elasticsearch-dsl" gem
+      #       # => <PlacesIndex::Query {..., :body=>{:query=>{:bool=>{
+      #       #      :should=>[{:bool=>{:must_not=>{:match=>{:name=>"Moscow"}}}}, {:match=>{:name=>"London"}}]}}}}>
+      #     @yield the block is processed by `elasticsearch-dsl` gem
       #
       # @!method not(query_hash_or_scope = nil, &block)
       #   (see Chewy::Search::Parameters::QueryStorage#not)
@@ -185,12 +199,13 @@ module Chewy
       #   @return [Chewy::Search::Request]
       #
       #   @overload not(query_hash)
-      #     If pure hash is passed it is added to "must_not" array of the bool query.
+      #     If pure hash is passed it is added to `must_not` array of the bool query.
       #     @see https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl.html
       #     @example
       #       scope = PlacesIndex.query.must_not(match: {name: 'Moscow'})
       #       scope.query.not(match: {name: 'London'})
-      #       # => <PlacesIndex::Query {..., :body=>{:query=>{:bool=>{:must_not=>[{:match=>{:name=>"Moscow"}}, {:match=>{:name=>"London"}}]}}}}>
+      #       # => <PlacesIndex::Query {..., :body=>{:query=>{:bool=>{
+      #       #      :must_not=>[{:match=>{:name=>"Moscow"}}, {:match=>{:name=>"London"}}]}}}}>
       #     @param query_hash [Hash] pure query hash
       #
       #   @overload not(scope)
@@ -200,18 +215,20 @@ module Chewy
       #       scope1 = PlacesIndex.query.must_not(match: {name: 'Moscow'})
       #       scope2 = PlacesIndex.query(match: {name: 'London'})
       #       scope1.query.not(scope2)
-      #       # => <PlacesIndex::Query {..., :body=>{:query=>{:bool=>{:must_not=>[{:match=>{:name=>"Moscow"}}, {:match=>{:name=>"London"}}]}}}}>
+      #       # => <PlacesIndex::Query {..., :body=>{:query=>{:bool=>{
+      #       #      :must_not=>[{:match=>{:name=>"Moscow"}}, {:match=>{:name=>"London"}}]}}}}>
       #     @param scope [Chewy::Search::Request] other scope
       #
       #   @overload not
-      #     If block is passed instead of a pure hash, "elasticsearch-dsl"
+      #     If block is passed instead of a pure hash, `elasticsearch-dsl"
       #     gem will be used to process it.
       #     @see https://github.com/elastic/elasticsearch-ruby/tree/master/elasticsearch-dsl
       #     @example
       #       scope = PlacesIndex.query.must_not(match: {name: 'Moscow'})
       #       scope.query.not { match name: 'London' }
-      #       # => <PlacesIndex::Query {..., :body=>{:query=>{:bool=>{:must_not=>[{:match=>{:name=>"Moscow"}}, {:match=>{:name=>"London"}}]}}}}>
-      #     @yield the block is processed by "elasticsearch-dsl" gem
+      #       # => <PlacesIndex::Query {..., :body=>{:query=>{:bool=>{
+      #       #      :must_not=>[{:match=>{:name=>"Moscow"}}, {:match=>{:name=>"London"}}]}}}}>
+      #     @yield the block is processed by `elasticsearch-dsl` gem
       %i[and or not].each do |method|
         define_method method do |query_hash_or_scope = nil, &block|
           raise ArgumentError, "Please provide a parameter or a block to `#{method}`" unless query_hash_or_scope || block

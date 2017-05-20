@@ -40,6 +40,7 @@ module Chewy
         end
       end
 
+      # @!method scroll_hits(batch_size: 1000, scroll: '1m')
       # Iterates through the documents of the scope in batches. Yields each hit separately.
       #
       # @param batch_size [Integer] batch size obviously, replaces `size` query parameter
@@ -62,6 +63,7 @@ module Chewy
         end
       end
 
+      # @!method scroll_objects(batch_size: 1000, scroll: '1m')
       # Iterates through the documents of the scope in batches. Yields
       # each hit wrapped with {Chewy::Type}.
       #
@@ -85,6 +87,7 @@ module Chewy
         end
       end
 
+      # @!method scroll_records(batch_size: 1000, scroll: '1m')
       # Iterates through the documents of the scope in batches. Performs load
       # operation for each batch and then yields each loaded ORM/ODM record/document.
       #

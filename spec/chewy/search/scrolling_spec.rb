@@ -74,19 +74,6 @@ describe Chewy::Search::Scrolling, :orm do
     end
   end
 
-  describe '#scroll_results' do
-    before { expect(Chewy.client).to receive(:scroll).twice.and_call_original }
-
-    specify do
-      expect(request.scroll_results(batch_size: 2).map(&:rating))
-        .to eq([0, 1, 2, 3, 4])
-    end
-    specify do
-      expect(request.scroll_results(batch_size: 2).map(&:class).uniq)
-        .to eq([PlacesIndex::City, PlacesIndex::Country])
-    end
-  end
-
   describe '#scroll_objects' do
     before { expect(Chewy.client).to receive(:scroll).twice.and_call_original }
 
@@ -96,6 +83,19 @@ describe Chewy::Search::Scrolling, :orm do
     end
     specify do
       expect(request.scroll_objects(batch_size: 2).map(&:class).uniq)
+        .to eq([PlacesIndex::City, PlacesIndex::Country])
+    end
+  end
+
+  describe '#scroll_records' do
+    before { expect(Chewy.client).to receive(:scroll).twice.and_call_original }
+
+    specify do
+      expect(request.scroll_records(batch_size: 2).map(&:rating))
+        .to eq([0, 1, 2, 3, 4])
+    end
+    specify do
+      expect(request.scroll_records(batch_size: 2).map(&:class).uniq)
         .to eq([City, Country])
     end
   end

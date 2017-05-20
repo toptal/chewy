@@ -245,12 +245,33 @@ module Chewy
         end
       end
 
+      # @!method order(*values)
+      #  @overload order(*values)
+      #  Modifies `sort` request parameter. Updates the storage on every call.
+      #
+      #  @example
+      #    PlacesIndex.order(:name, population: {order: :asc}).order(:coordinates)
+      #    # => <PlacesIndex::Query {..., :body=>{:sort=>["name", {"population"=>{:order=>:asc}}, "coordinates"]}}>
+      #  @see Chewy::Seach::Request::Parameters::Order
+      #  @see https://www.elastic.co/guide/en/elasticsearch/reference/current/search-request-sort.html
+      #  @param values [Array<Hash, String, Symbol>] sort fields and options
+      #  @return [Chewy::Search::Request]
       %i[order docvalue_fields types].each do |name|
         define_method name do |value, *values|
           modify(name) { update!([value, *values]) }
         end
       end
 
+      # @overload reorder(*values)
+      # Replaces the value of the `sort` parameter with the provided value.
+      #
+      # @example
+      #   PlacesIndex.order(:name, population: {order: :asc}).reorder(:coordinates)
+      #   # => <PlacesIndex::Query {..., :body=>{:sort=>["coordinates"]}}>
+      # @see Chewy::Seach::Request::Parameters::Order
+      # @see https://www.elastic.co/guide/en/elasticsearch/reference/current/search-request-sort.html
+      # @param values [Array<Hash, String, Symbol>] sort fields and options
+      # @return [Chewy::Search::Request]
       def reorder(value, *values)
         modify(:order) { replace!([value, *values]) }
       end

@@ -74,16 +74,33 @@ module Chewy
           update!(must_not: reduce(normalize(other_value)))
         end
 
+        # Uses `and` logic to merge storages.
+        #
+        # @see #and
+        # @see Chewy::Search::Parameters::Storage#merge!
+        # @param other [Chewy::Search::Parameters::Storage] other storage
+        # @return [{Symbol => Array<Hash>}]
         def merge!(other)
           self.and(other.value)
         end
 
+        # Every query value is a hash of arrays and each array is
+        # glued with the corresponding array from the provided value.
+        #
+        # @see Chewy::Search::Parameters::Storage#update!
+        # @param other_value [Object] any acceptable storage value
+        # @return [{Symbol => Array<Hash>}]
         def update!(other_value)
           @value = normalize(other_value).each do |key, component|
             component.unshift(*value[key])
           end
         end
 
+        # Almost standard rendering logic, some reduction logic is
+        # applied to the value additionally.
+        #
+        # @see Chewy::Search::Parameters::Storage#render
+        # @return [{Symbol => Hash}]
         def render
           reduced = reduce(value)
           {self.class.param_name => reduced} if reduced.present?

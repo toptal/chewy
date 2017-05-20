@@ -8,6 +8,7 @@ module Chewy
     # logic.
     #
     # @see Chewy::Search::Request#parameters
+    # @see Chewy::Search::Parameters::Storage
     class Parameters
       # Default storage classes warehouse. It is probably possible to
       # add your own classes here if necessary, but I'm not sure it will work.

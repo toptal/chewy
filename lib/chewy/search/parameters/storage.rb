@@ -71,7 +71,7 @@ module Chewy
         end
 
         # Basic parameter rendering logic, don't need to return anything
-        # if parameter doesn't requre rendering for the current value.
+        # if parameter doesn't require rendering for the current value.
         #
         # @see Chewy::Search::Parameters#render
         # @see Chewy::Search::Request#render

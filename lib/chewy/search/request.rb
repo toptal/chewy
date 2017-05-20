@@ -1,9 +1,11 @@
 module Chewy
   module Search
-    # The main requset DSL class. Supports multiple indexes requests.
+    # The main requset DSL class. Supports multiple index requests.
+    # Supports ES2 and ES5 search API and query DSL.
     #
     # @note The class tries to be as immutable as possible,
     #   so most of the methods return a new instance of the class.
+    # @see Chewy::Search
     # @example
     #   scope = Chewy::Search::Request.new(PlacesIndex)
     #   # => <Chewy::Search::Request {:index=>["places"], :type=>["city", "country"]}>
@@ -11,7 +13,6 @@ module Chewy
     #   # => <Chewy::Search::Request {:index=>["places"], :type=>["city", "country"], :body=>{:size=>20}}>
     #   scope.order(:name).offset(10)
     #   # => <Chewy::Search::Request {:index=>["places"], :type=>["city", "country"], :body=>{:sort=>["name"], :from=>10}}>
-    #
     class Request
       include Enumerable
       include Scoping

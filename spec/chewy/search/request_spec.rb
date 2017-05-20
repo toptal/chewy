@@ -450,14 +450,23 @@ describe Chewy::Search::Request do
     end
 
     describe '#exists?' do
+      before { expect(Chewy.client).to receive(:search).once.and_call_original }
+
       specify { expect(subject.exists?).to be(true) }
       specify { expect(subject.filter(match: {name: 'foo'}).exist?).to be(false) }
+
+      context do
+        before { subject.total }
+        specify { expect(subject.exists?).to eq(true) }
+      end
     end
 
     describe '#find' do
       specify { expect(subject.find('1')).to be_a(ProductsIndex::Product).and have_attributes(id: '1') }
       specify { expect(subject.limit(2).find('1', '3', '7').map(&:id)).to contain_exactly('1', '3', '7') }
+      specify { expect(subject.limit(2).find(1, 3, 7).map(&:id)).to contain_exactly('1', '3', '7') }
       specify { expect { subject.find('1', '3', '42') }.to raise_error Chewy::DocumentNotFound, 'Could not find documents for ids: 42' }
+      specify { expect { subject.find(1, 3, 42) }.to raise_error Chewy::DocumentNotFound, 'Could not find documents for ids: 42' }
       specify { expect { subject.query(match: {name: 'name3'}).find('1', '3') }.to raise_error Chewy::DocumentNotFound, 'Could not find documents for ids: 1' }
       specify { expect { subject.query(match: {name: 'name2'}).find('1', '3') }.to raise_error Chewy::DocumentNotFound, 'Could not find documents for ids: 1 and 3' }
       specify { expect { subject.filter(match: {name: 'name2'}).find('1', '3') }.to raise_error Chewy::DocumentNotFound, 'Could not find documents for ids: 1 and 3' }

@@ -395,28 +395,69 @@ module Chewy
 
       # @!group Additional actions
 
+      # Returns total count of hits for the request. If the request
+      # was already performed - it uses the `total` value, otherwise
+      # it executes a fast count request.
+      #
+      # @return [Integer] total hits count
       def count
-        if instance_variable_defined?(:@response)
-          response.total
+        if performed?
+          total
         else
           @count ||= Chewy.client.count(render_simple)['count']
         end
       end
 
+      # Checks if any of the document exist for this request. If
+      # the request was already performed - it uses the `total`,
+      # otherwise it executes a fast request to check existence.
+      #
+      # @return [true, false] wether hits exist or not
       def exists?
-        limit(0).terminate_after(1).total != 0
+        if performed?
+          total != 0
+        else
+          limit(0).terminate_after(1).total != 0
+        end
       end
       alias_method :exist?, :exists?
 
+      # Finds documents with specified ids for the current request scope.
+      #
+      # @raise [Chewy::DocumentNotFound] in case of any document is missing
+      # @overload find(id)
+      #   If single id is passed - it returns a single object.
+      #
+      #   @param id [Integer, String] id of the desired document
+      #   @return [Chewy::Type] result document
+      #
+      # @overload find(*ids)
+      #   If several field are passed - it returns an array of objects.
+      #
+      #   @param ids [Array<Integer, String>] ids of the desired documents
+      #   @return [Array<Chewy::Type>] result documents
       def find(*ids)
-        ids = ids.flatten(1)
+        ids = ids.flatten(1).map(&:to_s)
         results = only(:query, :filter, :post_filter).filter(terms: {_id: ids}).to_a
 
-        missing_ids = ids - results.map(&:id)
+        missing_ids = ids - results.map(&:id).map(&:to_s)
         raise Chewy::DocumentNotFound, "Could not find documents for ids: #{missing_ids.to_sentence}" if missing_ids.present?
         results.one? ? results.first : results
       end
 
+      # Returns and array of values for specified fields.
+      #
+      # @overload pluck(field)
+      #   If single field is passed - it returns and array of values.
+      #
+      #   @param field [String, Symbol] field name
+      #   @return [Array<Object>] specified field values
+      #
+      # @overload pluck(*fields)
+      #   If several field are passed - it returns an array of arrays of values.
+      #
+      #   @param fields [Array<String, Symbol>] field names
+      #   @return [Array<Array<Object>>] specified field values
       def pluck(*fields)
         fields = fields.flatten(1).reject(&:blank?).map(&:to_s).map do |field|
           PLUCK_MAPPING[field] || field
@@ -436,6 +477,14 @@ module Chewy
         end
       end
 
+      # Deletes all the documents from the specified scope it uses
+      # `delete_by_query` API. For ES < 5.0 it uses `delete_by_query`
+      # plugin, which requires additional installation effort.
+      #
+      # @see https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-delete-by-query.html
+      # @see https://www.elastic.co/guide/en/elasticsearch/plugins/2.0/plugins-delete-by-query.html
+      # @note The result hash is different for different API used.
+      # @return [Hash] the result of query execution
       def delete_all
         ActiveSupport::Notifications.instrument 'delete_query.chewy',
           request: render_simple, indexes: _indexes, types: _types,
@@ -533,6 +582,10 @@ module Chewy
         else
           hit.fetch('_source', {})[field]
         end
+      end
+
+      def performed?
+        instance_variable_defined?(:@response)
       end
     end
   end

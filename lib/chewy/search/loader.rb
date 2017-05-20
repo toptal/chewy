@@ -1,6 +1,17 @@
 module Chewy
   module Search
+    # This class is used for two different purposes: load ORM/ODM
+    # source objects.
+    #
+    # @see Chewy::Type::Import
+    # @see Chewy::Search::Request#load
+    # @see Chewy::Search::Scrolling#scroll_records
     class Loader
+      # @param indexes [Array<Chewy::Index>] list of indexes to lookup types
+      # @param only [Array<String, Symbol>] list of selected type names to load
+      # @param except [Array<String, Symbol>] list of type names which will not be loaded
+      # @param options [Hash] adapter-specific load options
+      # @see Chewy::Type::Adapter::Base#load
       def initialize(indexes: [], only: [], except: [], **options)
         @indexes = indexes
         @only = Array.wrap(only).map(&:to_s)
@@ -8,10 +19,28 @@ module Chewy
         @options = options
       end
 
+      # Returns a {Chewy::Type} object for index name and type name passed. Caches
+      # the result for each pair to make lookup faster.
+      #
+      # @param index [String] index name
+      # @param type [String] type name
+      # @return [Chewy::Type]
+      # @raise [NoMethodError] when index was not found
+      # @raise [Chewy::UndefinedType] when index was found, but type was not
       def derive_type(index, type)
         (@derive_type ||= {})[[index, type]] ||= derive_index(index).type(type)
       end
 
+      # For each passed hit this method loads an ORM/ORD source object
+      # using `hit['_id']`. The returned array is exactly in the same order
+      # as hits were. If source object was not found for some hit, `nil`
+      # will be returned at the corresponding position in array.
+      #
+      # Records/documents are loaded in an efficient manner, performing
+      # a single query for each type present.
+      #
+      # @param hits [Array<Hash>] ES hits array
+      # @return [Array<Object, nil>] the array of corresponding ORM/ODM objects
       def load(hits)
         hit_groups = hits.group_by { |hit| [hit['_index'], hit['_type']] }
         loaded_objects = hit_groups.each_with_object({}) do |((index_name, type_name), hit_group), result|

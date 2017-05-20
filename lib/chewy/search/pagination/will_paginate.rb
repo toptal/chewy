@@ -1,6 +1,12 @@
 module Chewy
   module Search
     module Pagination
+      # This module provides `WillPaginate` support for {Chewy::Search::Request}
+      # It is included automatically if `WillPaginate` is available.
+      #
+      # @example
+      #   PlacesIndex.all.paginate(page: 3, per_page: 10).order(:name)
+      #   # => <PlacesIndex::Query {..., :body=>{:size=>10, :from=>20, :sort=>["name"]}}>
       module WillPaginate
         extend ActiveSupport::Concern
 

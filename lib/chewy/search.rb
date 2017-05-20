@@ -12,10 +12,16 @@ require 'chewy/search/pagination/will_paginate'
 module Chewy
   # This module being included to any provides an interface to the
   # request DSL. By default it is included to {Chewy::Index} and
-  # {Chewy::Type}. The class used as a request DSL provider is
+  # {Chewy::Type}.
+  #
+  # The class used as a request DSL provider is
   # inherited from {Chewy::Search::Request} by default, but if you
   # need ES < 2.0 DSL support - you can switch it to {Chewy::Query}
   # using {Chewy::Config#search_class}
+  #
+  # Also, the search class is refined with one of the pagination-
+  # providing modules: {Chewy::Search::Pagination::Kaminari} or
+  # {Chewy::Search::Pagination::WillPaginate}.
   #
   # @example
   #   PlacesIndex.query(match: {name: 'Moscow'})
@@ -24,6 +30,8 @@ module Chewy
   # @see Chewy::Type
   # @see Chewy::Search::Request
   # @see Chewy::Search::ClassMethods
+  # @see Chewy::Search::Pagination::Kaminari
+  # @see Chewy::Search::Pagination::WillPaginate
   module Search
     extend ActiveSupport::Concern
 

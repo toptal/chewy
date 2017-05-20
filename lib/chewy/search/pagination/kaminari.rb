@@ -1,6 +1,12 @@
 module Chewy
   module Search
     module Pagination
+      # This module provides `Kaminari` support for {Chewy::Search::Request}
+      # It is included automatically if `Kaminari` is available.
+      #
+      # @example
+      #   PlacesIndex.all.page(3).per(10).order(:name)
+      #   # => <PlacesIndex::Query {..., :body=>{:size=>10, :from=>20, :sort=>["name"]}}>
       module Kaminari
         extend ActiveSupport::Concern
 

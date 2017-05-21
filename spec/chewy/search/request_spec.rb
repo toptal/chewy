@@ -133,12 +133,19 @@ describe Chewy::Search::Request do
     specify { expect { subject.reorder(:foo) }.not_to change { subject.render } }
   end
 
-  %i[track_scores request_cache explain version profile].each do |name|
+  %i[track_scores explain version profile].each do |name|
     describe "##{name}" do
       specify { expect(subject.send(name).render[:body]).to include(name => true) }
       specify { expect(subject.send(name).send(name, false).render).not_to have_key(:body) }
       specify { expect { subject.send(name) }.not_to change { subject.render } }
     end
+  end
+
+  describe '#request_cache' do
+    specify { expect(subject.request_cache(true).render[:body]).to include(request_cache: true) }
+    specify { expect(subject.request_cache(true).request_cache(false).render[:body]).to include(request_cache: false) }
+    specify { expect(subject.request_cache(true).request_cache(nil).render).not_to have_key(:body) }
+    specify { expect { subject.request_cache(true) }.not_to change { subject.render } }
   end
 
   %i[search_type preference timeout].each do |name|

@@ -24,7 +24,7 @@ module Chewy
         track_scores request_cache explain version profile
         search_type preference limit offset terminate_after
         timeout min_score source stored_fields search_after
-        load script_fields suggest indices_boost
+        load script_fields suggest indices_boost none
         rescore highlight total total_count total_entries
         types delete_all count exists? exist? find
         scroll_batches scroll_hits scroll_results scroll_objects
@@ -252,7 +252,7 @@ module Chewy
       #   @example
       #     PlacesIndex.order(:name, population: {order: :asc}).order(:coordinates)
       #     # => <PlacesIndex::Query {..., :body=>{:sort=>["name", {"population"=>{:order=>:asc}}, "coordinates"]}}>
-      #   @see Chewy::Seach::Request::Parameters::Order
+      #   @see Chewy::Search::Parameters::Order
       #   @see https://www.elastic.co/guide/en/elasticsearch/reference/current/search-request-sort.html
       #   @param values [Array<Hash, String, Symbol>] sort fields and options
       #   @return [Chewy::Search::Request]
@@ -263,7 +263,7 @@ module Chewy
       #   @example
       #     PlacesIndex.docvalue_fields(:name).docvalue_fields(:population, :coordinates)
       #     # => <PlacesIndex::Query {..., :body=>{:docvalue_fields=>["name", "population", "coordinates"]}}>
-      #   @see Chewy::Seach::Request::Parameters::DocvalueFields
+      #   @see Chewy::Search::Parameters::DocvalueFields
       #   @see https://www.elastic.co/guide/en/elasticsearch/reference/current/search-request-docvalue-fields.html
       #   @param values [Array<String, Symbol>] field names
       #   @return [Chewy::Search::Request]
@@ -275,7 +275,7 @@ module Chewy
       #   @example
       #     PlacesIndex.types(:city).types(:unexistent)
       #     # => <PlacesIndex::Query {:index=>["places"], :type=>["city"]}>
-      #   @see Chewy::Seach::Request::Parameters::Types
+      #   @see Chewy::Search::Parameters::Types
       #   @see https://www.elastic.co/guide/en/elasticsearch/reference/current/search-search.html
       #   @param values [Array<String, Symbol>] type names
       #   @return [Chewy::Search::Request]
@@ -291,7 +291,7 @@ module Chewy
       #   @example
       #     PlacesIndex.order(:name, population: {order: :asc}).reorder(:coordinates)
       #     # => <PlacesIndex::Query {..., :body=>{:sort=>["coordinates"]}}>
-      #   @see Chewy::Seach::Request::Parameters::Order
+      #   @see Chewy::Search::Parameters::Order
       #   @see https://www.elastic.co/guide/en/elasticsearch/reference/current/search-request-sort.html
       #   @param values [Array<Hash, String, Symbol>] sort fields and options
       #   @return [Chewy::Search::Request]
@@ -299,13 +299,92 @@ module Chewy
         modify(:order) { replace!([value, *values]) }
       end
 
-      %i[track_scores request_cache explain version profile none].each do |name|
+      # @!method track_scores(value = true)
+      #   Replaces the value of the `track_scores` parameter with the provided value.
+      #
+      #   @example
+      #     PlacesIndex.track_scores
+      #     # => <PlacesIndex::Query {..., :body=>{:track_scores=>true}}>
+      #     PlacesIndex.track_scores.track_scores(false)
+      #     # => <PlacesIndex::Query {:index=>["places"], :type=>["city", "country"]}>
+      #   @see Chewy::Search::Parameters::TrackScores
+      #   @see https://www.elastic.co/guide/en/elasticsearch/reference/5.4/search-request-sort.html#_track_scores
+      #   @param value [true, false]
+      #   @return [Chewy::Search::Request]
+      #
+      # @!method explain(value = true)
+      #   Replaces the value of the `explain` parameter with the provided value.
+      #
+      #   @example
+      #     PlacesIndex.explain
+      #     # => <PlacesIndex::Query {..., :body=>{:explain=>true}}>
+      #     PlacesIndex.explain.explain(false)
+      #     # => <PlacesIndex::Query {:index=>["places"], :type=>["city", "country"]}>
+      #   @see Chewy::Search::Parameters::Explain
+      #   @see https://www.elastic.co/guide/en/elasticsearch/reference/5.4/search-request-explain.html
+      #   @param value [true, false]
+      #   @return [Chewy::Search::Request]
+      #
+      # @!method version(value = true)
+      #   Replaces the value of the `version` parameter with the provided value.
+      #
+      #   @example
+      #     PlacesIndex.version
+      #     # => <PlacesIndex::Query {..., :body=>{:version=>true}}>
+      #     PlacesIndex.version.version(false)
+      #     # => <PlacesIndex::Query {:index=>["places"], :type=>["city", "country"]}>
+      #   @see Chewy::Search::Parameters::Version
+      #   @see https://www.elastic.co/guide/en/elasticsearch/reference/5.4/search-request-version.html
+      #   @param value [true, false]
+      #   @return [Chewy::Search::Request]
+      #
+      # @!method profile(value = true)
+      #   Replaces the value of the `profile` parameter with the provided value.
+      #
+      #   @example
+      #     PlacesIndex.profile
+      #     # => <PlacesIndex::Query {..., :body=>{:profile=>true}}>
+      #     PlacesIndex.profile.profile(false)
+      #     # => <PlacesIndex::Query {:index=>["places"], :type=>["city", "country"]}>
+      #   @see Chewy::Search::Parameters::Profile
+      #   @see https://www.elastic.co/guide/en/elasticsearch/reference/5.4/search-profile.html
+      #   @param value [true, false]
+      #   @return [Chewy::Search::Request]
+      #
+      # @!method none(value = true)
+      #   Enables `NullObject` pattern for the request, doesn't perform the
+      #   request, `#hits` are empty, `#total` is 0, etc.
+      #
+      #   @example
+      #     PlacesIndex.none.to_a
+      #     # => []
+      #     PlacesIndex.none.total
+      #     # => 0
+      #   @see Chewy::Search::Parameters::None
+      #   @see https://en.wikipedia.org/wiki/Null_Object_pattern
+      #   @param value [true, false]
+      #   @return [Chewy::Search::Request]
+      %i[track_scores explain version profile none].each do |name|
         define_method name do |value = true|
           modify(name) { replace!(value) }
         end
       end
 
-      %i[search_type preference limit offset terminate_after timeout min_score].each do |name|
+      # @!method request_cache(value)
+      #   Replaces the value of the `request_cache` parameter with the provided value.
+      #   Unlike other boolean fields, the value have to be specified explicitly
+      #   since it overrides the index-level setting.
+      #
+      #   @example
+      #     PlacesIndex.request_cache(true)
+      #     # => <PlacesIndex::Query {..., :body=>{:request_cache=>true}}>
+      #     PlacesIndex.request_cache(false)
+      #     # => <PlacesIndex::Query {..., :body=>{:request_cache=>false}}>
+      #   @see Chewy::Search::Parameters::RequestCache
+      #   @see https://www.elastic.co/guide/en/elasticsearch/reference/5.4/shard-request-cache.html#_enabling_and_disabling_caching_per_request
+      #   @param value [true, false, nil]
+      #   @return [Chewy::Search::Request]
+      %i[request_cache search_type preference limit offset terminate_after timeout min_score].each do |name|
         define_method name do |value|
           modify(name) { replace!(value) }
         end

@@ -406,7 +406,7 @@ module Chewy
 
       # @!method script_fields(value)
       #   Add a `script_fields` part to the request. Further
-      #   calls are merged to the storage hash.
+      #   call values are merged to the storage hash.
       #
       #   @example
       #     PlacesIndex
@@ -420,9 +420,33 @@ module Chewy
       #   @param value [Hash]
       #   @return [Chewy::Search::Request]
       #
+      # @!method indices_boost(value)
+      #   Add an `indices_boost` part to the request. Further
+      #   call values are merged to the storage hash.
+      #
+      #   @example
+      #     PlacesIndex.indices_boost(index1: 1.2, index2: 1.3).indices_boost(index1: 1.5)
+      #     # => <PlacesIndex::Query {..., :body=>{:indices_boost=>[{"index2"=>1.3}, {"index1"=>1.5}]}}>
+      #   @see Chewy::Search::Parameters::IndicesBoost
+      #   @see https://www.elastic.co/guide/en/elasticsearch/reference/5.4/search-request-index-boost.html
+      #   @param value [{String, Symbol => String, Integer, Float}]
+      #   @return [Chewy::Search::Request]
+      #
+      # @!method rescore(value)
+      #   Add a `rescore` part to the request. Further
+      #   call values are added to the storage array.
+      #
+      #   @example
+      #     PlacesIndex.rescore(window_size: 100, query: {}).rescore(window_size: 200, query: {})
+      #     # => <PlacesIndex::Query {..., :body=>{:rescore=>[{:window_size=>100, :query=>{}}, {:window_size=>200, :query=>{}}]}}>
+      #   @see Chewy::Search::Parameters::Rescore
+      #   @see https://www.elastic.co/guide/en/elasticsearch/reference/5.4/search-request-rescore.html
+      #   @param value [Hash, Array<Hash>]
+      #   @return [Chewy::Search::Request]
+      #
       # @!method highlight(value)
-      #   Add a highlight configuration to the request. Further
-      #   calls are merged to the storage hash.
+      #   Add a `highlight` configuration to the request. Further
+      #   call values are merged to the storage hash.
       #
       #   @example
       #     PlacesIndex

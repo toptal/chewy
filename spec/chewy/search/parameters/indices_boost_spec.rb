@@ -72,4 +72,12 @@ describe Chewy::Search::Parameters::IndicesBoost do
     specify { expect(described_class.new(index: 1.2, other: 1.3).render).to eq(indices_boost: [{'index' => 1.2}, {'other' => 1.3}]) }
     specify { expect(described_class.new(index: 1.2, other: 1.3).tap { |i| i.update!(index: '1.5') }.render).to eq(indices_boost: [{'other' => 1.3}, {'index' => 1.5}]) }
   end
+
+  describe '#==' do
+    specify { expect(described_class.new).to eq(described_class.new) }
+    specify { expect(described_class.new(index: 1.2)).to eq(described_class.new(index: 1.2)) }
+    specify { expect(described_class.new(index: 1.2)).not_to eq(described_class.new(other: 1.3)) }
+    specify { expect(described_class.new(index: 1.2, other: 1.3)).to eq(described_class.new(index: 1.2, other: 1.3)) }
+    specify { expect(described_class.new(index: 1.2, other: 1.3)).not_to eq(described_class.new(other: 1.3, index: 1.2)) }
+  end
 end

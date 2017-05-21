@@ -247,16 +247,38 @@ module Chewy
       end
 
       # @!method order(*values)
-      #  @overload order(*values)
-      #  Modifies `sort` request parameter. Updates the storage on every call.
+      #   Modifies `sort` request parameter. Updates the storage on every call.
       #
-      #  @example
-      #    PlacesIndex.order(:name, population: {order: :asc}).order(:coordinates)
-      #    # => <PlacesIndex::Query {..., :body=>{:sort=>["name", {"population"=>{:order=>:asc}}, "coordinates"]}}>
-      #  @see Chewy::Seach::Request::Parameters::Order
-      #  @see https://www.elastic.co/guide/en/elasticsearch/reference/current/search-request-sort.html
-      #  @param values [Array<Hash, String, Symbol>] sort fields and options
-      #  @return [Chewy::Search::Request]
+      #   @example
+      #     PlacesIndex.order(:name, population: {order: :asc}).order(:coordinates)
+      #     # => <PlacesIndex::Query {..., :body=>{:sort=>["name", {"population"=>{:order=>:asc}}, "coordinates"]}}>
+      #   @see Chewy::Seach::Request::Parameters::Order
+      #   @see https://www.elastic.co/guide/en/elasticsearch/reference/current/search-request-sort.html
+      #   @param values [Array<Hash, String, Symbol>] sort fields and options
+      #   @return [Chewy::Search::Request]
+      #
+      # @!method docvalue_fields(*values)
+      #   Modifies `docvalue_fields` request parameter. Updates the storage on every call.
+      #
+      #   @example
+      #     PlacesIndex.docvalue_fields(:name).docvalue_fields(:population, :coordinates)
+      #     # => <PlacesIndex::Query {..., :body=>{:docvalue_fields=>["name", "population", "coordinates"]}}>
+      #   @see Chewy::Seach::Request::Parameters::DocvalueFields
+      #   @see https://www.elastic.co/guide/en/elasticsearch/reference/current/search-request-docvalue-fields.html
+      #   @param values [Array<String, Symbol>] field names
+      #   @return [Chewy::Search::Request]
+      #
+      # @!method types(*values)
+      #   Modifies `types` request parameter. Updates the storage on every call.
+      #   Constrains types passed on the request initialization.
+      #
+      #   @example
+      #     PlacesIndex.types(:city).types(:unexistent)
+      #     # => <PlacesIndex::Query {:index=>["places"], :type=>["city"]}>
+      #   @see Chewy::Seach::Request::Parameters::Types
+      #   @see https://www.elastic.co/guide/en/elasticsearch/reference/current/search-search.html
+      #   @param values [Array<String, Symbol>] type names
+      #   @return [Chewy::Search::Request]
       %i[order docvalue_fields types].each do |name|
         define_method name do |value, *values|
           modify(name) { update!([value, *values]) }
@@ -264,15 +286,15 @@ module Chewy
       end
 
       # @overload reorder(*values)
-      # Replaces the value of the `sort` parameter with the provided value.
+      #   Replaces the value of the `sort` parameter with the provided value.
       #
-      # @example
-      #   PlacesIndex.order(:name, population: {order: :asc}).reorder(:coordinates)
-      #   # => <PlacesIndex::Query {..., :body=>{:sort=>["coordinates"]}}>
-      # @see Chewy::Seach::Request::Parameters::Order
-      # @see https://www.elastic.co/guide/en/elasticsearch/reference/current/search-request-sort.html
-      # @param values [Array<Hash, String, Symbol>] sort fields and options
-      # @return [Chewy::Search::Request]
+      #   @example
+      #     PlacesIndex.order(:name, population: {order: :asc}).reorder(:coordinates)
+      #     # => <PlacesIndex::Query {..., :body=>{:sort=>["coordinates"]}}>
+      #   @see Chewy::Seach::Request::Parameters::Order
+      #   @see https://www.elastic.co/guide/en/elasticsearch/reference/current/search-request-sort.html
+      #   @param values [Array<Hash, String, Symbol>] sort fields and options
+      #   @return [Chewy::Search::Request]
       def reorder(value, *values)
         modify(:order) { replace!([value, *values]) }
       end

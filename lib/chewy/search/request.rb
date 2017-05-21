@@ -404,12 +404,69 @@ module Chewy
         modify(:load) { update!(options) }
       end
 
+      # @!method script_fields(value)
+      #   Add a `script_fields` part to the request. Further
+      #   calls are merged to the storage hash.
+      #
+      #   @example
+      #     PlacesIndex
+      #       .script_fields(field1: {script: {lang: 'painless', inline: 'some script here'}})
+      #       .script_fields(field2: {script: {lang: 'painless', inline: 'some script here'}})
+      #     # => <PlacesIndex::Query {..., :body=>{:script_fields=>{
+      #     #      "field1"=>{:script=>{:lang=>"painless", :inline=>"some script here"}},
+      #     #      "field2"=>{:script=>{:lang=>"painless", :inline=>"some script here"}}}}}>
+      #   @see Chewy::Search::Parameters::ScriptFields
+      #   @see https://www.elastic.co/guide/en/elasticsearch/reference/5.4/search-request-script-fields.html
+      #   @param value [Hash]
+      #   @return [Chewy::Search::Request]
+      #
+      # @!method highlight(value)
+      #   Add a highlight configuration to the request. Further
+      #   calls are merged to the storage hash.
+      #
+      #   @example
+      #     PlacesIndex
+      #       .highlight(fields: {description: {type: 'plain'}})
+      #       .highlight(pre_tags: ['<em>'], post_tags: ['</em>'])
+      #     # => <PlacesIndex::Query {..., :body=>{:highlight=>{
+      #     #      "fields"=>{:description=>{:type=>"plain"}},
+      #     #      "pre_tags"=>["<em>"], "post_tags"=>["</em>"]}}}>
+      #   @see Chewy::Search::Parameters::Highlight
+      #   @see https://www.elastic.co/guide/en/elasticsearch/reference/5.4/search-request-highlighting.html
+      #   @param value [Hash]
+      #   @return [Chewy::Search::Request]
       %i[script_fields indices_boost rescore highlight].each do |name|
         define_method name do |value|
           modify(name) { update!(value) }
         end
       end
 
+      # A dual-purpose method.
+      #
+      # @overload suggest(value)
+      #   With the value provided it adds a new suggester
+      #   to the suggestion hash.
+      #
+      #   @example
+      #     PlacesIndex
+      #       .suggest(names: {text: 'tring out Elasticsearch'})
+      #       .suggest(descriptions: {text: 'some other text'})
+      #     # => <PlacesIndex::Query {..., :body=>{:suggest=>{
+      #     #      "names"=>{:text=>"tring out Elasticsearch"},
+      #     #      "descriptions"=>{:text=>"some other text"}}}}>
+      #   @see Chewy::Search::Parameters::Suggest
+      #   @see https://www.elastic.co/guide/en/elasticsearch/reference/5.4/search-suggesters.html
+      #   @param value [Hash]
+      #   @return [Chewy::Search::Request]
+      #
+      # @overload suggest
+      #   Without value provided, it performs the request and
+      #   returns {Chewy::Search::Response#suggest} contents.
+      #
+      #   @example
+      #     PlacesIndex.suggest(names: {text: 'tring out Elasticsearch'}).suggest
+      #   @see Chewy::Search::Response#suggest
+      #   @return [Hash]
       def suggest(value = UNDEFINED)
         if value == UNDEFINED
           response.suggest

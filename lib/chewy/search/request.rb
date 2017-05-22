@@ -417,7 +417,51 @@ module Chewy
       #   @see https://www.elastic.co/guide/en/elasticsearch/reference/5.4/common-options.html#time-units
       #   @param value [String, Symbol]
       #   @return [Chewy::Search::Request]
-      %i[request_cache search_type preference limit offset terminate_after timeout min_score].each do |name|
+      #
+      # @!method limit(value)
+      #   Replaces the value of the `size` request part.
+      #
+      #   @example
+      #     PlacesIndex.limit(10)
+      #     <PlacesIndex::Query {..., :body=>{:size=>10}}>
+      #   @see Chewy::Search::Parameters::Limit
+      #   @see https://www.elastic.co/guide/en/elasticsearch/reference/5.4/search-request-from-size.html
+      #   @param value [String, Integer]
+      #   @return [Chewy::Search::Request]
+      #
+      # @!method offset(value)
+      #   Replaces the value of the `from` request part.
+      #
+      #   @example
+      #     PlacesIndex.offset(10)
+      #     <PlacesIndex::Query {..., :body=>{:from=>10}}>
+      #   @see Chewy::Search::Parameters::Offset
+      #   @see https://www.elastic.co/guide/en/elasticsearch/reference/5.4/search-request-from-size.html
+      #   @param value [String, Integer]
+      #   @return [Chewy::Search::Request]
+      #
+      # @!method terminate_after(value)
+      #   Replaces the value of the `terminate_after` request part.
+      #
+      #   @example
+      #     PlacesIndex.terminate_after(10)
+      #     <PlacesIndex::Query {..., :body=>{:terminate_after=>10}}>
+      #   @see Chewy::Search::Parameters::Offset
+      #   @see https://www.elastic.co/guide/en/elasticsearch/reference/5.4/search-request-body.html
+      #   @param value [String, Integer]
+      #   @return [Chewy::Search::Request]
+      #
+      # @!method min_score(value)
+      #   Replaces the value of the `min_score` request part.
+      #
+      #   @example
+      #     PlacesIndex.min_score(2)
+      #     <PlacesIndex::Query {..., :body=>{:min_score=>2.0}}>
+      #   @see Chewy::Search::Parameters::Offset
+      #   @see https://www.elastic.co/guide/en/elasticsearch/reference/5.4/search-request-min-score.html
+      #   @param value [String, Integer, Float]
+      #   @return [Chewy::Search::Request]
+      %i[request_cache search_type preference timeout limit offset terminate_after min_score].each do |name|
         define_method name do |value|
           modify(name) { replace!(value) }
         end

@@ -1,7 +1,7 @@
 module Chewy
   module Search
     class Parameters
-      # Just a simple value storage, all the values coerced to string.
+      # Just a simple value storage, all the values are coerced to string.
       module StringStorage
       private
 

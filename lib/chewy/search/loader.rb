@@ -5,6 +5,7 @@ module Chewy
     #
     # @see Chewy::Type::Import
     # @see Chewy::Search::Request#load
+    # @see Chewy::Search::Response#records
     # @see Chewy::Search::Scrolling#scroll_records
     class Loader
       # @param indexes [Array<Chewy::Index>] list of indexes to lookup types

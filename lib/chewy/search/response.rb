@@ -64,8 +64,11 @@ module Chewy
       end
 
       # ORM/ODM records/documents that had been a source for Chewy import
-      # and now loaded from the DB using hits ids.
+      # and now loaded from the DB using hits ids. Uses
+      # {Chewy::Search::Request#load} passed options for loading.
       #
+      # @see Chewy::Search::Request#load
+      # @see Chewy::Search::Loader
       # @return [Array<Object>]
       def records
         @records ||= @loader.load(hits)

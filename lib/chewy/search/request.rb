@@ -400,6 +400,18 @@ module Chewy
         modify(:search_after) { replace!(values.empty? ? value : [value, *values]) }
       end
 
+      # Stores ORM/ODM records/documents loading options. Options
+      # might be define per-type or be global, depends on the adapter
+      # loading implementation. Also, there are 2 loading options to select
+      # or exclude types from loading: `only` and `except` respectively.
+      # Options are updated on further method calls.
+      #
+      # @example
+      #   PlaceIndex.load(only: 'city').load(scope: -> { active })
+      # @see Chewy::Search::Loader
+      # @see Chewy::Search::Response#records
+      # @see Chewy::Search::Scrolling#scroll_records
+      # @param options [Hash] adapter-specific loading options
       def load(options = nil)
         modify(:load) { update!(options) }
       end

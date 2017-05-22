@@ -90,8 +90,11 @@ module Chewy
       # @!method scroll_records(batch_size: 1000, scroll: '1m')
       # Iterates through the documents of the scope in batches. Performs load
       # operation for each batch and then yields each loaded ORM/ODM record/document.
+      # Uses {Chewy::Search::Request#load} passed options for loading.
       #
       # @note If the record is not found it yields nil instead.
+      # @see Chewy::Search::Request#load
+      # @see Chewy::Search::Loader
       # @param batch_size [Integer] batch size obviously, replaces `size` query parameter
       # @param scroll [String] cursor expiration time
       #

@@ -396,6 +396,16 @@ module Chewy
         end
       end
 
+      # @overload search_after(*values)
+      # Replaces the storage value for `search_after` request part.
+      #
+      # @example
+      #   PlacesIndex.search_after(42, 'Moscow').search_after('London')
+      #   # => <PlacesIndex::Query {..., :body=>{:search_after=>["London"]}}>
+      # @see Chewy::Search::Parameters::SearchAfter
+      # @see https://www.elastic.co/guide/en/elasticsearch/reference/5.4/search-request-search-after.html
+      # @param value [Array, Object]
+      # @return [Chewy::Search::Request]
       def search_after(value, *values)
         modify(:search_after) { replace!(values.empty? ? value : [value, *values]) }
       end

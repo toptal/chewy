@@ -390,6 +390,34 @@ module Chewy
         end
       end
 
+      # @!method source(*values)
+      #   Updates `_source` request part. Accepts either an array
+      #   of field names/templates or a hash with `includes` and `excludes`
+      #   keys. Source also can be disabled entierly or enabled again.
+      #
+      #   @example
+      #     PlacesIndex.source(:name).source(includes: [:popularity], excludes: :description)
+      #     # => <PlacesIndex::Query {..., :body=>{:_source=>{:includes=>["name", "popularity"], :excludes=>["description"]}}}>
+      #     PlacesIndex.source(false)
+      #     # => <PlacesIndex::Query {..., :body=>{:_source=>false}}>
+      #   @see Chewy::Search::Parameters::Source
+      #   @see https://www.elastic.co/guide/en/elasticsearch/reference/5.4/search-request-source-filtering.html
+      #   @param value [true, false, {Symbol => Array<String, Symbol>, String, Symbol}, Array<String, Symbol>, String, Symbol]
+      #   @return [Chewy::Search::Request]
+      #
+      # @!method stored_fields(*values)
+      #   Updates `stored_fields` request part. Accepts an array of field
+      #   names. Can be entierly disabled and enabled back.
+      #
+      #   @example
+      #     PlacesIndex.stored_fields(:name).stored_fields(:description)
+      #     # => <PlacesIndex::Query {..., :body=>{:stored_fields=>["name", "description"]}}>
+      #     PlacesIndex.stored_fields(false)
+      #     # => <PlacesIndex::Query {..., :body=>{:stored_fields=>"_none_"}}>
+      #   @see Chewy::Search::Parameters::StoredFields
+      #   @see https://www.elastic.co/guide/en/elasticsearch/reference/5.4/search-request-stored-fields.html
+      #   @param value [true, false, String, Symbol, Array<String, Symbol>]
+      #   @return [Chewy::Search::Request]
       %i[source stored_fields].each do |name|
         define_method name do |value, *values|
           modify(name) { update!(values.empty? ? value : [value, *values]) }

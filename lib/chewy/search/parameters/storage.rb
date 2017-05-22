@@ -8,7 +8,7 @@ module Chewy
           attr_writer :param_name
 
           # @!attribute [rw] param_name
-          # Parameter name is used on rendering, derived from the class
+          # The parameter name is used on rendering, derived from the class
           # name by default, but can be easily redefined for child classes.
           #
           # @example

@@ -384,6 +384,39 @@ module Chewy
       #   @see https://www.elastic.co/guide/en/elasticsearch/reference/5.4/shard-request-cache.html#_enabling_and_disabling_caching_per_request
       #   @param value [true, false, nil]
       #   @return [Chewy::Search::Request]
+      #
+      # @!method search_type(value)
+      #   Replaces the value of the `search_type` request part.
+      #
+      #   @example
+      #     PlacesIndex.search_type(:dfs_query_then_fetch)
+      #     # => <PlacesIndex::Query {..., :body=>{:search_type=>"dfs_query_then_fetch"}}>
+      #   @see Chewy::Search::Parameters::SearchType
+      #   @see https://www.elastic.co/guide/en/elasticsearch/reference/5.4/search-request-search-type.html
+      #   @param value [String, Symbol]
+      #   @return [Chewy::Search::Request]
+      #
+      # @!method preference(value)
+      #   Replaces the value of the `preference` request part.
+      #
+      #   @example
+      #     PlacesIndex.preference(:_primary_first)
+      #     # => <PlacesIndex::Query {..., :body=>{:preference=>"_primary_first"}}>
+      #   @see Chewy::Search::Parameters::Preference
+      #   @see https://www.elastic.co/guide/en/elasticsearch/reference/5.4/search-request-preference.html
+      #   @param value [String, Symbol]
+      #   @return [Chewy::Search::Request]
+      #
+      # @!method timeout(value)
+      #   Replaces the value of the `timeout` request part.
+      #
+      #   @example
+      #     PlacesIndex.timeout('1m')
+      #     <PlacesIndex::Query {..., :body=>{:timeout=>"1m"}}>
+      #   @see Chewy::Search::Parameters::Timeout
+      #   @see https://www.elastic.co/guide/en/elasticsearch/reference/5.4/common-options.html#time-units
+      #   @param value [String, Symbol]
+      #   @return [Chewy::Search::Request]
       %i[request_cache search_type preference limit offset terminate_after timeout min_score].each do |name|
         define_method name do |value|
           modify(name) { replace!(value) }
@@ -402,7 +435,7 @@ module Chewy
       #     # => <PlacesIndex::Query {..., :body=>{:_source=>false}}>
       #   @see Chewy::Search::Parameters::Source
       #   @see https://www.elastic.co/guide/en/elasticsearch/reference/5.4/search-request-source-filtering.html
-      #   @param value [true, false, {Symbol => Array<String, Symbol>, String, Symbol}, Array<String, Symbol>, String, Symbol]
+      #   @param values [true, false, {Symbol => Array<String, Symbol>, String, Symbol}, Array<String, Symbol>, String, Symbol]
       #   @return [Chewy::Search::Request]
       #
       # @!method stored_fields(*values)
@@ -416,7 +449,7 @@ module Chewy
       #     # => <PlacesIndex::Query {..., :body=>{:stored_fields=>"_none_"}}>
       #   @see Chewy::Search::Parameters::StoredFields
       #   @see https://www.elastic.co/guide/en/elasticsearch/reference/5.4/search-request-stored-fields.html
-      #   @param value [true, false, String, Symbol, Array<String, Symbol>]
+      #   @param values [true, false, String, Symbol, Array<String, Symbol>]
       #   @return [Chewy::Search::Request]
       %i[source stored_fields].each do |name|
         define_method name do |value, *values|

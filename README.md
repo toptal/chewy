@@ -830,11 +830,11 @@ PlaceIndex
   .query.not(range: {population: {gt: 1_000_000}})
 ```
 
-See (https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl.html)[https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl.html] and (https://github.com/elastic/elasticsearch-ruby/tree/master/elasticsearch-dsl)[https://github.com/elastic/elasticsearch-ruby/tree/master/elasticsearch-dsl] for more details.
+See https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl.html and https://github.com/elastic/elasticsearch-ruby/tree/master/elasticsearch-dsl for more details.
 
-An important part of requests manipulation is merging. There are 4 methods to perform it: `merge`, `and`, `or`, `not`. See (Chewy::Search::QueryProxy)[lib/chewy/search/query_proxy.rb] for details. Also, `only` and `except` methods help to remove unneeded parts of the request.
+An important part of requests manipulation is merging. There are 4 methods to perform it: `merge`, `and`, `or`, `not`. See [Chewy::Search::QueryProxy](lib/chewy/search/query_proxy.rb) for details. Also, `only` and `except` methods help to remove unneeded parts of the request.
 
-Every other request part is covered by a bunch of additional methods, see `Chewy::Search::Request` for details:
+Every other request part is covered by a bunch of additional methods, see [Chewy::Search::Request](lib/chewy/search/request.rb) for details:
 
 ```ruby
 PlaceIndex.limit(10).offset(30).order(:name, {population: {order: :desc}})
@@ -844,19 +844,19 @@ Request DSL also provides additional scope actions, like `delete_all`, `exists?`
 
 #### Pagination
 
-The request DSL supports pagination with `Kaminari` and `WillPaginate`. An appropriate extension is enabled on initializtion if any of libraries is available. See (Chewy::Search)[[lib/chewy/search.rb]] and (Chewy::Search::Pagination)[lib/chewy/search/pagination/] namespace for details.
+The request DSL supports pagination with `Kaminari` and `WillPaginate`. An appropriate extension is enabled on initializtion if any of libraries is available. See [Chewy::Search](lib/chewy/search.rb) and [Chewy::Search::Pagination](lib/chewy/search/pagination/) namespace for details.
 
 #### Named scopes
 
 Chewy supports named scopes functionality. There is no specialized DSL for named scopes definition, it is simply about defining class methods.
 
-See (Chewy::Search::Scoping)[lib/chewy/search/scoping.rb] for details.
+See [Chewy::Search::Scoping](lib/chewy/search/scoping.rb) for details.
 
 #### Scroll API
 
 ElasticSearch scroll API is utilized by a bunch of methods: `scroll_batches`, `scroll_hits`, `scroll_objects` and `scroll_records`.
 
-See (Chewy::Search::Scrolling)[lib/chewy/search/scrolling.rb] for details.
+See [Chewy::Search::Scrolling](lib/chewy/search/scrolling.rb) for details.
 
 #### Loading records
 
@@ -867,12 +867,12 @@ PlacesIndex.load(scope: -> { active }).to_a # to_a returns `Chewy::Type` wrapper
 PlacesIndex.load(scope: -> { active }).records # An array of AR source records.
 ```
 
-See (Chewy::Search::Loader)[lib/chewy/search/loader.rb] for more details.
+See [Chewy::Search::Loader](lib/chewy/search/loader.rb) for more details.
 
 #### Legacy DSL incompatibilities
 
 * Filters advanced block DSL is not supported anymore, `elasticsearch-dsl` is used instead.
-* Things like `query_mode` and `filter_mode` are in past, use advanced DSL to achieve similar behavior. See (Chewy::Search::QueryProxy)[lib/chewy/search/query_proxy.rb] for details.
+* Things like `query_mode` and `filter_mode` are in past, use advanced DSL to achieve similar behavior. See [Chewy::Search::QueryProxy](lib/chewy/search/query_proxy.rb) for details.
 * `preload` method is no more, the collection returned by scope doesn't depend on loading options, scope always returns `Chewy::Type` wrapper objects. To get ORM/ODM objects, use `#records` method.
 * Some of the methods have changed their purpose: `only` was used to filter fields before, now it filters the scope. To filter fields use `source` or `stored_fields`.
 * `types!` method is no more, use `except(:types).types(...)`

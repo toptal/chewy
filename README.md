@@ -875,6 +875,7 @@ See (Chewy::Search::Loader)[lib/chewy/search/loader.rb] for more details.
 * `preload` method is no more, the collection returned by scope doesn't depend on loading options, scope always returns `Chewy::Type` wrapper objects. To get ORM/ODM objects, use `#records` method.
 * Some of the methods have changed their purpose: `only` was used to filter fields before, now it filters the scope. To filter fields use `source` or `stored_fields`.
 * `types!` method is no more, use `except(:types).types(...)`
+* Named aggregations are not supported, use named scopes instead.
 
 ### Rake tasks
 

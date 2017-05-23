@@ -872,10 +872,12 @@ See (Chewy::Search::Loader)[lib/chewy/search/loader.rb] for more details.
 #### Legacy DSL incompatibilities
 
 * Filters advanced block DSL is not supported anymore, `elasticsearch-dsl` is used instead.
+* Things like `query_mode` and `filter_mode` are in past, use advanced DSL to achieve similar behavior. See (Chewy::Search::QueryProxy)[lib/chewy/search/query_proxy.rb] for details.
 * `preload` method is no more, the collection returned by scope doesn't depend on loading options, scope always returns `Chewy::Type` wrapper objects. To get ORM/ODM objects, use `#records` method.
 * Some of the methods have changed their purpose: `only` was used to filter fields before, now it filters the scope. To filter fields use `source` or `stored_fields`.
 * `types!` method is no more, use `except(:types).types(...)`
 * Named aggregations are not supported, use named scopes instead.
+* A lot of query-level methods were not ported: everything that is related to boost and scoring. Use `query` manipulation to provide them.
 
 ### Rake tasks
 

@@ -6,7 +6,8 @@ describe Chewy::Search::Request do
   before do
     stub_index(:products) do
       define_type :product do
-        field :name, :age
+        field :name
+        field :age, type: :integer
       end
       define_type :city
       define_type :country
@@ -192,11 +193,13 @@ describe Chewy::Search::Request do
     end
   end
 
-  describe '#suggest' do
-    specify { expect(subject.suggest(foo: {bar: 42}).render[:body]).to include(suggest: {'foo' => {bar: 42}}) }
-    specify { expect(subject.suggest(foo: {bar: 42}).suggest(moo: {baz: 43}).render[:body]).to include(suggest: {'foo' => {bar: 42}, 'moo' => {baz: 43}}) }
-    specify { expect(subject.suggest(foo: {bar: 42}).suggest(nil).render[:body]).to include(suggest: {'foo' => {bar: 42}}) }
-    specify { expect { subject.suggest(foo: {bar: 42}) }.not_to change { subject.render } }
+  %i[suggest aggs].each do |name|
+    describe "##{name}" do
+      specify { expect(subject.send(name, foo: {bar: 42}).render[:body]).to include(name => {'foo' => {bar: 42}}) }
+      specify { expect(subject.send(name, foo: {bar: 42}).send(name, moo: {baz: 43}).render[:body]).to include(name => {'foo' => {bar: 42}, 'moo' => {baz: 43}}) }
+      specify { expect(subject.send(name, foo: {bar: 42}).send(name, nil).render[:body]).to include(name => {'foo' => {bar: 42}}) }
+      specify { expect { subject.send(name, foo: {bar: 42}) }.not_to change { subject.render } }
+    end
   end
 
   describe '#docvalue_fields' do
@@ -419,6 +422,13 @@ describe Chewy::Search::Request do
             ]}
           ]
         )
+      end
+    end
+
+    describe '#aggs' do
+      specify do
+        expect(subject.aggs(avg_age: {avg: {field: :age}}).aggs)
+          .to eq('avg_age' => {'value' => 20.0})
       end
     end
 

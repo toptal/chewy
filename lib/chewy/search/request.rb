@@ -24,9 +24,9 @@ module Chewy
         track_scores request_cache explain version profile
         search_type preference limit offset terminate_after
         timeout min_score source stored_fields search_after
-        load script_fields suggest indices_boost none
-        rescore highlight total total_count total_entries
-        types delete_all count exists? exist? find
+        load script_fields suggest aggs aggregations none
+        indices_boost rescore highlight total total_count
+        total_entries types delete_all count exists? exist? find
         scroll_batches scroll_hits scroll_results scroll_objects
       ].to_set.freeze
 
@@ -625,6 +625,41 @@ module Chewy
           modify(:suggest) { update!(value) }
         end
       end
+
+      # A dual-purpose method.
+      #
+      # @overload aggs(value)
+      #   With the value provided it adds a new aggregation
+      #   to the aggregation hash.
+      #
+      #   @example
+      #     PlacesIndex
+      #       .aggs(avg_population: {avg: {field: :population}})
+      #       .aggs(avg_age: {avg: {field: :age}})
+      #     # => <PlacesIndex::Query {..., :body=>{:aggs=>{
+      #     #      "avg_population"=>{:avg=>{:field=>:population}},
+      #     #      "avg_age"=>{:avg=>{:field=>:age}}}}}>
+      #   @see Chewy::Search::Parameters::Aggs
+      #   @see https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations.html
+      #   @param value [Hash]
+      #   @return [Chewy::Search::Request]
+      #
+      # @overload aggs
+      #   Without value provided, it performs the request and
+      #   returns {Chewy::Search::Response#aggs} contents.
+      #
+      #   @example
+      #     PlacesIndex.aggs(avg_population: {avg: {field: :population}}).aggs
+      #   @see Chewy::Search::Response#aggs
+      #   @return [Hash]
+      def aggs(value = UNDEFINED)
+        if value == UNDEFINED
+          response.aggs
+        else
+          modify(:aggs) { update!(value) }
+        end
+      end
+      alias_method :aggregations, :aggs
 
       # @!group Scopes manipulation
 

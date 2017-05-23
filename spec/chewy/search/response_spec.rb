@@ -113,6 +113,15 @@ describe Chewy::Search::Response, :orm do
     end
   end
 
+  describe '#aggs' do
+    specify { expect(subject.aggs).to eq({}) }
+
+    context do
+      let(:request) { Chewy::Search::Request.new(PlacesIndex).aggs(avg_rating: {avg: {field: :rating}}) }
+      specify { expect(subject.aggs).to eq('avg_rating' => {'value' => 1.5}) }
+    end
+  end
+
   describe '#objects' do
     specify { expect(subject.objects).to be_a(Array) }
     specify { expect(subject.objects).to have(4).items }

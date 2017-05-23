@@ -54,6 +54,15 @@ module Chewy
         @suggest ||= @body['suggest'] || {}
       end
 
+      # The `aggregations` response part. Returns empty hash if aggregations
+      # were not requested.
+      #
+      # @return [Hash]
+      def aggs
+        @aggs ||= @body['aggregations'] || {}
+      end
+      alias_method :aggregations, :aggs
+
       # {Chewy::Type} objects collection instantiated on top of hits.
       #
       # @return [Array<Chewy::Type>]

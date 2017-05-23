@@ -804,7 +804,7 @@ module Chewy
       #   @return [Array<Chewy::Type>] result documents
       def find(*ids)
         ids = ids.flatten(1).map(&:to_s)
-        results = only(:query, :filter, :post_filter).filter(terms: {_id: ids}).to_a
+        results = only(:query, :filter, :post_filter).filter(ids: {values: ids}).to_a
 
         missing_ids = ids - results.map(&:id).map(&:to_s)
         raise Chewy::DocumentNotFound, "Could not find documents for ids: #{missing_ids.to_sentence}" if missing_ids.present?

@@ -56,5 +56,15 @@ shared_examples :kaminari do |request_base_class|
       specify { expect(search.per(4).page(1).load.total_count).to eq(10) }
       specify { expect(search.per(2).page(3).load.total_pages).to eq(5) }
     end
+
+    describe '#limit_value' do
+      specify { expect(search.limit_value).to eq(3) }
+      specify { expect(search.per(15).limit_value).to eq(15) }
+    end
+
+    describe '#offset_value' do
+      specify { expect(search.offset_value).to eq(0) }
+      specify { expect(search.page(3).offset_value).to eq(6) }
+    end
   end
 end

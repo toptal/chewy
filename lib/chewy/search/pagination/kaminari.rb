@@ -12,7 +12,6 @@ module Chewy
 
         included do
           include ::Kaminari::PageScopeMethods
-          prepend PrependedMethods
 
           delegate :default_per_page, :max_per_page, :max_pages, to: :_kaminari_config
 
@@ -23,16 +22,12 @@ module Chewy
           METHOD
         end
 
-        module PrependedMethods
-        private
+        def limit_value
+          (raw_limit_value || default_per_page).to_i
+        end
 
-          def limit_value
-            (super || default_per_page).to_i
-          end
-
-          def offset_value
-            super.to_i
-          end
+        def offset_value
+          raw_offset_value.to_i
         end
 
       private

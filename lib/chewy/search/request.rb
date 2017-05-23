@@ -901,11 +901,11 @@ module Chewy
         {}
       end
 
-      def limit_value
+      def raw_limit_value
         parameters[:limit].value
       end
 
-      def offset_value
+      def raw_offset_value
         parameters[:offset].value
       end
 

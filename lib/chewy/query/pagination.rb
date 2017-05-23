@@ -8,17 +8,16 @@ module Chewy
       def total
         _response['hits'].try(:[], 'total') || 0
       end
-
       alias_method :total_count, :total
       alias_method :total_entries, :total
 
     private
 
-      def limit_value
+      def raw_limit_value
         criteria.request_options[:size]
       end
 
-      def offset_value
+      def raw_offset_value
         criteria.request_options[:from]
       end
     end

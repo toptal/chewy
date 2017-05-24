@@ -161,12 +161,16 @@ module Chewy
         #   UsersIndex.reset! Time.now.to_i, journal: true
         #
         def reset!(suffix = nil, journal: false)
-          if suffix.present? && (indexes = self.indexes).present?
+          if suffix.present?
+            indexes = self.indexes
+            
             create! suffix, alias: false
 
             optimize_index_settings suffix
             result = import suffix: suffix, journal: journal, refresh: !Chewy.reset_disable_refresh_interval
             original_index_settings suffix
+            
+            delete if indexes.blank? && exists?
 
             client.indices.update_aliases body: {actions: [
               *indexes.map do |index|
@@ -175,6 +179,7 @@ module Chewy
               {add: {index: build_index_name(suffix: suffix), alias: index_name}}
             ]}
             client.indices.delete index: indexes if indexes.present?
+            
             result
           else
             purge! suffix

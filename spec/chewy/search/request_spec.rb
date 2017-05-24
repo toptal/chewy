@@ -89,7 +89,7 @@ describe Chewy::Search::Request do
     specify { expect(subject.filter { match foo: 'bar' }.render[:body]).to include(query: {bool: {filter: {match: {foo: 'bar'}}}}) }
     specify do
       expect(subject.filter(match: {foo: 'bar'}).filter { multi_match foo: 'bar' }.render[:body])
-        .to include(query: {bool: {filter: {bool: {must: [{match: {foo: 'bar'}}, {multi_match: {foo: 'bar'}}]}}}})
+        .to include(query: {bool: {filter: [{match: {foo: 'bar'}}, {multi_match: {foo: 'bar'}}]}})
     end
     specify { expect { subject.filter(match: {foo: 'bar'}) }.not_to change { subject.render } }
     specify do
@@ -302,7 +302,7 @@ describe Chewy::Search::Request do
         expect(first_scope.and(second_scope).render[:body]).to eq(
           query: {bool: {
             must: [{foo: 'bar'}, {bool: {must_not: {boo: 'baf'}}}],
-            filter: {bool: {must: [{moo: 'baz'}, {foo: 'bar'}]}}
+            filter: [{moo: 'baz'}, {foo: 'bar'}]
           }},
           post_filter: {bool: {must: [{bool: {must_not: {boo: 'baf'}}}, {moo: 'baz'}]}},
           size: 10

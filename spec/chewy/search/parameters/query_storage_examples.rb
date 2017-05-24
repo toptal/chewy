@@ -72,6 +72,13 @@ shared_examples :query_storage do |param_name|
     end
 
     specify do
+      expect { subject.and([{moo: 'baz'}, {doo: 'scooby'}]) }
+        .to change { subject.value }
+        .from(must: [{foo: 'bar'}], should: [{moo: 'baz'}], must_not: [])
+        .to(must: [{bool: {must: {foo: 'bar'}, should: {moo: 'baz'}}}, bool: {must: [{moo: 'baz'}, {doo: 'scooby'}]}], should: [], must_not: [])
+    end
+
+    specify do
       expect { subject.and(nil) }
         .to change { subject.value }
         .from(must: [{foo: 'bar'}], should: [{moo: 'baz'}], must_not: [])
@@ -106,6 +113,13 @@ shared_examples :query_storage do |param_name|
     end
 
     specify do
+      expect { subject.or([{moo: 'baz'}, {doo: 'scooby'}]) }
+        .to change { subject.value }
+        .from(must: [{foo: 'bar'}], should: [{moo: 'baz'}], must_not: [])
+        .to(must: [], should: [{bool: {must: {foo: 'bar'}, should: {moo: 'baz'}}}, bool: {must: [{moo: 'baz'}, {doo: 'scooby'}]}], must_not: [])
+    end
+
+    specify do
       expect { subject.or(nil) }
         .to change { subject.value }
         .from(must: [{foo: 'bar'}], should: [{moo: 'baz'}], must_not: [])
@@ -137,6 +151,13 @@ shared_examples :query_storage do |param_name|
         .to change { subject.value }
         .from(must: [{foo: 'bar'}], should: [{moo: 'baz'}], must_not: [])
         .to(must: [{foo: 'bar'}], should: [{moo: 'baz'}], must_not: [{moo: 'baz'}])
+    end
+
+    specify do
+      expect { subject.not([{moo: 'baz'}, {doo: 'scooby'}]) }
+        .to change { subject.value }
+        .from(must: [{foo: 'bar'}], should: [{moo: 'baz'}], must_not: [])
+        .to(must: [{foo: 'bar'}], should: [{moo: 'baz'}], must_not: [{bool: {must: [{moo: 'baz'}, {doo: 'scooby'}]}}])
     end
 
     specify do
@@ -265,9 +286,16 @@ shared_examples :query_storage do |param_name|
         .to eq(param_name => {foo: 'bar'})
     end
 
-    specify do
-      expect(described_class.new(must: [{foo: 'bar'}, {moo: 'baz'}]).render)
-        .to eq(param_name => {bool: {must: [{foo: 'bar'}, {moo: 'baz'}]}})
+    if param_name == :filter
+      specify do
+        expect(described_class.new(must: [{foo: 'bar'}, {moo: 'baz'}]).render)
+          .to eq(param_name => [{foo: 'bar'}, {moo: 'baz'}])
+      end
+    else
+      specify do
+        expect(described_class.new(must: [{foo: 'bar'}, {moo: 'baz'}]).render)
+          .to eq(param_name => {bool: {must: [{foo: 'bar'}, {moo: 'baz'}]}})
+      end
     end
 
     specify do

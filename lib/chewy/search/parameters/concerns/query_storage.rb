@@ -22,6 +22,8 @@ module Chewy
         # Pushes the passed query to the end of the array.
         #
         # @see Chewy::Search::QueryProxy#must
+        # @param other_value [Hash, Array] any acceptable storage value
+        # @return [{Symbol => Array<Hash>}]
         def must(other_value)
           update!(must: other_value)
         end
@@ -30,6 +32,8 @@ module Chewy
         # Pushes the passed query to the end of the array.
         #
         # @see Chewy::Search::QueryProxy#should
+        # @param other_value [Hash, Array] any acceptable storage value
+        # @return [{Symbol => Array<Hash>}]
         def should(other_value)
           update!(should: other_value)
         end
@@ -38,6 +42,8 @@ module Chewy
         # Pushes the passed query to the end of the array.
         #
         # @see Chewy::Search::QueryProxy#must_not
+        # @param other_value [Hash, Array] any acceptable storage value
+        # @return [{Symbol => Array<Hash>}]
         def must_not(other_value)
           update!(must_not: other_value)
         end
@@ -50,6 +56,8 @@ module Chewy
         # the same way as {#must}.
         #
         # @see Chewy::Search::QueryProxy#and
+        # @param other_value [Hash, Array] any acceptable storage value
+        # @return [{Symbol => Array<Hash>}]
         def and(other_value)
           replace!(must: join(other_value))
         end
@@ -62,6 +70,8 @@ module Chewy
         # the same way as {#should}.
         #
         # @see Chewy::Search::QueryProxy#or
+        # @param other_value [Hash, Array] any acceptable storage value
+        # @return [{Symbol => Array<Hash>}]
         def or(other_value)
           replace!(should: join(other_value))
         end
@@ -70,6 +80,8 @@ module Chewy
         #
         # @see #must_not
         # @see Chewy::Search::QueryProxy#not
+        # @param other_value [Hash, Array] any acceptable storage value
+        # @return [{Symbol => Array<Hash>}]
         def not(other_value)
           update!(must_not: reduce(normalize(other_value)))
         end
@@ -88,7 +100,7 @@ module Chewy
         # glued with the corresponding array from the provided value.
         #
         # @see Chewy::Search::Parameters::Storage#update!
-        # @param other_value [Object] any acceptable storage value
+        # @param other_value [Hash, Array] any acceptable storage value
         # @return [{Symbol => Array<Hash>}]
         def update!(other_value)
           @value = normalize(other_value).each do |key, component|

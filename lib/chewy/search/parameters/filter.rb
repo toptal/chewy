@@ -5,7 +5,9 @@ module Chewy
     class Parameters
       # This parameter storage doesn't have its own parameter at the
       # ES request body. Instead, it is embedded to the root `bool`
-      # query of the `query` request parameter.
+      # query of the `query` request parameter. Some additional query
+      # reduction is performed in case of only several `must` filters
+      # presence.
       #
       # @example
       #   scope = PlacesIndex.filter(term: {name: 'Moscow'})
@@ -18,6 +20,27 @@ module Chewy
       # @see Chewy::Search::Parameters::QueryStorage
       class Filter < Storage
         include QueryStorage
+
+        # Even more reduction added here, we don't need to wrap with
+        # `bool` query consists on `must` only.
+        #
+        # @see Chewy::Search::Parameters::Storage#render
+        # @return [{Symbol => Hash}]
+        def render
+          reduced = filter_reduce(reduce(value))
+          {self.class.param_name => reduced} if reduced.present?
+        end
+
+      private
+
+        def filter_reduce(value)
+          bool = value[:bool] if value
+          if bool && bool[:must].present? && bool[:should].blank? && bool[:must_not].blank?
+            bool[:must]
+          else
+            value
+          end
+        end
       end
     end
   end

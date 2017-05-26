@@ -126,7 +126,7 @@ describe Chewy::Type::Adapter::Object do
       subject { described_class.new('product') }
       let(:objects) { Array.new(3) { double } }
 
-      specify { expect(subject.load(objects)).to eq(objects) }
+      specify { expect(subject.load(objects)).to be_nil }
     end
 
     context do

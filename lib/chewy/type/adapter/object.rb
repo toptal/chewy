@@ -45,15 +45,11 @@ module Chewy
           import_objects(objects, options, &block)
         end
 
-        def load(*args)
-          args.extract_options!
-          objects = args.flatten
+        def load(ids, _options = {})
           if target.respond_to?(load_all_method)
-            target.send(load_all_method, objects)
+            target.send(load_all_method, ids)
           elsif target.respond_to?(load_one_method)
-            objects.map { |object| target.send(load_one_method, object) }
-          else
-            objects
+            ids.map { |object| target.send(load_one_method, object) }
           end
         end
 

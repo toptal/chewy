@@ -4,12 +4,10 @@ source "https://rubygems.org"
 
 gem "mongoid", "~> 5.1.0"
 gem "activesupport", "~> 4.2.0"
-gem "resque", :require => false
-gem "sidekiq", :require => false
+gem "activejob", "~> 4.2.0"
+gem "resque", require: false
+gem "sidekiq", require: false
+gem "kaminari", "~> 0.17.0", require: false
+gem "will_paginate", require: false
 
-group :test do
-  gem "guard"
-  gem "guard-rspec"
-end
-
-gemspec :path => "../"
+gemspec path: "../"

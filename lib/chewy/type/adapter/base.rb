@@ -47,13 +47,13 @@ module Chewy
           raise NotImplementedError
         end
 
-        # Returns array of loaded objects for passed objects array. If some object
+        # Returns array of loaded objects for passed ids array. If some object
         # was not loaded, it returns `nil` in the place of this object
         #
-        #   load(double(id: 1), double(id: 2), double(id: 3)) #=>
+        #   load([1, 2, 3]) #=>
         #     # [<Product id: 1>, nil, <Product id: 3>], assuming, #2 was not found
         #
-        def load(*_args)
+        def load(_ids, _options = {})
           raise NotImplementedError
         end
 

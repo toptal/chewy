@@ -1,6 +1,16 @@
 require 'spec_helper'
 
 describe Chewy::Type do
+  describe '.full_name' do
+    before do
+      stub_index(:places) do
+        define_type :city
+      end
+    end
+
+    specify { expect(PlacesIndex::City.full_name).to eq('places#city') }
+  end
+
   describe '.scopes' do
     before do
       stub_index(:places) do

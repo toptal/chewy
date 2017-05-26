@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe Chewy::Journal do
-  context 'journaling', orm: true do
+  context 'journaling', :orm do
     ['', 'namespace/'].each do |namespace|
       context namespace.present? ? 'with namespace' : 'without namespace' do
         before do

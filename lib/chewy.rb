@@ -7,6 +7,7 @@ require 'active_support/core_ext/array/access'
 require 'active_support/core_ext/array/wrap'
 require 'active_support/core_ext/enumerable'
 require 'active_support/core_ext/hash/reverse_merge'
+require 'active_support/core_ext/hash/transform_values'
 require 'active_support/core_ext/numeric/time'
 require 'active_support/core_ext/numeric/bytes'
 require 'active_support/core_ext/object/blank'
@@ -145,7 +146,7 @@ module Chewy
     # Be careful, if current prefix is blank, this will destroy all the indexes.
     #
     def massacre
-      Chewy.client.indices.delete(index: [Chewy.configuration[:prefix], '*'].delete_if(&:blank?).join('_'))
+      Chewy.client.indices.delete(index: [Chewy.configuration[:prefix], '*'].reject(&:blank?).join('_'))
       Chewy.wait_for_status
     end
     alias_method :delete_all, :massacre

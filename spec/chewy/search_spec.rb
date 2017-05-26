@@ -13,8 +13,15 @@ describe Chewy::Search do
   let(:product) { ProductsIndex::Product }
 
   describe '.all' do
-    specify { expect(ProductsIndex.all).to be_a(Chewy::Query) }
-    specify { expect(product.all).to be_a(Chewy::Query) }
+    specify { expect(ProductsIndex.all).to be_a(Chewy::Search::Request) }
+    specify { expect(product.all).to be_a(Chewy::Search::Request) }
+
+    context do
+      before { allow(Chewy).to receive_messages(search_class: Chewy::Search::Request) }
+
+      specify { expect(ProductsIndex.all).to be_a(Chewy::Search::Request) }
+      specify { expect(product.all).to be_a(Chewy::Search::Request) }
+    end
   end
 
   describe '.search_string' do
@@ -31,7 +38,7 @@ describe Chewy::Search do
     end
 
     specify do
-      expect(ProductsIndex.client).to receive(:search).with(hash_including(index: ['products'], type: []))
+      expect(ProductsIndex.client).to receive(:search).with(hash_including(index: ['products'], type: %w[product product2]))
       ProductsIndex.search_string('hello')
     end
 
@@ -48,16 +55,16 @@ describe Chewy::Search do
 
       stub_index(:places) do
         def self.by_rating(value)
-          filter { rating == value }
+          filter { match rating: value }
         end
 
         def self.by_name(index)
-          filter { name == "Name#{index}" }
+          filter { match name: "Name#{index}" }
         end
 
         define_type City do
           def self.by_rating
-            filter { rating == yield }
+            filter { match rating: yield }
           end
 
           field :name, index: 'not_analyzed'

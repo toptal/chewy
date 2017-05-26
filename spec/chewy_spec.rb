@@ -99,9 +99,9 @@ describe Chewy do
     before { Chewy.massacre }
 
     before do
-      allow(Chewy).to receive_messages(configuration: {prefix: 'prefix1'})
+      allow(Chewy).to receive_messages(configuration: Chewy.configuration.merge(prefix: 'prefix1'))
       stub_index(:admins).create!
-      allow(Chewy).to receive_messages(configuration: {prefix: 'prefix2'})
+      allow(Chewy).to receive_messages(configuration: Chewy.configuration.merge(prefix: 'prefix2'))
       stub_index(:developers).create!
       stub_index(:companies).create!
 

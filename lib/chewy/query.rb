@@ -1,6 +1,5 @@
 require 'chewy/query/criteria'
 require 'chewy/query/filters'
-require 'chewy/query/scoping'
 require 'chewy/query/loading'
 require 'chewy/query/pagination'
 
@@ -14,9 +13,18 @@ module Chewy
   #
   class Query
     include Enumerable
-    include Scoping
     include Loading
     include Pagination
+    include Chewy::Search::Scoping
+
+    DELEGATED_METHODS = %i[
+      explain query_mode filter_mode post_filter_mode
+      timeout limit offset highlight min_score rescore facets script_score
+      boost_factor weight random_score field_value_factor decay aggregations
+      suggest none strategy query filter post_filter boost_mode
+      score_mode order reorder only types delete_all find total
+      total_count total_entries unlimited script_fields track_scores preference
+    ].to_set.freeze
 
     delegate :each, :count, :size, to: :_collection
     alias_method :to_ary, :to_a
@@ -932,17 +940,28 @@ module Chewy
     #   UsersIndex::User.filter{ age <= 42 }.delete_all
     #
     def delete_all
-      if Runtime.version > '2.0'
+      if Runtime.version >= '2.0'
         plugins = Chewy.client.nodes.info(plugins: true)['nodes'].values.map { |item| item['plugins'] }.flatten
         raise PluginMissing, 'install delete-by-query plugin' unless plugins.find { |item| item['name'] == 'delete-by-query' }
       end
+
       request = chain { criteria.update_options simple: true }.send(:_request)
+
       ActiveSupport::Notifications.instrument 'delete_query.chewy',
         request: request, indexes: _indexes, types: _types,
         index: _indexes.one? ? _indexes.first : _indexes,
         type: _types.one? ? _types.first : _types do
-        Chewy.client.delete_by_query(request)
-      end
+          if Runtime.version >= '2.0'
+            path = Elasticsearch::API::Utils.__pathify(
+              Elasticsearch::API::Utils.__listify(request[:index]),
+              Elasticsearch::API::Utils.__listify(request[:type]),
+              '/_query'
+            )
+            Chewy.client.perform_request(Elasticsearch::API::HTTP_DELETE, path, {}, request[:body]).body
+          else
+            Chewy.client.delete_by_query(request)
+          end
+        end
     end
 
     # Find all records matching a query.
@@ -1008,8 +1027,8 @@ module Chewy
 
   protected
 
-    def initialize_clone(other)
-      @criteria = other.criteria.clone
+    def initialize_clone(origin)
+      @criteria = origin.criteria.clone
       reset
     end
 
@@ -1048,14 +1067,7 @@ module Chewy
 
     def _results
       @_results ||= (criteria.none? || _response == {} ? [] : _response['hits']['hits']).map do |hit|
-        attributes = (hit['_source'] || {})
-          .reverse_merge(id: hit['_id'])
-          .merge!(_score: hit['_score'])
-          .merge!(_explanation: hit['_explanation'])
-
-        wrapper = _derive_index(hit['_index']).type(hit['_type']).new(attributes)
-        wrapper._data = hit
-        wrapper
+        _derive_type(hit['_index'], hit['_type']).build(hit)
       end
     end
 
@@ -1068,6 +1080,10 @@ module Chewy
           _results
         end
       end
+    end
+
+    def _derive_type(index, type)
+      (@types_cache ||= {})[[index, type]] ||= _derive_index(index).type(type)
     end
 
     def _derive_index(index_name)

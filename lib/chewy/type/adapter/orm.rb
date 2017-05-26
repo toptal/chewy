@@ -92,16 +92,16 @@ module Chewy
           end
         end
 
-        def load(*args)
-          load_options = args.extract_options!
-          objects = args.flatten
+        def load(ids, options = {})
+          scope = all_scope_where_ids_in(ids)
+          additional_scope = options[options[:_type].type_name.to_sym].try(:[], :scope) || options[:scope]
 
-          additional_scope = load_options[load_options[:_type].type_name.to_sym].try(:[], :scope) || load_options[:scope]
+          loaded_objects = load_scope_objects(scope, additional_scope)
+            .index_by do |object|
+              object.public_send(primary_key).to_s
+            end
 
-          scope = all_scope_where_ids_in(objects.map(&primary_key))
-          loaded_objects = load_scope_objects(scope, additional_scope).index_by { |object| object.public_send(primary_key).to_s }
-
-          objects.map { |object| loaded_objects[object.public_send(primary_key).to_s] }
+          ids.map { |id| loaded_objects[id.to_s] }
         end
 
       private

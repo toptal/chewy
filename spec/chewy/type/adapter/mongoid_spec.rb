@@ -282,30 +282,32 @@ describe Chewy::Type::Adapter::Mongoid, :mongoid do
     context do
       let!(:cities) { Array.new(3) { |i| City.create!(id: i, rating: i / 2) }.sort_by(&:id) }
       let!(:deleted) { Array.new(2) { |i| City.create!(id: 3 + i).tap(&:destroy) }.sort_by(&:id) }
+      let(:city_ids) { cities.map(&:id) }
+      let(:deleted_ids) { deleted.map(&:id) }
 
       let(:type) { double(type_name: 'user') }
 
       subject { described_class.new(City) }
 
-      specify { expect(subject.load(cities.map { |c| double(id: c.id) }, _type: type)).to eq(cities) }
-      specify { expect(subject.load(cities.map { |c| double(id: c.id) }.reverse, _type: type)).to eq(cities.reverse) }
-      specify { expect(subject.load(deleted.map { |c| double(id: c.id) }, _type: type)).to eq([nil, nil]) }
-      specify { expect(subject.load((cities + deleted).map { |c| double(id: c.id) }, _type: type)).to eq([*cities, nil, nil]) }
+      specify { expect(subject.load(city_ids, _type: type)).to eq(cities) }
+      specify { expect(subject.load(city_ids.reverse, _type: type)).to eq(cities.reverse) }
+      specify { expect(subject.load(deleted_ids, _type: type)).to eq([nil, nil]) }
+      specify { expect(subject.load(city_ids + deleted_ids, _type: type)).to eq([*cities, nil, nil]) }
       specify do
-        expect(subject.load(cities.map { |c| double(id: c.id) }, _type: type, scope: -> { where(rating: 0) }))
+        expect(subject.load(city_ids, _type: type, scope: -> { where(rating: 0) }))
           .to eq(cities.first(2) + [nil])
       end
       specify do
-        expect(subject.load(cities.map { |c| double(id: c.id) },
+        expect(subject.load(city_ids,
           _type: type, scope: -> { where(rating: 0) }, user: {scope: -> { where(rating: 1) }}))
           .to eq([nil, nil] + cities.last(1))
       end
       specify do
-        expect(subject.load(cities.map { |c| double(id: c.id) }, _type: type, scope: City.where(rating: 1)))
+        expect(subject.load(city_ids, _type: type, scope: City.where(rating: 1)))
           .to eq([nil, nil] + cities.last(1))
       end
       specify do
-        expect(subject.load(cities.map { |c| double(id: c.id) },
+        expect(subject.load(city_ids,
           _type: type, scope: City.where(rating: 1), user: {scope: -> { where(rating: 0) }}))
           .to eq(cities.first(2) + [nil])
       end

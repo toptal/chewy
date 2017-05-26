@@ -340,30 +340,32 @@ describe Chewy::Type::Adapter::Sequel, :sequel do
     context do
       let!(:cities) { Array.new(3) { |i| City.create!(rating: i / 2) } }
       let!(:deleted) { Array.new(2) { City.create!.tap(&:destroy) } }
+      let(:city_ids) { cities.map(&:id) }
+      let(:deleted_ids) { deleted.map(&:id) }
 
       let(:type) { double(type_name: 'user') }
 
       subject { described_class.new(City) }
 
-      specify { expect(subject.load(cities.map { |c| double(id: c.id) }, _type: type)).to eq(cities) }
-      specify { expect(subject.load(cities.map { |c| double(id: c.id) }.reverse, _type: type)).to eq(cities.reverse) }
-      specify { expect(subject.load(deleted.map { |c| double(id: c.id) }, _type: type)).to eq([nil, nil]) }
-      specify { expect(subject.load((cities + deleted).map { |c| double(id: c.id) }, _type: type)).to eq([*cities, nil, nil]) }
+      specify { expect(subject.load(city_ids, _type: type)).to eq(cities) }
+      specify { expect(subject.load(city_ids.reverse, _type: type)).to eq(cities.reverse) }
+      specify { expect(subject.load(deleted_ids, _type: type)).to eq([nil, nil]) }
+      specify { expect(subject.load(city_ids + deleted_ids, _type: type)).to eq([*cities, nil, nil]) }
       specify do
-        expect(subject.load(cities.map { |c| double(id: c.id) }, _type: type, scope: -> { where(rating: 0) }))
+        expect(subject.load(city_ids, _type: type, scope: -> { where(rating: 0) }))
           .to eq(cities.first(2) + [nil])
       end
       specify do
-        expect(subject.load(cities.map { |c| double(id: c.id) },
+        expect(subject.load(city_ids,
           _type: type, scope: -> { where(rating: 0) }, user: {scope: -> { where(rating: 1) }}))
           .to eq([nil, nil] + cities.last(1))
       end
       xspecify do
-        expect(subject.load(cities.map { |c| double(id: c.id) }, _type: type, scope: City.where(rating: 1)))
+        expect(subject.load(city_ids, _type: type, scope: City.where(rating: 1)))
           .to eq([nil, nil] + cities.last(1))
       end
       specify do
-        expect(subject.load(cities.map { |c| double(id: c.id) },
+        expect(subject.load(city_ids,
           _type: type, scope: City.where(rating: 1), user: {scope: -> { where(rating: 0) }}))
           .to eq(cities.first(2) + [nil])
       end
@@ -373,30 +375,32 @@ describe Chewy::Type::Adapter::Sequel, :sequel do
       before { stub_model(:city).set_dataset :rating_cities }
       let!(:cities) { Array.new(3) { |i| City.create!(country_id: i / 2) { |c| c.rating = i + 7 } } }
       let!(:deleted) { Array.new(2) { |i| City.create! { |c| c.rating = i + 10 }.tap(&:destroy) } }
+      let(:city_ids) { cities.map(&:rating) }
+      let(:deleted_ids) { deleted.map(&:rating) }
 
       let(:type) { double(type_name: 'user') }
 
       subject { described_class.new(City) }
 
-      specify { expect(subject.load(cities.map { |c| double(rating: c.rating) }, _type: type)).to eq(cities) }
-      specify { expect(subject.load(cities.map { |c| double(rating: c.rating) }.reverse, _type: type)).to eq(cities.reverse) }
-      specify { expect(subject.load(deleted.map { |c| double(rating: c.rating) }, _type: type)).to eq([nil, nil]) }
-      specify { expect(subject.load((cities + deleted).map { |c| double(rating: c.rating) }, _type: type)).to eq([*cities, nil, nil]) }
+      specify { expect(subject.load(city_ids, _type: type)).to eq(cities) }
+      specify { expect(subject.load(city_ids.reverse, _type: type)).to eq(cities.reverse) }
+      specify { expect(subject.load(deleted_ids, _type: type)).to eq([nil, nil]) }
+      specify { expect(subject.load(city_ids + deleted_ids, _type: type)).to eq([*cities, nil, nil]) }
       specify do
-        expect(subject.load(cities.map { |c| double(rating: c.rating) }, _type: type, scope: -> { where(country_id: 0) }))
+        expect(subject.load(city_ids, _type: type, scope: -> { where(country_id: 0) }))
           .to eq(cities.first(2) + [nil])
       end
       specify do
-        expect(subject.load(cities.map { |c| double(rating: c.rating) },
+        expect(subject.load(city_ids,
           _type: type, scope: -> { where(country_id: 0) }, user: {scope: -> { where(country_id: 1) }}))
           .to eq([nil, nil] + cities.last(1))
       end
       xspecify do
-        expect(subject.load(cities.map { |c| double(rating: c.rating) }, _type: type, scope: City.where(country_id: 1)))
+        expect(subject.load(city_ids, _type: type, scope: City.where(country_id: 1)))
           .to eq([nil, nil] + cities.last(1))
       end
       specify do
-        expect(subject.load(cities.map { |c| double(rating: c.rating) },
+        expect(subject.load(city_ids,
           _type: type, scope: City.where(country_id: 1), user: {scope: -> { where(country_id: 0) }}))
           .to eq(cities.first(2) + [nil])
       end

@@ -17,7 +17,8 @@ module Chewy
       end
 
       # @!method must(query_hash = nil, &block)
-      #   (see Chewy::Search::Parameters::QueryStorage#must)
+      #   Executes {Chewy::Search::Parameters::QueryStorage#must} in the scope
+      #   of newly created request object.
       #
       #   @see Chewy::Search::Parameters::QueryStorage#must
       #   @return [Chewy::Search::Request]
@@ -44,7 +45,8 @@ module Chewy
       #     @yield the block is processed by `elasticsearch-dsl` gem
       #
       # @!method should(query_hash = nil, &block)
-      #   (see Chewy::Search::Parameters::QueryStorage#should)
+      #   Executes {Chewy::Search::Parameters::QueryStorage#should} in the scope
+      #   of newly created request object.
       #
       #   @see Chewy::Search::Parameters::QueryStorage#should
       #   @return [Chewy::Search::Request]
@@ -71,7 +73,8 @@ module Chewy
       #     @yield the block is processed by `elasticsearch-dsl` gem
       #
       # @!method must_not(query_hash = nil, &block)
-      #   (see Chewy::Search::Parameters::QueryStorage#must_not)
+      #   Executes {Chewy::Search::Parameters::QueryStorage#must_not} in the scope
+      #   of newly created request object.
       #
       #   @see Chewy::Search::Parameters::QueryStorage#must_not
       #   @return [Chewy::Search::Request]
@@ -104,7 +107,8 @@ module Chewy
       end
 
       # @!method and(query_hash_or_scope = nil, &block)
-      #   (see Chewy::Search::Parameters::QueryStorage#and)
+      #   Executes {Chewy::Search::Parameters::QueryStorage#and} in the scope
+      #   of newly created request object.
       #
       #   @see Chewy::Search::Parameters::QueryStorage#and
       #   @return [Chewy::Search::Request]
@@ -148,7 +152,8 @@ module Chewy
       #     @yield the block is processed by `elasticsearch-dsl` gem
       #
       # @!method or(query_hash_or_scope = nil, &block)
-      #   (see Chewy::Search::Parameters::QueryStorage#or)
+      #   Executes {Chewy::Search::Parameters::QueryStorage#or} in the scope
+      #   of newly created request object.
       #
       #   @see Chewy::Search::Parameters::QueryStorage#or
       #   @return [Chewy::Search::Request]
@@ -192,7 +197,8 @@ module Chewy
       #     @yield the block is processed by `elasticsearch-dsl` gem
       #
       # @!method not(query_hash_or_scope = nil, &block)
-      #   (see Chewy::Search::Parameters::QueryStorage#not)
+      #   Executes {Chewy::Search::Parameters::QueryStorage#not} in the scope
+      #   of newly created request object.
       #   The only difference from {#must_not} is that is accepts another scope additionally.
       #
       #   @see Chewy::Search::Parameters::QueryStorage#not
@@ -237,7 +243,8 @@ module Chewy
         end
       end
 
-      # Replaces `minimum_should_match` for the particular storage
+      # Executes {Chewy::Search::Parameters::QueryStorage#minimum_should_match} in the scope
+      # of newly created request object.
       #
       # @see Chewy::Search::Parameters::QueryStorage#minimum_should_match
       # @param value [String, Integer, nil]

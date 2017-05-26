@@ -42,6 +42,8 @@ module Chewy
             @minimum_should_match = minimum_should_match
           end
 
+          # Merges 2 values, returns new value object
+          #
           # @param other [Chewy::Search::Parameters::QueryStorage::Bool]
           # @return [Chewy::Search::Parameters::QueryStorage::Bool]
           def update(other)
@@ -53,6 +55,8 @@ module Chewy
             )
           end
 
+          # Renders `bool` query
+          #
           # @return [Hash, nil]
           def query
             if must.one? && should.empty? && must_not.empty?
@@ -63,6 +67,8 @@ module Chewy
             end
           end
 
+          # Just a convention
+          #
           # @return [{Symbol => Array<Hash>, String, Integer, nil}]
           def to_h
             {

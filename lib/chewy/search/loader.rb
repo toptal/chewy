@@ -26,10 +26,13 @@ module Chewy
       # @param index [String] index name
       # @param type [String] type name
       # @return [Chewy::Type]
-      # @raise [NoMethodError] when index was not found
-      # @raise [Chewy::UndefinedType] when index was found, but type was not
+      # @raise [Chewy::UnderivableType] when index or hash were not found
       def derive_type(index, type)
-        (@derive_type ||= {})[[index, type]] ||= derive_index(index).type(type)
+        (@derive_type ||= {})[[index, type]] ||= begin
+          index_class = derive_index(index)
+          raise Chewy::UnderivableType, "Can not find index named `#{index}`" unless index_class
+          index_class.type_hash[type] or raise Chewy::UnderivableType, "Index `#{index}` doesn`t have type named `#{type}`"
+        end
       end
 
       # For each passed hit this method loads an ORM/ORD source object

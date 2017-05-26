@@ -37,9 +37,9 @@ describe Chewy::Search::Loader do
     specify { expect(subject.derive_type('cities', 'city')).to eq(CitiesIndex::City) }
     specify { expect(subject.derive_type('cities_suffix', 'city')).to eq(CitiesIndex::City) }
 
-    specify { expect { subject.derive_type('cities', 'place') }.to raise_error(Chewy::UndefinedType) }
-    specify { expect { subject.derive_type('whatever', 'city') }.to raise_error(NoMethodError) }
-    specify { expect { subject.derive_type('citiessuffix', 'city') }.to raise_error(NoMethodError) }
+    specify { expect { subject.derive_type('cities', 'place') }.to raise_error(Chewy::UnderivableType) }
+    specify { expect { subject.derive_type('whatever', 'city') }.to raise_error(Chewy::UnderivableType) }
+    specify { expect { subject.derive_type('citiessuffix', 'city') }.to raise_error(Chewy::UnderivableType) }
 
     context do
       before { CitiesIndex.index_name :boro_goves }

@@ -16,19 +16,20 @@ module Chewy
       # @see Chewy::Search::Parameters::Filter
       # @see Chewy::Search::Parameters::PostFilter
       module QueryStorage
-        # Bool storage value object, incapsulates update and query
-        # rendering logic
+        # Bool storage value object, encapsulates update and query
+        # rendering logic.
+        #
+        # @!attribute must
+        #   @return [Array<Hash>]
+        # @!attribute should
+        #   @return [Array<Hash>]
+        # @!attribute must_not
+        #   @return [Array<Hash>]
+        # @!attribute minimum_should_match
+        #   @return [String, Integer, nil]
         class Bool
           # Acceptable bool query keys
           KEYS = %i[must should must_not minimum_should_match].freeze
-          # @!attribute must
-          #   @return [Array<Hash>]
-          # @!attribute should
-          #   @return [Array<Hash>]
-          # @!attribute must_not
-          #   @return [Array<Hash>]
-          # @!attribute minimum_should_match
-          #   @return [String, Integer, nil]
           attr_reader(*KEYS)
 
           # @param must [Array<Hash>, Hash, nil]
@@ -42,7 +43,7 @@ module Chewy
             @minimum_should_match = minimum_should_match
           end
 
-          # Merges 2 values, returns new value object
+          # Merges 2 values, returns new value object.
           #
           # @param other [Chewy::Search::Parameters::QueryStorage::Bool]
           # @return [Chewy::Search::Parameters::QueryStorage::Bool]
@@ -55,7 +56,7 @@ module Chewy
             )
           end
 
-          # Renders `bool` query
+          # Renders `bool` query.
           #
           # @return [Hash, nil]
           def query
@@ -67,7 +68,7 @@ module Chewy
             end
           end
 
-          # Just a convention
+          # Just a convention.
           #
           # @return [{Symbol => Array<Hash>, String, Integer, nil}]
           def to_h

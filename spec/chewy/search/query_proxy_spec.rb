@@ -44,4 +44,25 @@ describe Chewy::Search::QueryProxy do
     specify { expect(subject.not { multi_match foo: 'bar' }.render[:body]).to eq(query: {bool: {must: {match: {foo: 'bar'}}, must_not: {multi_match: {foo: 'bar'}}}}) }
     specify { expect(subject.not(scope).render[:body]).to eq(query: {bool: {must: {match: {foo: 'bar'}}, must_not: {bool: {must_not: {match: {foo: 'bar'}}}}}}) }
   end
+
+  describe '#minimum_should_match' do
+    specify { expect(subject.minimum_should_match('100%').render[:body]).to eq(query: {match: {foo: 'bar'}}) }
+
+    context do
+      let(:request) do
+        Chewy::Search::Request.new(ProductsIndex)
+          .query.should(match: {foo: 'bar'})
+      end
+      specify { expect(subject.minimum_should_match('100%').render[:body]).to eq(query: {bool: {should: {match: {foo: 'bar'}}, minimum_should_match: '100%'}}) }
+    end
+
+    context do
+      let(:request) do
+        Chewy::Search::Request.new(ProductsIndex)
+          .query.should(match: {foo: 'bar'})
+          .query.minimum_should_match(2)
+      end
+      specify { expect(subject.minimum_should_match(nil).render[:body]).to eq(query: {bool: {should: {match: {foo: 'bar'}}}}) }
+    end
+  end
 end

@@ -16,7 +16,83 @@ module Chewy
       # @see Chewy::Search::Parameters::Filter
       # @see Chewy::Search::Parameters::PostFilter
       module QueryStorage
-        DEFAULT = {must: [], should: [], must_not: []}.freeze
+        # Bool storage value object, incapsulates update and query
+        # rendering logic
+        class Bool
+          # Acceptable bool query keys
+          KEYS = %i[must should must_not minimum_should_match].freeze
+          # @!attribute must
+          #   @return [Array<Hash>]
+          # @!attribute should
+          #   @return [Array<Hash>]
+          # @!attribute must_not
+          #   @return [Array<Hash>]
+          # @!attribute minimum_should_match
+          #   @return [String, Integer, nil]
+          attr_reader(*KEYS)
+
+          # @param must [Array<Hash>, Hash, nil]
+          # @param should [Array<Hash>, Hash, nil]
+          # @param must_not [Array<Hash>, Hash, nil]
+          # @param minimum_should_match [String, Integer, nil]
+          def initialize(must: [], should: [], must_not: [], minimum_should_match: nil)
+            @must = normalize(must)
+            @should = normalize(should)
+            @must_not = normalize(must_not)
+            @minimum_should_match = minimum_should_match
+          end
+
+          # @param other [Chewy::Search::Parameters::QueryStorage::Bool]
+          # @return [Chewy::Search::Parameters::QueryStorage::Bool]
+          def update(other)
+            self.class.new(
+              must: must + other.must,
+              should: should + other.should,
+              must_not: must_not + other.must_not,
+              minimum_should_match: other.minimum_should_match
+            )
+          end
+
+          # @return [Hash, nil]
+          def query
+            if must.one? && should.empty? && must_not.empty?
+              must.first
+            else
+              reduced = reduce
+              {bool: reduce} if reduced.present?
+            end
+          end
+
+          # @return [{Symbol => Array<Hash>, String, Integer, nil}]
+          def to_h
+            {
+              must: must,
+              should: should,
+              must_not: must_not,
+              minimum_should_match: minimum_should_match
+            }
+          end
+
+        private
+
+          def reduce
+            value = to_h
+              .reject { |_, v| v.blank? }
+              .transform_values { |v| v.is_a?(Array) && v.one? ? v.first : v }
+            value.delete(:minimum_should_match) if should.empty?
+            value
+          end
+
+          def normalize(queries)
+            Array.wrap(queries).map do |query|
+              if query.is_a?(Proc)
+                Elasticsearch::DSL::Search::Query.new(&query).to_hash
+              else
+                query
+              end
+            end.reject(&:blank?)
+          end
+        end
 
         # Directly modifies `must` array of the root `bool` query.
         # Pushes the passed query to the end of the array.
@@ -59,7 +135,7 @@ module Chewy
         # @param other_value [Hash, Array] any acceptable storage value
         # @return [{Symbol => Array<Hash>}]
         def and(other_value)
-          replace!(must: join(other_value))
+          join_into(:must, other_value)
         end
 
         # Unlike {#should} doesn't modify `should` array, but joins 2 queries
@@ -73,7 +149,7 @@ module Chewy
         # @param other_value [Hash, Array] any acceptable storage value
         # @return [{Symbol => Array<Hash>}]
         def or(other_value)
-          replace!(should: join(other_value))
+          join_into(:should, other_value)
         end
 
         # Basically, an alias for {#must_not}.
@@ -83,7 +159,16 @@ module Chewy
         # @param other_value [Hash, Array] any acceptable storage value
         # @return [{Symbol => Array<Hash>}]
         def not(other_value)
-          update!(must_not: reduce(normalize(other_value)))
+          update!(must_not: normalize(other_value).query)
+        end
+
+        # Replaces `minimum_should_match` bool query value
+        #
+        # @see https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-minimum-should-match.html
+        # @param new_value [String, Integer] minimum_should_match value
+        # @return [{Symbol => Array<Hash>}]
+        def minimum_should_match(new_value)
+          update!(minimum_should_match: new_value)
         end
 
         # Uses `and` logic to merge storages.
@@ -103,9 +188,7 @@ module Chewy
         # @param other_value [Hash, Array] any acceptable storage value
         # @return [{Symbol => Array<Hash>}]
         def update!(other_value)
-          @value = normalize(other_value).each do |key, component|
-            component.unshift(*value[key])
-          end
+          @value = value.update(normalize(other_value))
         end
 
         # Almost standard rendering logic, some reduction logic is
@@ -114,53 +197,32 @@ module Chewy
         # @see Chewy::Search::Parameters::Storage#render
         # @return [{Symbol => Hash}]
         def render
-          reduced = reduce(value)
-          {self.class.param_name => reduced} if reduced.present?
+          rendered_bool = value.query
+          {self.class.param_name => rendered_bool} if rendered_bool.present?
         end
 
       private
 
-        def join(other_value)
-          [value, normalize(other_value)].map(&method(:reduce)).compact
-        end
-
-        def reduce(value)
-          return if value.blank?
-
-          essence_value = essence(value)
-          if essence_value != value
-            essence_value
+        def join_into(place, other_value)
+          values = [value, normalize(other_value)]
+          queries = values.map(&:query)
+          if queries.all?
+            replace!(place => queries)
+          elsif queries.none?
+            @value
           else
-            value = value
-              .reject { |_, v| v.empty? }
-              .transform_values { |v| v.one? ? v.first : v }
-            {bool: value} if value.present?
-          end
-        end
-
-        def essence(value)
-          if value[:must].one? && value[:should].none? && value[:must_not].none?
-            value[:must].first
-          elsif value[:should].one? && value[:must].none? && value[:must_not].none?
-            value[:should].first
-          else
-            value
+            replace!(values[queries.index(&:present?)])
           end
         end
 
         def normalize(value)
-          value = value.symbolize_keys if value.is_a?(Hash)
-          value = {must: value} if !value.is_a?(Hash) || value.keys.present? && (value.keys & DEFAULT.keys).empty?
-
-          value.slice(*DEFAULT.keys).reverse_merge(DEFAULT).transform_values do |component|
-            Array.wrap(component).map do |piece|
-              if piece.is_a?(Proc)
-                Elasticsearch::DSL::Search::Query.new(&piece).to_hash
-              else
-                piece
-              end
-            end.delete_if(&:blank?)
+          value ||= {}
+          if value.is_a?(Hash)
+            value = value.symbolize_keys
+            value = Bool.new(**value.slice(*Bool::KEYS)) if (value.keys & Bool::KEYS).present?
           end
+          value = Bool.new(must: value) unless value.is_a?(Bool)
+          value
         end
       end
     end

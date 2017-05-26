@@ -302,9 +302,9 @@ describe Chewy::Search::Request do
         expect(first_scope.and(second_scope).render[:body]).to eq(
           query: {bool: {
             must: [{foo: 'bar'}, {bool: {must_not: {boo: 'baf'}}}],
-            filter: [{moo: 'baz'}, {foo: 'bar'}]
+            filter: [{bool: {should: {moo: 'baz'}}}, {foo: 'bar'}]
           }},
-          post_filter: {bool: {must: [{bool: {must_not: {boo: 'baf'}}}, {moo: 'baz'}]}},
+          post_filter: {bool: {must: [{bool: {must_not: {boo: 'baf'}}}, {bool: {should: {moo: 'baz'}}}]}},
           size: 10
         )
       end
@@ -317,9 +317,9 @@ describe Chewy::Search::Request do
         expect(first_scope.or(second_scope).render[:body]).to eq(
           query: {bool: {
             should: [{foo: 'bar'}, {bool: {must_not: {boo: 'baf'}}}],
-            filter: {bool: {should: [{moo: 'baz'}, {foo: 'bar'}]}}
+            filter: {bool: {should: [{bool: {should: {moo: 'baz'}}}, {foo: 'bar'}]}}
           }},
-          post_filter: {bool: {should: [{bool: {must_not: {boo: 'baf'}}}, {moo: 'baz'}]}},
+          post_filter: {bool: {should: [{bool: {must_not: {boo: 'baf'}}}, {bool: {should: {moo: 'baz'}}}]}},
           size: 10
         )
       end
@@ -334,7 +334,7 @@ describe Chewy::Search::Request do
             must: {foo: 'bar'}, must_not: {bool: {must_not: {boo: 'baf'}}},
             filter: {bool: {should: {moo: 'baz'}, must_not: {foo: 'bar'}}}
           }},
-          post_filter: {bool: {must_not: [{boo: 'baf'}, {moo: 'baz'}]}},
+          post_filter: {bool: {must_not: [{boo: 'baf'}, {bool: {should: {moo: 'baz'}}}]}},
           size: 10
         )
       end

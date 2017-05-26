@@ -109,7 +109,7 @@ describe Chewy::Search::Parameters do
 
     context do
       subject { described_class.new(query: {should: {foo: 'bar'}}, filter: {moo: 'baz'}) }
-      specify { expect(subject.render).to eq(body: {query: {bool: {must: {foo: 'bar'}, filter: {moo: 'baz'}}}}) }
+      specify { expect(subject.render).to eq(body: {query: {bool: {should: {foo: 'bar'}, filter: {moo: 'baz'}}}}) }
     end
 
     context do

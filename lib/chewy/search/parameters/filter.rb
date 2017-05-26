@@ -27,13 +27,13 @@ module Chewy
         # @see Chewy::Search::Parameters::Storage#render
         # @return [{Symbol => Hash}]
         def render
-          reduced = filter_reduce(reduce(value))
-          {self.class.param_name => reduced} if reduced.present?
+          rendered_bool = filter_query(value.query)
+          {self.class.param_name => rendered_bool} if rendered_bool.present?
         end
 
       private
 
-        def filter_reduce(value)
+        def filter_query(value)
           bool = value[:bool] if value
           if bool && bool[:must].present? && bool[:should].blank? && bool[:must_not].blank?
             bool[:must]

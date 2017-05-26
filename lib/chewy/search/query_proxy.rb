@@ -236,6 +236,15 @@ module Chewy
           @request.send(:modify, @parameter_name) { send(method, block || query_hash_or_scope) }
         end
       end
+
+      # Replaces `minimum_should_match` for the particular storage
+      #
+      # @see Chewy::Search::Parameters::QueryStorage#minimum_should_match
+      # @param value [String, Integer, nil]
+      # @return [Chewy::Search::Request]
+      def minimum_should_match(value)
+        @request.send(:modify, @parameter_name) { minimum_should_match(value) }
+      end
     end
   end
 end

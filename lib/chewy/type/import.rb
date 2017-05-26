@@ -87,7 +87,7 @@ module Chewy
               if result.last.bytesize + entry.bytesize > bulk_size
                 result.push(entry)
               else
-                result[-1] = [result[-1], entry].delete_if(&:blank?).join("\n")
+                result[-1] = [result[-1], entry].reject(&:blank?).join("\n")
               end
             end
             entries.map { |entry| entry + "\n" }

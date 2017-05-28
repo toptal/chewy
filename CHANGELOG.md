@@ -1,5 +1,19 @@
 # master
 
+## Changes
+
+  * Brand new request DSL. Supports ElasticSearch 2 and 5, better usability, architecture and docs.
+
+  * Kaminari 1.0 support.
+
+  * `skip_index_creation_on_import` option (@sergey-kintsel, #483)
+
+  * Ability to use procs for settings (@parallel588, #481)
+
+  * Bulk indexing optimizations with new additional options (@eproulx-petalmd, #467)
+
+  * Configurable sidekiq options (@averell23, #438)
+
 # Version 0.9.0
 
 ## Changes

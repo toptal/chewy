@@ -30,7 +30,7 @@ module Chewy
         scroll_batches scroll_hits scroll_results scroll_wrappers
       ].to_set.freeze
 
-      delegate :hits, :wrappers, :records, :documents,
+      delegate :hits, :wrappers, :records, :documents, :record_hash, :document_hash,
         :total, :max_score, :took, :timed_out?, to: :response
       delegate :each, :size, to: :to_a
       alias_method :to_ary, :to_a

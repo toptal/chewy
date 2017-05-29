@@ -878,6 +878,15 @@ PlacesIndex.as_records.load(scope: -> { active }).wrappers # returns `Chewy::Typ
 
 To switch it back to the wrappers mode use `as_wrappers`.
 
+In case when it is necessary to iterate through both of the wrappers and records simultaneously, `record_hash` method helps a lot:
+
+```ruby
+scope = PlacesIndex.load(scope: -> { active })
+scope.each do |wrapper|
+  scope.record_hash[wrapper]
+end
+```
+
 #### Legacy DSL incompatibilities
 
 * Filters advanced block DSL is not supported anymore, `elasticsearch-dsl` is used instead.
@@ -887,6 +896,7 @@ To switch it back to the wrappers mode use `as_wrappers`.
 * `types!` method is no more, use `except(:types).types(...)`
 * Named aggregations are not supported, use named scopes instead.
 * A lot of query-level methods were not ported: everything that is related to boost and scoring. Use `query` manipulation to provide them.
+* `Chewy::Type#_object` returns nil always. Use `Chewy::Search::Response#record_hash` instead.
 
 ### Rake tasks
 

@@ -184,4 +184,9 @@ describe Chewy::Search::Response, :orm do
   describe '#records' do
     specify { expect(subject.records).to eq([*cities, *countries]) }
   end
+
+  describe '#record_hash' do
+    specify { expect(subject.record_hash.keys).to eq(subject.wrappers) }
+    specify { expect(subject.record_hash.values).to eq(subject.records) }
+  end
 end

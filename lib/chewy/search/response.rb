@@ -84,6 +84,21 @@ module Chewy
       end
       alias_method :documents, :records
 
+      # This method is used in cases when you need to iterate through
+      # both of the collections simultaneously.
+      #
+      # @example
+      #   scope.each do |wrapper|
+      #     scope.record_hash[wrapper]
+      #   end
+      # @see #wrappers
+      # @see #records
+      # @return [{Chewy::Type => Object}] a hash with wrappers as keys and ORM/ODM objects as values
+      def record_hash
+        @record_hash ||= wrappers.zip(records).to_h
+      end
+      alias_method :document_hash, :record_hash
+
     private
 
       def hits_root

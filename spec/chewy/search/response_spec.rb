@@ -122,28 +122,28 @@ describe Chewy::Search::Response, :orm do
     end
   end
 
-  describe '#objects' do
-    specify { expect(subject.objects).to be_a(Array) }
-    specify { expect(subject.objects).to have(4).items }
+  describe '#wrappers' do
+    specify { expect(subject.wrappers).to be_a(Array) }
+    specify { expect(subject.wrappers).to have(4).items }
     specify do
-      expect(subject.objects.map(&:class).uniq)
+      expect(subject.wrappers.map(&:class).uniq)
         .to contain_exactly(PlacesIndex::City, PlacesIndex::Country)
     end
-    specify { expect(subject.objects.map(&:_data)).to eq(subject.hits) }
+    specify { expect(subject.wrappers.map(&:_data)).to eq(subject.hits) }
 
     context do
       let(:raw_response) { {} }
-      specify { expect(subject.objects).to eq([]) }
+      specify { expect(subject.wrappers).to eq([]) }
     end
 
     context do
       let(:raw_response) { {'hits' => {}} }
-      specify { expect(subject.objects).to eq([]) }
+      specify { expect(subject.wrappers).to eq([]) }
     end
 
     context do
       let(:raw_response) { {'hits' => {'hits' => []}} }
-      specify { expect(subject.objects).to eq([]) }
+      specify { expect(subject.wrappers).to eq([]) }
     end
 
     context do
@@ -156,11 +156,11 @@ describe Chewy::Search::Response, :orm do
            '_source' => {'id' => 2, 'rating' => 0}}
         ]}}
       end
-      specify { expect(subject.objects.first).to be_a(PlacesIndex::City) }
-      specify { expect(subject.objects.first.id).to eq(2) }
-      specify { expect(subject.objects.first.rating).to eq(0) }
-      specify { expect(subject.objects.first._score).to eq(1.3) }
-      specify { expect(subject.objects.first._explanation).to be_nil }
+      specify { expect(subject.wrappers.first).to be_a(PlacesIndex::City) }
+      specify { expect(subject.wrappers.first.id).to eq(2) }
+      specify { expect(subject.wrappers.first.rating).to eq(0) }
+      specify { expect(subject.wrappers.first._score).to eq(1.3) }
+      specify { expect(subject.wrappers.first._explanation).to be_nil }
     end
 
     context do
@@ -173,11 +173,11 @@ describe Chewy::Search::Response, :orm do
            '_explanation' => {foo: 'bar'}}
         ]}}
       end
-      specify { expect(subject.objects.first).to be_a(PlacesIndex::Country) }
-      specify { expect(subject.objects.first.id).to eq('2') }
-      specify { expect(subject.objects.first.rating).to be_nil }
-      specify { expect(subject.objects.first._score).to eq(1.2) }
-      specify { expect(subject.objects.first._explanation).to eq(foo: 'bar') }
+      specify { expect(subject.wrappers.first).to be_a(PlacesIndex::Country) }
+      specify { expect(subject.wrappers.first.id).to eq('2') }
+      specify { expect(subject.wrappers.first.rating).to be_nil }
+      specify { expect(subject.wrappers.first._score).to eq(1.2) }
+      specify { expect(subject.wrappers.first._explanation).to eq(foo: 'bar') }
     end
   end
 

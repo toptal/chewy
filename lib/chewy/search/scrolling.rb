@@ -63,24 +63,24 @@ module Chewy
         end
       end
 
-      # @!method scroll_objects(batch_size: 1000, scroll: '1m')
+      # @!method scroll_wrappers(batch_size: 1000, scroll: '1m')
       # Iterates through the documents of the scope in batches. Yields
       # each hit wrapped with {Chewy::Type}.
       #
       # @param batch_size [Integer] batch size obviously, replaces `size` query parameter
       # @param scroll [String] cursor expiration time
       #
-      # @overload scroll_objects(batch_size: 1000, scroll: '1m')
+      # @overload scroll_wrappers(batch_size: 1000, scroll: '1m')
       #   @example
-      #     PlaceIndex.scroll_objects { |object| p object.id }
+      #     PlaceIndex.scroll_wrappers { |object| p object.id }
       #   @yieldparam object [Chewy::Type] block is executed for each hit object
       #
-      # @overload scroll_objects(batch_size: 1000, scroll: '1m')
+      # @overload scroll_wrappers(batch_size: 1000, scroll: '1m')
       #   @example
-      #     PlaceIndex.scroll_objects.map { |object| object.id }
+      #     PlaceIndex.scroll_wrappers.map { |object| object.id }
       #   @return [Enumerator] a standard ruby Enumerator
-      def scroll_objects(**options)
-        return enum_for(:scroll_objects, **options) unless block_given?
+      def scroll_wrappers(**options)
+        return enum_for(:scroll_wrappers, **options) unless block_given?
 
         scroll_hits(**options).each do |hit|
           yield loader.derive_type(hit['_index'], hit['_type']).build(hit)

@@ -854,7 +854,7 @@ See [Chewy::Search::Scoping](lib/chewy/search/scoping.rb) for details.
 
 #### Scroll API
 
-ElasticSearch scroll API is utilized by a bunch of methods: `scroll_batches`, `scroll_hits`, `scroll_objects` and `scroll_records`.
+ElasticSearch scroll API is utilized by a bunch of methods: `scroll_batches`, `scroll_hits`, `scroll_wrappers` and `scroll_records`.
 
 See [Chewy::Search::Scrolling](lib/chewy/search/scrolling.rb) for details.
 
@@ -873,7 +873,7 @@ See [Chewy::Search::Loader](lib/chewy/search/loader.rb) for more details.
 
 * Filters advanced block DSL is not supported anymore, `elasticsearch-dsl` is used instead.
 * Things like `query_mode` and `filter_mode` are in past, use advanced DSL to achieve similar behavior. See [Chewy::Search::QueryProxy](lib/chewy/search/query_proxy.rb) for details.
-* `preload` method is no more, the collection returned by scope doesn't depend on loading options, scope always returns `Chewy::Type` wrapper objects. To get ORM/ODM objects, use `#records` method.
+* `preload` method is no more, the collection returned by scope doesn't depend on loading options, scope always returns `Chewy::Type` wrappers. To get ORM/ODM objects, use `#records` method.
 * Some of the methods have changed their purpose: `only` was used to filter fields before, now it filters the scope. To filter fields use `source` or `stored_fields`.
 * `types!` method is no more, use `except(:types).types(...)`
 * Named aggregations are not supported, use named scopes instead.

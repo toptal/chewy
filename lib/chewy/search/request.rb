@@ -27,12 +27,12 @@ module Chewy
         load script_fields suggest aggs aggregations none
         indices_boost rescore highlight total total_count
         total_entries types delete_all count exists? exist? find
-        scroll_batches scroll_hits scroll_results scroll_objects
+        scroll_batches scroll_hits scroll_results scroll_wrappers
       ].to_set.freeze
 
-      delegate :hits, :objects, :records, :documents,
+      delegate :hits, :wrappers, :records, :documents,
         :total, :max_score, :took, :timed_out?, to: :response
-      delegate :each, :size, to: :objects
+      delegate :each, :size, to: :wrappers
       alias_method :to_ary, :to_a
       alias_method :total_count, :total
       alias_method :total_entries, :total
@@ -64,7 +64,7 @@ module Chewy
         @parameters ||= Parameters.new
       end
 
-      # Compare two scopes or scope with a collection of objects.
+      # Compare two scopes or scope with a collection of wrappers.
       # If other is a collection it performs the request to fetch
       # data from ES.
       #
@@ -83,7 +83,7 @@ module Chewy
         super || other.is_a?(Chewy::Search::Request) ? compare_internals(other) : to_a == other
       end
 
-      # Access to ES response wrapper objects providing useful methods such as
+      # Access to ES response wrappers providing useful methods such as
       # {Chewy::Search::Response#total} or {Chewy::Search::Response#max_score}.
       #
       # @see Chewy::Search::Response
@@ -798,7 +798,7 @@ module Chewy
       #   @return [Chewy::Type] result document
       #
       # @overload find(*ids)
-      #   If several field are passed - it returns an array of objects.
+      #   If several field are passed - it returns an array of wrappers.
       #
       #   @param ids [Array<Integer, String>] ids of the desired documents
       #   @return [Array<Chewy::Type>] result documents

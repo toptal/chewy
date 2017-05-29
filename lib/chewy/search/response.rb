@@ -63,11 +63,11 @@ module Chewy
       end
       alias_method :aggregations, :aggs
 
-      # {Chewy::Type} objects collection instantiated on top of hits.
+      # {Chewy::Type} wrappers collection instantiated on top of hits.
       #
       # @return [Array<Chewy::Type>]
-      def objects
-        @objects ||= hits.map do |hit|
+      def wrappers
+        @wrappers ||= hits.map do |hit|
           @loader.derive_type(hit['_index'], hit['_type']).build(hit)
         end
       end

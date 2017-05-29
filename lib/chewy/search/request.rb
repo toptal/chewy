@@ -237,8 +237,8 @@ module Chewy
       #       #      :must_not=>{:match=>{:name=>"London"}}}}}}>
       #     @return [Chewy::Search::QueryProxy]
       %i[query filter post_filter].each do |name|
-        define_method name do |query_hash = nil, &block|
-          if block || query_hash
+        define_method name do |query_hash = UNDEFINED, &block|
+          if block || query_hash != UNDEFINED
             modify(name) { must(block || query_hash) }
           else
             Chewy::Search::QueryProxy.new(name, self)

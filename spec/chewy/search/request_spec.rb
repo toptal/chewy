@@ -280,6 +280,16 @@ describe Chewy::Search::Request do
       specify { expect(subject.load(only: 'city').map(&:class).uniq).to eq([PlacesIndex::City, PlacesIndex::Country]) }
       specify { expect(subject.load(only: 'city').records).to eq([*cities, nil, nil]) }
     end
+
+    describe '#as_records' do
+      specify { expect(subject.as_records).to be_a(described_class) }
+      specify { expect(subject.as_records.map(&:class).uniq).to eq([City, Country]) }
+    end
+
+    describe '#as_wrappers' do
+      specify { expect(subject.as_records.as_wrappers).to be_a(described_class) }
+      specify { expect(subject.as_records.as_wrappers.map(&:class).uniq).to eq([PlacesIndex::City, PlacesIndex::Country]) }
+    end
   end
 
   describe '#merge' do

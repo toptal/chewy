@@ -32,7 +32,7 @@ module Chewy
 
       delegate :hits, :wrappers, :records, :documents,
         :total, :max_score, :took, :timed_out?, to: :response
-      delegate :each, :size, to: :wrappers
+      delegate :each, :size, to: :to_a
       alias_method :to_ary, :to_a
       alias_method :total_count, :total
       alias_method :total_entries, :total
@@ -80,7 +80,16 @@ module Chewy
       # @param other [Object] any object
       # @return [true, false] the result of comparison
       def ==(other)
-        super || other.is_a?(Chewy::Search::Request) ? compare_internals(other) : to_a == other
+        super || other.is_a?(Chewy::Search::Request) ? compare_internals(other) : wrappers == other
+      end
+
+      # The method result depends on the scope `:as` parameter value.
+      #
+      # @see Chewy::Search::Response#wrappers
+      # @see Chewy::Search::Response#records
+      # @return [Array<Chewy::Type>, Array<Object, nil>] wrappers or records collection
+      def to_a
+        parameters[:as].value == 'records' ? records : wrappers
       end
 
       # Access to ES response wrappers providing useful methods such as
@@ -367,6 +376,27 @@ module Chewy
       %i[track_scores explain version profile none].each do |name|
         define_method name do |value = true|
           modify(name) { replace!(value) }
+        end
+      end
+
+      # @!method as_records
+      #   Switches the scope to the ORM/ODM objects collection mode.
+      #   It is still possible to access both collections via {#response}.
+      #
+      #   @see #to_a
+      #   @see Chewy::Search::Parameters::As
+      #   @return [Chewy::Search::Request]
+      #
+      # @!method as_wrappers
+      #   Switches the scope back to the wrappers collection mode.
+      #   It is still possible to access both collections via {#response}.
+      #
+      #   @see #to_a
+      #   @see Chewy::Search::Parameters::As
+      #   @return [Chewy::Search::Request]
+      %i[records wrappers].each do |value|
+        define_method "as_#{value}" do
+          modify(:as) { replace!(value) }
         end
       end
 

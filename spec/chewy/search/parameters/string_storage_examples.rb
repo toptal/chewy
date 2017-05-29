@@ -27,6 +27,10 @@ shared_examples :string_storage do |param_name|
 
   describe '#render' do
     specify { expect(described_class.new.render).to be_nil }
-    specify { expect(subject.render).to eq(param_name => 'foo') }
+    if param_name
+      specify { expect(subject.render).to eq(param_name => 'foo') }
+    else
+      specify { expect(subject.render).to be_nil }
+    end
   end
 end

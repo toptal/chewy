@@ -863,17 +863,26 @@ See [Chewy::Search::Scrolling](lib/chewy/search/scrolling.rb) for details.
 It is possible to load ORM/ODM source records/documents with the `records` method. To provide additional loading options use `load` method:
 
 ```ruby
-PlacesIndex.load(scope: -> { active }).to_a # to_a returns `Chewy::Type` wrappers
+PlacesIndex.load(scope: -> { active }).to_a # to_a returns `Chewy::Type` wrappers.
 PlacesIndex.load(scope: -> { active }).records # An array of AR source records.
 ```
 
 See [Chewy::Search::Loader](lib/chewy/search/loader.rb) for more details.
 
+It is also possible to switch the scope to `records` mode with `as_records` method. In this mode the scope will act as a collection of ORM/ODM objects.
+
+```ruby
+PlacesIndex.as_records.load(scope: -> { active }).to_a # to_a returns an array of AR source records.
+PlacesIndex.as_records.load(scope: -> { active }).wrappers # returns `Chewy::Type` wrappers.
+```
+
+To switch it back to the wrappers mode use `as_wrappers`.
+
 #### Legacy DSL incompatibilities
 
 * Filters advanced block DSL is not supported anymore, `elasticsearch-dsl` is used instead.
 * Things like `query_mode` and `filter_mode` are in past, use advanced DSL to achieve similar behavior. See [Chewy::Search::QueryProxy](lib/chewy/search/query_proxy.rb) for details.
-* `preload` method is no more, the collection returned by scope doesn't depend on loading options, scope always returns `Chewy::Type` wrappers. To get ORM/ODM objects, use `#records` method.
+* `preload` method is no more, the collection returned by scope doesn't depend on loading options. To switch the scope to the records mode and back, use `as_records`, `as_wrappers`
 * Some of the methods have changed their purpose: `only` was used to filter fields before, now it filters the scope. To filter fields use `source` or `stored_fields`.
 * `types!` method is no more, use `except(:types).types(...)`
 * Named aggregations are not supported, use named scopes instead.

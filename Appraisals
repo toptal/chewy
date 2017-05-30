@@ -1,15 +1,17 @@
 # rubocop:disable Style/FileName
 
-appraise 'rails.4.2.activerecord' do
-  gem 'activerecord', '~> 4.2.0'
-  gem 'activesupport', '~> 4.2.0'
+%w[4.0 4.1 4.2].each do |activesupport|
+  appraise "rails.#{activesupport}.activerecord" do
+    gem 'activerecord', "~> #{activesupport}.0"
+    gem 'activesupport', "~> #{activesupport}.0"
 
-  gem 'activejob', '~> 4.2.0'
-  gem 'resque', require: false
-  gem 'sidekiq', require: false
+    gem 'activejob', "~> #{activesupport}.0" if activesupport >= '4.2'
+    gem 'resque', require: false
+    gem 'sidekiq', require: false
 
-  gem 'kaminari', '~> 0.17.0', require: false
-  gem 'will_paginate', require: false
+    gem 'kaminari', '~> 0.17.0', require: false
+    gem 'will_paginate', require: false
+  end
 end
 
 %w[5.0 5.1].each do |activesupport|

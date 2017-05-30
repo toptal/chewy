@@ -15,6 +15,8 @@ env:
     - ES_VERSION=2.4.4
     - ES_VERSION=5.4.0
 gemfile:
+  - gemfiles/rails.4.0.activerecord.gemfile
+  - gemfiles/rails.4.1.activerecord.gemfile
   - gemfiles/rails.4.2.activerecord.gemfile
   - gemfiles/rails.5.0.activerecord.gemfile
   - gemfiles/rails.5.1.activerecord.gemfile

@@ -40,12 +40,12 @@ appraise 'rails.4.2.mongoid.5.1' do
   gem 'will_paginate', require: false
 end
 
-%w[6.0 6.1].each do |mongoid|
-  appraise "rails.5.1.mongoid.#{mongoid}" do
+{'5.0' => '6.0', '5.1' => '6.1'}.each do |activesupport, mongoid|
+  appraise "rails.#{activesupport}.mongoid.#{mongoid}" do
     gem 'mongoid', "~> #{mongoid}.0"
-    gem 'activesupport', '~> 5.1.0'
+    gem 'activesupport', "~> #{activesupport}.0"
 
-    gem 'activejob', '~> 5.1.0'
+    gem 'activejob', "~> #{activesupport}.0"
     gem 'resque', require: false
     gem 'sidekiq', require: false
 

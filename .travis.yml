@@ -21,7 +21,7 @@ gemfile:
   - gemfiles/rails.5.0.activerecord.gemfile
   - gemfiles/rails.5.1.activerecord.gemfile
   - gemfiles/rails.4.2.mongoid.5.1.gemfile
-  - gemfiles/rails.5.1.mongoid.6.0.gemfile
+  - gemfiles/rails.5.0.mongoid.6.0.gemfile
   - gemfiles/rails.5.1.mongoid.6.1.gemfile
   - gemfiles/sequel.4.45.gemfile
 matrix:
@@ -30,6 +30,18 @@ matrix:
     env: ES_VERSION=5.4.0
   - rvm: 2.3.4
     env: ES_VERSION=2.4.4
+  - gemfile: gemfiles/rails.4.0.activerecord.gemfile
+    env: ES_VERSION=5.4.0
+  - gemfile: gemfiles/rails.4.1.activerecord.gemfile
+    env: ES_VERSION=5.4.0
+  - gemfile: gemfiles/rails.4.2.mongoid.5.1.gemfile
+    env: ES_VERSION=5.4.0
+  - gemfile: gemfiles/rails.5.1.mongoid.6.0.gemfile
+    env: ES_VERSION=5.4.0
+  - rvm: 2.4.1
+    gemfile: gemfiles/rails.4.0.activerecord.gemfile
+  - rvm: 2.4.1
+    gemfile: gemfiles/rails.4.1.activerecord.gemfile
 before_install:
   - curl -s https://download.elasticsearch.org/elasticsearch/release/org/elasticsearch/distribution/tar/elasticsearch/2.4.4/elasticsearch-2.4.4.tar.gz | tar xz -C /tmp
   - curl -s https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-5.4.0.tar.gz | tar xz -C /tmp

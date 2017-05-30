@@ -42,7 +42,9 @@ module Chewy
       private
 
         def normalize(value)
-          (value || {}).stringify_keys.transform_values! { |v| Float(v) }
+          value = (value || {}).stringify_keys
+          value.each { |k, v| value[k] = Float(v) }
+          value
         end
       end
     end

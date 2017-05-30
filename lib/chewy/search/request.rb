@@ -921,11 +921,11 @@ module Chewy
         @response, @count, @render, @render_base, @render_simple, @type_names, @index_names = nil
       end
 
-      def perform
+      def perform(additional = {})
         if parameters[:none].value
           {}
         else
-          Chewy.client.search(render)
+          Chewy.client.search(render.merge(additional))
         end
       rescue Elasticsearch::Transport::Transport::Errors::NotFound
         {}

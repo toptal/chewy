@@ -26,12 +26,12 @@ module Chewy
       def scroll_batches(batch_size: 1000, scroll: '1m')
         return enum_for(:scroll_batches, batch_size: batch_size, scroll: scroll) unless block_given?
 
-        result = Chewy.client.search(render.merge(size: batch_size, scroll: scroll))
-        total = result.fetch('hits', {})['total']
+        result = perform(size: batch_size, scroll: scroll)
+        total = result.fetch('hits', {}).fetch('total', 0)
         fetched = 0
 
         loop do
-          hits = result.fetch('hits', {})['hits']
+          hits = result.fetch('hits', {}).fetch('hits', [])
           fetched += hits.size
           yield(hits) if hits.present?
           break if fetched >= total

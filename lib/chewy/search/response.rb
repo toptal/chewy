@@ -6,9 +6,10 @@ module Chewy
     class Response
       # @param body [Hash] response body hash
       # @param loader [Chewy::Search::Loader] loader instance
-      def initialize(body, loader)
+      def initialize(body, loader, paginator = nil)
         @body = body
         @loader = loader
+        @paginator = paginator
       end
 
       # Raw response `hits` collection. Returns empty array is something went wrong.
@@ -80,7 +81,14 @@ module Chewy
       # @see Chewy::Search::Loader
       # @return [Array<Object>]
       def records
-        @records ||= @loader.load(hits)
+        @records ||= begin
+          records = @loader.load(hits)
+          if @paginator
+            @paginator.call(records)
+          else
+            records
+          end
+        end
       end
       alias_method :documents, :records
 

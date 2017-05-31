@@ -91,7 +91,7 @@ module Chewy
       # @see Chewy::Search::Response
       # @return [Chewy::Search::Response] a response object instance
       def response
-        @response ||= Response.new(perform, loader)
+        @response ||= Response.new(perform, loader, collection_paginator)
       end
 
       # ES request body
@@ -962,6 +962,10 @@ module Chewy
 
       def performed?
         instance_variable_defined?(:@response)
+      end
+
+      def collection_paginator
+        method(:paginated_collection).to_proc if respond_to?(:paginated_collection, true)
       end
     end
   end

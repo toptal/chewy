@@ -110,9 +110,10 @@ module Chewy
       def scroll_records(**options)
         return enum_for(:scroll_records, **options) unless block_given?
 
-        scroll_batches(**options).each do |batch|
-          loader.load(batch).each { |object| yield object }
-        end
+        except(:source, :stored_fields, :script_fields, :docvalue_fields)
+          .source(false).scroll_batches(**options).each do |batch|
+            loader.load(batch).each { |object| yield object }
+          end
       end
       alias_method :scroll_documents, :scroll_records
     end

@@ -23,7 +23,7 @@ module Chewy
       #   @example
       #     PlaceIndex.scroll_batches.flat_map { |batch| batch.map { |hit| hit['_id'] } }
       #   @return [Enumerator] a standard ruby Enumerator
-      def scroll_batches(batch_size: 1000, scroll: '1m')
+      def scroll_batches(batch_size: Request::DEFAULT_BATCH_SIZE, scroll: Request::DEFAULT_SCROLL)
         return enum_for(:scroll_batches, batch_size: batch_size, scroll: scroll) unless block_given?
 
         result = perform(size: batch_size, scroll: scroll)

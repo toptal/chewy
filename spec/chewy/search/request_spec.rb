@@ -493,13 +493,28 @@ describe Chewy::Search::Request do
     describe '#find' do
       specify { expect(subject.find('1')).to be_a(ProductsIndex::Product).and have_attributes(id: '1') }
       specify { expect(subject.limit(2).find('1', '3', '7').map(&:id)).to contain_exactly('1', '3', '7') }
-      specify { expect(subject.limit(2).find(1, 3, 7).map(&:id)).to contain_exactly('1', '3', '7') }
+      specify { expect(subject.find(1, 3, 7).map(&:id)).to contain_exactly('1', '3', '7') }
       specify { expect { subject.find('1', '3', '42') }.to raise_error Chewy::DocumentNotFound, 'Could not find documents for ids: 42' }
       specify { expect { subject.find(1, 3, 42) }.to raise_error Chewy::DocumentNotFound, 'Could not find documents for ids: 42' }
       specify { expect { subject.query(match: {name: 'name3'}).find('1', '3') }.to raise_error Chewy::DocumentNotFound, 'Could not find documents for ids: 1' }
       specify { expect { subject.query(match: {name: 'name2'}).find('1', '3') }.to raise_error Chewy::DocumentNotFound, 'Could not find documents for ids: 1 and 3' }
       specify { expect { subject.filter(match: {name: 'name2'}).find('1', '3') }.to raise_error Chewy::DocumentNotFound, 'Could not find documents for ids: 1 and 3' }
       specify { expect { subject.post_filter(match: {name: 'name2'}).find('1', '3') }.to raise_error Chewy::DocumentNotFound, 'Could not find documents for ids: 1 and 3' }
+
+      context 'make sure it returns everything' do
+        let(:countries) { Array.new(6) { |i| {id: (i.next + 6).to_s}.stringify_keys! } }
+        before { expect(Chewy.client).not_to receive(:scroll) }
+
+        specify { expect(subject.find((1..12).to_a)).to have(12).items }
+      end
+
+      context 'make sure it returns everything in batches if needed' do
+        before { stub_const("#{described_class}::DEFAULT_BATCH_SIZE", 5) }
+        before { expect(Chewy.client).to receive(:scroll).once.and_call_original }
+
+        specify { expect(subject.find((1..9).to_a)).to have(9).items }
+        specify { expect(subject.find((1..9).to_a)).to all be_a(Chewy::Type) }
+      end
     end
 
     describe '#pluck' do

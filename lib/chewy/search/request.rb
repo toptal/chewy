@@ -29,6 +29,8 @@ module Chewy
         total_entries types delete_all count exists? exist? find
         scroll_batches scroll_hits scroll_results scroll_wrappers
       ].to_set.freeze
+      DEFAULT_BATCH_SIZE = 1000
+      DEFAULT_SCROLL = '1m'.freeze
 
       delegate :hits, :wrappers, :records, :documents, :record_hash, :document_hash,
         :total, :max_score, :took, :timed_out?, to: :response
@@ -829,12 +831,20 @@ module Chewy
       #
       # @overload find(*ids)
       #   If several field are passed - it returns an array of wrappers.
+      #   Respect the amount of passed ids and if it is more than the default
+      #   batch size - uses scroll API to retrieve everything.
       #
       #   @param ids [Array<Integer, String>] ids of the desired documents
       #   @return [Array<Chewy::Type>] result documents
       def find(*ids)
         ids = ids.flatten(1).map(&:to_s)
-        results = only(:query, :filter, :post_filter).filter(ids: {values: ids}).to_a
+        scope = only(:query, :filter, :post_filter).filter(ids: {values: ids})
+
+        results = if ids.size > DEFAULT_BATCH_SIZE
+          scope.scroll_wrappers
+        else
+          scope.limit(ids.size)
+        end.to_a
 
         missing_ids = ids - results.map(&:id).map(&:to_s)
         raise Chewy::DocumentNotFound, "Could not find documents for ids: #{missing_ids.to_sentence}" if missing_ids.present?

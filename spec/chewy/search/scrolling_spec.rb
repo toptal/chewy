@@ -66,6 +66,33 @@ describe Chewy::Search::Scrolling, :orm do
           end).to eq([[0, 1, 2, 3, 4]])
         end
       end
+
+      context 'instrumentation' do
+        specify do
+          outer_payload = []
+          ActiveSupport::Notifications.subscribe('search_query.chewy') do |_name, _start, _finish, _id, payload|
+            outer_payload << payload
+          end
+          request.scroll_batches(batch_size: 3).to_a
+
+          expect(outer_payload).to match_array([
+            hash_including(
+              index: PlacesIndex,
+              indexes: [PlacesIndex],
+              request: {index: ['places'], type: %w[city country], body: {sort: ['rating']}, size: 3, scroll: '1m'},
+              type: [PlacesIndex::City, PlacesIndex::Country],
+              types: [PlacesIndex::City, PlacesIndex::Country]
+            ),
+            hash_including(
+              index: PlacesIndex,
+              indexes: [PlacesIndex],
+              request: {scroll: '1m', scroll_id: an_instance_of(String)},
+              type: [PlacesIndex::City, PlacesIndex::Country],
+              types: [PlacesIndex::City, PlacesIndex::Country]
+            )
+          ])
+        end
+      end
     end
 
     describe '#scroll_hits' do

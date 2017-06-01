@@ -407,6 +407,23 @@ describe Chewy::Search::Request do
       specify { expect(subject.size).to eq(9) }
     end
 
+    context 'instrumentation' do
+      specify do
+        outer_payload = nil
+        ActiveSupport::Notifications.subscribe('search_query.chewy') do |_name, _start, _finish, _id, payload|
+          outer_payload = payload
+        end
+        subject.query(match: {name: 'name3'}).to_a
+        expect(outer_payload).to eq(
+          index: ProductsIndex,
+          indexes: [ProductsIndex],
+          request: {index: ['products'], type: %w[product city country], body: {query: {match: {name: 'name3'}}}},
+          type: [ProductsIndex::Product, ProductsIndex::City, ProductsIndex::Country],
+          types: [ProductsIndex::Product, ProductsIndex::City, ProductsIndex::Country]
+        )
+      end
+    end
+
     describe '#none' do
       specify { expect(subject.none.render).not_to have_key(:body) }
       specify { expect(subject.none).to eq([]) }

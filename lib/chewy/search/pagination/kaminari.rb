@@ -35,6 +35,10 @@ module Chewy
         def _kaminari_config
           ::Kaminari.config
         end
+
+        def paginated_collection(collection)
+          ::Kaminari.paginate_array(collection, limit: limit_value, offset: offset_value, total_count: total_count)
+        end
       end
     end
   end

@@ -273,6 +273,7 @@ describe Chewy::Search::Request do
 
     describe '#records' do
       specify { expect(subject.records).to eq([*cities, *countries]) }
+      specify { expect(subject.records.class).to eq(Array) }
     end
 
     describe '#load' do

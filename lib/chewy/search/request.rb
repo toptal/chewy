@@ -31,6 +31,10 @@ module Chewy
       ].to_set.freeze
       DEFAULT_BATCH_SIZE = 1000
       DEFAULT_SCROLL = '1m'.freeze
+      FIELD_STORAGES = %i[
+        source docvalue_fields script_fields stored_fields
+      ].freeze
+      EXTRA_STORAGES = %i[aggs suggest].freeze
 
       delegate :hits, :wrappers, :records, :documents, :record_hash, :document_hash,
         :total, :max_score, :took, :timed_out?, to: :response
@@ -839,10 +843,11 @@ module Chewy
           PLUCK_MAPPING[field] || field
         end
 
-        scope = except(:source, :stored_fields, :script_fields, :docvalue_fields)
+        scope = except(*FIELD_STORAGES, *EXTRA_STORAGES, :highlight)
           .source(fields - PLUCK_MAPPING.values)
 
-        scope.hits.map do |hit|
+        hits = raw_limit_value ? scope.hits : scope.scroll_hits
+        hits.map do |hit|
           if fields.one?
             fetch_field(hit, fields.first)
           else

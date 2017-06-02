@@ -538,6 +538,13 @@ describe Chewy::Search::Request do
           ['products', 'city', nil]
         ])
       end
+
+      context 'make sure it returns everything in batches if needed' do
+        before { stub_const("#{described_class}::DEFAULT_BATCH_SIZE", 5) }
+        before { expect(Chewy.client).to receive(:scroll).once.and_call_original }
+
+        specify { expect(subject.pluck(:id)).to eq((1..9).to_a.map(&:to_s)) }
+      end
     end
 
     describe '#delete_all' do

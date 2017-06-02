@@ -31,7 +31,7 @@ module Chewy
       end
 
       def normalize_index(index)
-        return index if index.is_a?(Chewy::Index)
+        return index if index < Chewy::Index
         "#{index.to_s.gsub(/index\z/i, '').camelize}Index".constantize
       end
 

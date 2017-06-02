@@ -5,6 +5,7 @@ module Chewy
     # use them when you need to do some single-run stuff on a huge amount of
     # documents. Don't forget to tune the `scroll` parameter for long-lasting
     # actions.
+    # All the scroll methods respect the limit value if provided.
     #
     # @see https://www.elastic.co/guide/en/elasticsearch/reference/current/search-request-scroll.html
     module Scrolling
@@ -27,12 +28,14 @@ module Chewy
         return enum_for(:scroll_batches, batch_size: batch_size, scroll: scroll) unless block_given?
 
         result = perform(size: batch_size, scroll: scroll)
-        total = result.fetch('hits', {}).fetch('total', 0)
+        total = raw_limit_value || result.fetch('hits', {}).fetch('total', 0)
+        last_batch_size = total % batch_size
         fetched = 0
 
         loop do
           hits = result.fetch('hits', {}).fetch('hits', [])
           fetched += hits.size
+          hits = hits.first(last_batch_size) if last_batch_size != 0 && fetched >= total
           yield(hits) if hits.present?
           break if fetched >= total
           scroll_id = result['_scroll_id']

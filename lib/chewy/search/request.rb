@@ -905,10 +905,18 @@ module Chewy
         if parameters[:none].value
           {}
         else
-          Chewy.client.search(render.merge(additional))
+          request_body = render.merge(additional)
+          ActiveSupport::Notifications.instrument 'search_query.chewy',
+            request: request_body, indexes: _indexes, types: _types,
+            index: _indexes.one? ? _indexes.first : _indexes,
+            type: _types.one? ? _types.first : _types do
+            begin
+              Chewy.client.search(request_body)
+            rescue Elasticsearch::Transport::Transport::Errors::NotFound
+              {}
+            end
+          end
         end
-      rescue Elasticsearch::Transport::Transport::Errors::NotFound
-        {}
       end
 
       def raw_limit_value

@@ -36,7 +36,7 @@ module Chewy
           yield(hits) if hits.present?
           break if fetched >= total
           scroll_id = result['_scroll_id']
-          result = Chewy.client.scroll(scroll: scroll, scroll_id: scroll_id)
+          result = perform_scroll(scroll: scroll, scroll_id: scroll_id)
         end
       end
 
@@ -116,6 +116,17 @@ module Chewy
           end
       end
       alias_method :scroll_documents, :scroll_records
+
+    private
+
+      def perform_scroll(body)
+        ActiveSupport::Notifications.instrument 'search_query.chewy',
+          request: body, indexes: _indexes, types: _types,
+          index: _indexes.one? ? _indexes.first : _indexes,
+          type: _types.one? ? _types.first : _types do
+          Chewy.client.scroll(body)
+        end
+      end
     end
   end
 end

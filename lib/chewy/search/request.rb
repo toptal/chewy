@@ -35,10 +35,11 @@ module Chewy
         source docvalue_fields script_fields stored_fields
       ].freeze
       EXTRA_STORAGES = %i[aggs suggest].freeze
+      WHERE_STORAGES = %i[query filter post_filter].freeze
 
       delegate :hits, :wrappers, :records, :documents, :record_hash, :document_hash,
         :total, :max_score, :took, :timed_out?, to: :response
-      delegate :each, :size, :to_a, to: :wrappers
+      delegate :each, :size, :to_a, :[], to: :wrappers
       alias_method :to_ary, :to_a
       alias_method :total_count, :total
       alias_method :total_entries, :total
@@ -776,7 +777,7 @@ module Chewy
         if performed?
           total
         else
-          @count ||= Chewy.client.count(render_simple)['count']
+          @count ||= Chewy.client.count(only(WHERE_STORAGES).render)['count']
         end
       end
 
@@ -811,8 +812,10 @@ module Chewy
       #   @param ids [Array<Integer, String>] ids of the desired documents
       #   @return [Array<Chewy::Type>] result documents
       def find(*ids)
+        return super if block_given?
+
         ids = ids.flatten(1).map(&:to_s)
-        scope = only(:query, :filter, :post_filter).filter(ids: {values: ids})
+        scope = only(WHERE_STORAGES).filter(ids: {values: ids})
 
         results = if ids.size > DEFAULT_BATCH_SIZE
           scope.scroll_wrappers
@@ -820,8 +823,10 @@ module Chewy
           scope.limit(ids.size)
         end.to_a
 
-        missing_ids = ids - results.map(&:id).map(&:to_s)
-        raise Chewy::DocumentNotFound, "Could not find documents for ids: #{missing_ids.to_sentence}" if missing_ids.present?
+        if ids.size != results.size
+          missing_ids = ids - results.map(&:id).map(&:to_s)
+          raise Chewy::DocumentNotFound, "Could not find documents for ids: #{missing_ids.to_sentence}"
+        end
         results.one? ? results.first : results
       end
 
@@ -867,14 +872,15 @@ module Chewy
       # @note The result hash is different for different API used.
       # @return [Hash] the result of query execution
       def delete_all
+        request_body = only(WHERE_STORAGES).render
         ActiveSupport::Notifications.instrument 'delete_query.chewy',
-          request: render_simple, indexes: _indexes, types: _types,
+          request: request_body, indexes: _indexes, types: _types,
           index: _indexes.one? ? _indexes.first : _indexes,
           type: _types.one? ? _types.first : _types do
             if Runtime.version < '5.0'
-              delete_by_query_plugin(render_simple)
+              delete_by_query_plugin(request_body)
             else
-              Chewy.client.delete_by_query(render_simple)
+              Chewy.client.delete_by_query(request_body)
             end
           end
       end
@@ -903,7 +909,7 @@ module Chewy
       end
 
       def reset
-        @response, @count, @render, @render_base, @render_simple, @type_names, @index_names = nil
+        @response, @count, @render, @render_base, @type_names, @index_names = nil
       end
 
       def perform(additional = {})
@@ -945,11 +951,7 @@ module Chewy
       end
 
       def render_base
-        @render_base ||= {index: index_names, type: type_names}
-      end
-
-      def render_simple
-        @render_simple ||= render_base.merge(body: parameters.render_query || {})
+        @render_base ||= {index: index_names, type: type_names, body: {}}
       end
 
       def delete_by_query_plugin(request)

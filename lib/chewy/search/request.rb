@@ -815,7 +815,7 @@ module Chewy
         return super if block_given?
 
         ids = ids.flatten(1).map(&:to_s)
-        scope = only(WHERE_STORAGES).filter(ids: {values: ids})
+        scope = except(EXTRA_STORAGES).filter(ids: {values: ids})
 
         results = if ids.size > DEFAULT_BATCH_SIZE
           scope.scroll_wrappers
@@ -848,7 +848,7 @@ module Chewy
           PLUCK_MAPPING[field] || field
         end
 
-        scope = except(*FIELD_STORAGES, *EXTRA_STORAGES, :highlight)
+        scope = except(FIELD_STORAGES, EXTRA_STORAGES)
           .source(fields - PLUCK_MAPPING.values)
 
         hits = raw_limit_value ? scope.hits : scope.scroll_hits

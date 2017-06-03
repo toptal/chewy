@@ -51,7 +51,7 @@ describe Chewy::Search::Scrolling, :orm do
 
       context do
         before { expect(Chewy.client).to receive(:scroll).once.and_call_original }
-        it 'respects limits' do
+        it 'respects limit' do
           expect(request.limit(4).scroll_batches(batch_size: 3).map do |batch|
             batch.map { |hit| hit['_source']['rating'] }
           end).to eq([[0, 1, 2], [3]])
@@ -60,7 +60,16 @@ describe Chewy::Search::Scrolling, :orm do
 
       context do
         before { expect(Chewy.client).not_to receive(:scroll) }
-        it 'respects limits' do
+        it 'respects limit and terminate_after' do
+          expect(request.terminate_after(2).limit(4).scroll_batches(batch_size: 3).map do |batch|
+            batch.map { |hit| hit['_source']['rating'] }
+          end).to eq([[0, 1]])
+        end
+      end
+
+      context do
+        before { expect(Chewy.client).not_to receive(:scroll) }
+        it 'respects limit' do
           expect(request.limit(3).scroll_batches(batch_size: 3).map do |batch|
             batch.map { |hit| hit['_source']['rating'] }
           end).to eq([[0, 1, 2]])
@@ -69,7 +78,7 @@ describe Chewy::Search::Scrolling, :orm do
 
       context do
         before { expect(Chewy.client).not_to receive(:scroll) }
-        it 'respects limits' do
+        it 'respects limit' do
           expect(request.limit(2).scroll_batches(batch_size: 3).map do |batch|
             batch.map { |hit| hit['_source']['rating'] }
           end).to eq([[0, 1]])

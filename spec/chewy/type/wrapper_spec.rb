@@ -11,11 +11,30 @@ describe Chewy::Type::Wrapper do
   let(:city_type) { CitiesIndex::City }
 
   describe '.build' do
-    specify { expect(city_type.build({}).attributes).to eq('id' => nil, '_score' => nil, '_explanation' => nil) }
-    specify { expect(city_type.build('_source' => {name: 'Martin'}).attributes).to eq('id' => nil, '_score' => nil, '_explanation' => nil, 'name' => 'Martin') }
-    specify { expect(city_type.build('_id' => 42).attributes).to eq('id' => 42, '_score' => nil, '_explanation' => nil) }
-    specify { expect(city_type.build('_score' => 42, '_explanation' => {foo: 'bar'}).attributes).to eq('id' => nil, '_score' => 42, '_explanation' => {foo: 'bar'}) }
-    specify { expect(city_type.build('_score' => 42, 'borogoves' => {foo: 'bar'})._data).to eq('_score' => 42, 'borogoves' => {foo: 'bar'}) }
+    specify do
+      expect(city_type.build({}).attributes)
+        .to eq('id' => nil, '_id' => nil, '_type' => nil, '_index' => nil, '_score' => nil, '_explanation' => nil)
+    end
+    specify do
+      expect(city_type.build('_source' => {name: 'Martin'}).attributes)
+        .to eq('id' => nil, '_id' => nil, '_type' => nil, '_index' => nil, '_score' => nil, '_explanation' => nil, 'name' => 'Martin')
+    end
+    specify do
+      expect(city_type.build('_id' => 42).attributes)
+        .to eq('id' => 42, '_id' => 42, '_type' => nil, '_index' => nil, '_score' => nil, '_explanation' => nil)
+    end
+    specify do
+      expect(city_type.build('_id' => 42, '_source' => {'id' => 43}).attributes)
+        .to eq('id' => 43, '_id' => 42, '_type' => nil, '_index' => nil, '_score' => nil, '_explanation' => nil)
+    end
+    specify do
+      expect(city_type.build('_score' => 42, '_explanation' => {foo: 'bar'}).attributes)
+        .to eq('id' => nil, '_id' => nil, '_type' => nil, '_index' => nil, '_score' => 42, '_explanation' => {foo: 'bar'})
+    end
+    specify do
+      expect(city_type.build('_score' => 42, 'borogoves' => {foo: 'bar'})._data)
+        .to eq('_score' => 42, 'borogoves' => {foo: 'bar'})
+    end
   end
 
   describe '#initialize' do

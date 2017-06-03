@@ -18,7 +18,7 @@ module Chewy
       include Scoping
       include Scrolling
       UNDEFINED = Class.new.freeze
-      PLUCK_MAPPING = {'index' => '_index', 'type' => '_type', 'id' => '_id'}.freeze
+      EVERFIELDS = %w[_index _type _id].freeze
       DELEGATED_METHODS = %i[
         query filter post_filter order reorder docvalue_fields
         track_scores request_cache explain version profile
@@ -864,6 +864,8 @@ module Chewy
       end
 
       # Returns and array of values for specified fields.
+      # Uses `source` to restrict the list of returned fields.
+      # Fields `_id`, `_type` and `_index` are also supported.
       #
       # @overload pluck(field)
       #   If single field is passed - it returns and array of values.
@@ -877,12 +879,9 @@ module Chewy
       #   @param fields [Array<String, Symbol>] field names
       #   @return [Array<Array<Object>>] specified field values
       def pluck(*fields)
-        fields = fields.flatten(1).reject(&:blank?).map(&:to_s).map do |field|
-          PLUCK_MAPPING[field] || field
-        end
+        fields = fields.flatten(1).reject(&:blank?).map(&:to_s)
 
-        scope = except(FIELD_STORAGES, EXTRA_STORAGES)
-          .source(fields - PLUCK_MAPPING.values)
+        scope = except(FIELD_STORAGES, EXTRA_STORAGES).source(fields - EVERFIELDS)
 
         hits = raw_limit_value ? scope.hits : scope.scroll_hits
         hits.map do |hit|
@@ -1001,7 +1000,7 @@ module Chewy
       end
 
       def fetch_field(hit, field)
-        if PLUCK_MAPPING.values.include?(field)
+        if EVERFIELDS.include?(field)
           hit[field]
         else
           hit.fetch('_source', {})[field]

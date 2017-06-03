@@ -371,9 +371,9 @@ describe Chewy::Search::Request do
   end
 
   context 'integration' do
-    let(:products) { Array.new(3) { |i| {id: i.next.to_s, name: "Name#{i.next}", age: 10 * i.next}.stringify_keys! } }
-    let(:cities) { Array.new(3) { |i| {id: (i.next + 3).to_s}.stringify_keys! } }
-    let(:countries) { Array.new(3) { |i| {id: (i.next + 6).to_s}.stringify_keys! } }
+    let(:products) { Array.new(3) { |i| {id: i.next.to_i, name: "Name#{i.next}", age: 10 * i.next}.stringify_keys! } }
+    let(:cities) { Array.new(3) { |i| {id: (i.next + 3).to_i}.stringify_keys! } }
+    let(:countries) { Array.new(3) { |i| {id: (i.next + 6).to_i}.stringify_keys! } }
     before do
       ProductsIndex::Product.import!(products.map { |h| double(h) })
       ProductsIndex::City.import!(cities.map { |h| double(h) })
@@ -513,8 +513,8 @@ describe Chewy::Search::Request do
       context do
         before { expect(Chewy.client).to receive(:search).once.and_call_original }
 
-        specify { expect(subject.first).to be_a(ProductsIndex::Country).and have_attributes(id: '9') }
-        specify { expect(subject.first(3).map(&:id)).to eq(%w[9 8 7]) }
+        specify { expect(subject.first).to be_a(ProductsIndex::Country).and have_attributes(id: 9) }
+        specify { expect(subject.first(3).map(&:id)).to eq([9, 8, 7]) }
         specify { expect(subject.first(10).map(&:id)).to have(9).items }
         specify { expect(subject.limit(5).first(10).map(&:id)).to have(9).items }
         specify { expect(subject.terminate_after(5).first(10).map(&:id)).to have(5).items }
@@ -526,8 +526,8 @@ describe Chewy::Search::Request do
           expect(Chewy.client).not_to receive(:search)
         end
 
-        specify { expect(subject.first).to be_a(ProductsIndex::Country).and have_attributes(id: '9') }
-        specify { expect(subject.first(3).map(&:id)).to eq(%w[9 8 7]) }
+        specify { expect(subject.first).to be_a(ProductsIndex::Country).and have_attributes(id: 9) }
+        specify { expect(subject.first(3).map(&:id)).to eq([9, 8, 7]) }
         specify { expect(subject.first(10).map(&:id)).to have(9).items }
 
         context do
@@ -547,10 +547,10 @@ describe Chewy::Search::Request do
     end
 
     describe '#find' do
-      specify { expect(subject.find('1')).to be_a(ProductsIndex::Product).and have_attributes(id: '1') }
-      specify { expect(subject.find { |w| w.id == '2' }).to be_a(ProductsIndex::Product).and have_attributes(id: '2') }
-      specify { expect(subject.limit(2).find('1', '3', '7').map(&:id)).to contain_exactly('1', '3', '7') }
-      specify { expect(subject.find(1, 3, 7).map(&:id)).to contain_exactly('1', '3', '7') }
+      specify { expect(subject.find('1')).to be_a(ProductsIndex::Product).and have_attributes(id: 1) }
+      specify { expect(subject.find { |w| w.id == 2 }).to be_a(ProductsIndex::Product).and have_attributes(id: 2) }
+      specify { expect(subject.limit(2).find('1', '3', '7').map(&:id)).to contain_exactly(1, 3, 7) }
+      specify { expect(subject.find(1, 3, 7).map(&:id)).to contain_exactly(1, 3, 7) }
       specify { expect { subject.find('1', '3', '42') }.to raise_error Chewy::DocumentNotFound, 'Could not find documents for ids: 42' }
       specify { expect { subject.find(1, 3, 42) }.to raise_error Chewy::DocumentNotFound, 'Could not find documents for ids: 42' }
       specify { expect { subject.query(match: {name: 'name3'}).find('1', '3') }.to raise_error Chewy::DocumentNotFound, 'Could not find documents for ids: 1' }
@@ -559,7 +559,7 @@ describe Chewy::Search::Request do
       specify { expect { subject.post_filter(match: {name: 'name2'}).find('1', '3') }.to raise_error Chewy::DocumentNotFound, 'Could not find documents for ids: 1 and 3' }
 
       context 'make sure it returns everything' do
-        let(:countries) { Array.new(6) { |i| {id: (i.next + 6).to_s}.stringify_keys! } }
+        let(:countries) { Array.new(6) { |i| {id: (i.next + 6).to_i}.stringify_keys! } }
         before { expect(Chewy.client).not_to receive(:scroll) }
 
         specify { expect(subject.find((1..12).to_a)).to have(12).items }
@@ -575,11 +575,11 @@ describe Chewy::Search::Request do
     end
 
     describe '#pluck' do
-      specify { expect(subject.limit(5).pluck(:id)).to eq(%w[1 2 3 4 5]) }
-      specify { expect(subject.limit(5).pluck(:id, :age)).to eq([['1', 10], ['2', 20], ['3', 30], ['4', nil], ['5', nil]]) }
-      specify { expect(subject.limit(5).source(:name).pluck(:id, :age)).to eq([['1', 10], ['2', 20], ['3', 30], ['4', nil], ['5', nil]]) }
+      specify { expect(subject.limit(5).pluck(:_id)).to eq(%w[1 2 3 4 5]) }
+      specify { expect(subject.limit(5).pluck(:_id, :age)).to eq([['1', 10], ['2', 20], ['3', 30], ['4', nil], ['5', nil]]) }
+      specify { expect(subject.limit(5).source(:name).pluck(:id, :age)).to eq([[1, 10], [2, 20], [3, 30], [4, nil], [5, nil]]) }
       specify do
-        expect(subject.limit(5).pluck(:index, :type, :name)).to eq([
+        expect(subject.limit(5).pluck(:_index, :_type, :name)).to eq([
           %w[products product Name1],
           %w[products product Name2],
           %w[products product Name3],
@@ -592,7 +592,7 @@ describe Chewy::Search::Request do
         before { stub_const("#{described_class}::DEFAULT_BATCH_SIZE", 5) }
         before { expect(Chewy.client).to receive(:scroll).once.and_call_original }
 
-        specify { expect(subject.pluck(:id)).to eq((1..9).to_a.map(&:to_s)) }
+        specify { expect(subject.pluck(:_id)).to eq((1..9).to_a.map(&:to_s)) }
       end
     end
 

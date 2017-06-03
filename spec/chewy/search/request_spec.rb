@@ -6,11 +6,16 @@ describe Chewy::Search::Request do
   before do
     stub_index(:products) do
       define_type :product do
+        field :id, type: :integer
         field :name
         field :age, type: :integer
       end
-      define_type :city
-      define_type :country
+      define_type :city do
+        field :id, type: :integer
+      end
+      define_type :country do
+        field :id, type: :integer
+      end
     end
 
     stub_index(:cities) do
@@ -481,9 +486,12 @@ describe Chewy::Search::Request do
       end
 
       context do
-        before { expect(Chewy.client).not_to receive(:count) }
-        before { subject.total }
-        specify { expect(subject.limit(6).count).to eq(9) }
+        subject { described_class.new(ProductsIndex).limit(6) }
+        before do
+          expect(Chewy.client).not_to receive(:count)
+          subject.total
+        end
+        specify { expect(subject.count).to eq(9) }
       end
     end
 
@@ -496,6 +504,45 @@ describe Chewy::Search::Request do
       context do
         before { subject.total }
         specify { expect(subject.exists?).to eq(true) }
+      end
+    end
+
+    describe '#first' do
+      subject { described_class.new(ProductsIndex).order(id: {order: 'desc'}) }
+
+      context do
+        before { expect(Chewy.client).to receive(:search).once.and_call_original }
+
+        specify { expect(subject.first).to be_a(ProductsIndex::Country).and have_attributes(id: '9') }
+        specify { expect(subject.first(3).map(&:id)).to eq(%w[9 8 7]) }
+        specify { expect(subject.first(10).map(&:id)).to have(9).items }
+        specify { expect(subject.limit(5).first(10).map(&:id)).to have(9).items }
+        specify { expect(subject.terminate_after(5).first(10).map(&:id)).to have(5).items }
+      end
+
+      context do
+        before do
+          subject.response
+          expect(Chewy.client).not_to receive(:search)
+        end
+
+        specify { expect(subject.first).to be_a(ProductsIndex::Country).and have_attributes(id: '9') }
+        specify { expect(subject.first(3).map(&:id)).to eq(%w[9 8 7]) }
+        specify { expect(subject.first(10).map(&:id)).to have(9).items }
+
+        context do
+          subject { described_class.new(ProductsIndex).terminate_after(5) }
+          specify { expect(subject.first(10).map(&:id)).to have(5).items }
+        end
+      end
+
+      context do
+        subject { described_class.new(ProductsIndex).limit(5) }
+        before do
+          subject.response
+          expect(Chewy.client).to receive(:search).once.and_call_original
+        end
+        specify { expect(subject.first(10).map(&:id)).to have(9).items }
       end
     end
 

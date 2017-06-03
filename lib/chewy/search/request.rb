@@ -31,11 +31,17 @@ module Chewy
       ].to_set.freeze
       DEFAULT_BATCH_SIZE = 1000
       DEFAULT_SCROLL = '1m'.freeze
+      # An array of storage names that are modifying returned fields in hits
       FIELD_STORAGES = %i[
         source docvalue_fields script_fields stored_fields
       ].freeze
+      # An array of storage names that are not related to hits at all.
       EXTRA_STORAGES = %i[aggs suggest].freeze
-      WHERE_STORAGES = %i[query filter post_filter].freeze
+      # An array of storage names that are changing the returned hist collection in any way.
+      WHERE_STORAGES = %i[
+        query filter post_filter types min_score rescore
+        indices_boost
+      ].freeze
 
       delegate :hits, :wrappers, :records, :documents, :record_hash, :document_hash,
         :total, :max_score, :took, :timed_out?, to: :response
@@ -777,7 +783,7 @@ module Chewy
         if performed?
           total
         else
-          @count ||= Chewy.client.count(only(WHERE_STORAGES).render)['count']
+          Chewy.client.count(only(WHERE_STORAGES).render)['count']
         end
       end
 
@@ -794,6 +800,33 @@ module Chewy
         end
       end
       alias_method :exist?, :exists?
+
+      # Return first wrapper object or a collection of first N wrapper
+      # objects if the argument is provided.
+      # Tries to use cached results of possible. If the amount of
+      # cached results is insufficient - performs a new request.
+      #
+      # @overload first
+      #   If nothing is passed - it returns a single object.
+      #
+      #   @return [Chewy::Type] result document
+      #
+      # @overload first(limit)
+      #   If limit is provided - it returns the limit amount or less
+      #   of wrapper objects.
+      #
+      #   @param limit [Integer] amount of requested results
+      #   @return [Array<Chewy::Type>] result document collection
+      def first(limit = UNDEFINED)
+        request_limit = limit == UNDEFINED ? 1 : limit
+
+        if performed? && (request_limit <= size || size == total)
+          limit == UNDEFINED ? wrappers.first : wrappers.first(limit)
+        else
+          result = except(EXTRA_STORAGES).limit(request_limit).to_a
+          limit == UNDEFINED ? result.first : result
+        end
+      end
 
       # Finds documents with specified ids for the current request scope.
       #
@@ -909,7 +942,7 @@ module Chewy
       end
 
       def reset
-        @response, @count, @render, @render_base, @type_names, @index_names = nil
+        @response, @count, @render, @render_base, @type_names, @index_names, @loader = nil
       end
 
       def perform(additional = {})
@@ -976,7 +1009,7 @@ module Chewy
       end
 
       def performed?
-        instance_variable_defined?(:@response)
+        !@response.nil?
       end
 
       def collection_paginator

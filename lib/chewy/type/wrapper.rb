@@ -12,9 +12,6 @@ module Chewy
         def build(hit)
           attributes = (hit['_source'] || {})
             .reverse_merge(id: hit['_id'])
-            .merge!(_id: hit['_id'])
-            .merge!(_type: hit['_type'])
-            .merge!(_index: hit['_index'])
             .merge!(_score: hit['_score'])
             .merge!(_explanation: hit['_explanation'])
 
@@ -37,6 +34,12 @@ module Chewy
             id.to_s == other.id.to_s
         else
           false
+        end
+      end
+
+      %w[_id _type _index].each do |name|
+        define_method name do
+          data[name]
         end
       end
 

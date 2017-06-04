@@ -881,7 +881,9 @@ module Chewy
       def pluck(*fields)
         fields = fields.flatten(1).reject(&:blank?).map(&:to_s)
 
-        scope = except(FIELD_STORAGES, EXTRA_STORAGES).source(fields - EVERFIELDS)
+        source_fields = fields - EVERFIELDS
+        scope = except(FIELD_STORAGES, EXTRA_STORAGES)
+          .source(source_fields.presence || false)
 
         hits = raw_limit_value ? scope.hits : scope.scroll_hits
         hits.map do |hit|

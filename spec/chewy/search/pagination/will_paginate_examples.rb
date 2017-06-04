@@ -12,6 +12,7 @@ shared_examples :will_paginate do |request_base_class|
     end
   end
 
+  let(:except_fields) { %w[_score _explanation _id _type _index] }
   let(:request_class) do
     Class.new(request_base_class).tap do |k|
       k.include Chewy::Search::Pagination::WillPaginate
@@ -28,16 +29,16 @@ shared_examples :will_paginate do |request_base_class|
     before { allow(::WillPaginate).to receive_messages(per_page: 3) }
 
     describe '#page' do
-      specify { expect(search.map { |e| e.attributes.except('_score', '_explanation') }).to match_array(data) }
-      specify { expect(search.page(1).map { |e| e.attributes.except('_score', '_explanation') }).to eq(data[0..2]) }
-      specify { expect(search.page(2).map { |e| e.attributes.except('_score', '_explanation') }).to eq(data[3..5]) }
+      specify { expect(search.map { |e| e.attributes.except(*except_fields) }).to match_array(data) }
+      specify { expect(search.page(1).map { |e| e.attributes.except(*except_fields) }).to eq(data[0..2]) }
+      specify { expect(search.page(2).map { |e| e.attributes.except(*except_fields) }).to eq(data[3..5]) }
     end
 
     describe '#paginate' do
-      specify { expect(search.paginate(page: 2, per_page: 4).map { |e| e.attributes.except('_score', '_explanation') }).to eq(data[4..7]) }
-      specify { expect(search.paginate(per_page: 2, page: 3).page(3).map { |e| e.attributes.except('_score', '_explanation') }).to eq(data[4..5]) }
-      specify { expect(search.paginate(per_page: 5).map { |e| e.attributes.except('_score', '_explanation') }).to eq(data[0..4]) }
-      specify { expect(search.paginate(per_page: 4).map { |e| e.attributes.except('_score', '_explanation') }).to eq(data[0..3]) }
+      specify { expect(search.paginate(page: 2, per_page: 4).map { |e| e.attributes.except(*except_fields) }).to eq(data[4..7]) }
+      specify { expect(search.paginate(per_page: 2, page: 3).page(3).map { |e| e.attributes.except(*except_fields) }).to eq(data[4..5]) }
+      specify { expect(search.paginate(per_page: 5).map { |e| e.attributes.except(*except_fields) }).to eq(data[0..4]) }
+      specify { expect(search.paginate(per_page: 4).map { |e| e.attributes.except(*except_fields) }).to eq(data[0..3]) }
     end
 
     describe '#total_pages' do

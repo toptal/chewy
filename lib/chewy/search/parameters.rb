@@ -108,25 +108,6 @@ module Chewy
         body.present? ? {body: body} : {}
       end
 
-      # Renders only query and filter storages.
-      #
-      # @return [Hash] a complete query hash
-      def render_query
-        filter = @storages[:filter].render
-        query = @storages[:query].render
-
-        return query unless filter
-
-        if query && query[:query][:bool]
-          query[:query][:bool].merge!(filter)
-          query
-        elsif query
-          {query: {bool: {must: query[:query]}.merge!(filter)}}
-        else
-          {query: {bool: filter}}
-        end
-      end
-
     protected
 
       def initialize_clone(origin)
@@ -143,6 +124,22 @@ module Chewy
         names = names.map(&:to_sym)
         self.class.storages.values_at(*names)
         names
+      end
+
+      def render_query
+        filter = @storages[:filter].render
+        query = @storages[:query].render
+
+        return query unless filter
+
+        if query && query[:query][:bool]
+          query[:query][:bool].merge!(filter)
+          query
+        elsif query
+          {query: {bool: {must: query[:query]}.merge!(filter)}}
+        else
+          {query: {bool: filter}}
+        end
       end
     end
   end

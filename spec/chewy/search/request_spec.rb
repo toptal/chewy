@@ -6,11 +6,16 @@ describe Chewy::Search::Request do
   before do
     stub_index(:products) do
       define_type :product do
+        field :id, type: :integer
         field :name
         field :age, type: :integer
       end
-      define_type :city
-      define_type :country
+      define_type :city do
+        field :id, type: :integer
+      end
+      define_type :country do
+        field :id, type: :integer
+      end
     end
 
     stub_index(:cities) do
@@ -43,7 +48,8 @@ describe Chewy::Search::Request do
       expect(subject.render)
         .to match(
           index: %w[products],
-          type: array_including(%w[product city country])
+          type: array_including(%w[product city country]),
+          body: {}
         )
     end
   end
@@ -51,7 +57,7 @@ describe Chewy::Search::Request do
   describe '#inspect' do
     specify do
       expect(described_class.new(ProductsIndex).inspect)
-        .to eq('<Chewy::Search::Request {:index=>["products"], :type=>["product", "city", "country"]}>')
+        .to eq('<Chewy::Search::Request {:index=>["products"], :type=>["product", "city", "country"], :body=>{}}>')
     end
     specify do
       expect(ProductsIndex.limit(10).inspect)
@@ -113,7 +119,7 @@ describe Chewy::Search::Request do
     describe "##{name}" do
       specify { expect(subject.send(name, 10).render[:body]).to include(param_name => 10) }
       specify { expect(subject.send(name, 10).send(name, 20).render[:body]).to include(param_name => 20) }
-      specify { expect(subject.send(name, 10).send(name, nil).render).not_to have_key(:body) }
+      specify { expect(subject.send(name, 10).send(name, nil).render[:body]).to be_blank }
       specify { expect { subject.send(name, 10) }.not_to change { subject.render } }
     end
   end
@@ -123,7 +129,7 @@ describe Chewy::Search::Request do
     specify { expect(subject.order(foo: 42).order(nil).render[:body]).to include(sort: ['foo' => 42]) }
     specify { expect(subject.order(foo: 42).order(foo: 43).render[:body]).to include(sort: ['foo' => 43]) }
     specify { expect(subject.order(:foo).order(:bar, :baz).render[:body]).to include(sort: %w[foo bar baz]) }
-    specify { expect(subject.order(nil).render).not_to have_key(:body) }
+    specify { expect(subject.order(nil).render[:body]).to be_blank }
     specify { expect { subject.order(:foo) }.not_to change { subject.render } }
   end
 
@@ -131,15 +137,15 @@ describe Chewy::Search::Request do
     specify { expect(subject.reorder(:foo).render[:body]).to include(sort: ['foo']) }
     specify { expect(subject.reorder(:foo).reorder(:bar, :baz).render[:body]).to include(sort: %w[bar baz]) }
     specify { expect(subject.reorder(foo: 42).reorder(foo: 43).render[:body]).to include(sort: ['foo' => 43]) }
-    specify { expect(subject.reorder(foo: 42).reorder(nil).render).not_to have_key(:body) }
-    specify { expect(subject.reorder(nil).render).not_to have_key(:body) }
+    specify { expect(subject.reorder(foo: 42).reorder(nil).render[:body]).to be_blank }
+    specify { expect(subject.reorder(nil).render[:body]).to be_blank }
     specify { expect { subject.reorder(:foo) }.not_to change { subject.render } }
   end
 
   %i[track_scores explain version profile].each do |name|
     describe "##{name}" do
       specify { expect(subject.send(name).render[:body]).to include(name => true) }
-      specify { expect(subject.send(name).send(name, false).render).not_to have_key(:body) }
+      specify { expect(subject.send(name).send(name, false).render[:body]).to be_blank }
       specify { expect { subject.send(name) }.not_to change { subject.render } }
     end
   end
@@ -147,7 +153,7 @@ describe Chewy::Search::Request do
   describe '#request_cache' do
     specify { expect(subject.request_cache(true).render[:body]).to include(request_cache: true) }
     specify { expect(subject.request_cache(true).request_cache(false).render[:body]).to include(request_cache: false) }
-    specify { expect(subject.request_cache(true).request_cache(nil).render).not_to have_key(:body) }
+    specify { expect(subject.request_cache(true).request_cache(nil).render[:body]).to be_blank }
     specify { expect { subject.request_cache(true) }.not_to change { subject.render } }
   end
 
@@ -155,7 +161,7 @@ describe Chewy::Search::Request do
     describe "##{name}" do
       specify { expect(subject.send(name, :foo).render[:body]).to include(name => 'foo') }
       specify { expect(subject.send(name, :foo).send(name, :bar).render[:body]).to include(name => 'bar') }
-      specify { expect(subject.send(name, :foo).send(name, nil).render).not_to have_key(:body) }
+      specify { expect(subject.send(name, :foo).send(name, nil).render[:body]).to be_blank }
       specify { expect { subject.send(name, :foo) }.not_to change { subject.render } }
     end
   end
@@ -171,7 +177,7 @@ describe Chewy::Search::Request do
     specify { expect(subject.source(excludes: :foo).source(false).render[:body]).to include(_source: false) }
     specify { expect(subject.source(excludes: :foo).source(false).source(excludes: :bar).render[:body]).to include(_source: {excludes: %w[foo bar]}) }
     specify { expect(subject.source(excludes: :foo).source(false).source(true).render[:body]).to include(_source: {excludes: %w[foo]}) }
-    specify { expect(subject.source(nil).render).not_to have_key(:body) }
+    specify { expect(subject.source(nil).render[:body]).to be_blank }
     specify { expect { subject.source(:foo) }.not_to change { subject.render } }
   end
 
@@ -182,7 +188,7 @@ describe Chewy::Search::Request do
     specify { expect(subject.stored_fields(:foo).stored_fields(false).render[:body]).to include(stored_fields: '_none_') }
     specify { expect(subject.stored_fields(:foo).stored_fields(false).stored_fields(:bar).render[:body]).to include(stored_fields: %w[foo bar]) }
     specify { expect(subject.stored_fields(:foo).stored_fields(false).stored_fields(true).render[:body]).to include(stored_fields: %w[foo]) }
-    specify { expect(subject.stored_fields(nil).render).not_to have_key(:body) }
+    specify { expect(subject.stored_fields(nil).render[:body]).to be_blank }
     specify { expect { subject.stored_fields(:foo) }.not_to change { subject.render } }
   end
 
@@ -208,7 +214,7 @@ describe Chewy::Search::Request do
     specify { expect(subject.docvalue_fields(:foo).render[:body]).to include(docvalue_fields: ['foo']) }
     specify { expect(subject.docvalue_fields(%i[foo bar]).docvalue_fields(nil).render[:body]).to include(docvalue_fields: %w[foo bar]) }
     specify { expect(subject.docvalue_fields(:foo).docvalue_fields(:foo, :bar).render[:body]).to include(docvalue_fields: %w[foo bar]) }
-    specify { expect(subject.docvalue_fields(nil).render).not_to have_key(:body) }
+    specify { expect(subject.docvalue_fields(nil).render[:body]).to be_blank }
     specify { expect { subject.docvalue_fields(:foo) }.not_to change { subject.render } }
   end
 
@@ -216,7 +222,7 @@ describe Chewy::Search::Request do
     specify { expect(subject.types(:product).render[:type]).to contain_exactly('product') }
     specify { expect(subject.types(%i[product city]).types(nil).render[:type]).to match_array(%w[product city]) }
     specify { expect(subject.types(:product).types(:product, :city, :something).render[:type]).to match_array(%w[product city]) }
-    specify { expect(subject.types(nil).render).not_to have_key(:body) }
+    specify { expect(subject.types(nil).render[:body]).to be_blank }
     specify { expect { subject.types(:product) }.not_to change { subject.render } }
   end
 
@@ -237,14 +243,14 @@ describe Chewy::Search::Request do
   describe '#min_score' do
     specify { expect(subject.min_score(1.2).render[:body]).to include(min_score: 1.2) }
     specify { expect(subject.min_score(1.2).min_score(0.5).render[:body]).to include(min_score: 0.5) }
-    specify { expect(subject.min_score(1.2).min_score(nil).render).not_to have_key(:body) }
+    specify { expect(subject.min_score(1.2).min_score(nil).render[:body]).to be_blank }
     specify { expect { subject.min_score(1.2) }.not_to change { subject.render } }
   end
 
   describe '#search_after' do
     specify { expect(subject.search_after(:foo, :bar).render[:body]).to include(search_after: %i[foo bar]) }
     specify { expect(subject.search_after(%i[foo bar]).search_after(:baz).render[:body]).to include(search_after: [:baz]) }
-    specify { expect(subject.search_after(:foo).search_after(nil).render).not_to have_key(:body) }
+    specify { expect(subject.search_after(:foo).search_after(nil).render[:body]).to be_blank }
     specify { expect { subject.search_after(:foo) }.not_to change { subject.render } }
   end
 
@@ -365,9 +371,9 @@ describe Chewy::Search::Request do
   end
 
   context 'integration' do
-    let(:products) { Array.new(3) { |i| {id: i.next.to_s, name: "Name#{i.next}", age: 10 * i.next}.stringify_keys! } }
-    let(:cities) { Array.new(3) { |i| {id: (i.next + 3).to_s}.stringify_keys! } }
-    let(:countries) { Array.new(3) { |i| {id: (i.next + 6).to_s}.stringify_keys! } }
+    let(:products) { Array.new(3) { |i| {id: i.next.to_i, name: "Name#{i.next}", age: 10 * i.next}.stringify_keys! } }
+    let(:cities) { Array.new(3) { |i| {id: (i.next + 3).to_i}.stringify_keys! } }
+    let(:countries) { Array.new(3) { |i| {id: (i.next + 6).to_i}.stringify_keys! } }
     before do
       ProductsIndex::Product.import!(products.map { |h| double(h) })
       ProductsIndex::City.import!(cities.map { |h| double(h) })
@@ -375,7 +381,7 @@ describe Chewy::Search::Request do
       CitiesIndex::City.import!(cities.map { |h| double(h) })
     end
 
-    specify { expect(subject.first._data).to be_a Hash }
+    specify { expect(subject[0]._data).to be_a Hash }
 
     context 'another index' do
       subject { described_class.new(CitiesIndex) }
@@ -416,7 +422,7 @@ describe Chewy::Search::Request do
     end
 
     describe '#none' do
-      specify { expect(subject.none.render).not_to have_key(:body) }
+      specify { expect(subject.none.render[:body]).to be_blank }
       specify { expect(subject.none).to eq([]) }
     end
 
@@ -480,9 +486,12 @@ describe Chewy::Search::Request do
       end
 
       context do
-        before { expect(Chewy.client).not_to receive(:count) }
-        before { subject.total }
-        specify { expect(subject.limit(6).count).to eq(9) }
+        subject { described_class.new(ProductsIndex).limit(6) }
+        before do
+          expect(Chewy.client).not_to receive(:count)
+          subject.total
+        end
+        specify { expect(subject.count).to eq(9) }
       end
     end
 
@@ -498,10 +507,50 @@ describe Chewy::Search::Request do
       end
     end
 
+    describe '#first' do
+      subject { described_class.new(ProductsIndex).order(id: {order: 'desc'}) }
+
+      context do
+        before { expect(Chewy.client).to receive(:search).once.and_call_original }
+
+        specify { expect(subject.first).to be_a(ProductsIndex::Country).and have_attributes(id: 9) }
+        specify { expect(subject.first(3).map(&:id)).to eq([9, 8, 7]) }
+        specify { expect(subject.first(10).map(&:id)).to have(9).items }
+        specify { expect(subject.limit(5).first(10).map(&:id)).to have(9).items }
+        specify { expect(subject.terminate_after(5).first(10).map(&:id)).to have(5).items }
+      end
+
+      context do
+        before do
+          subject.response
+          expect(Chewy.client).not_to receive(:search)
+        end
+
+        specify { expect(subject.first).to be_a(ProductsIndex::Country).and have_attributes(id: 9) }
+        specify { expect(subject.first(3).map(&:id)).to eq([9, 8, 7]) }
+        specify { expect(subject.first(10).map(&:id)).to have(9).items }
+
+        context do
+          subject { described_class.new(ProductsIndex).terminate_after(5) }
+          specify { expect(subject.first(10).map(&:id)).to have(5).items }
+        end
+      end
+
+      context do
+        subject { described_class.new(ProductsIndex).limit(5) }
+        before do
+          subject.response
+          expect(Chewy.client).to receive(:search).once.and_call_original
+        end
+        specify { expect(subject.first(10).map(&:id)).to have(9).items }
+      end
+    end
+
     describe '#find' do
-      specify { expect(subject.find('1')).to be_a(ProductsIndex::Product).and have_attributes(id: '1') }
-      specify { expect(subject.limit(2).find('1', '3', '7').map(&:id)).to contain_exactly('1', '3', '7') }
-      specify { expect(subject.find(1, 3, 7).map(&:id)).to contain_exactly('1', '3', '7') }
+      specify { expect(subject.find('1')).to be_a(ProductsIndex::Product).and have_attributes(id: 1) }
+      specify { expect(subject.find { |w| w.id == 2 }).to be_a(ProductsIndex::Product).and have_attributes(id: 2) }
+      specify { expect(subject.limit(2).find('1', '3', '7').map(&:id)).to contain_exactly(1, 3, 7) }
+      specify { expect(subject.find(1, 3, 7).map(&:id)).to contain_exactly(1, 3, 7) }
       specify { expect { subject.find('1', '3', '42') }.to raise_error Chewy::DocumentNotFound, 'Could not find documents for ids: 42' }
       specify { expect { subject.find(1, 3, 42) }.to raise_error Chewy::DocumentNotFound, 'Could not find documents for ids: 42' }
       specify { expect { subject.query(match: {name: 'name3'}).find('1', '3') }.to raise_error Chewy::DocumentNotFound, 'Could not find documents for ids: 1' }
@@ -510,7 +559,7 @@ describe Chewy::Search::Request do
       specify { expect { subject.post_filter(match: {name: 'name2'}).find('1', '3') }.to raise_error Chewy::DocumentNotFound, 'Could not find documents for ids: 1 and 3' }
 
       context 'make sure it returns everything' do
-        let(:countries) { Array.new(6) { |i| {id: (i.next + 6).to_s}.stringify_keys! } }
+        let(:countries) { Array.new(6) { |i| {id: (i.next + 6).to_i}.stringify_keys! } }
         before { expect(Chewy.client).not_to receive(:scroll) }
 
         specify { expect(subject.find((1..12).to_a)).to have(12).items }
@@ -526,17 +575,24 @@ describe Chewy::Search::Request do
     end
 
     describe '#pluck' do
-      specify { expect(subject.limit(5).pluck(:id)).to eq(%w[1 2 3 4 5]) }
-      specify { expect(subject.limit(5).pluck(:id, :age)).to eq([['1', 10], ['2', 20], ['3', 30], ['4', nil], ['5', nil]]) }
-      specify { expect(subject.limit(5).source(:name).pluck(:id, :age)).to eq([['1', 10], ['2', 20], ['3', 30], ['4', nil], ['5', nil]]) }
+      specify { expect(subject.limit(5).pluck(:_id)).to eq(%w[1 2 3 4 5]) }
+      specify { expect(subject.limit(5).pluck(:_id, :age)).to eq([['1', 10], ['2', 20], ['3', 30], ['4', nil], ['5', nil]]) }
+      specify { expect(subject.limit(5).source(:name).pluck(:id, :age)).to eq([[1, 10], [2, 20], [3, 30], [4, nil], [5, nil]]) }
       specify do
-        expect(subject.limit(5).pluck(:index, :type, :name)).to eq([
+        expect(subject.limit(5).pluck(:_index, :_type, :name)).to eq([
           %w[products product Name1],
           %w[products product Name2],
           %w[products product Name3],
           ['products', 'city', nil],
           ['products', 'city', nil]
         ])
+      end
+
+      context 'make sure it returns everything in batches if needed' do
+        before { stub_const("#{described_class}::DEFAULT_BATCH_SIZE", 5) }
+        before { expect(Chewy.client).to receive(:scroll).once.and_call_original }
+
+        specify { expect(subject.pluck(:_id)).to eq((1..9).to_a.map(&:to_s)) }
       end
     end
 

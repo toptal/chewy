@@ -18,7 +18,7 @@ module Chewy
       include Scoping
       include Scrolling
       UNDEFINED = Class.new.freeze
-      PLUCK_MAPPING = {'index' => '_index', 'type' => '_type', 'id' => '_id'}.freeze
+      EVERFIELDS = %w[_index _type _id].freeze
       DELEGATED_METHODS = %i[
         query filter post_filter order reorder docvalue_fields
         track_scores request_cache explain version profile
@@ -31,10 +31,21 @@ module Chewy
       ].to_set.freeze
       DEFAULT_BATCH_SIZE = 1000
       DEFAULT_SCROLL = '1m'.freeze
+      # An array of storage names that are modifying returned fields in hits
+      FIELD_STORAGES = %i[
+        source docvalue_fields script_fields stored_fields
+      ].freeze
+      # An array of storage names that are not related to hits at all.
+      EXTRA_STORAGES = %i[aggs suggest].freeze
+      # An array of storage names that are changing the returned hist collection in any way.
+      WHERE_STORAGES = %i[
+        query filter post_filter types min_score rescore
+        indices_boost
+      ].freeze
 
       delegate :hits, :wrappers, :records, :documents, :record_hash, :document_hash,
         :total, :max_score, :took, :timed_out?, to: :response
-      delegate :each, :size, :to_a, to: :wrappers
+      delegate :each, :size, :to_a, :[], to: :wrappers
       alias_method :to_ary, :to_a
       alias_method :total_count, :total
       alias_method :total_entries, :total
@@ -772,7 +783,7 @@ module Chewy
         if performed?
           total
         else
-          @count ||= Chewy.client.count(render_simple)['count']
+          Chewy.client.count(only(WHERE_STORAGES).render)['count']
         end
       end
 
@@ -789,6 +800,33 @@ module Chewy
         end
       end
       alias_method :exist?, :exists?
+
+      # Return first wrapper object or a collection of first N wrapper
+      # objects if the argument is provided.
+      # Tries to use cached results of possible. If the amount of
+      # cached results is insufficient - performs a new request.
+      #
+      # @overload first
+      #   If nothing is passed - it returns a single object.
+      #
+      #   @return [Chewy::Type] result document
+      #
+      # @overload first(limit)
+      #   If limit is provided - it returns the limit amount or less
+      #   of wrapper objects.
+      #
+      #   @param limit [Integer] amount of requested results
+      #   @return [Array<Chewy::Type>] result document collection
+      def first(limit = UNDEFINED)
+        request_limit = limit == UNDEFINED ? 1 : limit
+
+        if performed? && (request_limit <= size || size == total)
+          limit == UNDEFINED ? wrappers.first : wrappers.first(limit)
+        else
+          result = except(EXTRA_STORAGES).limit(request_limit).to_a
+          limit == UNDEFINED ? result.first : result
+        end
+      end
 
       # Finds documents with specified ids for the current request scope.
       #
@@ -807,8 +845,10 @@ module Chewy
       #   @param ids [Array<Integer, String>] ids of the desired documents
       #   @return [Array<Chewy::Type>] result documents
       def find(*ids)
+        return super if block_given?
+
         ids = ids.flatten(1).map(&:to_s)
-        scope = only(:query, :filter, :post_filter).filter(ids: {values: ids})
+        scope = except(EXTRA_STORAGES).filter(ids: {values: ids})
 
         results = if ids.size > DEFAULT_BATCH_SIZE
           scope.scroll_wrappers
@@ -816,12 +856,16 @@ module Chewy
           scope.limit(ids.size)
         end.to_a
 
-        missing_ids = ids - results.map(&:id).map(&:to_s)
-        raise Chewy::DocumentNotFound, "Could not find documents for ids: #{missing_ids.to_sentence}" if missing_ids.present?
+        if ids.size != results.size
+          missing_ids = ids - results.map(&:id).map(&:to_s)
+          raise Chewy::DocumentNotFound, "Could not find documents for ids: #{missing_ids.to_sentence}"
+        end
         results.one? ? results.first : results
       end
 
       # Returns and array of values for specified fields.
+      # Uses `source` to restrict the list of returned fields.
+      # Fields `_id`, `_type` and `_index` are also supported.
       #
       # @overload pluck(field)
       #   If single field is passed - it returns and array of values.
@@ -835,14 +879,12 @@ module Chewy
       #   @param fields [Array<String, Symbol>] field names
       #   @return [Array<Array<Object>>] specified field values
       def pluck(*fields)
-        fields = fields.flatten(1).reject(&:blank?).map(&:to_s).map do |field|
-          PLUCK_MAPPING[field] || field
-        end
+        fields = fields.flatten(1).reject(&:blank?).map(&:to_s)
 
-        scope = except(:source, :stored_fields, :script_fields, :docvalue_fields)
-          .source(fields - PLUCK_MAPPING.values)
+        scope = except(FIELD_STORAGES, EXTRA_STORAGES).source(fields - EVERFIELDS)
 
-        scope.hits.map do |hit|
+        hits = raw_limit_value ? scope.hits : scope.scroll_hits
+        hits.map do |hit|
           if fields.one?
             fetch_field(hit, fields.first)
           else
@@ -862,14 +904,15 @@ module Chewy
       # @note The result hash is different for different API used.
       # @return [Hash] the result of query execution
       def delete_all
+        request_body = only(WHERE_STORAGES).render
         ActiveSupport::Notifications.instrument 'delete_query.chewy',
-          request: render_simple, indexes: _indexes, types: _types,
+          request: request_body, indexes: _indexes, types: _types,
           index: _indexes.one? ? _indexes.first : _indexes,
           type: _types.one? ? _types.first : _types do
             if Runtime.version < '5.0'
-              delete_by_query_plugin(render_simple)
+              delete_by_query_plugin(request_body)
             else
-              Chewy.client.delete_by_query(render_simple)
+              Chewy.client.delete_by_query(request_body)
             end
           end
       end
@@ -898,7 +941,7 @@ module Chewy
       end
 
       def reset
-        @response, @count, @render, @render_base, @render_simple, @type_names, @index_names = nil
+        @response, @count, @render, @render_base, @type_names, @index_names, @loader = nil
       end
 
       def perform(additional = {})
@@ -940,11 +983,7 @@ module Chewy
       end
 
       def render_base
-        @render_base ||= {index: index_names, type: type_names}
-      end
-
-      def render_simple
-        @render_simple ||= render_base.merge(body: parameters.render_query || {})
+        @render_base ||= {index: index_names, type: type_names, body: {}}
       end
 
       def delete_by_query_plugin(request)
@@ -961,7 +1000,7 @@ module Chewy
       end
 
       def fetch_field(hit, field)
-        if PLUCK_MAPPING.values.include?(field)
+        if EVERFIELDS.include?(field)
           hit[field]
         else
           hit.fetch('_source', {})[field]
@@ -969,7 +1008,7 @@ module Chewy
       end
 
       def performed?
-        instance_variable_defined?(:@response)
+        !@response.nil?
       end
 
       def collection_paginator

@@ -12,6 +12,9 @@ module Chewy
         def build(hit)
           attributes = (hit['_source'] || {})
             .reverse_merge(id: hit['_id'])
+            .merge!(_id: hit['_id'])
+            .merge!(_type: hit['_type'])
+            .merge!(_index: hit['_index'])
             .merge!(_score: hit['_score'])
             .merge!(_explanation: hit['_explanation'])
 

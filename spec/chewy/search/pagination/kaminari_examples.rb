@@ -12,6 +12,7 @@ shared_examples :kaminari do |request_base_class|
     end
   end
 
+  let(:except_fields) { %w[_score _explanation _id _type _index] }
   let(:request_class) do
     Class.new(request_base_class).tap do |k|
       k.include Chewy::Search::Pagination::Kaminari
@@ -28,13 +29,13 @@ shared_examples :kaminari do |request_base_class|
     before { allow(::Kaminari.config).to receive_messages(default_per_page: 3) }
 
     describe '#per, #page' do
-      specify { expect(search.map { |e| e.attributes.except('_score', '_explanation') }).to match_array(data) }
-      specify { expect(search.page(1).map { |e| e.attributes.except('_score', '_explanation') }).to eq(data[0..2]) }
-      specify { expect(search.page(2).map { |e| e.attributes.except('_score', '_explanation') }).to eq(data[3..5]) }
-      specify { expect(search.page(2).per(4).map { |e| e.attributes.except('_score', '_explanation') }).to eq(data[4..7]) }
-      specify { expect(search.per(2).page(3).map { |e| e.attributes.except('_score', '_explanation') }).to eq(data[4..5]) }
-      specify { expect(search.per(5).page.map { |e| e.attributes.except('_score', '_explanation') }).to eq(data[0..4]) }
-      specify { expect(search.page.per(4).map { |e| e.attributes.except('_score', '_explanation') }).to eq(data[0..3]) }
+      specify { expect(search.map { |e| e.attributes.except(*except_fields) }).to match_array(data) }
+      specify { expect(search.page(1).map { |e| e.attributes.except(*except_fields) }).to eq(data[0..2]) }
+      specify { expect(search.page(2).map { |e| e.attributes.except(*except_fields) }).to eq(data[3..5]) }
+      specify { expect(search.page(2).per(4).map { |e| e.attributes.except(*except_fields) }).to eq(data[4..7]) }
+      specify { expect(search.per(2).page(3).map { |e| e.attributes.except(*except_fields) }).to eq(data[4..5]) }
+      specify { expect(search.per(5).page.map { |e| e.attributes.except(*except_fields) }).to eq(data[0..4]) }
+      specify { expect(search.page.per(4).map { |e| e.attributes.except(*except_fields) }).to eq(data[0..3]) }
     end
 
     describe '#total_pages' do

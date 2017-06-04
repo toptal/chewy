@@ -12,7 +12,7 @@ shared_examples :will_paginate do |request_base_class|
     end
   end
 
-  let(:except_fields) { %w[_score _explanation _id _type _index] }
+  let(:except_fields) { %w[_score _explanation] }
   let(:request_class) do
     Class.new(request_base_class).tap do |k|
       k.include Chewy::Search::Pagination::WillPaginate

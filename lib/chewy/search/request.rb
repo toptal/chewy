@@ -785,6 +785,8 @@ module Chewy
         else
           Chewy.client.count(only(WHERE_STORAGES).render)['count']
         end
+      rescue Elasticsearch::Transport::Transport::Errors::NotFound
+        0
       end
 
       # Checks if any of the document exist for this request. If
@@ -943,7 +945,7 @@ module Chewy
       end
 
       def reset
-        @response, @count, @render, @render_base, @type_names, @index_names, @loader = nil
+        @response, @render, @render_base, @type_names, @index_names, @loader = nil
       end
 
       def perform(additional = {})

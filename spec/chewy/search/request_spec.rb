@@ -368,6 +368,7 @@ describe Chewy::Search::Request do
 
   context 'index does not exist' do
     specify { expect(subject).to eq([]) }
+    specify { expect(subject.count).to eq(0) }
   end
 
   context 'integration' do

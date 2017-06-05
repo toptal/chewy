@@ -37,6 +37,7 @@ module Chewy
       @_indexes = indexes_or_types_and_options.select { |klass| klass < Chewy::Index }
       @_indexes |= @_types.map(&:index)
       @criteria = Criteria.new
+      @objects = []
     end
 
     # Comparation with other query or collection
@@ -1080,6 +1081,13 @@ module Chewy
           _results
         end
       end
+    end
+    
+    def objects
+      return @objects if @objects.present?
+      _load_objects!
+      @objects = _collection.map(&:_object)
+      @objects
     end
 
     def _derive_type(index, type)

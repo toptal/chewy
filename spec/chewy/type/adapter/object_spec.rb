@@ -2,6 +2,7 @@ require 'spec_helper'
 
 describe Chewy::Type::Adapter::Object do
   before { stub_class(:product) }
+  subject { described_class.new(:product) }
 
   describe '#name' do
     specify { expect(described_class.new('product').name).to eq('Product') }

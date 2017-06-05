@@ -47,7 +47,7 @@ module Chewy
         end
 
         def pluck_ids(scope)
-          scope.except(:includes).uniq.pluck(target.primary_key.to_sym)
+          scope.distinct.pluck(target.primary_key.to_sym)
         end
 
         def scope_where_ids_in(scope, ids)
@@ -69,13 +69,25 @@ module Chewy
       end
 
       ActiveSupport.on_load(:active_record) do
-        if ::ActiveRecord::VERSION::MAJOR >= 5
-          module Rails5
+        if ::ActiveRecord::VERSION::MAJOR < 4
+          module Rails3
             def pluck_ids(scope)
-              scope.except(:includes).distinct.pluck(target.primary_key.to_sym)
+              # for activerecord < 4, pluck can't handle scopes with conditions using includes
+              scope.except(:includes).uniq.pluck(target.primary_key.to_sym)
             end
           end
-          Chewy::Type::Adapter::ActiveRecord.prepend(Rails5)
+          Chewy::Type::Adapter::ActiveRecord.prepend(Rails3)
+        elsif ::ActiveRecord::VERSION::MAJOR >= 4 && ::ActiveRecord::VERSION::MAJOR < 5
+          module Rails4
+            def pluck_ids(scope)
+              if scope.is_a?(::ActiveRecord::Associations::CollectionProxy)
+                scope.scope.distinct.pluck(target.primary_key.to_sym)
+              else
+                scope.distinct.pluck(target.primary_key.to_sym)
+              end
+            end
+          end
+          Chewy::Type::Adapter::ActiveRecord.prepend(Rails4)
         end
       end
     end

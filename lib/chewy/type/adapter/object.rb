@@ -108,6 +108,9 @@ module Chewy
         # for the target - the method will return nil. This means that the
         # loader will return an array `Chewy::Type` objects that actually was passed.
         #
+        # To use loading for objects it is obviously required to provide
+        # some meaningful ids for ES documents.
+        #
         # @example
         #   class Geoname
         #     def self.load_all(wrappers, options)
@@ -123,14 +126,22 @@ module Chewy
         #
         #   MyIndex::Geoname.load(additional_data: true).objects
         #
-        # @param ids [Array<Object>] in the common case it is actually an array of `Chewy::Type` wrappers
-        # @param options [Hash] Any options passed here with the request DSL `load` method.
+        # @param ids [Array<Hash>] an array of ids from ES hits
+        # @param options [Hash] any options passed here with the request DSL `load` method.
         # @return [Array<Object>, nil]
-        def load(ids, **_options)
+        def load(ids, **options)
           if target.respond_to?(load_all_method)
-            target.send(load_all_method, ids)
+            if target.method(load_all_method).arity == 1
+              target.send(load_all_method, ids)
+            else
+              target.send(load_all_method, ids, options)
+            end
           elsif target.respond_to?(load_one_method)
-            ids.map { |object| target.send(load_one_method, object) }
+            if target.method(load_one_method).arity == 1
+              ids.map { |hit| target.send(load_one_method, hit) }
+            else
+              ids.map { |hit| target.send(load_one_method, hit, options) }
+            end
           end
         end
 

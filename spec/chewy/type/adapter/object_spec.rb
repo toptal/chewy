@@ -123,32 +123,29 @@ describe Chewy::Type::Adapter::Object do
   end
 
   describe '#load' do
-    context do
-      subject { described_class.new('product') }
-      let(:objects) { Array.new(3) { double } }
+    subject { described_class.new(Product) }
+    let(:objects) { (1..3).to_a }
 
-      specify { expect(subject.load(objects)).to be_nil }
+    specify { expect(subject.load(objects)).to be_nil }
+
+    context do
+      before { allow(Product).to receive(:load_all) { |objects| objects.map { |i| i * 3 } } }
+      specify { expect(subject.load(objects, value: 42)).to eq([3, 6, 9]) }
     end
 
     context do
-      before do
-        allow(Product).to receive(:load_one) { |object|
-                            allow(object).to receive_messages(wrapped?: true)
-                            object
-                          }
-      end
-      subject { described_class.new(Product) }
-      let(:objects) { Array.new(3) { double(wrapped?: false) } }
-
-      specify { expect(subject.load(objects)).to satisfy { |objects| objects.all?(&:wrapped?) } }
+      before { allow(Product).to receive(:load_all) { |objects, options| objects.map { |i| i * options[:value] } } }
+      specify { expect(subject.load(objects, value: 2)).to eq([2, 4, 6]) }
     end
 
     context do
-      before { allow(Product).to receive(:load_one) { |_object| nil } }
-      subject { described_class.new(Product) }
-      let(:objects) { Array.new(3) { double(wrapped?: false) } }
+      before { allow(Product).to receive(:load_one) { |object| object + 2 } }
+      specify { expect(subject.load(objects)).to eq((3..5).to_a) }
+    end
 
-      specify { expect(subject.load(objects)).to satisfy { |objects| objects.all?(&:nil?) } }
+    context do
+      before { allow(Product).to receive(:load_one) { |object, options| object + options[:value] } }
+      specify { expect(subject.load(objects, value: 42)).to eq((43..45).to_a) }
     end
   end
 end

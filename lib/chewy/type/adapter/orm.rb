@@ -6,16 +6,15 @@ module Chewy
       class Orm < Base
         attr_reader :default_scope
 
-        def initialize(*args)
-          @options = args.extract_options!
-          class_or_relation = args.first
-          if class_or_relation.is_a?(relation_class)
-            @target = model_of_relation(class_or_relation)
-            @default_scope = class_or_relation
+        def initialize(target, **options)
+          if target.is_a?(relation_class)
+            @target = model_of_relation(target)
+            @default_scope = target
           else
-            @target = class_or_relation
+            @target = target
             @default_scope = all_scope
           end
+          @options = options
           cleanup_default_scope!
         end
 
@@ -92,7 +91,7 @@ module Chewy
           end
         end
 
-        def load(ids, options = {})
+        def load(ids, **options)
           scope = all_scope_where_ids_in(ids)
           additional_scope = options[options[:_type].type_name.to_sym].try(:[], :scope) || options[:scope]
 

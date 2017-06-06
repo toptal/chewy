@@ -43,7 +43,7 @@ module Chewy
         #
         # Returns true id all the block call returns true and false otherwise
         #
-        def import(*_args)
+        def import(*_args, &_block)
           raise NotImplementedError
         end
 
@@ -53,7 +53,7 @@ module Chewy
         #   load([1, 2, 3]) #=>
         #     # [<Product id: 1>, nil, <Product id: 3>], assuming, #2 was not found
         #
-        def load(_ids, _options = {})
+        def load(_ids, **_options)
           raise NotImplementedError
         end
 

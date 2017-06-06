@@ -5,8 +5,8 @@ module Chewy
     #
     # @see Chewy::Type::Import
     # @see Chewy::Search::Request#load
-    # @see Chewy::Search::Response#records
-    # @see Chewy::Search::Scrolling#scroll_records
+    # @see Chewy::Search::Response#objects
+    # @see Chewy::Search::Scrolling#scroll_objects
     class Loader
       # @param indexes [Array<Chewy::Index>] list of indexes to lookup types
       # @param only [Array<String, Symbol>] list of selected type names to load

@@ -7,7 +7,7 @@ module Chewy
       # @param options [Hash]
       # @option options [Integer] :retries maximum number of attempts to make journal "empty". By default is set to 10
       # @option options [Boolean] :once shows whether we should try until the journal is clean. If set to true, :retries is ignored
-      # @option options [Array<Chewy::Index>] :only filters the resulting set of records by index name
+      # @option options [Array<Chewy::Index>] :only filters the resulting set of entries by index name
       def since(time, options = {})
         previous_entries = []
         retries = options[:retries] || 10

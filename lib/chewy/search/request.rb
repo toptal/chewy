@@ -43,7 +43,7 @@ module Chewy
         indices_boost
       ].freeze
 
-      delegate :hits, :wrappers, :records, :documents, :record_hash, :document_hash,
+      delegate :hits, :wrappers, :objects, :documents, :object_hash, :document_hash,
         :total, :max_score, :took, :timed_out?, to: :response
       delegate :each, :size, :to_a, :[], to: :wrappers
       alias_method :to_ary, :to_a
@@ -84,7 +84,7 @@ module Chewy
       # @example
       #   PlacesIndex.limit(10) == PlacesIndex.limit(10) # => true
       #   PlacesIndex.limit(10) == PlacesIndex.limit(10).to_a # => true
-      #   PlacesIndex.limit(10) == PlacesIndex.limit(10).records # => true
+      #   PlacesIndex.limit(10) == PlacesIndex.limit(10).objects # => true
       #
       #   PlacesIndex.limit(10) == UsersIndex.limit(10) # => false
       #   PlacesIndex.limit(10) == UsersIndex.limit(10).to_a # => false
@@ -528,7 +528,7 @@ module Chewy
         modify(:search_after) { replace!(values.empty? ? value : [value, *values]) }
       end
 
-      # Stores ORM/ODM records/documents loading options. Options
+      # Stores ORM/ODM objects loading options. Options
       # might be define per-type or be global, depends on the adapter
       # loading implementation. Also, there are 2 loading options to select
       # or exclude types from loading: `only` and `except` respectively.
@@ -537,8 +537,8 @@ module Chewy
       # @example
       #   PlaceIndex.load(only: 'city').load(scope: -> { active })
       # @see Chewy::Search::Loader
-      # @see Chewy::Search::Response#records
-      # @see Chewy::Search::Scrolling#scroll_records
+      # @see Chewy::Search::Response#objects
+      # @see Chewy::Search::Scrolling#scroll_objects
       # @param options [Hash] adapter-specific loading options
       def load(options = nil)
         modify(:load) { update!(options) }

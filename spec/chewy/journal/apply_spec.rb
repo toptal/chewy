@@ -83,7 +83,7 @@ describe Chewy::Journal::Apply do
 
       context 'endless journal' do
         let(:count_of_checks) { 10 } # default
-        let!(:journal_records) do
+        let!(:journal_entries) do
           record = Chewy::Journal::Entry.since(time).first
           Array.new(count_of_checks) do |i|
             r = record.dup
@@ -95,13 +95,13 @@ describe Chewy::Journal::Apply do
 
         specify '10 retries by default' do
           expect(Chewy::Journal::Entry)
-            .to receive(:since).exactly(count_of_checks) { [journal_records.shift].compact }
+            .to receive(:since).exactly(count_of_checks) { [journal_entries.shift].compact }
           Chewy::Journal::Apply.since(time)
         end
 
         specify 'with :once parameter set' do
           expect(Chewy::Journal::Entry)
-            .to receive(:since).exactly(1) { [journal_records.shift].compact }
+            .to receive(:since).exactly(1) { [journal_entries.shift].compact }
           Chewy::Journal::Apply.since(time, once: true)
         end
 
@@ -110,7 +110,7 @@ describe Chewy::Journal::Apply do
 
           specify do
             expect(Chewy::Journal::Entry)
-              .to receive(:since).exactly(retries) { [journal_records.shift].compact }
+              .to receive(:since).exactly(retries) { [journal_entries.shift].compact }
             Chewy::Journal::Apply.since(time, retries: retries)
           end
         end

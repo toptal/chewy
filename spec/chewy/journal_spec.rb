@@ -64,7 +64,7 @@ describe Chewy::Journal do
             Timecop.freeze(destroy_time)
             countries.last.destroy
 
-            journal_records = Chewy.client.search(index: Chewy::Journal.index_name, type: Chewy::Journal.type_name, sort: 'created_at')['hits']['hits'].map { |r| r['_source'] }
+            journal_entries = Chewy.client.search(index: Chewy::Journal.index_name, type: Chewy::Journal.type_name, sort: 'created_at')['hits']['hits'].map { |r| r['_source'] }
 
             expected_journal = [
               {
@@ -133,7 +133,7 @@ describe Chewy::Journal do
             ]
 
             expect(Chewy.client.count(index: Chewy::Journal.index_name)['count']).to eq 9
-            expect(journal_records).to eq expected_journal
+            expect(journal_entries).to eq expected_journal
 
             journal_entries = Chewy::Journal::Entry.since(import_time)
             expect(journal_entries.length).to eq 4

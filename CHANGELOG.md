@@ -28,7 +28,7 @@
 
   * Minitest helpers (@robacarp, #396)
 
-  * `Chewy::Query#unlimited` to fetch all the records (@sergey-kintsel, #393)
+  * `Chewy::Query#unlimited` to fetch all the documents (@sergey-kintsel, #393)
 
   * `Chewy::Query#exists?` (@sergey-kintsel, #386)
 
@@ -310,7 +310,7 @@
 
   * `min_score` query option support (@jshirley)
 
-  * `Chewy::Query#find` method for finding records by id
+  * `Chewy::Query#find` method for finding documents by id
 
 # Version 0.6.0
 

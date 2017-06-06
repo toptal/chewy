@@ -49,7 +49,7 @@ module Chewy
         #
         # Method handles destroyed objects as well. In case of objects ORM scope
         # or array passed, objects, responding with true to `destroyed?` method will be deleted
-        # from index. In case of ids array passed - documents with missing records ids will be
+        # from index. In case of ids array passed - documents with missing source object ids will be
         # deleted from index:
         #
         #   users = User.all

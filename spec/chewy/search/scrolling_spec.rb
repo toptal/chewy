@@ -153,15 +153,15 @@ describe Chewy::Search::Scrolling, :orm do
       end
     end
 
-    describe '#scroll_records' do
+    describe '#scroll_objects' do
       before { expect(Chewy.client).to receive(:scroll).twice.and_call_original }
 
       specify do
-        expect(request.scroll_records(batch_size: 2).map(&:rating))
+        expect(request.scroll_objects(batch_size: 2).map(&:rating))
           .to eq([0, 1, 2, 3, 4])
       end
       specify do
-        expect(request.scroll_records(batch_size: 2).map(&:class).uniq)
+        expect(request.scroll_objects(batch_size: 2).map(&:class).uniq)
           .to eq([City, Country])
       end
     end

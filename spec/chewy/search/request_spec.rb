@@ -277,15 +277,15 @@ describe Chewy::Search::Request do
 
     subject { described_class.new(PlacesIndex).order(:rating) }
 
-    describe '#records' do
-      specify { expect(subject.records).to eq([*cities, *countries]) }
-      specify { expect(subject.records.class).to eq(Array) }
+    describe '#objects' do
+      specify { expect(subject.objects).to eq([*cities, *countries]) }
+      specify { expect(subject.objects.class).to eq(Array) }
     end
 
     describe '#load' do
       specify { expect(subject.load(only: 'city')).to eq([*cities, *countries]) }
       specify { expect(subject.load(only: 'city').map(&:class).uniq).to eq([PlacesIndex::City, PlacesIndex::Country]) }
-      specify { expect(subject.load(only: 'city').records).to eq([*cities, nil, nil]) }
+      specify { expect(subject.load(only: 'city').objects).to eq([*cities, nil, nil]) }
     end
   end
 

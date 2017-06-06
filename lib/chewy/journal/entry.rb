@@ -14,7 +14,7 @@ module Chewy
 
       # Loads all entries since some time
       # @param time [Integer] a timestamp from which we load a journal
-      # @param indices [Array<Chewy::Index>] journal records related to these indices will be loaded only
+      # @param indices [Array<Chewy::Index>] journal entries related to these indices will be loaded only
       def self.since(time, indices = [])
         query = Query.new(time, :gte, indices).to_h
         parameters = {index: Journal.index_name, type: Journal.type_name, body: query}
@@ -37,7 +37,7 @@ module Chewy
       end
 
       # Allows to filter one list of entries from another
-      # If any records with the same full type name are found then their object_ids will be subtracted
+      # If any documents with the same full type name are found then their object_ids will be subtracted
       # @param from [Array<Chewy::Journal::Entry>] from which list we subtract another
       # @param what [Array<Chewy::Journal::Entry>] what we subtract
       def self.subtract(from, what)

@@ -40,7 +40,7 @@ Chewy is an ODM and wrapper for [the official Elasticsearch client](https://gith
     * [Pagination](#pagination)
     * [Named scopes](#named-scopes)
     * [Scroll API](#scroll-api)
-    * [Loading records](#loading-records)
+    * [Loading objects](#loading-objects)
     * [Legacy DSL incompatibilities](#legacy-dsl-incompatibilities)
   * [Rake tasks](#rake-tasks)
   * [Rspec integration](#rspec-integration)
@@ -513,8 +513,8 @@ To do so you need to set `skip_index_creation_on_import` parameter to `false` in
 ### Journaling
 
 You can record all actions that were made to the separate journal index in ElasticSearch.
-When you create/update/destroy your records, it will be saved in this special index.
-If you make something with a batch of records (e.g. during index reset) it will be saved as a one record, including primary keys of each document that was affected.
+When you create/update/destroy your documents, it will be saved in this special index.
+If you make something with a batch of documents (e.g. during index reset) it will be saved as a one record, including primary keys of each document that was affected.
 Common journal record looks like this:
 
 ```json
@@ -854,27 +854,27 @@ See [Chewy::Search::Scoping](lib/chewy/search/scoping.rb) for details.
 
 #### Scroll API
 
-ElasticSearch scroll API is utilized by a bunch of methods: `scroll_batches`, `scroll_hits`, `scroll_wrappers` and `scroll_records`.
+ElasticSearch scroll API is utilized by a bunch of methods: `scroll_batches`, `scroll_hits`, `scroll_wrappers` and `scroll_objects`.
 
 See [Chewy::Search::Scrolling](lib/chewy/search/scrolling.rb) for details.
 
-#### Loading records
+#### Loading objects
 
-It is possible to load ORM/ODM source records/documents with the `records` method. To provide additional loading options use `load` method:
+It is possible to load ORM/ODM source objects with the `objects` method. To provide additional loading options use `load` method:
 
 ```ruby
 PlacesIndex.load(scope: -> { active }).to_a # to_a returns `Chewy::Type` wrappers.
-PlacesIndex.load(scope: -> { active }).records # An array of AR source records.
+PlacesIndex.load(scope: -> { active }).objects # An array of AR source objects.
 ```
 
 See [Chewy::Search::Loader](lib/chewy/search/loader.rb) for more details.
 
-In case when it is necessary to iterate through both of the wrappers and records simultaneously, `record_hash` method helps a lot:
+In case when it is necessary to iterate through both of the wrappers and objects simultaneously, `object_hash` method helps a lot:
 
 ```ruby
 scope = PlacesIndex.load(scope: -> { active })
 scope.each do |wrapper|
-  scope.record_hash[wrapper]
+  scope.object_hash[wrapper]
 end
 ```
 
@@ -882,12 +882,12 @@ end
 
 * Filters advanced block DSL is not supported anymore, `elasticsearch-dsl` is used instead.
 * Things like `query_mode` and `filter_mode` are in past, use advanced DSL to achieve similar behavior. See [Chewy::Search::QueryProxy](lib/chewy/search/query_proxy.rb) for details.
-* `preload` method is no more, the collection returned by scope doesn't depend on loading options, scope always returns `Chewy::Type` wrappers. To get ORM/ODM objects, use `#records` method.
+* `preload` method is no more, the collection returned by scope doesn't depend on loading options, scope always returns `Chewy::Type` wrappers. To get ORM/ODM objects, use `#objects` method.
 * Some of the methods have changed their purpose: `only` was used to filter fields before, now it filters the scope. To filter fields use `source` or `stored_fields`.
 * `types!` method is no more, use `except(:types).types(...)`
 * Named aggregations are not supported, use named scopes instead.
 * A lot of query-level methods were not ported: everything that is related to boost and scoring. Use `query` manipulation to provide them.
-* `Chewy::Type#_object` returns nil always. Use `Chewy::Search::Response#record_hash` instead.
+* `Chewy::Type#_object` returns nil always. Use `Chewy::Search::Response#object_hash` instead.
 
 ### Rake tasks
 

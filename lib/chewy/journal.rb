@@ -18,12 +18,12 @@ module Chewy
     }.freeze
 
     def initialize(index)
-      @records = []
+      @entries = []
       @index = index
     end
 
     def add(action_objects)
-      @records +=
+      @entries +=
         action_objects.map do |action, objects|
           {
             index_name: @index.derivable_index_name,
@@ -36,7 +36,7 @@ module Chewy
     end
 
     def bulk_body
-      @records.map do |record|
+      @entries.map do |record|
         {
           index: {
             _index: self.class.index_name,
@@ -47,8 +47,8 @@ module Chewy
       end
     end
 
-    def any_records?
-      @records.any?
+    def any_entries?
+      @entries.any?
     end
 
   private

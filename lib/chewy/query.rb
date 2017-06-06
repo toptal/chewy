@@ -613,7 +613,7 @@ module Chewy
       end
     end
 
-    # Marks the criteria as having zero records. This scope  always returns empty array
+    # Marks the criteria as having zero documents. This scope  always returns empty array
     # without touching the elasticsearch server.
     # All the chained calls of methods don't affect the result
     #
@@ -906,10 +906,10 @@ module Chewy
     end
 
     # Sets <tt>search_type</tt> for request.
-    # For instance, one can use <tt>search_type=count</tt> to fetch only total count of records or to fetch only aggregations without fetching records.
+    # For instance, one can use <tt>search_type=count</tt> to fetch only total count of documents or to fetch only aggregations without fetching documents.
     #
     #   scope = UsersIndex.search_type(:count)
-    #   scope.count == 0  # no records actually fetched
+    #   scope.count == 0  # no documents actually fetched
     #   scope.total == 10 # but we know a total count of them
     #
     #   scope = UsersIndex.aggs(max_age: { max: { field: 'age' } }).search_type(:count)
@@ -932,7 +932,7 @@ module Chewy
       chain { criteria.merge!(other.criteria) }
     end
 
-    # Deletes all records matching a query.
+    # Deletes all documents matching a query.
     #
     #   UsersIndex.delete_all
     #   UsersIndex.filter{ age <= 42 }.delete_all
@@ -964,7 +964,7 @@ module Chewy
         end
     end
 
-    # Find all records matching a query.
+    # Find all documents matching a query.
     #
     #   UsersIndex.find(42)
     #   UsersIndex.filter{ age <= 42 }.find(42)

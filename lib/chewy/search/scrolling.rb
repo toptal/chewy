@@ -90,9 +90,9 @@ module Chewy
         end
       end
 
-      # @!method scroll_records(batch_size: 1000, scroll: '1m')
+      # @!method scroll_objects(batch_size: 1000, scroll: '1m')
       # Iterates through the documents of the scope in batches. Performs load
-      # operation for each batch and then yields each loaded ORM/ODM record/document.
+      # operation for each batch and then yields each loaded ORM/ODM object.
       # Uses {Chewy::Search::Request#load} passed options for loading.
       #
       # @note If the record is not found it yields nil instead.
@@ -101,24 +101,25 @@ module Chewy
       # @param batch_size [Integer] batch size obviously, replaces `size` query parameter
       # @param scroll [String] cursor expiration time
       #
-      # @overload scroll_records(batch_size: 1000, scroll: '1m')
+      # @overload scroll_objects(batch_size: 1000, scroll: '1m')
       #   @example
-      #     PlaceIndex.scroll_records { |record| p record.id }
+      #     PlaceIndex.scroll_objects { |record| p record.id }
       #   @yieldparam record [Object] block is executed for each record loaded
       #
-      # @overload scroll_records(batch_size: 1000, scroll: '1m')
+      # @overload scroll_objects(batch_size: 1000, scroll: '1m')
       #   @example
-      #     PlaceIndex.scroll_records.map { |record| record.id }
+      #     PlaceIndex.scroll_objects.map { |record| record.id }
       #   @return [Enumerator] a standard ruby Enumerator
-      def scroll_records(**options)
-        return enum_for(:scroll_records, **options) unless block_given?
+      def scroll_objects(**options)
+        return enum_for(:scroll_objects, **options) unless block_given?
 
         except(:source, :stored_fields, :script_fields, :docvalue_fields)
           .source(false).scroll_batches(**options).each do |batch|
             loader.load(batch).each { |object| yield object }
           end
       end
-      alias_method :scroll_documents, :scroll_records
+      alias_method :scroll_records, :scroll_objects
+      alias_method :scroll_documents, :scroll_objects
 
     private
 

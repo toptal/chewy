@@ -95,7 +95,7 @@ module Chewy
             [body]
           end
 
-          if journal.any_records?
+          if journal.any_entries?
             Chewy::Journal.create
             bodies += [journal.bulk_body]
           end

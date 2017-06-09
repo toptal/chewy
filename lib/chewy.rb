@@ -216,3 +216,5 @@ module Chewy
     end
   end
 end
+
+require 'chewy/stash'

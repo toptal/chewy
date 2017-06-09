@@ -281,7 +281,7 @@ describe Chewy::Type::Import do
       end
     end
 
-    context 'parent-child relationship', :orm do
+    context 'parent-child relationship' do
       let(:country) { Country.create(id: 1, name: 'country') }
       let(:another_country) { Country.create(id: 2, name: 'another country') }
 
@@ -366,7 +366,7 @@ describe Chewy::Type::Import do
       end
     end
 
-    context 'root id', :orm do
+    context 'root id' do
       let(:canada) { Country.create(id: 1, name: 'Canada', country_code: 'CA', rating: 4) }
       let(:country)  { CountriesIndex::Country }
 

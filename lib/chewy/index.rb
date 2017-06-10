@@ -180,6 +180,11 @@ module Chewy
         mappings.present? ? {mappings: mappings} : {}
       end
 
+      # Returns a hash containing the index settings and mappings
+      # Used for the ES index creation as body.
+      #
+      # @see Chewy::Index::Specification
+      # @return [Hash] specification as a hash
       def specification_hash
         [settings_hash, mappings_hash].inject(:merge)
       end
@@ -189,6 +194,8 @@ module Chewy
         specification_hash
       end
 
+      # @see Chewy::Index::Specification
+      # @return [Chewy::Index::Specification] a specification object instance for this particular index
       def specification
         @specification ||= Specification.new(self)
       end

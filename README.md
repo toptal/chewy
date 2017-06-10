@@ -43,6 +43,8 @@ Chewy is an ODM and wrapper for [the official Elasticsearch client](https://gith
     * [Loading objects](#loading-objects)
     * [Legacy DSL incompatibilities](#legacy-dsl-incompatibilities)
   * [Rake tasks](#rake-tasks)
+    * [chewy:update and chewy:reset](#chewyupdate-and-chewyreset)
+    * [chewy:deploy](#chewydeploy)
   * [Rspec integration](#rspec-integration)
   * [Minitest integration](#minitest-integration)
 * [TODO a.k.a coming soon](#todo-aka-coming-soon)
@@ -891,6 +893,8 @@ end
 
 ### Rake tasks
 
+#### `chewy:update` and `chewy:reset`
+
 Inside the Rails application, some index-maintaining rake tasks are defined.
 
 ```bash
@@ -908,6 +912,19 @@ rake chewy:update[-users,projects] # updates every index in application except s
 
 `rake chewy:reset` performs zero-downtime reindexing as described [here](https://www.elastic.co/blog/changing-mapping-with-zero-downtime). So basically rake task creates a new index with uniq suffix and then simply aliases it to the common index name. The previous index is deleted afterwards (see `Chewy::Index.reset!` for more details).
 
+#### `chewy:deploy`
+
+This rake task is especially useful during the production deploy. Currently it executes selective reset, this means that an index will be reset only if the index specification (settings or mappings) has been changed, otherwise the reset of this index will be skipped.
+
+Obviously at the first run it will reset everything because it needs to lock all the index specifications in the `Chewy::Stash`.
+
+See [Chewy::Stash](lib/chewy/stash.rb) and [Chewy::Index::Specification](lib/chewy/index/specification.rb) for more details.
+
+In the future, additional routines are planned during `chewy:deploy` execution. Like, additional fast or partial index updates to make sure everything is up-to-date as it was a full reset.
+
+Right now the approach is that if some data had been updated, but index specification had not been changed, it would be much faster to perform manual partial index update inside data migrations or even manually after the deploy.
+
+Also, there is always full reset alternative with `rake chewy:reset`.
 
 ### Rspec integration
 

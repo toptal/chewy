@@ -57,11 +57,11 @@ module Chewy
           name = build_index_name(suffix: args.first)
 
           if Chewy::Runtime.version >= 1.1
-            body = index_params
+            body = specification_hash
             body[:aliases] = {index_name => {}} if options[:alias] && name != index_name
             result = client.indices.create(index: name, body: body)
           else
-            result = client.indices.create(index: name, body: index_params)
+            result = client.indices.create(index: name, body: specification_hash)
             result &&= client.indices.put_alias(index: name, name: index_name) if options[:alias] && name != index_name
           end
 

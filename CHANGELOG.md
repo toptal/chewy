@@ -2,6 +2,8 @@
 
 ## Changes
 
+  * New cool `rake chewy:deploy` task.
+
   * Brand new request DSL. Supports ElasticSearch 2 and 5, better usability, architecture and docs.
 
   * Kaminari 1.0 support.

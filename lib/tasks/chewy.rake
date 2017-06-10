@@ -1,6 +1,13 @@
 require 'chewy/rake_helper'
 
 namespace :chewy do
+  desc 'This taks resets all the indexed that are required to be reset'
+  task deploy: :environment do
+    Chewy::RakeHelper.subscribed_task_stats do
+      Chewy::RakeHelper.reset_changed
+    end
+  end
+
   desc 'Destroy, recreate and import data to specified index'
   task reset: :environment do |_task, args|
     Chewy::RakeHelper.subscribed_task_stats do

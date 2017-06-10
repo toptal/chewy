@@ -26,7 +26,7 @@ module Chewy
         timeout min_score source stored_fields search_after
         load script_fields suggest aggs aggregations none
         indices_boost rescore highlight total total_count
-        total_entries types delete_all count exists? exist? find
+        total_entries types delete_all count exists? exist? find pluck
         scroll_batches scroll_hits scroll_results scroll_wrappers
       ].to_set.freeze
       DEFAULT_BATCH_SIZE = 1000

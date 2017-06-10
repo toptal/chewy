@@ -1,25 +1,27 @@
 module Chewy
   module RakeHelper
-    class << self
-      def subscribed_task_stats
-        import_callback = lambda do |_name, start, finish, _id, payload|
-          duration = (finish - start).round(2)
-          puts "  Imported #{payload[:type]} for #{duration}s, documents total: #{payload[:import].try(:[], :index).to_i}"
-          if payload[:errors]
-            payload[:errors].each do |action, errors|
-              puts "    #{action.to_s.humanize} errors:"
-              errors.each do |error, documents|
-                puts "      `#{error}`"
-                puts "        on #{documents.count} documents: #{documents}"
-              end
-            end
+    IMPORT_CALLBACK = lambda do |_name, start, finish, _id, payload|
+      duration = (finish - start).round(2)
+      puts "  Imported #{payload[:type]} for #{duration}s, documents total: #{payload[:import].try(:[], :index).to_i}"
+      if payload[:errors]
+        payload[:errors].each do |action, errors|
+          puts "    #{action.to_s.humanize} errors:"
+          errors.each do |error, documents|
+            puts "      `#{error}`"
+            puts "        on #{documents.count} documents: #{documents}"
           end
         end
-        journal_callback = lambda do |_, _, _, _, payload|
-          puts "Applying journal. Stage #{payload[:stage]}"
-        end
-        ActiveSupport::Notifications.subscribed(journal_callback, 'apply_journal.chewy') do
-          ActiveSupport::Notifications.subscribed(import_callback, 'import_objects.chewy') do
+      end
+    end
+
+    JOURNAL_CALLBACK = lambda do |_, _, _, _, payload|
+      puts "Applying journal. Stage #{payload[:stage]}"
+    end
+
+    class << self
+      def subscribed_task_stats
+        ActiveSupport::Notifications.subscribed(JOURNAL_CALLBACK, 'apply_journal.chewy') do
+          ActiveSupport::Notifications.subscribed(IMPORT_CALLBACK, 'import_objects.chewy') do
             yield
           end
         end
@@ -27,7 +29,7 @@ module Chewy
 
       def all_indexes
         Chewy.eager_load!
-        Chewy::Index.descendants
+        Chewy::Index.descendants - [Chewy::Stash]
       end
 
       def normalize_index(index)
@@ -49,12 +51,25 @@ module Chewy
             Chewy::Journal.create
             Chewy::Journal::Apply.since(time, only: [index])
           end
+          index.specification.lock!
         end
       end
 
       # Performs zero downtime reindexing of all documents across all indices.
       def reset_all(*except)
         reset_index(all_indexes - normalize_indexes(except))
+      end
+
+      def reset_changed
+        indexes = all_indexes.select do |index|
+          index.specification.changed?
+        end
+
+        if indexes.present?
+          reset_index(indexes)
+        else
+          puts 'No indexes are required to be reset'
+        end
       end
 
       def update_index(*indexes)

@@ -228,17 +228,17 @@ describe Chewy::Index do
     end
   end
 
-  describe '.index_params' do
+  describe '.specification_hash' do
     before { allow(Chewy).to receive_messages(config: Chewy::Config.send(:new)) }
 
-    specify { expect(stub_index(:documents).index_params).to eq({}) }
-    specify { expect(stub_index(:documents) { settings number_of_shards: 1 }.index_params.keys).to eq([:settings]) }
+    specify { expect(stub_index(:documents).specification_hash).to eq({}) }
+    specify { expect(stub_index(:documents) { settings number_of_shards: 1 }.specification_hash.keys).to eq([:settings]) }
     specify do
       expect(stub_index(:documents) do
                define_type :document do
                  field :name, type: 'string'
                end
-             end.index_params.keys).to eq([:mappings])
+             end.specification_hash.keys).to eq([:mappings])
     end
     specify do
       expect(stub_index(:documents) do
@@ -246,8 +246,14 @@ describe Chewy::Index do
                define_type :document do
                  field :name, type: 'string'
                end
-             end.index_params.keys).to match_array(%i[mappings settings])
+             end.specification_hash.keys).to match_array(%i[mappings settings])
     end
+  end
+
+  describe '.specification' do
+    subject { stub_index(:documents) }
+    specify { expect(subject.specification).to be_a(Chewy::Index::Specification) }
+    specify { expect(subject.specification).to equal(subject.specification) }
   end
 
   describe '.journal?' do

@@ -335,7 +335,7 @@ field :full_name, type: 'string', value: ->{ full_name.strip } do
 end
 ```
 
-The `value:` option for internal fields would no longer be effective.
+The `value:` option for internal fields will no longer be effective.
 
 ### Geo Point fields
 
@@ -369,7 +369,7 @@ class ProductsIndex < Chewy::Index
 end
 ```
 
-Then the Chewy reindexing flow would look like the following pseudo-code (even in Mongoid):
+Then the Chewy reindexing flow will look like the following pseudo-code (even in Mongoid):
 
 ```ruby
 Product.includes(:categories).find_in_batches(1000) do |batch|
@@ -404,7 +404,7 @@ class ProductsIndex < Chewy::Index
 end
 ```
 
-An example flow would look like this:
+An example flow will look like this:
 
 ```ruby
 Product.includes(:categories).find_in_batches(1000) do |batch|
@@ -682,7 +682,7 @@ Chewy.strategy(:urgent) do
 end
 ```
 
-This code would perform `City.popular.count` requests for ES documents update.
+This code will perform `City.popular.count` requests for ES documents update.
 
 It is convenient for use in e.g. the Rails console with non-block notation:
 

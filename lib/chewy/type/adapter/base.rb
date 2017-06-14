@@ -37,11 +37,11 @@ module Chewy
         end
 
         # Splits passed objects to groups according to `:batch_size` options.
-        # For every group crates hash with action keys. Example:
+        # For every group creates hash with action keys. Example:
         #
-        #   { delete: [object1, object2], index: [object3, object4, object5] }
+        #   { delete: [object_or_id1, object_or_id2], index: [object3, object4, object5] }
         #
-        # Returns true id all the block call returns true and false otherwise
+        # Returns true if all the block call returns true and false otherwise
         #
         def import(*_args, &_block)
           raise NotImplementedError

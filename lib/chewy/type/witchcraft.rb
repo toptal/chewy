@@ -100,13 +100,13 @@ module Chewy
                 {
                   #{non_proc_fields.map do |f|
                     fetcher = "#{object}.has_key?(:#{f.name}) ? #{object}[:#{f.name}] : #{object}['#{f.name}']"
-                    "#{f.name}: #{composed_value(f, fetcher, nesting)}"
+                    "'#{f.name}'.freeze => #{composed_value(f, fetcher, nesting)}"
                   end.join(', ')}
                 }
               else
                 {
                   #{non_proc_fields.map do |f|
-                    "#{f.name}: #{composed_value(f, "#{object}.#{f.name}", nesting)}"
+                    "'#{f.name}'.freeze => #{composed_value(f, "#{object}.#{f.name}", nesting)}"
                   end.join(', ')}
                 }
               end)
@@ -123,7 +123,7 @@ module Chewy
             <<-RUBY
               {
                 #{proc_fields.map do |f|
-                  "#{f.name}: (#{composed_value(f, source_for(f.value, nesting), nesting)})"
+                  "'#{f.name}'.freeze => (#{composed_value(f, source_for(f.value, nesting), nesting)})"
                 end.join(', ')}
               }
             RUBY

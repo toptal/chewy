@@ -205,9 +205,9 @@ RSpec::Matchers.define :update_index do |type_name, options = {}| # rubocop:disa
 
   def agnostic_stub
     if defined?(Mocha) && RSpec.configuration.mock_framework.to_s == 'RSpec::Core::MockingAdapters::Mocha'
-      'type.stubs(:bulk).with'
+      'type.importer.stubs(:bulk).with'
     else
-      'allow(type).to receive(:bulk)'
+      'allow(type.importer).to receive(:bulk)'
     end
   end
 

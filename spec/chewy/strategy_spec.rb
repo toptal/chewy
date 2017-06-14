@@ -64,12 +64,12 @@ describe Chewy::Strategy do
       around { |example| Chewy.strategy(:bypass) { example.run } }
 
       specify do
-        expect(CitiesIndex::City).not_to receive(:import)
+        expect(CitiesIndex::City.importer).not_to receive(:import)
         [city, other_city].map(&:save!)
       end
 
       specify do
-        expect(CitiesIndex::City).to receive(:import).with([city.id, other_city.id]).once
+        expect(CitiesIndex::City.importer).to receive(:import).with([city.id, other_city.id]).once
         Chewy.strategy(:atomic) { [city, other_city].map(&:save!) }
       end
     end
@@ -78,12 +78,12 @@ describe Chewy::Strategy do
       around { |example| Chewy.strategy(:urgent) { example.run } }
 
       specify do
-        expect(CitiesIndex::City).to receive(:import).at_least(2).times
+        expect(CitiesIndex::City.importer).to receive(:import).at_least(2).times
         [city, other_city].map(&:save!)
       end
 
       specify do
-        expect(CitiesIndex::City).to receive(:import).with([city.id, other_city.id]).once
+        expect(CitiesIndex::City.importer).to receive(:import).with([city.id, other_city.id]).once
         Chewy.strategy(:atomic) { [city, other_city].map(&:save!) }
       end
 

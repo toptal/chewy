@@ -47,10 +47,6 @@ module Chewy
       end
     end
 
-    def any_entries?
-      @entries.any?
-    end
-
   private
 
     def identify(objects)

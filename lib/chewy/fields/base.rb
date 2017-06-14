@@ -31,8 +31,8 @@ module Chewy
         {name => mapping}
       end
 
-      def compose(object, *parent_objects)
-        objects = ([object] + parent_objects.flatten).uniq
+      def compose(*objects)
+        object = objects.first
 
         result =
           if value && value.is_a?(Proc)

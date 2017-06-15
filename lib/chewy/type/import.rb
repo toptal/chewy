@@ -42,10 +42,6 @@ module Chewy
           importer.bulk(options)
         end
 
-        def journal?
-          _default_import_options.fetch(:journal) { Chewy.configuration[:journal] }
-        end
-
         def importer
           @importer ||= Importer.new(self)
         end

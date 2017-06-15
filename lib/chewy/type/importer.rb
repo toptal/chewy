@@ -1,4 +1,5 @@
 require 'chewy/type/importer/bulkifier'
+require 'chewy/type/importer/request'
 
 module Chewy
   class Type
@@ -11,24 +12,26 @@ module Chewy
 
       def import(*args)
         import_options = args.extract_options!
-        import_options.reverse_merge! @type._default_import_options
-        bulk_options = import_options.select { |k, _| BULK_OPTIONS.include?(k) }.reverse_merge!(refresh: true)
-        use_journal = import_options.fetch(:journal) { @type.journal? }
+        import_options.reverse_merge!(@type._default_import_options)
+        import_options.reverse_merge!(refresh: true, journal: Chewy.configuration[:journal])
+        bulk_options = import_options.extract!(*BULK_OPTIONS)
 
-        Chewy::Journal.create if use_journal
+        Chewy::Journal.create if import_options[:journal]
         assure_index_existence(bulk_options.slice(:suffix))
+        request = Request.new(@type, **bulk_options)
 
         ActiveSupport::Notifications.instrument 'import_objects.chewy', type: @type do |payload|
           @type.adapter.import(*args, import_options) do |action_objects|
-            body = Bulkifier.new(@type, **action_objects).bulk_body
+            bulk_body = Bulkifier.new(@type, **action_objects).bulk_body
 
-            if use_journal
+            if import_options[:journal]
               journal = Chewy::Journal.new(@type)
               journal.add(action_objects)
-              body.concat(journal.bulk_body)
+              bulk_body.concat(journal.bulk_body)
             end
 
-            errors = bulk(bulk_options.merge(body: body)) if body.present?
+            errors = request.perform(bulk_body)
+            Chewy.wait_for_status
 
             fill_payload_import payload, action_objects
             fill_payload_errors payload, errors if errors.present?
@@ -50,51 +53,19 @@ module Chewy
       end
 
       def bulk(options = {})
-        suffix = options.delete(:suffix)
-        bulk_size = options.delete(:bulk_size)
-        body = options.delete(:body)
-        header = {index: @type.index.build_index_name(suffix: suffix), type: @type.type_name}
-
-        bodies = if bulk_size
-          bulk_size -= 1.kilobyte # 1 kilobyte for request header and newlines
-          raise ArgumentError, 'Import `:bulk_size` can\'t be less than 1 kilobyte' if bulk_size <= 0
-
-          entries = body.each_with_object(['']) do |entry, result|
-            operation, meta = entry.to_a.first
-            data = meta.delete(:data)
-            entry = [{operation => meta}, data].compact.map(&:to_json).join("\n")
-
-            raise ArgumentError, 'Import `:bulk_size` seems to be less than entry size' if entry.bytesize > bulk_size
-
-            if result.last.bytesize + entry.bytesize > bulk_size
-              result.push(entry)
-            else
-              result[-1] = [result[-1], entry].reject(&:blank?).join("\n")
-            end
-          end
-          entries.each { |entry| entry << "\n" }
-        else
-          [body]
-        end
-
-        errored_items = bodies.each_with_object([]) do |item_body, results|
-          response = @type.client.bulk options.merge(header).merge(body: item_body)
-          results.concat(response.try(:[], 'items') || []) if response.try(:[], 'errors')
-        end
+        error_items = Request.new(@type, **options).perform(options[:body])
         Chewy.wait_for_status
 
-        extract_errors errored_items
+        transpose_errors error_items
       end
 
     private
 
-      def extract_errors(items)
+      def transpose_errors(items)
         items = items.each.with_object({}) do |item, memo|
           action = item.keys.first.to_sym
           data = item.values.first
-          if data['error']
-            (memo[action] ||= []).push(action: action, id: data['_id'], error: data['error'])
-          end
+          (memo[action] ||= []).push(action: action, id: data['_id'], error: data['error'])
         end
 
         items.map do |action, action_items|
@@ -111,22 +82,27 @@ module Chewy
       end
 
       def fill_payload_import(payload, action_objects)
+        payload[:import] ||= {}
+
         imported = Hash[action_objects.map { |action, objects| [action, objects.count] }]
         imported.each do |action, count|
-          payload[:import] ||= {}
           payload[:import][action] ||= 0
           payload[:import][action] += count
         end
       end
 
-      def fill_payload_errors(payload, import_errors)
-        import_errors.each do |action, action_errors|
-          action_errors.each do |error, documents|
-            payload[:errors] ||= {}
-            payload[:errors][action] ||= {}
-            payload[:errors][action][error] ||= []
-            payload[:errors][action][error] |= documents
-          end
+      def fill_payload_errors(payload, errors)
+        payload[:errors] ||= {}
+
+        errors.each do |error|
+          action = error.keys.first.to_sym
+          item = error.values.first
+          error = item['error']
+          id = item['_id']
+
+          payload[:errors][action] ||= {}
+          payload[:errors][action][error] ||= []
+          payload[:errors][action][error].push(id)
         end
       end
     end

@@ -99,49 +99,13 @@ describe Chewy::Type::Import do
     end
 
     context ':bulk_size' do
-      specify { expect(city.import(dummy_cities.first, bulk_size: 1.2.kilobyte)).to eq(true) }
-      specify { expect(city.import(dummy_cities, bulk_size: 1.2.kilobyte)).to eq(true) }
+      let!(:dummy_cities) { Array.new(3) { |i| City.create(id: i + 1, name: "name#{i}" * 20) } }
+
       specify { expect { city.import(dummy_cities, bulk_size: 1.2.kilobyte) }.to update_index(city).and_reindex(dummy_cities) }
 
-      specify do
-        dummy_cities.first.destroy
-
-        imported = []
-        allow(CitiesIndex.client).to receive(:bulk) { |params|
-          imported << params[:body]
-          nil
-        }
-
-        city.import dummy_cities.map(&:id), bulk_size: 1.2.kilobyte
-        expect(imported.flatten).to match_array([
-          %({"delete":{"_id":1}}\n),
-          %({"index":{"_id":2}}\n{"name":"name1"}\n{"index":{"_id":3}}\n{"name":"name2"}\n)
-        ])
-      end
-
       context do
-        let!(:dummy_cities) { Array.new(3) { |i| City.create(id: i + 1, name: "name#{i}" * 20) } }
-
-        specify do
-          dummy_cities.first.destroy
-
-          imported = []
-          allow(CitiesIndex.client).to receive(:bulk) { |params|
-            imported << params[:body]
-            nil
-          }
-
-          city.import dummy_cities.map(&:id), bulk_size: 1.2.kilobyte
-          expect(imported.flatten).to match_array([
-            %({"delete":{"_id":1}}\n),
-            %({"index":{"_id":2}}\n{"name":"#{'name1' * 20}"}\n),
-            %({"index":{"_id":3}}\n{"name":"#{'name2' * 20}"}\n)
-          ])
-        end
-
-        specify do
-          expect { city.import dummy_cities.map(&:id), bulk_size: 1.1.kilobyte }.to raise_error ArgumentError
-        end
+        before { expect(Chewy.client).to receive(:bulk).exactly(3).times.and_call_original }
+        specify { expect(city.import(dummy_cities, bulk_size: 1.2.kilobyte)).to eq(true) }
       end
     end
 
@@ -283,11 +247,11 @@ describe Chewy::Type::Import do
 
     context 'default_import_options are set' do
       before do
-        CitiesIndex::City.default_import_options(batch_size: 500, bulk_size: 1.megabyte)
+        CitiesIndex::City.default_import_options(batch_size: 500)
       end
 
       specify do
-        expect(CitiesIndex::City.adapter).to receive(:import).with(batch_size: 500, bulk_size: 1.megabyte)
+        expect(CitiesIndex::City.adapter).to receive(:import).with(hash_including(batch_size: 500))
         CitiesIndex::City.import
       end
     end

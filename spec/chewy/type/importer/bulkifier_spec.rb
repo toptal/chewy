@@ -9,7 +9,7 @@ describe Chewy::Type::Importer::Bulkifier do
   let(:delete) { [] }
 
   describe '#bulk_body' do
-    context 'ORM', :orm do
+    context 'simple bulk', :orm do
       before do
         stub_model(:city)
         stub_index(:places) do

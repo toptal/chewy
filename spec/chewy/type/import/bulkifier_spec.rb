@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe Chewy::Type::Importer::Bulkifier do
+describe Chewy::Type::Import::Bulkifier do
   before { Chewy.massacre }
 
   subject { described_class.new(type, index: index, delete: delete) }

@@ -1,6 +1,6 @@
 module Chewy
   class Type
-    class Importer
+    module Import
       # This class purpose is to build ES client-acceptable bulk
       # request body from the passed objects for index and deletion.
       # It handles parent-child relationships as well by fetching

@@ -1,6 +1,6 @@
 module Chewy
   class Type
-    class Importer
+    module Import
       # Adds additional features to elasticsearch-api bulk method:
       # * supports Chewy index suffix if necessary;
       # * supports bulk_size, devides the passed body in chunks

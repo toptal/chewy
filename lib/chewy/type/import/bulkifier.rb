@@ -6,14 +6,18 @@ module Chewy
       # It handles parent-child relationships as well by fetching
       # existing documents from ES, taking their `_parent` field and
       # using it in the bulk body.
+      # If fields are passed - it creates partial update entries except for
+      # the cases when the type has parent and parent_id has been changed.
       class Bulkifier
         # @param type [Chewy::Type] desired type
         # @param index [Array<Object>] objects to index
         # @param delete [Array<Object>] objects or ids to delete
-        def initialize(type, index: [], delete: [])
+        # @param fields [Array<Symbol, String>] and array of fields for documents update
+        def initialize(type, index: [], delete: [], fields: [])
           @type = type
           @index = index
           @delete = delete
+          @fields = fields.map!(&:to_sym)
         end
 
         # Returns ES API-ready bulk requiest body.
@@ -55,11 +59,14 @@ module Chewy
             parent = entry[:_id].present? && parents[entry[:_id].to_s]
           end
 
-          entry[:data] = compose(object, crutches)
-
           if parent && entry[:parent].to_s != parent
+            entry[:data] = @type.compose(object, crutches)
             [{delete: entry.except(:data).merge(parent: parent)}, {index: entry}]
+          elsif @fields.present?
+            entry[:data] = {doc: @type.compose(object, crutches, fields: @fields)}
+            [{update: entry}]
           else
+            entry[:data] = @type.compose(object, crutches)
             [{index: entry}]
           end
         end
@@ -86,14 +93,6 @@ module Chewy
             id ||= object[:id] || object['id'] if object.is_a?(Hash)
             id = id.to_s if defined?(BSON) && id.is_a?(BSON::ObjectId)
             id
-          end
-        end
-
-        def compose(object, crutches = nil)
-          if @type.witchcraft?
-            @type.cauldron.brew(object, crutches)
-          else
-            type_root.compose(object, crutches)[@type.type_name.to_s]
           end
         end
 

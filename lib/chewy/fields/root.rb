@@ -12,13 +12,8 @@ module Chewy
         @id = @options.delete(:id) || options.delete(:_id)
         @parent = @options.delete(:parent) || options.delete(:_parent)
         @parent_id = @options.delete(:parent_id)
-        @value ||= -> { self }
         @dynamic_templates = []
         @options.delete(:type)
-      end
-
-      def compose(*args)
-        super.as_json
       end
 
       def mappings_hash
@@ -63,6 +58,36 @@ module Chewy
       def compose_id(object)
         return unless id
         id.arity.zero? ? object.instance_exec(&id) : id.call(object)
+      end
+
+      # Converts passed object to JSON-ready hash. Used for objects import.
+      #
+      # @param object [Object] a base object for composition
+      # @param crutches [Object] any object that will be passed to every field value proc as a last argument
+      # @param fields [Array<Symbol>] a list of fields to compose, every field will be composed if empty
+      # @return [Hash] JSON-ready heash with stringifyed keys
+      def compose(object, crutches = nil, fields: [])
+        if children.present?
+          child_fields = if fields.present?
+            child_hash.slice(*fields).values
+          else
+            children
+          end
+
+          child_fields.each_with_object({}) do |field, result|
+            result.merge!(field.compose(object, crutches) || {})
+          end.as_json
+        elsif fields.present?
+          object.as_json(only: fields)
+        else
+          object.as_json
+        end
+      end
+
+    private
+
+      def child_hash
+        @child_hash ||= children.index_by(&:name)
       end
     end
   end

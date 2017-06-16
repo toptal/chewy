@@ -215,6 +215,16 @@ describe Chewy::Type::Import do
       end
     end
 
+    context 'fields' do
+      before { city.import!(dummy_cities.first(2)) }
+      specify { expect(city.import(dummy_cities, fields: [:name])).to eq(false) }
+
+      context do
+        before { city.import!(dummy_cities.last) }
+        specify { expect(city.import(dummy_cities, fields: [:name])).to eq(true) }
+      end
+    end
+
     context 'error handling' do
       context do
         before do
@@ -284,6 +294,58 @@ describe Chewy::Type::Import do
         rescue
           nil
         end
+      end
+    end
+  end
+
+  describe '.compose' do
+    before do
+      stub_index(:cities) do
+        define_type :city do
+          crutch :names do |collection|
+            collection.map { |o| [o.name, o.name + '42'] }.to_h
+          end
+          field :name, value: ->(o, c) { c.names[o.name] }
+          field :rating
+        end
+      end
+    end
+
+    specify do
+      expect(CitiesIndex::City.compose(double(name: 'Name', rating: 42)))
+        .to eq('name' => 'Name42', 'rating' => 42)
+    end
+
+    specify do
+      expect(CitiesIndex::City.compose(double(name: 'Name', rating: 42), fields: %i[name]))
+        .to eq('name' => 'Name42')
+    end
+
+    context 'witchcraft' do
+      before { CitiesIndex::City.witchcraft! }
+
+      specify do
+        expect(CitiesIndex::City.compose(double(name: 'Name', rating: 42)))
+          .to eq('name' => 'Name42', 'rating' => 42)
+      end
+
+      specify do
+        expect(CitiesIndex::City.compose(double(name: 'Name', rating: 42), fields: %i[name]))
+          .to eq('name' => 'Name42')
+      end
+    end
+
+    context 'custom crutches' do
+      let(:crutches) { double(names: {'Name' => 'Name43'}) }
+
+      specify do
+        expect(CitiesIndex::City.compose(double(name: 'Name', rating: 42), crutches))
+          .to eq('name' => 'Name43', 'rating' => 42)
+      end
+
+      specify do
+        expect(CitiesIndex::City.compose(double(name: 'Name', rating: 42), crutches, fields: %i[name]))
+          .to eq('name' => 'Name43')
       end
     end
   end

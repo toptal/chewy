@@ -68,7 +68,11 @@ module Chewy
     private
 
       def compose_children(value, *parent_objects)
-        children.map { |field| field.compose(value, *parent_objects) }.compact.inject(:merge) if value
+        return unless value
+
+        children.each_with_object({}) do |field, result|
+          result.merge!(field.compose(value, *parent_objects) || {})
+        end
       end
     end
   end

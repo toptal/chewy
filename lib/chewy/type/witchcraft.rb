@@ -35,17 +35,20 @@ module Chewy
           !!_witchcraft
         end
 
-        def cauldron
-          @cauldron ||= Cauldron.new(self)
+        def cauldron(**options)
+          (@cauldron ||= {})[options] ||= Cauldron.new(self, **options)
         end
       end
 
       class Cauldron
         attr_reader :locals
 
-        def initialize(type)
+        # @param type [Chewy::Type] type for composition
+        # @param fields [Array<Symbol>] restricts the fields for composition
+        def initialize(type, fields: [])
           @type = type
           @locals = []
+          @fields = fields
         end
 
         def brew(object, crutches = nil)
@@ -91,7 +94,7 @@ module Chewy
         end
 
         def non_proc_values(field, nesting)
-          non_proc_fields = non_proc_fields_for(field)
+          non_proc_fields = non_proc_fields_for(field, nesting)
           object = "object#{nesting}"
 
           if non_proc_fields.present?
@@ -117,7 +120,7 @@ module Chewy
         end
 
         def proc_values(field, nesting)
-          proc_fields = proc_fields_for(field)
+          proc_fields = proc_fields_for(field, nesting)
 
           if proc_fields.present?
             <<-RUBY
@@ -132,14 +135,26 @@ module Chewy
           end
         end
 
-        def non_proc_fields_for(parent)
+        def non_proc_fields_for(parent, nesting)
           return [] unless parent
-          (parent.children || []).reject { |field| (field.value && field.value.is_a?(Proc)) }
+          fields = (parent.children || []).reject { |field| field.value && field.value.is_a?(Proc) }
+
+          if nesting.zero? && @fields.present?
+            fields.select { |f| @fields.include?(f.name) }
+          else
+            fields
+          end
         end
 
-        def proc_fields_for(parent)
+        def proc_fields_for(parent, nesting)
           return [] unless parent
-          (parent.children || []).select { |field| field.value && field.value.is_a?(Proc) }
+          fields = (parent.children || []).select { |field| field.value && field.value.is_a?(Proc) }
+
+          if nesting.zero? && @fields.present?
+            fields.select { |f| @fields.include?(f.name) }
+          else
+            fields
+          end
         end
 
         def source_for(proc, nesting)

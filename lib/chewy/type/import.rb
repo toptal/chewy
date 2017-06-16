@@ -38,7 +38,7 @@ module Chewy
 
           ActiveSupport::Notifications.instrument 'import_objects.chewy', type: self do |payload|
             adapter.import(*args, import_options) do |action_objects|
-              bulk_body = Bulkifier.new(self, **action_objects).bulk_body
+              bulk_body = Bulkifier.new(self, **import_options.slice(:fields), **action_objects).bulk_body
 
               if import_options[:journal]
                 journal = Chewy::Journal.new(self)
@@ -80,6 +80,23 @@ module Chewy
           Chewy.wait_for_status
 
           transpose_errors error_items
+        end
+
+        # Composes a single document from the passed object. Uses either witchcraft
+        # or normal composing under the hood.
+        #
+        # @param object [Object] a data source object
+        # @param crutches [Object] optional crutches object; if ommited - a crutch for the single passed object is created as a fallback
+        # @param fields [Array<Symbol>] and array of fields to restrict the generated document
+        # @return [Hash] a JSON-ready hash
+        def compose(object, crutches = nil, fields: [])
+          crutches ||= Chewy::Type::Crutch::Crutches.new self, [object]
+
+          if witchcraft? && build_root.children.present?
+            cauldron(fields: fields).brew(object, crutches)
+          else
+            build_root.compose(object, crutches, fields: fields)
+          end
         end
 
       private

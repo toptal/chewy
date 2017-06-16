@@ -1,9 +1,6 @@
 require 'spec_helper'
 
 describe Chewy::Fields::Root do
-  specify { expect(described_class.new('name').value).to be_a(Proc) }
-  # TODO: add 'should_behave_like base_field'
-
   subject(:field) { described_class.new('product') }
 
   describe '#dynamic_template' do
@@ -40,6 +37,49 @@ describe Chewy::Fields::Root do
           {template_42: {mapping: {}, match: ''}},
           {template_1: {mapping: {type: 'string'}, match: 'hello'}}
         ]})
+      end
+    end
+  end
+
+  describe '#compose' do
+    context 'empty children', :orm do
+      before do
+        stub_model(:city)
+        stub_index(:places) do
+          define_type City
+        end
+      end
+
+      let(:city) { City.new(name: 'London', rating: 100) }
+
+      specify do
+        expect(PlacesIndex::City.send(:build_root).compose(city))
+          .to match(hash_including('name' => 'London', 'rating' => 100))
+      end
+      specify do
+        expect(PlacesIndex::City.send(:build_root).compose(city, fields: %i[name borogoves]))
+          .to eq('name' => 'London')
+      end
+    end
+
+    context 'has children' do
+      before do
+        stub_index(:places) do
+          define_type :city do
+            field :name, :rating
+          end
+        end
+      end
+
+      let(:city) { double(name: 'London', rating: 100) }
+
+      specify do
+        expect(PlacesIndex::City.send(:build_root).compose(city))
+          .to eq('name' => 'London', 'rating' => 100)
+      end
+      specify do
+        expect(PlacesIndex::City.send(:build_root).compose(city, fields: %i[name borogoves]))
+          .to eq('name' => 'London')
       end
     end
   end

@@ -39,6 +39,22 @@ describe Chewy::Type::Witchcraft do
         let(:object) { attributes }
         specify { expect(type.cauldron.brew(object)).to eq(attributes.as_json) }
       end
+
+      context do
+        let(:object) { double(attributes) }
+        specify do
+          expect(type.cauldron(fields: %i[name tags]).brew(object))
+            .to eq('name' => 'Name', 'tags' => %w[Ruby RoR])
+        end
+      end
+
+      context do
+        let(:object) { attributes }
+        specify do
+          expect(type.cauldron(fields: %i[name tags]).brew(object))
+            .to eq('name' => 'Name', 'tags' => %w[Ruby RoR])
+        end
+      end
     end
 
     context 'simple lambdas' do

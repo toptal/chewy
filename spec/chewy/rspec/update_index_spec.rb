@@ -1,14 +1,16 @@
 require 'spec_helper'
 
 describe :update_index do
-  before { Chewy.massacre }
-
   before do
     stub_index(:dummies) do
-      define_type :dummy do
-        root value: ->(_o) { {} }
-      end
+      define_type :dummy
+      define_type :dummy2
     end
+  end
+
+  before do
+    Chewy.massacre
+    DummiesIndex.create!
   end
 
   specify { expect {}.not_to update_index(DummiesIndex::Dummy) }
@@ -19,16 +21,47 @@ describe :update_index do
       .to fail_with(/Expected index .* not to be updated, but it was with/)
   end
 
+  specify do
+    expect do
+      DummiesIndex::Dummy.bulk body: [{index: {_id: 42, data: {}}}, {index: {_id: 41, data: {}}}]
+      DummiesIndex::Dummy2.bulk body: [{index: {_id: 43, data: {}}}]
+    end.to update_index(DummiesIndex::Dummy).and_reindex(41, 42).only
+  end
+
   context do
     let(:expectation) do
       expect do
         expect do
           DummiesIndex::Dummy.bulk body: [{index: {_id: 42}}, {index: {_id: 41}}, {index: {_id: 42}}]
-        end.not_to update_index(DummiesIndex::Dummy) end
+        end.not_to update_index(DummiesIndex::Dummy)
+      end
     end
 
     specify { expectation.to fail_matching 'document id `42` (2 times)' }
     specify { expectation.to fail_matching 'document id `41` (1 times)' }
+  end
+
+  context 'compound matchers' do
+    specify do
+      expect do
+        DummiesIndex::Dummy.bulk body: [{index: {_id: 42, data: {}}}, {index: {_id: 41, data: {}}}]
+        DummiesIndex::Dummy2.bulk body: [{index: {_id: 43, data: {}}}]
+      end.to update_index(DummiesIndex::Dummy).and_reindex(41, 42).only
+        .and update_index(DummiesIndex::Dummy2).and_reindex(43).only
+    end
+
+    context do
+      let(:expectation) do
+        expect do
+          expect do
+            DummiesIndex::Dummy2.bulk body: [{index: {_id: 43, data: {}}}]
+          end.to update_index(DummiesIndex::Dummy).and_reindex(41, 42).only
+            .and update_index(DummiesIndex::Dummy2).and_reindex(43).only
+        end
+      end
+
+      specify { expectation.to fail_matching 'Expected index `DummiesIndex::Dummy` to be updated' }
+    end
   end
 
   context '#only' do

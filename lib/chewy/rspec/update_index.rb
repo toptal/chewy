@@ -104,8 +104,9 @@ RSpec::Matchers.define :update_index do |type_name, options = {}| # rubocop:disa
     if defined?(Mocha) && RSpec.configuration.mock_framework.to_s == 'RSpec::Core::MockingAdapters::Mocha'
       Chewy::Type::Import::Request.stubs(:new).with(type, any_parameters).returns(collector)
     else
-      allow(Chewy::Type::Import::Request).to receive(:new).and_call_original
-      allow(Chewy::Type::Import::Request).to receive(:new).with(type, anything).and_return(collector)
+      mocked_already = ::RSpec::Mocks.space.proxy_for(Chewy::Type::Import::Request).method_double_if_exists_for_message(:new)
+      allow(Chewy::Type::Import::Request).to receive(:new).and_call_original unless mocked_already
+      allow(Chewy::Type::Import::Request).to receive(:new).with(type, any_args).and_return(collector)
     end
 
     Chewy.strategy(options[:strategy] || :atomic) { block.call }

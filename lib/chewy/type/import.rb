@@ -9,8 +9,8 @@ module Chewy
       module ClassMethods
         BULK_OPTIONS = %i[suffix bulk_size refresh consistency replication].freeze
 
-        # Perform import operation for specified documents.
-        # Returns true or false depending on success.
+        # Performs import operation for specified documents.
+        # See adapters documentation for more details.
         #
         #   UsersIndex::User.import                          # imports default data set
         #   UsersIndex::User.import User.active              # imports active users
@@ -24,8 +24,8 @@ module Chewy
         #   UsersIndex::User.import consistency: :quorum     # explicit write consistency setting for the operation (one, quorum, all)
         #   UsersIndex::User.import replication: :async      # explicitly set the replication type (sync, async)
         #
-        # See adapters documentation for more details.
-        #
+        # @param collection
+        # @return [true, false] false in case of errors
         def import(*args)
           import_options = args.extract_options!
           import_options.reverse_merge!(_default_import_options)

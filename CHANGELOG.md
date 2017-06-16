@@ -2,6 +2,8 @@
 
 ## Changes
 
+  * Partial indexing ability: it is possible to update only specified fields.
+
   * New cool `rake chewy:deploy` task.
 
   * Brand new request DSL. Supports ElasticSearch 2 and 5, better usability, architecture and docs.

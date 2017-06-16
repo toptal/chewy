@@ -593,6 +593,7 @@ UsersIndex::User.import # import with 0 arguments process all the data specified
 UsersIndex::User.import User.where('rating > 100') # or import specified users scope
 UsersIndex::User.import User.where('rating > 100').to_a # or import specified users array
 UsersIndex::User.import [1, 2, 42] # pass even ids for import, it will be handled in the most effective way
+UsersIndex::User.import User.where('rating > 100'), fields: [:email] # if fields are specified - it will update their values only with the `update` bulk action.
 
 UsersIndex.import # import every defined type
 UsersIndex.import user: User.where('rating > 100') # import only active users to `user` type.

@@ -43,7 +43,8 @@ module Chewy
         indices_boost
       ].freeze
 
-      delegate :hits, :wrappers, :objects, :documents, :object_hash, :document_hash,
+      delegate :hits, :wrappers, :objects, :records, :documents,
+        :object_hash, :record_hash, :document_hash,
         :total, :max_score, :took, :timed_out?, to: :response
       delegate :each, :size, :to_a, :[], to: :wrappers
       alias_method :to_ary, :to_a

@@ -1,5 +1,5 @@
 require 'chewy/type/import/bulkifier'
-require 'chewy/type/import/request'
+require 'chewy/type/import/bulk'
 
 module Chewy
   class Type
@@ -59,7 +59,7 @@ module Chewy
 
           Chewy::Journal.create if import_options[:journal]
           assure_index_existence(bulk_options.slice(:suffix))
-          request = Request.new(self, **bulk_options)
+          request = Bulk.new(self, **bulk_options)
 
           ActiveSupport::Notifications.instrument 'import_objects.chewy', type: self do |payload|
             adapter.import(*args, import_options) do |action_objects|
@@ -104,14 +104,14 @@ module Chewy
         # `bulk_size` and `suffix`.
         #
         # @see https://github.com/elastic/elasticsearch-ruby/blob/master/elasticsearch-api/lib/elasticsearch/api/actions/bulk.rb
-        # @see Chewy::Type::Import::Request
+        # @see Chewy::Type::Import::Bulk
         # @param options [Hash{Symbol => Object}] besides specific import options, it accepts all the options suitable for the bulk API call like `refresh` or `timeout`
         # @option options [String] suffix bulk API chunk size in bytes; if passed, the request is performed several times for each chunk, empty by default
         # @option options [Integer] bulk_size bulk API chunk size in bytes; if passed, the request is performed several times for each chunk, empty by default
         # @option options [Array<Hash>] body elasticsearch API bulk method body
         # @return [Hash] tricky transposed errors hash, empty if everything is fine
         def bulk(**options)
-          error_items = Request.new(self, **options).perform(options[:body])
+          error_items = Bulk.new(self, **options).perform(options[:body])
           Chewy.wait_for_status
 
           transpose_errors error_items

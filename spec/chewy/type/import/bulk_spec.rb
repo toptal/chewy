@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe Chewy::Type::Import::Request do
+describe Chewy::Type::Import::Bulk do
   before { Chewy.massacre }
 
   subject { described_class.new(type, suffix: suffix, bulk_size: bulk_size, **bulk_options) }

@@ -9,7 +9,7 @@ module Chewy
       #   if any present.
       #
       # @see https://github.com/elastic/elasticsearch-ruby/blob/master/elasticsearch-api/lib/elasticsearch/api/actions/bulk.rb
-      class Request
+      class Bulk
         # @param type [Chewy::Type] a type for the request
         # @param suffix [String] an index name optional suffix
         # @param bulk_size [Integer] bulk size in bytes

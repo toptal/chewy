@@ -96,6 +96,10 @@ module Chewy
       rescue NotImplementedError
         super
       end
+
+      def journal?
+        _default_import_options.fetch(:journal) { Chewy.configuration[:journal] }
+      end
     end
   end
 end

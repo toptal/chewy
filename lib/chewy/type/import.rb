@@ -7,24 +7,49 @@ module Chewy
       extend ActiveSupport::Concern
 
       module ClassMethods
-        BULK_OPTIONS = %i[suffix bulk_size refresh consistency replication].freeze
+        BULK_OPTIONS = %i[
+          suffix bulk_size
+          refresh timeout pipeline
+          consistency replication
+          wait_for_active_shards routing _source _source_exclude _source_include
+        ].freeze
 
-        # Performs import operation for specified documents.
-        # See adapters documentation for more details.
+        # @!method import(*collection, **options)
+        # Basically, one of the main methods for type. Performs any objects import
+        # to the index for a specified type. Does all the objects handling routines.
+        # Performs document import by utilizing bulk API. Bulk size and objects batch
+        # size are controlled by the corresponding options.
         #
-        #   UsersIndex::User.import                          # imports default data set
-        #   UsersIndex::User.import User.active              # imports active users
-        #   UsersIndex::User.import [1, 2, 3]                # imports users with specified ids
-        #   UsersIndex::User.import users                    # imports users collection
-        #   UsersIndex::User.import suffix: Time.now.to_i    # imports data to index with specified suffix if such exists
-        #   UsersIndex::User.import refresh: false           # to disable index refreshing after import
-        #   UsersIndex::User.import journal: true            # import will record all the actions into special journal index
-        #   UsersIndex::User.import batch_size: 300          # import batch size
-        #   UsersIndex::User.import bulk_size: 10.megabytes  # import ElasticSearch bulk size in bytes
-        #   UsersIndex::User.import consistency: :quorum     # explicit write consistency setting for the operation (one, quorum, all)
-        #   UsersIndex::User.import replication: :async      # explicitly set the replication type (sync, async)
+        # It accepts ORM/ODM objects, PORO, hashes, ids which are used by adapter to
+        # fetch objects from the source depenting on the used adapter. It destroys
+        # passed objects from the index if they are not in the default type scope
+        # or marked for destruction.
         #
-        # @param collection
+        # It handles parent-child relationships: if the object parent_id has been
+        # changed it destroys the object and recreates it from scratch.
+        #
+        # Performs journaling if enabled: it stores all the ids of the imported
+        # objects to a specialized index. It is possible to replay particular import
+        # later to restore the data consistency.
+        #
+        # Performs partial index update using `update` bulk action if any fields are
+        # specified. Note that if document doesn't exist yet, it will not be created,
+        # there will be an error instead. But it is possible to collect such errors
+        # and perform full import for the failed ids only.
+        #
+        # Utilizes `ActiveSupport::Notifications`, so it is possible to get imported
+        # objects later by listening to the `import_objects.chewy` queue. It is also
+        # possible to get the list of occured errors from the payload if something
+        # went wrong.
+        #
+        # @see https://github.com/elastic/elasticsearch-ruby/blob/master/elasticsearch-api/lib/elasticsearch/api/actions/bulk.rb
+        # @param collection [Array<Object>] and array or anything to import
+        # @param options [Hash{Symbol => Object}] besides specific import options, it accepts all the options suitable for the bulk API call like `refresh` or `timeout`
+        # @option options [String] suffix an index name suffix, used for zero-downtime reset mostly, no suffix by default
+        # @option options [Integer] bulk_size bulk API chunk size in bytes; if passed, the request is performed several times for each chunk, empty by default
+        # @option options [Integer] batch_size passed to the adapter import method, used to split imported objects in chunks, 1000 by default
+        # @option options [true, false] journal enables imported objects journaling, false by default
+        # @option options [Array<Symbol, String>] fields list of fields for the partial import, empty by default
         # @return [true, false] false in case of errors
         def import(*args)
           import_options = args.extract_options!
@@ -56,11 +81,13 @@ module Chewy
           end
         end
 
-        # Perform import operation for specified documents.
-        # Raises Chewy::ImportFailed exception in case of import errors.
-        # Options are completely the same as for `import` method
-        # See adapters documentation for more details.
+        # @!method import!(*collection, **options)
+        # (see #import)
         #
+        # The only difference from {#import} is that it raises an exception
+        # in case of any import errors.
+        #
+        # @raise [Chewy::ImportFailed] in case of errors
         def import!(*args)
           errors = nil
           subscriber = ActiveSupport::Notifications.subscribe('import_objects.chewy') do |*notification_args|
@@ -73,9 +100,17 @@ module Chewy
           ActiveSupport::Notifications.unsubscribe(subscriber) if subscriber
         end
 
-        # Wraps elasticsearch-ruby client indices bulk method.
-        # Adds `:suffix` option to bulk import to index with specified suffix.
-        def bulk(options = {})
+        # Wraps elasticsearch API bulk method, adds additional features like
+        # `bulk_size` and `suffix`.
+        #
+        # @see https://github.com/elastic/elasticsearch-ruby/blob/master/elasticsearch-api/lib/elasticsearch/api/actions/bulk.rb
+        # @see Chewy::Type::Import::Request
+        # @param options [Hash{Symbol => Object}] besides specific import options, it accepts all the options suitable for the bulk API call like `refresh` or `timeout`
+        # @option options [String] suffix bulk API chunk size in bytes; if passed, the request is performed several times for each chunk, empty by default
+        # @option options [Integer] bulk_size bulk API chunk size in bytes; if passed, the request is performed several times for each chunk, empty by default
+        # @option options [Array<Hash>] body elasticsearch API bulk method body
+        # @return [Hash] tricky transposed errors hash, empty if everything is fine
+        def bulk(**options)
           error_items = Request.new(self, **options).perform(options[:body])
           Chewy.wait_for_status
 

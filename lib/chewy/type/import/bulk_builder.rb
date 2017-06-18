@@ -8,7 +8,7 @@ module Chewy
       # using it in the bulk body.
       # If fields are passed - it creates partial update entries except for
       # the cases when the type has parent and parent_id has been changed.
-      class Bulkifier
+      class BulkBuilder
         # @param type [Chewy::Type] desired type
         # @param index [Array<Object>] objects to index
         # @param delete [Array<Object>] objects or ids to delete

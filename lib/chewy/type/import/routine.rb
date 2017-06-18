@@ -3,7 +3,7 @@ module Chewy
     module Import
       # This class performs the import sequence for the options and objects given.
       # @see Chewy::Type::Import::ClassMethods#import
-      class Sequence
+      class Routine
         BULK_OPTIONS = %i[
           suffix bulk_size
           refresh timeout pipeline
@@ -55,8 +55,8 @@ module Chewy
           all_errors = []
 
           @type.adapter.import(*objects, @options) do |action_objects|
-            bulkifier = Bulkifier.new(@type, **@options.slice(:fields), **action_objects)
-            bulk_body = bulkifier.bulk_body
+            bulk_builder = BulkBuilder.new(@type, **@options.slice(:fields), **action_objects)
+            bulk_body = bulk_builder.bulk_body
 
             bulk_body.concat(journal_bulk(action_objects))
 
@@ -68,7 +68,7 @@ module Chewy
             errors = bulk.perform(bulk_body)
             Chewy.wait_for_status
 
-            additional_bulk = extract_additional_bulk!(errors, bulkifier.index_objects_by_id)
+            additional_bulk = extract_additional_bulk!(errors, bulk_builder.index_objects_by_id)
 
             yield action_objects
             all_errors.concat(errors)
@@ -104,11 +104,11 @@ module Chewy
           errors_to_cleanup.each { |error| errors.delete(error) }
 
           failed_objects = index_objects_by_id.values_at(*failed_ids_for_reimport)
-          Bulkifier.new(@type, index: failed_objects).bulk_body
+          BulkBuilder.new(@type, index: failed_objects).bulk_body
         end
 
         def bulk
-          @bulk ||= Bulk.new(@type, **@bulk_options)
+          @bulk ||= BulkRequest.new(@type, **@bulk_options)
         end
       end
     end

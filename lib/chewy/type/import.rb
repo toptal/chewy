@@ -1,6 +1,6 @@
-require 'chewy/type/import/bulkifier'
-require 'chewy/type/import/bulk'
-require 'chewy/type/import/sequence'
+require 'chewy/type/import/bulk_builder'
+require 'chewy/type/import/bulk_request'
+require 'chewy/type/import/routine'
 
 module Chewy
   class Type
@@ -46,7 +46,7 @@ module Chewy
         # @option options [Array<Symbol, String>] fields list of fields for the partial import, empty by default
         # @return [true, false] false in case of errors
         def import(*args)
-          import_sequence(*args).blank?
+          import_routine(*args).blank?
         end
 
         # @!method import!(*collection, **options)
@@ -57,7 +57,7 @@ module Chewy
         #
         # @raise [Chewy::ImportFailed] in case of errors
         def import!(*args)
-          errors = import_sequence(*args)
+          errors = import_routine(*args)
           raise Chewy::ImportFailed.new(self, errors) if errors.present?
           true
         end
@@ -73,7 +73,7 @@ module Chewy
         # @option options [Array<Hash>] body elasticsearch API bulk method body
         # @return [Hash] tricky transposed errors hash, empty if everything is fine
         def bulk(**options)
-          error_items = Bulk.new(self, **options).perform(options[:body])
+          error_items = BulkRequest.new(self, **options).perform(options[:body])
           Chewy.wait_for_status
 
           payload_errors(error_items)
@@ -98,8 +98,8 @@ module Chewy
 
       private
 
-        def import_sequence(*args)
-          sequence = Sequence.new(self, args.extract_options!)
+        def import_routine(*args)
+          sequence = Routine.new(self, args.extract_options!)
           sequence.create_indexes!
 
           ActiveSupport::Notifications.instrument 'import_objects.chewy', type: self do |payload|

@@ -6,13 +6,14 @@ module Chewy
       class Routine
         BULK_OPTIONS = %i[
           suffix bulk_size
-          refresh timeout pipeline
+          refresh timeout fields pipeline
           consistency replication
           wait_for_active_shards routing _source _source_exclude _source_include
         ].freeze
 
         DEFAULT_OPTIONS = {
           refresh: true,
+          update_fields: [],
           update_failover: true
         }.freeze
 
@@ -21,7 +22,8 @@ module Chewy
         # @param options [Hash] import options, see {Chewy::Type::Import::ClassMethods#import}
         def initialize(type, **options)
           @type = type
-          @options = options.reverse_merge(@type._default_import_options)
+          @options = options
+          @options.reverse_merge!(@type._default_import_options)
           @options.reverse_merge!(journal: Chewy.configuration[:journal])
           @options.reverse_merge!(DEFAULT_OPTIONS)
           @bulk_options = @options.extract!(*BULK_OPTIONS)
@@ -60,7 +62,7 @@ module Chewy
           all_errors = []
 
           @type.adapter.import(*objects, @options) do |action_objects|
-            bulk_builder = BulkBuilder.new(@type, **@options.slice(:fields), **action_objects)
+            bulk_builder = BulkBuilder.new(@type, fields: @options[:update_fields], **action_objects)
             bulk_body = bulk_builder.bulk_body
 
             bulk_body.concat(journal_bulk(action_objects))
@@ -98,7 +100,7 @@ module Chewy
         end
 
         def extract_additional_bulk!(errors, index_objects_by_id)
-          return [] unless @options[:fields].present? && @options[:update_failover] && errors.present?
+          return [] unless @options[:update_fields].present? && @options[:update_failover] && errors.present?
 
           failed_partial_updates = errors.select do |item|
             item.keys.first == 'update' && item.values.first['error']['type'] == 'document_missing_exception'

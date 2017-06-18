@@ -220,17 +220,17 @@ describe Chewy::Type::Import do
 
       context do
         before { expect(Chewy.client).to receive(:bulk).twice.and_call_original }
-        specify { expect(city.import(dummy_cities, fields: [:name])).to eq(true) }
+        specify { expect(city.import(dummy_cities, update_fields: [:name])).to eq(true) }
       end
 
       context do
         before { city.import!(dummy_cities.last) }
         before { expect(Chewy.client).to receive(:bulk).once.and_call_original }
-        specify { expect(city.import(dummy_cities, fields: [:name])).to eq(true) }
+        specify { expect(city.import(dummy_cities, update_fields: [:name])).to eq(true) }
       end
     end
 
-    context 'full procedure integrated' do
+    context 'fields integrational' do
       before do
         stub_index(:cities) do
           define_type :city do
@@ -269,7 +269,7 @@ describe Chewy::Type::Import do
         payload = subscribe_notification
 
         expect(Chewy.client).to receive(:bulk).twice.and_call_original
-        CitiesIndex::City.import(objects, fields: %i[name])
+        CitiesIndex::City.import(objects, update_fields: %i[name])
 
         expect(payload).to eq(
           errors: {index: {{'type' => 'mapper_parsing_exception', 'reason' => 'object mapping for [object] tried to parse field [object] as object, but found a concrete value'} => %w[2 4]}},
@@ -282,7 +282,7 @@ describe Chewy::Type::Import do
         payload = subscribe_notification
 
         expect(Chewy.client).to receive(:bulk).exactly(4).times.and_call_original
-        CitiesIndex::City.import(objects, batch_size: 2, fields: %i[name])
+        CitiesIndex::City.import(objects, batch_size: 2, update_fields: %i[name])
 
         expect(payload).to eq(
           errors: {index: {{'type' => 'mapper_parsing_exception', 'reason' => 'object mapping for [object] tried to parse field [object] as object, but found a concrete value'} => %w[2 4]}},
@@ -298,7 +298,7 @@ describe Chewy::Type::Import do
           payload = subscribe_notification
 
           expect(Chewy.client).to receive(:bulk).exactly(3).times.and_call_original
-          CitiesIndex::City.import(objects, batch_size: 2, fields: %i[name])
+          CitiesIndex::City.import(objects, batch_size: 2, update_fields: %i[name])
 
           expect(payload).to eq(
             errors: {index: {{'type' => 'mapper_parsing_exception', 'reason' => 'object mapping for [object] tried to parse field [object] as object, but found a concrete value'} => %w[2 4]}},
@@ -315,7 +315,7 @@ describe Chewy::Type::Import do
           payload = subscribe_notification
 
           expect(Chewy.client).to receive(:bulk).twice.and_call_original
-          CitiesIndex::City.import(objects, fields: %i[name])
+          CitiesIndex::City.import(objects, update_fields: %i[name])
 
           expect(payload).to eq(
             import: {index: 6},
@@ -327,7 +327,7 @@ describe Chewy::Type::Import do
           payload = subscribe_notification
 
           expect(Chewy.client).to receive(:bulk).exactly(3).times.and_call_original
-          CitiesIndex::City.import(objects, batch_size: 2, fields: %i[name])
+          CitiesIndex::City.import(objects, batch_size: 2, update_fields: %i[name])
 
           expect(payload).to eq(
             import: {index: 6},
@@ -339,7 +339,7 @@ describe Chewy::Type::Import do
           payload = subscribe_notification
 
           expect(Chewy.client).to receive(:bulk).once.and_call_original
-          CitiesIndex::City.import(objects, fields: %i[name], update_failover: false)
+          CitiesIndex::City.import(objects, update_fields: %i[name], update_failover: false)
 
           # Full match doesn't work here.
           expect(payload[:errors][:update].keys).to match([
@@ -357,7 +357,7 @@ describe Chewy::Type::Import do
           payload = subscribe_notification
 
           expect(Chewy.client).to receive(:bulk).once.and_call_original
-          CitiesIndex::City.import(objects, fields: %i[name])
+          CitiesIndex::City.import(objects, update_fields: %i[name])
 
           expect(payload).to eq(
             import: {index: 6},
@@ -373,7 +373,7 @@ describe Chewy::Type::Import do
           payload = subscribe_notification
 
           expect(Chewy.client).to receive(:bulk).once.and_call_original
-          CitiesIndex::City.import(objects, fields: %i[object])
+          CitiesIndex::City.import(objects, update_fields: %i[object])
 
           expect(payload).to eq(
             errors: {update: {{'type' => 'mapper_parsing_exception', 'reason' => 'object mapping for [object] tried to parse field [object] as object, but found a concrete value'} => %w[2 4]}},

@@ -11,14 +11,19 @@ module Chewy
           wait_for_active_shards routing _source _source_exclude _source_include
         ].freeze
 
+        DEFAULT_OPTIONS = {
+          refresh: true,
+          update_failover: true
+        }.freeze
+
         # Basically, processes passed options, extracting bulk request specific options.
-        # @see Chewy::Type::Import::ClassMethods#import
         # @param type [Chewy::Type] chewy type
-        # @param options [Hash] import options
+        # @param options [Hash] import options, see {Chewy::Type::Import::ClassMethods#import}
         def initialize(type, **options)
           @type = type
           @options = options.reverse_merge(@type._default_import_options)
-          @options.reverse_merge!(refresh: true, journal: Chewy.configuration[:journal])
+          @options.reverse_merge!(journal: Chewy.configuration[:journal])
+          @options.reverse_merge!(DEFAULT_OPTIONS)
           @bulk_options = @options.extract!(*BULK_OPTIONS)
         end
 
@@ -39,14 +44,14 @@ module Chewy
         #   * prepends an additional bulk to the request bulk body, which is calculated
         #     basing on the previous iteration errors;
         #   * performs the bulk request;
-        #   * composes new additional bulk for the next iteration basing on the response errors;
+        #   * composes new additional bulk for the next iteration basing on the response errors if `update_failover` is true;
         #   * appends the rest of unfixable errors to the result errors array.
         # 4. Performs the request for the last additional bulk if present.
         # 3. Returns the result errors array.
         #
         # At the moment, it tries to restore only from the partial document update errors in cases
-        # when the document doesn't exist. In order to restore, it indexes such an objects completely
-        # on the next iteration.
+        # when the document doesn't exist only if `update_failover` option is true. In order to
+        # restore, it indexes such an objects completely on the next iteration.
         #
         # @param objects [Array<Object>] any acceptable objects for import
         # @return [Array<Hash>] the result errors array
@@ -93,7 +98,7 @@ module Chewy
         end
 
         def extract_additional_bulk!(errors, index_objects_by_id)
-          return [] unless @options[:fields].present? && errors.present?
+          return [] unless @options[:fields].present? && @options[:update_failover] && errors.present?
 
           failed_partial_updates = errors.select do |item|
             item.keys.first == 'update' && item.values.first['error']['type'] == 'document_missing_exception'

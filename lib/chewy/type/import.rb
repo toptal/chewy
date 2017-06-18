@@ -26,10 +26,11 @@ module Chewy
         # objects to a specialized index. It is possible to replay particular import
         # later to restore the data consistency.
         #
-        # Performs partial index update using `update` bulk action if any fields are
-        # specified. Note that if document doesn't exist yet, it will not be created,
-        # there will be an error instead. But it is possible to collect such errors
-        # and perform full import for the failed ids only.
+        # Performs partial index update using `update` bulk action if any `fields` are
+        # specified. Note that if document doesn't exist yet, an error will be raised
+        # by ES, but import catches this an errors and performs full indexing
+        # for the corresponding documents. This feature can be disabled by setting
+        # `update_failover` to `false`.
         #
         # Utilizes `ActiveSupport::Notifications`, so it is possible to get imported
         # objects later by listening to the `import_objects.chewy` queue. It is also
@@ -44,6 +45,7 @@ module Chewy
         # @option options [Integer] batch_size passed to the adapter import method, used to split imported objects in chunks, 1000 by default
         # @option options [true, false] journal enables imported objects journaling, false by default
         # @option options [Array<Symbol, String>] fields list of fields for the partial import, empty by default
+        # @option options [true, false] update_failover enables full objects reimport in cases of partial update errors, `true` by default
         # @return [true, false] false in case of errors
         def import(*args)
           import_routine(*args).blank?

@@ -225,5 +225,55 @@ describe Chewy::Type::Import::Bulkifier do
         end
       end
     end
+
+    context 'empty ids' do
+      before do
+        stub_index(:places) do
+          define_type :city do
+            field :name
+          end
+        end
+      end
+
+      let(:index) { [{id: 1, name: 'Name0'}, double(id: '', name: 'Name1'), double(name: 'Name2')] }
+      let(:delete) { [double(id: '', name: 'Name3'), {name: 'Name4'}, '', 2] }
+
+      specify do
+        expect(subject.bulk_body).to eq([
+          {index: {_id: 1, data: {'name' => 'Name0'}}},
+          {index: {data: {'name' => 'Name1'}}},
+          {index: {data: {'name' => 'Name2'}}},
+          {delete: {_id: {'name' => 'Name4'}}},
+          {delete: {_id: 2}}
+        ])
+      end
+
+      context do
+        let(:fields) { %w[name] }
+
+        specify do
+          expect(subject.bulk_body).to eq([
+            {update: {_id: 1, data: {doc: {'name' => 'Name0'}}}},
+            {delete: {_id: {'name' => 'Name4'}}},
+            {delete: {_id: 2}}
+          ])
+        end
+      end
+    end
+  end
+
+  describe '#index_objects_by_id' do
+    before do
+      stub_index(:places) do
+        define_type :city do
+          field :name
+        end
+      end
+    end
+
+    let(:index) { [double(id: 1), double(id: 2), double(id: ''), double] }
+    let(:delete) { [double(id: 3)] }
+
+    specify { expect(subject.index_objects_by_id).to eq('1' => index.first, '2' => index.second) }
   end
 end

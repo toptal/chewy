@@ -24,9 +24,17 @@ module Chewy
         # @see https://github.com/elastic/elasticsearch-ruby/blob/master/elasticsearch-api/lib/elasticsearch/api/actions/bulk.rb
         # @return [Array<Hash>] bulk body
         def bulk_body
-          @index.flat_map(&method(:index_entry)).concat(
+          @bulk_body ||= @index.flat_map(&method(:index_entry)).concat(
             @delete.flat_map(&method(:delete_entry))
           )
+        end
+
+        # The only purpose of this method is to cache document ids for
+        # all the passed object for index to avoid ids recalculation.
+        #
+        # @return [Hash[String => Object]] an ids-objects index hash
+        def index_objects_by_id
+          @index_objects_by_id ||= index_object_ids.invert.stringify_keys!
         end
 
       private
@@ -51,8 +59,7 @@ module Chewy
 
         def index_entry(object)
           entry = {}
-          entry[:_id] = entry_id(object)
-          entry.delete(:_id) if entry[:_id].blank?
+          entry[:_id] = index_object_ids[object] if index_object_ids[object]
 
           if parents
             entry[:parent] = type_root.compose_parent(object)
@@ -63,6 +70,7 @@ module Chewy
             entry[:data] = @type.compose(object, crutches)
             [{delete: entry.except(:data).merge(parent: parent)}, {index: entry}]
           elsif @fields.present?
+            return [] unless entry[:_id]
             entry[:data] = {doc: @type.compose(object, crutches, fields: @fields)}
             [{update: entry}]
           else
@@ -74,7 +82,9 @@ module Chewy
         def delete_entry(object)
           entry = {}
           entry[:_id] = entry_id(object)
-          entry[:_id] ||= object
+          entry[:_id] ||= object.as_json
+
+          return [] if entry[:_id].blank?
 
           if parents
             parent = entry[:_id].present? && parents[entry[:_id].to_s]
@@ -93,6 +103,13 @@ module Chewy
             id ||= object[:id] || object['id'] if object.is_a?(Hash)
             id = id.to_s if defined?(BSON) && id.is_a?(BSON::ObjectId)
             id
+          end
+        end
+
+        def index_object_ids
+          @index_object_ids ||= @index.each_with_object({}) do |object, result|
+            id = entry_id(object)
+            result[object] = id if id.present?
           end
         end
 

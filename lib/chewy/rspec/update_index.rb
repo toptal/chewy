@@ -254,7 +254,7 @@ RSpec::Matchers.define :update_index do |type_name, options = {}| # rubocop:disa
 
     def perform(body)
       @updates.concat(body.map(&:deep_symbolize_keys))
-      {}
+      []
     end
   end
 end

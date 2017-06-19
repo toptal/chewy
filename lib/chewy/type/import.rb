@@ -101,14 +101,16 @@ module Chewy
       private
 
         def import_routine(*args)
-          sequence = Routine.new(self, args.extract_options!)
-          sequence.create_indexes!
+          routine = Routine.new(self, args.extract_options!)
+          routine.create_indexes!
 
           ActiveSupport::Notifications.instrument 'import_objects.chewy', type: self do |payload|
-            errors = sequence.perform(*args) do |action_objects|
-              fill_payload_import payload, action_objects
+            adapter.import(*args, routine.options) do |action_objects|
+              routine.process(**action_objects)
+              fill_payload_import(payload, action_objects)
             end
-            payload[:errors] = payload_errors(errors) if errors.present?
+            routine.process_leftovers
+            payload[:errors] = payload_errors(routine.errors) if routine.errors.present?
             payload[:errors]
           end
         end

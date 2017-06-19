@@ -23,16 +23,17 @@ module Chewy
     end
 
     def add(action_objects)
-      @entries +=
-        action_objects.map do |action, objects|
-          {
-            index_name: @index.derivable_index_name,
-            type_name: @index.type_name,
-            action: action,
-            object_ids: identify(objects),
-            created_at: Time.now.to_i
-          }
-        end
+      @entries.concat(action_objects.map do |action, objects|
+        next if objects.blank?
+
+        {
+          index_name: @index.derivable_index_name,
+          type_name: @index.type_name,
+          action: action,
+          object_ids: identify(objects),
+          created_at: Time.now.to_i
+        }
+      end.compact)
     end
 
     def bulk_body

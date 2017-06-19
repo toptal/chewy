@@ -1,7 +1,25 @@
 module Chewy
   class Type
     module Import
-      # This class performs the import sequence for the options and objects given.
+      # This class performs the import routine for the options and objects given.
+      #
+      # 0. Create target and journal indexes if needed.
+      # 1. Iterate over all the passed objects in batches.
+      # 2. For each batch {#process} method is called:
+      #   * creates a bulk request body;
+      #   * appends journal entries for the current batch to the request body;
+      #   * prepends a leftovers bulk to the request body, which is calculated
+      #     basing on the previous iteration errors;
+      #   * performs the bulk request;
+      #   * composes new leftovers bulk for the next iteration basing on the response errors if `update_failover` is true;
+      #   * appends the rest of unfixable errors to the instance level errors array.
+      # 4. Perform the request for the last leftovers bulk if present using {#process_leftovers}.
+      # 3. Return the result errors array.
+      #
+      # At the moment, it tries to restore only from the partial document update errors in cases
+      # when the document doesn't exist only if `update_failover` option is true. In order to
+      # restore, it indexes such an objects completely on the next iteration.
+      #
       # @see Chewy::Type::Import::ClassMethods#import
       class Routine
         BULK_OPTIONS = %i[
@@ -17,6 +35,8 @@ module Chewy
           update_failover: true
         }.freeze
 
+        attr_reader :options, :errors
+
         # Basically, processes passed options, extracting bulk request specific options.
         # @param type [Chewy::Type] chewy type
         # @param options [Hash] import options, see {Chewy::Type::Import::ClassMethods#import}
@@ -27,6 +47,8 @@ module Chewy
           @options.reverse_merge!(journal: Chewy.configuration[:journal])
           @options.reverse_merge!(DEFAULT_OPTIONS)
           @bulk_options = @options.extract!(*BULK_OPTIONS)
+          @errors = []
+          @leftovers = []
         end
 
         # Creates the journal index and the type corresponding index if necessary.
@@ -37,57 +59,37 @@ module Chewy
           @type.index.create!(@bulk_options.slice(:suffix)) unless @type.index.exists?
         end
 
-        # The main sequence procedure.
+        # The main process method. Converts passed objects to thr bulk request body,
+        # appends journal entires, performs this request and handles errors performing
+        # failover procedures if applicable.
         #
-        # 1. Iterates over all the passed objects in batches.
-        # 2. For each batch it does:
-        #   * creates a bulk request body;
-        #   * appends journal entries for the current batch to the bulk request body;
-        #   * prepends an additional bulk to the request bulk body, which is calculated
-        #     basing on the previous iteration errors;
-        #   * performs the bulk request;
-        #   * composes new additional bulk for the next iteration basing on the response errors if `update_failover` is true;
-        #   * appends the rest of unfixable errors to the result errors array.
-        # 4. Performs the request for the last additional bulk if present.
-        # 3. Returns the result errors array.
+        # @param index [Array<Object>] any acceptable objects for indexing
+        # @param delete [Array<Object>] any acceptable objects for deleting
+        # @return [true, false] the result of the request, true if no errors
+        def process(index: [], delete: [])
+          bulk_builder = BulkBuilder.new(@type, index: index, delete: delete, fields: @options[:update_fields])
+          bulk_body = bulk_builder.bulk_body
+
+          bulk_body.concat(journal_bulk(index: index, delete: delete))
+          bulk_body.unshift(*flush_leftovers)
+
+          response = bulk.perform(bulk_body)
+          Chewy.wait_for_status
+
+          @leftovers = extract_leftovers(response, bulk_builder.index_objects_by_id)
+
+          @errors.concat(response)
+          response.blank?
+        end
+
+        # Processes the last leftovers bulk if any.
         #
-        # At the moment, it tries to restore only from the partial document update errors in cases
-        # when the document doesn't exist only if `update_failover` option is true. In order to
-        # restore, it indexes such an objects completely on the next iteration.
-        #
-        # @param objects [Array<Object>] any acceptable objects for import
-        # @return [Array<Hash>] the result errors array
-        def perform(*objects)
-          additional_bulk = []
-          all_errors = []
-
-          @type.adapter.import(*objects, @options) do |action_objects|
-            bulk_builder = BulkBuilder.new(@type, fields: @options[:update_fields], **action_objects)
-            bulk_body = bulk_builder.bulk_body
-
-            bulk_body.concat(journal_bulk(action_objects))
-
-            if additional_bulk.present?
-              bulk_body.unshift(*additional_bulk)
-              additional_bulk = []
-            end
-
-            errors = bulk.perform(bulk_body)
-            Chewy.wait_for_status
-
-            additional_bulk = extract_additional_bulk!(errors, bulk_builder.index_objects_by_id)
-
-            yield action_objects
-            all_errors.concat(errors)
-          end
-
-          if additional_bulk.present?
-            errors = bulk.perform(additional_bulk)
-            Chewy.wait_for_status
-            all_errors.concat(errors)
-          end
-
-          all_errors
+        # @return [true, false] the result of the request, true if no errors
+        def process_leftovers
+          response = bulk.perform(flush_leftovers)
+          Chewy.wait_for_status
+          @errors.concat(response)
+          response.blank?
         end
 
       private
@@ -99,7 +101,13 @@ module Chewy
           journal.bulk_body
         end
 
-        def extract_additional_bulk!(errors, index_objects_by_id)
+        def flush_leftovers
+          leftovers = @leftovers
+          @leftovers = []
+          leftovers
+        end
+
+        def extract_leftovers(errors, index_objects_by_id)
           return [] unless @options[:update_fields].present? && @options[:update_failover] && errors.present?
 
           failed_partial_updates = errors.select do |item|

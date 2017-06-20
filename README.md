@@ -20,6 +20,7 @@ Chewy is an ODM and wrapper for [the official Elasticsearch client](https://gith
   * [Index definition](#index-definition)
   * [Type default import options](#type-default-import-options)
   * [Multi (nested) and object field types](#multi-nested-and-object-field-types)
+  * [Parent and children types](#parent-and-children-types)
   * [Geo Point fields](#geo-point-fields)
   * [Crutches™ technology](#crutches-technology)
   * [Witchcraft™ technology](#witchcraft-technology)
@@ -337,6 +338,18 @@ end
 
 The `value:` option for internal fields will no longer be effective.
 
+### Parent and children types
+
+To define parent type for a given index_type, you can include root options for the type where you can specify parent_type and parent_id
+
+```ruby
+define_type User.includes(:account) do
+  root parent: 'account', parent_id: ->{ account_id } do
+    field :created_at, type: 'date'
+    field :task_id, type: 'integer'
+  end
+end
+```
 ### Geo Point fields
 
 You can use [Elasticsearch's geo mapping](https://www.elastic.co/guide/en/elasticsearch/reference/current/mapping-geo-point-type.html) with the `geo_point` field type, allowing you to query, filter and order by latitude and longitude. You can use the following hash format:

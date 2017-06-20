@@ -340,7 +340,7 @@ The `value:` option for internal fields will no longer be effective.
 
 ### Parent and children types
 
-To define parent type for a given index_type, you can include root options for the type where you can specify parent_type and parent_id
+To define [parent](https://www.elastic.co/guide/en/elasticsearch/guide/current/parent-child-mapping.html) type for a given index_type, you can include root options for the type where you can specify parent_type and parent_id
 
 ```ruby
 define_type User.includes(:account) do

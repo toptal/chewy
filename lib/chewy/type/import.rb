@@ -1,248 +1,141 @@
+require 'chewy/type/import/bulk_builder'
+require 'chewy/type/import/bulk_request'
+require 'chewy/type/import/routine'
+
 module Chewy
   class Type
     module Import
       extend ActiveSupport::Concern
 
-      BULK_OPTIONS = %i[suffix bulk_size refresh consistency replication].freeze
-
       module ClassMethods
-        # Perform import operation for specified documents.
-        # Returns true or false depending on success.
+        # @!method import(*collection, **options)
+        # Basically, one of the main methods for type. Performs any objects import
+        # to the index for a specified type. Does all the objects handling routines.
+        # Performs document import by utilizing bulk API. Bulk size and objects batch
+        # size are controlled by the corresponding options.
         #
-        #   UsersIndex::User.import                          # imports default data set
-        #   UsersIndex::User.import User.active              # imports active users
-        #   UsersIndex::User.import [1, 2, 3]                # imports users with specified ids
-        #   UsersIndex::User.import users                    # imports users collection
-        #   UsersIndex::User.import suffix: Time.now.to_i    # imports data to index with specified suffix if such exists
-        #   UsersIndex::User.import refresh: false           # to disable index refreshing after import
-        #   UsersIndex::User.import journal: true            # import will record all the actions into special journal index
-        #   UsersIndex::User.import batch_size: 300          # import batch size
-        #   UsersIndex::User.import bulk_size: 10.megabytes  # import ElasticSearch bulk size in bytes
-        #   UsersIndex::User.import consistency: :quorum     # explicit write consistency setting for the operation (one, quorum, all)
-        #   UsersIndex::User.import replication: :async      # explicitly set the replication type (sync, async)
+        # It accepts ORM/ODM objects, PORO, hashes, ids which are used by adapter to
+        # fetch objects from the source depenting on the used adapter. It destroys
+        # passed objects from the index if they are not in the default type scope
+        # or marked for destruction.
         #
-        # See adapters documentation for more details.
+        # It handles parent-child relationships: if the object parent_id has been
+        # changed it destroys the object and recreates it from scratch.
         #
+        # Performs journaling if enabled: it stores all the ids of the imported
+        # objects to a specialized index. It is possible to replay particular import
+        # later to restore the data consistency.
+        #
+        # Performs partial index update using `update` bulk action if any `fields` are
+        # specified. Note that if document doesn't exist yet, an error will be raised
+        # by ES, but import catches this an errors and performs full indexing
+        # for the corresponding documents. This feature can be disabled by setting
+        # `update_failover` to `false`.
+        #
+        # Utilizes `ActiveSupport::Notifications`, so it is possible to get imported
+        # objects later by listening to the `import_objects.chewy` queue. It is also
+        # possible to get the list of occured errors from the payload if something
+        # went wrong.
+        #
+        # @see https://github.com/elastic/elasticsearch-ruby/blob/master/elasticsearch-api/lib/elasticsearch/api/actions/bulk.rb
+        # @param collection [Array<Object>] and array or anything to import
+        # @param options [Hash{Symbol => Object}] besides specific import options, it accepts all the options suitable for the bulk API call like `refresh` or `timeout`
+        # @option options [String] suffix an index name suffix, used for zero-downtime reset mostly, no suffix by default
+        # @option options [Integer] bulk_size bulk API chunk size in bytes; if passed, the request is performed several times for each chunk, empty by default
+        # @option options [Integer] batch_size passed to the adapter import method, used to split imported objects in chunks, 1000 by default
+        # @option options [true, false] journal enables imported objects journaling, false by default
+        # @option options [Array<Symbol, String>] update_fields list of fields for the partial import, empty by default
+        # @option options [true, false] update_failover enables full objects reimport in cases of partial update errors, `true` by default
+        # @return [true, false] false in case of errors
         def import(*args)
-          import_options = args.extract_options!
-          import_options.reverse_merge! _default_import_options
-          bulk_options = import_options.select { |k, _| BULK_OPTIONS.include?(k) }.reverse_merge!(refresh: true)
-
-          assure_index_existence(bulk_options.slice(:suffix))
-
-          ActiveSupport::Notifications.instrument 'import_objects.chewy', type: self do |payload|
-            adapter.import(*args, import_options) do |action_objects|
-              journal = Chewy::Journal.new(self)
-              journal.add(action_objects) if import_options.fetch(:journal) { journal? }
-
-              indexed_objects = build_root.parent_id && fetch_indexed_objects(action_objects.values.flatten)
-              body = bulk_body(action_objects, indexed_objects)
-
-              errors = bulk(bulk_options.merge(body: body, journal: journal)) if body.present?
-
-              fill_payload_import payload, action_objects
-              fill_payload_errors payload, errors if errors.present?
-              !errors.present?
-            end
-          end
+          import_routine(*args).blank?
         end
 
-        # Perform import operation for specified documents.
-        # Raises Chewy::ImportFailed exception in case of import errors.
-        # Options are completely the same as for `import` method
-        # See adapters documentation for more details.
+        # @!method import!(*collection, **options)
+        # (see #import)
         #
+        # The only difference from {#import} is that it raises an exception
+        # in case of any import errors.
+        #
+        # @raise [Chewy::ImportFailed] in case of errors
         def import!(*args)
-          errors = nil
-          subscriber = ActiveSupport::Notifications.subscribe('import_objects.chewy') do |*notification_args|
-            errors = notification_args.last[:errors]
-          end
-          import(*args)
+          errors = import_routine(*args)
           raise Chewy::ImportFailed.new(self, errors) if errors.present?
           true
-        ensure
-          ActiveSupport::Notifications.unsubscribe(subscriber) if subscriber
         end
 
-        # Wraps elasticsearch-ruby client indices bulk method.
-        # Adds `:suffix` option to bulk import to index with specified suffix.
-        def bulk(options = {})
-          suffix = options.delete(:suffix)
-          bulk_size = options.delete(:bulk_size)
-          body = options.delete(:body)
-          journal = options.delete(:journal)
-          header = {index: index.build_index_name(suffix: suffix), type: type_name}
-
-          bodies = if bulk_size
-            bulk_size -= 1.kilobyte # 1 kilobyte for request header and newlines
-            raise ArgumentError, 'Import `:bulk_size` can\'t be less than 1 kilobyte' if bulk_size <= 0
-
-            entries = body.each_with_object(['']) do |entry, result|
-              operation, meta = entry.to_a.first
-              data = meta.delete(:data)
-              entry = [{operation => meta}, data].compact.map(&:to_json).join("\n")
-
-              raise ArgumentError, 'Import `:bulk_size` seems to be less than entry size' if entry.bytesize > bulk_size
-
-              if result.last.bytesize + entry.bytesize > bulk_size
-                result.push(entry)
-              else
-                result[-1] = [result[-1], entry].reject(&:blank?).join("\n")
-              end
-            end
-            entries.map { |entry| entry + "\n" }
-          else
-            [body]
-          end
-
-          if journal.any_entries?
-            Chewy::Journal.create
-            bodies += [journal.bulk_body]
-          end
-
-          items = bodies.map do |item_body|
-            result = client.bulk options.merge(header).merge(body: item_body)
-            result.try(:[], 'items') || []
-          end.flatten
+        # Wraps elasticsearch API bulk method, adds additional features like
+        # `bulk_size` and `suffix`.
+        #
+        # @see https://github.com/elastic/elasticsearch-ruby/blob/master/elasticsearch-api/lib/elasticsearch/api/actions/bulk.rb
+        # @see Chewy::Type::Import::Bulk
+        # @param options [Hash{Symbol => Object}] besides specific import options, it accepts all the options suitable for the bulk API call like `refresh` or `timeout`
+        # @option options [String] suffix bulk API chunk size in bytes; if passed, the request is performed several times for each chunk, empty by default
+        # @option options [Integer] bulk_size bulk API chunk size in bytes; if passed, the request is performed several times for each chunk, empty by default
+        # @option options [Array<Hash>] body elasticsearch API bulk method body
+        # @return [Hash] tricky transposed errors hash, empty if everything is fine
+        def bulk(**options)
+          error_items = BulkRequest.new(self, **options).perform(options[:body])
           Chewy.wait_for_status
 
-          extract_errors items
+          payload_errors(error_items)
         end
 
-        def journal?
-          _default_import_options.fetch(:journal) { Chewy.configuration[:journal] }
+        # Composes a single document from the passed object. Uses either witchcraft
+        # or normal composing under the hood.
+        #
+        # @param object [Object] a data source object
+        # @param crutches [Object] optional crutches object; if ommited - a crutch for the single passed object is created as a fallback
+        # @param fields [Array<Symbol>] and array of fields to restrict the generated document
+        # @return [Hash] a JSON-ready hash
+        def compose(object, crutches = nil, fields: [])
+          crutches ||= Chewy::Type::Crutch::Crutches.new self, [object]
+
+          if witchcraft? && build_root.children.present?
+            cauldron(fields: fields).brew(object, crutches)
+          else
+            build_root.compose(object, crutches, fields: fields)
+          end
         end
 
       private
 
-        def bulk_body(action_objects, indexed_objects = nil)
-          action_objects.flat_map do |action, objects|
-            method = "#{action}_bulk_entry"
-            crutches = Chewy::Type::Crutch::Crutches.new self, objects
-            objects.flat_map { |object| send(method, object, indexed_objects, crutches) }
-          end
-        end
+        def import_routine(*args)
+          routine = Routine.new(self, args.extract_options!)
+          routine.create_indexes!
 
-        def delete_bulk_entry(object, indexed_objects = nil, _crutches = nil)
-          entry = {}
-
-          if root_object.id
-            entry[:_id] = root_object.compose_id(object)
-          else
-            entry[:_id] = object.id if object.respond_to?(:id)
-            entry[:_id] ||= object[:id] || object['id'] if object.is_a?(Hash)
-            entry[:_id] ||= object
-            entry[:_id] = entry[:_id].to_s if defined?(BSON) && entry[:_id].is_a?(BSON::ObjectId)
-          end
-
-          if root_object.parent_id
-            existing_object = entry[:_id].present? && indexed_objects && indexed_objects[entry[:_id].to_s]
-            return [] unless existing_object
-            entry[:parent] = existing_object[:parent]
-          end
-
-          [{delete: entry}]
-        end
-
-        def index_bulk_entry(object, indexed_objects = nil, crutches = nil)
-          entry = {}
-
-          if root_object.id
-            entry[:_id] = root_object.compose_id(object)
-          else
-            entry[:_id] = object.id if object.respond_to?(:id)
-            entry[:_id] ||= object[:id] || object['id'] if object.is_a?(Hash)
-            entry[:_id] = entry[:_id].to_s if defined?(BSON) && entry[:_id].is_a?(BSON::ObjectId)
-          end
-          entry.delete(:_id) if entry[:_id].blank?
-
-          if root_object.parent_id
-            entry[:parent] = root_object.compose_parent(object)
-            existing_object = entry[:_id].present? && indexed_objects && indexed_objects[entry[:_id].to_s]
-          end
-
-          entry[:data] = object_data(object, crutches)
-
-          if existing_object && entry[:parent].to_s != existing_object[:parent]
-            [{delete: entry.except(:data).merge(parent: existing_object[:parent])}, {index: entry}]
-          else
-            [{index: entry}]
+          ActiveSupport::Notifications.instrument 'import_objects.chewy', type: self do |payload|
+            adapter.import(*args, routine.options) do |action_objects|
+              routine.process(**action_objects)
+              fill_payload_import(payload, action_objects)
+            end
+            routine.process_leftovers
+            payload[:errors] = payload_errors(routine.errors) if routine.errors.present?
+            payload[:errors]
           end
         end
 
         def fill_payload_import(payload, action_objects)
+          payload[:import] ||= {}
+
           imported = Hash[action_objects.map { |action, objects| [action, objects.count] }]
           imported.each do |action, count|
-            payload[:import] ||= {}
             payload[:import][action] ||= 0
             payload[:import][action] += count
           end
         end
 
-        def fill_payload_errors(payload, import_errors)
-          import_errors.each do |action, action_errors|
-            action_errors.each do |error, documents|
-              payload[:errors] ||= {}
-              payload[:errors][action] ||= {}
-              payload[:errors][action][error] ||= []
-              payload[:errors][action][error] |= documents
-            end
+        def payload_errors(errors)
+          errors.each_with_object({}) do |error, result|
+            action = error.keys.first.to_sym
+            item = error.values.first
+            error = item['error']
+            id = item['_id']
+
+            result[action] ||= {}
+            result[action][error] ||= []
+            result[action][error].push(id)
           end
-        end
-
-        def object_data(object, crutches = nil)
-          if witchcraft?
-            cauldron.brew(object, crutches)
-          else
-            build_root.compose(object, crutches)[type_name.to_s]
-          end
-        end
-
-        def extract_errors(items)
-          items = items.each.with_object({}) do |item, memo|
-            action = item.keys.first.to_sym
-            data = item.values.first
-            if data['error']
-              (memo[action] ||= []).push(action: action, id: data['_id'], error: data['error'])
-            end
-          end
-
-          items.map do |action, action_items|
-            errors = action_items.group_by { |item| item[:error] }.map do |error, error_items|
-              {error => error_items.map { |item| item[:id] }}
-            end.reduce(&:merge)
-            {action => errors}
-          end.reduce(&:merge) || {}
-        end
-
-        def fetch_indexed_objects(objects)
-          ids = objects.map { |object| object.respond_to?(:id) ? object.id : object }
-
-          indexed_objects = {}
-          result = client.search index: index_name,
-                                 type: type_name,
-                                 stored_fields: [],
-                                 body: {query: {bool: {filter: {ids: {values: ids}}}}},
-                                 sort: ['_doc'],
-                                 scroll: '1m'
-
-          loop do
-            break if !result || result['hits']['hits'].empty?
-
-            result['hits']['hits'].map do |hit|
-              parent = hit.key?('_parent') ? hit['_parent'] : hit['fields']['_parent']
-              indexed_objects[hit['_id']] = {parent: parent}
-            end
-
-            result = client.scroll(scroll_id: result['_scroll_id'], scroll: '1m')
-          end
-
-          indexed_objects
-        end
-
-        def assure_index_existence(index_options)
-          return if Chewy.configuration[:skip_index_creation_on_import]
-          index.create!(index_options) unless index.exists?
         end
       end
     end

@@ -99,21 +99,19 @@ RSpec::Matchers.define :update_index do |type_name, options = {}| # rubocop:disa
     @delete ||= {}
     @missed_reindex = []
     @missed_delete = []
-    @updated = []
 
-    instance_eval <<-RUBY, __FILE__, __LINE__ + 1
-      type = Chewy.derive_type(type_name)
-      #{agnostic_stub} do |bulk_options|
-        @updated += bulk_options[:body].map do |updated_document|
-          updated_document.deep_symbolize_keys
-        end
-        {}
-      end
-    RUBY
+    type = Chewy.derive_type(type_name)
+    if defined?(Mocha) && RSpec.configuration.mock_framework.to_s == 'RSpec::Core::MockingAdapters::Mocha'
+      Chewy::Type::Import::BulkRequest.stubs(:new).with(type, any_parameters).returns(mock_bulk_request)
+    else
+      mocked_already = ::RSpec::Mocks.space.proxy_for(Chewy::Type::Import::BulkRequest).method_double_if_exists_for_message(:new)
+      allow(Chewy::Type::Import::BulkRequest).to receive(:new).and_call_original unless mocked_already
+      allow(Chewy::Type::Import::BulkRequest).to receive(:new).with(type, any_args).and_return(mock_bulk_request)
+    end
 
     Chewy.strategy(options[:strategy] || :atomic) { block.call }
 
-    @updated.each do |updated_document|
+    mock_bulk_request.updates.each do |updated_document|
       if (body = updated_document[:index])
         if (document = @reindex[body[:_id].to_s])
           document[:real_count] += 1
@@ -141,7 +139,7 @@ RSpec::Matchers.define :update_index do |type_name, options = {}| # rubocop:disa
         (document[:expected_count] && document[:expected_count] == document[:real_count])
     end
 
-    @updated.present? && @missed_reindex.none? && @missed_delete.none? &&
+    mock_bulk_request.updates.present? && @missed_reindex.none? && @missed_delete.none? &&
       @reindex.all? { |_, document| document[:match_count] && document[:match_attributes] } &&
       @delete.all? { |_, document| document[:match_count] }
   end
@@ -149,7 +147,7 @@ RSpec::Matchers.define :update_index do |type_name, options = {}| # rubocop:disa
   failure_message do # rubocop:disable BlockLength
     output = ''
 
-    if @updated.none?
+    if mock_bulk_request.updates.none?
       output << "Expected index `#{type_name}` to be updated, but it was not\n"
     elsif @missed_reindex.present? || @missed_delete.present?
       message = "Expected index `#{type_name}` "
@@ -196,19 +194,15 @@ RSpec::Matchers.define :update_index do |type_name, options = {}| # rubocop:disa
   end
 
   failure_message_when_negated do
-    if @updated.present?
-      "Expected index `#{type_name}` not to be updated, but it was with #{@updated.map(&:values).flatten.group_by { |documents| documents[:_id] }.map do |id, documents|
+    if mock_bulk_request.updates.present?
+      "Expected index `#{type_name}` not to be updated, but it was with #{mock_bulk_request.updates.map(&:values).flatten.group_by { |documents| documents[:_id] }.map do |id, documents|
                                                                             "\n  document id `#{id}` (#{documents.count} times)"
                                                                           end.join}\n"
     end
   end
 
-  def agnostic_stub
-    if defined?(Mocha) && RSpec.configuration.mock_framework.to_s == 'RSpec::Core::MockingAdapters::Mocha'
-      'type.stubs(:bulk).with'
-    else
-      'allow(type).to receive(:bulk)'
-    end
+  def mock_bulk_request
+    @mock_bulk_request ||= MockBulkRequest.new
   end
 
   def extract_documents(*args)
@@ -249,5 +243,20 @@ RSpec::Matchers.define :update_index do |type_name, options = {}| # rubocop:disa
       difference.delete_at(index) if index
     end
     difference.none?
+  end
+
+  # Collects request bodies coming through the perform method for
+  # the further analysis.
+  class MockBulkRequest
+    attr_reader :updates
+
+    def initialize
+      @updates = []
+    end
+
+    def perform(body)
+      @updates.concat(body.map(&:deep_symbolize_keys))
+      []
+    end
   end
 end

@@ -31,8 +31,8 @@ module Chewy
         {name => mapping}
       end
 
-      def compose(object, *parent_objects)
-        objects = ([object] + parent_objects.flatten).uniq
+      def compose(*objects)
+        object = objects.first
 
         result =
           if value && value.is_a?(Proc)
@@ -68,7 +68,11 @@ module Chewy
     private
 
       def compose_children(value, *parent_objects)
-        children.map { |field| field.compose(value, *parent_objects) }.compact.inject(:merge) if value
+        return unless value
+
+        children.each_with_object({}) do |field, result|
+          result.merge!(field.compose(value, *parent_objects) || {})
+        end
       end
     end
   end

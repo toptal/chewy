@@ -15,6 +15,14 @@ describe Chewy::Type::Import do
     end
   end
 
+  def subscribe_notification
+    outer_payload = {}
+    ActiveSupport::Notifications.subscribe('import_objects.chewy') do |_name, _start, _finish, _id, payload|
+      outer_payload.merge!(payload)
+    end
+    outer_payload
+  end
+
   describe 'index creation on import' do
     let(:dummy_city) { City.create }
 
@@ -109,16 +117,6 @@ describe Chewy::Type::Import do
       end
     end
 
-    specify do
-      expect(CitiesIndex.client).to receive(:bulk).with(hash_including(refresh: true))
-      city.import dummy_cities
-    end
-
-    specify do
-      expect(CitiesIndex.client).to receive(:bulk).with(hash_including(refresh: false))
-      city.import dummy_cities, refresh: false
-    end
-
     context 'scoped' do
       before do
         names = %w[name0 name1]
@@ -154,35 +152,23 @@ describe Chewy::Type::Import do
 
     context 'instrumentation payload' do
       specify do
-        outer_payload = nil
-        ActiveSupport::Notifications.subscribe('import_objects.chewy') do |_name, _start, _finish, _id, payload|
-          outer_payload = payload
-        end
-
+        payload = subscribe_notification
         dummy_cities.first.destroy
         city.import dummy_cities
-        expect(outer_payload).to eq(type: CitiesIndex::City, import: {delete: 1, index: 2})
+        expect(payload).to eq(type: CitiesIndex::City, import: {delete: 1, index: 2})
       end
 
       specify do
-        outer_payload = nil
-        ActiveSupport::Notifications.subscribe('import_objects.chewy') do |_name, _start, _finish, _id, payload|
-          outer_payload = payload
-        end
-
+        payload = subscribe_notification
         dummy_cities.first.destroy
         city.import dummy_cities, batch_size: 2
-        expect(outer_payload).to eq(type: CitiesIndex::City, import: {delete: 1, index: 2})
+        expect(payload).to eq(type: CitiesIndex::City, import: {delete: 1, index: 2})
       end
 
       specify do
-        outer_payload = nil
-        ActiveSupport::Notifications.subscribe('import_objects.chewy') do |_name, _start, _finish, _id, payload|
-          outer_payload = payload
-        end
-
+        payload = subscribe_notification
         city.import dummy_cities, batch_size: 2
-        expect(outer_payload).to eq(type: CitiesIndex::City, import: {index: 3})
+        expect(payload).to eq(type: CitiesIndex::City, import: {index: 3})
       end
 
       context do
@@ -202,13 +188,9 @@ describe Chewy::Type::Import do
         end
 
         specify do
-          outer_payload = nil
-          ActiveSupport::Notifications.subscribe('import_objects.chewy') do |_name, _start, _finish, _id, payload|
-            outer_payload = payload
-          end
-
+          payload = subscribe_notification
           city.import dummy_cities, batch_size: 2
-          expect(outer_payload).to eq(type: CitiesIndex::City,
+          expect(payload).to eq(type: CitiesIndex::City,
             errors: {index: {mapper_parsing_exception => %w[1 2 3]}},
             import: {index: 3})
         end
@@ -238,14 +220,6 @@ describe Chewy::Type::Import do
             field :object, type: 'object'
           end
         end
-      end
-
-      def subscribe_notification
-        outer_payload = {}
-        ActiveSupport::Notifications.subscribe('import_objects.chewy') do |_name, _start, _finish, _id, payload|
-          outer_payload.merge!(payload)
-        end
-        outer_payload
       end
 
       let(:objects) do

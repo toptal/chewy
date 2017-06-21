@@ -1,7 +1,16 @@
 require 'spec_helper'
 
 describe Chewy::Type::Adapter::Mongoid, :mongoid do
-  before { stub_model(:city) }
+  before do
+    stub_model(:city)
+    stub_model(:country)
+    if adapter == :mongoid && Mongoid::VERSION.start_with?('6')
+      City.belongs_to :country, optional: true
+    else
+      City.belongs_to :country
+    end
+    Country.has_many :cities
+  end
 
   describe '#name' do
     specify { expect(described_class.new(City).name).to eq('City') }
@@ -53,6 +62,22 @@ describe Chewy::Type::Adapter::Mongoid, :mongoid do
       specify { expect(subject.identify(cities)).to eq(cities.map(&:id)) }
       specify { expect(subject.identify(cities.first)).to eq([cities.first.id]) }
       specify { expect(subject.identify(cities.first(2).map(&:id))).to eq(cities.first(2).map(&:id)) }
+    end
+  end
+
+  describe '#default_scope_pluck' do
+    subject { described_class.new(Country) }
+    let!(:countries) { Array.new(3) { |i| Country.create!(rating: i) { |c| c.id = i + 1 } } }
+    let!(:cities) { Array.new(6) { |i| City.create!(rating: i + 3, country_id: (i + 4) / 2) { |c| c.id = i + 3 } } }
+
+    specify { expect(subject.default_scope_pluck).to contain_exactly(1, 2, 3) }
+    specify { expect(subject.default_scope_pluck(:rating)).to contain_exactly([1, 0], [2, 1], [3, 2]) }
+
+    context do
+      subject { described_class.new(Country.includes(:cities)) }
+
+      specify { expect(subject.default_scope_pluck).to contain_exactly(1, 2, 3) }
+      specify { expect(subject.default_scope_pluck(:rating)).to contain_exactly([1, 0], [2, 1], [3, 2]) }
     end
   end
 

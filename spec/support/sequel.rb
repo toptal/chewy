@@ -1,6 +1,7 @@
 require 'database_cleaner'
 
-DB = Sequel.sqlite # logger: Logger.new(STDOUT)
+DB = Sequel.sqlite # logger: Logger.new(STDERR)
+Sequel::Deprecation.output = false
 
 DB.create_table :countries do
   primary_key :id

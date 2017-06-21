@@ -27,18 +27,22 @@ module Chewy
         end
 
         def import_scope(scope, options)
-          scope.batch_size(options[:batch_size]).no_timeout.pluck(:_id)
+          scope.batch_size(options[:batch_size]).no_timeout.pluck(primary_key)
             .each_slice(options[:batch_size]).map do |ids|
               yield grouped_objects(default_scope_where_ids_in(ids))
             end.all?
         end
 
-        def pluck_ids(scope)
-          scope.pluck(:_id)
+        def primary_key
+          :_id
+        end
+
+        def pluck_ids(scope, fields: [])
+          scope.pluck(primary_key, *fields)
         end
 
         def scope_where_ids_in(scope, ids)
-          scope.where(:_id.in => ids)
+          scope.where(primary_key.in => ids)
         end
 
         def all_scope

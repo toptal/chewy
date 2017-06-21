@@ -37,6 +37,58 @@ describe Chewy::Type::Adapter::Object do
     specify { expect(subject.identify(objects.first)).to eq([objects.first]) }
   end
 
+  describe '#default_scope_pluck' do
+    let!(:objects) { Array.new(3) { |i| double(id: i + 1, name: "Name#{i}") } }
+    let!(:hashes) { Array.new(3) { |i| {id: i + 1, 'name' => "Name#{i}"} } }
+
+    context do
+      subject { described_class.new(-> { objects }) }
+      specify { expect(subject.default_scope_pluck).to eq([1, 2, 3]) }
+      specify { expect(subject.default_scope_pluck(:name)).to eq([[1, 'Name0'], [2, 'Name1'], [3, 'Name2']]) }
+    end
+
+    context do
+      subject { described_class.new(-> { hashes }) }
+      specify { expect(subject.default_scope_pluck).to eq([1, 2, 3]) }
+      specify { expect(subject.default_scope_pluck(:name)).to eq([[1, 'Name0'], [2, 'Name1'], [3, 'Name2']]) }
+    end
+
+    context do
+      subject { described_class.new(-> { [1, 2, 3] }) }
+      specify { expect(subject.default_scope_pluck).to eq([1, 2, 3]) }
+      specify { expect(subject.default_scope_pluck(:name)).to eq([[1, nil], [2, nil], [3, nil]]) }
+    end
+
+    context do
+      before do
+        stub_class(:product) do
+          class << self
+            def pluck(*fields)
+              if fields == [:id]
+                [1, 2, 3]
+              else
+                [4, 5, 6]
+              end
+            end
+            alias_method :pluck_all, :pluck
+          end
+        end
+      end
+
+      context do
+        subject { described_class.new(Product) }
+        specify { expect(subject.default_scope_pluck).to eq([1, 2, 3]) }
+        specify { expect(subject.default_scope_pluck(:name)).to eq([4, 5, 6]) }
+      end
+
+      context do
+        subject { described_class.new(Product, pluck_method: :pluck_all) }
+        specify { expect(subject.default_scope_pluck).to eq([1, 2, 3]) }
+        specify { expect(subject.default_scope_pluck(:name)).to eq([4, 5, 6]) }
+      end
+    end
+  end
+
   describe '#import' do
     def import(*args)
       result = []

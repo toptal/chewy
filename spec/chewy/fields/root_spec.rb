@@ -83,4 +83,21 @@ describe Chewy::Fields::Root do
       end
     end
   end
+
+  describe '#child_hash' do
+    before do
+      stub_index(:places) do
+        define_type :city do
+          field :name, :rating
+        end
+      end
+    end
+
+    specify do
+      expect(PlacesIndex::City.send(:build_root).child_hash).to match(
+        name: an_instance_of(Chewy::Fields::Base).and(have_attributes(name: :name)),
+        rating: an_instance_of(Chewy::Fields::Base).and(have_attributes(name: :rating))
+      )
+    end
+  end
 end

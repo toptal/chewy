@@ -36,6 +36,14 @@ module Chewy
           raise NotImplementedError
         end
 
+        # Performs the pluck method for the passed fields on the
+        # target class. Used for synchronization.
+        #
+        # @return [Array<Object>, Array<Array<Object>>]
+        def default_scope_pluck(*_args)
+          raise NotImplementedError
+        end
+
         # Splits passed objects to groups according to `:batch_size` options.
         # For every group creates hash with action keys. Example:
         #

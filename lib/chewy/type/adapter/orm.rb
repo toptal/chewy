@@ -32,6 +32,10 @@ module Chewy
           end
         end
 
+        def default_scope_pluck(*fields)
+          pluck_ids(default_scope, fields: fields)
+        end
+
         # Import method for ORM takes import data and import options
         #
         # Import data types:

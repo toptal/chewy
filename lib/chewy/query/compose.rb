@@ -8,16 +8,20 @@ module Chewy
 
         if filter.present?
           filtered = if query.present?
-            {query: {filtered: {
-              query: query,
-              filter: filter
-            }}}
+            {
+              query: {
+                bool: {
+                  must: query,
+                  filter: filter
+                }
+              }
+            }
           else
-            {query: {filtered: {
+            {query: {must: {
               filter: filter
             }}}
           end
-          filtered[:query][:filtered][:strategy] = options[:strategy].to_s if options[:strategy].present?
+          raise 'noooo' if filtered[:query][:filtered][:strategy].present? # = options[:strategy].to_s if options[:strategy].present?
           filtered
         elsif query.present?
           {query: query}

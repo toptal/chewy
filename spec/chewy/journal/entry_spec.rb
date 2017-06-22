@@ -1,6 +1,7 @@
 require 'spec_helper'
 
 describe Chewy::Journal::Entry do
+  before { Chewy.massacre }
   before do
     stub_model(:city) do
       update_index 'city', :self
@@ -16,9 +17,9 @@ describe Chewy::Journal::Entry do
     let(:time) { Time.now.to_i }
     before do
       Timecop.freeze(time)
-      Chewy.massacre
       Chewy.strategy(:urgent) { City.create!(id: 1) }
     end
+    after { Timecop.return }
     subject { described_class.since(time) }
 
     its(:length) { is_expected.to eq(1) }

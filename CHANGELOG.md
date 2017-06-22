@@ -2,6 +2,8 @@
 
 ## Changes
 
+  * Consistency checks and synchronization.
+
   * `default_root_options` option (@barthez, #526)
 
   * Partial indexing ability: it is possible to update only specified fields.

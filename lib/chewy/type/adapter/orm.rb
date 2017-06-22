@@ -110,14 +110,15 @@ module Chewy
       private
 
         def import_objects(collection, options)
-          hash = Hash[identify(collection).zip(collection)]
+          collection_ids = identify(collection)
+          hash = Hash[collection_ids.map(&:to_s).zip(collection)]
 
-          indexed = hash.keys.each_slice(options[:batch_size]).map do |ids|
+          indexed = collection_ids.each_slice(options[:batch_size]).map do |ids|
             batch = default_scope_where_ids_in(ids)
             if batch.empty?
               true
             else
-              identify(batch).each { |id| hash.delete(id) }
+              identify(batch).each { |id| hash.delete(id.to_s) }
               yield grouped_objects(batch)
             end
           end.all?

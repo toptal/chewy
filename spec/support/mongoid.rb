@@ -35,6 +35,7 @@ module MongoidClassHelpers
 
     included do
       include Mongoid::Document
+      include Mongoid::Timestamps::Updated
       include Document
 
       field :name, type: String
@@ -48,6 +49,7 @@ module MongoidClassHelpers
 
     included do
       include Mongoid::Document
+      include Mongoid::Timestamps::Updated
       include Document
 
       field :name, type: String

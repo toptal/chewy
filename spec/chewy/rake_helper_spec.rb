@@ -60,10 +60,10 @@ Resetting UsersIndex
     end
   end
 
-  describe '.reset_changed' do
+  describe '.upgrade' do
     specify do
       output = StringIO.new
-      expect { described_class.reset_changed(output: output) }
+      expect { described_class.upgrade(output: output) }
         .to update_index(PlacesIndex::City)
       expect(output.string).to match(Regexp.new(<<-OUTPUT, Regexp::MULTILINE))
 \\AResetting PlacesIndex
@@ -80,7 +80,7 @@ Resetting UsersIndex
 
       specify do
         output = StringIO.new
-        expect { described_class.reset_changed(output: output) }
+        expect { described_class.upgrade(output: output) }
           .not_to update_index(PlacesIndex::City)
         expect(output.string).to match(Regexp.new(<<-OUTPUT, Regexp::MULTILINE))
 \\ASkipping PlacesIndex, the specification didn't change
@@ -91,7 +91,7 @@ Resetting UsersIndex
 
       specify do
         output = StringIO.new
-        expect { described_class.reset_changed(except: PlacesIndex, output: output) }
+        expect { described_class.upgrade(except: PlacesIndex, output: output) }
           .not_to update_index(PlacesIndex::City)
         expect(output.string).to match(Regexp.new(<<-OUTPUT, Regexp::MULTILINE))
 \\AResetting UsersIndex
@@ -104,7 +104,7 @@ Resetting UsersIndex
 
         specify do
           output = StringIO.new
-          expect { described_class.reset_changed(except: ['places'], output: output) }
+          expect { described_class.upgrade(except: ['places'], output: output) }
             .not_to update_index(PlacesIndex::City)
           expect(output.string).to match(Regexp.new(<<-OUTPUT, Regexp::MULTILINE))
 \\ANo index specification was changed\\Z

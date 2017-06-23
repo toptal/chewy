@@ -43,16 +43,16 @@ module Chewy
       # indexes only if a particular index specification was changed.
       #
       # @example
-      #   Chewy::RakeHelper.reset_changed # resets everything
-      #   Chewy::RakeHelper.reset_changed(only: 'cities') # resets only CitiesIndex
-      #   Chewy::RakeHelper.reset_changed(only: ['cities', CountriesIndex]) # resets CitiesIndex and CountriesIndex
-      #   Chewy::RakeHelper.reset_changed(except: CitiesIndex) # resets everything, but CitiesIndex
-      #   Chewy::RakeHelper.reset_changed(only: ['cities', 'countries'], except: CitiesIndex) # resets only CountriesIndex
+      #   Chewy::RakeHelper.upgrade # resets everything
+      #   Chewy::RakeHelper.upgrade(only: 'cities') # resets only CitiesIndex
+      #   Chewy::RakeHelper.upgrade(only: ['cities', CountriesIndex]) # resets CitiesIndex and CountriesIndex
+      #   Chewy::RakeHelper.upgrade(except: CitiesIndex) # resets everything, but CitiesIndex
+      #   Chewy::RakeHelper.upgrade(only: ['cities', 'countries'], except: CitiesIndex) # resets only CountriesIndex
       #
       # @param only [Array<Chewy::Index, String>, Chewy::Index, String] index or indexes to reset; if nothing is passed - uses all the indexes defined in the app
       # @param except [Array<Chewy::Index, String>, Chewy::Index, String] index or indexes to exclude from processing
       # @return [Array<Chewy::Index>] indexes that were actually reset
-      def reset_changed(only: nil, except: nil, output: STDOUT)
+      def upgrade(only: nil, except: nil, output: STDOUT)
         subscribed_task_stats(output) do
           indexes = indexes_from(only: only, except: except)
 

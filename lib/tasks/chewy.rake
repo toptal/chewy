@@ -11,8 +11,8 @@ end
 namespace :chewy do
   desc 'This taks resets all the indexes with the specification changed and synchronizes the rest of them'
   task deploy: :environment do
-    changed_indexes = Chewy::RakeHelper.reset_changed
-    Chewy::RakeHelper.sync(except: changed_indexes)
+    processed = Chewy::RakeHelper.upgrade
+    Chewy::RakeHelper.sync(except: processed)
   end
 
   desc 'Destroy, recreate and import data for the specified indexes or all of them'
@@ -21,8 +21,8 @@ namespace :chewy do
   end
 
   desc 'Resets data for the specified indexes or all of them only if the index specification is changed'
-  task reset_changed: :environment do |_task, args|
-    Chewy::RakeHelper.reset_changed(transform_args(args.extras))
+  task upgrade: :environment do |_task, args|
+    Chewy::RakeHelper.upgrade(transform_args(args.extras))
   end
 
   desc 'Updates data for the specified types or all of them'

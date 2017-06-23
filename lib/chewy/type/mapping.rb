@@ -191,7 +191,7 @@ module Chewy
 
         def build_root(options = {}, &block)
           return root_object if root_object
-          self.root_object = Chewy::Fields::Root.new(type_name, options)
+          self.root_object = Chewy::Fields::Root.new(type_name, Chewy.default_root_options.merge(options))
           expand_nested(root_object, &block)
           @_current_field = root_object
         end

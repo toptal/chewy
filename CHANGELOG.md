@@ -2,6 +2,8 @@
 
 ## Changes
 
+  * `default_root_options` option (@barthez, #526)
+
   * Partial indexing ability: it is possible to update only specified fields.
 
   * New cool `rake chewy:deploy` task.

@@ -102,5 +102,16 @@ describe Chewy::Type::Mapping do
     specify { expect(product.root_object.children.map(&:parent)).to eq([product.root_object]) }
     specify { expect(product.root_object.children[0].children.map(&:name)).to eq([:subfield1]) }
     specify { expect(product.root_object.children[0].children.map(&:parent)).to eq([product.root_object.children[0]]) }
+
+    context 'default root options are set' do
+      around do |example|
+        previous_options = Chewy.default_root_options
+        Chewy.default_root_options = {_all: {enabled: false}}
+        example.run
+        Chewy.default_root_options = previous_options
+      end
+
+      specify { expect(product.mappings_hash[:product]).to include(_all: {enabled: false}) }
+    end
   end
 end

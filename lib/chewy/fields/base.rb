@@ -27,7 +27,7 @@ module Chewy
             {}
           end
         mapping.reverse_merge!(options)
-        mapping.reverse_merge!(type: (children.present? ? 'object' : 'string'))
+        mapping.reverse_merge!(type: (children.present? ? 'object' : Chewy.default_field_type))
         {name => mapping}
       end
 

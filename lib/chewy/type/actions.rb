@@ -23,9 +23,11 @@ module Chewy
         #   UsersIndex::User.sync
         #
         # @see Chewy::Type::Syncer
-        # @return [Integer, nil] the amount of missing and outdated documents reindexed, nil in case of errors
+        # @return [Hash{Symbol, Object}, nil] a number of missing and outdated documents reindexed and their ids, nil in case of errors
         def sync
-          Syncer.new(self).perform
+          syncer = Syncer.new(self)
+          count = syncer.perform
+          {count: count, missing: syncer.missing_ids, outdated: syncer.outdated_ids} if count
         end
       end
     end

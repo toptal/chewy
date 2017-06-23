@@ -81,29 +81,45 @@ module Chewy
   class << self
     attr_accessor :adapters
 
-    # Derives type from string `index#type` representation:
+    # Derives a single type for the passed string identifier if possible.
     #
-    #   Chewy.derive_type('users#user') # => UsersIndex::User
+    # @example
+    #   Chewy.derive_types(UsersIndex::User) # => UsersIndex::User
+    #   Chewy.derive_types('namespace/users') # => Namespace::UsersIndex::User
+    #   Chewy.derive_types('places') # => raises Chewy::UnderivableType
+    #   Chewy.derive_types('places#city') # => PlacesIndex::City
     #
-    # If index has only one type - it is possible to derive it without specification:
-    #
-    #   Chewy.derive_type('users') # => UsersIndex::User
-    #
-    # If index has more then one type - it raises Chewy::UnderivableType.
-    #
+    # @param name [String, Chewy::Type] string type identifier
+    # @raise [Chewy::UnderivableType] in cases when it is impossble to find index or type or more than one type found
+    # @return [Chewy::Type] an array of derived types
     def derive_type(name)
       return name if name.is_a?(Class) && name < Chewy::Type
 
+      types = derive_types(name)
+      raise Chewy::UnderivableType, "Index `#{types.first.index}` has more than one type, please specify type via `#{types.first.index.derivable_index_name}#type_name`" unless types.one?
+      types.first
+    end
+
+    # Derives all the types for the passed string identifier if possible.
+    #
+    # @example
+    #   Chewy.derive_types('namespace/users') # => [Namespace::UsersIndex::User]
+    #   Chewy.derive_types('places') # => [PlacesIndex::City, PlacesIndex::Country]
+    #   Chewy.derive_types('places#city') # => [PlacesIndex::City]
+    #
+    # @param name [String] string type identifier
+    # @raise [Chewy::UnderivableType] in cases when it is impossble to find index or type
+    # @return [Array<Chewy::Type>] an array of derived types
+    def derive_types(name)
       index_name, type_name = name.split('#', 2)
-      class_name = "#{index_name.camelize}Index"
+      class_name = "#{index_name.camelize.gsub(/Index\z/, '')}Index"
       index = class_name.safe_constantize
       raise Chewy::UnderivableType, "Can not find index named `#{class_name}`" unless index && index < Chewy::Index
       if type_name.present?
-        index.type_hash[type_name] or raise Chewy::UnderivableType, "Index `#{class_name}` doesn`t have type named `#{type_name}`"
-      elsif index.types.one?
-        index.types.first
+        type = index.type_hash[type_name] or raise Chewy::UnderivableType, "Index `#{class_name}` doesn`t have type named `#{type_name}`"
+        [type]
       else
-        raise Chewy::UnderivableType, "Index `#{class_name}` has more than one type, please specify type via `#{index_name}#type_name`"
+        index.types
       end
     end
 

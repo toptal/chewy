@@ -2,7 +2,7 @@
 
 ## Changes
 
-  * Consistency checks and synchronization.
+  * Consistency checks and synchronization: `rake chewy:sync`.
 
   * `default_root_options` option (@barthez, #526)
 

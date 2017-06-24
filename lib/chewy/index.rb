@@ -36,7 +36,7 @@ module Chewy
           @index_name = nil
           _index_name(suggest)
         else
-          @index_name ||= build_index_name(_index_name, prefix: default_prefix)
+          @index_name ||= build_index_name(_index_name, prefix: prefix_with_deprecation)
         end
       end
 
@@ -53,14 +53,9 @@ module Chewy
         @derivable_name ||= name.sub(/Index\z/, '').underscore if name
       end
 
-      def derivable_index_name
-        ActiveSupport::Deprecation.warn '`Chewy::Index.derivable_index_name` is deprecated and will be removed soon, use `Chewy::Index.derivable_name` instead'
-        derivable_name
-      end
-
       # Setups or returns pure Elasticsearch index name
       # without any prefixes/suffixes
-      def default_prefix
+      def prefix
         Chewy.configuration[:prefix]
       end
 
@@ -203,6 +198,30 @@ module Chewy
       # @return [Chewy::Index::Specification] a specification object instance for this particular index
       def specification
         @specification ||= Specification.new(self)
+      end
+
+      def derivable_index_name
+        ActiveSupport::Deprecation.warn '`Chewy::Index.derivable_index_name` is deprecated and will be removed soon, use `Chewy::Index.derivable_name` instead'
+        derivable_name
+      end
+
+      # Handling old default_prefix if it is not defined.
+      def method_missing(name, *args, &block) # rubocop:disable Style/MethodMissing
+        if name == :default_prefix
+          ActiveSupport::Deprecation.warn '`Chewy::Index.default_prefix` is deprecated and will be removed soon, use `Chewy::Index.prefix` instead'
+          prefix
+        else
+          super
+        end
+      end
+
+      def prefix_with_deprecation
+        if respond_to?(:default_prefix)
+          ActiveSupport::Deprecation.warn '`Chewy::Index.default_prefix` is deprecated and will be removed soon, define `Chewy::Index.prefix` method instead'
+          default_prefix
+        else
+          prefix
+        end
       end
     end
   end

@@ -2,6 +2,8 @@
 
 ## Changes
 
+  * Rename `Chewy::Index.default_prefix` to `Chewy::Index.prefix`. The old one is deprecated.
+
   * Add `Chewy::Type.derivable_name` for consistency
 
   * Rename `Chewy::Index.derivable_index_name` to `Chewy::Index.derivable_name`.

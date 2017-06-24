@@ -74,9 +74,9 @@ describe Chewy::Index do
     specify { expect(stub_index('namespace/places').derivable_name).to eq('namespace/places') }
   end
 
-  describe '.default_prefix' do
+  describe '.prefix' do
     before { allow(Chewy).to receive_messages(configuration: {prefix: 'testing'}) }
-    specify { expect(Class.new(Chewy::Index).default_prefix).to eq('testing') }
+    specify { expect(Class.new(Chewy::Index).prefix).to eq('testing') }
   end
 
   describe '.define_type' do
@@ -296,6 +296,28 @@ describe Chewy::Index do
       end
 
       specify { expect(index.journal?).to eq true }
+    end
+  end
+
+  describe '.default_prefix' do
+    before { allow(Chewy).to receive_messages(configuration: {prefix: 'testing'}) }
+
+    context do
+      before { expect(ActiveSupport::Deprecation).to receive(:warn).once }
+      specify { expect(DummiesIndex.default_prefix).to eq('testing') }
+    end
+
+    context do
+      before do
+        DummiesIndex.class_eval do
+          def self.default_prefix
+            'borogoves'
+          end
+        end
+      end
+
+      before { expect(ActiveSupport::Deprecation).to receive(:warn).once }
+      specify { expect(DummiesIndex.index_name).to eq('borogoves_dummies') }
     end
   end
 end

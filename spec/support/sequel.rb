@@ -1,12 +1,14 @@
 require 'database_cleaner'
 
-DB = Sequel.sqlite # logger: Logger.new(STDOUT)
+DB = Sequel.sqlite # logger: Logger.new(STDERR)
+Sequel::Deprecation.output = false
 
 DB.create_table :countries do
   primary_key :id
   column :name, :string
   column :country_code, :string
   column :rating, :integer
+  column :updated_at, :datetime
 end
 
 DB.create_table :cities do
@@ -14,14 +16,17 @@ DB.create_table :cities do
   column :country_id, :integer
   column :name, :string
   column :rating, :integer
+  column :updated_at, :datetime
 end
 
 DB.create_table :rating_cities do
   primary_key :rating
   column :country_id, :integer
   column :name, :string
+  column :updated_at, :datetime
 end
 
+Sequel::Model.plugin :timestamps, update_on_create: true
 Sequel::Model.plugin :chewy_observe
 
 module SequelClassHelpers

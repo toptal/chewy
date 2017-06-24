@@ -84,8 +84,9 @@ module Chewy
         end
       end
 
-    private
-
+      # Children indexed by name as a hash.
+      #
+      # @return [Hash{Symbol => Chewy::Fields::Base}]
       def child_hash
         @child_hash ||= children.index_by(&:name)
       end

@@ -5,26 +5,42 @@ describe Chewy::Type::Actions, :orm do
 
   before do
     stub_model(:city)
-  end
-
-  before do
     stub_index(:cities) do
       define_type City do
         field :name
+        field :updated_at, type: 'date'
       end
     end
   end
 
-  let!(:dummy_cities) { Array.new(3) { |i| City.create(name: "name#{i}") } }
-  let(:city) { CitiesIndex::City }
-
-  before do
-    city.import
-  end
+  let!(:cities) { Array.new(3) { |i| City.create!(name: "Name#{i + 1}") } }
+  before { CitiesIndex::City.import }
 
   describe '.reset' do
     specify do
-      expect { city.reset }.to update_index(city)
+      expect { CitiesIndex::City.reset }.to update_index(CitiesIndex::City)
+    end
+  end
+
+  describe '.sync' do
+    before do
+      cities.first.destroy
+      sleep(1) if ActiveSupport::VERSION::STRING < '4.1.0'
+      cities.last.update(name: 'Name5')
+    end
+    let!(:additional_city) { City.create!(name: 'Name4') }
+
+    specify do
+      expect(CitiesIndex::City.sync).to match(
+        count: 3,
+        missing: contain_exactly(cities.first.id.to_s, additional_city.id.to_s),
+        outdated: [cities.last.id.to_s]
+      )
+    end
+    specify do
+      expect { CitiesIndex::City.sync }.to update_index(CitiesIndex::City)
+        .and_reindex(additional_city, cities.last)
+        .and_delete(cities.first).only
     end
   end
 end

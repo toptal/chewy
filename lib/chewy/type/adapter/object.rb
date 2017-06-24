@@ -54,6 +54,49 @@ module Chewy
           Array.wrap(collection)
         end
 
+        # For the object adapter this method tries to fetch :id and requested
+        # fields from the target `import_all_method` when defined. Otherwise
+        # it tries to call the target `pluck_method`, which is configurable and
+        # `pluck` by default. The `pluck_method` have to act exactly the same
+        # way as the AR one. It returns an empty array when none of the methods
+        # are found.
+        #
+        # @example
+        #   class Geoname
+        #     self < class
+        #       def self.pluck(*fields)
+        #         if fields.one?
+        #           whatever_source.map { |object| object.send(fields.first) }
+        #         else
+        #           whatever_source.map do |object|
+        #             fields.map { |field| object.send(field) }
+        #           end
+        #         end
+        #       end
+        #     end
+        #   end
+        #
+        # @see Chewy::Type::Adapter::Base#default_scope_pluck
+        # @return [Array<Object>, Array<Array<Object>>]
+        def default_scope_pluck(*fields)
+          if @target.respond_to?(import_all_method)
+            everything = @target.send(import_all_method)
+            if fields.blank?
+              everything.map { |object| object_field(object, :id) || object }
+            else
+              everything.map do |object|
+                fields.map { |field| object_field(object, field) }
+                  .unshift(object_field(object, :id) || object)
+              end
+            end
+          elsif @target.respond_to?(pluck_method)
+            fields.unshift(:id)
+            @target.send(pluck_method, *fields)
+          else
+            []
+          end
+        end
+
         # This method is used internally by `Chewy::Type.import`.
         #
         # The idea is that any object can be imported to ES if
@@ -160,8 +203,20 @@ module Chewy
           !!delete
         end
 
+        def object_field(object, name)
+          if object.respond_to?(name)
+            object.send(name)
+          elsif object.is_a?(Hash)
+            object[name.to_sym] || object[name.to_s]
+          end
+        end
+
         def import_all_method
           @import_all_method ||= options[:import_all_method] || :call
+        end
+
+        def pluck_method
+          @pluck_method ||= options[:pluck_method] || :pluck
         end
 
         def load_all_method

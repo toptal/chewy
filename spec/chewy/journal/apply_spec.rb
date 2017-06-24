@@ -28,6 +28,8 @@ describe Chewy::Journal::Apply do
         Timecop.freeze(time)
       end
 
+      after { Timecop.return }
+
       specify do
         Chewy.strategy(:urgent) do
           Array.new(2) { |i| City.create!(id: i + 1) }
@@ -73,6 +75,7 @@ describe Chewy::Journal::Apply do
 
       after do
         Chewy.strategy.pop
+        Timecop.return
       end
 
       specify 'journal was cleaned after the first call' do

@@ -161,7 +161,7 @@ module Chewy
         #   UsersIndex.reset! Time.now.to_i, journal: true
         #
         def reset!(suffix = nil, journal: false)
-          if suffix.present? && (indexes = self.indexes).present?
+          result = if suffix.present? && (indexes = self.indexes).present?
             create! suffix, alias: false
 
             optimize_index_settings suffix
@@ -180,6 +180,9 @@ module Chewy
             purge! suffix
             import journal: journal
           end
+
+          specification.lock!
+          result
         end
 
       private

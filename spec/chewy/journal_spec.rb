@@ -165,6 +165,8 @@ describe Chewy::Journal do
             expect { Chewy::Journal.delete! }.to raise_error(Elasticsearch::Transport::Transport::Errors::NotFound)
             expect(Chewy::Journal.delete).to eq false
             expect(Chewy::Journal.exists?).to eq false
+
+            Timecop.return
           end
         end
       end

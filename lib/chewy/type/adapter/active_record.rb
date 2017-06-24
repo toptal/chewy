@@ -42,12 +42,16 @@ module Chewy
           result
         end
 
-        def target_id
-          target.arel_table[target.primary_key]
+        def primary_key
+          @primary_key ||= target.primary_key.to_sym
         end
 
-        def pluck_ids(scope)
-          scope.except(:includes).uniq.pluck(target.primary_key.to_sym)
+        def target_id
+          target.arel_table[primary_key.to_s]
+        end
+
+        def pluck_ids(scope, fields: [])
+          scope.except(:includes).distinct.pluck(primary_key, *fields)
         end
 
         def scope_where_ids_in(scope, ids)
@@ -65,17 +69,6 @@ module Chewy
 
         def object_class
           ::ActiveRecord::Base
-        end
-      end
-
-      ActiveSupport.on_load(:active_record) do
-        if ::ActiveRecord::VERSION::MAJOR >= 5
-          module Rails5
-            def pluck_ids(scope)
-              scope.except(:includes).distinct.pluck(target.primary_key.to_sym)
-            end
-          end
-          Chewy::Type::Adapter::ActiveRecord.prepend(Rails5)
         end
       end
     end

@@ -590,7 +590,7 @@ describe Chewy::Search::Request do
       end
 
       context 'make sure it returns everything in batches if needed' do
-        before { stub_const("#{described_class}::DEFAULT_BATCH_SIZE", 5) }
+        before { stub_const("#{described_class}::DEFAULT_PLUCK_BATCH_SIZE", 5) }
         before { expect(Chewy.client).to receive(:scroll).once.and_call_original }
 
         specify { expect(subject.pluck(:_id)).to eq((1..9).to_a.map(&:to_s)) }

@@ -8,6 +8,8 @@ module Chewy
         class_attribute :_templates
         class_attribute :_agg_defs
         self._agg_defs = {}
+        class_attribute :outdated_sync_field
+        self.outdated_sync_field = :updated_at
       end
 
       module ClassMethods
@@ -171,6 +173,14 @@ module Chewy
         #
         def mappings_hash
           root_object ? root_object.mappings_hash : {}
+        end
+
+        # Check whether the type has outdated_sync_field defined with a simple value.
+        #
+        # @return [true, false]
+        def supports_outdated_sync?
+          updated_at_field = root_object.child_hash[outdated_sync_field] if root_object && outdated_sync_field
+          !!updated_at_field && updated_at_field.value.nil?
         end
 
       private

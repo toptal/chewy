@@ -1,37 +1,38 @@
 require 'chewy/rake_helper'
 
+def transform_args(args)
+  if args.present? && args.first.tr!('-', '')
+    {except: args}
+  else
+    {only: args}
+  end
+end
+
 namespace :chewy do
-  desc 'This taks resets all the indexed that are required to be reset'
+  desc 'This taks resets all the indexes with the specification changed and synchronizes the rest of them'
   task deploy: :environment do
-    Chewy::RakeHelper.subscribed_task_stats do
-      Chewy::RakeHelper.reset_changed
-    end
+    processed = Chewy::RakeHelper.upgrade
+    Chewy::RakeHelper.sync(except: processed)
   end
 
-  desc 'Destroy, recreate and import data to specified index'
+  desc 'Destroy, recreate and import data for the specified indexes or all of them'
   task reset: :environment do |_task, args|
-    Chewy::RakeHelper.subscribed_task_stats do
-      indexes = args.extras
-
-      if indexes.empty? || indexes.first.tr!('-', '')
-        Chewy::RakeHelper.reset_all(indexes)
-      else
-        Chewy::RakeHelper.reset_index(indexes)
-      end
-    end
+    Chewy::RakeHelper.reset(transform_args(args.extras))
   end
 
-  desc 'Updates data specified index'
-  task update: :environment do |_task, args|
-    Chewy::RakeHelper.subscribed_task_stats do
-      indexes = args.extras
+  desc 'Resets data for the specified indexes or all of them only if the index specification is changed'
+  task upgrade: :environment do |_task, args|
+    Chewy::RakeHelper.upgrade(transform_args(args.extras))
+  end
 
-      if indexes.empty? || indexes.first.tr!('-', '')
-        Chewy::RakeHelper.update_all(indexes)
-      else
-        Chewy::RakeHelper.update_index(indexes)
-      end
-    end
+  desc 'Updates data for the specified types or all of them'
+  task update: :environment do |_task, args|
+    Chewy::RakeHelper.update(transform_args(args.extras))
+  end
+
+  desc 'Synchronizes data for the specified types or all of them'
+  task sync: :environment do |_task, args|
+    Chewy::RakeHelper.sync(transform_args(args.extras))
   end
 
   desc 'Applies changes that were done from specified moment (as a timestamp)'

@@ -33,6 +33,9 @@ Style/IndentArray:
 Style/IndentHash:
   EnforcedStyle: consistent
 
+Style/IndentHeredoc:
+  Enabled: false
+
 Style/MultilineMethodCallIndentation:
   EnforcedStyle: indented
 

@@ -33,6 +33,34 @@ describe Chewy::Type::Mapping do
     end
   end
 
+  context 'no root element call' do
+    before do
+      stub_index(:products) do
+        define_type :product do
+          field :title, type: 'string' do
+            field :subfield1
+          end
+        end
+      end
+    end
+
+    specify { expect(product.root_object.children.map(&:name)).to eq([:title]) }
+    specify { expect(product.root_object.children.map(&:parent)).to eq([product.root_object]) }
+    specify { expect(product.root_object.children[0].children.map(&:name)).to eq([:subfield1]) }
+    specify { expect(product.root_object.children[0].children.map(&:parent)).to eq([product.root_object.children[0]]) }
+
+    context 'default root options are set' do
+      around do |example|
+        previous_options = Chewy.default_root_options
+        Chewy.default_root_options = {_all: {enabled: false}}
+        example.run
+        Chewy.default_root_options = previous_options
+      end
+
+      specify { expect(product.mappings_hash[:product]).to include(_all: {enabled: false}) }
+    end
+  end
+
   describe '.agg' do
     specify { expect(product._agg_defs[:named_agg].call).to eq(avg: {field: 'title.subfield1'}) }
     specify { expect(review._agg_defs[:named_agg].call).to eq(avg: {field: 'comments.rating'}) }
@@ -87,31 +115,28 @@ describe Chewy::Type::Mapping do
     end
   end
 
-  context 'no root element call' do
-    before do
-      stub_index(:products) do
-        define_type :product do
-          field :title, type: 'string' do
-            field :subfield1
-          end
-        end
+  describe '.supports_outdated_sync?' do
+    def type(&block)
+      stub_index(:cities) do
+        define_type :city, &block
       end
+      CitiesIndex::City
     end
 
-    specify { expect(product.root_object.children.map(&:name)).to eq([:title]) }
-    specify { expect(product.root_object.children.map(&:parent)).to eq([product.root_object]) }
-    specify { expect(product.root_object.children[0].children.map(&:name)).to eq([:subfield1]) }
-    specify { expect(product.root_object.children[0].children.map(&:parent)).to eq([product.root_object.children[0]]) }
-
-    context 'default root options are set' do
-      around do |example|
-        previous_options = Chewy.default_root_options
-        Chewy.default_root_options = {_all: {enabled: false}}
-        example.run
-        Chewy.default_root_options = previous_options
-      end
-
-      specify { expect(product.mappings_hash[:product]).to include(_all: {enabled: false}) }
+    specify { expect(type.supports_outdated_sync?).to eq(false) }
+    specify { expect(type { field :updated_at }.supports_outdated_sync?).to eq(true) }
+    specify { expect(type { field :updated_at, value: -> {} }.supports_outdated_sync?).to eq(false) }
+    specify do
+      expect(type do
+        self.outdated_sync_field = :version
+        field :updated_at
+      end.supports_outdated_sync?).to eq(false)
+    end
+    specify do
+      expect(type do
+        self.outdated_sync_field = :version
+        field :version
+      end.supports_outdated_sync?).to eq(true)
     end
   end
 end

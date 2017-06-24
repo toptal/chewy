@@ -4,6 +4,8 @@ describe Chewy::Type::Adapter::Sequel, :sequel do
   before do
     stub_model(:city)
     stub_model(:country)
+    City.many_to_one :country
+    Country.one_to_many :cities
   end
 
   describe '#name' do
@@ -60,6 +62,36 @@ describe Chewy::Type::Adapter::Sequel, :sequel do
       specify { expect(subject.identify(cities)).to eq([0, 1, 2]) }
       specify { expect(subject.identify(cities.first)).to eq([0]) }
       specify { expect(subject.identify(cities.first(2).map(&:rating))).to eq([0, 1]) }
+    end
+  end
+
+  describe '#default_scope_pluck' do
+    subject { described_class.new(Country) }
+    let!(:countries) { Array.new(3) { |i| Country.create!(rating: i) { |c| c.id = i + 1 } } }
+    let!(:cities) { Array.new(6) { |i| City.create!(rating: i + 3, country_id: (i + 4) / 2) { |c| c.id = i + 3 } } }
+
+    specify { expect(subject.default_scope_pluck).to contain_exactly(1, 2, 3) }
+    specify { expect(subject.default_scope_pluck(:rating)).to contain_exactly([1, 0], [2, 1], [3, 2]) }
+
+    context do
+      subject { described_class.new(Country.eager(:cities)) }
+
+      specify { expect(subject.default_scope_pluck).to contain_exactly(1, 2, 3) }
+      specify { expect(subject.default_scope_pluck(:rating)).to contain_exactly([1, 0], [2, 1], [3, 2]) }
+    end
+
+    context do
+      subject { described_class.new(Country.eager_graph(:cities)) }
+
+      specify { expect(subject.default_scope_pluck).to contain_exactly(1, 2, 3) }
+      specify { expect(subject.default_scope_pluck(:rating)).to contain_exactly([1, 0], [2, 1], [3, 2]) }
+    end
+
+    context do
+      subject { described_class.new(Country.join(:cities, country_id: :id)) }
+
+      specify { expect(subject.default_scope_pluck).to contain_exactly(2, 3) }
+      specify { expect(subject.default_scope_pluck(:rating)).to contain_exactly([2, 1], [3, 2]) }
     end
   end
 

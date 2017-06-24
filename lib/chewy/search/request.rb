@@ -933,8 +933,8 @@ module Chewy
     private
 
       def compare_internals(other)
-        _indexes.map(&:index_name).sort == other._indexes.map(&:index_name).sort &&
-          _types.map(&:full_name).sort == other._types.map(&:full_name).sort &&
+        _indexes.sort_by(&:derivable_name) == other._indexes.sort_by(&:derivable_name) &&
+          _types.sort_by(&:derivable_name) == other._types.sort_by(&:derivable_name) &&
           parameters == other.parameters
       end
 

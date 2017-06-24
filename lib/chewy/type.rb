@@ -34,7 +34,7 @@ module Chewy
       # Chewy index current type belongs to. Defined inside `Chewy.create_type`
       #
       def index
-        raise NotImplementedError
+        raise NotImplementedError, 'Looks like this type ws defined outside the index scope and `.index` method is undefined for it'
       end
 
       # Current type adapter. Defined inside `Chewy.create_type`, derived from
@@ -52,8 +52,8 @@ module Chewy
 
       # Returns index and type names as a string identifier
       #
-      def full_name
-        @full_name ||= [index_name, type_name].join('#')
+      def derivable_name
+        @derivable_name ||= [index.derivable_name, type_name].join('#') if index && index.derivable_name
       end
 
       # Returns list of public class methods defined in current type

@@ -44,7 +44,7 @@ module Chewy
         return if @indices.blank?
         {
           terms: {
-            index_name: @indices.map(&:derivable_index_name)
+            index_name: @indices.map(&:derivable_name)
           }
         }
       end

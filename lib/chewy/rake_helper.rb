@@ -96,7 +96,7 @@ module Chewy
               types.each(&:import)
               update_types.concat(types)
             else
-              output.puts "Skipping #{index}, it does not exists (use rake chewy:reset[#{index.derivable_index_name}] to create and update it)"
+              output.puts "Skipping #{index}, it does not exists (use rake chewy:reset[#{index.derivable_name}] to create and update it)"
             end
           end
         end
@@ -195,7 +195,7 @@ module Chewy
           indexes
         end
 
-        indexes.sort_by(&:derivable_index_name)
+        indexes.sort_by(&:derivable_name)
       end
 
       def types_from(only: nil, except: nil)
@@ -212,7 +212,7 @@ module Chewy
         end
 
         types.sort_by do |type|
-          [type.index.derivable_index_name, type.type_name]
+          [type.index.derivable_name, type.type_name]
         end.group_by(&:index)
       end
 

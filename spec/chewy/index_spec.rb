@@ -68,6 +68,12 @@ describe Chewy::Index do
     end
   end
 
+  describe '.derivable_name' do
+    specify { expect(Class.new(Chewy::Index).derivable_name).to be_nil }
+    specify { expect(stub_index(:places).derivable_name).to eq('places') }
+    specify { expect(stub_index('namespace/places').derivable_name).to eq('namespace/places') }
+  end
+
   describe '.default_prefix' do
     before { allow(Chewy).to receive_messages(configuration: {prefix: 'testing'}) }
     specify { expect(Class.new(Chewy::Index).default_prefix).to eq('testing') }

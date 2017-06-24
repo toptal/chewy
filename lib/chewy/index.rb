@@ -44,13 +44,18 @@ module Chewy
         if suggest
           @_index_name = suggest
         elsif name
-          @_index_name ||= name.sub(/Index\Z/, '').demodulize.underscore
+          @_index_name ||= name.sub(/Index\z/, '').demodulize.underscore
         end
         @_index_name
       end
 
+      def derivable_name
+        @derivable_name ||= name.sub(/Index\z/, '').underscore if name
+      end
+
       def derivable_index_name
-        @_derivable_index_name ||= name.sub(/Index\Z/, '').underscore
+        ActiveSupport::Deprecation.warn '`Chewy::Index.derivable_index_name` is deprecated and will be removed soon, use `Chewy::Index.derivable_name` instead'
+        derivable_name
       end
 
       # Setups or returns pure Elasticsearch index name

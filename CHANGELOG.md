@@ -2,6 +2,11 @@
 
 ## Changes
 
+  * Add `Chewy::Type.derivable_name` for consistency
+
+  * Rename `Chewy::Index.derivable_index_name` to `Chewy::Index.derivable_name`.
+    `Chewy::Index.derivable_index_name` and `Chewy::Type.derivable_index_name` are deprecated.
+
   * Use normal YAML loading, for the config, we don't need the safe one.
 
   * Consistency checks and synchronization: `rake chewy:sync`.
@@ -14,7 +19,7 @@
 
   * Brand new request DSL. Supports ElasticSearch 2 and 5, better usability, architecture and docs.
 
-  * Kaminari 1.0 support.
+  * Add Kaminari 1.0 support.
 
   * `skip_index_creation_on_import` option (@sergey-kintsel, #483)
 

@@ -935,9 +935,9 @@ Just add `require 'chewy/rspec'` to your spec_helper.rb and you will get additio
 
 Add `require 'chewy/minitest'` to your test_helper.rb, and then for tests which you'd like indexing test hooks, `include Chewy::Minitest::Helpers`.
 
-Since you can set :bypass strategy for test suites and manually handle import for the index and manually flush test indices using `Chewy.massacre`. This will help reduce unnecessary ES requests
+Since you can set `:bypass` strategy for test suites and manually handle import for the index and manually flush test indices using `Chewy.massacre`. This will help reduce unnecessary ES requests
 
-But if you require chewy to index/update model regularly in elastic in your test suite then you can specify chewy strategy for indexing documents as `urgent`. Add `Chewy.strategy(:urgent)` to test_helper.rb.
+But if you require chewy to index/update model regularly in your test suite then you can specify `:urgent` strategy for documents indexing. Add `Chewy.strategy(:urgent)` to test_helper.rb.
 
 ### DatabaseCleaner
 

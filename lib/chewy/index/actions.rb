@@ -54,7 +54,7 @@ module Chewy
         #
         def create!(*args)
           options = args.extract_options!.reverse_merge!(alias: true)
-          name = build_index_name(suffix: args.first)
+          name = index_name(suffix: args.first)
 
           if Chewy::Runtime.version >= 1.1
             body = specification_hash
@@ -78,7 +78,7 @@ module Chewy
         #   UsersIndex.delete '01-2014' # deletes `users_01-2014` index
         #
         def delete(suffix = nil)
-          result = client.indices.delete index: build_index_name(suffix: suffix)
+          result = client.indices.delete index: index_name(suffix: suffix)
           Chewy.wait_for_status if result
           result
           # es-ruby >= 1.0.10 handles Elasticsearch::Transport::Transport::Errors::NotFound
@@ -172,7 +172,7 @@ module Chewy
               *indexes.map do |index|
                 {remove: {index: index, alias: index_name}}
               end,
-              {add: {index: build_index_name(suffix: suffix), alias: index_name}}
+              {add: {index: index_name(suffix: suffix), alias: index_name}}
             ]}
             client.indices.delete index: indexes if indexes.present?
             result
@@ -206,7 +206,7 @@ module Chewy
 
         def update_settings(*args)
           options = args.extract_options!
-          name = build_index_name suffix: options[:suffix]
+          name = index_name suffix: options[:suffix]
           client.indices.put_settings index: name, body: {index: options[:settings]}
         end
 

@@ -47,7 +47,7 @@ module Chewy
 
         def request_base
           @request_base ||= {
-            index: @type.index.build_index_name(suffix: @suffix),
+            index: @type.index_name(suffix: @suffix),
             type: @type.type_name
           }.merge!(@bulk_options)
         end

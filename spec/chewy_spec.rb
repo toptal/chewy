@@ -130,6 +130,8 @@ describe Chewy do
       stub_index(:companies).create!
 
       Chewy.massacre
+
+      allow(Chewy).to receive_messages(configuration: Chewy.configuration.merge(prefix: 'prefix1'))
     end
 
     specify { expect(AdminsIndex.exists?).to eq(true) }

@@ -2,6 +2,8 @@
 
 ## Changes
 
+  * Use normal YAML loading, for the config, we don't need the safe one.
+
   * Consistency checks and synchronization: `rake chewy:sync`.
 
   * `default_root_options` option (@barthez, #526)

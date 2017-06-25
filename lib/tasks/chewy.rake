@@ -58,4 +58,17 @@ namespace :chewy do
       Chewy::Journal.delete!
     end
   end
+
+  desc 'Reindex data specified for the index with new settings.(Note- This copies and reindexes the data with new settings)'
+  task reindex: :environment do |_task, args|
+    Chewy::RakeHelper.subscribed_task_stats do
+      indexes = args.extras
+
+      if indexes.empty? || indexes.first.tr!('-', '')
+        Chewy::RakeHelper.reindex_all(indexes)
+      else
+        Chewy::RakeHelper.reindex_index(indexes)
+      end
+    end
+  end
 end

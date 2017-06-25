@@ -86,6 +86,21 @@ module Chewy
       def update_all(*except)
         update_index(all_indexes - normalize_indexes(except))
       end
+
+      def reindex_all(*except)
+        reset_index(all_indexes - normalize_indexes(except))
+      end
+
+      def reindex_index(*indexes)
+        normalize_indexes(indexes).each do |index|
+          puts "Updating #{index}"
+          if index.exists?
+            index.reindex
+          else
+            puts "Index `#{index.index_name}` does not exists. Use rake chewy:reset[#{index.index_name}] to create and reindex it."
+          end
+        end
+      end
     end
   end
 end

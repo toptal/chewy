@@ -500,4 +500,38 @@ describe Chewy::Index::Actions do
       end
     end
   end
+
+  # describe '.reindex' do
+  #   specify { expect(DummiesIndex.reindex['acknowledged']).to eq(true) }
+  #   specify { expect(DummiesIndex.reindex('2013')['acknowledged']).to eq(true) }
+
+  #   context do
+  #     before { DummiesIndex.reindex }
+  #     specify { expect(DummiesIndex.reindex).to eq(false) }
+  #     specify { expect(DummiesIndex.reindex('2013')).to eq(false) }
+  #   end
+
+  #   context do
+  #     before { DummiesIndex.reindex '2013' }
+  #     specify { expect(Chewy.client.indices.exists(index: 'dummies')).to eq(true) }
+  #     specify { expect(Chewy.client.indices.exists(index: 'dummies_2013')).to eq(true) }
+  #     specify { expect(DummiesIndex.aliases).to eq([]) }
+  #     specify { expect(DummiesIndex.indexes).to eq(['dummies_2013']) }
+  #     specify { expect(DummiesIndex.reindex('2013')).to eq(false) }
+  #     specify { expect(DummiesIndex.reindex('2014')['acknowledged']).to eq(true) }
+
+  #     context do
+  #       before { DummiesIndex.reindex '2014' }
+  #       specify { expect(DummiesIndex.indexes).to match_array(%w[dummies_2013 dummies_2014]) }
+  #     end
+  #   end
+
+  #   context do
+  #     before { DummiesIndex.reindex '2013', alias: false }
+  #     specify { expect(Chewy.client.indices.exists(index: 'dummies')).to eq(false) }
+  #     specify { expect(Chewy.client.indices.exists(index: 'dummies_2013')).to eq(true) }
+  #     specify { expect(DummiesIndex.aliases).to eq([]) }
+  #     specify { expect(DummiesIndex.indexes).to eq([]) }
+  #   end
+  # end
 end

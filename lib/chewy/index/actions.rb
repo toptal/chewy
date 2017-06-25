@@ -182,7 +182,49 @@ module Chewy
           end
         end
 
+        # Reindex, create a new index with updated settings for the index and reindex data from previous index to this new index
+        # Return reindex result
+        #
+        #   UsersIndex.reset!
+        #
+        # https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-reindex.html
+        #
+        #   UsersIndex.reset! Time.now.to_i, journal: true
+        #
+
+
+
+        def reindex(suffix = nil, journal: false)
+          if suffix.present? (indexes = self.indexes).present?
+            create! suffix, alias: false
+
+            optimize_index_settings suffix
+
+            # reindex each field from here
+            byebug
+            result = indexes.each do |index|
+              reindex_from_scr_to_dest(client, index.name, build_index_name(suffix: suffix))
+            end
+
+            client.indices.update_aliases body: {actions: [
+              *indexes.map do |index|
+                {remove: {index: index, alias: index_name}}
+              end,
+              {add: {index: build_index_name(suffix: suffix), alias: index_name}}
+            ]}
+            client.indices.delete index: indexes if indexes.present?
+            result
+          else
+            purge! suffix
+            import journal: journal
+          end
+        end
+
       private
+
+        def reindex_from_scr_to_dest(client, src_index, target_index)
+          Elasticsearch::Extensions::Reindex.new(client: client, src_index: src_index, target_index: target_index)
+        end
 
         def optimize_index_settings(suffix)
           settings = {}

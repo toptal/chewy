@@ -88,7 +88,7 @@ module Chewy
       end
 
       def reindex_all(*except)
-        reset_index(all_indexes - normalize_indexes(except))
+        reindex_index(all_indexes - normalize_indexes(except))
       end
 
       def reindex_index(*indexes)

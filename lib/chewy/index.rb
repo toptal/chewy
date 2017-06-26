@@ -3,6 +3,7 @@ require 'chewy/index/actions'
 require 'chewy/index/aliases'
 require 'chewy/index/settings'
 require 'chewy/index/specification'
+require 'elasticsearch/extensions/reindex'
 
 module Chewy
   class Index

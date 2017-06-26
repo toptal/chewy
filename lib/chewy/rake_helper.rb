@@ -93,7 +93,7 @@ module Chewy
 
       def reindex_index(*indexes)
         normalize_indexes(indexes).each do |index|
-          puts "Updating #{index}"
+          puts "Reindex #{index}"
           if index.exists?
             index.reindex
           else

@@ -18,4 +18,4 @@ gem 'guard-rspec'
 
 gem 'redcarpet'
 gem 'yard'
-gem 'elasticsearch-extensions'
+gem 'byebug'

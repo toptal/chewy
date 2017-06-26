@@ -195,15 +195,13 @@ module Chewy
 
 
         def reindex(suffix = nil, journal: false)
-          if suffix.present? (indexes = self.indexes).present?
+          if suffix.present? && (indexes = self.indexes).present?
             create! suffix, alias: false
 
             optimize_index_settings suffix
-
-            # reindex each field from here
-            byebug
-            result = indexes.each do |index|
-              reindex_from_scr_to_dest(client, index.name, build_index_name(suffix: suffix))
+            # reindex each indices from here
+            indexes.each do |index|
+              reindex_from_scr_to_dest(client, index, build_index_name(suffix: suffix))
             end
 
             client.indices.update_aliases body: {actions: [
@@ -213,17 +211,22 @@ module Chewy
               {add: {index: build_index_name(suffix: suffix), alias: index_name}}
             ]}
             client.indices.delete index: indexes if indexes.present?
-            result
-          else
-            purge! suffix
-            import journal: journal
           end
         end
 
       private
 
         def reindex_from_scr_to_dest(client, src_index, target_index)
-          Elasticsearch::Extensions::Reindex.new(client: client, src_index: src_index, target_index: target_index)
+          reindex_options = {
+            source: {
+              index: src_index,
+              client: client
+            },
+            target: {
+              index: target_index
+            }
+          }
+          Elasticsearch::Extensions::Reindex.new(reindex_options)
         end
 
         def optimize_index_settings(suffix)

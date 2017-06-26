@@ -52,17 +52,18 @@ module Chewy
         # Suffixed index names might be used for zero-downtime mapping change, for example.
         # Description: (http://www.elasticsearch.org/blog/changing-mapping-with-zero-downtime/).
         #
-        def create!(*args)
-          options = args.extract_options!.reverse_merge!(alias: true)
-          name = index_name(suffix: args.first)
+        def create!(suffix = nil, **options)
+          options.reverse_merge!(alias: true)
+          general_name = index_name
+          suffixed_name = index_name(suffix: suffix)
 
           if Chewy::Runtime.version >= 1.1
             body = specification_hash
-            body[:aliases] = {index_name => {}} if options[:alias] && name != index_name
-            result = client.indices.create(index: name, body: body)
+            body[:aliases] = {general_name => {}} if options[:alias] && suffixed_name != general_name
+            result = client.indices.create(index: suffixed_name, body: body)
           else
-            result = client.indices.create(index: name, body: specification_hash)
-            result &&= client.indices.put_alias(index: name, name: index_name) if options[:alias] && name != index_name
+            result = client.indices.create(index: suffixed_name, body: specification_hash)
+            result &&= client.indices.put_alias(index: suffixed_name, name: general_name) if options[:alias] && name != index_name
           end
 
           Chewy.wait_for_status if result
@@ -164,15 +165,18 @@ module Chewy
           result = if suffix.present? && (indexes = self.indexes).present?
             create! suffix, alias: false
 
-            optimize_index_settings suffix
+            general_name = index_name
+            suffixed_name = index_name(suffix: suffix)
+
+            optimize_index_settings suffixed_name
             result = import suffix: suffix, journal: journal, refresh: !Chewy.reset_disable_refresh_interval
-            original_index_settings suffix
+            original_index_settings suffixed_name
 
             client.indices.update_aliases body: {actions: [
               *indexes.map do |index|
-                {remove: {index: index, alias: index_name}}
+                {remove: {index: index, alias: general_name}}
               end,
-              {add: {index: index_name(suffix: suffix), alias: index_name}}
+              {add: {index: suffixed_name, alias: general_name}}
             ]}
             client.indices.delete index: indexes if indexes.present?
             result
@@ -187,27 +191,25 @@ module Chewy
 
       private
 
-        def optimize_index_settings(suffix)
+        def optimize_index_settings(index_name)
           settings = {}
           settings[:refresh_interval] = -1 if Chewy.reset_disable_refresh_interval
           settings[:number_of_replicas] = 0 if Chewy.reset_no_replicas
-          update_settings suffix: suffix, settings: settings if settings.any?
+          update_settings index_name, settings: settings if settings.any?
         end
 
-        def original_index_settings(suffix)
+        def original_index_settings(index_name)
           settings = {}
           if Chewy.reset_disable_refresh_interval
             settings.merge! index_settings(:refresh_interval)
             settings[:refresh_interval] = '1s' if settings.empty?
           end
           settings.merge! index_settings(:number_of_replicas) if Chewy.reset_no_replicas
-          update_settings suffix: suffix, settings: settings if settings.any?
+          update_settings index_name, settings: settings if settings.any?
         end
 
-        def update_settings(*args)
-          options = args.extract_options!
-          name = index_name suffix: options[:suffix]
-          client.indices.put_settings index: name, body: {index: options[:settings]}
+        def update_settings(index_name, **options)
+          client.indices.put_settings index: index_name, body: {index: options[:settings]}
         end
 
         def index_settings(setting_name)

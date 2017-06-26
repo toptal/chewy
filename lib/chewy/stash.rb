@@ -8,7 +8,7 @@ module Chewy
     index_name 'chewy_stash'
 
     define_type :specification do
-      field :value, type: 'string', index: 'not_analyzed'
+      field :value, index: 'no'
     end
   end
 end

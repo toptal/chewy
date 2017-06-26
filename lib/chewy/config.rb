@@ -58,6 +58,9 @@ module Chewy
       # for type mappings like `_all`.
       :default_root_options,
 
+      # Default field type for any field in any Chewy type. Defaults to 'string'.
+      :default_field_type,
+
       # Chewy search request DSL base class, used by every index.
       :search_class
 
@@ -77,6 +80,7 @@ module Chewy
       @disable_refresh_async = false
       @indices_path = 'app/chewy'
       @default_root_options = {}
+      @default_field_type = 'string'.freeze
       self.search_class = Chewy::Search::Request
     end
 

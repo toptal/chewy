@@ -7,6 +7,7 @@ gem 'activerecord'
 # gem 'sequel'
 
 gem 'activejob', require: false
+gem 'elasticsearch-extensions'
 gem 'resque', require: false
 gem 'sidekiq', require: false
 
@@ -18,8 +19,7 @@ gem 'guard-rspec'
 
 gem 'redcarpet'
 gem 'yard'
-gem 'elasticsearch-extensions'
 
 group :development do
-	gem 'byebug'
+  gem 'byebug'
 end

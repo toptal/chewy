@@ -193,25 +193,24 @@ module Chewy
         #
 
 
-        def reindex(suffix = nil, journal: false)
-          if (indexes = self.indexes).present?
-            suffix ||= Time.now.to_i
-            create! suffix, alias: false
+        def reindex(suffix = nil)
+          return unless (indexes = self.indexes).present?
+          suffix ||= Time.now.to_i
+          create! suffix, alias: false
 
-            optimize_index_settings suffix
-            # reindex each indices from here
-            indexes.each do |index|
-              reindex_from_scr_to_dest(client, index, build_index_name(suffix: suffix))
-            end
-
-            client.indices.update_aliases body: {actions: [
-              *indexes.map do |index|
-                {remove: {index: index, alias: index_name}}
-              end,
-              {add: {index: build_index_name(suffix: suffix), alias: index_name}}
-            ]}
-            client.indices.delete index: indexes if indexes.present?
+          optimize_index_settings suffix
+          # reindex each indices from here
+          indexes.each do |index|
+            reindex_from_scr_to_dest(client, index, build_index_name(suffix: suffix))
           end
+
+          client.indices.update_aliases body: {actions: [
+            *indexes.map do |index|
+              {remove: {index: index, alias: index_name}}
+            end,
+            {add: {index: build_index_name(suffix: suffix), alias: index_name}}
+          ]}
+          client.indices.delete index: indexes if indexes.present?
         end
 
       private

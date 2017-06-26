@@ -105,7 +105,7 @@ module Chewy
         return @outdated_sync_field_type if instance_variable_defined?(:@outdated_sync_field_type)
 
         mappings = @type.client.indices.get_mapping(
-          index: @type.index.index_name,
+          index: @type.index_name,
           type: @type.type_name
         ).values.first.fetch('mappings', {})
 

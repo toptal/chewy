@@ -383,7 +383,7 @@ describe Chewy::Index::Actions do
 
     context 'reset_disable_refresh_interval' do
       let(:suffix) { Time.now.to_i }
-      let(:name) { CitiesIndex.build_index_name(suffix: suffix) }
+      let(:name) { CitiesIndex.index_name(suffix: suffix) }
       let(:before_import_body) do
         {
           index: {refresh_interval: -1}
@@ -442,7 +442,7 @@ describe Chewy::Index::Actions do
 
     context 'reset_no_replicas' do
       let(:suffix) { Time.now.to_i }
-      let(:name) { CitiesIndex.build_index_name(suffix: suffix) }
+      let(:name) { CitiesIndex.index_name(suffix: suffix) }
       let(:before_import_body) do
         {
           index: {number_of_replicas: 0}

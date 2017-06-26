@@ -96,7 +96,7 @@ module Chewy
       return name if name.is_a?(Class) && name < Chewy::Type
 
       types = derive_types(name)
-      raise Chewy::UnderivableType, "Index `#{types.first.index}` has more than one type, please specify type via `#{types.first.index.derivable_index_name}#type_name`" unless types.one?
+      raise Chewy::UnderivableType, "Index `#{types.first.index}` has more than one type, please specify type via `#{types.first.index.derivable_name}#type_name`" unless types.one?
       types.first
     end
 

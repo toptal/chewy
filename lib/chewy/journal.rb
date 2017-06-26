@@ -17,9 +17,9 @@ module Chewy
       }
     }.freeze
 
-    def initialize(index)
+    def initialize(type)
       @entries = []
-      @index = index
+      @type = type
     end
 
     def add(action_objects)
@@ -27,8 +27,8 @@ module Chewy
         next if objects.blank?
 
         {
-          index_name: @index.derivable_index_name,
-          type_name: @index.type_name,
+          index_name: @type.index.derivable_name,
+          type_name: @type.type_name,
           action: action,
           object_ids: identify(objects),
           created_at: Time.now.to_i
@@ -51,7 +51,7 @@ module Chewy
   private
 
     def identify(objects)
-      @index.adapter.identify(objects)
+      @type.adapter.identify(objects)
     end
 
     class << self

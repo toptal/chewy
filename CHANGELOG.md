@@ -1,6 +1,19 @@
 # master
 
+## Breaking changes
+
+  * Changed behavior of `Chewy::Index.index_name`, it doesn't cache the values anymore.
+
 ## Changes
+
+  * Deprecate `Chewy::Index.build_index_name`.
+
+  * Rename `Chewy::Index.default_prefix` to `Chewy::Index.prefix`. The old one is deprecated.
+
+  * Add `Chewy::Type.derivable_name` for consistency.
+
+  * Rename `Chewy::Index.derivable_index_name` to `Chewy::Index.derivable_name`.
+    `Chewy::Index.derivable_index_name` and `Chewy::Type.derivable_index_name` are deprecated.
 
   * Use normal YAML loading, for the config, we don't need the safe one.
 
@@ -14,7 +27,7 @@
 
   * Brand new request DSL. Supports ElasticSearch 2 and 5, better usability, architecture and docs.
 
-  * Kaminari 1.0 support.
+  * Add Kaminari 1.0 support.
 
   * `skip_index_creation_on_import` option (@sergey-kintsel, #483)
 
@@ -108,6 +121,12 @@
 
 # Version 0.8.3
 
+## Breaking changes:
+
+  * `Chewy.atomic` and `Chewy.urgent_update=` methods was removed from the codebase, use `Chewy.strategy` block instead.
+
+  * `delete_from_index?` hook is removed from the codebase.
+
 ## Changes
 
   * Sequel support completely reworked to use common ORM implementations + better sequel specs covarage.
@@ -123,12 +142,6 @@
   * Safe unsubscribe on import (@marshall-lee)
 
   * Correct custom assets path silencer (@davekaro)
-
-## Incompatible changes:
-
-  * `Chewy.atomic` and `Chewy.urgent_update=` methods was removed from the codebase, use `Chewy.strategy` block instead.
-
-  * `delete_from_index?` hook is removed from the codebase.
 
 # Version 0.8.2
 
@@ -165,7 +178,7 @@
 
 # Version 0.8.0
 
-## Incompatible changes:
+## Breaking changes:
 
   * `:atomic` and `:urgent` strategies are using `import!` method raising exceptions
 
@@ -191,7 +204,7 @@
 
 # Version 0.7.0
 
-## Incompatible changes:
+## Breaking changes:
 
   * `Chewy.use_after_commit_callbacks = false` returns previous RDBMS behavior
   in tests
@@ -340,7 +353,7 @@
 
 # Version 0.5.2
 
-## Incompatible changes:
+## Breaking changes:
 
   * `Chewy::Type::Base` removed in favour of using `Chewy::Type` as a base class for all types
 
@@ -380,7 +393,7 @@
 
 # Version 0.5.0
 
-## Incompatible changes:
+## Breaking changes:
 
   * 404 exception (IndexMissingException) while query is swallowed and treated like an empty result set.
 

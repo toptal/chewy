@@ -33,7 +33,7 @@ describe Chewy::Journal::Entry do
       end
 
       context do
-        let(:indices) { [CityIndex::City2] }
+        let(:indices) { [CityIndex] }
         before do
           stub_index('city') do
             define_type :city2 do

@@ -19,43 +19,95 @@ module Chewy
     self._settings = Chewy::Index::Settings.new
 
     class << self
-      # Setups or returns ElasticSearch index name
+      # @overload index_name(suggest)
+      #   If suggested name is passed, it is set up as the new base name for
+      #   the index. Used for the index base name redefinition.
       #
-      #   class UsersIndex < Chewy::Index
+      #   @example
+      #     class UsersIndex < Chewy::Index
+      #       index_name :legacy_users
+      #     end
+      #     UsersIndex.index_name # => 'legacy_users'
+      #
+      #   @param suggest [String, Symbol] suggested base name
+      #   @return [String] new base name
+      #
+      # @overload index_name(prefix: nil, suffix: nil)
+      #   If suggested name is not passed, returns the base name accompanied
+      #   with the prefix (if any) and suffix (if passed).
+      #
+      #   @example
+      #     class UsersIndex < Chewy::Index
+      #     end
+      #
+      #     Chewy.settings = {prefix: 'test'}
+      #     UsersIndex.index_name # => 'test_users'
+      #     UsersIndex.index_name(prefix: 'foobar') # => 'foobar_users'
+      #     UsersIndex.index_name(suffix: '2017') # => 'test_users_2017'
+      #     UsersIndex.index_name(prefix: '', suffix: '2017') # => 'users_2017'
+      #
+      #   @param prefix [String] index name prefix, uses {.prefix} method by default
+      #   @param suffix [String] index name suffix, used for creating several indexes for the same alias during the zero-downtime reset
+      #   @raise [UndefinedIndex] if the base name is blank
+      #   @return [String] result index name
+      def index_name(suggest = nil, prefix: nil, suffix: nil)
+        if suggest
+          @base_name = suggest.to_s.underscore.presence
+        else
+          [
+            prefix || prefix_with_deprecation,
+            base_name,
+            suffix
+          ].reject(&:blank?).join('_')
+        end
+      end
+
+      # Base name for the index. Uses the default value inferred from the
+      # class name unless redefined.
+      #
+      # @example
+      #   class Namespace::UsersIndex < Chewy::Index
       #   end
       #   UsersIndex.index_name # => 'users'
       #
-      #   class UsersIndex < Chewy::Index
-      #     index_name 'dudes'
-      #   end
-      #   UsersIndex.index_name # => 'dudes'
+      #   Class.new(Chewy::Index).base_name # => raises UndefinedIndex
       #
-      def index_name(suggest = nil)
-        raise UndefinedIndex unless _index_name(suggest)
-        if suggest
-          @index_name = nil
-          _index_name(suggest)
-        else
-          @index_name ||= build_index_name(_index_name, prefix: default_prefix)
-        end
+      # @raise [UndefinedIndex] when the base name is blank
+      # @return [String] current base name
+      def base_name
+        @base_name ||= name.sub(/Index\z/, '').demodulize.underscore if name
+        raise UndefinedIndex if @base_name.blank?
+        @base_name
       end
 
-      def _index_name(suggest = nil)
-        if suggest
-          @_index_name = suggest
-        elsif name
-          @_index_name ||= name.sub(/Index\Z/, '').demodulize.underscore
-        end
-        @_index_name
+      # Similar to the {.base_name} but respects the class namespace, also,
+      # can't be redefined. Used to reference index with the string identifier
+      #
+      # @example
+      #   class Namespace::UsersIndex < Chewy::Index
+      #   end
+      #   UsersIndex.derivable_name # => 'namespace/users'
+      #
+      #   Class.new(Chewy::Index).derivable_name # => nil
+      #
+      # @return [String, nil] derivable name or nil when it is impossible to calculate
+      def derivable_name
+        @derivable_name ||= name.sub(/Index\z/, '').underscore if name
       end
 
-      def derivable_index_name
-        @_derivable_index_name ||= name.sub(/Index\Z/, '').underscore
-      end
-
-      # Setups or returns pure Elasticsearch index name
-      # without any prefixes/suffixes
-      def default_prefix
+      # Used as a default value for {.index_name}. Return prefix from the configuration
+      # but can be redefined per-index to be more dynamic.
+      #
+      # @example
+      #   class UsersIndex < Chewy::Index
+      #     def self.prefix
+      #       'foobar'
+      #     end
+      #   end
+      #   UsersIndex.index_name # => 'foobar_users'
+      #
+      # @return [String] prefix
+      def prefix
         Chewy.configuration[:prefix]
       end
 
@@ -166,11 +218,6 @@ module Chewy
         types.any?(&:journal?)
       end
 
-      def build_index_name(*args)
-        options = args.extract_options!
-        [options[:prefix], args.first || index_name, options[:suffix]].reject(&:blank?).join('_')
-      end
-
       def settings_hash
         _settings.to_hash
       end
@@ -198,6 +245,35 @@ module Chewy
       # @return [Chewy::Index::Specification] a specification object instance for this particular index
       def specification
         @specification ||= Specification.new(self)
+      end
+
+      def derivable_index_name
+        ActiveSupport::Deprecation.warn '`Chewy::Index.derivable_index_name` is deprecated and will be removed soon, use `Chewy::Index.derivable_name` instead'
+        derivable_name
+      end
+
+      # Handling old default_prefix if it is not defined.
+      def method_missing(name, *args, &block) # rubocop:disable Style/MethodMissing
+        if name == :default_prefix
+          ActiveSupport::Deprecation.warn '`Chewy::Index.default_prefix` is deprecated and will be removed soon, use `Chewy::Index.prefix` instead'
+          prefix
+        else
+          super
+        end
+      end
+
+      def prefix_with_deprecation
+        if respond_to?(:default_prefix)
+          ActiveSupport::Deprecation.warn '`Chewy::Index.default_prefix` is deprecated and will be removed soon, define `Chewy::Index.prefix` method instead'
+          default_prefix
+        else
+          prefix
+        end
+      end
+
+      def build_index_name(*args)
+        ActiveSupport::Deprecation.warn '`Chewy::Index.build_index_name` is deprecated and will be removed soon, use `Chewy::Index.index_name` instead'
+        index_name(args.extract_options!)
       end
     end
   end

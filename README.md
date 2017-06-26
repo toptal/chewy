@@ -45,6 +45,7 @@ Chewy is an ODM and wrapper for [the official Elasticsearch client](https://gith
   * [Rake tasks](#rake-tasks)
     * [chewy:update and chewy:reset](#chewyupdate-and-chewyreset)
     * [chewy:deploy](#chewydeploy)
+    * [chewy:reindex](#chewyreindex)
   * [Rspec integration](#rspec-integration)
   * [Minitest integration](#minitest-integration)
 * [TODO a.k.a coming soon](#todo-aka-coming-soon)
@@ -926,6 +927,14 @@ In the future, additional routines are planned during `chewy:deploy` execution. 
 Right now the approach is that if some data had been updated, but index specification had not been changed, it would be much faster to perform manual partial index update inside data migrations or even manually after the deploy.
 
 Also, there is always full reset alternative with `rake chewy:reset`.
+
+#### `chewy:reindex`
+
+This rake task is especially useful for reindexing the data in the cluster with new settings/analyzers without looking for import from the primary database.
+
+This task will first apply the new settings for the index and then it will copy//reindex data from old_index to new_index. You can refer to [official](https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-reindex.html) elastic documentation for reindex for more information.
+
+This tasks is extremely usefull when you don't have the primary database and you want to reindex data only for new settings and mappings from the existing index.
 
 ### Rspec integration
 

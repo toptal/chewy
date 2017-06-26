@@ -185,17 +185,17 @@ module Chewy
         # Reindex, create a new index with updated settings for the index and reindex data from previous index to this new index
         # Return reindex result
         #
-        #   UsersIndex.reset!
+        #   UsersIndex.reindex!
         #
         # https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-reindex.html
         #
-        #   UsersIndex.reset! Time.now.to_i, journal: true
+        #   UsersIndex.resindex! Time.now.to_i, journal: true
         #
 
 
-
         def reindex(suffix = nil, journal: false)
-          if suffix.present? && (indexes = self.indexes).present?
+          if (indexes = self.indexes).present?
+            suffix ||= Time.now.to_i
             create! suffix, alias: false
 
             optimize_index_settings suffix
@@ -226,7 +226,8 @@ module Chewy
               index: target_index
             }
           }
-          Elasticsearch::Extensions::Reindex.new(reindex_options)
+          reindex = Elasticsearch::Extensions::Reindex.new(reindex_options)
+          reindex.perform
         end
 
         def optimize_index_settings(suffix)

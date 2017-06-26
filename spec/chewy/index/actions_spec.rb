@@ -529,6 +529,22 @@ describe Chewy::Index::Actions do
 
     context 'reindexing a index should copy the data from old index to new index' do 
 
+      before do
+        DummiesIndex.create '2013'  
+        Chewy.client.index index: 'dummies_2013', type: 'dummy', id: 1, body: { title: "TEST 1" }
+        Chewy.client.index index: 'dummies_2013', type: 'dummy', id: 2, body: { title: "TEST 2"}
+        Chewy.client.indices.refresh index: 'dummies_2013'
+      end
+      specify { expect(Chewy.client.indices.exists(index: 'dummies')).to eq(true) }
+      specify { expect(Chewy.client.indices.exists(index: 'dummies_2013')).to eq(true) }
+      specify { expect(DummiesIndex.aliases).to eq([]) }
+      specify do 
+        DummiesIndex.reindex('2015')
+        expect(Chewy.client.indices.exists(index: 'dummies_2015')).to eq(true)
+        expect(Chewy.client.indices.exists(index: 'dummies_2013')).to eq(false)
+        expect(Chewy.client.search(index: 'dummies')['hits']['total']).to eq(2)
+        expect(Chewy.client.search(index: 'dummies_2015')['hits']['total']).to eq(2)
+      end
 
     end
 

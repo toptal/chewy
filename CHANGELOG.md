@@ -37,6 +37,8 @@
 
   * Configurable sidekiq options (@averell23, #438)
 
+  * `:shoryuken` async strategy (@josephchoe, #532)
+
 # Version 0.9.0
 
 ## Changes

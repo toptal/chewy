@@ -32,6 +32,7 @@ if defined?(::Shoryuken)
     specify do
       Chewy.settings[:shoryuken] = {queue: 'low'}
       expect(Chewy::Strategy::Shoryuken::Worker).to receive(:perform_async)
+        .with(hash_including(index: CitiesIndex::City, ids: [city.id, other_city.id]), hash_including(queue: 'low'))
       Chewy.strategy(:shoryuken) do
         [city, other_city].map(&:save!)
       end

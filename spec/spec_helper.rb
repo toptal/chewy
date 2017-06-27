@@ -38,6 +38,8 @@ RSpec.configure do |config|
 
   config.include FailHelpers
   config.include ClassHelpers
+
+  Aws.config.update(stub_responses: true)
 end
 
 if defined?(::ActiveRecord)

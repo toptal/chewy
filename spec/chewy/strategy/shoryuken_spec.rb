@@ -38,10 +38,12 @@ if defined?(::Shoryuken)
       end
     end
 
-    let(:body) { { 'index' => 'CitiesIndex::City', 'ids' => [city.id, other_city.id] } }
-    let(:sqs_msg) { double id: 'fc754df7-9cc2-4c41-96ca-5996a44b771e',
-                           body: body,
-                           delete: nil }
+    let(:body) { {'index' => 'CitiesIndex::City', 'ids' => [city.id, other_city.id]} }
+    let(:sqs_msg) do
+      double id: 'fc754df7-9cc2-4c41-96ca-5996a44b771e',
+             body: body,
+             delete: nil
+    end
 
     specify do
       expect(CitiesIndex::City).to receive(:import!).with([city.id, other_city.id], suffix: '201601')

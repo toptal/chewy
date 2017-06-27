@@ -9,6 +9,7 @@ gem 'activerecord'
 gem 'activejob', require: false
 gem 'resque', require: false
 gem 'sidekiq', require: false
+gem 'shoryuken', require: false
 
 gem 'kaminari-core', require: false
 gem 'will_paginate', require: false
@@ -18,3 +19,4 @@ gem 'guard-rspec'
 
 gem 'redcarpet'
 gem 'yard'
+gem 'byebug'

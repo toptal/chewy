@@ -32,13 +32,19 @@ if defined?(::Shoryuken)
     specify do
       Chewy.settings[:shoryuken] = {queue: 'low'}
       expect(Chewy::Strategy::Shoryuken::Worker).to receive(:perform_async)
-        .with(hash_including(index: CitiesIndex::City, ids: [city.id, other_city.id]), hash_including(queue: 'low'))
+        .with(hash_including(type: CitiesIndex::City, ids: [city.id, other_city.id]), hash_including(queue: 'low'))
       Chewy.strategy(:shoryuken) do
         [city, other_city].map(&:save!)
       end
     end
 
-    let(:body) { {'index' => 'CitiesIndex::City', 'ids' => [city.id, other_city.id]} }
+    let(:body) do
+      {
+        'type' => 'CitiesIndex::City',
+        'ids' => [city.id, other_city.id],
+        'options' => {'suffix' => '201601'}
+      }
+    end
     let(:sqs_msg) do
       double id: 'fc754df7-9cc2-4c41-96ca-5996a44b771e',
              body: body,
@@ -47,13 +53,13 @@ if defined?(::Shoryuken)
 
     specify do
       expect(CitiesIndex::City).to receive(:import!).with([city.id, other_city.id], suffix: '201601')
-      Chewy::Strategy::Shoryuken::Worker.new.perform(sqs_msg, body, suffix: '201601')
+      Chewy::Strategy::Shoryuken::Worker.new.perform(sqs_msg, body)
     end
 
     specify do
       allow(Chewy).to receive(:disable_refresh_async).and_return(true)
       expect(CitiesIndex::City).to receive(:import!).with([city.id, other_city.id], suffix: '201601', refresh: false)
-      Chewy::Strategy::Shoryuken::Worker.new.perform(sqs_msg, body, suffix: '201601')
+      Chewy::Strategy::Shoryuken::Worker.new.perform(sqs_msg, body)
     end
   end
 end

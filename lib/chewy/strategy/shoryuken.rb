@@ -16,16 +16,17 @@ module Chewy
         shoryuken_options auto_delete: true,
                           body_parser: :json
 
-        def perform(_sqs_msg, body, options = {})
+        def perform(_sqs_msg, body)
+          options = body['options'] || {}
           options[:refresh] = !Chewy.disable_refresh_async if Chewy.disable_refresh_async
-          body['index'].constantize.import!(body['ids'], options)
+          body['type'].constantize.import!(body['ids'], options.deep_symbolize_keys!)
         end
       end
 
       def leave
         @stash.each do |type, ids|
           next if ids.empty?
-          Shoryuken::Worker.perform_async({index: type, ids: ids}, queue: shoryuken_queue)
+          Shoryuken::Worker.perform_async({type: type, ids: ids}, queue: shoryuken_queue)
         end
       end
 

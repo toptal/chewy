@@ -18,6 +18,13 @@ rescue LoadError
 end
 
 begin
+  require 'shoryuken'
+  require 'chewy/strategy/shoryuken'
+rescue LoadError
+  nil
+end
+
+begin
   require 'active_job'
   require 'chewy/strategy/active_job'
 rescue LoadError

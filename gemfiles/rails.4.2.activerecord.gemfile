@@ -6,6 +6,7 @@ gem "activerecord", "~> 4.2.0"
 gem "activesupport", "~> 4.2.0"
 gem "activejob", "~> 4.2.0"
 gem "resque", require: false
+gem "shoryuken", require: false
 gem "sidekiq", require: false
 gem "kaminari", "~> 0.17.0", require: false
 gem "will_paginate", require: false

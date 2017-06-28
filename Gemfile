@@ -8,6 +8,7 @@ gem 'activerecord'
 
 gem 'activejob', require: false
 gem 'resque', require: false
+gem 'shoryuken', require: false
 gem 'sidekiq', require: false
 
 gem 'kaminari-core', require: false

@@ -6,6 +6,8 @@
 
 ## Changes
 
+  * `:shoryuken` async strategy (@josephchoe, #532)
+
   * Deprecate `Chewy::Index.build_index_name`.
 
   * Rename `Chewy::Index.default_prefix` to `Chewy::Index.prefix`. The old one is deprecated.
@@ -36,8 +38,6 @@
   * Bulk indexing optimizations with new additional options (@eproulx-petalmd, #467)
 
   * Configurable sidekiq options (@averell23, #438)
-
-  * `:shoryuken` async strategy (@josephchoe, #532)
 
 # Version 0.9.0
 

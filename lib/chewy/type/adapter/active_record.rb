@@ -28,12 +28,12 @@ module Chewy
           result = true
 
           while ids.present?
-            objects =
-              if options[:raw_import]
-                raw_default_scope_where_ids_in(ids, options[:raw_import])
-              else
-                default_scope_where_ids_in(ids)
-              end
+            objects = if options[:raw_import]
+              raw_default_scope_where_ids_in(ids, options[:raw_import])
+            else
+              default_scope_where_ids_in(ids)
+            end
+
             result &= yield grouped_objects(objects)
             break if ids.size < options[:batch_size]
             ids = pluck_ids(scope.where(target_id.gt(ids.last)))

@@ -1,8 +1,9 @@
 module Chewy
   module RakeHelper
     IMPORT_CALLBACK = lambda do |output, _name, start, finish, _id, payload| # rubocop:disable Metrics/ParameterLists
-      duration = (finish - start).round(2)
-      output.puts "  Imported #{payload[:type]} for #{duration}s, documents total: #{payload[:import].try(:[], :index).to_i}"
+      duration = (finish - start).ceil
+      stats = payload.fetch(:import, {}).map { |key, count| "#{key} #{count}" }.join(', ')
+      output.puts "  Imported #{payload[:type]} for #{human_duration(duration)}, stats: #{stats}"
       if payload[:errors]
         payload[:errors].each do |action, errors|
           output.puts "    #{action.to_s.humanize} errors:"
@@ -30,11 +31,12 @@ module Chewy
       #
       # @param only [Array<Chewy::Index, String>, Chewy::Index, String] index or indexes to reset; if nothing is passed - uses all the indexes defined in the app
       # @param except [Array<Chewy::Index, String>, Chewy::Index, String] index or indexes to exclude from processing
+      # @param parallel [true, Integer, Hash] any acceptable parallel options for import
       # @return [Array<Chewy::Index>] indexes that were reset
-      def reset(only: nil, except: nil, output: STDOUT)
+      def reset(only: nil, except: nil, parallel: nil, output: STDOUT)
         subscribed_task_stats(output) do
           indexes_from(only: only, except: except).each do |index|
-            reset_one(index, output)
+            reset_one(index, output, parallel: parallel)
           end
         end
       end
@@ -51,8 +53,9 @@ module Chewy
       #
       # @param only [Array<Chewy::Index, String>, Chewy::Index, String] index or indexes to reset; if nothing is passed - uses all the indexes defined in the app
       # @param except [Array<Chewy::Index, String>, Chewy::Index, String] index or indexes to exclude from processing
+      # @param parallel [true, Integer, Hash] any acceptable parallel options for import
       # @return [Array<Chewy::Index>] indexes that were actually reset
-      def upgrade(only: nil, except: nil, output: STDOUT)
+      def upgrade(only: nil, except: nil, parallel: nil, output: STDOUT)
         subscribed_task_stats(output) do
           indexes = indexes_from(only: only, except: except)
 
@@ -63,7 +66,7 @@ module Chewy
           if changed_indexes.present?
             indexes.each do |index|
               if changed_indexes.include?(index)
-                reset_one(index, output)
+                reset_one(index, output, parallel: parallel)
               else
                 output.puts "Skipping #{index}, the specification didn't change"
               end
@@ -87,13 +90,14 @@ module Chewy
       #
       # @param only [Array<Chewy::Index, Chewy::Type, String>, Chewy::Index, Chewy::Type, String] indexes or types to update; if nothing is passed - uses all the types defined in the app
       # @param except [Array<Chewy::Index, Chewy::Type, String>, Chewy::Index, Chewy::Type, String] indexes or types to exclude from processing
+      # @param parallel [true, Integer, Hash] any acceptable parallel options for import
       # @return [Array<Chewy::Type>] types that were actually updated
-      def update(only: nil, except: nil, output: STDOUT)
+      def update(only: nil, except: nil, parallel: nil, output: STDOUT)
         subscribed_task_stats(output) do
-          types_from(only: only, except: except).each_with_object([]) do |(index, types), update_types|
+          types_from(only: only, except: except).group_by(&:index).each_with_object([]) do |(index, types), update_types|
             if index.exists?
               output.puts "Updating #{index}"
-              types.each(&:import)
+              types.each { |type| type.import(parallel: parallel) }
               update_types.concat(types)
             else
               output.puts "Skipping #{index}, it does not exists (use rake chewy:reset[#{index.derivable_name}] to create and update it)"
@@ -116,19 +120,18 @@ module Chewy
       # @return [Array<Chewy::Type>] types that were actually updated
       def sync(only: nil, except: nil, output: STDOUT)
         subscribed_task_stats(output) do
-          types_from(only: only, except: except).each_with_object([]) do |(index, types), synced_types|
-            output.puts "Synchronizing #{index}"
-            types.each do |type|
-              sync_result = type.sync
-              if !sync_result
-                output.puts "  Something went wrong with the #{type} synchronization"
-              elsif sync_result[:count] > 0
-                output.puts "    Missing documents: #{sync_result[:missing]}" if sync_result[:missing].present?
-                output.puts "    Outdated documents: #{sync_result[:outdated]}" if sync_result[:outdated].present?
-                synced_types.push(type)
-              else
-                output.puts "  Skipping #{type}, up to date"
-              end
+          types_from(only: only, except: except).each_with_object([]) do |type, synced_types|
+            output.puts "Synchronizing #{type}"
+            output.puts "  #{type} doesn't support outdated synchronization" unless type.outdated_sync_field
+            sync_result = type.sync
+            if !sync_result
+              output.puts "  Something went wrong with the #{type} synchronization"
+            elsif sync_result[:count] > 0
+              output.puts "  Missing documents: #{sync_result[:missing]}" if sync_result[:missing].present?
+              output.puts "  Outdated documents: #{sync_result[:outdated]}" if sync_result[:outdated].present?
+              synced_types.push(type)
+            else
+              output.puts "  Skipping #{type}, up to date"
             end
           end
         end
@@ -143,6 +146,15 @@ module Chewy
         Chewy::Index.descendants - [Chewy::Stash]
       end
 
+      def human_duration(seconds)
+        [[60, :s], [60, :m], [24, :h]].map do |amount, unit|
+          if seconds > 0
+            seconds, n = seconds.divmod(amount)
+            "#{n.to_i}#{unit}"
+          end
+        end.compact.reverse.join(' ')
+      end
+
       def normalize_index(identifier)
         return identifier if identifier.is_a?(Class) && identifier < Chewy::Index
         "#{identifier.to_s.gsub(/identifier\z/i, '').camelize}Index".constantize
@@ -153,11 +165,13 @@ module Chewy
       end
 
       def subscribed_task_stats(output = STDOUT)
+        start = Time.now
         ActiveSupport::Notifications.subscribed(JOURNAL_CALLBACK.curry[output], 'apply_journal.chewy') do
           ActiveSupport::Notifications.subscribed(IMPORT_CALLBACK.curry[output], 'import_objects.chewy') do
             yield
           end
         end
+        output.puts "Total: #{human_duration(Time.now - start)}"
       end
 
       def reset_index(*indexes)
@@ -211,9 +225,7 @@ module Chewy
           types
         end
 
-        types.sort_by do |type|
-          [type.index.derivable_name, type.type_name]
-        end.group_by(&:index)
+        types.sort_by(&:derivable_name)
       end
 
       def normalize_types(*identifiers)
@@ -227,10 +239,10 @@ module Chewy
         Chewy.derive_types(identifier)
       end
 
-      def reset_one(index, output)
+      def reset_one(index, output, parallel: false)
         output.puts "Resetting #{index}"
         time = Time.now
-        index.reset!((time.to_f * 1000).round)
+        index.reset!((time.to_f * 1000).round, parallel: parallel)
         return unless index.journal?
         Chewy::Journal.create
         Chewy::Journal::Apply.since(time, only: [index])

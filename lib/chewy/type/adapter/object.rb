@@ -130,16 +130,8 @@ module Chewy
         # @option options [Integer] :batch_size import processing batch size
         # @return [true, false]
         def import(*args, &block)
-          options = args.extract_options!
-          options[:batch_size] ||= BATCH_SIZE
-
-          objects = if args.empty? && @target.respond_to?(import_all_method)
-            @target.send(import_all_method)
-          else
-            args.flatten.compact
-          end
-
-          import_objects(objects, options, &block)
+          collection, options = import_args(*args)
+          import_objects(collection, options, &block)
         end
 
         # This method is used internally by the request DSL when the
@@ -225,6 +217,19 @@ module Chewy
 
         def load_one_method
           @load_one_method ||= options[:load_one_method] || :load_one
+        end
+
+        def import_args(*args)
+          options = args.extract_options!
+          options[:batch_size] ||= BATCH_SIZE
+
+          collection = if args.empty? && @target.respond_to?(import_all_method)
+            @target.send(import_all_method)
+          else
+            args.flatten(1).compact
+          end
+
+          [collection, options]
         end
       end
     end

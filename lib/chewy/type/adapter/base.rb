@@ -49,10 +49,24 @@ module Chewy
         #
         #   { delete: [object_or_id1, object_or_id2], index: [object3, object4, object5] }
         #
-        # Returns true if all the block call returns true and false otherwise
-        #
+        # @yield batch [Array<Object>] each batch of objects
+        # @return [true, false] returns true if all the block call returns true and false otherwise
         def import(*_args, &_block)
           raise NotImplementedError
+        end
+
+        # Unlike {#import} fetches only ids (references) to the imported objects,
+        # using the same procedures as {#import}.
+        #
+        # @yield batch [Array<Object>] each batch of objects
+        def import_ids(*args)
+          return enum_for(:import_ids, *args) unless block_given?
+
+          collection, options = import_args(*args)
+
+          identify(collection).each_slice(options[:batch_size]) do |batch|
+            yield batch
+          end
         end
 
         # Returns array of loaded objects for passed ids array. If some object

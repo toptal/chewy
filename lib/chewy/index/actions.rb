@@ -161,7 +161,7 @@ module Chewy
         #
         #   UsersIndex.reset! Time.now.to_i, journal: true
         #
-        def reset!(suffix = nil, journal: false)
+        def reset!(suffix = nil, journal: false, **options)
           result = if suffix.present? && (indexes = self.indexes).present?
             create! suffix, alias: false
 
@@ -169,7 +169,7 @@ module Chewy
             suffixed_name = index_name(suffix: suffix)
 
             optimize_index_settings suffixed_name
-            result = import suffix: suffix, journal: journal, refresh: !Chewy.reset_disable_refresh_interval
+            result = import options.merge(suffix: suffix, journal: journal, refresh: !Chewy.reset_disable_refresh_interval)
             original_index_settings suffixed_name
 
             client.indices.update_aliases body: {actions: [

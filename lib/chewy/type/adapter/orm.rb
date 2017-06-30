@@ -27,7 +27,7 @@ module Chewy
             pluck_ids(collection)
           else
             Array.wrap(collection).map do |entity|
-              entity.is_a?(object_class) ? entity.public_send(primary_key) : entity
+              entity.respond_to?(primary_key) ? entity.public_send(primary_key) : entity
             end
           end
         end
@@ -77,16 +77,7 @@ module Chewy
         #   UsersIndex::User.import users.map(&:id) # user ids will be deleted from index
         #
         def import(*args, &block)
-          options = args.extract_options!
-          options[:batch_size] ||= BATCH_SIZE
-
-          collection = if args.empty?
-            default_scope
-          elsif args.one? && args.first.is_a?(relation_class)
-            args.first
-          else
-            args.flatten.compact
-          end
+          collection, options = import_args(*args)
 
           if collection.is_a?(relation_class)
             import_scope(collection, options, &block)
@@ -114,11 +105,16 @@ module Chewy
           hash = Hash[collection_ids.map(&:to_s).zip(collection)]
 
           indexed = collection_ids.each_slice(options[:batch_size]).map do |ids|
-            batch = default_scope_where_ids_in(ids)
+            batch = if options[:raw_import]
+              raw_default_scope_where_ids_in(ids, options[:raw_import])
+            else
+              default_scope_where_ids_in(ids)
+            end
+
             if batch.empty?
               true
             else
-              identify(batch).each { |id| hash.delete(id.to_s) }
+              batch.each { |object| hash.delete(object.send(primary_key).to_s) }
               yield grouped_objects(batch)
             end
           end.all?
@@ -162,6 +158,21 @@ module Chewy
 
         def grouped_objects(objects)
           options[:delete_if] ? super : {index: objects.to_a}
+        end
+
+        def import_args(*args)
+          options = args.extract_options!
+          options[:batch_size] ||= BATCH_SIZE
+
+          collection = if args.empty?
+            default_scope
+          elsif args.one? && args.first.is_a?(relation_class)
+            args.first
+          else
+            args.flatten.compact
+          end
+
+          [collection, options]
         end
       end
     end

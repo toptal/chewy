@@ -9,5 +9,6 @@ gem "shoryuken", require: false
 gem "sidekiq", require: false
 gem "kaminari", "~> 0.17.0", require: false
 gem "will_paginate", require: false
+gem "parallel", require: false
 
 gemspec path: "../"

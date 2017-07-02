@@ -179,9 +179,12 @@ Total: \\d+s\\Z
 \\ASynchronizing PlacesIndex::City
   Imported PlacesIndex::City for \\d+s, stats: index 3
   Missing documents: \\[[^\\]]+\\]
+  Took \\d+s
 Synchronizing PlacesIndex::Country
+  PlacesIndex::Country doesn't support outdated synchronization
   Imported PlacesIndex::Country for \\d+s, stats: index 2
   Missing documents: \\[[^\\]]+\\]
+  Took \\d+s
 Total: \\d+s\\Z
       OUTPUT
     end
@@ -204,8 +207,11 @@ Total: \\d+s\\Z
   Imported PlacesIndex::City for \\d+s, stats: index 2
   Missing documents: \\["#{cities.last.id}"\\]
   Outdated documents: \\["#{cities.first.id}"\\]
+  Took \\d+s
 Synchronizing PlacesIndex::Country
+  PlacesIndex::Country doesn't support outdated synchronization
   Skipping PlacesIndex::Country, up to date
+  Took \\d+s
 Total: \\d+s\\Z
         OUTPUT
       end
@@ -219,6 +225,7 @@ Total: \\d+s\\Z
   Imported PlacesIndex::City for \\d+s, stats: index 2
   Missing documents: \\["#{cities.last.id}"\\]
   Outdated documents: \\["#{cities.first.id}"\\]
+  Took \\d+s
 Total: \\d+s\\Z
         OUTPUT
       end
@@ -229,7 +236,9 @@ Total: \\d+s\\Z
           .not_to update_index(PlacesIndex::City)
         expect(output.string).to match(Regexp.new(<<-OUTPUT, Regexp::MULTILINE))
 \\ASynchronizing PlacesIndex::Country
+  PlacesIndex::Country doesn't support outdated synchronization
   Skipping PlacesIndex::Country, up to date
+  Took \\d+s
 Total: \\d+s\\Z
         OUTPUT
       end

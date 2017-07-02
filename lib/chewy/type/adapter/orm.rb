@@ -24,16 +24,12 @@ module Chewy
 
         def identify(collection)
           if collection.is_a?(relation_class)
-            pluck_ids(collection)
+            pluck(collection)
           else
             Array.wrap(collection).map do |entity|
               entity.respond_to?(primary_key) ? entity.public_send(primary_key) : entity
             end
           end
-        end
-
-        def default_scope_pluck(*fields)
-          pluck_ids(default_scope, fields: fields)
         end
 
         # Import method for ORM takes import data and import options
@@ -85,6 +81,22 @@ module Chewy
             import_objects(collection, options, &block)
           end
         end
+
+        def import_fields(*args, &block)
+          return enum_for(:import_fields, *args) unless block_given?
+
+          collection, options = import_args(*args)
+
+          if options[:fields].present? || collection.is_a?(relation_class)
+            collection = all_scope_where_ids_in(identify(collection)) unless collection.is_a?(relation_class)
+            pluck_in_batches(collection, options.slice(:fields, :batch_size), &block)
+          else
+            identify(collection).each_slice(options[:batch_size]) do |batch|
+              yield batch
+            end
+          end
+        end
+        alias_method :import_references, :import_fields
 
         def load(ids, **options)
           scope = all_scope_where_ids_in(ids)

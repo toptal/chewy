@@ -22,24 +22,15 @@ module Chewy
         end
 
         def import_scope(scope, options)
-          scope = scope.reorder(target_id.asc).limit(options[:batch_size])
-
-          ids = pluck_ids(scope)
-          result = true
-
-          while ids.present?
+          pluck_in_batches(scope, options.slice(:batch_size)).inject(true) do |result, ids|
             objects = if options[:raw_import]
               raw_default_scope_where_ids_in(ids, options[:raw_import])
             else
               default_scope_where_ids_in(ids)
             end
 
-            result &= yield grouped_objects(objects)
-            break if ids.size < options[:batch_size]
-            ids = pluck_ids(scope.where(target_id.gt(ids.last)))
+            result & yield(grouped_objects(objects))
           end
-
-          result
         end
 
         def primary_key
@@ -50,8 +41,25 @@ module Chewy
           target.arel_table[primary_key.to_s]
         end
 
-        def pluck_ids(scope, fields: [])
+        def pluck(scope, fields: [])
           scope.except(:includes).distinct.pluck(primary_key, *fields)
+        end
+
+        def pluck_in_batches(scope, fields: [], batch_size: nil)
+          return enum_for(:pluck_in_batches, scope, fields: fields, batch_size: batch_size) unless block_given?
+
+          scope = scope.reorder(target_id.asc).limit(batch_size)
+          ids = pluck(scope, fields: fields)
+          count = 0
+
+          while ids.present?
+            yield ids
+            break if ids.size < batch_size
+            last_id = ids.last.is_a?(Array) ? ids.last.first : ids.last
+            ids = pluck(scope.where(target_id.gt(last_id)), fields: fields)
+          end
+
+          count
         end
 
         def scope_where_ids_in(scope, ids)

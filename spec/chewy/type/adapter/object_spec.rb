@@ -37,58 +37,6 @@ describe Chewy::Type::Adapter::Object do
     specify { expect(subject.identify(objects.first)).to eq([objects.first]) }
   end
 
-  describe '#default_scope_pluck' do
-    let!(:objects) { Array.new(3) { |i| double(id: i + 1, name: "Name#{i}") } }
-    let!(:hashes) { Array.new(3) { |i| {id: i + 1, 'name' => "Name#{i}"} } }
-
-    context do
-      subject { described_class.new(-> { objects }) }
-      specify { expect(subject.default_scope_pluck).to eq([1, 2, 3]) }
-      specify { expect(subject.default_scope_pluck(:name)).to eq([[1, 'Name0'], [2, 'Name1'], [3, 'Name2']]) }
-    end
-
-    context do
-      subject { described_class.new(-> { hashes }) }
-      specify { expect(subject.default_scope_pluck).to eq([1, 2, 3]) }
-      specify { expect(subject.default_scope_pluck(:name)).to eq([[1, 'Name0'], [2, 'Name1'], [3, 'Name2']]) }
-    end
-
-    context do
-      subject { described_class.new(-> { [1, 2, 3] }) }
-      specify { expect(subject.default_scope_pluck).to eq([1, 2, 3]) }
-      specify { expect(subject.default_scope_pluck(:name)).to eq([[1, nil], [2, nil], [3, nil]]) }
-    end
-
-    context do
-      before do
-        stub_class(:product) do
-          class << self
-            def pluck(*fields)
-              if fields == [:id]
-                [1, 2, 3]
-              else
-                [4, 5, 6]
-              end
-            end
-            alias_method :pluck_all, :pluck
-          end
-        end
-      end
-
-      context do
-        subject { described_class.new(Product) }
-        specify { expect(subject.default_scope_pluck).to eq([1, 2, 3]) }
-        specify { expect(subject.default_scope_pluck(:name)).to eq([4, 5, 6]) }
-      end
-
-      context do
-        subject { described_class.new(Product, pluck_method: :pluck_all) }
-        specify { expect(subject.default_scope_pluck).to eq([1, 2, 3]) }
-        specify { expect(subject.default_scope_pluck(:name)).to eq([4, 5, 6]) }
-      end
-    end
-  end
-
   describe '#import' do
     def import(*args)
       result = []
@@ -172,6 +120,83 @@ describe Chewy::Type::Adapter::Object do
       specify { expect(subject.import(products, deleted, batch_size: 1, &data_comparer.curry[4])).to eq(false) }
       specify { expect(subject.import(products, deleted, batch_size: 1, &data_comparer.curry[5])).to eq(false) }
     end
+  end
+
+  describe '#import_fields' do
+    let!(:objects) { Array.new(3) { |i| double(id: i + 1, name: "Name#{i}") } }
+    let!(:hashes) { Array.new(3) { |i| {id: i + 1, 'name' => "Name#{i}"} } }
+
+    context do
+      subject { described_class.new(-> { objects }) }
+      specify { expect(subject.import_fields).to match([[1, 2, 3]]) }
+      specify { expect(subject.import_fields(fields: [:name])).to match([[[1, 'Name0'], [2, 'Name1'], [3, 'Name2']]]) }
+    end
+
+    context do
+      subject { described_class.new(-> { objects }) }
+      specify { expect(subject.import_fields(batch_size: 2)).to match([[1, 2], [3]]) }
+      specify { expect(subject.import_fields(fields: [:name], batch_size: 2)).to match([[[1, 'Name0'], [2, 'Name1']], [[3, 'Name2']]]) }
+    end
+
+    context do
+      subject { described_class.new(-> { objects }) }
+      specify { expect(subject.import_fields(objects.first(2))).to match([[1, 2]]) }
+      specify { expect(subject.import_fields(objects.first(2), fields: [:name])).to match([[[1, 'Name0'], [2, 'Name1']]]) }
+    end
+
+    context do
+      subject { described_class.new(-> { hashes }) }
+      specify { expect(subject.import_fields).to match([[1, 2, 3]]) }
+      specify { expect(subject.import_fields(fields: [:name])).to match([[[1, 'Name0'], [2, 'Name1'], [3, 'Name2']]]) }
+    end
+
+    context do
+      subject { described_class.new(-> { [1, 2, 3] }) }
+      specify { expect(subject.import_fields).to match([[1, 2, 3]]) }
+      specify { expect(subject.import_fields(fields: [:name])).to match([[[1, nil], [2, nil], [3, nil]]]) }
+    end
+
+    context do
+      before do
+        stub_class(:product) do
+          def self.pluck(*fields)
+            if fields == [:id]
+              [1, 2, 3]
+            elsif fields.size > 1
+              [4, 5, 6]
+            end
+          end
+        end
+      end
+
+      context do
+        subject { described_class.new(Product) }
+        specify { expect(subject.import_fields).to match([[1, 2, 3]]) }
+        specify { expect(subject.import_fields(fields: [:name])).to match([[4, 5, 6]]) }
+      end
+
+      context do
+        subject { described_class.new(Product) }
+        specify { expect(subject.import_fields(objects.first(2))).to match([[1, 2]]) }
+        specify { expect(subject.import_fields(objects.first(2), fields: [:name])).to match([[[1, 'Name0'], [2, 'Name1']]]) }
+      end
+
+      context 'batch_size' do
+        subject { described_class.new(Product) }
+        specify { expect(subject.import_fields(batch_size: 2)).to match([[1, 2], [3]]) }
+        specify { expect(subject.import_fields(fields: [:name], batch_size: 2)).to match([[4, 5], [6]]) }
+      end
+    end
+  end
+
+  describe '#import_references' do
+    let!(:objects) { Array.new(3) { |i| double(id: i + 1, name: "Name#{i}") } }
+
+    subject { described_class.new(-> { objects }) }
+    specify { expect(subject.import_references).to match([objects]) }
+    specify { expect(subject.import_references(batch_size: 2)).to match([objects.first(2), objects.last(1)]) }
+    specify { expect(subject.import_references(objects.first(2))).to match([objects.first(2)]) }
+    specify { expect(subject.import_references(objects.first(2), batch_size: 1)).to match([objects.first(1), [objects[1]]]) }
   end
 
   describe '#load' do

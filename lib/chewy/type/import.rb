@@ -7,6 +7,22 @@ module Chewy
     module Import
       extend ActiveSupport::Concern
 
+      IMPORT_WORKER = lambda do |type, options, ids|
+        ::Process.setproctitle("chewy import #{type}[#{::Parallel.worker_number}]")
+        routine = Routine.new(type, options)
+        type.adapter.import(*ids, routine.options) do |action_objects|
+          routine.process(**action_objects)
+        end
+        {errors: routine.errors, import: routine.stats, leftovers: routine.leftovers}
+      end
+
+      LEFTOVERS_WORKER = lambda do |type, options, body|
+        ::Process.setproctitle("chewy import #{type}[#{::Parallel.worker_number}]")
+        routine = Routine.new(type, options)
+        routine.perform_bulk(body)
+        routine.errors
+      end
+
       module ClassMethods
         # @!method import(*collection, **options)
         # Basically, one of the main methods for type. Performs any objects import
@@ -132,24 +148,19 @@ module Chewy
         end
 
         def import_parallel(objects, routine)
-          raise "Parallel gem is required for parallel import, please add `gem 'parallel'` to your Gemfile" unless '::Parallel'.safe_constantize
+          raise "The `parallel` gem is required for parallel import, please add `gem 'parallel'` to your Gemfile" unless '::Parallel'.safe_constantize
 
           ActiveSupport::Notifications.instrument 'import_objects.chewy', type: self do |payload|
-            batches = adapter.import_ids(*objects, routine.options).map do |group|
-              {type: self, options: routine.options, ids: group}
-            end
+            batches = adapter.import_references(*objects, routine.options.slice(:batch_size)).to_a
 
             ::ActiveRecord::Base.connection.close if defined?(::ActiveRecord::Base)
-            results = ::Parallel.map(batches, routine.parallel_options, &method(:parallel_import_worker))
-            errors, import, leftovers = process_parallel_import_results(results)
+            results = ::Parallel.map(batches, routine.parallel_options, &IMPORT_WORKER.curry[self, routine.options])
             ::ActiveRecord::Base.connection.reconnect! if defined?(::ActiveRecord::Base)
+            errors, import, leftovers = process_parallel_import_results(results)
 
             if leftovers.present?
-              batches = leftovers.each_slice(routine.options[:batch_size]).map do |body|
-                {type: self, options: routine.options, body: body}
-              end
-
-              results = ::Parallel.map(batches, routine.parallel_options, &method(:parallel_leftovers_worker))
+              batches = leftovers.each_slice(routine.options[:batch_size])
+              results = ::Parallel.map(batches, routine.parallel_options, &LEFTOVERS_WORKER.curry[self, routine.options])
               errors.concat(results.flatten(1))
             end
 
@@ -159,28 +170,12 @@ module Chewy
           end
         end
 
-        def parallel_import_worker(item)
-          ::Process.setproctitle("chewy import #{item[:type]}[#{::Parallel.worker_number}]")
-          routine = Routine.new(item[:type], item[:options])
-          item[:type].adapter.import(*item[:ids], routine.options) do |action_objects|
-            routine.process(**action_objects)
-          end
-          {errors: routine.errors, import: routine.stats, leftovers: routine.leftovers}
-        end
-
         def process_parallel_import_results(results)
           results.each_with_object([[], {}, []]) do |r, (e, i, l)|
             e.concat(r[:errors])
             i.merge!(r[:import]) { |_k, v1, v2| v1.to_i + v2.to_i }
             l.concat(r[:leftovers])
           end
-        end
-
-        def parallel_leftovers_worker(item)
-          ::Process.setproctitle("chewy import #{item[:type]}[#{::Parallel.worker_number}]")
-          routine = Routine.new(item[:type], item[:options])
-          routine.perform_bulk(item[:body])
-          routine.errors
         end
 
         def payload_errors(errors)

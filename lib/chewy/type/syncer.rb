@@ -9,7 +9,7 @@ module Chewy
     # should be reindexed.
     #
     # To fetch necessary data from the source it uses adapter method
-    # {Chewy::Type::Adapter::Base#default_scope_pluck}, in case when the Object
+    # {Chewy::Type::Adapter::Base#import_fields}, in case when the Object
     # adapter is used it makes sense to read corresponding documentation.
     #
     # @note
@@ -18,6 +18,8 @@ module Chewy
     #
     # @see Chewy::Type::Actions::ClassMethods#sync
     class Syncer
+      DEFAULT_SYNC_BATCH_SIZE = 20_000
+
       # @param type [Chewy::Type] chewy type
       def initialize(type)
         @type = type
@@ -77,11 +79,11 @@ module Chewy
 
       def source_data
         @source_data ||= if @type.supports_outdated_sync?
-          @type.adapter.default_scope_pluck(@type.outdated_sync_field).each do |data|
+          @type.adapter.import_fields(fields: [@type.outdated_sync_field], batch_size: DEFAULT_SYNC_BATCH_SIZE).to_a.flatten(1).each do |data|
             data[0] = data[0].to_s
           end
         else
-          @type.adapter.default_scope_pluck.map(&:to_s)
+          @type.adapter.import_fields(batch_size: DEFAULT_SYNC_BATCH_SIZE).to_a.flatten(1).map(&:to_s)
         end
       end
 

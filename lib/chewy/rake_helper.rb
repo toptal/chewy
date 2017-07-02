@@ -122,7 +122,8 @@ module Chewy
         subscribed_task_stats(output) do
           types_from(only: only, except: except).each_with_object([]) do |type, synced_types|
             output.puts "Synchronizing #{type}"
-            output.puts "  #{type} doesn't support outdated synchronization" unless type.outdated_sync_field
+            output.puts "  #{type} doesn't support outdated synchronization" unless type.supports_outdated_sync?
+            time = Time.now
             sync_result = type.sync
             if !sync_result
               output.puts "  Something went wrong with the #{type} synchronization"
@@ -133,6 +134,7 @@ module Chewy
             else
               output.puts "  Skipping #{type}, up to date"
             end
+            output.puts "  Took #{human_duration(Time.now - time)}"
           end
         end
       end

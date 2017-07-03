@@ -1,10 +1,9 @@
 require 'spec_helper'
 
 if defined?(::Shoryuken)
-
   describe Chewy::Strategy::Shoryuken do
     around { |example| Chewy.strategy(:bypass) { example.run } }
-    before { ::Shoryuken.queues.clear }
+    before { ::Shoryuken.groups.clear }
     before do
       stub_model(:city) do
         update_index('cities#city') { self }

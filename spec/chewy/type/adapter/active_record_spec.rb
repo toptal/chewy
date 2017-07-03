@@ -65,29 +65,6 @@ describe Chewy::Type::Adapter::ActiveRecord, :active_record do
     end
   end
 
-  describe '#default_scope_pluck' do
-    subject { described_class.new(Country) }
-    let!(:countries) { Array.new(3) { |i| Country.create!(rating: i) { |c| c.id = i + 1 } } }
-    let!(:cities) { Array.new(6) { |i| City.create!(rating: i + 3, country_id: (i + 4) / 2) { |c| c.id = i + 3 } } }
-
-    specify { expect(subject.default_scope_pluck).to contain_exactly(1, 2, 3) }
-    specify { expect(subject.default_scope_pluck(:rating)).to contain_exactly([1, 0], [2, 1], [3, 2]) }
-
-    context do
-      subject { described_class.new(Country.includes(:cities)) }
-
-      specify { expect(subject.default_scope_pluck).to contain_exactly(1, 2, 3) }
-      specify { expect(subject.default_scope_pluck(:rating)).to contain_exactly([1, 0], [2, 1], [3, 2]) }
-    end
-
-    context do
-      subject { described_class.new(Country.joins(:cities)) }
-
-      specify { expect(subject.default_scope_pluck).to contain_exactly(2, 3) }
-      specify { expect(subject.default_scope_pluck(:rating)).to contain_exactly([2, 1], [3, 2]) }
-    end
-  end
-
   describe '#import' do
     def import(*args)
       result = []
@@ -150,23 +127,52 @@ describe Chewy::Type::Adapter::ActiveRecord, :active_record do
       specify { expect(import(cities.first.id, nil)).to eq([{index: [cities.first]}]) }
 
       context 'raw_import' do
-        let(:probe) { double }
-        let(:converter) { ->(raw_hash) { probe.call(raw_hash) } }
-        let(:moscow) { OpenStruct.new(id: 1, name: 'Moscow') }
-        let(:warsaw) { OpenStruct.new(id: 2, name: 'Warsaw') }
-        let(:madrid) { OpenStruct.new(id: 3, name: 'Madrid') }
         before do
-          @one, @two, @three = City.all.to_a
+          stub_class(:dummy_city) do
+            def initialize(attributes = {})
+              @attributes = attributes
+            end
+
+            def method_missing(name, *args, &block)
+              if @attributes.key?(name.to_s)
+                @attributes[name.to_s]
+              else
+                super
+              end
+            end
+
+            def respond_to_missing?(name, _)
+              @attributes.key?(name.to_s)
+            end
+          end
         end
+        let!(:cities) { Array.new(3) { |i| City.create!(id: i + 1, name: "City#{i + 1}") } }
+        let(:converter) { ->(hash) { DummyCity.new(hash) } }
 
         it 'uses the raw import converter to make objects out of raw hashes from the database' do
           expect(City).not_to receive(:new)
 
-          expect(probe).to receive(:call).with(a_hash_including('id' => @one.id, 'name' => @one.name)).and_return(moscow)
-          expect(probe).to receive(:call).with(a_hash_including('id' => @two.id, 'name' => @one.name)).and_return(warsaw)
-          expect(probe).to receive(:call).with(a_hash_including('id' => @three.id, 'name' => @three.name)).and_return(madrid)
+          expect(import(City.where(nil), raw_import: converter)).to match([{index: match_array([
+            an_instance_of(DummyCity).and(have_attributes(id: 1, name: 'City1')),
+            an_instance_of(DummyCity).and(have_attributes(id: 2, name: 'City2')),
+            an_instance_of(DummyCity).and(have_attributes(id: 3, name: 'City3'))
+          ])}])
+        end
 
-          expect(import(City.where(nil), raw_import: converter)).to eq([{index: [moscow, warsaw, madrid]}])
+        specify do
+          expect(import([1, 2, 3], raw_import: converter)).to match([{index: match_array([
+            an_instance_of(DummyCity).and(have_attributes(id: 1, name: 'City1')),
+            an_instance_of(DummyCity).and(have_attributes(id: 2, name: 'City2')),
+            an_instance_of(DummyCity).and(have_attributes(id: 3, name: 'City3'))
+          ])}])
+        end
+
+        specify do
+          expect(import(cities, raw_import: converter)).to match([{index: match_array([
+            an_instance_of(DummyCity).and(have_attributes(id: 1, name: 'City1')),
+            an_instance_of(DummyCity).and(have_attributes(id: 2, name: 'City2')),
+            an_instance_of(DummyCity).and(have_attributes(id: 3, name: 'City3'))
+          ])}])
         end
       end
     end
@@ -379,6 +385,60 @@ describe Chewy::Type::Adapter::ActiveRecord, :active_record do
         specify { expect(subject.import(ids, batch_size: 1, &data_comparer.curry[deleted[0].id])).to eq(false) }
         specify { expect(subject.import(ids, batch_size: 1, &data_comparer.curry[deleted[1].id])).to eq(false) }
       end
+    end
+  end
+
+  describe '#import_fields' do
+    subject { described_class.new(Country) }
+    let!(:countries) { Array.new(3) { |i| Country.create!(rating: i) { |c| c.id = i + 1 } } }
+    let!(:cities) { Array.new(6) { |i| City.create!(rating: i + 3, country_id: (i + 4) / 2) { |c| c.id = i + 3 } } }
+
+    specify { expect(subject.import_fields).to match([contain_exactly(1, 2, 3)]) }
+    specify { expect(subject.import_fields(fields: [:rating])).to match([contain_exactly([1, 0], [2, 1], [3, 2])]) }
+
+    context 'scopes' do
+      context do
+        subject { described_class.new(Country.includes(:cities)) }
+
+        specify { expect(subject.import_fields).to match([contain_exactly(1, 2, 3)]) }
+        specify { expect(subject.import_fields(fields: [:rating])).to match([contain_exactly([1, 0], [2, 1], [3, 2])]) }
+      end
+
+      context do
+        subject { described_class.new(Country.joins(:cities)) }
+
+        specify { expect(subject.import_fields).to match([contain_exactly(2, 3)]) }
+        specify { expect(subject.import_fields(fields: [:rating])).to match([contain_exactly([2, 1], [3, 2])]) }
+      end
+
+      context 'ignores default scope if another scope is passed' do
+        subject { described_class.new(Country.joins(:cities)) }
+
+        specify { expect(subject.import_fields(Country.where('rating < 2'))).to match([contain_exactly(1, 2)]) }
+        specify { expect(subject.import_fields(Country.where('rating < 2'), fields: [:rating])).to match([contain_exactly([1, 0], [2, 1])]) }
+      end
+    end
+
+    context 'objects/ids' do
+      specify { expect(subject.import_fields(1, 2)).to match([contain_exactly(1, 2)]) }
+      specify { expect(subject.import_fields(1, 2, fields: [:rating])).to match([contain_exactly([1, 0], [2, 1])]) }
+
+      specify { expect(subject.import_fields(countries.first(2))).to match([contain_exactly(1, 2)]) }
+      specify { expect(subject.import_fields(countries.first(2), fields: [:rating])).to match([contain_exactly([1, 0], [2, 1])]) }
+    end
+
+    context 'batch_size' do
+      specify { expect(subject.import_fields(batch_size: 2)).to match([contain_exactly(1, 2), [3]]) }
+      specify { expect(subject.import_fields(batch_size: 2, fields: [:rating])).to match([contain_exactly([1, 0], [2, 1]), [[3, 2]]]) }
+
+      specify { expect(subject.import_fields(Country.where('rating < 2'), batch_size: 2)).to match([contain_exactly(1, 2)]) }
+      specify { expect(subject.import_fields(Country.where('rating < 2'), batch_size: 2, fields: [:rating])).to match([contain_exactly([1, 0], [2, 1])]) }
+
+      specify { expect(subject.import_fields(1, 2, batch_size: 1)).to match([[1], [2]]) }
+      specify { expect(subject.import_fields(1, 2, batch_size: 1, fields: [:rating])).to match([[[1, 0]], [[2, 1]]]) }
+
+      specify { expect(subject.import_fields(countries.first(2), batch_size: 1)).to match([[1], [2]]) }
+      specify { expect(subject.import_fields(countries.first(2), batch_size: 1, fields: [:rating])).to match([[[1, 0]], [[2, 1]]]) }
     end
   end
 

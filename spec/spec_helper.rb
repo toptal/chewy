@@ -29,6 +29,7 @@ Chewy.settings = {
     number_of_replicas: 0
   }
 }
+# Chewy.transport_logger = Logger.new(STDERR)
 
 RSpec.configure do |config|
   config.mock_with :rspec

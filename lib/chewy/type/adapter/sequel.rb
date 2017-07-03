@@ -24,18 +24,9 @@ module Chewy
         end
 
         def import_scope(scope, options)
-          scope = scope.unordered.order(::Sequel.asc(full_column_name(primary_key))).limit(options[:batch_size])
-
-          ids = pluck_ids(scope)
-          result = true
-
-          while ids.present?
-            result &= yield grouped_objects(default_scope_where_ids_in(ids).all)
-            break if ids.size < options[:batch_size]
-            ids = pluck_ids(scope.where { |o| o.__send__(full_column_name(primary_key)) > ids.last })
+          pluck_in_batches(scope, options.slice(:batch_size)).inject(true) do |result, ids|
+            result & yield(grouped_objects(default_scope_where_ids_in(ids).all))
           end
-
-          result
         end
 
         def primary_key
@@ -54,11 +45,29 @@ module Chewy
           @target_columns ||= target.columns.to_set
         end
 
-        def pluck_ids(scope, fields: [])
+        def pluck(scope, fields: [])
           fields = fields.map(&:to_sym).unshift(primary_key).map do |column|
             target_columns.include?(column) ? full_column_name(column) : column
           end
           scope.distinct.select_map(fields.one? ? fields.first : fields)
+        end
+
+        def pluck_in_batches(scope, fields: [], batch_size: nil)
+          return enum_for(:pluck_in_batches, scope, fields: fields, batch_size: batch_size) unless block_given?
+
+          scope = scope.unordered.order(::Sequel.asc(full_column_name(primary_key))).limit(batch_size)
+
+          ids = pluck(scope, fields: fields)
+          count = 0
+
+          while ids.present?
+            yield ids
+            break if ids.size < batch_size
+            last_id = ids.last.is_a?(Array) ? ids.last.first : ids.last
+            ids = pluck(scope.where { |o| o.__send__(full_column_name(primary_key)) > last_id }, fields: fields)
+          end
+
+          count
         end
 
         def scope_where_ids_in(scope, ids)

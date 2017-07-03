@@ -24,16 +24,12 @@ module Chewy
 
         def identify(collection)
           if collection.is_a?(relation_class)
-            pluck_ids(collection)
+            pluck(collection)
           else
             Array.wrap(collection).map do |entity|
-              entity.is_a?(object_class) ? entity.public_send(primary_key) : entity
+              entity.respond_to?(primary_key) ? entity.public_send(primary_key) : entity
             end
           end
-        end
-
-        def default_scope_pluck(*fields)
-          pluck_ids(default_scope, fields: fields)
         end
 
         # Import method for ORM takes import data and import options
@@ -77,16 +73,7 @@ module Chewy
         #   UsersIndex::User.import users.map(&:id) # user ids will be deleted from index
         #
         def import(*args, &block)
-          options = args.extract_options!
-          options[:batch_size] ||= BATCH_SIZE
-
-          collection = if args.empty?
-            default_scope
-          elsif args.one? && args.first.is_a?(relation_class)
-            args.first
-          else
-            args.flatten.compact
-          end
+          collection, options = import_args(*args)
 
           if collection.is_a?(relation_class)
             import_scope(collection, options, &block)
@@ -94,6 +81,22 @@ module Chewy
             import_objects(collection, options, &block)
           end
         end
+
+        def import_fields(*args, &block)
+          return enum_for(:import_fields, *args) unless block_given?
+
+          collection, options = import_args(*args)
+
+          if options[:fields].present? || collection.is_a?(relation_class)
+            collection = all_scope_where_ids_in(identify(collection)) unless collection.is_a?(relation_class)
+            pluck_in_batches(collection, options.slice(:fields, :batch_size), &block)
+          else
+            identify(collection).each_slice(options[:batch_size]) do |batch|
+              yield batch
+            end
+          end
+        end
+        alias_method :import_references, :import_fields
 
         def load(ids, **options)
           scope = all_scope_where_ids_in(ids)
@@ -114,11 +117,16 @@ module Chewy
           hash = Hash[collection_ids.map(&:to_s).zip(collection)]
 
           indexed = collection_ids.each_slice(options[:batch_size]).map do |ids|
-            batch = default_scope_where_ids_in(ids)
+            batch = if options[:raw_import]
+              raw_default_scope_where_ids_in(ids, options[:raw_import])
+            else
+              default_scope_where_ids_in(ids)
+            end
+
             if batch.empty?
               true
             else
-              identify(batch).each { |id| hash.delete(id.to_s) }
+              batch.each { |object| hash.delete(object.send(primary_key).to_s) }
               yield grouped_objects(batch)
             end
           end.all?
@@ -162,6 +170,21 @@ module Chewy
 
         def grouped_objects(objects)
           options[:delete_if] ? super : {index: objects.to_a}
+        end
+
+        def import_args(*args)
+          options = args.extract_options!
+          options[:batch_size] ||= BATCH_SIZE
+
+          collection = if args.empty?
+            default_scope
+          elsif args.one? && args.first.is_a?(relation_class)
+            args.first
+          else
+            args.flatten.compact
+          end
+
+          [collection, options]
         end
       end
     end

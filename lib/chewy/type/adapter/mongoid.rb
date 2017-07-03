@@ -27,18 +27,25 @@ module Chewy
         end
 
         def import_scope(scope, options)
-          scope.batch_size(options[:batch_size]).no_timeout.pluck(primary_key)
-            .each_slice(options[:batch_size]).map do |ids|
-              yield grouped_objects(default_scope_where_ids_in(ids))
-            end.all?
+          pluck_in_batches(scope, options.slice(:batch_size)).map do |ids|
+            yield grouped_objects(default_scope_where_ids_in(ids))
+          end.all?
         end
 
         def primary_key
           :_id
         end
 
-        def pluck_ids(scope, fields: [])
+        def pluck(scope, fields: [])
           scope.pluck(primary_key, *fields)
+        end
+
+        def pluck_in_batches(scope, fields: [], batch_size: nil)
+          return enum_for(:pluck_in_batches, scope, fields: fields, batch_size: batch_size) unless block_given?
+
+          scope.batch_size(batch_size).no_timeout.pluck(primary_key, *fields).each_slice(batch_size) do |batch|
+            yield batch
+          end
         end
 
         def scope_where_ids_in(scope, ids)

@@ -34,6 +34,33 @@ describe Chewy::Type::Syncer, :orm do
           .and_delete(cities.first).only
       end
     end
+
+    context 'does not support outdated sync' do
+      before do
+        stub_index(:cities) do
+          define_type City do
+            field :name
+          end
+        end
+      end
+
+      specify { expect(subject.perform).to eq(0) }
+
+      context do
+        before do
+          cities.first.destroy
+          cities.last.update(name: 'Name5')
+        end
+        let!(:additional_city) { City.create!(name: 'Name4') }
+
+        specify { expect(subject.perform).to eq(2) }
+        specify do
+          expect { subject.perform }.to update_index(CitiesIndex::City)
+            .and_reindex(additional_city)
+            .and_delete(cities.first).only
+        end
+      end
+    end
   end
 
   describe '#missing_ids' do
@@ -65,6 +92,26 @@ describe Chewy::Type::Syncer, :orm do
           cities.last.update(name: 'Name5')
         end
         specify { expect(subject.outdated_ids).to contain_exactly(cities.first.id.to_s, cities.last.id.to_s) }
+      end
+    end
+
+    context 'does not support outdated sync' do
+      before do
+        stub_index(:cities) do
+          define_type City do
+            field :name
+          end
+        end
+      end
+
+      specify { expect(subject.outdated_ids).to eq([]) }
+
+      context do
+        before do
+          cities.first.update(name: 'Name4')
+          cities.last.update(name: 'Name5')
+        end
+        specify { expect(subject.outdated_ids).to eq([]) }
       end
     end
   end

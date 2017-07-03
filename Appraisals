@@ -12,6 +12,8 @@
 
     gem 'kaminari', '~> 0.17.0', require: false
     gem 'will_paginate', require: false
+
+    gem 'parallel', require: false
   end
 end
 
@@ -27,6 +29,8 @@ end
 
     gem 'kaminari-core', '~> 1.0.0', require: false
     gem 'will_paginate', require: false
+
+    gem 'parallel', require: false
   end
 end
 
@@ -41,6 +45,8 @@ appraise 'rails.4.2.mongoid.5.1' do
 
   gem 'kaminari', '~> 0.17.0', require: false
   gem 'will_paginate', require: false
+
+  gem 'parallel', require: false
 end
 
 {'5.0' => '6.0', '5.1' => '6.1'}.each do |activesupport, mongoid|
@@ -55,6 +61,8 @@ end
 
     gem 'kaminari-core', '~> 1.0.0', require: false
     gem 'will_paginate', require: false
+
+    gem 'parallel', require: false
   end
 end
 
@@ -65,5 +73,7 @@ end
 
     gem 'kaminari-core', '~> 1.0.0', require: false
     gem 'will_paginate', require: false
+
+    gem 'parallel', require: false
   end
 end

@@ -1,4 +1,8 @@
 require 'chewy/search'
+require 'chewy/type/adapter/object'
+require 'chewy/type/adapter/active_record'
+require 'chewy/type/adapter/mongoid'
+require 'chewy/type/adapter/sequel'
 require 'chewy/type/mapping'
 require 'chewy/type/wrapper'
 require 'chewy/type/observe'
@@ -7,10 +11,6 @@ require 'chewy/type/syncer'
 require 'chewy/type/crutch'
 require 'chewy/type/import'
 require 'chewy/type/witchcraft'
-require 'chewy/type/adapter/object'
-require 'chewy/type/adapter/active_record'
-require 'chewy/type/adapter/mongoid'
-require 'chewy/type/adapter/sequel'
 
 module Chewy
   class Type

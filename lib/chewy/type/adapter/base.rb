@@ -36,22 +36,34 @@ module Chewy
           raise NotImplementedError
         end
 
-        # Performs the pluck method for the passed fields on the
-        # target class. Used for synchronization.
-        #
-        # @return [Array<Object>, Array<Array<Object>>]
-        def default_scope_pluck(*_args)
-          raise NotImplementedError
-        end
-
         # Splits passed objects to groups according to `:batch_size` options.
         # For every group creates hash with action keys. Example:
         #
         #   { delete: [object_or_id1, object_or_id2], index: [object3, object4, object5] }
         #
-        # Returns true if all the block call returns true and false otherwise
-        #
+        # @yield batch [Array<Object>] each batch of objects
+        # @return [true, false] returns true if all the block call returns true and false otherwise
         def import(*_args, &_block)
+          raise NotImplementedError
+        end
+
+        # Unlike {#import} fetches only ids (references) to the imported objects,
+        # using the same procedures as {#import}.
+        #
+        # @param fields [Array<Symbol>] additional fields to fetch
+        # @param batch_size [Integer] batch size, defaults to 1000
+        # @yield batch [Array<Object>] each batch of objects
+        def import_fields(*_args, &_block)
+          raise NotImplementedError
+        end
+
+        # Uses the same strategy as import for the passed arguments, and returns
+        # an array of references to the passed objects. Returns ids if possible.
+        # Otherwise - and array of objects themselves.
+        #
+        # @param batch_size [Integer] batch size, defaults to 1000
+        # @yield batch [Array<Object>] each batch of objects
+        def import_references(*_args, &_block)
           raise NotImplementedError
         end
 

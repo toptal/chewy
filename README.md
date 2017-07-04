@@ -175,7 +175,7 @@ If you would like to use AWS's ElasticSearch using an IAM user policy, you will 
       field :badges, value: ->(user) { user.badges.map(&:name) } # passing array values to index
       field :projects do # the same block syntax for multi_field, if `:type` is specified
         field :title
-        field :description # default data type is `string`
+        field :description # default data type is `text`
         # additional top-level objects passed to value proc:
         field :categories, value: ->(project, user) { project.categories.map(&:name) if user.active? }
       end
@@ -203,7 +203,7 @@ If you would like to use AWS's ElasticSearch using an IAM user policy, you will 
 
     define_type User.active.includes(:country, :badges, :projects) do
       root date_detection: false do
-        template 'about_translations.*', type: 'string', analyzer: 'standard'
+        template 'about_translations.*', type: 'text', analyzer: 'standard'
 
         field :first_name, :last_name
         field :email, analyzer: 'email'
@@ -330,7 +330,7 @@ This will automatically set the type or root field to `object`. You may also spe
 To define a multi field you have to specify any type except for `object` or `nested` in the root field:
 
 ```ruby
-field :full_name, type: 'string', value: ->{ full_name.strip } do
+field :full_name, type: 'text', value: ->{ full_name.strip } do
   field :ordered, analyzer: 'ordered'
   field :untouched, index: 'not_analyzed'
 end

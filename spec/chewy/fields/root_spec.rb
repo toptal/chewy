@@ -5,7 +5,7 @@ describe Chewy::Fields::Root do
 
   describe '#dynamic_template' do
     specify do
-      field.dynamic_template 'hello', type: 'string'
+      field.dynamic_template 'hello', type: 'text'
       field.dynamic_template 'hello*', :integer
       field.dynamic_template 'hello.*'
       field.dynamic_template(/hello/)
@@ -14,7 +14,7 @@ describe Chewy::Fields::Root do
       field.dynamic_template(/hello\..*/)
 
       expect(field.mappings_hash).to eq(product: {dynamic_templates: [
-        {template_1: {mapping: {type: 'string'}, match: 'hello'}},
+        {template_1: {mapping: {type: 'text'}, match: 'hello'}},
         {template_2: {mapping: {}, match_mapping_type: 'integer', match: 'hello*'}},
         {template_3: {mapping: {}, path_match: 'hello.*'}},
         {template_4: {mapping: {}, match: 'hello', match_pattern: 'regexp'}},
@@ -32,10 +32,10 @@ describe Chewy::Fields::Root do
       end
 
       specify do
-        field.dynamic_template 'hello', type: 'string'
+        field.dynamic_template 'hello', type: 'text'
         expect(field.mappings_hash).to eq(product: {dynamic_templates: [
           {template_42: {mapping: {}, match: ''}},
-          {template_1: {mapping: {type: 'string'}, match: 'hello'}}
+          {template_1: {mapping: {type: 'text'}, match: 'hello'}}
         ]})
       end
     end

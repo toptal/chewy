@@ -904,6 +904,7 @@ module Chewy
       # Deletes all the documents from the specified scope it uses
       # `delete_by_query` API. For ES < 5.0 it uses `delete_by_query`
       # plugin, which requires additional installation effort.
+      # Note: in case when there is no query passed it will use match_all
       #
       # @see https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-delete-by-query.html
       # @see https://www.elastic.co/guide/en/elasticsearch/plugins/2.0/plugins-delete-by-query.html
@@ -918,6 +919,7 @@ module Chewy
             if Runtime.version < '5.0'
               delete_by_query_plugin(request_body)
             else
+              request_body[:body][:query] = { match_all: {} } if request_body[:body][:query].blank?
               Chewy.client.delete_by_query(request_body)
             end
           end

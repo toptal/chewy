@@ -6,7 +6,7 @@ describe Chewy::Index::Specification do
   let(:index1) do
     stub_index(:places) do
       define_type(:city) do
-        field :name, type: 'string'
+        field :name, type: 'text'
       end
     end
   end
@@ -15,7 +15,7 @@ describe Chewy::Index::Specification do
     stub_index(:places) do
       settings analyzer: {}
       define_type(:city) do
-        field :name, type: 'string'
+        field :name, type: 'text'
       end
     end
   end
@@ -23,7 +23,7 @@ describe Chewy::Index::Specification do
   let(:index3) do
     stub_index(:places) do
       define_type(:city) do
-        field :name, type: 'string'
+        field :name, type: 'text'
         field :population, type: 'integer'
       end
     end
@@ -33,7 +33,7 @@ describe Chewy::Index::Specification do
     stub_index(:places) do
       define_type(:city) do
         field :population, type: 'integer'
-        field :name, type: 'string'
+        field :name, type: 'text'
       end
     end
   end
@@ -59,7 +59,7 @@ describe Chewy::Index::Specification do
         '_type' => 'specification',
         '_id' => 'places',
         '_score' => 1.0,
-        '_source' => {'value' => '{"settings":{"index":{"number_of_shards":1,"number_of_replicas":0}},"mappings":{"city":{"properties":{"name":{"type":"string"}}}}}'}
+        '_source' => {'value' => '{"settings":{"index":{"number_of_shards":1,"number_of_replicas":0}},"mappings":{"city":{"properties":{"name":{"type":"text"}}}}}'}
       }])
     end
 
@@ -72,7 +72,7 @@ describe Chewy::Index::Specification do
           '_type' => 'specification',
           '_id' => 'places',
           '_score' => 1.0,
-          '_source' => {'value' => '{"settings":{"index":{"number_of_shards":1,"number_of_replicas":0}},"mappings":{"city":{"properties":{"name":{"type":"string"}}}}}'}
+          '_source' => {'value' => '{"settings":{"index":{"number_of_shards":1,"number_of_replicas":0}},"mappings":{"city":{"properties":{"name":{"type":"text"}}}}}'}
         }, {
           '_index' => 'chewy_stash',
           '_type' => 'specification',
@@ -88,7 +88,7 @@ describe Chewy::Index::Specification do
     specify do
       expect { specification1.lock! }.to change { specification1.locked }.from({}).to(
         'settings' => {'index' => {'number_of_shards' => 1, 'number_of_replicas' => 0}},
-        'mappings' => {'city' => {'properties' => {'name' => {'type' => 'string'}}}}
+        'mappings' => {'city' => {'properties' => {'name' => {'type' => 'text'}}}}
       )
     end
 
@@ -105,20 +105,20 @@ describe Chewy::Index::Specification do
       specify do
         expect { specification2.lock! }.to change { specification2.locked }.from(
           'settings' => {'index' => {'number_of_shards' => 1, 'number_of_replicas' => 0}},
-          'mappings' => {'city' => {'properties' => {'name' => {'type' => 'string'}}}}
+          'mappings' => {'city' => {'properties' => {'name' => {'type' => 'text'}}}}
         ).to(
           'settings' => {'analyzer' => {}, 'index' => {'number_of_shards' => 1, 'number_of_replicas' => 0}},
-          'mappings' => {'city' => {'properties' => {'name' => {'type' => 'string'}}}}
+          'mappings' => {'city' => {'properties' => {'name' => {'type' => 'text'}}}}
         )
       end
 
       specify do
         expect { specification3.lock! }.to change { specification3.locked }.from(
           'settings' => {'index' => {'number_of_shards' => 1, 'number_of_replicas' => 0}},
-          'mappings' => {'city' => {'properties' => {'name' => {'type' => 'string'}}}}
+          'mappings' => {'city' => {'properties' => {'name' => {'type' => 'text'}}}}
         ).to(
           'settings' => {'index' => {'number_of_shards' => 1, 'number_of_replicas' => 0}},
-          'mappings' => {'city' => {'properties' => {'name' => {'type' => 'string'}, 'population' => {'type' => 'integer'}}}}
+          'mappings' => {'city' => {'properties' => {'name' => {'type' => 'text'}, 'population' => {'type' => 'integer'}}}}
         )
       end
     end
@@ -127,7 +127,7 @@ describe Chewy::Index::Specification do
   describe '#current' do
     specify do
       expect(specification2.current).to eq(
-        'mappings' => {'city' => {'properties' => {'name' => {'type' => 'string'}}}},
+        'mappings' => {'city' => {'properties' => {'name' => {'type' => 'text'}}}},
         'settings' => {'analyzer' => {}, 'index' => {'number_of_shards' => 1, 'number_of_replicas' => 0}}
       )
     end

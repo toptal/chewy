@@ -8,10 +8,10 @@ module Chewy
     JOURNAL_MAPPING = {
       journal: {
         properties: {
-          index_name: {type: 'string', index: 'not_analyzed'},
-          type_name: {type: 'string', index: 'not_analyzed'},
-          action: {type: 'string', index: 'not_analyzed'},
-          object_ids: {type: 'string', index: 'not_analyzed'},
+          index_name: {type: 'keyword'},
+          type_name: {type: 'keyword'},
+          action: {type: 'keyword'},
+          object_ids: {type: 'keyword'},
           created_at: {type: 'date'}
         }
       }

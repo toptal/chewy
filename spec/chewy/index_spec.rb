@@ -61,16 +61,28 @@ describe Chewy::Index do
     specify { expect(stub_const('DeveloperIndex', Class.new(Chewy::Index)).index_name).to eq('developer') }
     specify { expect(stub_const('DevelopersIndex', Class.new(Chewy::Index)).index_name).to eq('developers') }
 
+    specify { expect(stub_const('DevelopersIndex', Class.new(Chewy::Index)).index_name(suffix: '')).to eq('developers') }
+    specify { expect(stub_const('DevelopersIndex', Class.new(Chewy::Index)).index_name(suffix: '2013')).to eq('developers_2013') }
+    specify { expect(stub_const('DevelopersIndex', Class.new(Chewy::Index)).index_name(prefix: '')).to eq('developers') }
+    specify { expect(stub_const('DevelopersIndex', Class.new(Chewy::Index)).index_name(prefix: 'test')).to eq('test_developers') }
+
     context do
       before { allow(Chewy).to receive_messages(configuration: {prefix: 'testing'}) }
       specify { expect(DummiesIndex.index_name).to eq('testing_dummies') }
       specify { expect(stub_index(:dummies) { index_name :users }.index_name).to eq('testing_users') }
+      specify { expect(stub_index(:dummies) { index_name :users }.index_name(prefix: '')).to eq('users') }
     end
   end
 
-  describe '.default_prefix' do
+  describe '.derivable_name' do
+    specify { expect(Class.new(Chewy::Index).derivable_name).to be_nil }
+    specify { expect(stub_index(:places).derivable_name).to eq('places') }
+    specify { expect(stub_index('namespace/places').derivable_name).to eq('namespace/places') }
+  end
+
+  describe '.prefix' do
     before { allow(Chewy).to receive_messages(configuration: {prefix: 'testing'}) }
-    specify { expect(Class.new(Chewy::Index).default_prefix).to eq('testing') }
+    specify { expect(Class.new(Chewy::Index).prefix).to eq('testing') }
   end
 
   describe '.define_type' do
@@ -191,14 +203,6 @@ describe Chewy::Index do
     specify { expect(PlacesIndex.scopes).to match_array(%i[by_rating by_name]) }
   end
 
-  describe '.build_index_name' do
-    specify { expect(stub_const('DevelopersIndex', Class.new(Chewy::Index)).build_index_name(suffix: '')).to eq('developers') }
-    specify { expect(stub_const('DevelopersIndex', Class.new(Chewy::Index)).build_index_name(suffix: '2013')).to eq('developers_2013') }
-    specify { expect(stub_const('DevelopersIndex', Class.new(Chewy::Index)).build_index_name(prefix: '')).to eq('developers') }
-    specify { expect(stub_const('DevelopersIndex', Class.new(Chewy::Index)).build_index_name(prefix: 'test')).to eq('test_developers') }
-    specify { expect(stub_const('DevelopersIndex', Class.new(Chewy::Index)).build_index_name(:users, prefix: 'test', suffix: '2013')).to eq('test_users_2013') }
-  end
-
   describe '.settings_hash' do
     before { allow(Chewy).to receive_messages(config: Chewy::Config.send(:new)) }
 
@@ -290,6 +294,28 @@ describe Chewy::Index do
       end
 
       specify { expect(index.journal?).to eq true }
+    end
+  end
+
+  describe '.default_prefix' do
+    before { allow(Chewy).to receive_messages(configuration: {prefix: 'testing'}) }
+
+    context do
+      before { expect(ActiveSupport::Deprecation).to receive(:warn).once }
+      specify { expect(DummiesIndex.default_prefix).to eq('testing') }
+    end
+
+    context do
+      before do
+        DummiesIndex.class_eval do
+          def self.default_prefix
+            'borogoves'
+          end
+        end
+      end
+
+      before { expect(ActiveSupport::Deprecation).to receive(:warn).once }
+      specify { expect(DummiesIndex.index_name).to eq('borogoves_dummies') }
     end
   end
 end

@@ -20,6 +20,7 @@ Chewy is an ODM and wrapper for [the official Elasticsearch client](https://gith
   * [Index definition](#index-definition)
   * [Type default import options](#type-default-import-options)
   * [Multi (nested) and object field types](#multi-nested-and-object-field-types)
+  * [Parent and children types](#parent-and-children-types)
   * [Geo Point fields](#geo-point-fields)
   * [Crutches™ technology](#crutches-technology)
   * [Witchcraft™ technology](#witchcraft-technology)
@@ -338,6 +339,18 @@ end
 
 The `value:` option for internal fields will no longer be effective.
 
+### Parent and children types
+
+To define [parent](https://www.elastic.co/guide/en/elasticsearch/guide/current/parent-child-mapping.html) type for a given index_type, you can include root options for the type where you can specify parent_type and parent_id
+
+```ruby
+define_type User.includes(:account) do
+  root parent: 'account', parent_id: ->{ account_id } do
+    field :created_at, type: 'date'
+    field :task_id, type: 'integer'
+  end
+end
+```
 ### Geo Point fields
 
 You can use [Elasticsearch's geo mapping](https://www.elastic.co/guide/en/elasticsearch/reference/current/mapping-geo-point-type.html) with the `geo_point` field type, allowing you to query, filter and order by latitude and longitude. You can use the following hash format:
@@ -674,6 +687,16 @@ Chewy.strategy(:active_job) do
 end
 ```
 
+#### `:shoryuken`
+
+This does the same thing as `:atomic`, but asynchronously using shoryuken. Patch `Chewy::Strategy::Shoryuken::Worker` for index updates improving.
+
+```ruby
+Chewy.strategy(:shoryuken) do
+  City.popular.map(&:do_some_update_action!)
+end
+```
+
 #### `:urgent`
 
 The following strategy is convenient if you are going to update documents in your index one by one.
@@ -943,6 +966,10 @@ Just add `require 'chewy/rspec'` to your spec_helper.rb and you will get additio
 ### Minitest integration
 
 Add `require 'chewy/minitest'` to your test_helper.rb, and then for tests which you'd like indexing test hooks, `include Chewy::Minitest::Helpers`.
+
+Since you can set `:bypass` strategy for test suites and manually handle import for the index and manually flush test indices using `Chewy.massacre`. This will help reduce unnecessary ES requests
+
+But if you require chewy to index/update model regularly in your test suite then you can specify `:urgent` strategy for documents indexing. Add `Chewy.strategy(:urgent)` to test_helper.rb.
 
 ### DatabaseCleaner
 

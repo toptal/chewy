@@ -1,15 +1,16 @@
 require 'chewy/search'
-require 'chewy/type/mapping'
-require 'chewy/type/wrapper'
-require 'chewy/type/observe'
-require 'chewy/type/actions'
-require 'chewy/type/crutch'
-require 'chewy/type/import'
-require 'chewy/type/witchcraft'
 require 'chewy/type/adapter/object'
 require 'chewy/type/adapter/active_record'
 require 'chewy/type/adapter/mongoid'
 require 'chewy/type/adapter/sequel'
+require 'chewy/type/mapping'
+require 'chewy/type/wrapper'
+require 'chewy/type/observe'
+require 'chewy/type/actions'
+require 'chewy/type/syncer'
+require 'chewy/type/crutch'
+require 'chewy/type/import'
+require 'chewy/type/witchcraft'
 
 module Chewy
   class Type
@@ -24,7 +25,7 @@ module Chewy
     include Witchcraft
     include Import
 
-    singleton_class.delegate :index_name, :_index_name, :derivable_index_name, :client, to: :index
+    singleton_class.delegate :index_name, :derivable_index_name, :client, to: :index
 
     class_attribute :_default_import_options
     self._default_import_options = {}
@@ -33,7 +34,7 @@ module Chewy
       # Chewy index current type belongs to. Defined inside `Chewy.create_type`
       #
       def index
-        raise NotImplementedError
+        raise NotImplementedError, 'Looks like this type ws defined outside the index scope and `.index` method is undefined for it'
       end
 
       # Current type adapter. Defined inside `Chewy.create_type`, derived from
@@ -49,10 +50,18 @@ module Chewy
         adapter.type_name
       end
 
-      # Returns index and type names as a string identifier
+      # Appends type name to {Chewy::Index.derivable_name}
       #
-      def full_name
-        @full_name ||= [index_name, type_name].join('#')
+      # @example
+      #   class Namespace::UsersIndex < Chewy::Index
+      #     define_type User
+      #   end
+      #   UsersIndex::User.derivable_name # => 'namespace/users#user'
+      #
+      # @see Chewy::Index.derivable_name
+      # @return [String, nil] derivable name or nil when it is impossible to calculate
+      def derivable_name
+        @derivable_name ||= [index.derivable_name, type_name].join('#') if index && index.derivable_name
       end
 
       # Returns list of public class methods defined in current type

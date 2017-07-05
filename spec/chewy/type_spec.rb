@@ -1,14 +1,23 @@
 require 'spec_helper'
 
 describe Chewy::Type do
-  describe '.full_name' do
-    before do
-      stub_index(:places) do
-        define_type :city
-      end
+  describe '.derivable_name' do
+    specify { expect { Class.new(Chewy::Type).derivable_name }.to raise_error NotImplementedError }
+
+    specify do
+      index = Class.new(Chewy::Index) { define_type :city }
+      expect(index::City.derivable_name).to be_nil
     end
 
-    specify { expect(PlacesIndex::City.full_name).to eq('places#city') }
+    specify do
+      stub_index(:places) { define_type :city }
+      expect(PlacesIndex::City.derivable_name).to eq('places#city')
+    end
+
+    specify do
+      stub_index('namespace/places') { define_type :city }
+      expect(Namespace::PlacesIndex::City.derivable_name).to eq('namespace/places#city')
+    end
   end
 
   describe '.scopes' do

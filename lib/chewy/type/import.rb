@@ -7,6 +7,22 @@ module Chewy
     module Import
       extend ActiveSupport::Concern
 
+      IMPORT_WORKER = lambda do |type, options, ids|
+        ::Process.setproctitle("chewy import #{type}[#{::Parallel.worker_number}]")
+        routine = Routine.new(type, options)
+        type.adapter.import(*ids, routine.options) do |action_objects|
+          routine.process(**action_objects)
+        end
+        {errors: routine.errors, import: routine.stats, leftovers: routine.leftovers}
+      end
+
+      LEFTOVERS_WORKER = lambda do |type, options, body|
+        ::Process.setproctitle("chewy import #{type}[#{::Parallel.worker_number}]")
+        routine = Routine.new(type, options)
+        routine.perform_bulk(body)
+        routine.errors
+      end
+
       module ClassMethods
         # @!method import(*collection, **options)
         # Basically, one of the main methods for type. Performs any objects import
@@ -37,6 +53,13 @@ module Chewy
         # possible to get the list of occured errors from the payload if something
         # went wrong.
         #
+        # Import can also be run in parallel using the Parallel gem functionality.
+        #
+        # @example
+        #   UsersIndex::User.import(parallel: true) # imports everything in parallel with automatic workers number
+        #   UsersIndex::User.import(parallel: 3) # using 3 workers
+        #   UsersIndex::User.import(parallel: {in_threads: 10}) # in 10 threads
+        #
         # @see https://github.com/elastic/elasticsearch-ruby/blob/master/elasticsearch-api/lib/elasticsearch/api/actions/bulk.rb
         # @param collection [Array<Object>] and array or anything to import
         # @param options [Hash{Symbol => Object}] besides specific import options, it accepts all the options suitable for the bulk API call like `refresh` or `timeout`
@@ -46,6 +69,7 @@ module Chewy
         # @option options [true, false] journal enables imported objects journaling, false by default
         # @option options [Array<Symbol, String>] update_fields list of fields for the partial import, empty by default
         # @option options [true, false] update_failover enables full objects reimport in cases of partial update errors, `true` by default
+        # @option options [true, Integer, Hash] parallel enables parallel import processing with the Parallel gem, accepts the number of workers or any Parallel gem acceptable options
         # @return [true, false] false in case of errors
         def import(*args)
           import_routine(*args).blank?
@@ -104,24 +128,53 @@ module Chewy
           routine = Routine.new(self, args.extract_options!)
           routine.create_indexes!
 
+          if routine.parallel_options
+            import_parallel(args, routine)
+          else
+            import_linear(args, routine)
+          end
+        end
+
+        def import_linear(objects, routine)
           ActiveSupport::Notifications.instrument 'import_objects.chewy', type: self do |payload|
-            adapter.import(*args, routine.options) do |action_objects|
+            adapter.import(*objects, routine.options) do |action_objects|
               routine.process(**action_objects)
-              fill_payload_import(payload, action_objects)
             end
-            routine.process_leftovers
+            routine.perform_bulk(routine.leftovers)
+            payload[:import] = routine.stats
             payload[:errors] = payload_errors(routine.errors) if routine.errors.present?
             payload[:errors]
           end
         end
 
-        def fill_payload_import(payload, action_objects)
-          payload[:import] ||= {}
+        def import_parallel(objects, routine)
+          raise "The `parallel` gem is required for parallel import, please add `gem 'parallel'` to your Gemfile" unless '::Parallel'.safe_constantize
 
-          imported = Hash[action_objects.map { |action, objects| [action, objects.count] }]
-          imported.each do |action, count|
-            payload[:import][action] ||= 0
-            payload[:import][action] += count
+          ActiveSupport::Notifications.instrument 'import_objects.chewy', type: self do |payload|
+            batches = adapter.import_references(*objects, routine.options.slice(:batch_size)).to_a
+
+            ::ActiveRecord::Base.connection.close if defined?(::ActiveRecord::Base)
+            results = ::Parallel.map(batches, routine.parallel_options, &IMPORT_WORKER.curry[self, routine.options])
+            ::ActiveRecord::Base.connection.reconnect! if defined?(::ActiveRecord::Base)
+            errors, import, leftovers = process_parallel_import_results(results)
+
+            if leftovers.present?
+              batches = leftovers.each_slice(routine.options[:batch_size])
+              results = ::Parallel.map(batches, routine.parallel_options, &LEFTOVERS_WORKER.curry[self, routine.options])
+              errors.concat(results.flatten(1))
+            end
+
+            payload[:import] = import
+            payload[:errors] = payload_errors(errors) if errors.present?
+            payload[:errors]
+          end
+        end
+
+        def process_parallel_import_results(results)
+          results.each_with_object([[], {}, []]) do |r, (e, i, l)|
+            e.concat(r[:errors])
+            i.merge!(r[:import]) { |_k, v1, v2| v1.to_i + v2.to_i }
+            l.concat(r[:leftovers])
           end
         end
 

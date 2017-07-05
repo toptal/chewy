@@ -11,7 +11,8 @@ module Chewy
         end
 
         def aliases
-          client.indices.get_alias(index: index_name, name: '*')[index_name].try(:[], 'aliases').try(:keys) || []
+          name = index_name
+          client.indices.get_alias(index: name, name: '*')[name].try(:[], 'aliases').try(:keys) || []
         rescue Elasticsearch::Transport::Transport::Errors::NotFound
           []
         end

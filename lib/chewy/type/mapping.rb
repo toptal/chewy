@@ -8,6 +8,8 @@ module Chewy
         class_attribute :_templates
         class_attribute :_agg_defs
         self._agg_defs = {}
+        class_attribute :outdated_sync_field
+        self.outdated_sync_field = :updated_at
       end
 
       module ClassMethods
@@ -173,6 +175,14 @@ module Chewy
           root_object ? root_object.mappings_hash : {}
         end
 
+        # Check whether the type has outdated_sync_field defined with a simple value.
+        #
+        # @return [true, false]
+        def supports_outdated_sync?
+          updated_at_field = root_object.child_hash[outdated_sync_field] if root_object && outdated_sync_field
+          !!updated_at_field && updated_at_field.value.nil?
+        end
+
       private
 
         def expand_nested(field, &block)
@@ -191,7 +201,7 @@ module Chewy
 
         def build_root(options = {}, &block)
           return root_object if root_object
-          self.root_object = Chewy::Fields::Root.new(type_name, options)
+          self.root_object = Chewy::Fields::Root.new(type_name, Chewy.default_root_options.merge(options))
           expand_nested(root_object, &block)
           @_current_field = root_object
         end

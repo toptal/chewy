@@ -19,17 +19,43 @@ describe Chewy do
       end
     end
 
-    specify { expect { described_class.derive_type('developers_index#developers') }.to raise_error(Chewy::UnderivableType, /DevelopersIndexIndex/) }
     specify { expect { described_class.derive_type('some#developers') }.to raise_error(Chewy::UnderivableType, /SomeIndex/) }
     specify { expect { described_class.derive_type('borogoves#developers') }.to raise_error(Chewy::UnderivableType, /Borogoves/) }
     specify { expect { described_class.derive_type('developers#borogoves') }.to raise_error(Chewy::UnderivableType, /DevelopersIndex.*borogoves/) }
     specify { expect { described_class.derive_type('namespace/autocomplete') }.to raise_error(Chewy::UnderivableType, %r{AutocompleteIndex.*namespace/autocomplete#type_name}) }
 
     specify { expect(described_class.derive_type(DevelopersIndex::Developer)).to eq(DevelopersIndex::Developer) }
+    specify { expect(described_class.derive_type('developers_index')).to eq(DevelopersIndex::Developer) }
     specify { expect(described_class.derive_type('developers')).to eq(DevelopersIndex::Developer) }
     specify { expect(described_class.derive_type('developers#developer')).to eq(DevelopersIndex::Developer) }
     specify { expect(described_class.derive_type('namespace/autocomplete#developer')).to eq(Namespace::AutocompleteIndex::Developer) }
     specify { expect(described_class.derive_type('namespace/autocomplete#company')).to eq(Namespace::AutocompleteIndex::Company) }
+  end
+
+  describe '.derive_types' do
+    before do
+      stub_const('SomeIndex', Class.new)
+
+      stub_index(:developers) do
+        define_type :developer
+      end
+
+      stub_index('namespace/autocomplete') do
+        define_type :developer
+        define_type :company
+      end
+    end
+
+    specify { expect { described_class.derive_types('some#developers') }.to raise_error(Chewy::UnderivableType, /SomeIndex/) }
+    specify { expect { described_class.derive_types('borogoves#developers') }.to raise_error(Chewy::UnderivableType, /Borogoves/) }
+    specify { expect { described_class.derive_types('developers#borogoves') }.to raise_error(Chewy::UnderivableType, /DevelopersIndex.*borogoves/) }
+
+    specify { expect(described_class.derive_types('developers_index')).to eq([DevelopersIndex::Developer]) }
+    specify { expect(described_class.derive_types('developers')).to eq([DevelopersIndex::Developer]) }
+    specify { expect(described_class.derive_types('developers#developer')).to eq([DevelopersIndex::Developer]) }
+    specify { expect(described_class.derive_types('namespace/autocomplete')).to match_array(Namespace::AutocompleteIndex.types) }
+    specify { expect(described_class.derive_types('namespace/autocomplete#developer')).to eq([Namespace::AutocompleteIndex::Developer]) }
+    specify { expect(described_class.derive_types('namespace/autocomplete#company')).to eq([Namespace::AutocompleteIndex::Company]) }
   end
 
   describe '.create_type' do
@@ -64,7 +90,6 @@ describe Chewy do
       it { is_expected.to be < Chewy::Type }
       its(:name) { should == 'CitiesIndex::City' }
       its(:index) { should == CitiesIndex }
-      its(:derivable_index_name) { should == 'cities' }
       its(:type_name) { should == 'city' }
     end
 
@@ -78,7 +103,6 @@ describe Chewy do
       it { is_expected.to be < Chewy::Type }
       its(:name) { should == 'Namespace::CitiesIndex::City' }
       its(:index) { should == Namespace::CitiesIndex }
-      its(:derivable_index_name) { should == 'namespace/cities' }
       its(:type_name) { should == 'city' }
     end
 
@@ -106,6 +130,8 @@ describe Chewy do
       stub_index(:companies).create!
 
       Chewy.massacre
+
+      allow(Chewy).to receive_messages(configuration: Chewy.configuration.merge(prefix: 'prefix1'))
     end
 
     specify { expect(AdminsIndex.exists?).to eq(true) }

@@ -87,16 +87,67 @@ module Chewy
         # @option options [Integer] :batch_size import processing batch size
         # @return [true, false]
         def import(*args, &block)
+          collection, options = import_args(*args)
+          import_objects(collection, options, &block)
+        end
+
+        # For the object adapter this method tries to fetch :id and requested
+        # fields from the passed collection or the target's `import_all_method`
+        # when defined. Otherwise it tries to call the target `pluck_method`,
+        # which is configurable and `pluck` by default. The `pluck_method` have
+        # to act exactly the same way as the AR one. It returns an empty array
+        # when none of the methods are found.
+        #
+        # @example
+        #   class Geoname
+        #     self < class
+        #       def self.pluck(*fields)
+        #         if fields.one?
+        #           whatever_source.map { |object| object.send(fields.first) }
+        #         else
+        #           whatever_source.map do |object|
+        #             fields.map { |field| object.send(field) }
+        #           end
+        #         end
+        #       end
+        #     end
+        #   end
+        #
+        # @see Chewy::Type::Adapter::Base#import_fields
+        def import_fields(*args)
+          return enum_for(:import_fields, *args) unless block_given?
           options = args.extract_options!
           options[:batch_size] ||= BATCH_SIZE
 
-          objects = if args.empty? && @target.respond_to?(import_all_method)
-            @target.send(import_all_method)
+          if args.empty? && @target.respond_to?(pluck_method)
+            @target.send(pluck_method, :id, *options[:fields]).each_slice(options[:batch_size]) do |batch|
+              yield batch
+            end
+          elsif options[:fields].blank?
+            import_references(*args, options) do |batch|
+              yield batch.map { |object| object_field(object, :id) || object }
+            end
           else
-            args.flatten.compact
+            import_references(*args, options) do |batch|
+              batch = batch.map do |object|
+                options[:fields].map { |field| object_field(object, field) }
+                  .unshift(object_field(object, :id) || object)
+              end
+              yield batch
+            end
           end
+        end
 
-          import_objects(objects, options, &block)
+        # For the Object adapter returns the objects themselves in batches.
+        #
+        # @see Chewy::Type::Adapter::Base#import_references
+        def import_references(*args)
+          return enum_for(:import_references, *args) unless block_given?
+
+          collection, options = import_args(*args)
+          collection.each_slice(options[:batch_size]) do |batch|
+            yield batch
+          end
         end
 
         # This method is used internally by the request DSL when the
@@ -160,8 +211,20 @@ module Chewy
           !!delete
         end
 
+        def object_field(object, name)
+          if object.respond_to?(name)
+            object.send(name)
+          elsif object.is_a?(Hash)
+            object[name.to_sym] || object[name.to_s]
+          end
+        end
+
         def import_all_method
           @import_all_method ||= options[:import_all_method] || :call
+        end
+
+        def pluck_method
+          @pluck_method ||= options[:pluck_method] || :pluck
         end
 
         def load_all_method
@@ -170,6 +233,19 @@ module Chewy
 
         def load_one_method
           @load_one_method ||= options[:load_one_method] || :load_one
+        end
+
+        def import_args(*args)
+          options = args.extract_options!
+          options[:batch_size] ||= BATCH_SIZE
+
+          collection = if args.empty? && @target.respond_to?(import_all_method)
+            @target.send(import_all_method)
+          else
+            args.flatten(1).compact
+          end
+
+          [collection, options]
         end
       end
     end

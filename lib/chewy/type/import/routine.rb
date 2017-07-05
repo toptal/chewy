@@ -32,10 +32,11 @@ module Chewy
         DEFAULT_OPTIONS = {
           refresh: true,
           update_fields: [],
-          update_failover: true
+          update_failover: true,
+          batch_size: Chewy::Type::Adapter::Base::BATCH_SIZE
         }.freeze
 
-        attr_reader :options, :errors
+        attr_reader :options, :parallel_options, :errors, :stats, :leftovers
 
         # Basically, processes passed options, extracting bulk request specific options.
         # @param type [Chewy::Type] chewy type
@@ -46,8 +47,17 @@ module Chewy
           @options.reverse_merge!(@type._default_import_options)
           @options.reverse_merge!(journal: Chewy.configuration[:journal])
           @options.reverse_merge!(DEFAULT_OPTIONS)
-          @bulk_options = @options.extract!(*BULK_OPTIONS)
+          @bulk_options = @options.slice(*BULK_OPTIONS)
+          @parallel_options = @options.delete(:parallel)
+          if @parallel_options && !@parallel_options.is_a?(Hash)
+            @parallel_options = if @parallel_options.is_a?(Integer)
+              {in_processes: @parallel_options}
+            else
+              {}
+            end
+          end
           @errors = []
+          @stats = {}
           @leftovers = []
         end
 
@@ -73,20 +83,20 @@ module Chewy
           bulk_body.concat(journal_bulk(index: index, delete: delete))
           bulk_body.unshift(*flush_leftovers)
 
-          response = bulk.perform(bulk_body)
-          Chewy.wait_for_status
-
-          @leftovers = extract_leftovers(response, bulk_builder.index_objects_by_id)
-
-          @errors.concat(response)
-          response.blank?
+          perform_bulk(bulk_body) do |response|
+            @leftovers = extract_leftovers(response, bulk_builder.index_objects_by_id)
+            @stats[:index] = @stats[:index].to_i + index.count if index.present?
+            @stats[:delete] = @stats[:delete].to_i + delete.count if delete.present?
+          end
         end
 
-        # Processes the last leftovers bulk if any.
+        # Performs a bulk request for the passed body.
         #
+        # @param body [Array<Hash>] a standard bulk request body
         # @return [true, false] the result of the request, true if no errors
-        def process_leftovers
-          response = bulk.perform(flush_leftovers)
+        def perform_bulk(body)
+          response = bulk.perform(body)
+          yield response if block_given?
           Chewy.wait_for_status
           @errors.concat(response)
           response.blank?

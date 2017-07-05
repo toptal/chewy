@@ -9,12 +9,14 @@ ActiveRecord::Schema.define do
     t.column :name, :string
     t.column :country_code, :string
     t.column :rating, :integer
+    t.column :updated_at, :datetime
   end
 
   create_table :cities do |t|
     t.column :country_id, :integer
     t.column :name, :string
     t.column :rating, :integer
+    t.column :updated_at, :datetime
   end
 end
 

@@ -29,6 +29,7 @@ Chewy.settings = {
     number_of_replicas: 0
   }
 }
+# Chewy.transport_logger = Logger.new(STDERR)
 
 RSpec.configure do |config|
   config.mock_with :rspec
@@ -38,6 +39,8 @@ RSpec.configure do |config|
 
   config.include FailHelpers
   config.include ClassHelpers
+
+  Aws.config.update(stub_responses: true) if defined?(::Aws)
 end
 
 if defined?(::ActiveRecord)

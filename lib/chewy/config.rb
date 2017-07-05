@@ -54,6 +54,13 @@ module Chewy
       # Refresh or not when import async (sidekiq, resque, activejob)
       :disable_refresh_async,
 
+      # Default options for root of Chewy type. Allows to set default options
+      # for type mappings like `_all`.
+      :default_root_options,
+
+      # Default field type for any field in any Chewy type. Defaults to 'string'.
+      :default_field_type,
+
       # Chewy search request DSL base class, used by every index.
       :search_class
 
@@ -72,6 +79,8 @@ module Chewy
       @reset_no_replicas = false
       @disable_refresh_async = false
       @indices_path = 'app/chewy'
+      @default_root_options = {}
+      @default_field_type = 'string'.freeze
       self.search_class = Chewy::Search::Request
     end
 
@@ -149,7 +158,7 @@ module Chewy
 
           if File.exist?(file)
             yaml = ERB.new(File.read(file)).result
-            hash = YAML.safe_load(yaml)
+            hash = YAML.load(yaml) # rubocop:disable Security/YAMLLoad
             hash[Rails.env].try(:deep_symbolize_keys) if hash
           end
         end || {}

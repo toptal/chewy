@@ -1,7 +1,16 @@
 require 'spec_helper'
 
 describe Chewy::Type::Adapter::Mongoid, :mongoid do
-  before { stub_model(:city) }
+  before do
+    stub_model(:city)
+    stub_model(:country)
+    if adapter == :mongoid && Mongoid::VERSION.start_with?('6')
+      City.belongs_to :country, optional: true
+    else
+      City.belongs_to :country
+    end
+    Country.has_many :cities
+  end
 
   describe '#name' do
     specify { expect(described_class.new(City).name).to eq('City') }
@@ -275,6 +284,53 @@ describe Chewy::Type::Adapter::Mongoid, :mongoid do
         specify { expect(subject.import(ids, batch_size: 2, &data_comparer.curry[deleted[0].id])).to eq(false) }
         specify { expect(subject.import(ids, batch_size: 2, &data_comparer.curry[deleted[2].id])).to eq(false) }
       end
+    end
+  end
+
+  describe '#import_fields' do
+    subject { described_class.new(Country) }
+    let!(:countries) { Array.new(4) { |i| Country.create!(rating: i) { |c| c.id = i + 1 } } }
+    let!(:cities) { Array.new(6) { |i| City.create!(rating: i + 3, country_id: (i + 4) / 2) { |c| c.id = i + 3 } } }
+
+    specify { expect(subject.import_fields).to match([contain_exactly(1, 2, 3, 4)]) }
+    specify { expect(subject.import_fields(fields: [:rating])).to match([contain_exactly([1, 0], [2, 1], [3, 2], [4, 3])]) }
+
+    context 'scopes' do
+      context do
+        subject { described_class.new(Country.includes(:cities)) }
+
+        specify { expect(subject.import_fields).to match([contain_exactly(1, 2, 3, 4)]) }
+        specify { expect(subject.import_fields(fields: [:rating])).to match([contain_exactly([1, 0], [2, 1], [3, 2], [4, 3])]) }
+      end
+
+      context 'ignores default scope if another scope is passed' do
+        subject { described_class.new(Country.where(:rating.gt => 2)) }
+
+        specify { expect(subject.import_fields(Country.where(:rating.lt => 2))).to match([contain_exactly(1, 2)]) }
+        specify { expect(subject.import_fields(Country.where(:rating.lt => 2), fields: [:rating])).to match([contain_exactly([1, 0], [2, 1])]) }
+      end
+    end
+
+    context 'objects/ids' do
+      specify { expect(subject.import_fields(1, 2)).to match([contain_exactly(1, 2)]) }
+      specify { expect(subject.import_fields(1, 2, fields: [:rating])).to match([contain_exactly([1, 0], [2, 1])]) }
+
+      specify { expect(subject.import_fields(countries.first(2))).to match([contain_exactly(1, 2)]) }
+      specify { expect(subject.import_fields(countries.first(2), fields: [:rating])).to match([contain_exactly([1, 0], [2, 1])]) }
+    end
+
+    context 'batch_size' do
+      specify { expect(subject.import_fields(batch_size: 2)).to match([contain_exactly(1, 2), contain_exactly(3, 4)]) }
+      specify { expect(subject.import_fields(batch_size: 2, fields: [:rating])).to match([contain_exactly([1, 0], [2, 1]), contain_exactly([3, 2], [4, 3])]) }
+
+      specify { expect(subject.import_fields(Country.where(:rating.lt => 2), batch_size: 2)).to match([contain_exactly(1, 2)]) }
+      specify { expect(subject.import_fields(Country.where(:rating.lt => 2), batch_size: 2, fields: [:rating])).to match([contain_exactly([1, 0], [2, 1])]) }
+
+      specify { expect(subject.import_fields(1, 2, 3, batch_size: 2)).to match([contain_exactly(1, 2), [3]]) }
+      specify { expect(subject.import_fields(1, 2, 3, batch_size: 2, fields: [:rating])).to match([contain_exactly([1, 0], [2, 1]), [[3, 2]]]) }
+
+      specify { expect(subject.import_fields(countries.first(3), batch_size: 2)).to match([contain_exactly(1, 2), [3]]) }
+      specify { expect(subject.import_fields(countries.first(3), batch_size: 2, fields: [:rating])).to match([contain_exactly([1, 0], [2, 1]), [[3, 2]]]) }
     end
   end
 

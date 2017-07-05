@@ -1045,7 +1045,7 @@ module Chewy
     def _request
       @_request ||= begin
         request = criteria.request_body
-        request[:index] = _indexes.map(&:index_name)
+        request[:index] = _indexes_hash.keys
         request[:type] = _types.map(&:type_name)
         request
       end

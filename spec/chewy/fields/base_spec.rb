@@ -152,6 +152,36 @@ describe Chewy::Fields::Base do
         })
       end
 
+      context 'default field type' do
+        around do |example|
+          previous_type = Chewy.default_field_type
+          Chewy.default_field_type = 'text'
+          example.run
+          Chewy.default_field_type = previous_type
+        end
+
+        specify do
+          expect(EventsIndex::Event.mappings_hash).to eq(event: {
+            properties: {
+              id: {type: 'text'},
+              category: {
+                type: 'object',
+                properties: {
+                  id: {type: 'text'},
+                  licenses: {
+                    type: 'object',
+                    properties: {
+                      id: {type: 'text'},
+                      name: {type: 'text'}
+                    }
+                  }
+                }
+              }
+            }
+          })
+        end
+      end
+
       specify do
         expect(EventsIndex::Event.root_object.compose(
                  id: 1, category: {id: 2, licenses: {id: 3, name: 'Name'}}

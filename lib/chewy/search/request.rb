@@ -30,6 +30,7 @@ module Chewy
         scroll_batches scroll_hits scroll_results scroll_wrappers
       ].to_set.freeze
       DEFAULT_BATCH_SIZE = 1000
+      DEFAULT_PLUCK_BATCH_SIZE = 10_000
       DEFAULT_SCROLL = '1m'.freeze
       # An array of storage names that are modifying returned fields in hits
       FIELD_STORAGES = %i[
@@ -888,7 +889,7 @@ module Chewy
         scope = except(FIELD_STORAGES, EXTRA_STORAGES)
           .source(source_fields.presence || false)
 
-        hits = raw_limit_value ? scope.hits : scope.scroll_hits
+        hits = raw_limit_value ? scope.hits : scope.scroll_hits(batch_size: DEFAULT_PLUCK_BATCH_SIZE)
         hits.map do |hit|
           if fields.one?
             fetch_field(hit, fields.first)
@@ -932,8 +933,8 @@ module Chewy
     private
 
       def compare_internals(other)
-        _indexes.map(&:index_name).sort == other._indexes.map(&:index_name).sort &&
-          _types.map(&:full_name).sort == other._types.map(&:full_name).sort &&
+        _indexes.sort_by(&:derivable_name) == other._indexes.sort_by(&:derivable_name) &&
+          _types.sort_by(&:derivable_name) == other._types.sort_by(&:derivable_name) &&
           parameters == other.parameters
       end
 

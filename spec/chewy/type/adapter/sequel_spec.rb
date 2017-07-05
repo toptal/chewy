@@ -4,6 +4,8 @@ describe Chewy::Type::Adapter::Sequel, :sequel do
   before do
     stub_model(:city)
     stub_model(:country)
+    City.many_to_one :country
+    Country.one_to_many :cities
   end
 
   describe '#name' do
@@ -336,6 +338,67 @@ describe Chewy::Type::Adapter::Sequel, :sequel do
     end
   end
 
+  describe '#import_fields' do
+    subject { described_class.new(Country) }
+    let!(:countries) { Array.new(3) { |i| Country.create!(rating: i) { |c| c.id = i + 1 } } }
+    let!(:cities) { Array.new(6) { |i| City.create!(rating: i + 3, country_id: (i + 4) / 2) { |c| c.id = i + 3 } } }
+
+    specify { expect(subject.import_fields).to match([contain_exactly(1, 2, 3)]) }
+    specify { expect(subject.import_fields(fields: [:rating])).to match([contain_exactly([1, 0], [2, 1], [3, 2])]) }
+
+    context 'scopes' do
+      context do
+        subject { described_class.new(Country.eager_graph(:cities)) }
+
+        specify { expect(subject.import_fields).to match([contain_exactly(1, 2, 3)]) }
+        specify { expect(subject.import_fields(fields: [:rating])).to match([contain_exactly([1, 0], [2, 1], [3, 2])]) }
+      end
+
+      context do
+        subject { described_class.new(Country.eager(:cities)) }
+
+        specify { expect(subject.import_fields).to match([contain_exactly(1, 2, 3)]) }
+        specify { expect(subject.import_fields(fields: [:rating])).to match([contain_exactly([1, 0], [2, 1], [3, 2])]) }
+      end
+
+      context do
+        subject { described_class.new(Country.join(:cities, country_id: :id)) }
+
+        specify { expect(subject.import_fields).to match([contain_exactly(2, 3)]) }
+        specify { expect(subject.import_fields(fields: [:rating])).to match([contain_exactly([2, 1], [3, 2])]) }
+      end
+
+      context 'ignores default scope if another scope is passed' do
+        subject { described_class.new(Country.join(:cities, country_id: :id)) }
+
+        specify { expect(subject.import_fields(Country.where('rating < 2'))).to match([contain_exactly(1, 2)]) }
+        specify { expect(subject.import_fields(Country.where('rating < 2'), fields: [:rating])).to match([contain_exactly([1, 0], [2, 1])]) }
+      end
+    end
+
+    context 'objects/ids' do
+      specify { expect(subject.import_fields(1, 2)).to match([contain_exactly(1, 2)]) }
+      specify { expect(subject.import_fields(1, 2, fields: [:rating])).to match([contain_exactly([1, 0], [2, 1])]) }
+
+      specify { expect(subject.import_fields(countries.first(2))).to match([contain_exactly(1, 2)]) }
+      specify { expect(subject.import_fields(countries.first(2), fields: [:rating])).to match([contain_exactly([1, 0], [2, 1])]) }
+    end
+
+    context 'batch_size' do
+      specify { expect(subject.import_fields(batch_size: 2)).to match([contain_exactly(1, 2), [3]]) }
+      specify { expect(subject.import_fields(batch_size: 2, fields: [:rating])).to match([contain_exactly([1, 0], [2, 1]), [[3, 2]]]) }
+
+      specify { expect(subject.import_fields(Country.where('rating < 2'), batch_size: 2)).to match([contain_exactly(1, 2)]) }
+      specify { expect(subject.import_fields(Country.where('rating < 2'), batch_size: 2, fields: [:rating])).to match([contain_exactly([1, 0], [2, 1])]) }
+
+      specify { expect(subject.import_fields(1, 2, batch_size: 1)).to match([[1], [2]]) }
+      specify { expect(subject.import_fields(1, 2, batch_size: 1, fields: [:rating])).to match([[[1, 0]], [[2, 1]]]) }
+
+      specify { expect(subject.import_fields(countries.first(2), batch_size: 1)).to match([[1], [2]]) }
+      specify { expect(subject.import_fields(countries.first(2), batch_size: 1, fields: [:rating])).to match([[[1, 0]], [[2, 1]]]) }
+    end
+  end
+
   describe '#load' do
     context do
       let!(:cities) { Array.new(3) { |i| City.create!(rating: i / 2) } }
@@ -360,7 +423,7 @@ describe Chewy::Type::Adapter::Sequel, :sequel do
           _type: type, scope: -> { where(rating: 0) }, user: {scope: -> { where(rating: 1) }}))
           .to eq([nil, nil] + cities.last(1))
       end
-      xspecify do
+      xspecify 'sequel does not support scopes merge' do
         expect(subject.load(city_ids, _type: type, scope: City.where(rating: 1)))
           .to eq([nil, nil] + cities.last(1))
       end
@@ -395,7 +458,7 @@ describe Chewy::Type::Adapter::Sequel, :sequel do
           _type: type, scope: -> { where(country_id: 0) }, user: {scope: -> { where(country_id: 1) }}))
           .to eq([nil, nil] + cities.last(1))
       end
-      xspecify do
+      xspecify 'sequel does not support scopes merge' do
         expect(subject.load(city_ids, _type: type, scope: City.where(country_id: 1)))
           .to eq([nil, nil] + cities.last(1))
       end

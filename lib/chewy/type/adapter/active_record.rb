@@ -22,32 +22,44 @@ module Chewy
         end
 
         def import_scope(scope, options)
-          scope = scope.reorder(target_id.asc).limit(options[:batch_size])
+          pluck_in_batches(scope, options.slice(:batch_size)).inject(true) do |result, ids|
+            objects = if options[:raw_import]
+              raw_default_scope_where_ids_in(ids, options[:raw_import])
+            else
+              default_scope_where_ids_in(ids)
+            end
 
-          ids = pluck_ids(scope)
-          result = true
-
-          while ids.present?
-            objects =
-              if options[:raw_import]
-                raw_default_scope_where_ids_in(ids, options[:raw_import])
-              else
-                default_scope_where_ids_in(ids)
-              end
-            result &= yield grouped_objects(objects)
-            break if ids.size < options[:batch_size]
-            ids = pluck_ids(scope.where(target_id.gt(ids.last)))
+            result & yield(grouped_objects(objects))
           end
+        end
 
-          result
+        def primary_key
+          @primary_key ||= target.primary_key.to_sym
         end
 
         def target_id
-          target.arel_table[target.primary_key]
+          target.arel_table[primary_key.to_s]
         end
 
-        def pluck_ids(scope)
-          scope.except(:includes).uniq.pluck(target.primary_key.to_sym)
+        def pluck(scope, fields: [])
+          scope.except(:includes).distinct.pluck(primary_key, *fields)
+        end
+
+        def pluck_in_batches(scope, fields: [], batch_size: nil)
+          return enum_for(:pluck_in_batches, scope, fields: fields, batch_size: batch_size) unless block_given?
+
+          scope = scope.reorder(target_id.asc).limit(batch_size)
+          ids = pluck(scope, fields: fields)
+          count = 0
+
+          while ids.present?
+            yield ids
+            break if ids.size < batch_size
+            last_id = ids.last.is_a?(Array) ? ids.last.first : ids.last
+            ids = pluck(scope.where(target_id.gt(last_id)), fields: fields)
+          end
+
+          count
         end
 
         def scope_where_ids_in(scope, ids)
@@ -65,17 +77,6 @@ module Chewy
 
         def object_class
           ::ActiveRecord::Base
-        end
-      end
-
-      ActiveSupport.on_load(:active_record) do
-        if ::ActiveRecord::VERSION::MAJOR >= 5
-          module Rails5
-            def pluck_ids(scope)
-              scope.except(:includes).distinct.pluck(target.primary_key.to_sym)
-            end
-          end
-          Chewy::Type::Adapter::ActiveRecord.prepend(Rails5)
         end
       end
     end

@@ -41,22 +41,36 @@ module Chewy
           target.arel_table[primary_key.to_s]
         end
 
-        def pluck(scope, fields: [])
-          scope.except(:includes).distinct.pluck(primary_key, *fields)
+        def pluck(scope, fields: [], typecast: true)
+          if typecast
+            scope.except(:includes).distinct.pluck(primary_key, *fields)
+          else
+            scope = scope.except(:includes).distinct
+            scope.select_values = [primary_key, *fields].map do |column|
+              target.columns_hash.key?(column) ? target.arel_table[column] : column
+            end
+            sql = scope.to_sql
+
+            if fields.present?
+              target.connection.select_rows(sql)
+            else
+              target.connection.select_values(sql)
+            end
+          end
         end
 
-        def pluck_in_batches(scope, fields: [], batch_size: nil)
-          return enum_for(:pluck_in_batches, scope, fields: fields, batch_size: batch_size) unless block_given?
+        def pluck_in_batches(scope, fields: [], batch_size: nil, typecast: true)
+          return enum_for(:pluck_in_batches, scope, fields: fields, batch_size: batch_size, typecast: typecast) unless block_given?
 
           scope = scope.reorder(target_id.asc).limit(batch_size)
-          ids = pluck(scope, fields: fields)
+          ids = pluck(scope, fields: fields, typecast: typecast)
           count = 0
 
           while ids.present?
             yield ids
             break if ids.size < batch_size
             last_id = ids.last.is_a?(Array) ? ids.last.first : ids.last
-            ids = pluck(scope.where(target_id.gt(last_id)), fields: fields)
+            ids = pluck(scope.where(target_id.gt(last_id)), fields: fields, typecast: typecast)
           end
 
           count

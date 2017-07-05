@@ -41,9 +41,10 @@ namespace :chewy do
   end
 
   namespace :parallel do
-    task deploy: :environment do
-      processed = Chewy::RakeHelper.upgrade(parallel: true)
-      Chewy::RakeHelper.sync(except: processed)
+    task deploy: :environment do |_task, args|
+      parallel = args.extras.first =~ /\A\d+\z/ ? Integer(args.extras.first) : true
+      processed = Chewy::RakeHelper.upgrade(parallel: parallel)
+      Chewy::RakeHelper.sync(except: processed, parallel: parallel)
     end
 
     task reset: :environment do |_task, args|
@@ -56,6 +57,10 @@ namespace :chewy do
 
     task update: :environment do |_task, args|
       Chewy::RakeHelper.update(parse_args(args.extras, parallel: true))
+    end
+
+    task sync: :environment do |_task, args|
+      Chewy::RakeHelper.sync(parse_args(args.extras, parallel: true))
     end
   end
 

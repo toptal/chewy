@@ -109,7 +109,7 @@ module Chewy
     #   Chewy.derive_types('places#city') # => [PlacesIndex::City]
     #
     # @param name [String] string type identifier
-    # @raise [Chewy::UnderivableType] in cases when it is impossble to find index or type
+    # @raise [Chewy::UnderivableType] in cases when it is impossible to find index or type
     # @return [Array<Chewy::Type>] an array of derived types
     def derive_types(name)
       index_name, type_name = name.split('#', 2)

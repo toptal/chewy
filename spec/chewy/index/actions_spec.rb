@@ -499,5 +499,20 @@ describe Chewy::Index::Actions do
         expect(Chewy.client.count(index: Chewy::Journal.index_name)['count']).not_to eq 0
       end
     end
+
+    context 'other options' do
+      before { CitiesIndex.reset!('2013') }
+      let(:suffix) { Time.now.to_i }
+
+      specify do
+        expect(CitiesIndex).to receive(:import).with(parallel: true, journal: false).and_return(true)
+        expect(CitiesIndex.reset!(parallel: true)).to eq(true)
+      end
+
+      specify do
+        expect(CitiesIndex).to receive(:import).with(suffix: suffix, parallel: true, journal: false, refresh: true).and_return(true)
+        expect(CitiesIndex.reset!(suffix, parallel: true)).to eq(true)
+      end
+    end
   end
 end

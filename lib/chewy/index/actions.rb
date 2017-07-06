@@ -159,7 +159,7 @@ module Chewy
         # zero-downtime index resetting (described here:
         # http://www.elasticsearch.org/blog/changing-mapping-with-zero-downtime/).
         #
-        #   UsersIndex.reset! Time.now.to_i, journal: true
+        #   UsersIndex.reset! Time.now.to_i
         #
         def reset!(suffix = nil, journal: false, **options)
           result = if suffix.present? && (indexes = self.indexes).present?
@@ -182,7 +182,7 @@ module Chewy
             result
           else
             purge! suffix
-            import journal: journal
+            import options.merge(journal: journal)
           end
 
           specification.lock!

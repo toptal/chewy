@@ -14,12 +14,6 @@ def parse_args(args, parallel: false)
 end
 
 namespace :chewy do
-  desc 'This taks resets all the indexes with the specification changed and synchronizes the rest of them'
-  task deploy: :environment do
-    processed = Chewy::RakeHelper.upgrade
-    Chewy::RakeHelper.sync(except: processed)
-  end
-
   desc 'Destroy, recreate and import data for the specified indexes or all of them'
   task reset: :environment do |_task, args|
     Chewy::RakeHelper.reset(parse_args(args.extras))
@@ -40,27 +34,38 @@ namespace :chewy do
     Chewy::RakeHelper.sync(parse_args(args.extras))
   end
 
-  namespace :parallel do
-    task deploy: :environment do |_task, args|
-      parallel = args.extras.first =~ /\A\d+\z/ ? Integer(args.extras.first) : true
-      processed = Chewy::RakeHelper.upgrade(parallel: parallel)
-      Chewy::RakeHelper.sync(except: processed, parallel: parallel)
-    end
+  desc 'Resets all the indexes with the specification changed and synchronizes the rest of them'
+  task deploy: :environment do
+    processed = Chewy::RakeHelper.upgrade
+    Chewy::RakeHelper.sync(except: processed)
+  end
 
+  namespace :parallel do
+    desc 'Parallel version of `rake chewy:reset`'
     task reset: :environment do |_task, args|
       Chewy::RakeHelper.reset(parse_args(args.extras, parallel: true))
     end
 
+    desc 'Parallel version of `rake chewy:upgrade`'
     task upgrade: :environment do |_task, args|
       Chewy::RakeHelper.upgrade(parse_args(args.extras, parallel: true))
     end
 
+    desc 'Parallel version of `rake chewy:update`'
     task update: :environment do |_task, args|
       Chewy::RakeHelper.update(parse_args(args.extras, parallel: true))
     end
 
+    desc 'Parallel version of `rake chewy:sync`'
     task sync: :environment do |_task, args|
       Chewy::RakeHelper.sync(parse_args(args.extras, parallel: true))
+    end
+
+    desc 'Parallel version of `rake chewy:deploy`'
+    task deploy: :environment do |_task, args|
+      parallel = args.extras.first =~ /\A\d+\z/ ? Integer(args.extras.first) : true
+      processed = Chewy::RakeHelper.upgrade(parallel: parallel)
+      Chewy::RakeHelper.sync(except: processed, parallel: parallel)
     end
   end
 

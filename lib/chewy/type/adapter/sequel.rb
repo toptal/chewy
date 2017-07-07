@@ -52,8 +52,8 @@ module Chewy
           scope.distinct.select_map(fields.one? ? fields.first : fields)
         end
 
-        def pluck_in_batches(scope, fields: [], batch_size: nil)
-          return enum_for(:pluck_in_batches, scope, fields: fields, batch_size: batch_size) unless block_given?
+        def pluck_in_batches(scope, fields: [], batch_size: nil, **options)
+          return enum_for(:pluck_in_batches, scope, fields: fields, batch_size: batch_size, **options) unless block_given?
 
           scope = scope.unordered.order(::Sequel.asc(full_column_name(primary_key))).limit(batch_size)
 

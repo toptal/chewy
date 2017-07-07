@@ -117,14 +117,15 @@ module Chewy
       #
       # @param only [Array<Chewy::Index, Chewy::Type, String>, Chewy::Index, Chewy::Type, String] indexes or types to synchronize; if nothing is passed - uses all the types defined in the app
       # @param except [Array<Chewy::Index, Chewy::Type, String>, Chewy::Index, Chewy::Type, String] indexes or types to exclude from processing
+      # @param parallel [true, Integer, Hash] any acceptable parallel options for sync
       # @return [Array<Chewy::Type>] types that were actually updated
-      def sync(only: nil, except: nil, output: STDOUT)
+      def sync(only: nil, except: nil, parallel: nil, output: STDOUT)
         subscribed_task_stats(output) do
           types_from(only: only, except: except).each_with_object([]) do |type, synced_types|
             output.puts "Synchronizing #{type}"
             output.puts "  #{type} doesn't support outdated synchronization" unless type.supports_outdated_sync?
             time = Time.now
-            sync_result = type.sync
+            sync_result = type.sync(parallel: parallel)
             if !sync_result
               output.puts "  Something went wrong with the #{type} synchronization"
             elsif sync_result[:count] > 0

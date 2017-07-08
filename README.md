@@ -44,8 +44,12 @@ Chewy is an ODM and wrapper for [the official Elasticsearch client](https://gith
     * [Loading objects](#loading-objects)
     * [Legacy DSL incompatibilities](#legacy-dsl-incompatibilities)
   * [Rake tasks](#rake-tasks)
-    * [chewy:update and chewy:reset](#chewyupdate-and-chewyreset)
+    * [chewy:reset](#chewyreset)
+    * [chewy:upgrade](#chewyupgrade)
+    * [chewy:update](#chewyupdate)
+    * [chewy:sync](#chewysync)
     * [chewy:deploy](#chewydeploy)
+    * [Parallelizing rake tasks](#parallelizing-rake-tasks)
   * [Rspec integration](#rspec-integration)
   * [Minitest integration](#minitest-integration)
 * [TODO a.k.a coming soon](#todo-aka-coming-soon)
@@ -917,38 +921,88 @@ end
 
 ### Rake tasks
 
-#### `chewy:update` and `chewy:reset`
+For a Rails application, some index-maintaining rake tasks are defined.
 
-Inside the Rails application, some index-maintaining rake tasks are defined.
+#### `chewy:reset`
+
+Performs zero-downtime reindexing as described [here](https://www.elastic.co/blog/changing-mapping-with-zero-downtime). So the rake task creates a new index with unique suffix and then simply aliases it to the common index name. The previous index is deleted afterwards (see `Chewy::Index.reset!` for more details).
 
 ```bash
-rake chewy:reset # resets all the existing indices, declared in app/chewy
+rake chewy:reset # resets all the existing indices
 rake chewy:reset[users] # resets UsersIndex only
-rake chewy:reset[users,projects] # resets UsersIndex and ProjectsIndex
-rake chewy:reset[-users,projects] # resets every index in application except specified ones
-
-rake chewy:update # updates all the existing indices, declared in app/chewy
-rake chewy:update[users] # updates UsersIndex only
-rake chewy:update[users,projects] # updates UsersIndex and ProjectsIndex
-rake chewy:update[-users,projects] # updates every index in application except specified ones
-
+rake chewy:reset[users,places] # resets UsersIndex and PlacesIndex
+rake chewy:reset[-users,places] # resets every index in the application except specified ones
 ```
 
-`rake chewy:reset` performs zero-downtime reindexing as described [here](https://www.elastic.co/blog/changing-mapping-with-zero-downtime). So basically rake task creates a new index with uniq suffix and then simply aliases it to the common index name. The previous index is deleted afterwards (see `Chewy::Index.reset!` for more details).
+#### `chewy:upgrade`
 
-#### `chewy:deploy`
+Performs reset exactly the same way as `chewy:reset` does, but only when the index specification (setting or mapping) was changed.
 
-This rake task is especially useful during the production deploy. Currently it executes selective reset, this means that an index will be reset only if the index specification (settings or mappings) has been changed, otherwise the reset of this index will be skipped.
-
-Obviously at the first run it will reset everything because it needs to lock all the index specifications in the `Chewy::Stash`.
+It works only when index specification is locked in `Chewy::Stash` index. The first run will reset all indexes and lock their specifications.
 
 See [Chewy::Stash](lib/chewy/stash.rb) and [Chewy::Index::Specification](lib/chewy/index/specification.rb) for more details.
 
-In the future, additional routines are planned during `chewy:deploy` execution. Like, additional fast or partial index updates to make sure everything is up-to-date as it was a full reset.
 
-Right now the approach is that if some data had been updated, but index specification had not been changed, it would be much faster to perform manual partial index update inside data migrations or even manually after the deploy.
+```bash
+rake chewy:upgrade # upgrades all the existing indices
+rake chewy:upgrade[users] # upgrades UsersIndex only
+rake chewy:upgrade[users,places] # upgrades UsersIndex and PlacesIndex
+rake chewy:upgrade[-users,places] # upgrades every index in the application except specified ones
+```
+
+#### `chewy:update`
+
+It doesn't create indexes, it simply imports everything to the existing ones and fails if the index was not created before.
+
+Unlike `reset` or `upgrade` tasks, it is possible to pass type references to update the particular type. In index name is passed without the type specified, it will update all the types defined for this index.
+
+```bash
+rake chewy:update # updates all the existing indices
+rake chewy:update[users] # updates UsersIndex only
+rake chewy:update[users,places#city] # updates the whole UsersIndex and PlacesIndex::City type
+rake chewy:update[-users,places#city] # updates every index in the application except every type defined in UsersIndex and the rest of the types defined in PlacesIndex
+```
+
+#### `chewy:sync`
+
+Provides a way to synchronize outdated indexes with the source quickly and without doing a full reset.
+
+Arguments are similar to the ones taken by `chewy:update` task. It is possible to specify a particular type or a whole index.
+
+See [Chewy::Type::Syncer](lib/chewy/type/syncer.rb) for more details.
+
+```bash
+rake chewy:sync # synchronizes all the existing indices
+rake chewy:sync[users] # synchronizes UsersIndex only
+rake chewy:sync[users,places#city] # synchronizes the whole UsersIndex and PlacesIndex::City type
+rake chewy:sync[-users,places#city] # synchronizes every index in the application except every type defined in UsersIndex and the rest of the types defined in PlacesIndex
+```
+
+#### `chewy:deploy`
+
+This rake task is especially useful during the production deploy. It is a combination of `chewy:upgrade` and `chewy:sync` and the latter is called only for the indexes that were not reset during the first stage.
+
+It is not possible to specify any particular types/indexes for this task as it doesn't make much sense.
+
+Right now the approach is that if some data had been updated, but index definition was not changed (no changes satisfying the synchronization algorithm were done), it would be much faster to perform manual partial index update inside data migrations or even manually after the deploy.
 
 Also, there is always full reset alternative with `rake chewy:reset`.
+
+##### Parallelizing rake tasks
+
+Every task described above has its own parallel version. Every parallel rake task takes the number for processes for execution as the first argument and the rest of the arguments are exactly the same as for the non-parallel task version.
+
+To use this task it is require to install [https://github.com/grosser/parallel](https://github.com/grosser/parallel) gem to use these tasks.
+
+If the number of processes is not specified - `parallel` gem tries to automatically derive the number of processes to use when it is not explicitly defined.
+
+```bash
+rake chewy:parallel:reset
+rake chewy:parallel:upgrade[4]
+rake chewy:parallel:update[4,places#city]
+rake chewy:parallel:sync[4,-users]
+rake chewy:parallel:deploy[4] # performs parallel upgrade and parallel sync afterwards
+```
 
 ### Rspec integration
 

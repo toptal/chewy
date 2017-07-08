@@ -6,6 +6,8 @@
 
 ## Changes
 
+  * Parallel import and rake tasks.
+
   * `:shoryuken` async strategy (@josephchoe, #532)
 
   * Deprecate `Chewy::Index.build_index_name`.
@@ -19,13 +21,15 @@
 
   * Use normal YAML loading, for the config, we don't need the safe one.
 
-  * Consistency checks and synchronization: `rake chewy:sync`.
-
   * `default_root_options` option (@barthez, #526)
 
   * Partial indexing ability: it is possible to update only specified fields.
 
   * New cool `rake chewy:deploy` task.
+
+  * Selective reset (resets only if necessary): `rake chewy:upgrade`.
+
+  * Consistency checks and synchronization: `rake chewy:sync`.
 
   * Brand new request DSL. Supports ElasticSearch 2 and 5, better usability, architecture and docs.
 

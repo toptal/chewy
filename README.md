@@ -992,9 +992,9 @@ Also, there is always full reset alternative with `rake chewy:reset`.
 
 Every task described above has its own parallel version. Every parallel rake task takes the number for processes for execution as the first argument and the rest of the arguments are exactly the same as for the non-parallel task version.
 
-To use this task it is require to install [https://github.com/grosser/parallel](https://github.com/grosser/parallel) gem to use these tasks.
+[https://github.com/grosser/parallel](https://github.com/grosser/parallel) gem is required to use these tasks.
 
-If the number of processes is not specified - `parallel` gem tries to automatically derive the number of processes to use when it is not explicitly defined.
+If the number of processes is not specified explicitly - `parallel` gem tries to automatically derive the number of processes to use.
 
 ```bash
 rake chewy:parallel:reset

@@ -478,25 +478,14 @@ describe Chewy::Index::Actions do
     end
 
     context 'journaling' do
-      before do
-        begin
-          Chewy.client.indices.delete(index: Chewy::Journal.index_name)
-        rescue Elasticsearch::Transport::Transport::Errors::NotFound
-          nil
-        end
-      end
-
       specify do
         CitiesIndex.reset!
-
-        expect(Chewy.client.indices.exists?(index: Chewy::Journal.index_name)).to eq false
+        expect(Chewy::Stash::Journal.count).to eq(0)
       end
 
       specify do
         CitiesIndex.reset! journal: true
-
-        expect(Chewy.client.indices.exists?(index: Chewy::Journal.index_name)).to eq true
-        expect(Chewy.client.count(index: Chewy::Journal.index_name)['count']).not_to eq 0
+        expect(Chewy::Stash::Journal.count).to be > 0
       end
     end
 

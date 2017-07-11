@@ -89,10 +89,12 @@ describe Chewy::Journal::Apply do
         let!(:journal_entries) do
           record = Chewy::Journal::Entry.since(time).first
           Array.new(count_of_checks) do |i|
-            r = record.dup
-            r.created_at = time.to_i + i
-            r.object_ids = [i]
-            r
+            Chewy::Stash::Journal.new(
+              record.attributes.merge(
+                'created_at' => time.to_i + i,
+                'object_ids' => [i]
+              )
+            )
           end
         end
 

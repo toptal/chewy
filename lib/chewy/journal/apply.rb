@@ -16,8 +16,8 @@ module Chewy
           stage += 1
           previous_entries.select { |entry| entry.created_at.to_i >= time }
           entries = Entry.group(Entry.since(time, options[:only]))
-          Entry.subtract(entries, previous_entries)
-          break if entries.length.zero?
+          entries = Entry.subtract(entries, previous_entries)
+          break if entries.empty?
           ActiveSupport::Notifications.instrument 'apply_journal.chewy', stage: stage
           entries.each { |entry| entry.index.import(entry.object_ids, journal: false) }
           break if options[:once]

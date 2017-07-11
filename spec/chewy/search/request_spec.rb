@@ -638,7 +638,22 @@ describe Chewy::Search::Request do
         expect(outer_payload).to eq(
           index: ProductsIndex,
           indexes: [ProductsIndex],
-          request: {index: ['products'], type: %w[product city country], body: {query: {match: {name: 'name3'}}}},
+          request: {index: ['products'], type: %w[product city country], body: {query: {match: {name: 'name3'}}}, refresh: true},
+          type: [ProductsIndex::Product, ProductsIndex::City, ProductsIndex::Country],
+          types: [ProductsIndex::Product, ProductsIndex::City, ProductsIndex::Country]
+        )
+      end
+
+      specify do
+        outer_payload = nil
+        ActiveSupport::Notifications.subscribe('delete_query.chewy') do |_name, _start, _finish, _id, payload|
+          outer_payload = payload
+        end
+        subject.query(match: {name: 'name3'}).delete_all(refresh: false)
+        expect(outer_payload).to eq(
+          index: ProductsIndex,
+          indexes: [ProductsIndex],
+          request: {index: ['products'], type: %w[product city country], body: {query: {match: {name: 'name3'}}}, refresh: false},
           type: [ProductsIndex::Product, ProductsIndex::City, ProductsIndex::Country],
           types: [ProductsIndex::Product, ProductsIndex::City, ProductsIndex::Country]
         )

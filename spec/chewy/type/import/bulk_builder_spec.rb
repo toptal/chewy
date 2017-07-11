@@ -54,6 +54,14 @@ describe Chewy::Type::Import::BulkBuilder do
           ])
         end
 
+        specify do
+          expect(subject.bulk_body(index_and_type: true)).to eq([
+            {index: {_index: 'places', _type: 'city', _id: 1, data: {'name' => 'City17', 'rating' => 42}}},
+            {index: {_index: 'places', _type: 'city', _id: 2, data: {'name' => 'City18', 'rating' => 42}}},
+            {delete: {_index: 'places', _type: 'city', _id: 3}}
+          ])
+        end
+
         context ':fields' do
           let(:fields) { %w[name] }
           specify do

@@ -22,11 +22,6 @@ describe Chewy::Journal do
           end
 
           Chewy.massacre
-          begin
-            Chewy.client.indices.delete(index: Chewy::Journal.index_name)
-          rescue Elasticsearch::Transport::Transport::Errors::NotFound
-            nil
-          end
           Chewy.settings[:prefix] = 'some_prefix'
           Timecop.freeze(time)
         end
@@ -56,7 +51,7 @@ describe Chewy::Journal do
 
             places_index.import
 
-            expect(Chewy.client.indices.exists?(index: Chewy::Journal.index_name)).to eq true
+            expect(Chewy::Stash.exists?).to eq true
 
             Timecop.freeze(update_time)
             cities.first.update_attributes!(name: 'Supername')
@@ -64,8 +59,7 @@ describe Chewy::Journal do
             Timecop.freeze(destroy_time)
             countries.last.destroy
 
-            journal_entries = Chewy.client.search(index: Chewy::Journal.index_name, type: Chewy::Journal.type_name, sort: 'created_at')['hits']['hits'].map { |r| r['_source'] }
-
+            journal_entries = Chewy::Stash::Journal.order(:created_at).hits.map { |r| r['_source'] }
             expected_journal = [
               {
                 'index_name' => "#{namespace}places",
@@ -132,39 +126,38 @@ describe Chewy::Journal do
               }
             ]
 
-            expect(Chewy.client.count(index: Chewy::Journal.index_name)['count']).to eq 9
+            expect(Chewy::Stash::Journal.count).to eq 9
             expect(journal_entries).to eq expected_journal
 
             journal_entries = Chewy::Journal::Entry.since(import_time)
-            expect(journal_entries.length).to eq 4
+            expect(journal_entries.size).to eq 4
             # we have only 2 types, so we can group all journal entries(4) into 2
-            expect(Chewy::Journal::Entry.group(journal_entries)).to eq [
-              Chewy::Journal::Entry.new('index_name' => "#{namespace}places",
-                                        'type_name' => 'city',
-                                        'action' => nil,
-                                        'object_ids' => [1, 2],
-                                        'created_at' => nil),
-              Chewy::Journal::Entry.new('index_name' => "#{namespace}places",
-                                        'type_name' => 'country',
-                                        'action' => 'delete',
-                                        'object_ids' => [1, 2, 3],
-                                        'created_at' => destroy_time.to_i)
-            ]
+            grouped_attributes = Chewy::Journal::Entry.group(journal_entries).map do |e|
+              e.attributes.except('id', '_score', '_explanation')
+            end
+            expect(grouped_attributes).to eq [{
+              'index_name' => "#{namespace}places",
+              'type_name' => 'city',
+              'action' => 'index',
+              'object_ids' => [1, 2],
+              'created_at' => update_time.to_i
+            }, {
+              'index_name' => "#{namespace}places",
+              'type_name' => 'country',
+              'action' => 'index',
+              'object_ids' => [1, 2, 3],
+              'created_at' => destroy_time.to_i
+            }]
 
             # simulate lost data
             Chewy.client.delete(index: "#{Chewy.settings[:prefix]}_places", type: 'city', id: 1, refresh: true)
-            expect(places_index::City.all.to_a.length).to eq 1
+            expect(places_index::City.count).to eq 1
 
             Chewy::Journal::Apply.since(time)
-            expect(places_index::City.all.to_a.length).to eq 2
+            expect(places_index::City.count).to eq 2
 
             expect(Chewy::Journal::Clean.until(import_time)).to eq 7
-            expect(Chewy.client.count(index: Chewy::Journal.index_name)['count']).to eq 2
-
-            expect(Chewy::Journal.delete!).to be_truthy
-            expect { Chewy::Journal.delete! }.to raise_error(Elasticsearch::Transport::Transport::Errors::NotFound)
-            expect(Chewy::Journal.delete).to eq false
-            expect(Chewy::Journal.exists?).to eq false
+            expect(Chewy::Stash::Journal.count).to eq 2
 
             Timecop.return
           end

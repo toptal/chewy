@@ -908,9 +908,10 @@ module Chewy
       # @see https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-delete-by-query.html
       # @see https://www.elastic.co/guide/en/elasticsearch/plugins/2.0/plugins-delete-by-query.html
       # @note The result hash is different for different API used.
+      # @param refresh [true, false] field names
       # @return [Hash] the result of query execution
-      def delete_all
-        request_body = only(WHERE_STORAGES).render
+      def delete_all(refresh: true)
+        request_body = only(WHERE_STORAGES).render.merge(refresh: refresh)
         ActiveSupport::Notifications.instrument 'delete_query.chewy',
           request: request_body, indexes: _indexes, types: _types,
           index: _indexes.one? ? _indexes.first : _indexes,

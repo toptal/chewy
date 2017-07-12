@@ -65,63 +65,63 @@ describe Chewy::Journal do
                 'index_name' => "#{namespace}places",
                 'type_name' => 'city',
                 'action' => 'index',
-                'object_ids' => [1],
+                'references' => ['1'],
                 'created_at' => time.to_i
               },
               {
                 'index_name' => "#{namespace}places",
                 'type_name' => 'city',
                 'action' => 'index',
-                'object_ids' => [2],
+                'references' => ['2'],
                 'created_at' => time.to_i
               },
               {
                 'index_name' => "#{namespace}places",
                 'type_name' => 'country',
                 'action' => 'index',
-                'object_ids' => [1],
+                'references' => ['1'],
                 'created_at' => time.to_i
               },
               {
                 'index_name' => "#{namespace}places",
                 'type_name' => 'country',
                 'action' => 'index',
-                'object_ids' => [2],
+                'references' => ['2'],
                 'created_at' => time.to_i
               },
               {
                 'index_name' => "#{namespace}places",
                 'type_name' => 'country',
                 'action' => 'index',
-                'object_ids' => [3],
+                'references' => ['3'],
                 'created_at' => time.to_i
               },
               {
                 'index_name' => "#{namespace}places",
                 'type_name' => 'city',
                 'action' => 'index',
-                'object_ids' => [1, 2],
+                'references' => %w[1 2],
                 'created_at' => import_time.to_i
               },
               {
                 'index_name' => "#{namespace}places",
                 'type_name' => 'country',
                 'action' => 'index',
-                'object_ids' => [1, 2, 3],
+                'references' => %w[1 2 3],
                 'created_at' => import_time.to_i
               },
               {
                 'index_name' => "#{namespace}places",
                 'type_name' => 'city',
                 'action' => 'index',
-                'object_ids' => [1],
+                'references' => ['1'],
                 'created_at' => update_time.to_i
               },
               {
                 'index_name' => "#{namespace}places",
                 'type_name' => 'country',
                 'action' => 'delete',
-                'object_ids' => [2],
+                'references' => ['2'],
                 'created_at' => destroy_time.to_i
               }
             ]
@@ -129,23 +129,23 @@ describe Chewy::Journal do
             expect(Chewy::Stash::Journal.count).to eq 9
             expect(journal_entries).to eq expected_journal
 
-            journal_entries = Chewy::Journal::Entry.since(import_time)
+            journal_entries = Chewy::Stash::Journal.entries(import_time)
             expect(journal_entries.size).to eq 4
             # we have only 2 types, so we can group all journal entries(4) into 2
-            grouped_attributes = Chewy::Journal::Entry.group(journal_entries).map do |e|
+            grouped_attributes = Chewy::Journal::Apply.group(journal_entries).map do |e|
               e.attributes.except('id', '_score', '_explanation')
             end
             expect(grouped_attributes).to eq [{
               'index_name' => "#{namespace}places",
               'type_name' => 'city',
               'action' => 'index',
-              'object_ids' => [1, 2],
+              'references' => %w[1 2],
               'created_at' => update_time.to_i
             }, {
               'index_name' => "#{namespace}places",
               'type_name' => 'country',
               'action' => 'index',
-              'object_ids' => [1, 2, 3],
+              'references' => %w[1 2 3],
               'created_at' => destroy_time.to_i
             }]
 
@@ -156,7 +156,9 @@ describe Chewy::Journal do
             Chewy::Journal::Apply.since(time)
             expect(places_index::City.count).to eq 2
 
-            expect(Chewy::Journal::Clean.until(import_time)).to eq 7
+            clean_response = Chewy::Stash::Journal.clean(import_time)
+            expect(clean_response['deleted'] || clean_response['_indices']['_all']['deleted']).to eq 7
+            Chewy.client.indices.refresh
             expect(Chewy::Stash::Journal.count).to eq 2
 
             Timecop.return

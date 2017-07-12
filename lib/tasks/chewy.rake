@@ -86,11 +86,6 @@ namespace :chewy do
 
   desc 'Cleans journal index. It accepts timestamp until which journal will be cleaned'
   task clean_journal: :environment do |_task, args|
-    timestamp = args.extras.first
-    if timestamp
-      Chewy::Journal::Clean.until(Time.at(timestamp.to_i))
-    else
-      Chewy::Journal.delete!
-    end
+    Chewy::Stash::Journal.clean(args.extras.first)
   end
 end

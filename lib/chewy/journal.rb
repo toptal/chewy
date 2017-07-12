@@ -1,6 +1,4 @@
-require 'chewy/journal/entry'
 require 'chewy/journal/apply'
-require 'chewy/journal/clean'
 
 module Chewy
   class Journal
@@ -17,7 +15,7 @@ module Chewy
           index_name: @type.index.derivable_name,
           type_name: @type.type_name,
           action: action,
-          object_ids: identify(objects),
+          references: identify(objects).map(&:to_json),
           created_at: Time.now.to_i
         }
       end.compact)

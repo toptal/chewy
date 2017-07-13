@@ -21,6 +21,9 @@ module Chewy
     #   In rails 4.0 time converted to json with the precision of seconds
     #   without milliseconds used, so outdated check is not so precise there.
     #
+    #   ATTENTION: synchronization may be slow in case when synchronized tables
+    #   are missing compound index on primary key and `outdated_sync_field`.
+    #
     # @see Chewy::Type::Actions::ClassMethods#sync
     class Syncer
       DEFAULT_SYNC_BATCH_SIZE = 20_000

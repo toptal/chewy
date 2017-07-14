@@ -3,8 +3,10 @@ module Chewy
     module Clean
       DELETE_BATCH_SIZE = 10_000
 
-      def until(time)
-        query = Query.new(time, :lte, nil).to_h
+      # @param time [Integer]
+      # @param indices [Array<Chewy::Index>] which indices should only be cleaned
+      def until(time, indices = nil)
+        query = Query.new(time, :lte, indices).to_h
         search_query = query.merge(_source: [], size: DELETE_BATCH_SIZE)
         index_name = Journal.index_name
 

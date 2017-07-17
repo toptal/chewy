@@ -181,7 +181,6 @@ module Chewy
               locals.push(proc.binding.eval(variable.to_s))
               source = replace_local(source, variable, locals.size - 1)
             end
-
           end
 
           Unparser.unparse(source)

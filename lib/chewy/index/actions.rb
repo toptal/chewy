@@ -163,6 +163,8 @@ module Chewy
         #
         def reset!(suffix = nil, journal: false, **options)
           result = if suffix.present? && (indexes = self.indexes).present?
+            time = Time.now
+
             create! suffix, alias: false
 
             general_name = index_name
@@ -179,6 +181,8 @@ module Chewy
               {add: {index: suffixed_name, alias: general_name}}
             ]}
             client.indices.delete index: indexes if indexes.present?
+
+            Chewy::Journal.new(self).apply(time)
             result
           else
             purge! suffix

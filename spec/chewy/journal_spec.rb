@@ -66,63 +66,63 @@ describe Chewy::Journal do
                 'type_name' => 'city',
                 'action' => 'index',
                 'references' => ['1'],
-                'created_at' => time.to_i
+                'created_at' => time.utc.as_json
               },
               {
                 'index_name' => "#{namespace}places",
                 'type_name' => 'city',
                 'action' => 'index',
                 'references' => ['2'],
-                'created_at' => time.to_i
+                'created_at' => time.utc.as_json
               },
               {
                 'index_name' => "#{namespace}places",
                 'type_name' => 'country',
                 'action' => 'index',
                 'references' => ['1'],
-                'created_at' => time.to_i
+                'created_at' => time.utc.as_json
               },
               {
                 'index_name' => "#{namespace}places",
                 'type_name' => 'country',
                 'action' => 'index',
                 'references' => ['2'],
-                'created_at' => time.to_i
+                'created_at' => time.utc.as_json
               },
               {
                 'index_name' => "#{namespace}places",
                 'type_name' => 'country',
                 'action' => 'index',
                 'references' => ['3'],
-                'created_at' => time.to_i
+                'created_at' => time.utc.as_json
               },
               {
                 'index_name' => "#{namespace}places",
                 'type_name' => 'city',
                 'action' => 'index',
                 'references' => %w[1 2],
-                'created_at' => import_time.to_i
+                'created_at' => import_time.utc.as_json
               },
               {
                 'index_name' => "#{namespace}places",
                 'type_name' => 'country',
                 'action' => 'index',
                 'references' => %w[1 2 3],
-                'created_at' => import_time.to_i
+                'created_at' => import_time.utc.as_json
               },
               {
                 'index_name' => "#{namespace}places",
                 'type_name' => 'city',
                 'action' => 'index',
                 'references' => ['1'],
-                'created_at' => update_time.to_i
+                'created_at' => update_time.utc.as_json
               },
               {
                 'index_name' => "#{namespace}places",
                 'type_name' => 'country',
                 'action' => 'delete',
                 'references' => ['2'],
-                'created_at' => destroy_time.to_i
+                'created_at' => destroy_time.utc.as_json
               }
             ]
 
@@ -131,37 +131,134 @@ describe Chewy::Journal do
 
             journal_entries = Chewy::Stash::Journal.entries(import_time)
             expect(journal_entries.size).to eq 4
-            # we have only 2 types, so we can group all journal entries(4) into 2
-            grouped_attributes = Chewy::Journal::Apply.group(journal_entries).map do |e|
-              e.attributes.except('id', '_score', '_explanation')
-            end
-            expect(grouped_attributes).to eq [{
-              'index_name' => "#{namespace}places",
-              'type_name' => 'city',
-              'action' => 'index',
-              'references' => %w[1 2],
-              'created_at' => update_time.to_i
-            }, {
-              'index_name' => "#{namespace}places",
-              'type_name' => 'country',
-              'action' => 'index',
-              'references' => %w[1 2 3],
-              'created_at' => destroy_time.to_i
-            }]
 
             # simulate lost data
             Chewy.client.delete(index: "#{Chewy.settings[:prefix]}_places", type: 'city', id: 1, refresh: true)
             expect(places_index::City.count).to eq 1
 
-            Chewy::Journal::Apply.since(time)
+            described_class.new.apply(time)
             expect(places_index::City.count).to eq 2
 
-            clean_response = Chewy::Stash::Journal.clean(import_time)
+            clean_response = described_class.new.clean(import_time)
             expect(clean_response['deleted'] || clean_response['_indices']['_all']['deleted']).to eq 7
             Chewy.client.indices.refresh
             expect(Chewy::Stash::Journal.count).to eq 2
 
             Timecop.return
+          end
+        end
+      end
+    end
+  end
+
+  context do
+    before { Chewy.massacre }
+    before do
+      stub_model(:city) do
+        update_index 'cities', :self
+      end
+      stub_model(:country) do
+        update_index 'countries', :self
+      end
+
+      stub_index(:cities) do
+        define_type City do
+          default_import_options journal: true
+        end
+      end
+      stub_index(:countries) do
+        define_type Country do
+          default_import_options journal: true
+        end
+      end
+    end
+
+    describe '.since' do
+      context 'with an index filter' do
+        let(:time) { Time.now }
+
+        before { Timecop.freeze(time) }
+        after { Timecop.return }
+
+        specify do
+          Chewy.strategy(:urgent) do
+            Array.new(2) { |i| City.create!(id: i + 1) }
+            Array.new(2) { |i| Country.create!(id: i + 1) }
+
+            # simulate lost data
+            Chewy.client.delete(index: 'cities', type: 'city', id: 1, refresh: true)
+            Chewy.client.delete(index: 'countries', type: 'country', id: 1, refresh: true)
+            expect(CitiesIndex.all.to_a.length).to eq 1
+            expect(CountriesIndex.all.to_a.length).to eq 1
+
+            # Replay on specific index
+            described_class.new(CitiesIndex).apply(time)
+            expect(CitiesIndex.all.to_a.length).to eq 2
+            expect(CountriesIndex.all.to_a.length).to eq 1
+
+            # Replay on both
+            Chewy.client.delete(index: 'cities', type: 'city', id: 1, refresh: true)
+            expect(CitiesIndex.all.to_a.length).to eq 1
+            described_class.new(CitiesIndex, CountriesIndex).apply(time)
+            expect(CitiesIndex.all.to_a.length).to eq 2
+            expect(CountriesIndex.all.to_a.length).to eq 2
+          end
+        end
+      end
+
+      context 'retries' do
+        let(:time) { Time.now.to_i }
+        before do
+          Timecop.freeze
+          Chewy.strategy(:urgent)
+          City.create!(id: 1)
+        end
+
+        after do
+          Chewy.strategy.pop
+          Timecop.return
+        end
+
+        specify 'journal was cleaned after the first call' do
+          expect(Chewy::Stash::Journal)
+            .to receive(:entries).exactly(2).and_call_original
+          described_class.new.apply(time)
+        end
+
+        context 'endless journal' do
+          let(:count_of_checks) { 10 } # default
+          let!(:journal_entries) do
+            record = Chewy::Stash::Journal.entries(time).first
+            Array.new(count_of_checks) do |i|
+              Chewy::Stash::Journal.new(
+                record.attributes.merge(
+                  'created_at' => time.to_i + i,
+                  'references' => [i.to_s]
+                )
+              )
+            end
+          end
+
+          specify '10 retries by default' do
+            expect(Chewy::Stash::Journal)
+              .to receive(:entries).exactly(count_of_checks) { [journal_entries.shift].compact }
+            described_class.new.apply(time)
+          end
+
+          specify 'with :once parameter set' do
+            expect(Chewy::Stash::Journal)
+              .to receive(:entries).exactly(1) { [journal_entries.shift].compact }
+            described_class.new.apply(time, retries: 1)
+          end
+
+          context 'with retries parameter set' do
+            let(:retries) { 5 }
+
+            specify do
+              expect(Chewy::Stash::Journal)
+                .to receive(:entries).exactly(retries) { [journal_entries.shift].compact }
+              described_class.new.apply(time, retries: retries)
+            end
           end
         end
       end

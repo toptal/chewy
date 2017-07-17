@@ -108,11 +108,13 @@ module Chewy
     #   Chewy.derive_types('places') # => [PlacesIndex::City, PlacesIndex::Country]
     #   Chewy.derive_types('places#city') # => [PlacesIndex::City]
     #
-    # @param name [String] string type identifier
+    # @param from [String] string type identifier
     # @raise [Chewy::UnderivableType] in cases when it is impossible to find index or type
     # @return [Array<Chewy::Type>] an array of derived types
-    def derive_types(name)
-      index_name, type_name = name.split('#', 2)
+    def derive_types(from)
+      return from.types if from.is_a?(Class) && (from < Chewy::Index || from < Chewy::Type)
+
+      index_name, type_name = from.split('#', 2)
       class_name = "#{index_name.camelize.gsub(/Index\z/, '')}Index"
       index = class_name.safe_constantize
       raise Chewy::UnderivableType, "Can not find index named `#{class_name}`" unless index && index < Chewy::Index

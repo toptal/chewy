@@ -23,9 +23,9 @@ module Chewy
         # Returns ES API-ready bulk requiest body.
         # @see https://github.com/elastic/elasticsearch-ruby/blob/master/elasticsearch-api/lib/elasticsearch/api/actions/bulk.rb
         # @return [Array<Hash>] bulk body
-        def bulk_body(index_and_type: false)
-          @bulk_body ||= @index.flat_map(&method(:index_entry).curry[index_and_type]).concat(
-            @delete.flat_map(&method(:delete_entry).curry[index_and_type])
+        def bulk_body
+          @bulk_body ||= @index.flat_map(&method(:index_entry)).concat(
+            @delete.flat_map(&method(:delete_entry))
           )
         end
 
@@ -57,12 +57,8 @@ module Chewy
           end
         end
 
-        def index_entry(index_and_type, object)
-          entry = if index_and_type
-            {_index: index_name, _type: type_name}
-          else
-            {}
-          end
+        def index_entry(object)
+          entry = {}
           entry[:_id] = index_object_ids[object] if index_object_ids[object]
 
           if parents
@@ -83,12 +79,8 @@ module Chewy
           end
         end
 
-        def delete_entry(index_and_type, object)
-          entry = if index_and_type
-            {_index: index_name, _type: type_name}
-          else
-            {}
-          end
+        def delete_entry(object)
+          entry = {}
           entry[:_id] = entry_id(object)
           entry[:_id] ||= object.as_json
 

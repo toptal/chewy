@@ -50,6 +50,9 @@ describe Chewy do
     specify { expect { described_class.derive_types('borogoves#developers') }.to raise_error(Chewy::UnderivableType, /Borogoves/) }
     specify { expect { described_class.derive_types('developers#borogoves') }.to raise_error(Chewy::UnderivableType, /DevelopersIndex.*borogoves/) }
 
+    specify { expect(described_class.derive_types(Namespace::AutocompleteIndex)).to match_array(Namespace::AutocompleteIndex.types) }
+    specify { expect(described_class.derive_types(DevelopersIndex::Developer)).to eq([DevelopersIndex::Developer]) }
+
     specify { expect(described_class.derive_types('developers_index')).to eq([DevelopersIndex::Developer]) }
     specify { expect(described_class.derive_types('developers')).to eq([DevelopersIndex::Developer]) }
     specify { expect(described_class.derive_types('developers#developer')).to eq([DevelopersIndex::Developer]) }

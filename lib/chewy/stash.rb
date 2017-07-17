@@ -20,27 +20,35 @@ module Chewy
 
       # Cleans up all the journal entries until the specified time. If nothing is
       # specified - cleans up everything.
-      # @param since_time [Integer, Time, DateTime] the time top boundary
-      # @param indices [Chewy::Index, Array<Chewy::Index>] indexes to clean up journal entries for
-      def self.clean(until_time = nil, indices: [])
-        scope = for_indices(indices)
-        scope = scope.filter(range: {created_at: {lte: until_time.to_i}}) if until_time
+      #
+      # @param since_time [Time, DateTime] the time top boundary
+      # @param only [Chewy::Index, Array<Chewy::Index>] indexes to clean up journal entries for
+      def self.clean(until_time = nil, only: [])
+        scope = self.for(only)
+        scope = scope.filter(range: {created_at: {lte: until_time}}) if until_time
         scope.delete_all
       end
 
       # Loads all entries since the specified time.
-      # @param since_time [Integer, Time, DateTime] a timestamp from which we load a journal
-      # @param indices [Chewy::Index, Array<Chewy::Index>] journal entries related to these indices will be loaded only
-      def self.entries(since_time, indices: [])
-        for_indices(indices).filter(range: {created_at: {gte: since_time.to_i}})
+      #
+      # @param since_time [Time, DateTime] a timestamp from which we load a journal
+      # @param only [Chewy::Index, Array<Chewy::Index>] journal entries related to these indices will be loaded only
+      def self.entries(since_time, only: [])
+        self.for(only).filter(range: {created_at: {gte: since_time}})
       end
 
       # Selects all the journal entries for the specified indices.
+      #
       # @param indices [Chewy::Index, Array<Chewy::Index>]
-      def self.for_indices(*indices)
-        indices = indices.flatten(1).compact
+      def self.for(*something)
+        types = something.flatten(1).compact.flat_map { |s| Chewy.derive_types(s) }
         scope = all
-        scope = scope.filter(terms: {index_name: indices.map(&:derivable_name)}) if indices.present?
+        types.group_by(&:index).each do |index, index_types|
+          scope = scope.or(
+            filter(term: {index_name: index.derivable_name})
+            .filter(terms: {type_name: index_types.map(&:type_name)})
+          )
+        end
         scope
       end
 

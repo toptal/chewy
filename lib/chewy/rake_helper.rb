@@ -244,11 +244,7 @@ module Chewy
 
       def reset_one(index, output, parallel: false)
         output.puts "Resetting #{index}"
-        time = Time.now
-        index.reset!((time.to_f * 1000).round, parallel: parallel)
-        return unless index.journal?
-        Chewy::Journal.create
-        Chewy::Journal::Apply.since(time, only: [index])
+        index.reset!((Time.now.to_f * 1000).round, parallel: parallel)
       end
     end
   end

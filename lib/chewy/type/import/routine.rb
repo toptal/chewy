@@ -80,7 +80,11 @@ module Chewy
           bulk_builder = BulkBuilder.new(@type, index: index, delete: delete, fields: @options[:update_fields])
           bulk_body = bulk_builder.bulk_body
 
-          bulk_body.concat(journal_bulk(index: index, delete: delete))
+          if @options[:journal]
+            journal_builder = JournalBuilder.new(@type, index: index, delete: delete)
+            bulk_body.concat(journal_builder.bulk_body)
+          end
+
           bulk_body.unshift(*flush_leftovers)
 
           perform_bulk(bulk_body) do |response|
@@ -103,13 +107,6 @@ module Chewy
         end
 
       private
-
-        def journal_bulk(action_objects)
-          return [] unless @options[:journal]
-          journal = Chewy::Journal.new(@type)
-          journal.add(action_objects)
-          journal.bulk_body
-        end
 
         def flush_leftovers
           leftovers = @leftovers

@@ -9,8 +9,10 @@ describe Chewy::Stash::Journal, :orm do
 
   before do
     stub_model(:city)
-    stub_index(:cities) { define_type City }
-    stub_index(:countries) { define_type :country }
+    stub_index(:places) do
+      define_type City
+      define_type :country
+    end
     stub_index(:users) { define_type :user }
   end
 
@@ -18,9 +20,9 @@ describe Chewy::Stash::Journal, :orm do
   after { Timecop.return }
 
   before do
-    CitiesIndex::City.import!(City.new(id: 1, name: 'City'), journal: true)
+    PlacesIndex::City.import!(City.new(id: 1, name: 'City'), journal: true)
     Timecop.travel(Time.now + 1.minute) do
-      CountriesIndex::Country.import!([id: 2, name: 'Country'], journal: true)
+      PlacesIndex::Country.import!([id: 2, name: 'Country'], journal: true)
     end
     Timecop.travel(Time.now + 2.minutes) do
       UsersIndex::User.import!([id: 3, name: 'User'], journal: true)
@@ -32,11 +34,11 @@ describe Chewy::Stash::Journal, :orm do
     specify { expect(fetch_deleted_number(described_class.clean(Time.now - 30.seconds))).to eq(0) }
     specify { expect(fetch_deleted_number(described_class.clean(Time.now + 30.seconds))).to eq(1) }
     specify { expect(fetch_deleted_number(described_class.clean(Time.now + 90.seconds))).to eq(2) }
-    specify { expect(fetch_deleted_number(described_class.clean(indices: UsersIndex))).to eq(1) }
-    specify { expect(fetch_deleted_number(described_class.clean(indices: [CitiesIndex, UsersIndex]))).to eq(2) }
+    specify { expect(fetch_deleted_number(described_class.clean(only: UsersIndex))).to eq(1) }
+    specify { expect(fetch_deleted_number(described_class.clean(only: [PlacesIndex::City, UsersIndex]))).to eq(2) }
 
-    specify { expect(fetch_deleted_number(described_class.clean(Time.now + 30.seconds, indices: CountriesIndex))).to eq(0) }
-    specify { expect(fetch_deleted_number(described_class.clean(Time.now + 30.seconds, indices: CitiesIndex))).to eq(1) }
+    specify { expect(fetch_deleted_number(described_class.clean(Time.now + 30.seconds, only: PlacesIndex::Country))).to eq(0) }
+    specify { expect(fetch_deleted_number(described_class.clean(Time.now + 30.seconds, only: PlacesIndex::City))).to eq(1) }
   end
 
   describe '.entries' do
@@ -54,22 +56,23 @@ describe Chewy::Stash::Journal, :orm do
     end
 
     specify do
-      expect(described_class.entries(Time.now - 30.seconds, indices: UsersIndex).map(&:references))
+      expect(described_class.entries(Time.now - 30.seconds, only: UsersIndex).map(&:references))
         .to contain_exactly([{'id' => 3, 'name' => 'User'}])
     end
     specify do
-      expect(described_class.entries(Time.now - 30.seconds, indices: [CitiesIndex, UsersIndex]).map(&:references))
+      expect(described_class.entries(Time.now - 30.seconds, only: [PlacesIndex::City, UsersIndex]).map(&:references))
         .to contain_exactly([1], [{'id' => 3, 'name' => 'User'}])
     end
     specify do
-      expect(described_class.entries(Time.now + 30.seconds, indices: [CitiesIndex, UsersIndex]).map(&:references))
+      expect(described_class.entries(Time.now + 30.seconds, only: [PlacesIndex::City, UsersIndex]).map(&:references))
         .to contain_exactly([{'id' => 3, 'name' => 'User'}])
     end
   end
 
-  describe '.for_indices' do
-    specify { expect(described_class.for_indices(UsersIndex).map(&:index_name)).to eq(['users']) }
-    specify { expect(described_class.for_indices(CitiesIndex, UsersIndex).map(&:index_name)).to contain_exactly('cities', 'users') }
+  describe '.for' do
+    specify { expect(described_class.for(UsersIndex).map(&:index_name)).to eq(['users']) }
+    specify { expect(described_class.for(PlacesIndex).map(&:type_name)).to contain_exactly('city', 'country') }
+    specify { expect(described_class.for(PlacesIndex::City, UsersIndex).map(&:index_name)).to contain_exactly('places', 'users') }
   end
 
   describe '#derivable_type_name' do
@@ -77,20 +80,20 @@ describe Chewy::Stash::Journal, :orm do
   end
 
   describe '#type' do
-    let(:index_name) { 'countries' }
+    let(:index_name) { 'users' }
     let(:type_name) { 'city' }
     subject { described_class.new('index_name' => index_name, 'type_name' => type_name).type }
 
     specify { expect { subject }.to raise_error(Chewy::UnderivableType) }
 
     context do
-      let(:index_name) { 'cities' }
-      it { is_expected.to eq(CitiesIndex::City) }
+      let(:index_name) { 'places' }
+      it { is_expected.to eq(PlacesIndex::City) }
     end
   end
 
   describe '#merge' do
-    let(:time) { Time.now.to_i }
+    let(:time) { Time.now }
     let(:index_name) { 'index' }
     let(:type_name) { 'type' }
     let(:references) { [1] }

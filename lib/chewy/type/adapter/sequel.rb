@@ -34,7 +34,7 @@ module Chewy
         end
 
         def full_column_name(column)
-          "#{target.table_name}__#{column}".to_sym
+          ::Sequel.qualify(target.table_name, column)
         end
 
         def all_scope

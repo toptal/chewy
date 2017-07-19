@@ -40,8 +40,7 @@ module Chewy
       EXTRA_STORAGES = %i[aggs suggest].freeze
       # An array of storage names that are changing the returned hist collection in any way.
       WHERE_STORAGES = %i[
-        query filter post_filter types min_score rescore
-        indices_boost
+        query filter post_filter none types min_score rescore indices_boost
       ].freeze
 
       delegate :hits, :wrappers, :objects, :records, :documents,
@@ -952,19 +951,15 @@ module Chewy
       end
 
       def perform(additional = {})
-        if parameters[:none].value
-          {}
-        else
-          request_body = render.merge(additional)
-          ActiveSupport::Notifications.instrument 'search_query.chewy',
-            request: request_body, indexes: _indexes, types: _types,
-            index: _indexes.one? ? _indexes.first : _indexes,
-            type: _types.one? ? _types.first : _types do
-            begin
-              Chewy.client.search(request_body)
-            rescue Elasticsearch::Transport::Transport::Errors::NotFound
-              {}
-            end
+        request_body = render.merge(additional)
+        ActiveSupport::Notifications.instrument 'search_query.chewy',
+          request: request_body, indexes: _indexes, types: _types,
+          index: _indexes.one? ? _indexes.first : _indexes,
+          type: _types.one? ? _types.first : _types do
+          begin
+            Chewy.client.search(request_body)
+          rescue Elasticsearch::Transport::Transport::Errors::NotFound
+            {}
           end
         end
       end

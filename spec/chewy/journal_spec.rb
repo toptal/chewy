@@ -129,7 +129,7 @@ describe Chewy::Journal do
             expect(Chewy::Stash::Journal.count).to eq 9
             expect(journal_entries).to eq expected_journal
 
-            journal_entries = Chewy::Stash::Journal.entries(import_time)
+            journal_entries = Chewy::Stash::Journal.entries(import_time - 1)
             expect(journal_entries.size).to eq 4
 
             # simulate lost data
@@ -173,7 +173,9 @@ describe Chewy::Journal do
       end
     end
 
-    describe '.since' do
+    describe '#apply' do
+      specify { expect(described_class.new(CitiesIndex).apply(2.minutes.ago)).to eq(0) }
+
       context 'with an index filter' do
         let(:time) { Time.now }
 
@@ -192,14 +194,14 @@ describe Chewy::Journal do
             expect(CountriesIndex.all.to_a.length).to eq 1
 
             # Replay on specific index
-            described_class.new(CitiesIndex).apply(time)
+            expect(described_class.new(CitiesIndex).apply(time)).to eq(2)
             expect(CitiesIndex.all.to_a.length).to eq 2
             expect(CountriesIndex.all.to_a.length).to eq 1
 
             # Replay on both
             Chewy.client.delete(index: 'cities', type: 'city', id: 1, refresh: true)
             expect(CitiesIndex.all.to_a.length).to eq 1
-            described_class.new(CitiesIndex, CountriesIndex).apply(time)
+            expect(described_class.new(CitiesIndex, CountriesIndex).apply(time)).to eq(4)
             expect(CitiesIndex.all.to_a.length).to eq 2
             expect(CountriesIndex.all.to_a.length).to eq 2
           end
@@ -220,9 +222,8 @@ describe Chewy::Journal do
         end
 
         specify 'journal was cleaned after the first call' do
-          expect(Chewy::Stash::Journal)
-            .to receive(:entries).exactly(2).and_call_original
-          described_class.new.apply(time)
+          expect(Chewy::Stash::Journal).to receive(:entries).exactly(2).and_call_original
+          expect(described_class.new.apply(time)).to eq(1)
         end
 
         context 'endless journal' do
@@ -242,13 +243,13 @@ describe Chewy::Journal do
           specify '10 retries by default' do
             expect(Chewy::Stash::Journal)
               .to receive(:entries).exactly(count_of_checks) { [journal_entries.shift].compact }
-            described_class.new.apply(time)
+            expect(described_class.new.apply(time)).to eq(10)
           end
 
           specify 'with :once parameter set' do
             expect(Chewy::Stash::Journal)
               .to receive(:entries).exactly(1) { [journal_entries.shift].compact }
-            described_class.new.apply(time, retries: 1)
+            expect(described_class.new.apply(time, retries: 1)).to eq(1)
           end
 
           context 'with retries parameter set' do
@@ -257,7 +258,7 @@ describe Chewy::Journal do
             specify do
               expect(Chewy::Stash::Journal)
                 .to receive(:entries).exactly(retries) { [journal_entries.shift].compact }
-              described_class.new.apply(time, retries: retries)
+              expect(described_class.new.apply(time, retries: retries)).to eq(5)
             end
           end
         end

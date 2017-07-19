@@ -116,14 +116,6 @@ module Chewy
         def type_root
           @type_root = @type.send(:build_root)
         end
-
-        def index_name
-          @index_name ||= @type.index_name
-        end
-
-        def type_name
-          @type_name ||= @type.type_name
-        end
       end
     end
   end

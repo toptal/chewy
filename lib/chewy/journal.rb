@@ -7,30 +7,33 @@ module Chewy
   #   journal.clean
   #
   class Journal
-    # @param only [Array<String, Chewy::Index, Chewy::Type>] indexes/types or even string references to perform actions on.
+    # @param only [Array<String, Chewy::Index, Chewy::Type>] indexes/types or even string references to perform actions on
     def initialize(*only)
       @only = only
     end
 
-    # Applies all changes that were done since some moment to the specified
-    # indexes/types.
+    # Applies all changes that were done since the specified time to the
+    # specified indexes/types.
     #
     # @param since_time [Time, DateTime] timestamp from which changes will be applied
-    # @param retries [Integer] maximum number of attempts to make journal empty. By default is set to 10
-    def apply(since_time, retries: 10)
-      previous_entries = []
-      stage = 0
-      while stage < retries
+    # @param retries [Integer] maximum number of attempts to make journal empty, 10 by default
+    # @return [Integer] the amount of journal entries found
+    def apply(since_time, retries: 10, **import_options)
+      stage = 1
+      since_time -= 1
+      count = 0
+      while stage <= retries
+        entries = Chewy::Stash::Journal.entries(since_time, only: @only).to_a.presence or break
+        count += entries.size
+        groups = reference_groups(entries)
+        ActiveSupport::Notifications.instrument 'apply_journal.chewy', stage: stage, groups: groups
+        groups.each do |type, references|
+          type.import(references, import_options.merge(journal: false))
+        end
         stage += 1
-        previous_entries.select { |entry| entry.created_at.to_i >= since_time }
-        entries = group(Chewy::Stash::Journal.entries(since_time, only: @only))
-        entries = subtract(entries, previous_entries)
-        break if entries.empty?
-        ActiveSupport::Notifications.instrument 'apply_journal.chewy', stage: stage
-        entries.each { |entry| entry.type.import(entry.references, journal: false) }
-        since_time = recent_timestamp(entries)
-        previous_entries = entries
+        since_time = entries.map(&:created_at).max
       end
+      count
     end
 
     # Cleans journal for the specified indexes/types.
@@ -43,25 +46,10 @@ module Chewy
 
   private
 
-    def group(entries)
-      entries.group_by(&:derivable_type_name).map do |_, grouped_entries|
-        grouped_entries.reduce(:merge)
-      end
-    end
-
-    def subtract(from, what)
-      return from if what.empty?
-      from.map do |from_entry|
-        ids = from_entry.references
-        what.each do |what_entry|
-          ids -= what_entry.references if from_entry.derivable_type_name == what_entry.derivable_type_name
-        end
-        from_entry.class.new(from_entry.attributes.merge('references' => ids.map(&:to_json))) if ids.present?
-      end.compact
-    end
-
-    def recent_timestamp(entries)
-      entries.map { |entry| entry.created_at.to_i }.max
+    def reference_groups(entries)
+      entries.group_by(&:type).map do |type, grouped_entries|
+        [type, grouped_entries.map(&:references).inject(:|)]
+      end.to_h
     end
   end
 end

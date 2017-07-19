@@ -101,7 +101,7 @@ module Chewy
       #
       # @return [Hash] request body
       def render
-        body = @storages.except(:filter, :query).values.inject({}) do |result, storage|
+        body = @storages.except(:filter, :query, :none).values.inject({}) do |result, storage|
           result.merge!(storage.render || {})
         end
         body.merge!(render_query || {})
@@ -127,6 +127,10 @@ module Chewy
       end
 
       def render_query
+        none = @storages[:none].render
+
+        return none if none
+
         filter = @storages[:filter].render
         query = @storages[:query].render
 

@@ -43,4 +43,8 @@ describe Chewy::Type::Actions, :orm do
         .and_delete(cities.first).only
     end
   end
+
+  describe '.journal' do
+    specify { expect(CitiesIndex::City.journal).to be_a(Chewy::Journal) }
+  end
 end

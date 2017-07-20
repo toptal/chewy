@@ -19,3 +19,4 @@ tmp
 .rvmrc
 _site
 .sass-cache
+file::memory:?cache=shared

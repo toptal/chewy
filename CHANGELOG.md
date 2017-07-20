@@ -4,6 +4,8 @@
 
   * Changed behavior of `Chewy::Index.index_name`, it doesn't cache the values anymore.
 
+  * Journal interfaces, related code and rake tasks were completely refactored and are not compatible with the previous version.
+
 ## Changes
 
   * Parallel import and rake tasks.

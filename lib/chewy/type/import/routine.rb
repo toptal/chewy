@@ -64,7 +64,7 @@ module Chewy
         # Creates the journal index and the type corresponding index if necessary.
         # @return [Object] whatever
         def create_indexes!
-          Chewy::Journal.create if @options[:journal]
+          Chewy::Stash.create if @options[:journal]
           return if Chewy.configuration[:skip_index_creation_on_import]
           @type.index.create!(@bulk_options.slice(:suffix)) unless @type.index.exists?
         end
@@ -80,7 +80,11 @@ module Chewy
           bulk_builder = BulkBuilder.new(@type, index: index, delete: delete, fields: @options[:update_fields])
           bulk_body = bulk_builder.bulk_body
 
-          bulk_body.concat(journal_bulk(index: index, delete: delete))
+          if @options[:journal]
+            journal_builder = JournalBuilder.new(@type, index: index, delete: delete)
+            bulk_body.concat(journal_builder.bulk_body)
+          end
+
           bulk_body.unshift(*flush_leftovers)
 
           perform_bulk(bulk_body) do |response|
@@ -103,13 +107,6 @@ module Chewy
         end
 
       private
-
-        def journal_bulk(action_objects)
-          return [] unless @options[:journal]
-          journal = Chewy::Journal.new(@type)
-          journal.add(action_objects)
-          journal.bulk_body
-        end
 
         def flush_leftovers
           leftovers = @leftovers

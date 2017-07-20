@@ -64,6 +64,13 @@ module Chewy
         @derivable_name ||= [index.derivable_name, type_name].join('#') if index && index.derivable_name
       end
 
+      # This method is an API shared with {Chewy::Index}, added for convenience.
+      #
+      # @return [Chewy::Type] array containing itself
+      def types
+        [self]
+      end
+
       # Returns list of public class methods defined in current type
       #
       def scopes
@@ -104,10 +111,6 @@ module Chewy
         end
       rescue NotImplementedError
         super
-      end
-
-      def journal?
-        _default_import_options.fetch(:journal) { Chewy.configuration[:journal] }
       end
     end
   end

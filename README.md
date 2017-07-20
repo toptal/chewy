@@ -50,6 +50,7 @@ Chewy is an ODM and wrapper for [the official Elasticsearch client](https://gith
     * [chewy:sync](#chewysync)
     * [chewy:deploy](#chewydeploy)
     * [Parallelizing rake tasks](#parallelizing-rake-tasks)
+    * [chewy:journal](#chewyjournal)
   * [Rspec integration](#rspec-integration)
   * [Minitest integration](#minitest-integration)
 * [TODO a.k.a coming soon](#todo-aka-coming-soon)
@@ -573,12 +574,9 @@ class CityIndex
 end
 ```
 
-You may be wondering why do you need it? The answer is simple: Not to lose the data.
-Imagine that:
-You reset your index in Zero Downtime manner (to separate index), and meantime somebody keeps updating the data frequently (to old index). So all these actions will be written to the journal index and you'll be able to apply them after index reset with `Chewy::Journal::Apply.since(1.hour.ago.to_i)`.
+You may be wondering why do you need it? The answer is simple: not to lose the data.
 
-For index reset journaling is turned off even if you set `journal: true` in `config/chewy.yml` or in `default_import_options`.
-You can change it only if you pass `journal: true` parameter explicitly to `#import`.
+Imagine that you reset your index in a zero-downtime manner (to separate index), and at the meantime somebody keeps updating the data frequently (to old index). So all these actions will be written to the journal index and you'll be able to apply them after index reset using the `Chewy::Journal` interface.
 
 ### Types access
 
@@ -1002,6 +1000,15 @@ rake chewy:parallel:upgrade[4]
 rake chewy:parallel:update[4,places#city]
 rake chewy:parallel:sync[4,-users]
 rake chewy:parallel:deploy[4] # performs parallel upgrade and parallel sync afterwards
+```
+
+#### `chewy:journal`
+
+This namespace contains two tasks for the journal manipulations: `chewy:journal:apply` and `chewy:journal:clean`. Both are taking time as the first argument (optional for clean) and a list of indexes/types exactly as the tasks above. Time can be in any format parsable by ActiveSupport.
+
+```bash
+rake chewy:journal:apply["$(date -v-1H -u +%FT%TZ)"] # apply journaled changes for the past hour
+rake chewy:journal:apply["$(date -v-1H -u +%FT%TZ)",users] # apply journaled changes for the past hour on UsersIndex only
 ```
 
 ### Rspec integration

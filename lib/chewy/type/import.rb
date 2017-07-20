@@ -1,3 +1,4 @@
+require 'chewy/type/import/journal_builder'
 require 'chewy/type/import/bulk_builder'
 require 'chewy/type/import/bulk_request'
 require 'chewy/type/import/routine'

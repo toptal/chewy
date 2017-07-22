@@ -54,14 +54,14 @@ module Chewy
 
     def push(name)
       result = @stack.push resolve(name).new
-      debug "[#{@stack.size}] <- #{current.name}"
+      debug "[#{@stack.size - 1}] <- #{current.name}" if @stack.size > 2
       result
     end
 
     def pop
       raise "Can't pop root strategy" if @stack.one?
-      debug "[#{@stack.size}] -> #{current.name}"
       result = @stack.pop.tap(&:leave)
+      debug "[#{@stack.size}] -> #{result.name}, now #{current.name}" if @stack.size > 1
       result
     end
 
@@ -77,7 +77,7 @@ module Chewy
     def debug(string)
       return unless Chewy.logger && Chewy.logger.debug?
       line = caller.detect { |l| l !~ %r{lib/chewy/strategy.rb:|lib/chewy.rb:} }
-      Chewy.logger.debug(["DEBUG: Chewy strategies stack: #{string}", line.sub(/:in\s.+$/, '')].join(' @ '))
+      Chewy.logger.debug(["Chewy strategies stack: #{string}", line.sub(/:in\s.+$/, '')].join(' @ '))
     end
 
     def resolve(name)

@@ -28,8 +28,16 @@ describe Chewy::Index::Settings do
         }})
     end
     specify do
-      expect(described_class.new(number_of_nodes: 3, analysis: {analyser: ['analyzer1']}).to_hash)
+      expect(described_class.new(number_of_nodes: 3, analysis: {analyzer: ['analyzer1']}).to_hash)
         .to eq(settings: {number_of_nodes: 3, analysis: {}})
+    end
+    specify do
+      expect(described_class.new(number_of_nodes: 3, analysis: {analyzer: {analyzer1: {}}, normalizer: {}}).to_hash)
+        .to eq(settings: {number_of_nodes: 3, analysis: {analyzer: {analyzer1: {}}, normalizer: {}}})
+    end
+    specify do
+      expect(described_class.new(number_of_nodes: 3, analysis: {analyzer: ['analyzer1'], normalizer: {}}).to_hash)
+        .to eq(settings: {number_of_nodes: 3, analysis: {normalizer: {}}})
     end
 
     specify do

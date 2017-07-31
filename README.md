@@ -228,7 +228,7 @@ If you would like to use AWS's ElasticSearch using an IAM user policy, you will 
   ```
 
   [See index settings here](https://www.elastic.co/guide/en/elasticsearch/reference/current/indices-update-settings.html).
-  [See root object settings here](https://www.elastic.co/guide/en/elasticsearch/reference/current/mapping-root-object-type.html).
+  [See root object settings here](https://www.elastic.co/guide/en/elasticsearch/reference/current/dynamic-field-mapping.html).
 
   See [mapping.rb](lib/chewy/type/mapping.rb) for more details.
 
@@ -357,7 +357,7 @@ end
 ```
 ### Geo Point fields
 
-You can use [Elasticsearch's geo mapping](https://www.elastic.co/guide/en/elasticsearch/reference/current/mapping-geo-point-type.html) with the `geo_point` field type, allowing you to query, filter and order by latitude and longitude. You can use the following hash format:
+You can use [Elasticsearch's geo mapping](https://www.elastic.co/guide/en/elasticsearch/reference/current/geo-point.html) with the `geo_point` field type, allowing you to query, filter and order by latitude and longitude. You can use the following hash format:
 
 ```ruby
 field :coordinates, type: 'geo_point', value: ->{ {lat: latitude, lon: longitude} }

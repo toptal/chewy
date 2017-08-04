@@ -7,7 +7,7 @@ module Chewy
     class RequestStrategy
       def initialize(app)
         @app = app
-        Chewy.logger.debug("Chewy strategies stack: [1] <- #{Chewy.request_strategy}")
+        Chewy.logger.debug("Chewy strategies stack: [1] <- #{Chewy.request_strategy}") if Chewy.logger
       end
 
       def call(env)

@@ -50,7 +50,7 @@ module Chewy
       def evaluate(objects)
         object = objects.first
 
-        if value && value.is_a?(Proc)
+        if value.is_a?(Proc)
           if value.arity.zero?
             object.instance_exec(&value)
           elsif value.arity < 0
@@ -58,14 +58,18 @@ module Chewy
           else
             value.call(*objects.first(value.arity))
           end
-        elsif object.is_a?(Hash)
-          if object.key?(name)
-            object[name]
-          else
-            object[name.to_s]
-          end
         else
-          object.send(name)
+          message = value.is_a?(Symbol) || value.is_a?(String) ? value.to_sym : name
+
+          if object.is_a?(Hash)
+            if object.key?(message)
+              object[message]
+            else
+              object[message.to_s]
+            end
+          else
+            object.send(message)
+          end
         end
       end
 

@@ -10,6 +10,8 @@ describe Chewy::Fields::Base do
     specify { expect(field.compose(double(value: 'hello'))).to eq(name: 'hello') }
     specify { expect(field.compose(double(value: %w[hello world]))).to eq(name: %w[hello world]) }
 
+    specify { expect(described_class.new(:name, value: :last_name).compose(double(last_name: 'hello'))).to eq(name: 'hello') }
+    specify { expect(described_class.new(:name, value: :last_name).compose('last_name' => 'hello')).to eq(name: 'hello') }
     specify { expect(described_class.new(:name).compose(double(name: 'hello'))).to eq(name: 'hello') }
     specify { expect(described_class.new(:false_value).compose(false_value: false)).to eq(false_value: false) }
     specify { expect(described_class.new(:true_value).compose(true_value: true)).to eq(true_value: true) }

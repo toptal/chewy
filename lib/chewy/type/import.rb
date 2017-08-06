@@ -8,8 +8,8 @@ module Chewy
     module Import
       extend ActiveSupport::Concern
 
-      IMPORT_WORKER = lambda do |type, options, ids|
-        ::Process.setproctitle("chewy import #{type}[#{::Parallel.worker_number}]")
+      IMPORT_WORKER = lambda do |type, options, total, ids, index|
+        ::Process.setproctitle("chewy [#{type}]: import data (#{index + 1}/#{total})")
         routine = Routine.new(type, options)
         type.adapter.import(*ids, routine.options) do |action_objects|
           routine.process(**action_objects)
@@ -17,8 +17,8 @@ module Chewy
         {errors: routine.errors, import: routine.stats, leftovers: routine.leftovers}
       end
 
-      LEFTOVERS_WORKER = lambda do |type, options, body|
-        ::Process.setproctitle("chewy import #{type}[#{::Parallel.worker_number}]")
+      LEFTOVERS_WORKER = lambda do |type, options, total, body, index|
+        ::Process.setproctitle("chewy [#{type}]: import leftovers (#{index + 1}/#{total})")
         routine = Routine.new(type, options)
         routine.perform_bulk(body)
         routine.errors
@@ -155,13 +155,13 @@ module Chewy
             batches = adapter.import_references(*objects, routine.options.slice(:batch_size)).to_a
 
             ::ActiveRecord::Base.connection.close if defined?(::ActiveRecord::Base)
-            results = ::Parallel.map(batches, routine.parallel_options, &IMPORT_WORKER.curry[self, routine.options])
+            results = ::Parallel.map_with_index(batches, routine.parallel_options, &IMPORT_WORKER.curry[self, routine.options, batches.size])
             ::ActiveRecord::Base.connection.reconnect! if defined?(::ActiveRecord::Base)
             errors, import, leftovers = process_parallel_import_results(results)
 
             if leftovers.present?
               batches = leftovers.each_slice(routine.options[:batch_size])
-              results = ::Parallel.map(batches, routine.parallel_options, &LEFTOVERS_WORKER.curry[self, routine.options])
+              results = ::Parallel.map_with_index(batches, routine.parallel_options, &LEFTOVERS_WORKER.curry[self, routine.options, batches.size])
               errors.concat(results.flatten(1))
             end
 

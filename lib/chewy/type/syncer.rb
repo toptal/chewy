@@ -28,7 +28,8 @@ module Chewy
     class Syncer
       DEFAULT_SYNC_BATCH_SIZE = 20_000
       ISO_DATETIME = /\A(\d{4})-(\d\d)-(\d\d) (\d\d):(\d\d):(\d\d)(\.\d+)?\z/
-      OUTDATED_IDS_WORKER = lambda do |outdated_sync_field_type, source_data_hash, index_data|
+      OUTDATED_IDS_WORKER = lambda do |outdated_sync_field_type, source_data_hash, type, total, index_data|
+        ::Process.setproctitle("chewy [#{type}]: sync outdated calculation (#{::Parallel.worker_number + 1}/#{total})") if type
         index_data.each_with_object([]) do |(id, index_sync_value), result|
           next unless source_data_hash[id]
 
@@ -41,14 +42,15 @@ module Chewy
           result.push(id) if outdated
         end
       end
-      SOURCE_OR_INDEX_DATA_WORKER = lambda do |syncer, type|
-        result = case type
+      SOURCE_OR_INDEX_DATA_WORKER = lambda do |syncer, type, kind|
+        ::Process.setproctitle("chewy [#{type}]: sync fetching data (#{kind})")
+        result = case kind
         when :source
           syncer.send(:fetch_source_data)
         when :index
           syncer.send(:fetch_index_data)
         end
-        {type => result}
+        {kind => result}
       end
 
       def self.typecast_date(string)
@@ -143,7 +145,7 @@ module Chewy
         @source_and_index_data ||= begin
           if @parallel
             ::ActiveRecord::Base.connection.close if defined?(::ActiveRecord::Base)
-            result = ::Parallel.map(%i[source index], @parallel, &SOURCE_OR_INDEX_DATA_WORKER.curry[self])
+            result = ::Parallel.map(%i[source index], @parallel, &SOURCE_OR_INDEX_DATA_WORKER.curry[self, @type])
             ::ActiveRecord::Base.connection.reconnect! if defined?(::ActiveRecord::Base)
             if result.first.keys.first == :source
               [result.first.values.first, result.second.values.first]
@@ -182,7 +184,7 @@ module Chewy
       end
 
       def linear_outdated_ids
-        OUTDATED_IDS_WORKER.call(outdated_sync_field_type, source_data.to_h, index_data)
+        OUTDATED_IDS_WORKER.call(outdated_sync_field_type, source_data.to_h, nil, nil, index_data)
       end
 
       def parallel_outdated_ids
@@ -190,7 +192,7 @@ module Chewy
         batches = index_data.each_slice(size)
 
         ::ActiveRecord::Base.connection.close if defined?(::ActiveRecord::Base)
-        result = ::Parallel.map(batches, @parallel, &OUTDATED_IDS_WORKER.curry[outdated_sync_field_type, source_data.to_h]).flatten(1)
+        result = ::Parallel.map(batches, @parallel, &OUTDATED_IDS_WORKER.curry[outdated_sync_field_type, source_data.to_h, @type, batches.size]).flatten(1)
         ::ActiveRecord::Base.connection.reconnect! if defined?(::ActiveRecord::Base)
         result
       end

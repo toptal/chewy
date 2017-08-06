@@ -7,7 +7,6 @@ module Chewy
     class RequestStrategy
       def initialize(app)
         @app = app
-        Chewy.logger.debug("Chewy strategies stack: [1] <- #{Chewy.request_strategy}")
       end
 
       def call(env)
@@ -15,6 +14,8 @@ module Chewy
         if Rails.application.config.respond_to?(:assets) && env['PATH_INFO'].start_with?(Rails.application.config.assets.prefix)
           @app.call(env)
         else
+          Chewy.logger.info("Chewy request strategy is `#{Chewy.request_strategy}`") if @request_strategy != Chewy.request_strategy
+          @request_strategy = Chewy.request_strategy
           Chewy.strategy(Chewy.request_strategy) { @app.call(env) }
         end
       end
@@ -49,6 +50,7 @@ module Chewy
       else
         Chewy.strategy(:urgent)
       end
+      Chewy.logger.info("Chewy console strategy is `#{Chewy.strategy.current.name}`")
     end
 
     initializer 'chewy.logger', after: 'active_record.logger' do

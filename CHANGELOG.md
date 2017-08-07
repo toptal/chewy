@@ -1,5 +1,23 @@
 # master
 
+# Version 0.10.1
+
+## Changes
+
+  * Improved parallel worker titles (#558)
+
+## Bugfixes
+
+  * Fixed request strategy initial debug message (#557)
+
+  * Fixed will objects paginated array initialization when pagination was not used (#556)
+
+  * Fixed fields symbol/string value (#555)
+
+  * Fixed root field value proc (#554)
+
+# Version 0.10.0
+
 ## Breaking changes
 
   * Changed behavior of `Chewy::Index.index_name`, it doesn't cache the values anymore.
@@ -8,7 +26,9 @@
 
 ## Changes
 
-  * Parallel import and rake tasks.
+  * Less noisy strategies logging (@Borzik, #543)
+
+  * Parallel import and the corresponding rake tasks.
 
   * `:shoryuken` async strategy (@josephchoe, #532)
 

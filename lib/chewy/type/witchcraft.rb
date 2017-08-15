@@ -102,14 +102,16 @@ module Chewy
               (if #{object}.is_a?(Hash)
                 {
                   #{non_proc_fields.map do |f|
-                    fetcher = "#{object}.has_key?(:#{f.name}) ? #{object}[:#{f.name}] : #{object}['#{f.name}']"
+                    key_name = f.value.is_a?(Symbol) || f.value.is_a?(String) ? f.value : f.name
+                    fetcher = "#{object}.has_key?(:#{key_name}) ? #{object}[:#{key_name}] : #{object}['#{key_name}']"
                     "'#{f.name}'.freeze => #{composed_value(f, fetcher, nesting)}"
                   end.join(', ')}
                 }
               else
                 {
                   #{non_proc_fields.map do |f|
-                    "'#{f.name}'.freeze => #{composed_value(f, "#{object}.#{f.name}", nesting)}"
+                    method_name = f.value.is_a?(Symbol) || f.value.is_a?(String) ? f.value : f.name
+                    "'#{f.name}'.freeze => #{composed_value(f, "#{object}.#{method_name}", nesting)}"
                   end.join(', ')}
                 }
               end)
@@ -137,7 +139,7 @@ module Chewy
 
         def non_proc_fields_for(parent, nesting)
           return [] unless parent
-          fields = (parent.children || []).reject { |field| field.value && field.value.is_a?(Proc) }
+          fields = (parent.children || []).reject { |field| field.value.is_a?(Proc) }
 
           if nesting.zero? && @fields.present?
             fields.select { |f| @fields.include?(f.name) }
@@ -148,7 +150,7 @@ module Chewy
 
         def proc_fields_for(parent, nesting)
           return [] unless parent
-          fields = (parent.children || []).select { |field| field.value && field.value.is_a?(Proc) }
+          fields = (parent.children || []).select { |field| field.value.is_a?(Proc) }
 
           if nesting.zero? && @fields.present?
             fields.select { |f| @fields.include?(f.name) }
@@ -181,7 +183,6 @@ module Chewy
               locals.push(proc.binding.eval(variable.to_s))
               source = replace_local(source, variable, locals.size - 1)
             end
-
           end
 
           Unparser.unparse(source)

@@ -22,11 +22,6 @@ describe Chewy::Journal do
           end
 
           Chewy.massacre
-          begin
-            Chewy.client.indices.delete(index: Chewy::Journal.index_name)
-          rescue Elasticsearch::Transport::Transport::Errors::NotFound
-            nil
-          end
           Chewy.settings[:prefix] = 'some_prefix'
           Timecop.freeze(time)
         end
@@ -56,7 +51,7 @@ describe Chewy::Journal do
 
             places_index.import
 
-            expect(Chewy.client.indices.exists?(index: Chewy::Journal.index_name)).to eq true
+            expect(Chewy::Stash.exists?).to eq true
 
             Timecop.freeze(update_time)
             cities.first.update_attributes!(name: 'Supername')
@@ -64,109 +59,207 @@ describe Chewy::Journal do
             Timecop.freeze(destroy_time)
             countries.last.destroy
 
-            journal_entries = Chewy.client.search(index: Chewy::Journal.index_name, type: Chewy::Journal.type_name, sort: 'created_at')['hits']['hits'].map { |r| r['_source'] }
-
+            journal_entries = Chewy::Stash::Journal.order(:created_at).hits.map { |r| r['_source'] }
             expected_journal = [
               {
                 'index_name' => "#{namespace}places",
                 'type_name' => 'city',
                 'action' => 'index',
-                'object_ids' => [1],
-                'created_at' => time.to_i
+                'references' => ['1'],
+                'created_at' => time.utc.as_json
               },
               {
                 'index_name' => "#{namespace}places",
                 'type_name' => 'city',
                 'action' => 'index',
-                'object_ids' => [2],
-                'created_at' => time.to_i
+                'references' => ['2'],
+                'created_at' => time.utc.as_json
               },
               {
                 'index_name' => "#{namespace}places",
                 'type_name' => 'country',
                 'action' => 'index',
-                'object_ids' => [1],
-                'created_at' => time.to_i
+                'references' => ['1'],
+                'created_at' => time.utc.as_json
               },
               {
                 'index_name' => "#{namespace}places",
                 'type_name' => 'country',
                 'action' => 'index',
-                'object_ids' => [2],
-                'created_at' => time.to_i
+                'references' => ['2'],
+                'created_at' => time.utc.as_json
               },
               {
                 'index_name' => "#{namespace}places",
                 'type_name' => 'country',
                 'action' => 'index',
-                'object_ids' => [3],
-                'created_at' => time.to_i
+                'references' => ['3'],
+                'created_at' => time.utc.as_json
               },
               {
                 'index_name' => "#{namespace}places",
                 'type_name' => 'city',
                 'action' => 'index',
-                'object_ids' => [1, 2],
-                'created_at' => import_time.to_i
+                'references' => %w[1 2],
+                'created_at' => import_time.utc.as_json
               },
               {
                 'index_name' => "#{namespace}places",
                 'type_name' => 'country',
                 'action' => 'index',
-                'object_ids' => [1, 2, 3],
-                'created_at' => import_time.to_i
+                'references' => %w[1 2 3],
+                'created_at' => import_time.utc.as_json
               },
               {
                 'index_name' => "#{namespace}places",
                 'type_name' => 'city',
                 'action' => 'index',
-                'object_ids' => [1],
-                'created_at' => update_time.to_i
+                'references' => ['1'],
+                'created_at' => update_time.utc.as_json
               },
               {
                 'index_name' => "#{namespace}places",
                 'type_name' => 'country',
                 'action' => 'delete',
-                'object_ids' => [2],
-                'created_at' => destroy_time.to_i
+                'references' => ['2'],
+                'created_at' => destroy_time.utc.as_json
               }
             ]
 
-            expect(Chewy.client.count(index: Chewy::Journal.index_name)['count']).to eq 9
+            expect(Chewy::Stash::Journal.count).to eq 9
             expect(journal_entries).to eq expected_journal
 
-            journal_entries = Chewy::Journal::Entry.since(import_time)
-            expect(journal_entries.length).to eq 4
-            # we have only 2 types, so we can group all journal entries(4) into 2
-            expect(Chewy::Journal::Entry.group(journal_entries)).to eq [
-              Chewy::Journal::Entry.new('index_name' => "#{namespace}places",
-                                        'type_name' => 'city',
-                                        'action' => nil,
-                                        'object_ids' => [1, 2],
-                                        'created_at' => nil),
-              Chewy::Journal::Entry.new('index_name' => "#{namespace}places",
-                                        'type_name' => 'country',
-                                        'action' => 'delete',
-                                        'object_ids' => [1, 2, 3],
-                                        'created_at' => destroy_time.to_i)
-            ]
+            journal_entries = Chewy::Stash::Journal.entries(import_time - 1)
+            expect(journal_entries.size).to eq 4
 
             # simulate lost data
             Chewy.client.delete(index: "#{Chewy.settings[:prefix]}_places", type: 'city', id: 1, refresh: true)
-            expect(places_index::City.all.to_a.length).to eq 1
+            expect(places_index::City.count).to eq 1
 
-            Chewy::Journal::Apply.since(time)
-            expect(places_index::City.all.to_a.length).to eq 2
+            described_class.new.apply(time)
+            expect(places_index::City.count).to eq 2
 
-            expect(Chewy::Journal::Clean.until(import_time)).to eq 7
-            expect(Chewy.client.count(index: Chewy::Journal.index_name)['count']).to eq 2
-
-            expect(Chewy::Journal.delete!).to be_truthy
-            expect { Chewy::Journal.delete! }.to raise_error(Elasticsearch::Transport::Transport::Errors::NotFound)
-            expect(Chewy::Journal.delete).to eq false
-            expect(Chewy::Journal.exists?).to eq false
+            clean_response = described_class.new.clean(import_time)
+            expect(clean_response['deleted'] || clean_response['_indices']['_all']['deleted']).to eq 7
+            Chewy.client.indices.refresh
+            expect(Chewy::Stash::Journal.count).to eq 2
 
             Timecop.return
+          end
+        end
+      end
+    end
+  end
+
+  context do
+    before { Chewy.massacre }
+    before do
+      stub_model(:city) do
+        update_index 'cities', :self
+      end
+      stub_model(:country) do
+        update_index 'countries', :self
+      end
+
+      stub_index(:cities) do
+        define_type City do
+          default_import_options journal: true
+        end
+      end
+      stub_index(:countries) do
+        define_type Country do
+          default_import_options journal: true
+        end
+      end
+    end
+
+    describe '#apply' do
+      specify { expect(described_class.new(CitiesIndex).apply(2.minutes.ago)).to eq(0) }
+
+      context 'with an index filter' do
+        let(:time) { Time.now }
+
+        before { Timecop.freeze(time) }
+        after { Timecop.return }
+
+        specify do
+          Chewy.strategy(:urgent) do
+            Array.new(2) { |i| City.create!(id: i + 1) }
+            Array.new(2) { |i| Country.create!(id: i + 1) }
+
+            # simulate lost data
+            Chewy.client.delete(index: 'cities', type: 'city', id: 1, refresh: true)
+            Chewy.client.delete(index: 'countries', type: 'country', id: 1, refresh: true)
+            expect(CitiesIndex.all.to_a.length).to eq 1
+            expect(CountriesIndex.all.to_a.length).to eq 1
+
+            # Replay on specific index
+            expect(described_class.new(CitiesIndex).apply(time)).to eq(2)
+            expect(CitiesIndex.all.to_a.length).to eq 2
+            expect(CountriesIndex.all.to_a.length).to eq 1
+
+            # Replay on both
+            Chewy.client.delete(index: 'cities', type: 'city', id: 1, refresh: true)
+            expect(CitiesIndex.all.to_a.length).to eq 1
+            expect(described_class.new(CitiesIndex, CountriesIndex).apply(time)).to eq(4)
+            expect(CitiesIndex.all.to_a.length).to eq 2
+            expect(CountriesIndex.all.to_a.length).to eq 2
+          end
+        end
+      end
+
+      context 'retries' do
+        let(:time) { Time.now.to_i }
+        before do
+          Timecop.freeze
+          Chewy.strategy(:urgent)
+          City.create!(id: 1)
+        end
+
+        after do
+          Chewy.strategy.pop
+          Timecop.return
+        end
+
+        specify 'journal was cleaned after the first call' do
+          expect(Chewy::Stash::Journal).to receive(:entries).exactly(2).and_call_original
+          expect(described_class.new.apply(time)).to eq(1)
+        end
+
+        context 'endless journal' do
+          let(:count_of_checks) { 10 } # default
+          let!(:journal_entries) do
+            record = Chewy::Stash::Journal.entries(time).first
+            Array.new(count_of_checks) do |i|
+              Chewy::Stash::Journal.new(
+                record.attributes.merge(
+                  'created_at' => time.to_i + i,
+                  'references' => [i.to_s]
+                )
+              )
+            end
+          end
+
+          specify '10 retries by default' do
+            expect(Chewy::Stash::Journal)
+              .to receive(:entries).exactly(count_of_checks) { [journal_entries.shift].compact }
+            expect(described_class.new.apply(time)).to eq(10)
+          end
+
+          specify 'with :once parameter set' do
+            expect(Chewy::Stash::Journal)
+              .to receive(:entries).exactly(1) { [journal_entries.shift].compact }
+            expect(described_class.new.apply(time, retries: 1)).to eq(1)
+          end
+
+          context 'with retries parameter set' do
+            let(:retries) { 5 }
+
+            specify do
+              expect(Chewy::Stash::Journal)
+                .to receive(:entries).exactly(retries) { [journal_entries.shift].compact }
+              expect(described_class.new.apply(time, retries: retries)).to eq(5)
+            end
           end
         end
       end

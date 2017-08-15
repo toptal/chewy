@@ -1,9 +1,11 @@
 require 'database_cleaner'
 
-ActiveRecord::Base.establish_connection(adapter: 'sqlite3', database: ':memory:')
+ActiveRecord::Base.establish_connection(adapter: 'sqlite3', database: 'file::memory:?cache=shared', pool: 10)
 ActiveRecord::Base.logger = Logger.new('/dev/null')
 ActiveRecord::Base.raise_in_transactional_callbacks = true if ActiveRecord::Base.respond_to?(:raise_in_transactional_callbacks)
 
+ActiveRecord::Base.connection.execute("DROP TABLE IF EXISTS 'countries'")
+ActiveRecord::Base.connection.execute("DROP TABLE IF EXISTS 'cities'")
 ActiveRecord::Schema.define do
   create_table :countries do |t|
     t.column :name, :string

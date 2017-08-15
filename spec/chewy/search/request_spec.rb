@@ -423,7 +423,6 @@ describe Chewy::Search::Request do
     end
 
     describe '#none' do
-      specify { expect(subject.none.render[:body]).to be_blank }
       specify { expect(subject.none).to eq([]) }
     end
 
@@ -480,6 +479,7 @@ describe Chewy::Search::Request do
       specify { expect(subject.filter(term: {age: 10}).count).to eq(1) }
       specify { expect(subject.query(term: {age: 10}).count).to eq(1) }
       specify { expect(subject.order(nil).count).to eq(9) }
+      specify { expect(subject.none.count).to eq(0) }
 
       context do
         before { expect(Chewy.client).to receive(:count).and_call_original }
@@ -600,6 +600,12 @@ describe Chewy::Search::Request do
     describe '#delete_all' do
       specify do
         expect do
+          subject.none.delete_all
+          Chewy.client.indices.refresh(index: 'products')
+        end.not_to change { described_class.new(ProductsIndex).total }.from(9)
+      end
+      specify do
+        expect do
           subject.query(match: {name: 'name3'}).delete_all
           Chewy.client.indices.refresh(index: 'products')
         end.to change { described_class.new(ProductsIndex).total }.from(9).to(8)
@@ -638,7 +644,22 @@ describe Chewy::Search::Request do
         expect(outer_payload).to eq(
           index: ProductsIndex,
           indexes: [ProductsIndex],
-          request: {index: ['products'], type: %w[product city country], body: {query: {match: {name: 'name3'}}}},
+          request: {index: ['products'], type: %w[product city country], body: {query: {match: {name: 'name3'}}}, refresh: true},
+          type: [ProductsIndex::Product, ProductsIndex::City, ProductsIndex::Country],
+          types: [ProductsIndex::Product, ProductsIndex::City, ProductsIndex::Country]
+        )
+      end
+
+      specify do
+        outer_payload = nil
+        ActiveSupport::Notifications.subscribe('delete_query.chewy') do |_name, _start, _finish, _id, payload|
+          outer_payload = payload
+        end
+        subject.query(match: {name: 'name3'}).delete_all(refresh: false)
+        expect(outer_payload).to eq(
+          index: ProductsIndex,
+          indexes: [ProductsIndex],
+          request: {index: ['products'], type: %w[product city country], body: {query: {match: {name: 'name3'}}}, refresh: false},
           type: [ProductsIndex::Product, ProductsIndex::City, ProductsIndex::Country],
           types: [ProductsIndex::Product, ProductsIndex::City, ProductsIndex::Country]
         )

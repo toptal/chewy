@@ -20,6 +20,11 @@ describe Chewy::Type do
     end
   end
 
+  describe '.types' do
+    subject { Class.new(Chewy::Type) }
+    specify { expect(subject.types).to eq([subject]) }
+  end
+
   describe '.scopes' do
     before do
       stub_index(:places) do

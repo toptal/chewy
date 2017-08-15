@@ -32,40 +32,46 @@ module Chewy
       end
 
       def compose(*objects)
-        object = objects.first
-
-        result =
-          if value && value.is_a?(Proc)
-            if value.arity.zero?
-              object.instance_exec(&value)
-            elsif value.arity < 0
-              value.call(*object)
-            else
-              value.call(*objects.first(value.arity))
-            end
-          elsif object.is_a?(Hash)
-            if object.key?(name)
-              object[name]
-            else
-              object[name.to_s]
-            end
-          else
-            object.send(name)
-          end
+        result = evaluate(objects)
 
         if children.present? && !multi_field?
-          result =
-            if result.respond_to?(:to_ary)
-              result.to_ary.map { |item| compose_children(item, *objects) }
-            else
-              compose_children(result, *objects)
-            end
+          result = if result.respond_to?(:to_ary)
+            result.to_ary.map { |item| compose_children(item, *objects) }
+          else
+            compose_children(result, *objects)
+          end
         end
 
         {name => result}
       end
 
     private
+
+      def evaluate(objects)
+        object = objects.first
+
+        if value.is_a?(Proc)
+          if value.arity.zero?
+            object.instance_exec(&value)
+          elsif value.arity < 0
+            value.call(*object)
+          else
+            value.call(*objects.first(value.arity))
+          end
+        else
+          message = value.is_a?(Symbol) || value.is_a?(String) ? value.to_sym : name
+
+          if object.is_a?(Hash)
+            if object.key?(message)
+              object[message]
+            else
+              object[message.to_s]
+            end
+          else
+            object.send(message)
+          end
+        end
+      end
 
       def compose_children(value, *parent_objects)
         return unless value

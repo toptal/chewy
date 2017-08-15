@@ -214,10 +214,6 @@ module Chewy
         public_methods - Chewy::Index.public_methods
       end
 
-      def journal?
-        types.any?(&:journal?)
-      end
-
       def settings_hash
         _settings.to_hash
       end

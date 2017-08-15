@@ -150,28 +150,37 @@ module Chewy
           METHOD
         end
 
-        # Deletes, creates and imports data to the index.
-        # Returns import result
+        # Deletes, creates and imports data to the index. Returns the
+        # import result. If index name suffix is passed as the first
+        # argument - performs zero-downtime index resetting.
         #
+        # It also applies journal if anything was journaled during the
+        # reset.
+        #
+        # @example
         #   UsersIndex.reset!
+        #   UsersIndex.reset! Time.now.to_i
         #
-        # If index name suffix passed as the first argument - performs
-        # zero-downtime index resetting (described here:
-        # http://www.elasticsearch.org/blog/changing-mapping-with-zero-downtime/).
-        #
-        #   UsersIndex.reset! Time.now.to_i, journal: true
-        #
-        def reset!(suffix = nil, journal: false, **options)
-          result = if suffix.present? && (indexes = self.indexes).present?
+        # @see http://www.elasticsearch.org/blog/changing-mapping-with-zero-downtime
+        # @param suffix [String] a suffix for the newly created index
+        # @param apply_journal [true, false] if true, journal is applied after the import is completed
+        # @param journal [true, false] journalig is switched off for import during reset by default
+        # @param import_options [Hash] options, passed to the import call
+        # @return [true, false] false in case of errors
+        def reset!(suffix = nil, apply_journal: true, journal: false, **import_options)
+          result = if suffix.present?
+            start_time = Time.now
+            indexes = self.indexes
             create! suffix, alias: false
 
             general_name = index_name
             suffixed_name = index_name(suffix: suffix)
 
             optimize_index_settings suffixed_name
-            result = import options.merge(suffix: suffix, journal: journal, refresh: !Chewy.reset_disable_refresh_interval)
+            result = import import_options.merge(suffix: suffix, journal: journal, refresh: !Chewy.reset_disable_refresh_interval)
             original_index_settings suffixed_name
 
+            delete if indexes.blank?
             client.indices.update_aliases body: {actions: [
               *indexes.map do |index|
                 {remove: {index: index, alias: general_name}}
@@ -179,14 +188,23 @@ module Chewy
               {add: {index: suffixed_name, alias: general_name}}
             ]}
             client.indices.delete index: indexes if indexes.present?
+
+            self.journal.apply(start_time, **import_options) if apply_journal
             result
           else
-            purge! suffix
-            import journal: journal
+            purge!
+            import import_options.merge(journal: journal)
           end
 
           specification.lock!
           result
+        end
+
+        # A {Chewy::Journal} instance for the particular index
+        #
+        # @return [Chewy::Journal] journal instance
+        def journal
+          @journal ||= Chewy::Journal.new(self)
         end
 
       private

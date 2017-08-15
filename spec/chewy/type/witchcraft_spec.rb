@@ -212,5 +212,21 @@ describe Chewy::Type::Witchcraft do
         specify { expect(type.cauldron.brew(object)).to eq(attributes.as_json) }
       end
     end
+
+    context 'symbol value' do
+      mapping do
+        field :name, value: :last_name
+      end
+
+      context do
+        let(:object) { double(last_name: 'Name') }
+        specify { expect(type.cauldron.brew(object)).to eq({name: 'Name'}.as_json) }
+      end
+
+      context do
+        let(:object) { {'last_name' => 'Name'} }
+        specify { expect(type.cauldron.brew(object)).to eq({name: 'Name'}.as_json) }
+      end
+    end
   end
 end

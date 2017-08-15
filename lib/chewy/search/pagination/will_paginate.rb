@@ -31,7 +31,9 @@ module Chewy
       private
 
         def paginated_collection(collection)
-          ::WillPaginate::Collection.create(current_page, per_page, total_entries) do |pager|
+          page = current_page || 1
+          per = per_page || ::WillPaginate.per_page
+          ::WillPaginate::Collection.create(page, per, total_entries) do |pager|
             pager.replace collection
           end
         end

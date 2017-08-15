@@ -440,6 +440,26 @@ describe Chewy::Type::Adapter::ActiveRecord, :active_record do
       specify { expect(subject.import_fields(countries.first(2), batch_size: 1)).to match([[1], [2]]) }
       specify { expect(subject.import_fields(countries.first(2), batch_size: 1, fields: [:rating])).to match([[[1, 0]], [[2, 1]]]) }
     end
+
+    context 'typecast' do
+      specify { expect(subject.import_fields(typecast: false)).to match([contain_exactly(1, 2, 3)]) }
+      specify do
+        expect(subject.import_fields(fields: [:updated_at]).to_a)
+          .to match([contain_exactly(
+            [1, an_instance_of(Time)],
+            [2, an_instance_of(Time)],
+            [3, an_instance_of(Time)]
+          )])
+      end
+      specify do
+        expect(subject.import_fields(fields: [:updated_at], typecast: false))
+          .to match([contain_exactly(
+            [1, match(/#{Time.now.strftime('%Y-%m-%d')}/)],
+            [2, match(/#{Time.now.strftime('%Y-%m-%d')}/)],
+            [3, match(/#{Time.now.strftime('%Y-%m-%d')}/)]
+          )])
+      end
+    end
   end
 
   describe '#load' do

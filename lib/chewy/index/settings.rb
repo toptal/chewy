@@ -54,7 +54,8 @@ module Chewy
         end
 
         options[:analyzer] = analyzer if analyzer.present?
-        options
+        analysis = analysis.except(:analyzer, :tokenizer, :filter, :char_filter)
+        analysis.merge(options)
       end
 
       def collect_dependencies(type, analyzer)

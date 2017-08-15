@@ -326,17 +326,35 @@ describe Chewy::Index::Actions do
       end
     end
 
-    before { City.create!(id: 1, name: 'Moscow') }
-
-    specify { expect(CitiesIndex.reset!).to eq(true) }
-    specify { expect(CitiesIndex.reset!('2013')).to eq(true) }
-
     context do
-      before { CitiesIndex.reset! }
+      before { City.create!(id: 1, name: 'Moscow') }
 
-      specify { expect(CitiesIndex.all).to have(1).item }
-      specify { expect(CitiesIndex.aliases).to eq([]) }
-      specify { expect(CitiesIndex.indexes).to eq([]) }
+      specify { expect(CitiesIndex.reset!).to eq(true) }
+      specify { expect(CitiesIndex.reset!('2013')).to eq(true) }
+
+      context do
+        before { CitiesIndex.reset! }
+
+        specify { expect(CitiesIndex.all).to have(1).item }
+        specify { expect(CitiesIndex.aliases).to eq([]) }
+        specify { expect(CitiesIndex.indexes).to eq([]) }
+
+        context do
+          before { CitiesIndex.reset!('2013') }
+
+          specify { expect(CitiesIndex.all).to have(1).item }
+          specify { expect(CitiesIndex.aliases).to eq([]) }
+          specify { expect(CitiesIndex.indexes).to eq(['cities_2013']) }
+        end
+
+        context do
+          before { CitiesIndex.reset! }
+
+          specify { expect(CitiesIndex.all).to have(1).item }
+          specify { expect(CitiesIndex.aliases).to eq([]) }
+          specify { expect(CitiesIndex.indexes).to eq([]) }
+        end
+      end
 
       context do
         before { CitiesIndex.reset!('2013') }
@@ -344,40 +362,24 @@ describe Chewy::Index::Actions do
         specify { expect(CitiesIndex.all).to have(1).item }
         specify { expect(CitiesIndex.aliases).to eq([]) }
         specify { expect(CitiesIndex.indexes).to eq(['cities_2013']) }
-      end
 
-      context do
-        before { CitiesIndex.reset! }
+        context do
+          before { CitiesIndex.reset!('2014') }
 
-        specify { expect(CitiesIndex.all).to have(1).item }
-        specify { expect(CitiesIndex.aliases).to eq([]) }
-        specify { expect(CitiesIndex.indexes).to eq([]) }
-      end
-    end
+          specify { expect(CitiesIndex.all).to have(1).item }
+          specify { expect(CitiesIndex.aliases).to eq([]) }
+          specify { expect(CitiesIndex.indexes).to eq(['cities_2014']) }
+          specify { expect(Chewy.client.indices.exists(index: 'cities_2013')).to eq(false) }
+        end
 
-    context do
-      before { CitiesIndex.reset!('2013') }
+        context do
+          before { CitiesIndex.reset! }
 
-      specify { expect(CitiesIndex.all).to have(1).item }
-      specify { expect(CitiesIndex.aliases).to eq([]) }
-      specify { expect(CitiesIndex.indexes).to eq(['cities_2013']) }
-
-      context do
-        before { CitiesIndex.reset!('2014') }
-
-        specify { expect(CitiesIndex.all).to have(1).item }
-        specify { expect(CitiesIndex.aliases).to eq([]) }
-        specify { expect(CitiesIndex.indexes).to eq(['cities_2014']) }
-        specify { expect(Chewy.client.indices.exists(index: 'cities_2013')).to eq(false) }
-      end
-
-      context do
-        before { CitiesIndex.reset! }
-
-        specify { expect(CitiesIndex.all).to have(1).item }
-        specify { expect(CitiesIndex.aliases).to eq([]) }
-        specify { expect(CitiesIndex.indexes).to eq([]) }
-        specify { expect(Chewy.client.indices.exists(index: 'cities_2013')).to eq(false) }
+          specify { expect(CitiesIndex.all).to have(1).item }
+          specify { expect(CitiesIndex.aliases).to eq([]) }
+          specify { expect(CitiesIndex.indexes).to eq([]) }
+          specify { expect(Chewy.client.indices.exists(index: 'cities_2013')).to eq(false) }
+        end
       end
     end
 
@@ -454,7 +456,6 @@ describe Chewy::Index::Actions do
         }
       end
 
-      before { CitiesIndex.reset!('2013') }
       before { allow(Chewy).to receive(:reset_no_replicas).and_return(reset_no_replicas) }
 
       context 'activated' do
@@ -477,27 +478,70 @@ describe Chewy::Index::Actions do
       end
     end
 
-    context 'journaling' do
+    context 'applying journal' do
       before do
-        begin
-          Chewy.client.indices.delete(index: Chewy::Journal.index_name)
-        rescue Elasticsearch::Transport::Transport::Errors::NotFound
-          nil
+        stub_index(:cities) do
+          define_type City do
+            field :name, value: (lambda do
+              sleep(rating)
+              name
+            end)
+          end
         end
       end
 
+      let!(:cities) { Array.new(3) { |i| City.create!(id: i + 1, name: "Name#{i + 1}", rating: 1) } }
+
+      let(:parallel_update) do
+        Thread.new do
+          sleep(1.5)
+          cities.first.update(name: 'NewName1', rating: 0)
+          cities.last.update(name: 'NewName3', rating: 0)
+          CitiesIndex::City.import!([cities.first, cities.last], journal: true)
+        end
+      end
+
+      specify 'with journal application' do
+        parallel_update
+        CitiesIndex.reset!('suffix')
+        expect(CitiesIndex::City.pluck(:_id, :name)).to contain_exactly(%w[1 NewName1], %w[2 Name2], %w[3 NewName3])
+      end
+
+      specify 'without journal application' do
+        parallel_update
+        CitiesIndex.reset!('suffix', apply_journal: false)
+        expect(CitiesIndex::City.pluck(:_id, :name)).to contain_exactly(%w[1 Name1], %w[2 Name2], %w[3 Name3])
+      end
+    end
+
+    context 'journaling' do
+      before { City.create!(id: 1, name: 'Moscow') }
+
       specify do
         CitiesIndex.reset!
-
-        expect(Chewy.client.indices.exists?(index: Chewy::Journal.index_name)).to eq false
+        expect(Chewy::Stash::Journal.count).to eq(0)
       end
 
       specify do
         CitiesIndex.reset! journal: true
-
-        expect(Chewy.client.indices.exists?(index: Chewy::Journal.index_name)).to eq true
-        expect(Chewy.client.count(index: Chewy::Journal.index_name)['count']).not_to eq 0
+        expect(Chewy::Stash::Journal.count).to be > 0
       end
     end
+
+    context 'other options' do
+      specify do
+        expect(CitiesIndex::City).to receive(:import).with(parallel: true, journal: false).once.and_return(true)
+        expect(CitiesIndex.reset!(parallel: true)).to eq(true)
+      end
+
+      specify do
+        expect(CitiesIndex::City).to receive(:import).with(suffix: 'suffix', parallel: true, journal: false, refresh: true).once.and_return(true)
+        expect(CitiesIndex.reset!('suffix', parallel: true)).to eq(true)
+      end
+    end
+  end
+
+  describe '.journal' do
+    specify { expect(DummiesIndex.journal).to be_a(Chewy::Journal) }
   end
 end

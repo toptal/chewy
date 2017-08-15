@@ -16,11 +16,13 @@ module Chewy
     end
 
     JOURNAL_CALLBACK = lambda do |output, _, _, _, _, payload| # rubocop:disable Metrics/ParameterLists
-      output.puts "Applying journal. Stage #{payload[:stage]}"
+      count = payload[:groups].values.map(&:size).sum
+      targets = payload[:groups].keys.sort_by(&:derivable_name)
+      output.puts "  Applying journal to #{targets}, #{count} entries, stage #{payload[:stage]}"
     end
 
     class << self
-      # Performs zero downtime reindexing of all documents for the specified indexes
+      # Performs zero-downtime reindexing of all documents for the specified indexes
       #
       # @example
       #   Chewy::RakeHelper.reset # resets everything
@@ -32,6 +34,7 @@ module Chewy
       # @param only [Array<Chewy::Index, String>, Chewy::Index, String] index or indexes to reset; if nothing is passed - uses all the indexes defined in the app
       # @param except [Array<Chewy::Index, String>, Chewy::Index, String] index or indexes to exclude from processing
       # @param parallel [true, Integer, Hash] any acceptable parallel options for import
+      # @param output [IO] output io for logging
       # @return [Array<Chewy::Index>] indexes that were reset
       def reset(only: nil, except: nil, parallel: nil, output: STDOUT)
         subscribed_task_stats(output) do
@@ -41,7 +44,7 @@ module Chewy
         end
       end
 
-      # Performs zero downtime reindexing of all documents for the specified
+      # Performs zero-downtime reindexing of all documents for the specified
       # indexes only if a particular index specification was changed.
       #
       # @example
@@ -54,6 +57,7 @@ module Chewy
       # @param only [Array<Chewy::Index, String>, Chewy::Index, String] index or indexes to reset; if nothing is passed - uses all the indexes defined in the app
       # @param except [Array<Chewy::Index, String>, Chewy::Index, String] index or indexes to exclude from processing
       # @param parallel [true, Integer, Hash] any acceptable parallel options for import
+      # @param output [IO] output io for logging
       # @return [Array<Chewy::Index>] indexes that were actually reset
       def upgrade(only: nil, except: nil, parallel: nil, output: STDOUT)
         subscribed_task_stats(output) do
@@ -91,6 +95,7 @@ module Chewy
       # @param only [Array<Chewy::Index, Chewy::Type, String>, Chewy::Index, Chewy::Type, String] indexes or types to update; if nothing is passed - uses all the types defined in the app
       # @param except [Array<Chewy::Index, Chewy::Type, String>, Chewy::Index, Chewy::Type, String] indexes or types to exclude from processing
       # @param parallel [true, Integer, Hash] any acceptable parallel options for import
+      # @param output [IO] output io for logging
       # @return [Array<Chewy::Type>] types that were actually updated
       def update(only: nil, except: nil, parallel: nil, output: STDOUT)
         subscribed_task_stats(output) do
@@ -117,14 +122,16 @@ module Chewy
       #
       # @param only [Array<Chewy::Index, Chewy::Type, String>, Chewy::Index, Chewy::Type, String] indexes or types to synchronize; if nothing is passed - uses all the types defined in the app
       # @param except [Array<Chewy::Index, Chewy::Type, String>, Chewy::Index, Chewy::Type, String] indexes or types to exclude from processing
+      # @param parallel [true, Integer, Hash] any acceptable parallel options for sync
+      # @param output [IO] output io for logging
       # @return [Array<Chewy::Type>] types that were actually updated
-      def sync(only: nil, except: nil, output: STDOUT)
+      def sync(only: nil, except: nil, parallel: nil, output: STDOUT)
         subscribed_task_stats(output) do
           types_from(only: only, except: except).each_with_object([]) do |type, synced_types|
             output.puts "Synchronizing #{type}"
             output.puts "  #{type} doesn't support outdated synchronization" unless type.supports_outdated_sync?
             time = Time.now
-            sync_result = type.sync
+            sync_result = type.sync(parallel: parallel)
             if !sync_result
               output.puts "  Something went wrong with the #{type} synchronization"
             elsif sync_result[:count] > 0
@@ -139,6 +146,55 @@ module Chewy
         end
       end
 
+      # Applies changes that were done after the specified time for the
+      # specified indexes/types or all of them.
+      #
+      # @example
+      #   Chewy::RakeHelper.journal_apply(time: 1.minute.ago) # applies entries created for the last minute
+      #   Chewy::RakeHelper.journal_apply(time: 1.minute.ago, only: 'places') # applies only PlacesIndex::City and PlacesIndex::Country entries reated for the last minute
+      #   Chewy::RakeHelper.journal_apply(time: 1.minute.ago, only: 'places#city') # applies PlacesIndex::City entries reated for the last minute only
+      #   Chewy::RakeHelper.journal_apply(time: 1.minute.ago, except: PlacesIndex::Country) # applies everything, but PlacesIndex::Country entries reated for the last minute
+      #   Chewy::RakeHelper.journal_apply(time: 1.minute.ago, only: 'places', except: 'places#country') # applies PlacesIndex::City entries reated for the last minute only
+      #
+      # @param time [Time, DateTime] use only journal entries created after this time
+      # @param only [Array<Chewy::Index, Chewy::Type, String>, Chewy::Index, Chewy::Type, String] indexes or types to synchronize; if nothing is passed - uses all the types defined in the app
+      # @param except [Array<Chewy::Index, Chewy::Type, String>, Chewy::Index, Chewy::Type, String] indexes or types to exclude from processing
+      # @param output [IO] output io for logging
+      # @return [Array<Chewy::Type>] types that were actually updated
+      def journal_apply(time: nil, only: nil, except: nil, output: STDOUT)
+        raise ArgumentError, 'Please specify the time to start with' unless time
+        subscribed_task_stats(output) do
+          output.puts "Applying journal entries created after #{time}"
+          count = Chewy::Journal.new(types_from(only: only, except: except)).apply(time)
+          output.puts 'No journal entries were created after the specified time' if count.zero?
+        end
+      end
+
+      # Removes journal records created before the specified timestamp for
+      # the specified indexes/types or all of them.
+      #
+      # @example
+      #   Chewy::RakeHelper.journal_clean # cleans everything
+      #   Chewy::RakeHelper.journal_clean(time: 1.minute.ago) # leaves only entries created for the last minute
+      #   Chewy::RakeHelper.journal_clean(only: 'places') # cleans only PlacesIndex::City and PlacesIndex::Country entries
+      #   Chewy::RakeHelper.journal_clean(only: 'places#city') # cleans PlacesIndex::City entries only
+      #   Chewy::RakeHelper.journal_clean(except: PlacesIndex::Country) # cleans everything, but PlacesIndex::Country entries
+      #   Chewy::RakeHelper.journal_clean(only: 'places', except: 'places#country') # cleans PlacesIndex::City entries only
+      #
+      # @param time [Time, DateTime] clean all the journal entries created before this time
+      # @param only [Array<Chewy::Index, Chewy::Type, String>, Chewy::Index, Chewy::Type, String] indexes or types to synchronize; if nothing is passed - uses all the types defined in the app
+      # @param except [Array<Chewy::Index, Chewy::Type, String>, Chewy::Index, Chewy::Type, String] indexes or types to exclude from processing
+      # @param output [IO] output io for logging
+      # @return [Array<Chewy::Type>] types that were actually updated
+      def journal_clean(time: nil, only: nil, except: nil, output: STDOUT)
+        subscribed_task_stats(output) do
+          output.puts "Cleaning journal entries created before #{time}" if time
+          response = Chewy::Journal.new(types_from(only: only, except: except)).clean(time)
+          count = response['deleted'] || response['_indices']['_all']['deleted']
+          output.puts "Cleaned up #{count} journal entries"
+        end
+      end
+
       # Eager loads and returns all the indexes defined in the application
       # except the Chewy::Stash.
       #
@@ -148,22 +204,13 @@ module Chewy
         Chewy::Index.descendants - [Chewy::Stash]
       end
 
-      def human_duration(seconds)
-        [[60, :s], [60, :m], [24, :h]].map do |amount, unit|
-          if seconds > 0
-            seconds, n = seconds.divmod(amount)
-            "#{n.to_i}#{unit}"
-          end
-        end.compact.reverse.join(' ')
+      def normalize_indexes(*identifiers)
+        identifiers.flatten(1).map { |identifier| normalize_index(identifier) }
       end
 
       def normalize_index(identifier)
         return identifier if identifier.is_a?(Class) && identifier < Chewy::Index
         "#{identifier.to_s.gsub(/identifier\z/i, '').camelize}Index".constantize
-      end
-
-      def normalize_indexes(*identifiers)
-        identifiers.flatten(1).map { |identifier| normalize_index(identifier) }
       end
 
       def subscribed_task_stats(output = STDOUT)
@@ -235,19 +282,21 @@ module Chewy
       end
 
       def normalize_type(identifier)
-        return identifier if identifier.is_a?(Class) && identifier < Chewy::Type
-        return identifier.types if identifier.is_a?(Class) && identifier < Chewy::Index
-
         Chewy.derive_types(identifier)
+      end
+
+      def human_duration(seconds)
+        [[60, :s], [60, :m], [24, :h]].map do |amount, unit|
+          if seconds > 0
+            seconds, n = seconds.divmod(amount)
+            "#{n.to_i}#{unit}"
+          end
+        end.compact.reverse.join(' ')
       end
 
       def reset_one(index, output, parallel: false)
         output.puts "Resetting #{index}"
-        time = Time.now
-        index.reset!((time.to_f * 1000).round, parallel: parallel)
-        return unless index.journal?
-        Chewy::Journal.create
-        Chewy::Journal::Apply.since(time, only: [index])
+        index.reset!((Time.now.to_f * 1000).round, parallel: parallel)
       end
     end
   end

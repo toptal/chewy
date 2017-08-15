@@ -82,6 +82,53 @@ describe Chewy::Fields::Root do
           .to eq('name' => 'London')
       end
     end
+
+    context 'root value provided' do
+      before do
+        stub_index(:places) do
+          define_type :city do
+            root value: ->(o) { {name: o.name + 'Modified', rating: o.rating.next} }
+          end
+        end
+      end
+
+      let(:city) { double(name: 'London', rating: 100) }
+
+      specify do
+        expect(PlacesIndex::City.send(:build_root).compose(city))
+          .to eq('name' => 'LondonModified', 'rating' => 101)
+      end
+
+      specify do
+        expect(PlacesIndex::City.send(:build_root).compose(city, fields: %i[name borogoves]))
+          .to eq('name' => 'LondonModified')
+      end
+    end
+
+    context 'complex evaluations' do
+      before do
+        stub_index(:places) do
+          define_type :city do
+            root value: ->(o) { {name: o.name + 'Modified', rating: o.rating.next} } do
+              field :name, value: ->(o) { o[:name] + 'Modified' }
+              field :rating
+            end
+          end
+        end
+      end
+
+      let(:city) { double(name: 'London', rating: 100) }
+
+      specify do
+        expect(PlacesIndex::City.send(:build_root).compose(city))
+          .to eq('name' => 'LondonModifiedModified', 'rating' => 101)
+      end
+
+      specify do
+        expect(PlacesIndex::City.send(:build_root).compose(city, fields: %i[name borogoves]))
+          .to eq('name' => 'LondonModifiedModified')
+      end
+    end
   end
 
   describe '#child_hash' do

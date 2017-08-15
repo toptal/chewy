@@ -44,10 +44,10 @@ shared_examples :bool_storage do |param_name|
   describe '#render' do
     specify { expect(described_class.new.render).to be_nil }
 
-    if param_name
+    if param_name.is_a?(Symbol)
       specify { expect(subject.render).to eq(param_name => true) }
     else
-      specify { expect(subject.render).to be_nil }
+      specify { expect(subject.render).to eq(param_name) }
     end
   end
 end

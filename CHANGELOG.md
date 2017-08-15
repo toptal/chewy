@@ -1,10 +1,34 @@
 # master
 
+# Version 0.10.1
+
+## Changes
+
+  * Improved parallel worker titles (#558)
+
+## Bugfixes
+
+  * Fixed request strategy initial debug message (#557)
+
+  * Fixed will objects paginated array initialization when pagination was not used (#556)
+
+  * Fixed fields symbol/string value (#555)
+
+  * Fixed root field value proc (#554)
+
+# Version 0.10.0
+
 ## Breaking changes
 
   * Changed behavior of `Chewy::Index.index_name`, it doesn't cache the values anymore.
 
+  * Journal interfaces, related code and rake tasks were completely refactored and are not compatible with the previous version.
+
 ## Changes
+
+  * Less noisy strategies logging (@Borzik, #543)
+
+  * Parallel import and the corresponding rake tasks.
 
   * `:shoryuken` async strategy (@josephchoe, #532)
 
@@ -19,13 +43,15 @@
 
   * Use normal YAML loading, for the config, we don't need the safe one.
 
-  * Consistency checks and synchronization: `rake chewy:sync`.
-
   * `default_root_options` option (@barthez, #526)
 
   * Partial indexing ability: it is possible to update only specified fields.
 
   * New cool `rake chewy:deploy` task.
+
+  * Selective reset (resets only if necessary): `rake chewy:upgrade`.
+
+  * Consistency checks and synchronization: `rake chewy:sync`.
 
   * Brand new request DSL. Supports ElasticSearch 2 and 5, better usability, architecture and docs.
 

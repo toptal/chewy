@@ -37,14 +37,14 @@ describe Chewy::RakeHelper, :orm do
         .to update_index(PlacesIndex::City)
       expect(output.string).to match(Regexp.new(<<-OUTPUT, Regexp::MULTILINE))
 \\AResetting PlacesIndex
-  Imported PlacesIndex::City for \\d+s, stats: index 3
-  Imported PlacesIndex::Country for \\d+s, stats: index 2
+  Imported PlacesIndex::City in \\d+s, stats: index 3
+  Imported PlacesIndex::Country in \\d+s, stats: index 2
   Applying journal to \\[PlacesIndex::City, PlacesIndex::Country\\], 3 entries, stage 1
-  Imported PlacesIndex::City for \\d+s, stats: index 2
-  Imported PlacesIndex::Country for \\d+s, stats: index 1
-  Imported Chewy::Stash::Specification for \\d+s, stats: index 1
+  Imported PlacesIndex::City in \\d+s, stats: index 2
+  Imported PlacesIndex::Country in \\d+s, stats: index 1
+  Imported Chewy::Stash::Specification in \\d+s, stats: index 1
 Resetting UsersIndex
-  Imported Chewy::Stash::Specification for \\d+s, stats: index 1
+  Imported Chewy::Stash::Specification in \\d+s, stats: index 1
 Total: \\d+s\\Z
       OUTPUT
     end
@@ -55,12 +55,12 @@ Total: \\d+s\\Z
         .to update_index(PlacesIndex::City)
       expect(output.string).to match(Regexp.new(<<-OUTPUT, Regexp::MULTILINE))
 \\AResetting PlacesIndex
-  Imported PlacesIndex::City for \\d+s, stats: index 3
-  Imported PlacesIndex::Country for \\d+s, stats: index 2
+  Imported PlacesIndex::City in \\d+s, stats: index 3
+  Imported PlacesIndex::Country in \\d+s, stats: index 2
   Applying journal to \\[PlacesIndex::City, PlacesIndex::Country\\], 3 entries, stage 1
-  Imported PlacesIndex::City for \\d+s, stats: index 2
-  Imported PlacesIndex::Country for \\d+s, stats: index 1
-  Imported Chewy::Stash::Specification for \\d+s, stats: index 1
+  Imported PlacesIndex::City in \\d+s, stats: index 2
+  Imported PlacesIndex::Country in \\d+s, stats: index 1
+  Imported Chewy::Stash::Specification in \\d+s, stats: index 1
 Total: \\d+s\\Z
       OUTPUT
     end
@@ -71,7 +71,7 @@ Total: \\d+s\\Z
         .not_to update_index(PlacesIndex::City)
       expect(output.string).to match(Regexp.new(<<-OUTPUT, Regexp::MULTILINE))
 \\AResetting UsersIndex
-  Imported Chewy::Stash::Specification for \\d+s, stats: index 1
+  Imported Chewy::Stash::Specification in \\d+s, stats: index 1
 Total: \\d+s\\Z
       OUTPUT
     end
@@ -84,11 +84,11 @@ Total: \\d+s\\Z
         .to update_index(PlacesIndex::City)
       expect(output.string).to match(Regexp.new(<<-OUTPUT, Regexp::MULTILINE))
 \\AResetting PlacesIndex
-  Imported PlacesIndex::City for \\d+s, stats: index 3
-  Imported PlacesIndex::Country for \\d+s, stats: index 2
-  Imported Chewy::Stash::Specification for \\d+s, stats: index 1
+  Imported PlacesIndex::City in \\d+s, stats: index 3
+  Imported PlacesIndex::Country in \\d+s, stats: index 2
+  Imported Chewy::Stash::Specification in \\d+s, stats: index 1
 Resetting UsersIndex
-  Imported Chewy::Stash::Specification for \\d+s, stats: index 1
+  Imported Chewy::Stash::Specification in \\d+s, stats: index 1
 Total: \\d+s\\Z
       OUTPUT
     end
@@ -103,7 +103,7 @@ Total: \\d+s\\Z
         expect(output.string).to match(Regexp.new(<<-OUTPUT, Regexp::MULTILINE))
 \\ASkipping PlacesIndex, the specification didn't change
 Resetting UsersIndex
-  Imported Chewy::Stash::Specification for \\d+s, stats: index 1
+  Imported Chewy::Stash::Specification in \\d+s, stats: index 1
 Total: \\d+s\\Z
         OUTPUT
       end
@@ -114,7 +114,7 @@ Total: \\d+s\\Z
           .not_to update_index(PlacesIndex::City)
         expect(output.string).to match(Regexp.new(<<-OUTPUT, Regexp::MULTILINE))
 \\AResetting UsersIndex
-  Imported Chewy::Stash::Specification for \\d+s, stats: index 1
+  Imported Chewy::Stash::Specification in \\d+s, stats: index 1
 Total: \\d+s\\Z
         OUTPUT
       end
@@ -154,8 +154,8 @@ Total: \\d+s\\Z
           .to update_index(PlacesIndex::City)
         expect(output.string).to match(Regexp.new(<<-OUTPUT, Regexp::MULTILINE))
 \\AUpdating PlacesIndex
-  Imported PlacesIndex::City for \\d+s, stats: index 3
-  Imported PlacesIndex::Country for \\d+s, stats: index 2
+  Imported PlacesIndex::City in \\d+s, stats: index 3
+  Imported PlacesIndex::Country in \\d+s, stats: index 2
 Total: \\d+s\\Z
         OUTPUT
       end
@@ -166,7 +166,7 @@ Total: \\d+s\\Z
           .not_to update_index(PlacesIndex::City)
         expect(output.string).to match(Regexp.new(<<-OUTPUT, Regexp::MULTILINE))
 \\AUpdating PlacesIndex
-  Imported PlacesIndex::Country for \\d+s, stats: index 2
+  Imported PlacesIndex::Country in \\d+s, stats: index 2
 Total: \\d+s\\Z
         OUTPUT
       end
@@ -177,7 +177,7 @@ Total: \\d+s\\Z
           .to update_index(PlacesIndex::City)
         expect(output.string).to match(Regexp.new(<<-OUTPUT, Regexp::MULTILINE))
 \\AUpdating PlacesIndex
-  Imported PlacesIndex::City for \\d+s, stats: index 3
+  Imported PlacesIndex::City in \\d+s, stats: index 3
 Total: \\d+s\\Z
         OUTPUT
       end
@@ -191,12 +191,12 @@ Total: \\d+s\\Z
         .to update_index(PlacesIndex::City)
       expect(output.string).to match(Regexp.new(<<-OUTPUT, Regexp::MULTILINE))
 \\ASynchronizing PlacesIndex::City
-  Imported PlacesIndex::City for \\d+s, stats: index 3
+  Imported PlacesIndex::City in \\d+s, stats: index 3
   Missing documents: \\[[^\\]]+\\]
   Took \\d+s
 Synchronizing PlacesIndex::Country
   PlacesIndex::Country doesn't support outdated synchronization
-  Imported PlacesIndex::Country for \\d+s, stats: index 2
+  Imported PlacesIndex::Country in \\d+s, stats: index 2
   Missing documents: \\[[^\\]]+\\]
   Took \\d+s
 Total: \\d+s\\Z
@@ -218,7 +218,7 @@ Total: \\d+s\\Z
           .to update_index(PlacesIndex::City)
         expect(output.string).to match(Regexp.new(<<-OUTPUT, Regexp::MULTILINE))
 \\ASynchronizing PlacesIndex::City
-  Imported PlacesIndex::City for \\d+s, stats: index 2
+  Imported PlacesIndex::City in \\d+s, stats: index 2
   Missing documents: \\["#{cities.last.id}"\\]
   Outdated documents: \\["#{cities.first.id}"\\]
   Took \\d+s
@@ -236,7 +236,7 @@ Total: \\d+s\\Z
           .to update_index(PlacesIndex::City)
         expect(output.string).to match(Regexp.new(<<-OUTPUT, Regexp::MULTILINE))
 \\ASynchronizing PlacesIndex::City
-  Imported PlacesIndex::City for \\d+s, stats: index 2
+  Imported PlacesIndex::City in \\d+s, stats: index 2
   Missing documents: \\["#{cities.last.id}"\\]
   Outdated documents: \\["#{cities.first.id}"\\]
   Took \\d+s
@@ -281,8 +281,8 @@ Total: \\d+s\\Z
         expect(output.string).to match(Regexp.new(<<-OUTPUT, Regexp::MULTILINE))
 \\AApplying journal entries created after [+-:\\d\\s]+
   Applying journal to \\[PlacesIndex::City, PlacesIndex::Country\\], 3 entries, stage 1
-  Imported PlacesIndex::City for \\d+s, stats: index 2
-  Imported PlacesIndex::Country for \\d+s, stats: index 1
+  Imported PlacesIndex::City in \\d+s, stats: index 2
+  Imported PlacesIndex::Country in \\d+s, stats: index 1
 Total: \\d+s\\Z
         OUTPUT
       end
@@ -294,7 +294,7 @@ Total: \\d+s\\Z
         expect(output.string).to match(Regexp.new(<<-OUTPUT, Regexp::MULTILINE))
 \\AApplying journal entries created after [+-:\\d\\s]+
   Applying journal to \\[PlacesIndex::Country\\], 1 entries, stage 1
-  Imported PlacesIndex::Country for \\d+s, stats: index 1
+  Imported PlacesIndex::Country in \\d+s, stats: index 1
 Total: \\d+s\\Z
         OUTPUT
       end
@@ -306,7 +306,7 @@ Total: \\d+s\\Z
         expect(output.string).to match(Regexp.new(<<-OUTPUT, Regexp::MULTILINE))
 \\AApplying journal entries created after [+-:\\d\\s]+
   Applying journal to \\[PlacesIndex::City\\], 2 entries, stage 1
-  Imported PlacesIndex::City for \\d+s, stats: index 2
+  Imported PlacesIndex::City in \\d+s, stats: index 2
 Total: \\d+s\\Z
         OUTPUT
       end
@@ -318,7 +318,7 @@ Total: \\d+s\\Z
         expect(output.string).to match(Regexp.new(<<-OUTPUT, Regexp::MULTILINE))
 \\AApplying journal entries created after [+-:\\d\\s]+
   Applying journal to \\[PlacesIndex::Country\\], 1 entries, stage 1
-  Imported PlacesIndex::Country for \\d+s, stats: index 1
+  Imported PlacesIndex::Country in \\d+s, stats: index 1
 Total: \\d+s\\Z
         OUTPUT
       end

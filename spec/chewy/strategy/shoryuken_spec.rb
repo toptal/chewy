@@ -1,6 +1,8 @@
 require 'spec_helper'
 
 if defined?(::Shoryuken)
+  require 'aws-sdk-sqs'
+
   describe Chewy::Strategy::Shoryuken do
     around { |example| Chewy.strategy(:bypass) { example.run } }
     before { ::Shoryuken.groups.clear }

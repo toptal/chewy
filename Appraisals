@@ -8,6 +8,7 @@
     gem 'activejob', "~> #{activesupport}.0" if activesupport >= '4.2'
     gem 'resque', require: false
     gem 'shoryuken', require: false
+    gem 'aws-sdk-sqs', require: false
     gem 'sidekiq', require: false
 
     gem 'kaminari', '~> 0.17.0', require: false
@@ -25,6 +26,7 @@ end
     gem 'activejob', "~> #{activesupport}.0"
     gem 'resque', require: false
     gem 'shoryuken', require: false
+    gem 'aws-sdk-sqs', require: false
     gem 'sidekiq', require: false
 
     gem 'kaminari-core', '~> 1.0.0', require: false
@@ -41,6 +43,7 @@ appraise 'rails.4.2.mongoid.5.1' do
   gem 'activejob', '~> 4.2.0'
   gem 'resque', require: false
   gem 'shoryuken', require: false
+  gem 'aws-sdk-sqs', require: false
   gem 'sidekiq', require: false
 
   gem 'kaminari', '~> 0.17.0', require: false
@@ -57,6 +60,7 @@ end
     gem 'activejob', "~> #{activesupport}.0"
     gem 'resque', require: false
     gem 'shoryuken', require: false
+    gem 'aws-sdk-sqs', require: false
     gem 'sidekiq', require: false
 
     gem 'kaminari-core', '~> 1.0.0', require: false

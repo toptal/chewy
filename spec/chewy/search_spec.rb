@@ -67,6 +67,10 @@ describe Chewy::Search do
             filter { match rating: yield }
           end
 
+          def self.by_index(index)
+            filter { match name: "Name#{index}" }
+          end
+
           field :name, index: 'not_analyzed'
           field :rating, type: :integer
         end
@@ -78,29 +82,35 @@ describe Chewy::Search do
       end
     end
 
-    let!(:cities) { Array.new(3) { |i| City.create! rating: i + 1, name: "Name#{i + 1}" } }
-    let!(:countries) { Array.new(3) { |i| Country.create! rating: i + 1, name: "Name#{i + 4}" } }
+    let!(:cities) { Array.new(3) { |i| City.create! rating: i + 1, name: "Name#{i + 2}" } }
+    let!(:countries) { Array.new(3) { |i| Country.create! rating: i + 1, name: "Name#{i + 3}" } }
 
     before { PlacesIndex.import! city: cities, country: countries }
 
     specify { expect(PlacesIndex.by_rating(1).map(&:rating)).to eq([1, 1]) }
     specify { expect(PlacesIndex.by_rating(1).map(&:class)).to match_array([PlacesIndex::City, PlacesIndex::Country]) }
-    specify { expect(PlacesIndex.by_rating(1).by_name(1).map(&:rating)).to eq([1]) }
-    specify { expect(PlacesIndex.by_rating(1).by_name(1).map(&:class)).to eq([PlacesIndex::City]) }
+    specify { expect(PlacesIndex.by_rating(1).by_name(2).map(&:rating)).to eq([1]) }
+    specify { expect(PlacesIndex.by_rating(1).by_name(2).map(&:class)).to eq([PlacesIndex::City]) }
+    specify { expect(PlacesIndex.by_name(3).map(&:rating)).to eq([2, 1]) }
+    specify { expect(PlacesIndex.by_name(3).map(&:class)).to eq([PlacesIndex::City, PlacesIndex::Country]) }
     specify { expect(PlacesIndex.order(:name).by_rating(1).map(&:rating)).to eq([1, 1]) }
     specify { expect(PlacesIndex.order(:name).by_rating(1).map(&:class)).to match_array([PlacesIndex::City, PlacesIndex::Country]) }
 
     specify { expect(PlacesIndex::City.by_rating { 2 }.map(&:rating)).to eq([2]) }
     specify { expect(PlacesIndex::City.by_rating { 2 }.map(&:class)).to eq([PlacesIndex::City]) }
-    specify { expect(PlacesIndex::City.by_rating { 2 }.by_name(2).map(&:rating)).to eq([2]) }
-    specify { expect(PlacesIndex::City.by_rating { 2 }.by_name(2).map(&:class)).to eq([PlacesIndex::City]) }
+    specify { expect(PlacesIndex::City.by_rating { 2 }.by_name(3).map(&:rating)).to eq([2]) }
+    specify { expect(PlacesIndex::City.by_rating { 2 }.by_name(3).map(&:class)).to eq([PlacesIndex::City]) }
+    specify { expect(PlacesIndex::City.by_name(3).map(&:rating)).to eq([2]) }
+    specify { expect(PlacesIndex::City.by_index(3).map(&:rating)).to eq([2]) }
+    specify { expect(PlacesIndex::City.order(:name).by_name(3).map(&:rating)).to eq([2]) }
+    specify { expect(PlacesIndex::City.order(:name).by_index(3).map(&:rating)).to eq([2]) }
     specify { expect(PlacesIndex::City.order(:name).by_rating { 2 }.map(&:rating)).to eq([2]) }
     specify { expect(PlacesIndex::City.order(:name).by_rating { 2 }.map(&:class)).to eq([PlacesIndex::City]) }
 
     specify { expect(PlacesIndex::Country.by_rating(3).map(&:rating)).to eq([3]) }
     specify { expect(PlacesIndex::Country.by_rating(3).map(&:class)).to eq([PlacesIndex::Country]) }
-    specify { expect(PlacesIndex::Country.by_rating(3).by_name(6).map(&:rating)).to eq([3]) }
-    specify { expect(PlacesIndex::Country.by_rating(3).by_name(6).map(&:class)).to eq([PlacesIndex::Country]) }
+    specify { expect(PlacesIndex::Country.by_rating(3).by_name(5).map(&:rating)).to eq([3]) }
+    specify { expect(PlacesIndex::Country.by_rating(3).by_name(5).map(&:class)).to eq([PlacesIndex::Country]) }
     specify { expect(PlacesIndex::Country.order(:name).by_rating(3).map(&:rating)).to eq([3]) }
     specify { expect(PlacesIndex::Country.order(:name).by_rating(3).map(&:class)).to eq([PlacesIndex::Country]) }
   end

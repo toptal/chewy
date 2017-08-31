@@ -191,16 +191,44 @@ describe Chewy::Index do
       stub_index(:places) do
         def self.by_rating; end
 
-        def self.by_name; end
+        def self.colors(*colors)
+          filter(terms: {colors: colors.flatten(1).map(&:to_s)})
+        end
 
         define_type :city do
           def self.by_id; end
+          field :colors
         end
       end
     end
 
     specify { expect(described_class.scopes).to eq([]) }
-    specify { expect(PlacesIndex.scopes).to match_array(%i[by_rating by_name]) }
+    specify { expect(PlacesIndex.scopes).to match_array(%i[by_rating colors]) }
+
+    context do
+      before do
+        Chewy.massacre
+        PlacesIndex::City.import!(
+          double(colors: ['red']),
+          double(colors: %w[red green]),
+          double(colors: %w[green yellow])
+        )
+      end
+
+      specify do
+        # This `blank?`` call is for the messed scopes bug reproduction. See #573
+        PlacesIndex::City.blank?
+        expect(PlacesIndex.colors(:green).map(&:colors))
+          .to contain_exactly(%w[red green], %w[green yellow])
+      end
+
+      specify do
+        # This `blank?` call is for the messed scopes bug reproduction. See #573
+        PlacesIndex::City.blank?
+        expect(PlacesIndex::City.colors(:green).map(&:colors))
+          .to contain_exactly(%w[red green], %w[green yellow])
+      end
+    end
   end
 
   describe '.settings_hash' do

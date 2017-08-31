@@ -1,5 +1,3 @@
-# rubocop:disable Style/FileName
-
 %w[4.0 4.1 4.2].each do |activesupport|
   appraise "rails.#{activesupport}.activerecord" do
     gem 'activerecord', "~> #{activesupport}.0"

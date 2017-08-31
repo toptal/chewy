@@ -3,7 +3,7 @@ module Chewy
     IMPORT_CALLBACK = lambda do |output, _name, start, finish, _id, payload| # rubocop:disable Metrics/ParameterLists
       duration = (finish - start).ceil
       stats = payload.fetch(:import, {}).map { |key, count| "#{key} #{count}" }.join(', ')
-      output.puts "  Imported #{payload[:type]} for #{human_duration(duration)}, stats: #{stats}"
+      output.puts "  Imported #{payload[:type]} in #{human_duration(duration)}, stats: #{stats}"
       if payload[:errors]
         payload[:errors].each do |action, errors|
           output.puts "    #{action.to_s.humanize} errors:"

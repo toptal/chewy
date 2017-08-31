@@ -8,8 +8,10 @@ gem 'activerecord'
 
 gem 'activejob', require: false
 gem 'resque', require: false
-gem 'shoryuken', require: false
 gem 'sidekiq', require: false
+
+gem 'aws-sdk-sqs', require: false
+gem 'shoryuken', require: false
 
 gem 'kaminari-core', require: false
 gem 'will_paginate', require: false

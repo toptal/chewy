@@ -91,12 +91,12 @@ module Chewy
 
       def build_search_class(base)
         search_class = Class.new(base)
+
         if self < Chewy::Type
           index_scopes = index.scopes - scopes
-
           delegate_scoped index, search_class, index_scopes
-          delegate_scoped index, self, index_scopes
         end
+
         delegate_scoped self, search_class, scopes
         const_set('Query', search_class)
       end

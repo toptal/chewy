@@ -1032,12 +1032,6 @@ If you use `DatabaseCleaner` in your tests with [the `transaction` strategy](htt
 Chewy.use_after_commit_callbacks = !Rails.env.test?
 ```
 
-## TODO a.k.a coming soon:
-
-* Typecasting support
-* update_all support
-* Maybe, closer ORM/ODM integration, creating index classes implicitly
-
 ## Contributing
 
 1. Fork it (http://github.com/toptal/chewy/fork)

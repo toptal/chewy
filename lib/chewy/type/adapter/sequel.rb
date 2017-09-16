@@ -34,7 +34,7 @@ module Chewy
         end
 
         def full_column_name(column)
-          "#{target.table_name}__#{column}".to_sym
+          ::Sequel.qualify(target.table_name, column)
         end
 
         def all_scope
@@ -55,7 +55,7 @@ module Chewy
         def pluck_in_batches(scope, fields: [], batch_size: nil, **options)
           return enum_for(:pluck_in_batches, scope, fields: fields, batch_size: batch_size, **options) unless block_given?
 
-          scope = scope.unordered.order(::Sequel.asc(full_column_name(primary_key))).limit(batch_size)
+          scope = scope.unordered.order(full_column_name(primary_key).asc).limit(batch_size)
 
           ids = pluck(scope, fields: fields)
           count = 0
@@ -64,7 +64,7 @@ module Chewy
             yield ids
             break if ids.size < batch_size
             last_id = ids.last.is_a?(Array) ? ids.last.first : ids.last
-            ids = pluck(scope.where { |o| o.__send__(full_column_name(primary_key)) > last_id }, fields: fields)
+            ids = pluck(scope.where { |_o| full_column_name(primary_key) > last_id }, fields: fields)
           end
 
           count

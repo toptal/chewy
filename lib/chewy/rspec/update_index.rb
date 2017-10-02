@@ -128,13 +128,13 @@ RSpec::Matchers.define :update_index do |type_name, options = {}| # rubocop:disa
       end
     end
 
-    @reindex.each do |_, document|
+    @reindex.each_value do |document|
       document[:match_count] = (!document[:expected_count] && document[:real_count] > 0) ||
         (document[:expected_count] && document[:expected_count] == document[:real_count])
       document[:match_attributes] = document[:expected_attributes].blank? ||
         compare_attributes(document[:expected_attributes], document[:real_attributes])
     end
-    @delete.each do |_, document|
+    @delete.each_value do |document|
       document[:match_count] = (!document[:expected_count] && document[:real_count] > 0) ||
         (document[:expected_count] && document[:expected_count] == document[:real_count])
     end

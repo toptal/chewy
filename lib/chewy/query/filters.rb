@@ -155,7 +155,7 @@ module Chewy
       #       .filter_mode(:or)
       #   end
       #
-      def has_child(type) # rubocop:disable Style/PredicateName
+      def has_child(type) # rubocop:disable Naming/PredicateName
         Nodes::HasChild.new(type, @outer)
       end
 
@@ -177,7 +177,7 @@ module Chewy
       #       .filter_mode(:or)
       #   end
       #
-      def has_parent(type) # rubocop:disable Style/PredicateName
+      def has_parent(type) # rubocop:disable Naming/PredicateName
         Nodes::HasParent.new(type, @outer)
       end
 

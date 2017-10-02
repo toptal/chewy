@@ -12,7 +12,7 @@ module Chewy
         def initialize(type, collection)
           @type = type
           @collection = collection
-          @type._crutches.keys.each do |name|
+          @type._crutches.each_key do |name|
             singleton_class.class_eval <<-METHOD, __FILE__, __LINE__ + 1
               def #{name}
                 @#{name} ||= @type._crutches[:#{name}].call @collection

@@ -2,7 +2,7 @@ module Chewy
   class Config
     include Singleton
 
-    attr_accessor :settings, :transport_logger, :transport_tracer, :logger,
+    attr_accessor :settings, :logger,
 
       # Default query compilation mode. `:must` by default.
       # See Chewy::Query#query_mode for details
@@ -59,7 +59,9 @@ module Chewy
       :default_root_options,
 
       # Default field type for any field in any Chewy type. Defaults to 'string'.
-      :default_field_type,
+      :default_field_type
+
+    attr_reader :transport_logger, :transport_tracer,
 
       # Chewy search request DSL base class, used by every index.
       :search_class

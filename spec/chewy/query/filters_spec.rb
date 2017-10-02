@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe Chewy::Query::Filters do
-  def Bool(options) # rubocop:disable Style/MethodName
+  def Bool(options) # rubocop:disable Naming/MethodName
     Chewy::Query::Nodes::Bool.new.tap do |bool|
       bool.must(*options[:must]) if options[:must].present?
       bool.must_not(*options[:must_not]) if options[:must_not].present?

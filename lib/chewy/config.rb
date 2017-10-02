@@ -170,9 +170,9 @@ module Chewy
     def build_search_class(base)
       Class.new(base).tap do |search_class|
         if defined?(::Kaminari)
-          search_class.include Chewy::Search::Pagination::Kaminari
+          search_class.send :include, Chewy::Search::Pagination::Kaminari
         elsif defined?(::WillPaginate)
-          search_class.include Chewy::Search::Pagination::WillPaginate
+          search_class.send :include, Chewy::Search::Pagination::WillPaginate
         end
       end
     end

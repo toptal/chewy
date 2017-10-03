@@ -114,7 +114,7 @@ module Chewy
         end
 
         def type_root
-          @type_root = @type.send(:build_root)
+          @type_root ||= @type.root
         end
       end
     end

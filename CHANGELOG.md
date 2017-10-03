@@ -1,5 +1,9 @@
 # master
 
+## Changes
+
+  * It is possible now to call `root` method several times inside a single type definition, the options will be merged. Also, the block isn't required anymore.
+
 # Version 0.10.1
 
 ## Changes

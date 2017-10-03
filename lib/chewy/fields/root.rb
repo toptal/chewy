@@ -6,15 +6,18 @@ module Chewy
       attr_reader :parent
       attr_reader :parent_id
 
-      def initialize(*args)
-        super(*args)
+      def initialize(*)
+        super
 
-        @id = @options.delete(:id) || options.delete(:_id)
-        @parent = @options.delete(:parent) || options.delete(:_parent)
-        @parent_id = @options.delete(:parent_id)
         @value ||= -> { self }
         @dynamic_templates = []
-        @options.delete(:type)
+      end
+
+      def update_options!(**options)
+        @id = options.fetch(:id, options.fetch(:_id, @id))
+        @parent = options.fetch(:parent, options.fetch(:_parent, @parent))
+        @parent_id = options.fetch(:parent_id, @parent_id)
+        @options.merge!(options.except(:id, :_id, :parent, :_parent, :parent_id, :type))
       end
 
       def mappings_hash

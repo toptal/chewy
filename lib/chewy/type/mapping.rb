@@ -33,9 +33,11 @@ module Chewy
         #     end
         #   end
         #
-        def root(options = {}, &block)
-          raise 'Root is already defined' if root_object
-          build_root(options, &block)
+        def root(**options)
+          self.root_object ||= Chewy::Fields::Root.new(type_name, Chewy.default_root_options.merge(options))
+          root_object.update_options!(options)
+          yield if block_given?
+          root_object
         end
 
         # Defines mapping field for current type
@@ -111,10 +113,7 @@ module Chewy
         #     field :sorted, analyzer: 'sorted'
         #   end
         #
-        def field(*args, &block)
-          options = args.extract_options!
-          build_root
-
+        def field(*args, **options, &block)
           if args.size > 1
             args.map { |name| field(name, options) }
           else
@@ -139,7 +138,6 @@ module Chewy
         #     end
         #   end
         def agg(name, &block)
-          build_root
           self._agg_defs = _agg_defs.merge(name => block)
         end
         alias_method :aggregation, :agg
@@ -165,45 +163,40 @@ module Chewy
         #   template template42: {match: 'hello*', mapping: {type: 'object'}} # or even pass a template as is
         #
         def template(*args)
-          build_root.dynamic_template(*args)
+          root.dynamic_template(*args)
         end
         alias_method :dynamic_template, :template
 
         # Returns compiled mappings hash for current type
         #
         def mappings_hash
-          root_object ? root_object.mappings_hash : {}
+          root.mappings_hash[type_name.to_sym].present? ? root.mappings_hash : {}
         end
 
         # Check whether the type has outdated_sync_field defined with a simple value.
         #
         # @return [true, false]
         def supports_outdated_sync?
-          updated_at_field = root_object.child_hash[outdated_sync_field] if root_object && outdated_sync_field
+          updated_at_field = root.child_hash[outdated_sync_field] if outdated_sync_field
           !!updated_at_field && updated_at_field.value.nil?
         end
 
       private
 
-        def expand_nested(field, &block)
+        def expand_nested(field)
+          @_current_field ||= root
+
           if @_current_field
             field.parent = @_current_field
             @_current_field.children.push(field)
           end
 
-          return unless block
+          return unless block_given?
 
           previous_field = @_current_field
           @_current_field = field
           yield
           @_current_field = previous_field
-        end
-
-        def build_root(options = {}, &block)
-          return root_object if root_object
-          self.root_object = Chewy::Fields::Root.new(type_name, Chewy.default_root_options.merge(options))
-          expand_nested(root_object, &block)
-          @_current_field = root_object
         end
       end
     end

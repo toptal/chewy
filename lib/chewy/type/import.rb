@@ -116,10 +116,10 @@ module Chewy
         def compose(object, crutches = nil, fields: [])
           crutches ||= Chewy::Type::Crutch::Crutches.new self, [object]
 
-          if witchcraft? && build_root.children.present?
+          if witchcraft? && root.children.present?
             cauldron(fields: fields).brew(object, crutches)
           else
-            build_root.compose(object, crutches, fields: fields)
+            root.compose(object, crutches, fields: fields)
           end
         end
 

@@ -4,11 +4,16 @@ module Chewy
       attr_reader :name, :options, :value, :children
       attr_accessor :parent
 
-      def initialize(name, options = {})
+      def initialize(name, value: nil, **options)
         @name = name.to_sym
-        @options = options.deep_symbolize_keys
-        @value = @options.delete(:value)
+        @options = {}
+        update_options!(options)
+        @value = value
         @children = []
+      end
+
+      def update_options!(**options)
+        @options = options
       end
 
       def multi_field?

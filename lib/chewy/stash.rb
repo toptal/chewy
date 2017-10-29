@@ -10,7 +10,7 @@ module Chewy
     define_type :specification do
       default_import_options journal: false
 
-      field :value, index: 'no'
+      field :value, index: 'no', doc_values: false
     end
 
     define_type :journal do # rubocop:disable Metrics/BlockLength

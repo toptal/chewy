@@ -69,7 +69,8 @@ module Chewy
       # @param object [Object] a base object for composition
       # @param crutches [Object] any object that will be passed to every field value proc as a last argument
       # @param fields [Array<Symbol>] a list of fields to compose, every field will be composed if empty
-      # @return [Hash] JSON-ready heash with stringifyed keys
+      # @return [Hash] JSON-ready hash with stringified keys
+      #
       def compose(object, crutches = nil, fields: [])
         result = evaluate([object, crutches])
 
@@ -84,9 +85,9 @@ module Chewy
             memo.merge!(field.compose(result, crutches) || {})
           end.as_json
         elsif fields.present?
-          result.as_json(only: fields)
+          result.as_json(only: fields, root: false)
         else
-          result.as_json
+          result.as_json(root: false)
         end
       end
 

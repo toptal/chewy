@@ -309,4 +309,29 @@ describe Chewy::Index do
       specify { expect(DummiesIndex.index_name).to eq('borogoves_dummies') }
     end
   end
+
+  context 'index call inside index', :orm do
+    before do
+      stub_index(:cities) do
+        define_type :city do
+          field :country_name, value: (lambda do |city|
+            CountriesIndex::Country.filter(term: {_id: city.country_id}).first.name
+          end)
+        end
+      end
+
+      stub_index(:countries) do
+        define_type :country do
+          field :name
+        end
+      end
+
+      CountriesIndex::Country.import!(double(id: 1, name: 'Country'))
+    end
+
+    specify do
+      expect { CitiesIndex::City.import!(double(country_id: 1)) }
+        .to update_index(CitiesIndex::City).and_reindex(country_name: 'Country')
+    end
+  end
 end

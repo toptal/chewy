@@ -14,7 +14,7 @@ require 'chewy/type/witchcraft'
 
 module Chewy
   class Type
-    IMPORT_OPTIONS_KEYS = %i[batch_size bulk_size refresh consistency replication raw_import journal].freeze
+    IMPORT_OPTIONS_KEYS = %i[batch_size bulk_size refresh consistency replication raw_import journal pipeline].freeze
 
     include Search
     include Mapping

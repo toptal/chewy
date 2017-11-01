@@ -126,7 +126,7 @@ module Chewy
     #
     #      :wait_for_status - if this option set - chewy actions such
     #      as creating or deleting index, importing data will wait for
-    #      the status specified. Extremely useful for tests under havy
+    #      the status specified. Extremely useful for tests under heavy
     #      indexes manipulations.
     #
     #        test:

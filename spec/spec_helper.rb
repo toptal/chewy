@@ -13,6 +13,7 @@ require 'rspec/its'
 require 'rspec/collection_matchers'
 
 require 'timecop'
+require 'byebug'
 
 Kaminari::Hooks.init if defined?(::Kaminari::Hooks)
 

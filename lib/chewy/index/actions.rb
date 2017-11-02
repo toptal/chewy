@@ -164,7 +164,7 @@ module Chewy
         # @see http://www.elasticsearch.org/blog/changing-mapping-with-zero-downtime
         # @param suffix [String] a suffix for the newly created index
         # @param apply_journal [true, false] if true, journal is applied after the import is completed
-        # @param journal [true, false] journalig is switched off for import during reset by default
+        # @param journal [true, false] journaling is switched off for import during reset by default
         # @param import_options [Hash] options, passed to the import call
         # @return [true, false] false in case of errors
         def reset!(suffix = nil, apply_journal: true, journal: false, **import_options)
@@ -231,7 +231,7 @@ module Chewy
         end
 
         def index_settings(setting_name)
-          return {} unless settings_hash.key?(:settings) || settings_hash[:settings].key?(:index)
+          return {} unless settings_hash.key?(:settings) && settings_hash[:settings].key?(:index)
           settings_hash[:settings][:index].slice(setting_name)
         end
       end

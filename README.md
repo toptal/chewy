@@ -807,29 +807,79 @@ Chewy has notifying the following events:
 To integrate with NewRelic you may use the following example source (config/initializers/chewy.rb):
 
 ```ruby
-ActiveSupport::Notifications.subscribe('import_objects.chewy') do |name, start, finish, id, payload|
-  metric_name = "Database/ElasticSearch/import"
-  duration = (finish - start).to_f
-  logged = "#{payload[:type]} #{payload[:import].to_a.map{ |i| i.join(':') }.join(', ')}"
+require 'new_relic/agent/instrumentation/evented_subscriber'
 
-  self.class.trace_execution_scoped([metric_name]) do
-    NewRelic::Agent.instance.transaction_sampler.notice_sql(logged, nil, duration)
-    NewRelic::Agent.instance.sql_sampler.notice_sql(logged, metric_name, nil, duration)
-    NewRelic::Agent.record_metric(metric_name, duration)
+class ChewySubscriber < NewRelic::Agent::Instrumentation::EventedSubscriber
+  def start(name, id, payload)
+    event = ChewyEvent.new(name, Time.current, nil, id, payload)
+    push_event(event)
+  end
+
+  def finish(_name, id, _payload)
+    pop_event(id).finish
+  end
+
+  class ChewyEvent < NewRelic::Agent::Instrumentation::Event
+    OPERATIONS = {
+      'import_objects.chewy' => 'import',
+      'search_query.chewy' => 'search',
+      'delete_query.chewy' => 'delete'
+    }.freeze
+
+    def initialize(*args)
+      super
+      @segment = start_segment
+    end
+
+    def start_segment
+      segment = NewRelic::Agent::Transaction::DatastoreSegment.new product, operation, collection, host, port
+      if (txn = state.current_transaction)
+        segment.transaction = txn
+      end
+      segment.notice_sql @payload[:request].to_s
+      segment.start
+      segment
+    end
+
+    def finish
+      if (txn = state.current_transaction)
+        txn.add_segment @segment
+      end
+      @segment.finish
+    end
+
+    private
+
+    def state
+      @state ||= NewRelic::Agent::TransactionState.tl_get
+    end
+
+    def product
+      'Elasticsearch'
+    end
+
+    def operation
+      OPERATIONS[name]
+    end
+
+    def collection
+      payload.values_at(:type, :index)
+             .reject { |value| value.try(:empty?) }
+             .first
+             .to_s
+    end
+
+    def host
+      Chewy.client.transport.hosts.first[:host]
+    end
+
+    def port
+      Chewy.client.transport.hosts.first[:port]
+    end
   end
 end
 
-ActiveSupport::Notifications.subscribe('search_query.chewy') do |name, start, finish, id, payload|
-  metric_name = "Database/ElasticSearch/search"
-  duration = (finish - start).to_f
-  logged = "#{payload[:type].presence || payload[:index]} #{payload[:request]}"
-
-  self.class.trace_execution_scoped([metric_name]) do
-    NewRelic::Agent.instance.transaction_sampler.notice_sql(logged, nil, duration)
-    NewRelic::Agent.instance.sql_sampler.notice_sql(logged, metric_name, nil, duration)
-    NewRelic::Agent.record_metric(metric_name, duration)
-  end
-end
+ActiveSupport::Notifications.subscribe(/.chewy$/, ChewySubscriber.new)
 ```
 
 ### Search requests

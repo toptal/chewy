@@ -24,7 +24,7 @@ module Chewy
       def lock!
         Chewy::Stash::Specification.import!([
           id: @index.derivable_name,
-          value: current.to_json
+          specification: current
         ], journal: false)
       end
 
@@ -34,7 +34,9 @@ module Chewy
       # @return [Hash] hash produced with JSON parser
       def locked
         filter = {ids: {values: [@index.derivable_name]}}
-        JSON.parse(Chewy::Stash::Specification.filter(filter).first.try!(:value) || '{}')
+        document = Chewy::Stash::Specification.filter(filter).first
+        return {} unless document
+        document.specification || JSON.parse(document.value || '{}')
       end
 
       # Simply returns `Chewy::Index.specification_hash`, but

@@ -59,7 +59,10 @@ describe Chewy::Index::Specification do
         '_type' => 'specification',
         '_id' => 'places',
         '_score' => 1.0,
-        '_source' => {'value' => '{"settings":{"index":{"number_of_shards":1,"number_of_replicas":0}},"mappings":{"city":{"properties":{"name":{"type":"string"}}}}}'}
+        '_source' => {'specification' => {
+          'settings' => {'index' => {'number_of_shards' => 1, 'number_of_replicas' => 0}},
+          'mappings' => {'city' => {'properties' => {'name' => {'type' => 'string'}}}}
+        }, 'value' => nil}
       }])
     end
 
@@ -72,13 +75,19 @@ describe Chewy::Index::Specification do
           '_type' => 'specification',
           '_id' => 'places',
           '_score' => 1.0,
-          '_source' => {'value' => '{"settings":{"index":{"number_of_shards":1,"number_of_replicas":0}},"mappings":{"city":{"properties":{"name":{"type":"string"}}}}}'}
+          '_source' => {'specification' => {
+            'settings' => {'index' => {'number_of_shards' => 1, 'number_of_replicas' => 0}},
+            'mappings' => {'city' => {'properties' => {'name' => {'type' => 'string'}}}}
+          }, 'value' => nil}
         }, {
           '_index' => 'chewy_stash',
           '_type' => 'specification',
           '_id' => 'namespace/cities',
           '_score' => 1.0,
-          '_source' => {'value' => '{"settings":{"index":{"number_of_shards":1,"number_of_replicas":0}},"mappings":{"city":{"properties":{"population":{"type":"integer"}}}}}'}
+          '_source' => {'specification' => {
+            'settings' => {'index' => {'number_of_shards' => 1, 'number_of_replicas' => 0}},
+            'mappings' => {'city' => {'properties' => {'population' => {'type' => 'integer'}}}}
+          }, 'value' => nil}
         }])
       end
     end

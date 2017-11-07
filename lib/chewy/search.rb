@@ -63,7 +63,7 @@ module Chewy
           type: all._types.map(&:type_name),
           q: query
         )
-        Chewy.client.search(options)
+        Chewy.client(_indexes.first.hosts_name).search(options)
       end
 
       # Delegates methods from the request class to the index or type class

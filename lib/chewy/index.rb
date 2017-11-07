@@ -19,6 +19,8 @@ module Chewy
     self._settings = Chewy::Index::Settings.new
 
     class << self
+      attr_reader :hosts_name
+
       # @overload index_name(suggest)
       #   If suggested name is passed, it is set up as the new base name for
       #   the index. Used for the index base name redefinition.
@@ -60,6 +62,13 @@ module Chewy
             suffix
           ].reject(&:blank?).join('_')
         end
+      end
+
+      # Sets the hosts name of the index. If hosts_name is nil, use the default
+      # hosts in chewy.yml. Otherwise use the hosts with the specified name for
+      # indexing/queries.
+      def set_hosts_name(hosts_name)
+        @hosts_name = hosts_name
       end
 
       # Base name for the index. Uses the default value inferred from the

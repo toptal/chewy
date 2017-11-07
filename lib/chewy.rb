@@ -145,14 +145,16 @@ module Chewy
     #
     def client(hosts=nil)
       # We are changing this to support multiple clusters in chewy.
-      if Rails.env.production? and hosts
+      # if Rails.env.production? and hosts
+      if hosts
         thread_cache_key = "chewy_client_#{hosts}"
       else
         thread_cache_key = "chewy_client"
       end
       Thread.current[thread_cache_key.to_sym] ||= begin
         client_configuration = configuration.deep_dup
-        if Rails.env.production? and hosts
+        # if Rails.env.production? and hosts
+        if hosts
           client_configuration[:hosts] = client_configuration[hosts]
         end
         client_configuration.delete(:prefix) # used by Chewy, not relevant to Elasticsearch::Client

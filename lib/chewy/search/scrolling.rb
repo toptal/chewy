@@ -128,7 +128,7 @@ module Chewy
           request: body, indexes: _indexes, types: _types,
           index: _indexes.one? ? _indexes.first : _indexes,
           type: _types.one? ? _types.first : _types do
-          Chewy.client.scroll(body)
+          Chewy.client(_indexes.first.hosts_name).scroll(body)
         end
       end
     end

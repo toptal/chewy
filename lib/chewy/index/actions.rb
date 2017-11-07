@@ -57,7 +57,7 @@ module Chewy
           general_name = index_name
           suffixed_name = index_name(suffix: suffix)
 
-          if Chewy::Runtime.version >= 1.1
+          if Chewy::Runtime.version(@hosts_name) >= 1.1
             body = specification_hash
             body[:aliases] = {general_name => {}} if options[:alias] && suffixed_name != general_name
             result = client(@hosts_name).indices.create(index: suffixed_name, body: body)

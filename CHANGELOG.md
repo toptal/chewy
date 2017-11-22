@@ -2,6 +2,12 @@
 
 ## Changes
 
+  * Added [support for several elasticsearch servers](https://github.com/toptal/chewy/#client-settings) (@mainameiz)
+
+  * `Chewy.client` is deprecated, use `Chewy.client(client_name)` or `Chewy.default_client` instead.
+
+  * `Chewy::Runtime.version` is deprecated, use `Chewy.client(client_name).version` instead.
+
   * It is possible now to call `root` method several times inside a single type definition, the options will be merged. Also, the block isn't required anymore.
 
 # Version 0.10.1

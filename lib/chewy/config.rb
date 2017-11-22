@@ -1,3 +1,5 @@
+require 'chewy/config/clients'
+
 module Chewy
   class Config
     include Singleton
@@ -87,12 +89,16 @@ module Chewy
     end
 
     def transport_logger=(logger)
-      Chewy.client.transport.logger = logger
+      Chewy.clients.each do |name, _config|
+        Chewy.client(name).transport.logger = logger
+      end
       @transport_logger = logger
     end
 
     def transport_tracer=(tracer)
-      Chewy.client.transport.tracer = tracer
+      Chewy.clients.each do |name, _config|
+        Chewy.client(name).transport.tracer = tracer
+      end
       @transport_tracer = tracer
     end
 
@@ -133,6 +139,20 @@ module Chewy
     #          host: 'localhost:9250'
     #          wait_for_status: green
     #
+    #      :clients - configuration for alternative elastic search servers.
+    #
+    #        test:
+    #          hosts: 'localhost:9250'
+    #          clients:
+    #            search:
+    #              hosts: 'search.example.com:9250'
+    #
+    #         class SearchIndex < Chewy::Index
+    #           use_client :search
+    #         end
+    #
+    #       Will use alternative server for SearchIndex.
+    #
     #   3. Index settings. All the possible ElasticSearch index settings.
     #      Will be merged as defaults with index settings on every index
     #      creation.
@@ -147,8 +167,18 @@ module Chewy
       yaml_settings.merge(settings.deep_symbolize_keys).tap do |configuration|
         configuration[:logger] = transport_logger if transport_logger
         configuration[:indices_path] ||= indices_path if indices_path
-        configuration.merge!(tracer: transport_tracer) if transport_tracer
+        configuration[:tracer] = transport_tracer if transport_tracer
+        configuration[:clients] ||= {}
       end
+    end
+
+    def clients
+      @clients = Config::Clients.new({ default: configuration }.merge(configuration[:clients]))
+    end
+
+    def settings=(settings)
+      Chewy::Clients.clear
+      @settings = settings
     end
 
   private

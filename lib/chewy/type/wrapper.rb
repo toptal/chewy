@@ -70,11 +70,11 @@ module Chewy
       end
 
       def attribute_defined?(attribute)
-        self.class.root_object && self.class.root_object.children.find { |a| a.name.to_s == attribute }.present?
+        self.class.root && self.class.root.children.find { |a| a.name.to_s == attribute }.present?
       end
 
       def highlight(attribute)
-        _data['highlight'][attribute].first
+        _data['highlight'][attribute].first if highlight?(attribute)
       end
 
       def highlight?(attribute)

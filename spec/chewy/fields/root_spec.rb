@@ -53,11 +53,11 @@ describe Chewy::Fields::Root do
       let(:city) { City.new(name: 'London', rating: 100) }
 
       specify do
-        expect(PlacesIndex::City.send(:build_root).compose(city))
+        expect(PlacesIndex::City.root.compose(city))
           .to match(hash_including('name' => 'London', 'rating' => 100))
       end
       specify do
-        expect(PlacesIndex::City.send(:build_root).compose(city, fields: %i[name borogoves]))
+        expect(PlacesIndex::City.root.compose(city, fields: %i[name borogoves]))
           .to eq('name' => 'London')
       end
     end
@@ -74,11 +74,11 @@ describe Chewy::Fields::Root do
       let(:city) { double(name: 'London', rating: 100) }
 
       specify do
-        expect(PlacesIndex::City.send(:build_root).compose(city))
+        expect(PlacesIndex::City.root.compose(city))
           .to eq('name' => 'London', 'rating' => 100)
       end
       specify do
-        expect(PlacesIndex::City.send(:build_root).compose(city, fields: %i[name borogoves]))
+        expect(PlacesIndex::City.root.compose(city, fields: %i[name borogoves]))
           .to eq('name' => 'London')
       end
     end
@@ -95,12 +95,12 @@ describe Chewy::Fields::Root do
       let(:city) { double(name: 'London', rating: 100) }
 
       specify do
-        expect(PlacesIndex::City.send(:build_root).compose(city))
+        expect(PlacesIndex::City.root.compose(city))
           .to eq('name' => 'LondonModified', 'rating' => 101)
       end
 
       specify do
-        expect(PlacesIndex::City.send(:build_root).compose(city, fields: %i[name borogoves]))
+        expect(PlacesIndex::City.root.compose(city, fields: %i[name borogoves]))
           .to eq('name' => 'LondonModified')
       end
     end
@@ -120,12 +120,12 @@ describe Chewy::Fields::Root do
       let(:city) { double(name: 'London', rating: 100) }
 
       specify do
-        expect(PlacesIndex::City.send(:build_root).compose(city))
+        expect(PlacesIndex::City.root.compose(city))
           .to eq('name' => 'LondonModifiedModified', 'rating' => 101)
       end
 
       specify do
-        expect(PlacesIndex::City.send(:build_root).compose(city, fields: %i[name borogoves]))
+        expect(PlacesIndex::City.root.compose(city, fields: %i[name borogoves]))
           .to eq('name' => 'LondonModifiedModified')
       end
     end
@@ -141,7 +141,7 @@ describe Chewy::Fields::Root do
     end
 
     specify do
-      expect(PlacesIndex::City.send(:build_root).child_hash).to match(
+      expect(PlacesIndex::City.root.child_hash).to match(
         name: an_instance_of(Chewy::Fields::Base).and(have_attributes(name: :name)),
         rating: an_instance_of(Chewy::Fields::Base).and(have_attributes(name: :rating))
       )

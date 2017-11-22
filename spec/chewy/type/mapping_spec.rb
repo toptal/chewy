@@ -44,10 +44,10 @@ describe Chewy::Type::Mapping do
       end
     end
 
-    specify { expect(product.root_object.children.map(&:name)).to eq([:title]) }
-    specify { expect(product.root_object.children.map(&:parent)).to eq([product.root_object]) }
-    specify { expect(product.root_object.children[0].children.map(&:name)).to eq([:subfield1]) }
-    specify { expect(product.root_object.children[0].children.map(&:parent)).to eq([product.root_object.children[0]]) }
+    specify { expect(product.root.children.map(&:name)).to eq([:title]) }
+    specify { expect(product.root.children.map(&:parent)).to eq([product.root]) }
+    specify { expect(product.root.children[0].children.map(&:name)).to eq([:subfield1]) }
+    specify { expect(product.root.children[0].children.map(&:parent)).to eq([product.root.children[0]]) }
 
     context 'default root options are set' do
       around do |example|
@@ -67,22 +67,53 @@ describe Chewy::Type::Mapping do
   end
 
   describe '.field' do
-    specify { expect(product.root_object.children.map(&:name)).to eq(%i[name surname title price]) }
-    specify { expect(product.root_object.children.map(&:parent)).to eq([product.root_object] * 4) }
+    specify { expect(product.root.children.map(&:name)).to eq(%i[name surname title price]) }
+    specify { expect(product.root.children.map(&:parent)).to eq([product.root] * 4) }
 
-    specify { expect(product.root_object.children[0].children.map(&:name)).to eq([]) }
-    specify { expect(product.root_object.children[1].children.map(&:name)).to eq([]) }
+    specify { expect(product.root.children[0].children.map(&:name)).to eq([]) }
+    specify { expect(product.root.children[1].children.map(&:name)).to eq([]) }
 
-    specify { expect(product.root_object.children[2].children.map(&:name)).to eq([:subfield1]) }
-    specify { expect(product.root_object.children[2].children.map(&:parent)).to eq([product.root_object.children[2]]) }
+    specify { expect(product.root.children[2].children.map(&:name)).to eq([:subfield1]) }
+    specify { expect(product.root.children[2].children.map(&:parent)).to eq([product.root.children[2]]) }
 
-    specify { expect(product.root_object.children[3].children.map(&:name)).to eq([:subfield2]) }
-    specify { expect(product.root_object.children[3].children.map(&:parent)).to eq([product.root_object.children[3]]) }
+    specify { expect(product.root.children[3].children.map(&:name)).to eq([:subfield2]) }
+    specify { expect(product.root.children[3].children.map(&:parent)).to eq([product.root.children[3]]) }
   end
 
   describe '.mappings_hash' do
-    specify { expect(Class.new(Chewy::Type).mappings_hash).to eq({}) }
-    specify { expect(product.mappings_hash).to eq(product.root_object.mappings_hash) }
+    specify { expect(product.mappings_hash).to eq(product.root.mappings_hash) }
+
+    context 'root merging' do
+      context do
+        before do
+          stub_index(:products) do
+            define_type :product do
+              root _parent: 'project', other_option: 'nothing' do
+                field :name do
+                  field :last_name # will be redefined in the following root flock
+                end
+              end
+              root _parent: 'something_else'
+              root other_option: 'option_value' do
+                field :identifier
+                field :name, type: 'integer'
+              end
+            end
+          end
+        end
+
+        specify do
+          expect(product.mappings_hash).to eq(product: {
+            properties: {
+              name: {type: 'integer'},
+              identifier: {type: 'text'}
+            },
+            other_option: 'option_value',
+            _parent: {type: 'something_else'}
+          })
+        end
+      end
+    end
 
     context 'parent-child relationship' do
       context do
@@ -110,7 +141,7 @@ describe Chewy::Type::Mapping do
           end
         end
 
-        specify { expect(product.mappings_hash[:product][:_parent]).to eq(type: 'project') }
+        specify { expect(product.mappings_hash[:product][:_parent]).to eq('type' => 'project') }
       end
     end
   end

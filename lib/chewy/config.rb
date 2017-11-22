@@ -2,7 +2,7 @@ module Chewy
   class Config
     include Singleton
 
-    attr_accessor :settings, :transport_logger, :transport_tracer, :logger,
+    attr_accessor :settings, :logger,
 
       # Default query compilation mode. `:must` by default.
       # See Chewy::Query#query_mode for details
@@ -59,7 +59,9 @@ module Chewy
       :default_root_options,
 
       # Default field type for any field in any Chewy type. Defaults to 'string'.
-      :default_field_type,
+      :default_field_type
+
+    attr_reader :transport_logger, :transport_tracer,
 
       # Chewy search request DSL base class, used by every index.
       :search_class
@@ -124,7 +126,7 @@ module Chewy
     #
     #      :wait_for_status - if this option set - chewy actions such
     #      as creating or deleting index, importing data will wait for
-    #      the status specified. Extremely useful for tests under havy
+    #      the status specified. Extremely useful for tests under heavy
     #      indexes manipulations.
     #
     #        test:
@@ -168,9 +170,9 @@ module Chewy
     def build_search_class(base)
       Class.new(base).tap do |search_class|
         if defined?(::Kaminari)
-          search_class.include Chewy::Search::Pagination::Kaminari
+          search_class.send :include, Chewy::Search::Pagination::Kaminari
         elsif defined?(::WillPaginate)
-          search_class.include Chewy::Search::Pagination::WillPaginate
+          search_class.send :include, Chewy::Search::Pagination::WillPaginate
         end
       end
     end

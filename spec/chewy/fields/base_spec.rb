@@ -185,13 +185,13 @@ describe Chewy::Fields::Base do
       end
 
       specify do
-        expect(EventsIndex::Event.root_object.compose(
+        expect(EventsIndex::Event.root.compose(
                  id: 1, category: {id: 2, licenses: {id: 3, name: 'Name'}}
         )).to eq('id' => 1, 'category' => {'id' => 2, 'licenses' => {'id' => 3, 'name' => 'Name'}})
       end
 
       specify do
-        expect(EventsIndex::Event.root_object.compose(id: 1, category: [
+        expect(EventsIndex::Event.root.compose(id: 1, category: [
           {id: 2, 'licenses' => {id: 3, name: 'Name1'}},
           {id: 4, licenses: nil}
         ])).to eq('id' => 1, 'category' => [
@@ -201,7 +201,7 @@ describe Chewy::Fields::Base do
       end
 
       specify do
-        expect(EventsIndex::Event.root_object.compose('id' => 1, category: {id: 2, licenses: [
+        expect(EventsIndex::Event.root.compose('id' => 1, category: {id: 2, licenses: [
           {id: 3, name: 'Name1'}, {id: 4, name: 'Name2'}
         ]})).to eq('id' => 1, 'category' => {'id' => 2, 'licenses' => [
           {'id' => 3, 'name' => 'Name1'}, {'id' => 4, 'name' => 'Name2'}
@@ -209,7 +209,7 @@ describe Chewy::Fields::Base do
       end
 
       specify do
-        expect(EventsIndex::Event.root_object.compose(id: 1, category: [
+        expect(EventsIndex::Event.root.compose(id: 1, category: [
           {id: 2, licenses: [
             {id: 3, 'name' => 'Name1'}, {id: 4, name: 'Name2'}
           ]},
@@ -223,13 +223,13 @@ describe Chewy::Fields::Base do
       end
 
       specify do
-        expect(EventsIndex::Event.root_object.compose(
+        expect(EventsIndex::Event.root.compose(
                  double(id: 1, category: double(id: 2, licenses: double(id: 3, name: 'Name')))
         )).to eq('id' => 1, 'category' => {'id' => 2, 'licenses' => {'id' => 3, 'name' => 'Name'}})
       end
 
       specify do
-        expect(EventsIndex::Event.root_object.compose(double(id: 1, category: [
+        expect(EventsIndex::Event.root.compose(double(id: 1, category: [
           double(id: 2, licenses: double(id: 3, name: 'Name1')),
           double(id: 4, licenses: nil)
         ]))).to eq('id' => 1, 'category' => [
@@ -239,7 +239,7 @@ describe Chewy::Fields::Base do
       end
 
       specify do
-        expect(EventsIndex::Event.root_object.compose(double(id: 1, category: double(id: 2, licenses: [
+        expect(EventsIndex::Event.root.compose(double(id: 1, category: double(id: 2, licenses: [
           double(id: 3, name: 'Name1'), double(id: 4, name: 'Name2')
         ])))).to eq('id' => 1, 'category' => {'id' => 2, 'licenses' => [
           {'id' => 3, 'name' => 'Name1'}, {'id' => 4, 'name' => 'Name2'}
@@ -247,7 +247,7 @@ describe Chewy::Fields::Base do
       end
 
       specify do
-        expect(EventsIndex::Event.root_object.compose(double(id: 1, category: [
+        expect(EventsIndex::Event.root.compose(double(id: 1, category: [
           double(id: 2, licenses: [
             double(id: 3, name: 'Name1'), double(id: 4, name: 'Name2')
           ]),
@@ -278,7 +278,7 @@ describe Chewy::Fields::Base do
       end
 
       specify do
-        expect(EventsIndex::Event.root_object.compose(
+        expect(EventsIndex::Event.root.compose(
                  double(id: 1, categories: double(id: 2, license: double(id: 3, name: 'Name')))
         )).to eq('id' => 1, 'category' => {'id' => 2, 'licenses' => {'id' => 3, 'name' => 'Name'}})
       end
@@ -313,7 +313,7 @@ describe Chewy::Fields::Base do
       end
 
       specify do
-        expect(EventsIndex::Event.root_object.compose(
+        expect(EventsIndex::Event.root.compose(
                  double(id: 1, name: 'Jonny', category: double(id: 2, as_json: {'name' => 'Borogoves'}))
         )).to eq(
           'id' => 1,
@@ -323,7 +323,7 @@ describe Chewy::Fields::Base do
       end
 
       specify do
-        expect(EventsIndex::Event.root_object.compose(
+        expect(EventsIndex::Event.root.compose(
                  double(id: 1, name: 'Jonny', category: [
                    double(id: 2, as_json: {'name' => 'Borogoves1'}),
                    double(id: 3, as_json: {'name' => 'Borogoves2'})
@@ -388,7 +388,7 @@ describe Chewy::Fields::Base do
       end
 
       specify do
-        expect(CountriesIndex::Country.root_object.compose(country_with_cities)).to eq('id' => 1, 'cities' => [
+        expect(CountriesIndex::Country.root.compose(country_with_cities)).to eq('id' => 1, 'cities' => [
           {'id' => 1, 'name' => 'City1'}, {'id' => 2, 'name' => 'City2'}
         ])
       end
@@ -407,7 +407,7 @@ describe Chewy::Fields::Base do
         end
 
         specify do
-          expect(CitiesIndex::City.root_object.compose(
+          expect(CitiesIndex::City.root.compose(
                    City.create!(id: 1, country: Country.create!(id: 1, name: 'Country'))
           )).to eq('id' => 1, 'country' => {'id' => 1, 'name' => 'Country'})
         end

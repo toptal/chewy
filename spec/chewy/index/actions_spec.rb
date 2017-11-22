@@ -429,6 +429,12 @@ describe Chewy::Index::Actions do
             expect(CitiesIndex).to receive(:import).with(suffix: suffix, journal: false, refresh: false).and_call_original
             expect(CitiesIndex.reset!(suffix)).to eq(true)
           end
+
+          specify 'uses empty index settings if not defined' do
+            allow(Chewy).to receive(:wait_for_status).and_return(nil)
+            allow(CitiesIndex).to receive(:settings_hash).and_return({})
+            expect(CitiesIndex.reset!(suffix)).to eq(true)
+          end
         end
       end
 

@@ -2,7 +2,7 @@ module Chewy
   class Config
     include Singleton
 
-    attr_accessor :settings, :logger,
+    attr_accessor :logger,
 
       # Default query compilation mode. `:must` by default.
       # See Chewy::Query#query_mode for details
@@ -151,20 +151,14 @@ module Chewy
       end
     end
 
+    def settings=(hash)
+      @settings ||= Chewy::Config::Settings.new(hash).hash
+    end
+
   private
 
     def yaml_settings
-      @yaml_settings ||= begin
-        if defined?(Rails)
-          file = Rails.root.join('config', 'chewy.yml')
-
-          if File.exist?(file)
-            yaml = ERB.new(File.read(file)).result
-            hash = YAML.load(yaml) # rubocop:disable Security/YAMLLoad
-            hash[Rails.env].try(:deep_symbolize_keys) if hash
-          end
-        end || {}
-      end
+      @yaml_settings ||= Chewy::Config::YamlSettings.new.hash
     end
 
     def build_search_class(base)

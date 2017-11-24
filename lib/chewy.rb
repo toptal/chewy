@@ -145,11 +145,15 @@ module Chewy
     #
     def client
       Thread.current[:chewy_client] ||= begin
-        client_configuration = configuration.deep_dup.fetch(:clients).fetch(:default)
-        client_configuration.delete(:prefix) # used by Chewy, not relevant to Elasticsearch::Client
         block = client_configuration[:transport_options].try(:delete, :proc)
         ::Elasticsearch::Client.new(client_configuration, &block)
       end
+    end
+
+    def client_configuration
+      client_configuration = configuration.deep_dup.fetch(:clients).fetch(:default)
+      client_configuration.delete(:prefix) # used by Chewy, not relevant to Elasticsearch::Client
+      client_configuration
     end
 
     # Sends wait_for_status request to ElasticSearch with status
@@ -158,7 +162,7 @@ module Chewy
     # Does nothing in case of config `wait_for_status` is undefined.
     #
     def wait_for_status
-      client.cluster.health wait_for_status: Chewy.configuration[:wait_for_status] if Chewy.configuration[:wait_for_status].present?
+      client.cluster.health wait_for_status: client_configuration[:wait_for_status] if client_configuration[:wait_for_status].present?
     end
 
     # Deletes all corresponding indexes with current prefix from ElasticSearch.

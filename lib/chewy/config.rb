@@ -2,10 +2,14 @@ module Chewy
   class Config
     include Singleton
 
-    GLOBAL_OPTIONS = [
-      :indices_path,
-      :prefix
-    ]
+    GLOBAL_OPTIONS = %i(
+      indices_path
+      prefix
+      index
+      wait_for_status
+      journal
+      skip_index_creation_on_import
+    )
 
     attr_accessor :settings, :logger,
 
@@ -153,9 +157,9 @@ module Chewy
       unless configuration.key?(:clients)
         ActiveSupport::Deprecation.warn('Define connection settings under `clients` key. Top level configuration is deprecated.')
 
-        configuration = configuration.slice(GLOBAL_OPTIONS).merge(
+        configuration = configuration.slice(*GLOBAL_OPTIONS).merge(
           clients: {
-            default: configuration.except(GLOBAL_OPTIONS)
+            default: configuration.except(*GLOBAL_OPTIONS)
           }
         )
       end

@@ -145,7 +145,7 @@ module Chewy
     #
     def client
       Thread.current[:chewy_client] ||= begin
-        client_configuration = configuration.deep_dup
+        client_configuration = configuration.deep_dup.fetch(:clients).fetch(:default)
         client_configuration.delete(:prefix) # used by Chewy, not relevant to Elasticsearch::Client
         block = client_configuration[:transport_options].try(:delete, :proc)
         ::Elasticsearch::Client.new(client_configuration, &block)

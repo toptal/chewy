@@ -2,7 +2,12 @@ module Chewy
   class Config
     include Singleton
 
-    attr_accessor :logger,
+    GLOBAL_OPTIONS = [
+      :indices_path,
+      :prefix
+    ]
+
+    attr_accessor :settings, :logger,
 
       # Default query compilation mode. `:must` by default.
       # See Chewy::Query#query_mode for details
@@ -144,21 +149,36 @@ module Chewy
     #            number_of_replicas: 0
     #
     def configuration
-      yaml_settings.merge(settings.deep_symbolize_keys).tap do |configuration|
-        configuration[:logger] = transport_logger if transport_logger
-        configuration[:indices_path] ||= indices_path if indices_path
-        configuration.merge!(tracer: transport_tracer) if transport_tracer
-      end
-    end
+      configuration = yaml_settings.merge(settings.deep_symbolize_keys)
+      unless configuration.key?(:clients)
+        ActiveSupport::Deprecation.warn('Define connection settings under `clients` key. Top level configuration is deprecated.')
 
-    def settings=(hash)
-      @settings ||= Chewy::Config::Settings.new(hash).hash
+        configuration = configuration.slice(GLOBAL_OPTIONS).merge(
+          clients: {
+            default: configuration.except(GLOBAL_OPTIONS)
+          }
+        )
+      end
+      configuration[:logger] = transport_logger if transport_logger
+      configuration[:indices_path] ||= indices_path if indices_path
+      configuration.merge!(tracer: transport_tracer) if transport_tracer
+      configuration
     end
 
   private
 
     def yaml_settings
-      @yaml_settings ||= Chewy::Config::YamlSettings.new.hash
+      @yaml_settings ||= begin
+        if defined?(Rails)
+          file = Rails.root.join('config', 'chewy.yml')
+
+          if File.exist?(file)
+            yaml = ERB.new(File.read(file)).result
+            hash = YAML.load(yaml) # rubocop:disable Security/YAMLLoad
+            hash[Rails.env].try(:deep_symbolize_keys) if hash
+          end
+        end || {}
+      end
     end
 
     def build_search_class(base)

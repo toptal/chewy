@@ -2,14 +2,14 @@ module Chewy
   class Config
     include Singleton
 
-    GLOBAL_OPTIONS = %i(
+    GLOBAL_OPTIONS = %i[
       indices_path
       prefix
       index
       wait_for_status
       journal
       skip_index_creation_on_import
-    )
+    ].freeze
 
     attr_accessor :settings, :logger,
 
@@ -165,7 +165,7 @@ module Chewy
       end
       configuration[:logger] = transport_logger if transport_logger
       configuration[:indices_path] ||= indices_path if indices_path
-      configuration.merge!(tracer: transport_tracer) if transport_tracer
+      configuration[:tracer] = transport_tracer if transport_tracer
       configuration
     end
 

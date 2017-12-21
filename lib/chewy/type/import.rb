@@ -126,6 +126,7 @@ module Chewy
       private
 
         def import_routine(*args)
+          return if args.first.blank? && !args.first.nil?
           routine = Routine.new(self, args.extract_options!)
           routine.create_indexes!
 

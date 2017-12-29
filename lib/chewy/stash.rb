@@ -10,17 +10,17 @@ module Chewy
     define_type :specification do
       default_import_options journal: false
 
-      field :value, index: 'no'
+      field :value
       field :specification, type: 'object', enabled: false
     end
 
     define_type :journal do # rubocop:disable Metrics/BlockLength
       default_import_options journal: false
 
-      field :index_name, type: 'string', index: 'not_analyzed'
-      field :type_name, type: 'string', index: 'not_analyzed'
-      field :action, type: 'string', index: 'not_analyzed'
-      field :references, type: 'string', index: 'no'
+      field :index_name
+      field :type_name
+      field :action
+      field :references
       field :created_at, type: 'date'
 
       # Loads all entries since the specified time.

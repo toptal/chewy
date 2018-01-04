@@ -82,7 +82,7 @@ module Chewy
       @disable_refresh_async = false
       @indices_path = 'app/chewy'
       @default_root_options = {}
-      @default_field_type = 'string'.freeze
+      @default_field_type = 'text'.freeze
       self.search_class = Chewy::Search::Request
     end
 

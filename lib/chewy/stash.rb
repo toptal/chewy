@@ -8,10 +8,11 @@ module Chewy
     index_name 'chewy_stash'
 
     define_type :specification do
+      field :value, index: false
       default_import_options journal: false
 
       field :value, index: 'no'
-      field :specification, type: 'object', enabled: false
+      field :specification, type: 'string', index: 'not_analyzed'
     end
 
     define_type :journal do # rubocop:disable Metrics/BlockLength

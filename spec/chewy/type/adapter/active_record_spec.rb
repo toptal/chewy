@@ -454,9 +454,9 @@ describe Chewy::Type::Adapter::ActiveRecord, :active_record do
       specify do
         expect(subject.import_fields(fields: [:updated_at], typecast: false))
           .to match([contain_exactly(
-            [1, match(/#{Time.now.strftime('%Y-%m-%d')}/)],
-            [2, match(/#{Time.now.strftime('%Y-%m-%d')}/)],
-            [3, match(/#{Time.now.strftime('%Y-%m-%d')}/)]
+            [1, match(/#{Time.now.utc.strftime('%Y-%m-%d')}/)],
+            [2, match(/#{Time.now.utc.strftime('%Y-%m-%d')}/)],
+            [3, match(/#{Time.now.utc.strftime('%Y-%m-%d')}/)]
           )])
       end
     end

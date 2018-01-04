@@ -63,7 +63,7 @@ describe Chewy::Fields::Base do
     end
 
     context 'implicit values' do
-      let(:field) { described_class.new(:name, type: 'string') }
+      let(:field) { described_class.new(:name, type: 'text') }
       before do
         field.children.push(described_class.new(:name))
         field.children.push(described_class.new(:untouched))
@@ -87,8 +87,8 @@ describe Chewy::Fields::Base do
 
   describe '#mappings_hash' do
     let(:field) { described_class.new(:name, type: :object) }
-    let(:fields1) { Array.new(2) { |i| described_class.new("name#{i + 1}", type: "string#{i + 1}") } }
-    let(:fields2) { Array.new(2) { |i| described_class.new("name#{i + 3}", type: "string#{i + 3}") } }
+    let(:fields1) { Array.new(2) { |i| described_class.new("name#{i + 1}", type: "text#{i + 1}") } }
+    let(:fields2) { Array.new(2) { |i| described_class.new("name#{i + 3}", type: "text#{i + 3}") } }
     before do
       fields1.each { |m| field.children.push(m) }
       fields2.each { |m| fields1[0].children.push(m) }
@@ -96,21 +96,21 @@ describe Chewy::Fields::Base do
 
     specify do
       expect(field.mappings_hash).to eq(name: {type: :object, properties: {
-        name1: {type: 'string1', fields: {
-          name3: {type: 'string3'}, name4: {type: 'string4'}
-        }}, name2: {type: 'string2'}
+        name1: {type: 'text1', fields: {
+          name3: {type: 'text3'}, name4: {type: 'text4'}
+        }}, name2: {type: 'text2'}
       }})
     end
 
     context do
-      let(:field) { described_class.new(:name, type: :string) }
+      let(:field) { described_class.new(:name, type: :text) }
       let(:fields1) { Array.new(2) { |i| described_class.new("name#{i + 1}") } }
 
       specify do
-        expect(field.mappings_hash).to eq(name: {type: :string, fields: {
+        expect(field.mappings_hash).to eq(name: {type: :text, fields: {
           name1: {type: 'object', properties: {
-            name3: {type: 'string3'}, name4: {type: 'string4'}
-          }}, name2: {type: 'string'}
+            name3: {type: 'text3'}, name4: {type: 'text4'}
+          }}, name2: {type: 'text'}
         }})
       end
     end
@@ -136,16 +136,16 @@ describe Chewy::Fields::Base do
       specify do
         expect(EventsIndex::Event.mappings_hash).to eq(event: {
           properties: {
-            id: {type: 'string'},
+            id: {type: 'text'},
             category: {
               type: 'object',
               properties: {
-                id: {type: 'string'},
+                id: {type: 'text'},
                 licenses: {
                   type: 'object',
                   properties: {
-                    id: {type: 'string'},
-                    name: {type: 'string'}
+                    id: {type: 'text'},
+                    name: {type: 'text'}
                   }
                 }
               }
@@ -289,7 +289,7 @@ describe Chewy::Fields::Base do
         stub_index(:events) do
           define_type :event do
             field :id
-            field :name, type: 'string' do
+            field :name, type: 'text' do
               field :raw, analyzer: 'my_own'
             end
             field :category, type: 'object'
@@ -300,11 +300,11 @@ describe Chewy::Fields::Base do
       specify do
         expect(EventsIndex::Event.mappings_hash).to eq(event: {
           properties: {
-            id: {type: 'string'},
+            id: {type: 'text'},
             name: {
-              type: 'string',
+              type: 'text',
               fields: {
-                raw: {analyzer: 'my_own', type: 'string'}
+                raw: {analyzer: 'my_own', type: 'text'}
               }
             },
             category: {type: 'object'}

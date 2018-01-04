@@ -244,17 +244,17 @@ describe Chewy::Index do
     specify do
       expect(stub_index(:documents) do
                define_type :document do
-                 field :name, type: 'string'
+                 field :name, type: 'text'
                end
-             end.mappings_hash).to eq(mappings: {document: {properties: {name: {type: 'string'}}}})
+             end.mappings_hash).to eq(mappings: {document: {properties: {name: {type: 'text'}}}})
     end
     specify do
       expect(stub_index(:documents) do
                define_type :document do
-                 field :name, type: 'string'
+                 field :name, type: 'text'
                end
                define_type :document2 do
-                 field :name, type: 'string'
+                 field :name, type: 'text'
                end
              end.mappings_hash[:mappings].keys).to match_array(%i[document document2])
     end
@@ -268,7 +268,7 @@ describe Chewy::Index do
     specify do
       expect(stub_index(:documents) do
                define_type :document do
-                 field :name, type: 'string'
+                 field :name, type: 'text'
                end
              end.specification_hash.keys).to eq([:mappings])
     end
@@ -276,7 +276,7 @@ describe Chewy::Index do
       expect(stub_index(:documents) do
                settings number_of_shards: 1
                define_type :document do
-                 field :name, type: 'string'
+                 field :name, type: 'text'
                end
              end.specification_hash.keys).to match_array(%i[mappings settings])
     end

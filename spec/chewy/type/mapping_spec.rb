@@ -9,7 +9,7 @@ describe Chewy::Type::Mapping do
       define_type :product do
         root do
           field :name, 'surname'
-          field :title, type: 'string' do
+          field :title, type: 'text' do
             field :subfield1
           end
           field 'price', type: 'float' do
@@ -37,7 +37,7 @@ describe Chewy::Type::Mapping do
     before do
       stub_index(:products) do
         define_type :product do
-          field :title, type: 'string' do
+          field :title, type: 'text' do
             field :subfield1
           end
         end
@@ -106,7 +106,7 @@ describe Chewy::Type::Mapping do
           expect(product.mappings_hash).to eq(product: {
             properties: {
               name: {type: 'integer'},
-              identifier: {type: 'string'}
+              identifier: {type: 'text'}
             },
             other_option: 'option_value',
             _parent: {type: 'something_else'}

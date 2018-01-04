@@ -67,16 +67,16 @@ describe Chewy::Search do
             filter { match rating: yield }
           end
 
+          field :name, type: :keyword
           def self.by_index(index)
             filter { match name: "Name#{index}" }
           end
 
-          field :name, index: 'not_analyzed'
           field :rating, type: :integer
         end
 
         define_type Country do
-          field :name, index: 'not_analyzed'
+          field :name, type: :keyword
           field :rating, type: :integer
         end
       end

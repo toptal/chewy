@@ -35,8 +35,8 @@ module Chewy
       def locked
         filter = {ids: {values: [@index.derivable_name]}}
         document = Chewy::Stash::Specification.filter(filter).first
-        return {} unless document
-        document.specification || JSON.parse(document.value || '{}')
+        return '{}' unless document
+        document.specification || document.value || '{}'
       end
 
       # Simply returns `Chewy::Index.specification_hash`, but
@@ -46,14 +46,14 @@ module Chewy
       # @see Chewy::Index.specification_hash
       # @return [Hash] a JSON-ready hash
       def current
-        @index.specification_hash.as_json
+        JSON.dump(@index.specification_hash.as_json)
       end
 
       # Compares previously locked and current specifications.
       #
       # @return [true, false] the result of comparison
       def changed?
-        current != locked
+        JSON.parse(current) != JSON.parse(locked)
       end
     end
   end

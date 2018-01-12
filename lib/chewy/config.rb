@@ -155,7 +155,7 @@ module Chewy
 
     def yaml_settings
       @yaml_settings ||= begin
-        if defined?(Rails)
+        if defined?(Rails::VERSION)
           file = Rails.root.join('config', 'chewy.yml')
 
           if File.exist?(file)

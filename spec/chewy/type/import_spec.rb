@@ -40,6 +40,12 @@ describe Chewy::Type::Import do
       CitiesIndex::City.import(dummy_city)
     end
 
+    specify 'lazy without objects' do
+      expect(CitiesIndex).not_to receive(:exists?)
+      expect(CitiesIndex).not_to receive(:create!)
+      CitiesIndex::City.import([])
+    end
+
     context 'skip' do
       before do
         # To avoid flaky issues when previous specs were run

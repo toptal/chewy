@@ -20,16 +20,17 @@ module Chewy
         # rendering logic.
         #
         # @!attribute must
-        #   @return [Array<Hash>]
+        #   @return [Array<Hash>, Hash, nil]
         # @!attribute should
-        #   @return [Array<Hash>]
+        #   @return [Array<Hash>, Hash, nil]
         # @!attribute must_not
-        #   @return [Array<Hash>]
+        #   @return [[Array<Hash>, Hash, nil]
         # @!attribute minimum_should_match
         #   @return [String, Integer, nil]
         class Bool
           # Acceptable bool query keys
           KEYS = %i[must should must_not minimum_should_match].freeze
+          # @!ignorewarning
           attr_reader(*KEYS)
 
           # @param must [Array<Hash>, Hash, nil]

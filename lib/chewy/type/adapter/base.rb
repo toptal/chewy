@@ -41,19 +41,19 @@ module Chewy
         #
         #   { delete: [object_or_id1, object_or_id2], index: [object3, object4, object5] }
         #
-        # @yield batch [Array<Object>] each batch of objects
+        # @yieldparam _batch [Array<Object>] each batch of objects
         # @return [true, false] returns true if all the block call returns true and false otherwise
-        def import(*_args, &_block)
+        def import(_batch, &_block)
           raise NotImplementedError
         end
 
         # Unlike {#import} fetches only ids (references) to the imported objects,
         # using the same procedures as {#import}.
         #
-        # @param fields [Array<Symbol>] additional fields to fetch
-        # @param batch_size [Integer] batch size, defaults to 1000
-        # @yield batch [Array<Object>] each batch of objects
-        def import_fields(*_args, &_block)
+        # @param _fields [Array<Symbol>] additional fields to fetch
+        # @param _batch_size [Integer] batch size, defaults to 1000
+        # @yieldparam batch [Array<Object>] each batch of objects
+        def import_fields(_fields, _batch_size, &_block)
           raise NotImplementedError
         end
 
@@ -61,9 +61,9 @@ module Chewy
         # an array of references to the passed objects. Returns ids if possible.
         # Otherwise - and array of objects themselves.
         #
-        # @param batch_size [Integer] batch size, defaults to 1000
-        # @yield batch [Array<Object>] each batch of objects
-        def import_references(*_args, &_block)
+        # @param _batch_size [Integer] batch size, defaults to 1000
+        # @yieldparam batch [Array<Object>] each batch of objects
+        def import_references(_batch_size, &_block)
           raise NotImplementedError
         end
 

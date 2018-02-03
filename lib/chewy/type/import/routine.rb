@@ -13,7 +13,7 @@ module Chewy
       #   * performs the bulk request;
       #   * composes new leftovers bulk for the next iteration basing on the response errors if `update_failover` is true;
       #   * appends the rest of unfixable errors to the instance level errors array.
-      # 4. Perform the request for the last leftovers bulk if present using {#process_leftovers}.
+      # 4. Perform the request for the last leftovers bulk if present using {#extract_leftovers}.
       # 3. Return the result errors array.
       #
       # At the moment, it tries to restore only from the partial document update errors in cases

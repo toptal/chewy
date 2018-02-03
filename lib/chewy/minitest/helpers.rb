@@ -6,14 +6,14 @@ module Chewy
       extend ActiveSupport::Concern
 
       # Assert that an index *changes* during a block.
-      # @param (Chewy::Type) index the index / type to watch, eg EntitiesIndex::Entity.
-      # @param (Symbol) strategy the Chewy strategy to use around the block. See Chewy docs.
-      # @param (boolean) assert the index changes
-      # @param (boolean) bypass_actual_index
+      # @param index [Chewy::Type] the index / type to watch, eg EntitiesIndex::Entity.
+      # @param strategy [Symbol] the Chewy strategy to use around the block. See Chewy docs.
+      # @param bypass_actual_index [true, false]
       #   True to preempt the http call to Elastic, false otherwise.
       #   Should be set to true unless actually testing search functionality.
       #
-      # @return (SearchIndexReceiver) for optional further assertions on the nature of the index changes.
+      # @return [SearchIndexReceiver] for optional further assertions on the nature of the index changes.
+      #
       def assert_indexes(index, strategy: :atomic, bypass_actual_index: true)
         type = Chewy.derive_type index
         receiver = SearchIndexReceiver.new
@@ -43,7 +43,7 @@ module Chewy
 
       # Run indexing for the database changes during the block provided.
       # By default, indexing is run at the end of the block.
-      # @param (Symbol) strategy the Chewy index update strategy see Chewy docs.
+      # @param strategy [Symbol] the Chewy index update strategy see Chewy docs.
       def run_indexing(strategy: :atomic)
         Chewy.strategy strategy do
           yield

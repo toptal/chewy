@@ -17,6 +17,7 @@ module Chewy
         # definition. Use it only if you need to pass options for root
         # object mapping, such as `date_detection` or `dynamic_date_formats`
         #
+        # @example
         #   class UsersIndex < Chewy::Index
         #     define_type User do
         #       # root object defined implicitly and optionless for current type
@@ -42,6 +43,7 @@ module Chewy
 
         # Defines mapping field for current type
         #
+        # @example
         #   class UsersIndex < Chewy::Index
         #     define_type User do
         #       # passing all the options to field definition:
@@ -51,11 +53,13 @@ module Chewy
         #
         # The `type` is optional and defaults to `string` if not defined:
         #
+        # @example
         #   field :full_name
         #
         # Also, multiple fields might be defined with one call and
         # with the same options:
         #
+        # @example
         #   field :first_name, :last_name, analyzer: 'special'
         #
         # The only special option in the field definition
@@ -63,6 +67,7 @@ module Chewy
         # method will be called for the indexed object. Also
         # `:value` might be a proc or indexed object method name:
         #
+        # @example
         #   class User < ActiveRecord::Base
         #     def user_full_name
         #       [first_name, last_name].join(' ')
@@ -74,6 +79,7 @@ module Chewy
         # The proc evaluates inside the indexed object context if
         # its arity is 0 and in present contexts if there is an argument:
         #
+        # @example
         #   field :full_name, type: 'string', value: -> { [first_name, last_name].join(' ') }
         #
         #   separator = ' '
@@ -81,6 +87,7 @@ module Chewy
         #
         # If array was returned as value - it will be put in index as well.
         #
+        # @example
         #   field :tags, type: 'string', value: -> { tags.map(&:name) }
         #
         # Fields supports nesting in case of `object` field type. If
@@ -88,6 +95,7 @@ module Chewy
         # will be an array of hashes, if `user.quiz` is not a collection association
         # then just values hash will be put in the index.
         #
+        # @example
         #   field :quiz do
         #     field :question, :answer
         #     field :score, type: 'integer'
@@ -95,6 +103,7 @@ module Chewy
         #
         # Nested fields are composed from nested objects:
         #
+        # @example
         #   field :name, value: -> { name_translations } do
         #     field :ru, value: ->(name) { name['ru'] }
         #     field :en, value: ->(name) { name['en'] }
@@ -103,12 +112,14 @@ module Chewy
         # Of course it is possible to define object fields contents dynamically
         # but make sure evaluation proc returns hash:
         #
+        # @example
         #   field :name, type: 'object', value: -> { name_translations }
         #
         # The special case is multi_field. If type options and block are
         # both present field is treated as a multi-field. In that case field
         # composition changes satisfy elasticsearch rules:
         #
+        # @example
         #   field :full_name, type: 'string', analyzer: 'name', value: ->{ full_name.try(:strip) } do
         #     field :sorted, analyzer: 'sorted'
         #   end
@@ -123,9 +134,9 @@ module Chewy
 
         # Defines an aggregation that can be bound to a query or filter
         #
-        #   Suppose that a user has posts and each post has ratings
-        #   avg_post_rating is the mean of all ratings
-        #
+        # @example
+        #   # Suppose that a user has posts and each post has ratings
+        #   # avg_post_rating is the mean of all ratings
         #   class UsersIndex < Chewy::Index
         #     define_type User do
         #       field :posts do
@@ -144,6 +155,7 @@ module Chewy
 
         # Defines dynamic template in mapping root objects
         #
+        # @example
         #   class CarsIndex < Chewy::Index
         #     define_type Car do
         #       template 'model.*', type: 'string', analyzer: 'special'
@@ -153,8 +165,9 @@ module Chewy
         #   end
         #
         # Name for each template is generated with the following
-        # rule: "template_#{dynamic_templates.size + 1}".
+        # rule: `template_#!{dynamic_templates.size + 1}`.
         #
+        # @example Templates
         #   template 'tit*', mapping_hash
         #   template 'title.*', mapping_hash # dot in template causes "path_match" using
         #   template /tit.+/, mapping_hash # using "match_pattern": "regexp"

@@ -30,7 +30,7 @@ module Chewy
     class Filters
       def initialize(outer = nil, &block)
         @block = block
-        @outer = outer || eval('self', block.binding)
+        @outer = outer || eval('self', block.binding, __FILE__, __LINE__)
       end
 
       # Outer scope call

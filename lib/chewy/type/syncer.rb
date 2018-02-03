@@ -34,7 +34,7 @@ module Chewy
           next unless source_data_hash[id]
 
           outdated = if outdated_sync_field_type == 'date'
-            !Chewy::Type::Syncer.dates_equal(typecast_date(source_data_hash[id]), DateTime.iso8601(index_sync_value))
+            !Chewy::Type::Syncer.dates_equal(typecast_date(source_data_hash[id]), Time.iso8601(index_sync_value))
           else
             source_data_hash[id] != index_sync_value
           end
@@ -57,7 +57,7 @@ module Chewy
         if string.is_a?(String) && (match = ISO_DATETIME.match(string))
           microsec = (match[7].to_r * 1_000_000).to_i
           date = "#{match[1]}-#{match[2]}-#{match[3]}T#{match[4]}:#{match[5]}:#{match[6]}.#{format('%06d', microsec)}+00:00"
-          DateTime.iso8601(date)
+          Time.iso8601(date)
         else
           string
         end

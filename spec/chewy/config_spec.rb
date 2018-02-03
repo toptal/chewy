@@ -137,5 +137,21 @@ describe Chewy::Config do
     specify do
       expect(subject.configuration).to include(indices_path: 'app/custom_indices_path')
     end
+
+    context 'when Rails::VERSION constant is defined' do
+      it 'looks for configuration in "config/chewy.yml"' do
+        module Rails
+          VERSION = '5.1.0'.freeze
+
+          def self.root
+            Pathname.new(__dir__)
+          end
+        end
+
+        expect(File).to receive(:exist?)
+          .with(Pathname.new(__dir__).join('config', 'chewy.yml'))
+        subject.configuration
+      end
+    end
   end
 end

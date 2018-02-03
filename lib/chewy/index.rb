@@ -52,7 +52,7 @@ module Chewy
       #   @return [String] result index name
       def index_name(suggest = nil, prefix: nil, suffix: nil)
         if suggest
-          @base_name = suggest.to_s.underscore.presence
+          @base_name = suggest.to_s.presence
         else
           [
             prefix || prefix_with_deprecation,

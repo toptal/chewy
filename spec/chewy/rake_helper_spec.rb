@@ -42,9 +42,9 @@ describe Chewy::RakeHelper, :orm do
   Applying journal to \\[PlacesIndex::City, PlacesIndex::Country\\], 3 entries, stage 1
   Imported PlacesIndex::City in \\d+s, stats: index 2
   Imported PlacesIndex::Country in \\d+s, stats: index 1
-  Imported Chewy::Stash::Specification in \\d+s, stats: index 1
+  Imported Chewy::Stash::Specification::Specification in \\d+s, stats: index 1
 Resetting UsersIndex
-  Imported Chewy::Stash::Specification in \\d+s, stats: index 1
+  Imported Chewy::Stash::Specification::Specification in \\d+s, stats: index 1
 Total: \\d+s\\Z
       OUTPUT
     end
@@ -60,7 +60,7 @@ Total: \\d+s\\Z
   Applying journal to \\[PlacesIndex::City, PlacesIndex::Country\\], 3 entries, stage 1
   Imported PlacesIndex::City in \\d+s, stats: index 2
   Imported PlacesIndex::Country in \\d+s, stats: index 1
-  Imported Chewy::Stash::Specification in \\d+s, stats: index 1
+  Imported Chewy::Stash::Specification::Specification in \\d+s, stats: index 1
 Total: \\d+s\\Z
       OUTPUT
     end
@@ -71,7 +71,7 @@ Total: \\d+s\\Z
         .not_to update_index(PlacesIndex::City)
       expect(output.string).to match(Regexp.new(<<-OUTPUT, Regexp::MULTILINE))
 \\AResetting UsersIndex
-  Imported Chewy::Stash::Specification in \\d+s, stats: index 1
+  Imported Chewy::Stash::Specification::Specification in \\d+s, stats: index 1
 Total: \\d+s\\Z
       OUTPUT
     end
@@ -86,9 +86,9 @@ Total: \\d+s\\Z
 \\AResetting PlacesIndex
   Imported PlacesIndex::City in \\d+s, stats: index 3
   Imported PlacesIndex::Country in \\d+s, stats: index 2
-  Imported Chewy::Stash::Specification in \\d+s, stats: index 1
+  Imported Chewy::Stash::Specification::Specification in \\d+s, stats: index 1
 Resetting UsersIndex
-  Imported Chewy::Stash::Specification in \\d+s, stats: index 1
+  Imported Chewy::Stash::Specification::Specification in \\d+s, stats: index 1
 Total: \\d+s\\Z
       OUTPUT
     end
@@ -103,7 +103,7 @@ Total: \\d+s\\Z
         expect(output.string).to match(Regexp.new(<<-OUTPUT, Regexp::MULTILINE))
 \\ASkipping PlacesIndex, the specification didn't change
 Resetting UsersIndex
-  Imported Chewy::Stash::Specification in \\d+s, stats: index 1
+  Imported Chewy::Stash::Specification::Specification in \\d+s, stats: index 1
 Total: \\d+s\\Z
         OUTPUT
       end
@@ -114,7 +114,7 @@ Total: \\d+s\\Z
           .not_to update_index(PlacesIndex::City)
         expect(output.string).to match(Regexp.new(<<-OUTPUT, Regexp::MULTILINE))
 \\AResetting UsersIndex
-  Imported Chewy::Stash::Specification in \\d+s, stats: index 1
+  Imported Chewy::Stash::Specification::Specification in \\d+s, stats: index 1
 Total: \\d+s\\Z
         OUTPUT
       end

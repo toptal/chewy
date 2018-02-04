@@ -83,7 +83,7 @@ describe Chewy::Stash::Journal, :orm do
   describe '#type' do
     let(:index_name) { 'users' }
     let(:type_name) { 'city' }
-    subject { described_class.new('index_name' => index_name, 'type_name' => type_name).type }
+    subject { described_class::Journal.new('index_name' => index_name, 'type_name' => type_name).type }
 
     specify { expect { subject }.to raise_error(Chewy::UnderivableType) }
 

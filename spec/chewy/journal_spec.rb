@@ -51,7 +51,7 @@ describe Chewy::Journal do
 
             places_index.import
 
-            expect(Chewy::Stash.exists?).to eq true
+            expect(Chewy::Stash::Journal.exists?).to eq true
 
             Timecop.freeze(update_time)
             cities.first.update_attributes!(name: 'Supername')
@@ -231,7 +231,7 @@ describe Chewy::Journal do
           let!(:journal_entries) do
             record = Chewy::Stash::Journal.entries(time).first
             Array.new(count_of_checks) do |i|
-              Chewy::Stash::Journal.new(
+              Chewy::Stash::Journal::Journal.new(
                 record.attributes.merge(
                   'created_at' => time.to_i + i,
                   'references' => [i.to_s]

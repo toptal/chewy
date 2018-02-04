@@ -10,7 +10,7 @@ module Chewy
 
         def bulk_body
           Chewy::Type::Import::BulkBuilder.new(
-            Chewy::Stash::Journal,
+            Chewy::Stash::Journal::Journal,
             index: [
               entries(:index, @index),
               entries(:delete, @delete)
@@ -18,7 +18,7 @@ module Chewy
           ).bulk_body.each do |item|
             item.values.first.merge!(
               _index: Chewy::Stash::Journal.index_name,
-              _type: Chewy::Stash::Journal.type_name
+              _type: Chewy::Stash::Journal::Journal.type_name
             )
           end
         end

@@ -26,7 +26,7 @@ describe Chewy::Type::Import::JournalBuilder, :orm do
       specify do
         expect(subject.bulk_body).to eq([{
           index: {
-            _index: 'chewy_stash',
+            _index: 'chewy_journal',
             _type: 'journal',
             data: {
               'index_name' => 'namespace/places',
@@ -45,7 +45,7 @@ describe Chewy::Type::Import::JournalBuilder, :orm do
       specify do
         expect(subject.bulk_body).to eq([{
           index: {
-            _index: 'chewy_stash',
+            _index: 'chewy_journal',
             _type: 'journal',
             data: {
               'index_name' => 'namespace/places',
@@ -66,7 +66,7 @@ describe Chewy::Type::Import::JournalBuilder, :orm do
       specify do
         expect(subject.bulk_body).to eq([{
           index: {
-            _index: 'chewy_stash',
+            _index: 'chewy_journal',
             _type: 'journal',
             data: {
               'index_name' => 'namespace/places',
@@ -78,7 +78,7 @@ describe Chewy::Type::Import::JournalBuilder, :orm do
           }
         }, {
           index: {
-            _index: 'chewy_stash',
+            _index: 'chewy_journal',
             _type: 'journal',
             data: {
               'index_name' => 'namespace/places',

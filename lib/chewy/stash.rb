@@ -1,27 +1,24 @@
 module Chewy
   # This class is the main storage for Chewy service data,
-  # Now index raw specifications are stored in the `chewy_stash`
-  # index. In the future the journal will be moved here as well.
+  # Now index raw specifications are stored in the `chewy_specifications`
+  # index.
+  # Journal entries are stored in `chewy_journal`
   #
   # @see Chewy::Index::Specification
-  class Stash < Chewy::Index
-    index_name 'chewy_stash'
+  module Stash
+    class Specification < Chewy::Index
+      index_name 'chewy_specifications'
 
-    define_type :specification do
-      default_import_options journal: false
+      define_type :specification do
+        default_import_options journal: false
 
-      field :value, index: 'no'
-      field :specification, type: 'object', enabled: false
+        field :value, index: 'no'
+        field :specification, type: 'object', enabled: false
+      end
     end
 
-    define_type :journal do # rubocop:disable Metrics/BlockLength
-      default_import_options journal: false
-
-      field :index_name, type: 'string', index: 'not_analyzed'
-      field :type_name, type: 'string', index: 'not_analyzed'
-      field :action, type: 'string', index: 'not_analyzed'
-      field :references, type: 'string', index: 'no'
-      field :created_at, type: 'date'
+    class Journal < Chewy::Index
+      index_name 'chewy_journal'
 
       # Loads all entries since the specified time.
       #
@@ -59,12 +56,22 @@ module Chewy
         scope
       end
 
-      def type
-        @type ||= Chewy.derive_type("#{index_name}##{type_name}")
-      end
+      define_type :journal do
+        default_import_options journal: false
 
-      def references
-        @references ||= Array.wrap(@attributes['references']).map { |r| JSON.load(r) } # rubocop:disable Security/JSONLoad
+        field :index_name, type: 'string', index: 'not_analyzed'
+        field :type_name, type: 'string', index: 'not_analyzed'
+        field :action, type: 'string', index: 'not_analyzed'
+        field :references, type: 'string', index: 'no'
+        field :created_at, type: 'date'
+
+        def type
+          @type ||= Chewy.derive_type("#{index_name}##{type_name}")
+        end
+
+        def references
+          @references ||= Array.wrap(@attributes['references']).map { |r| JSON.load(r) } # rubocop:disable Security/JSONLoad
+        end
       end
     end
   end

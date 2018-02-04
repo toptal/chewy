@@ -32,7 +32,7 @@ describe Chewy::Type::Import::JournalBuilder, :orm do
               'index_name' => 'namespace/places',
               'type_name' => 'city',
               'action' => 'index',
-              'references' => ['{"id":1,"name":"City"}'],
+              'references' => [Base64.encode64('{"id":1,"name":"City"}')],
               'created_at' => time.as_json
             }
           }
@@ -51,7 +51,7 @@ describe Chewy::Type::Import::JournalBuilder, :orm do
               'index_name' => 'namespace/places',
               'type_name' => 'city',
               'action' => 'delete',
-              'references' => ['{"id":1,"name":"City"}'],
+              'references' => [Base64.encode64('{"id":1,"name":"City"}')],
               'created_at' => time.as_json
             }
           }
@@ -72,7 +72,7 @@ describe Chewy::Type::Import::JournalBuilder, :orm do
               'index_name' => 'namespace/places',
               'type_name' => 'country',
               'action' => 'index',
-              'references' => ['1'],
+              'references' => [Base64.encode64('1')],
               'created_at' => time.as_json
             }
           }
@@ -84,7 +84,7 @@ describe Chewy::Type::Import::JournalBuilder, :orm do
               'index_name' => 'namespace/places',
               'type_name' => 'country',
               'action' => 'delete',
-              'references' => ['2'],
+              'references' => [Base64.encode64('2')],
               'created_at' => time.as_json
             }
           }

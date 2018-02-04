@@ -23,8 +23,21 @@ describe Chewy::RakeHelper, :orm do
   let!(:countries) { Array.new(2) { |i| Country.create!(name: "Name#{i + 1}") } }
   let(:journal) do
     Chewy::Stash::Journal.import([
-      {index_name: 'places', type_name: 'city', action: 'index', references: cities.first(2).map(&:id).map(&:to_s).map(&:to_json), created_at: 2.minutes.since},
-      {index_name: 'places', type_name: 'country', action: 'index', references: [countries.first.id.to_s.to_json], created_at: 4.minutes.since}
+      {
+        index_name: 'places',
+        type_name: 'city',
+        action: 'index',
+        references: cities.first(2).map(&:id).map(&:to_s)
+                      .map(&:to_json).map(&Base64.method(:encode64)),
+        created_at: 2.minutes.since
+      },
+      {
+        index_name: 'places',
+        type_name: 'country',
+        action: 'index',
+        references: [Base64.encode64(countries.first.id.to_s.to_json)],
+        created_at: 4.minutes.since
+      }
     ])
   end
 

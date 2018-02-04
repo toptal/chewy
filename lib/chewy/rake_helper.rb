@@ -196,12 +196,12 @@ module Chewy
       end
 
       # Eager loads and returns all the indexes defined in the application
-      # except the Chewy::Stash.
+      # except Chewy::Stash::Specification and Chewy::Stash::Journal.
       #
       # @return [Array<Chewy::Index>] indexes found
       def all_indexes
         Chewy.eager_load!
-        Chewy::Index.descendants - [Chewy::Stash]
+        Chewy::Index.descendants - [Chewy::Stash::Journal, Chewy::Stash::Specification]
       end
 
       def normalize_indexes(*identifiers)

@@ -12,8 +12,7 @@ module Chewy
       define_type :specification do
         default_import_options journal: false
 
-        field :value, index: 'no'
-        field :specification, type: 'object', enabled: false
+        field :specification, type: 'binary'
       end
     end
 
@@ -50,7 +49,7 @@ module Chewy
         types.group_by(&:index).each do |index, index_types|
           scope = scope.or(
             filter(term: {index_name: index.derivable_name})
-            .filter(terms: {type_name: index_types.map(&:type_name)})
+              .filter(terms: {type_name: index_types.map(&:type_name)})
           )
         end
         scope
@@ -59,10 +58,10 @@ module Chewy
       define_type :journal do
         default_import_options journal: false
 
-        field :index_name, type: 'string', index: 'not_analyzed'
-        field :type_name, type: 'string', index: 'not_analyzed'
-        field :action, type: 'string', index: 'not_analyzed'
-        field :references, type: 'string', index: 'no'
+        field :index_name, type: 'keyword'
+        field :type_name, type: 'keyword'
+        field :action, type: 'keyword'
+        field :references, type: 'binary'
         field :created_at, type: 'date'
 
         def type
@@ -70,7 +69,9 @@ module Chewy
         end
 
         def references
-          @references ||= Array.wrap(@attributes['references']).map { |r| JSON.load(r) } # rubocop:disable Security/JSONLoad
+          @references ||= Array.wrap(@attributes['references']).map do |item|
+            JSON.load(Base64.decode64(item)) # rubocop:disable Security/JSONLoad
+          end
         end
       end
     end

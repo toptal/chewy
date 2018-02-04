@@ -65,63 +65,63 @@ describe Chewy::Journal do
                 'index_name' => "#{namespace}places",
                 'type_name' => 'city',
                 'action' => 'index',
-                'references' => ['1'],
+                'references' => ['1'].map(&Base64.method(:encode64)),
                 'created_at' => time.utc.as_json
               },
               {
                 'index_name' => "#{namespace}places",
                 'type_name' => 'city',
                 'action' => 'index',
-                'references' => ['2'],
+                'references' => ['2'].map(&Base64.method(:encode64)),
                 'created_at' => time.utc.as_json
               },
               {
                 'index_name' => "#{namespace}places",
                 'type_name' => 'country',
                 'action' => 'index',
-                'references' => ['1'],
+                'references' => ['1'].map(&Base64.method(:encode64)),
                 'created_at' => time.utc.as_json
               },
               {
                 'index_name' => "#{namespace}places",
                 'type_name' => 'country',
                 'action' => 'index',
-                'references' => ['2'],
+                'references' => ['2'].map(&Base64.method(:encode64)),
                 'created_at' => time.utc.as_json
               },
               {
                 'index_name' => "#{namespace}places",
                 'type_name' => 'country',
                 'action' => 'index',
-                'references' => ['3'],
+                'references' => ['3'].map(&Base64.method(:encode64)),
                 'created_at' => time.utc.as_json
               },
               {
                 'index_name' => "#{namespace}places",
                 'type_name' => 'city',
                 'action' => 'index',
-                'references' => %w[1 2],
+                'references' => %w[1 2].map(&Base64.method(:encode64)),
                 'created_at' => import_time.utc.as_json
               },
               {
                 'index_name' => "#{namespace}places",
                 'type_name' => 'country',
                 'action' => 'index',
-                'references' => %w[1 2 3],
+                'references' => %w[1 2 3].map(&Base64.method(:encode64)),
                 'created_at' => import_time.utc.as_json
               },
               {
                 'index_name' => "#{namespace}places",
                 'type_name' => 'city',
                 'action' => 'index',
-                'references' => ['1'],
+                'references' => ['1'].map(&Base64.method(:encode64)),
                 'created_at' => update_time.utc.as_json
               },
               {
                 'index_name' => "#{namespace}places",
                 'type_name' => 'country',
                 'action' => 'delete',
-                'references' => ['2'],
+                'references' => ['2'].map(&Base64.method(:encode64)),
                 'created_at' => destroy_time.utc.as_json
               }
             ]

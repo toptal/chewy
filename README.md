@@ -986,9 +986,9 @@ rake chewy:reset[-users,places] # resets every index in the application except s
 
 Performs reset exactly the same way as `chewy:reset` does, but only when the index specification (setting or mapping) was changed.
 
-It works only when index specification is locked in `Chewy::Stash` index. The first run will reset all indexes and lock their specifications.
+It works only when index specification is locked in `Chewy::Stash::Specification` index. The first run will reset all indexes and lock their specifications.
 
-See [Chewy::Stash](lib/chewy/stash.rb) and [Chewy::Index::Specification](lib/chewy/index/specification.rb) for more details.
+See [Chewy::Stash::Specification](lib/chewy/stash.rb) and [Chewy::Index::Specification](lib/chewy/index/specification.rb) for more details.
 
 
 ```bash

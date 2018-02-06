@@ -51,7 +51,7 @@ describe Chewy::Journal do
 
             places_index.import
 
-            expect(Chewy::Stash.exists?).to eq true
+            expect(Chewy::Stash::Journal.exists?).to eq true
 
             Timecop.freeze(update_time)
             cities.first.update_attributes!(name: 'Supername')
@@ -65,63 +65,63 @@ describe Chewy::Journal do
                 'index_name' => "#{namespace}places",
                 'type_name' => 'city',
                 'action' => 'index',
-                'references' => ['1'],
+                'references' => ['1'].map(&Base64.method(:encode64)),
                 'created_at' => time.utc.as_json
               },
               {
                 'index_name' => "#{namespace}places",
                 'type_name' => 'city',
                 'action' => 'index',
-                'references' => ['2'],
+                'references' => ['2'].map(&Base64.method(:encode64)),
                 'created_at' => time.utc.as_json
               },
               {
                 'index_name' => "#{namespace}places",
                 'type_name' => 'country',
                 'action' => 'index',
-                'references' => ['1'],
+                'references' => ['1'].map(&Base64.method(:encode64)),
                 'created_at' => time.utc.as_json
               },
               {
                 'index_name' => "#{namespace}places",
                 'type_name' => 'country',
                 'action' => 'index',
-                'references' => ['2'],
+                'references' => ['2'].map(&Base64.method(:encode64)),
                 'created_at' => time.utc.as_json
               },
               {
                 'index_name' => "#{namespace}places",
                 'type_name' => 'country',
                 'action' => 'index',
-                'references' => ['3'],
+                'references' => ['3'].map(&Base64.method(:encode64)),
                 'created_at' => time.utc.as_json
               },
               {
                 'index_name' => "#{namespace}places",
                 'type_name' => 'city',
                 'action' => 'index',
-                'references' => %w[1 2],
+                'references' => %w[1 2].map(&Base64.method(:encode64)),
                 'created_at' => import_time.utc.as_json
               },
               {
                 'index_name' => "#{namespace}places",
                 'type_name' => 'country',
                 'action' => 'index',
-                'references' => %w[1 2 3],
+                'references' => %w[1 2 3].map(&Base64.method(:encode64)),
                 'created_at' => import_time.utc.as_json
               },
               {
                 'index_name' => "#{namespace}places",
                 'type_name' => 'city',
                 'action' => 'index',
-                'references' => ['1'],
+                'references' => ['1'].map(&Base64.method(:encode64)),
                 'created_at' => update_time.utc.as_json
               },
               {
                 'index_name' => "#{namespace}places",
                 'type_name' => 'country',
                 'action' => 'delete',
-                'references' => ['2'],
+                'references' => ['2'].map(&Base64.method(:encode64)),
                 'created_at' => destroy_time.utc.as_json
               }
             ]
@@ -231,7 +231,7 @@ describe Chewy::Journal do
           let!(:journal_entries) do
             record = Chewy::Stash::Journal.entries(time).first
             Array.new(count_of_checks) do |i|
-              Chewy::Stash::Journal.new(
+              Chewy::Stash::Journal::Journal.new(
                 record.attributes.merge(
                   'created_at' => time.to_i + i,
                   'references' => [i.to_s]

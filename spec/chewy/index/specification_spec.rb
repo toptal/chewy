@@ -55,14 +55,14 @@ describe Chewy::Index::Specification do
   describe '#lock!' do
     specify do
       expect { specification1.lock! }.to change { Chewy::Stash::Specification.all.hits }.from([]).to([{
-        '_index' => 'chewy_stash',
+        '_index' => 'chewy_specifications',
         '_type' => 'specification',
         '_id' => 'places',
         '_score' => 1.0,
-        '_source' => {'specification' => {
+        '_source' => {'specification' => Base64.encode64({
           'settings' => {'index' => {'number_of_shards' => 1, 'number_of_replicas' => 0}},
           'mappings' => {'city' => {'properties' => {'name' => {'type' => 'string'}}}}
-        }, 'value' => nil}
+        }.to_json)}
       }])
     end
 
@@ -71,23 +71,23 @@ describe Chewy::Index::Specification do
 
       specify do
         expect { specification5.lock! }.to change { Chewy::Stash::Specification.all.hits }.to([{
-          '_index' => 'chewy_stash',
+          '_index' => 'chewy_specifications',
           '_type' => 'specification',
           '_id' => 'places',
           '_score' => 1.0,
-          '_source' => {'specification' => {
+          '_source' => {'specification' => Base64.encode64({
             'settings' => {'index' => {'number_of_shards' => 1, 'number_of_replicas' => 0}},
             'mappings' => {'city' => {'properties' => {'name' => {'type' => 'string'}}}}
-          }, 'value' => nil}
+          }.to_json)}
         }, {
-          '_index' => 'chewy_stash',
+          '_index' => 'chewy_specifications',
           '_type' => 'specification',
           '_id' => 'namespace/cities',
           '_score' => 1.0,
-          '_source' => {'specification' => {
+          '_source' => {'specification' => Base64.encode64({
             'settings' => {'index' => {'number_of_shards' => 1, 'number_of_replicas' => 0}},
             'mappings' => {'city' => {'properties' => {'population' => {'type' => 'integer'}}}}
-          }, 'value' => nil}
+          }.to_json)}
         }])
       end
     end

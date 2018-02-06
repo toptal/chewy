@@ -2,6 +2,8 @@
 
 ## Breaking changes
 
+  * `Chewy.default_field_type` is `text` now.
+
   * `Chewy::Stash` was split onto two indexes - `Chewy::Stash::Specification` and `Chewy::Stash::Journal`
 
   * Data for journal and specification is stored in binary fields base64-encoded to bypass the limits of other fields.

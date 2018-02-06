@@ -21,7 +21,7 @@ module Chewy
         #   class UsersIndex < Chewy::Index
         #     define_type User do
         #       # root object defined implicitly and optionless for current type
-        #       field :full_name, type: 'string'
+        #       field :full_name, type: 'keyword'
         #     end
         #   end
         #
@@ -29,7 +29,7 @@ module Chewy
         #     define_type Car do
         #       # explicit root definition with additional options
         #       root dynamic_date_formats: ['yyyy-MM-dd'] do
-        #         field :model_name, type: 'string'
+        #         field :model_name, type: 'keyword'
         #       end
         #     end
         #   end
@@ -47,7 +47,7 @@ module Chewy
         #   class UsersIndex < Chewy::Index
         #     define_type User do
         #       # passing all the options to field definition:
-        #       field :full_name, type: 'string', analyzer: 'special'
+        #       field :full_name, analyzer: 'special'
         #     end
         #   end
         #
@@ -74,21 +74,21 @@ module Chewy
         #     end
         #   end
         #
-        #   field :full_name, type: 'string', value: :user_full_name
+        #   field :full_name, type: 'keyword', value: :user_full_name
         #
         # The proc evaluates inside the indexed object context if
         # its arity is 0 and in present contexts if there is an argument:
         #
         # @example
-        #   field :full_name, type: 'string', value: -> { [first_name, last_name].join(' ') }
+        #   field :full_name, type: 'keyword', value: -> { [first_name, last_name].join(' ') }
         #
         #   separator = ' '
-        #   field :full_name, type: 'string', value: ->(user) { [user.first_name, user.last_name].join(separator) }
+        #   field :full_name, type: 'keyword', value: ->(user) { [user.first_name, user.last_name].join(separator) }
         #
         # If array was returned as value - it will be put in index as well.
         #
         # @example
-        #   field :tags, type: 'string', value: -> { tags.map(&:name) }
+        #   field :tags, type: 'keyword', value: -> { tags.map(&:name) }
         #
         # Fields supports nesting in case of `object` field type. If
         # `user.quiz` will return an array of objects, then result index content
@@ -120,7 +120,7 @@ module Chewy
         # composition changes satisfy elasticsearch rules:
         #
         # @example
-        #   field :full_name, type: 'string', analyzer: 'name', value: ->{ full_name.try(:strip) } do
+        #   field :full_name, type: 'text', analyzer: 'name', value: ->{ full_name.try(:strip) } do
         #     field :sorted, analyzer: 'sorted'
         #   end
         #
@@ -158,7 +158,7 @@ module Chewy
         # @example
         #   class CarsIndex < Chewy::Index
         #     define_type Car do
-        #       template 'model.*', type: 'string', analyzer: 'special'
+        #       template 'model.*', type: 'text', analyzer: 'special'
         #       field 'model', type: 'object' # here we can put { de: 'Der Mercedes', en: 'Mercedes' }
         #                                     # and template will be applyed to this field
         #     end
@@ -172,7 +172,7 @@ module Chewy
         #   template 'title.*', mapping_hash # dot in template causes "path_match" using
         #   template /tit.+/, mapping_hash # using "match_pattern": "regexp"
         #   template /title\..+/, mapping_hash # "\." - escaped dot causes "path_match" using
-        #   template /tit.+/, 'string', mapping_hash # "match_mapping_type" as the optionsl second argument
+        #   template /tit.+/, type: 'text', mapping_hash # "match_mapping_type" as the optionsl second argument
         #   template template42: {match: 'hello*', mapping: {type: 'object'}} # or even pass a template as is
         #
         def template(*args)

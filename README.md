@@ -208,7 +208,7 @@ If you would like to use AWS's ElasticSearch using an IAM user policy, you will 
 
     define_type User.active.includes(:country, :badges, :projects) do
       root date_detection: false do
-        template 'about_translations.*', type: 'string', analyzer: 'standard'
+        template 'about_translations.*', type: 'text', analyzer: 'standard'
 
         field :first_name, :last_name
         field :email, analyzer: 'email'
@@ -335,7 +335,7 @@ This will automatically set the type or root field to `object`. You may also spe
 To define a multi field you have to specify any type except for `object` or `nested` in the root field:
 
 ```ruby
-field :full_name, type: 'string', value: ->{ full_name.strip } do
+field :full_name, type: 'text', value: ->{ full_name.strip } do
   field :ordered, analyzer: 'ordered'
   field :untouched, index: 'not_analyzed'
 end

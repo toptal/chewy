@@ -1,6 +1,10 @@
 # master
 
+# Version 5.0.0
+
 ## Breaking changes
+
+  * Try to align the gem version with the ElasticSearch version we support
 
   * `Chewy.default_field_type` is `text` now.
 

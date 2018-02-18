@@ -41,7 +41,7 @@ module Chewy
 
       %w[_id _type _index].each do |name|
         define_method name do
-          data[name]
+          _data[name]
         end
       end
 

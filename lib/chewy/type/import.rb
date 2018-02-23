@@ -67,6 +67,7 @@ module Chewy
         # @option options [String] suffix an index name suffix, used for zero-downtime reset mostly, no suffix by default
         # @option options [Integer] bulk_size bulk API chunk size in bytes; if passed, the request is performed several times for each chunk, empty by default
         # @option options [Integer] batch_size passed to the adapter import method, used to split imported objects in chunks, 1000 by default
+        # @option options [Boolean] direct_import skips object reloading in ORM adapter, `false` by default
         # @option options [true, false] journal enables imported objects journaling, false by default
         # @option options [Array<Symbol, String>] update_fields list of fields for the partial import, empty by default
         # @option options [true, false] update_failover enables full objects reimport in cases of partial update errors, `true` by default

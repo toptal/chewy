@@ -45,6 +45,7 @@ module Chewy
         # Import options:
         #
         #   <tt>:batch_size</tt> - import batch size, 1000 objects by default
+        #   <tt>:direct_import</tt> - use the collectiov values as-is, instead of reloading
         #
         # Method handles destroyed objects as well. In case of objects ORM scope
         # or array passed, objects, responding with true to `destroyed?` method will be deleted
@@ -75,7 +76,9 @@ module Chewy
         def import(*args, &block)
           collection, options = import_args(*args)
 
-          if collection.is_a?(relation_class)
+          if options[:direct_import] && collection.respond_to?(:enum_for)
+            import_direct(collection, options, &block)
+          elsif collection.is_a?(relation_class)
             import_scope(collection, options, &block)
           else
             import_objects(collection, options, &block)
@@ -130,6 +133,27 @@ module Chewy
               yield grouped_objects(batch)
             end
           end.all?
+
+          deleted = hash.keys.each_slice(options[:batch_size]).map do |group|
+            yield delete: hash.values_at(*group)
+          end.all?
+
+          indexed && deleted
+        end
+
+        def import_direct(collection, options)
+          collection_ids = identify(collection)
+          hash = Hash[collection_ids.map(&:to_s).zip(collection)]
+
+          # Converting collection to generic enum to get around missing each_slice methods on some relations
+          indexed = collection.enum_for.each_slice(options[:batch_size]).map do |batch|
+            if batch.empty?
+              true
+            else
+              batch.each { |object| hash.delete(object.send(primary_key).to_s) }
+              yield grouped_objects(batch)
+            end
+          end
 
           deleted = hash.keys.each_slice(options[:batch_size]).map do |group|
             yield delete: hash.values_at(*group)

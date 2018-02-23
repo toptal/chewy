@@ -76,12 +76,10 @@ module Chewy
         def import(*args, &block)
           collection, options = import_args(*args)
 
-          if options[:direct_import] && collection.respond_to?(:enum_for)
-            import_direct(collection, options, &block)
-          elsif collection.is_a?(relation_class)
-            import_scope(collection, options, &block)
-          else
+          if !collection.is_a?(relation_class) || options[:direct_import]
             import_objects(collection, options, &block)
+          else
+            import_scope(collection, options, &block)
           end
         end
 
@@ -120,8 +118,11 @@ module Chewy
           hash = Hash[collection_ids.map(&:to_s).zip(collection)]
 
           indexed = collection_ids.each_slice(options[:batch_size]).map do |ids|
+
             batch = if options[:raw_import]
               raw_default_scope_where_ids_in(ids, options[:raw_import])
+            elsif options[:direct_import]
+              hash.values_at(*ids)
             else
               default_scope_where_ids_in(ids)
             end
@@ -133,27 +134,6 @@ module Chewy
               yield grouped_objects(batch)
             end
           end.all?
-
-          deleted = hash.keys.each_slice(options[:batch_size]).map do |group|
-            yield delete: hash.values_at(*group)
-          end.all?
-
-          indexed && deleted
-        end
-
-        def import_direct(collection, options)
-          collection_ids = identify(collection)
-          hash = Hash[collection_ids.map(&:to_s).zip(collection)]
-
-          # Converting collection to generic enum to get around missing each_slice methods on some relations
-          indexed = collection.enum_for.each_slice(options[:batch_size]).map do |batch|
-            if batch.empty?
-              true
-            else
-              batch.each { |object| hash.delete(object.send(primary_key).to_s) }
-              yield grouped_objects(batch)
-            end
-          end
 
           deleted = hash.keys.each_slice(options[:batch_size]).map do |group|
             yield delete: hash.values_at(*group)

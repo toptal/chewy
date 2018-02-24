@@ -118,7 +118,6 @@ module Chewy
           hash = Hash[collection_ids.map(&:to_s).zip(collection)]
 
           indexed = collection_ids.each_slice(options[:batch_size]).map do |ids|
-
             batch = if options[:raw_import]
               raw_default_scope_where_ids_in(ids, options[:raw_import])
             elsif options[:direct_import]

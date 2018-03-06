@@ -10,7 +10,7 @@ module Chewy
 
         def bulk_body
           Chewy::Type::Import::BulkBuilder.new(
-            Chewy::Stash::Journal,
+            Chewy::Stash::Journal::Journal,
             index: [
               entries(:index, @index),
               entries(:delete, @delete)
@@ -18,7 +18,7 @@ module Chewy
           ).bulk_body.each do |item|
             item.values.first.merge!(
               _index: Chewy::Stash::Journal.index_name,
-              _type: Chewy::Stash::Journal.type_name
+              _type: Chewy::Stash::Journal::Journal.type_name
             )
           end
         end
@@ -31,7 +31,7 @@ module Chewy
             index_name: @type.index.derivable_name,
             type_name: @type.type_name,
             action: action,
-            references: identify(objects).map { |item| ::Elasticsearch::API.serializer.dump(item) },
+            references: identify(objects).map { |item| Base64.encode64(::Elasticsearch::API.serializer.dump(item)) },
             created_at: Time.now.utc
           }
         end

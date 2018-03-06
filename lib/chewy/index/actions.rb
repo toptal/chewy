@@ -57,14 +57,9 @@ module Chewy
           general_name = index_name
           suffixed_name = index_name(suffix: suffix)
 
-          if Chewy::Runtime.version >= 1.1
-            body = specification_hash
-            body[:aliases] = {general_name => {}} if options[:alias] && suffixed_name != general_name
-            result = client.indices.create(index: suffixed_name, body: body)
-          else
-            result = client.indices.create(index: suffixed_name, body: specification_hash)
-            result &&= client.indices.put_alias(index: suffixed_name, name: general_name) if options[:alias] && name != index_name
-          end
+          body = specification_hash
+          body[:aliases] = {general_name => {}} if options[:alias] && suffixed_name != general_name
+          result = client.indices.create(index: suffixed_name, body: body)
 
           Chewy.wait_for_status if result
           result
@@ -140,8 +135,15 @@ module Chewy
         #
         %i[import import!].each do |method|
           class_eval <<-METHOD, __FILE__, __LINE__ + 1
-            def #{method} options = {}
-              objects = options.reject { |k, v| !type_names.map(&:to_sym).include?(k) }
+            def #{method}(*args)
+              options = args.extract_options!
+              if args.one? && type_names.one?
+                objects = {type_names.first.to_sym => args.first}
+              elsif args.one?
+                fail ArgumentError, "Please pass objects for `#{method}` as a hash with type names"
+              else
+                objects = options.reject { |k, v| !type_names.map(&:to_sym).include?(k) }
+              end
               types.map do |type|
                 args = [objects[type.type_name.to_sym], options.dup].reject(&:blank?)
                 type.#{method} *args

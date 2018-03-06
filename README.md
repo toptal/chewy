@@ -208,7 +208,7 @@ If you would like to use AWS's ElasticSearch using an IAM user policy, you will 
 
     define_type User.active.includes(:country, :badges, :projects) do
       root date_detection: false do
-        template 'about_translations.*', type: 'string', analyzer: 'standard'
+        template 'about_translations.*', type: 'text', analyzer: 'standard'
 
         field :first_name, :last_name
         field :email, analyzer: 'email'
@@ -335,7 +335,7 @@ This will automatically set the type or root field to `object`. You may also spe
 To define a multi field you have to specify any type except for `object` or `nested` in the root field:
 
 ```ruby
-field :full_name, type: 'string', value: ->{ full_name.strip } do
+field :full_name, type: 'text', value: ->{ full_name.strip } do
   field :ordered, analyzer: 'ordered'
   field :untouched, index: 'not_analyzed'
 end
@@ -986,9 +986,9 @@ rake chewy:reset[-users,places] # resets every index in the application except s
 
 Performs reset exactly the same way as `chewy:reset` does, but only when the index specification (setting or mapping) was changed.
 
-It works only when index specification is locked in `Chewy::Stash` index. The first run will reset all indexes and lock their specifications.
+It works only when index specification is locked in `Chewy::Stash::Specification` index. The first run will reset all indexes and lock their specifications.
 
-See [Chewy::Stash](lib/chewy/stash.rb) and [Chewy::Index::Specification](lib/chewy/index/specification.rb) for more details.
+See [Chewy::Stash::Specification](lib/chewy/stash.rb) and [Chewy::Index::Specification](lib/chewy/index/specification.rb) for more details.
 
 
 ```bash

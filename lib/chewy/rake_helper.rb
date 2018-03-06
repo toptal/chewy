@@ -1,6 +1,6 @@
 module Chewy
   module RakeHelper
-    IMPORT_CALLBACK = lambda do |output, _name, start, finish, _id, payload| # rubocop:disable Metrics/ParameterLists
+    IMPORT_CALLBACK = lambda do |output, _name, start, finish, _id, payload|
       duration = (finish - start).ceil
       stats = payload.fetch(:import, {}).map { |key, count| "#{key} #{count}" }.join(', ')
       output.puts "  Imported #{payload[:type]} in #{human_duration(duration)}, stats: #{stats}"
@@ -15,7 +15,7 @@ module Chewy
       end
     end
 
-    JOURNAL_CALLBACK = lambda do |output, _, _, _, _, payload| # rubocop:disable Metrics/ParameterLists
+    JOURNAL_CALLBACK = lambda do |output, _, _, _, _, payload|
       count = payload[:groups].values.map(&:size).sum
       targets = payload[:groups].keys.sort_by(&:derivable_name)
       output.puts "  Applying journal to #{targets}, #{count} entries, stage #{payload[:stage]}"
@@ -196,12 +196,12 @@ module Chewy
       end
 
       # Eager loads and returns all the indexes defined in the application
-      # except the Chewy::Stash.
+      # except Chewy::Stash::Specification and Chewy::Stash::Journal.
       #
       # @return [Array<Chewy::Index>] indexes found
       def all_indexes
         Chewy.eager_load!
-        Chewy::Index.descendants - [Chewy::Stash]
+        Chewy::Index.descendants - [Chewy::Stash::Journal, Chewy::Stash::Specification]
       end
 
       def normalize_indexes(*identifiers)

@@ -1,8 +1,40 @@
 # master
 
+# Version 5.0.0
+
+## Breaking changes
+
+  * Try to align the gem version with the ElasticSearch version we support
+
+  * `Chewy.default_field_type` is `text` now.
+
+  * `Chewy::Stash` was split onto two indexes - `Chewy::Stash::Specification` and `Chewy::Stash::Journal`
+
+  * Data for journal and specification is stored in binary fields base64-encoded to bypass the limits of other fields.
+
+  * Don't underscore suggested index name (@dm1try, #626)
+
 ## Changes
 
+  * `pipeline` import option support (@eManPrague, #598)
+
+  * Proper Rails check (@nattfodd, #625)
+
+  * Bypass strategy performance improvements (@DNNX, #623)
+
+  * Avoid index update calls for empty data (@robertasg, #620)
+
+  * Do not underscore suggested index name on `Chewy::Index.index_name` call.
+
   * It is possible now to call `root` method several times inside a single type definition, the options will be merged. Also, the block isn't required anymore.
+
+  * Fixed some Sequel deprecation warnings (@arturtr - #565, @matchbookmac - #577)
+
+## Bugfixes
+
+  * Fixed index settings logic error (@yahooguntu, #593)
+
+  * Missed check in higlight method (@heartfulbird, #567)
 
 # Version 0.10.1
 

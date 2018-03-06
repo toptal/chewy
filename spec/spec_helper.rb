@@ -29,7 +29,15 @@ Chewy.settings = {
     number_of_replicas: 0
   }
 }
+
+Chewy.default_field_type = 'string' if Chewy::Runtime.version < '5.0'
 # Chewy.transport_logger = Logger.new(STDERR)
+
+KEYWORD_FIELD = if Chewy::Runtime.version < '5.0'
+  {type: 'string', index: 'not_analyzed'}
+else
+  {type: 'keyword'}
+end
 
 RSpec.configure do |config|
   config.mock_with :rspec

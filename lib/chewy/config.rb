@@ -3,66 +3,53 @@ module Chewy
     include Singleton
 
     attr_accessor :settings, :logger,
-
       # Default query compilation mode. `:must` by default.
       # See Chewy::Query#query_mode for details
       #
       :query_mode,
-
       # Default filters compilation mode. `:and` by default.
       # See Chewy::Query#filter_mode for details
       #
       :filter_mode,
-
       # Default post_filters compilation mode. `nil` by default.
       # See Chewy::Query#post_filter_mode for details
       #
       :post_filter_mode,
-
       # The first strategy in stack. `:base` by default.
       # If you need to return to the previous chewy behavior -
       # just set it to `:bypass`
       #
       :root_strategy,
-
       # Default request strategy middleware, used in e.g
       # Rails controllers. See Chewy::Railtie::RequestStrategy
       # for more info.
       #
       :request_strategy,
-
       # Use after_commit callbacks for RDBMS instead of
       # after_save and after_destroy. True by default. Useful
       # in tests with transactional fixtures or transactional
       # DatabaseCleaner strategy.
       #
       :use_after_commit_callbacks,
-
       # Where Chewy expects to find index definitions
       # within a Rails app folder.
       :indices_path,
-
       # Set index refresh_interval setting to -1 before reset and put the original value after.
       # If setting not present, put back to default 1s
       # https://www.elastic.co/guide/en/elasticsearch/reference/current/indices-update-settings.html
       :reset_disable_refresh_interval,
-
       # Set number_of_replicas to 0 before reset and put the original value after
       # https://www.elastic.co/guide/en/elasticsearch/reference/current/indices-update-settings.html
       :reset_no_replicas,
-
       # Refresh or not when import async (sidekiq, resque, activejob)
       :disable_refresh_async,
-
       # Default options for root of Chewy type. Allows to set default options
       # for type mappings like `_all`.
       :default_root_options,
-
       # Default field type for any field in any Chewy type. Defaults to 'string'.
       :default_field_type
 
     attr_reader :transport_logger, :transport_tracer,
-
       # Chewy search request DSL base class, used by every index.
       :search_class
 
@@ -82,7 +69,7 @@ module Chewy
       @disable_refresh_async = false
       @indices_path = 'app/chewy'
       @default_root_options = {}
-      @default_field_type = 'string'.freeze
+      @default_field_type = 'text'.freeze
       self.search_class = Chewy::Search::Request
     end
 
@@ -155,7 +142,7 @@ module Chewy
 
     def yaml_settings
       @yaml_settings ||= begin
-        if defined?(Rails)
+        if defined?(Rails::VERSION)
           file = Rails.root.join('config', 'chewy.yml')
 
           if File.exist?(file)

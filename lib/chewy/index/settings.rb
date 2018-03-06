@@ -4,12 +4,14 @@ module Chewy
     # hash. At first, you need to store some analyzers or other
     # analysis options to the corresponding repository:
     #
+    # @example
     #   Chewy.analyzer :title_analyzer, type: 'custom', filter: %w(lowercase icu_folding title_nysiis)
     #   Chewy.filter :title_nysiis, type: 'phonetic', encoder: 'nysiis', replace: false
     #
     # `title_nysiis` filter here will be expanded automatically when
     # `title_analyzer` analyser will be used in index settings:
     #
+    # @example
     #   class ProductsIndex < Chewy::Index
     #     settings analysis: {
     #       analyzer: [

@@ -31,7 +31,7 @@ module Chewy
             index_name: @type.index.derivable_name,
             type_name: @type.type_name,
             action: action,
-            references: identify(objects).map(&:to_json).map(&Base64.method(:encode64)),
+            references: identify(objects).map { |item| Base64.encode64(::Elasticsearch::API.serializer.dump(item)) },
             created_at: Time.now.utc
           }
         end

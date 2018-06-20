@@ -28,6 +28,7 @@ module Chewy
         indices_boost rescore highlight total total_count
         total_entries types delete_all count exists? exist? find pluck
         scroll_batches scroll_hits scroll_results scroll_wrappers
+        indices
       ].to_set.freeze
       DEFAULT_BATCH_SIZE = 1000
       DEFAULT_PLUCK_BATCH_SIZE = 10_000
@@ -773,6 +774,13 @@ module Chewy
         chain { parameters.except!(values.flatten(1)) }
       end
 
+      # Returns a list of indexes to fetch.
+      # @param indices [Array<String>]
+      # @return [Chewy::Search::Request] new scope
+      def indices(*indices)
+        chain { (@indices ||= []).concat(indices.flatten) }
+      end
+
       # @!group Additional actions
 
       # Returns total count of hits for the request. If the request
@@ -973,7 +981,7 @@ module Chewy
       end
 
       def index_names
-        @index_names ||= _indexes.map(&:index_name).uniq
+        @index_names ||= @indices ? @indices.uniq : _indexes.map(&:index_name).uniq
       end
 
       def type_names

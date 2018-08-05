@@ -31,7 +31,7 @@ matrix:
   - rvm: 2.3.6
     gemfile: gemfiles/rails.4.2.mongoid.5.2.gemfile
     env: ES_VERSION=2.4.6
-  - rvm: 2.5.0
+  - rvm: 2.5.1
     gemfile: gemfiles/rails.5.2.activerecord.gemfile
     env: ES_VERSION=5.6.7
 before_install:

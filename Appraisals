@@ -16,7 +16,7 @@
   end
 end
 
-%w[5.0 5.1].each do |activesupport|
+%w[5.0 5.1 5.2].each do |activesupport|
   appraise "rails.#{activesupport}.activerecord" do
     gem 'activerecord', "~> #{activesupport}.0"
     gem 'activesupport', "~> #{activesupport}.0"
@@ -32,22 +32,6 @@ end
 
     gem 'parallel', require: false
   end
-end
-
-appraise 'rails.5.2.activerecord' do
-  gem 'activerecord', '~> 5.2.0.rc1'
-  gem 'activesupport', '~> 5.2.0.rc1'
-
-  gem 'activejob', '~> 5.2.0.rc1'
-  gem 'resque', require: false
-  gem 'shoryuken', require: false
-  gem 'aws-sdk-sqs', require: false
-  gem 'sidekiq', require: false
-
-  gem 'kaminari-core', '~> 1.1.0', require: false
-  gem 'will_paginate', require: false
-
-  gem 'parallel', require: false
 end
 
 appraise 'rails.4.2.mongoid.5.2' do

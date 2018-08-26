@@ -113,6 +113,11 @@ describe Chewy::Search::Parameters do
     end
 
     context do
+      subject { described_class.new(allow_partial_search_results: true) }
+      specify { expect(subject.render).to eq(allow_partial_search_results: true) }
+    end
+
+    context do
       subject { described_class.new(query: {foo: 'bar'}, filter: {moo: 'baz'}) }
       specify { expect(subject.render).to eq(body: {query: {bool: {must: {foo: 'bar'}, filter: {moo: 'baz'}}}}) }
     end

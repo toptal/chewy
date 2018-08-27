@@ -103,6 +103,21 @@ describe Chewy::Search::Parameters do
     specify { expect(described_class.new.render).to eq({}) }
 
     context do
+      subject { described_class.new(request_cache: true) }
+      specify { expect(subject.render).to eq(request_cache: true) }
+    end
+
+    context do
+      subject { described_class.new(search_type: 'query_then_fetch') }
+      specify { expect(subject.render).to eq(search_type: 'query_then_fetch') }
+    end
+
+    context do
+      subject { described_class.new(allow_partial_search_results: true) }
+      specify { expect(subject.render).to eq(allow_partial_search_results: true) }
+    end
+
+    context do
       subject { described_class.new(query: {foo: 'bar'}, filter: {moo: 'baz'}) }
       specify { expect(subject.render).to eq(body: {query: {bool: {must: {foo: 'bar'}, filter: {moo: 'baz'}}}}) }
     end

@@ -10,6 +10,7 @@ module Chewy
     # @see Chewy::Search::Request#parameters
     # @see Chewy::Search::Parameters::Storage
     class Parameters
+      QUERY_STRING_PARAMS = %i[search_type request_cache allow_partial_search_results].freeze
       # Default storage classes warehouse. It is probably possible to
       # add your own classes here if necessary, but I'm not sure it will work.
       #
@@ -101,11 +102,7 @@ module Chewy
       #
       # @return [Hash] request body
       def render
-        body = @storages.except(:filter, :query, :none).values.inject({}) do |result, storage|
-          result.merge!(storage.render || {})
-        end
-        body.merge!(render_query || {})
-        body.present? ? {body: body} : {}
+        {}.merge(render_body).merge(render_query_string_params)
       end
 
     protected
@@ -124,6 +121,22 @@ module Chewy
         names = names.map(&:to_sym)
         self.class.storages.values_at(*names)
         names
+      end
+
+      def render_query_string_params
+        stores = @storages.select { |storage_name, _| QUERY_STRING_PARAMS.include?(storage_name) }
+        stores.values.inject({}) do |result, storage|
+          result.merge!(storage.render || {})
+        end
+      end
+
+      def render_body
+        exceptions = %i[filter query none] + QUERY_STRING_PARAMS
+        body = @storages.except(*exceptions).values.inject({}) do |result, storage|
+          result.merge!(storage.render || {})
+        end
+        body.merge!(render_query || {})
+        body.present? ? {body: body} : {}
       end
 
       def render_query

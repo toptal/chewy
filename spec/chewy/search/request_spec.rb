@@ -151,13 +151,20 @@ describe Chewy::Search::Request do
   end
 
   describe '#request_cache' do
-    specify { expect(subject.request_cache(true).render[:body]).to include(request_cache: true) }
-    specify { expect(subject.request_cache(true).request_cache(false).render[:body]).to include(request_cache: false) }
-    specify { expect(subject.request_cache(true).request_cache(nil).render[:body]).to be_blank }
+    specify { expect(subject.request_cache(true).render).to include(request_cache: true) }
+    specify { expect(subject.request_cache(true).request_cache(false).render).to include(request_cache: false) }
+    specify { expect(subject.request_cache(true).request_cache(nil).render[:request_cache]).to be_blank }
     specify { expect { subject.request_cache(true) }.not_to change { subject.render } }
   end
 
-  %i[search_type preference timeout].each do |name|
+  describe '#search_type' do
+    specify { expect(subject.search_type('foo').render).to include(search_type: 'foo') }
+    specify { expect(subject.search_type('foo').search_type('bar').render).to include(search_type: 'bar') }
+    specify { expect(subject.search_type('foo').search_type(nil).render[:search_type]).to be_blank }
+    specify { expect { subject.search_type('foo') }.not_to change { subject.render } }
+  end
+
+  %i[preference timeout].each do |name|
     describe "##{name}" do
       specify { expect(subject.send(name, :foo).render[:body]).to include(name => 'foo') }
       specify { expect(subject.send(name, :foo).send(name, :bar).render[:body]).to include(name => 'bar') }

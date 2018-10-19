@@ -23,7 +23,7 @@ module Chewy
       timeout limit offset highlight min_score rescore facets script_score
       boost_factor weight random_score field_value_factor decay aggregations
       suggest none strategy query filter post_filter boost_mode
-      score_mode order reorder only types delete_all find total
+      score_mode order reorder only delete_all find total
       total_count total_entries unlimited script_fields track_scores preference
     ].to_set.freeze
 

@@ -265,7 +265,7 @@ module Chewy
         types = if only.present?
           normalize_types(Array.wrap(only))
         else
-          all_indexes.flat_map(&:types)
+          all_indexes.flat_map { |index| index.has_types? ? index.types : [] }
         end
 
         types = if except.present?

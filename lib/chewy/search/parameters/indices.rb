@@ -66,7 +66,7 @@ module Chewy
         #
         # @return [Array<Chewy::Type>] a list of types classes
         def types
-          type_classes | (index_classes - type_classes.map(&:index)).flat_map(&:types)
+          type_classes | (index_classes - type_classes.map(&:index)).flat_map { |index| index.has_types? ? index.types : [] }
         end
 
       private

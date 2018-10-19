@@ -24,6 +24,15 @@ describe Chewy::Search do
     end
   end
 
+  describe '.types' do
+    before do
+      stub_index(:users)
+    end
+
+    specify { expect(ProductsIndex.all).to respond_to(:types) }
+    specify { expect(UsersIndex.all).not_to respond_to(:types) }
+  end
+
   describe '.search_string' do
     specify do
       expect(ProductsIndex.client).to receive(:search).with(hash_including(q: 'hello')).twice

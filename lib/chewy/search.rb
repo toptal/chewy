@@ -91,6 +91,8 @@ module Chewy
         if self < Chewy::Type
           index_scopes = index.scopes - scopes
           delegate_scoped index, search_class, index_scopes
+        elsif self < Chewy::Index && !has_types?
+          search_class.__send__(:undef_method, :types)
         end
 
         delegate_scoped self, search_class, scopes

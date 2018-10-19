@@ -113,6 +113,7 @@ module Chewy
     # @raise [Chewy::UnderivableType] in cases when it is impossible to find index or type
     # @return [Array<Chewy::Type>] an array of derived types
     def derive_types(from)
+      return [] if from.is_a?(Class) && from < Chewy::Index && !from.has_types?
       return from.types if from.is_a?(Class) && (from < Chewy::Index || from < Chewy::Type)
 
       index_name, type_name = from.split('#', 2)

@@ -100,21 +100,21 @@ describe Chewy::Search::Parameters do
     subject { described_class.new(offset: 10, order: 'foo') }
 
     specify { expect(subject.render).to eq(body: {from: 10, sort: ['foo']}) }
-    specify { expect(described_class.new.render).to eq({}) }
+    specify { expect(described_class.new.render).to eq(body: {}) }
 
     context do
       subject { described_class.new(request_cache: true) }
-      specify { expect(subject.render).to eq(request_cache: true) }
+      specify { expect(subject.render).to eq(body: {}, request_cache: true) }
     end
 
     context do
       subject { described_class.new(search_type: 'query_then_fetch') }
-      specify { expect(subject.render).to eq(search_type: 'query_then_fetch') }
+      specify { expect(subject.render).to eq(body: {}, search_type: 'query_then_fetch') }
     end
 
     context do
       subject { described_class.new(allow_partial_search_results: true) }
-      specify { expect(subject.render).to eq(allow_partial_search_results: true) }
+      specify { expect(subject.render).to eq(body: {}, allow_partial_search_results: true) }
     end
 
     context do

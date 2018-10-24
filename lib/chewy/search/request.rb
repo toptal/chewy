@@ -26,8 +26,9 @@ module Chewy
         timeout min_score source stored_fields search_after
         load script_fields suggest aggs aggregations none
         indices_boost rescore highlight total total_count
-        total_entries types delete_all count exists? exist? find pluck
-        scroll_batches scroll_hits scroll_results scroll_wrappers
+        total_entries indices types delete_all count exists?
+        exist? find pluck scroll_batches scroll_hits
+        scroll_results scroll_wrappers
       ].to_set.freeze
       DEFAULT_BATCH_SIZE = 1000
       DEFAULT_PLUCK_BATCH_SIZE = 10_000
@@ -51,24 +52,32 @@ module Chewy
       alias_method :total_count, :total
       alias_method :total_entries, :total
 
-      attr_reader :_indexes, :_types
-
       # The class is initialized with the list of chewy indexes and/or
       # types, which are later used to compose requests.
+      # Any symbol/string passed is treated as an index identifier.
       #
       # @example
+      #   Chewy::Search::Request.new(:places)
+      #   # => <Chewy::Search::Request {:index=>["places"]}>
       #   Chewy::Search::Request.new(PlacesIndex)
       #   # => <Chewy::Search::Request {:index=>["places"], :type=>["city", "country"]}>
       #   Chewy::Search::Request.new(PlacesIndex::City)
       #   # => <Chewy::Search::Request {:index=>["places"], :type=>["city"]}>
       #   Chewy::Search::Request.new(UsersIndex, PlacesIndex::City)
       #   # => <Chewy::Search::Request {:index=>["users", "places"], :type=>["city", "user"]}>
-      # @param indexes_or_types [Array<Chewy::Index, Chewy::Type>] indexes and types in any combinations
-      def initialize(*indexes_or_types)
-        @_types = indexes_or_types.select { |klass| klass < Chewy::Type }
-        @_indexes = indexes_or_types.select { |klass| klass < Chewy::Index }
-        @_types |= @_indexes.flat_map(&:types)
-        @_indexes |= @_types.map(&:index)
+      # @param indexes_or_types [Array<Chewy::Index, Chewy::Type, String, Symbol>] indices and types in any combinations
+      def initialize(*indices_or_types)
+        indices = indices_or_types.reject do |klass|
+          klass.is_a?(Class) && klass < Chewy::Type
+        end
+
+        types = indices_or_types.select do |klass|
+          klass.is_a?(Class) && klass < Chewy::Type
+        end
+
+        parameters.modify!(:indices) do
+          replace!(indices: indices, types: types)
+        end
       end
 
       # Underlying parameter storage collection.
@@ -110,7 +119,7 @@ module Chewy
       #
       # @return [Hash] request body
       def render
-        @render ||= render_base.merge(parameters.render)
+        @render ||= parameters.render
       end
 
       # Includes the class name and the result of rendering.
@@ -281,21 +290,39 @@ module Chewy
       #   @see https://www.elastic.co/guide/en/elasticsearch/reference/current/search-request-docvalue-fields.html
       #   @param values [Array<String, Symbol>] field names
       #   @return [Chewy::Search::Request]
-      #
-      # @!method types(*values)
-      #   Modifies `types` request parameter. Updates the storage on every call.
-      #   Constrains types passed on the request initialization.
-      #
-      #   @example
-      #     PlacesIndex.types(:city).types(:unexistent)
-      #     # => <PlacesIndex::Query {:index=>["places"], :type=>["city"]}>
-      #   @see Chewy::Search::Parameters::Types
-      #   @see https://www.elastic.co/guide/en/elasticsearch/reference/current/search-search.html
-      #   @param values [Array<String, Symbol>] type names
-      #   @return [Chewy::Search::Request]
-      %i[order docvalue_fields types].each do |name|
+      %i[order docvalue_fields].each do |name|
         define_method name do |value, *values|
           modify(name) { update!([value, *values]) }
+        end
+      end
+
+      # @!method indices(*values)
+      #   Modifies `index` request parameter. Updates the storage on every call.
+      #   Added passed indexes to the parameter list.
+      #
+      #   @example
+      #     UsersIndex.indices(CitiesIndex).indices(:another)
+      #     # => <UsersIndex::Query {:index=>["another", "cities", "users"], :type=>["city", "user"]}>
+      #   @see Chewy::Search::Parameters::Indices
+      #   @see https://www.elastic.co/guide/en/elasticsearch/reference/current/search-search.html
+      #   @param values [Array<Chewy::Index, String, Symbol>] index names
+      #   @return [Chewy::Search::Request]
+      #
+      # @!method types(*values)
+      #   Modifies `type` request parameter. Updates the storage on every call.
+      #   Constrains types passed on the request initialization or adds them
+      #   to the list depending on circumstances.
+      #
+      #   @example
+      #     UsersIndex.types(CitiesIndex::City).types(:unexistent)
+      #     # => <UsersIndex::Query {:index=>["cities", "users"], :type=>["city", "user"]}>
+      #   @see Chewy::Search::Parameters::Indices
+      #   @see https://www.elastic.co/guide/en/elasticsearch/reference/current/search-search.html
+      #   @param values [Array<Chewy::Type, String, Symbol>] type names
+      #   @return [Chewy::Search::Request]
+      %i[indices types].each do |name|
+        define_method name do |value, *values|
+          modify(:indices) { update!(name => [value, *values]) }
         end
       end
 
@@ -759,7 +786,7 @@ module Chewy
       # @param values [Array<String, Symbol>]
       # @return [Chewy::Search::Request] new scope
       def only(*values)
-        chain { parameters.only!(values.flatten(1)) }
+        chain { parameters.only!(values.flatten(1) + [:indices]) }
       end
 
       # Returns a new scope containing all the storages except specified.
@@ -912,9 +939,7 @@ module Chewy
       def delete_all(refresh: true)
         request_body = only(WHERE_STORAGES).render.merge(refresh: refresh)
         ActiveSupport::Notifications.instrument 'delete_query.chewy',
-          request: request_body, indexes: _indexes, types: _types,
-          index: _indexes.one? ? _indexes.first : _indexes,
-          type: _types.one? ? _types.first : _types do
+          notification_payload(request: request_body) do
             if Runtime.version < '5.0'
               delete_by_query_plugin(request_body)
             else
@@ -933,9 +958,7 @@ module Chewy
     private
 
       def compare_internals(other)
-        _indexes.sort_by(&:derivable_name) == other._indexes.sort_by(&:derivable_name) &&
-          _types.sort_by(&:derivable_name) == other._types.sort_by(&:derivable_name) &&
-          parameters == other.parameters
+        parameters == other.parameters
       end
 
       def modify(name, &block)
@@ -947,21 +970,35 @@ module Chewy
       end
 
       def reset
-        @response, @render, @render_base, @type_names, @index_names, @loader = nil
+        @response, @render, @loader = nil
       end
 
       def perform(additional = {})
         request_body = render.merge(additional)
         ActiveSupport::Notifications.instrument 'search_query.chewy',
-          request: request_body, indexes: _indexes, types: _types,
-          index: _indexes.one? ? _indexes.first : _indexes,
-          type: _types.one? ? _types.first : _types do
-          begin
-            Chewy.client.search(request_body)
-          rescue Elasticsearch::Transport::Transport::Errors::NotFound
-            {}
+          notification_payload(request: request_body) do
+            begin
+              Chewy.client.search(request_body)
+            rescue Elasticsearch::Transport::Transport::Errors::NotFound
+              {}
+            end
           end
-        end
+      end
+
+      def notification_payload(additional)
+        {
+          indexes: _indices, types: _types,
+          index: _indices.one? ? _indices.first : _indices,
+          type: _types.one? ? _types.first : _types
+        }.merge(additional)
+      end
+
+      def _indices
+        parameters[:indices].indices
+      end
+
+      def _types
+        parameters[:indices].types
       end
 
       def raw_limit_value
@@ -970,22 +1007,6 @@ module Chewy
 
       def raw_offset_value
         parameters[:offset].value
-      end
-
-      def index_names
-        @index_names ||= _indexes.map(&:index_name).uniq
-      end
-
-      def type_names
-        @type_names ||= if parameters[:types].value.present?
-          _types.map(&:type_name).uniq & parameters[:types].value
-        else
-          _types.map(&:type_name).uniq
-        end
-      end
-
-      def render_base
-        @render_base ||= {index: index_names, type: type_names, body: {}}
       end
 
       def delete_by_query_plugin(request)
@@ -998,7 +1019,10 @@ module Chewy
       end
 
       def loader
-        @loader ||= Loader.new(indexes: @_indexes, **parameters[:load].value)
+        @loader ||= Loader.new(
+          indexes: parameters[:indices].indices,
+          **parameters[:load].value
+        )
       end
 
       def fetch_field(hit, field)

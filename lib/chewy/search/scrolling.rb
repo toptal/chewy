@@ -125,11 +125,9 @@ module Chewy
 
       def perform_scroll(body)
         ActiveSupport::Notifications.instrument 'search_query.chewy',
-          request: body, indexes: _indexes, types: _types,
-          index: _indexes.one? ? _indexes.first : _indexes,
-          type: _types.one? ? _types.first : _types do
-          Chewy.client.scroll(body)
-        end
+          notification_payload(request: body) do
+            Chewy.client.scroll(body)
+          end
       end
     end
   end

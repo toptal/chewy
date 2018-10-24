@@ -34,7 +34,7 @@ Chewy is an ODM and wrapper for [the official Elasticsearch client](https://gith
     * [Non-block notation](#non-block-notation)
     * [Designing your own strategies](#designing-your-own-strategies)
   * [Rails application strategies integration](#rails-application-strategies-integration)
-  * [ActiveSupport::Notifications support](#activesupport-notifications-support)
+  * [ActiveSupport::Notifications support](#activesupportnotifications-support)
   * [NewRelic integration](#newrelic-integration)
   * [Search requests](#search-requests)
     * [Composing requests](#composing-requests)

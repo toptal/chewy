@@ -40,6 +40,11 @@ module Chewy
       @criteria = Criteria.new
     end
 
+    # A compatibility layer with the new request DSL.
+    def render
+      _request
+    end
+
     # Comparation with other query or collection
     # If other is collection - search request is executed and
     # result is used for comparation

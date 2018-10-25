@@ -57,11 +57,11 @@ describe Chewy::Search::Request do
   describe '#inspect' do
     specify do
       expect(described_class.new(ProductsIndex).inspect)
-        .to eq('<Chewy::Search::Request {:index=>["products"], :type=>["product", "city", "country"], :body=>{}}>')
+        .to eq('<Chewy::Search::Request {:index=>["products"], :type=>["city", "country", "product"], :body=>{}}>')
     end
     specify do
       expect(ProductsIndex.limit(10).inspect)
-        .to eq('<ProductsIndex::Query {:index=>["products"], :type=>["product", "city", "country"], :body=>{:size=>10}}>')
+        .to eq('<ProductsIndex::Query {:index=>["products"], :type=>["city", "country", "product"], :body=>{:size=>10}}>')
     end
   end
 
@@ -225,8 +225,17 @@ describe Chewy::Search::Request do
     specify { expect { subject.docvalue_fields(:foo) }.not_to change { subject.render } }
   end
 
+  describe '#indices' do
+    specify { expect(described_class.new(:products).render[:index]).to eq(%w[products]) }
+    specify { expect(subject.indices(:cities).render[:index]).to eq(%w[cities products]) }
+    specify { expect(subject.indices(CitiesIndex, :whatever).render[:index]).to eq(%w[cities products whatever]) }
+    specify { expect(subject.indices([CitiesIndex, :products]).render[:index]).to eq(%w[cities products]) }
+    specify { expect { subject.indices(:cities) }.not_to change { subject.render } }
+  end
+
   describe '#types' do
     specify { expect(subject.types(:product).render[:type]).to contain_exactly('product') }
+    specify { expect(described_class.new(ProductsIndex::City).types(ProductsIndex::Country).render[:type]).to match_array(%w[city country]) }
     specify { expect(subject.types(%i[product city]).types(nil).render[:type]).to match_array(%w[product city]) }
     specify { expect(subject.types(:product).types(:product, :city, :something).render[:type]).to match_array(%w[product city]) }
     specify { expect(subject.types(nil).render[:body]).to be_blank }
@@ -422,7 +431,7 @@ describe Chewy::Search::Request do
         expect(outer_payload).to eq(
           index: ProductsIndex,
           indexes: [ProductsIndex],
-          request: {index: ['products'], type: %w[product city country], body: {query: {match: {name: 'name3'}}}},
+          request: {index: ['products'], type: %w[city country product], body: {query: {match: {name: 'name3'}}}},
           type: [ProductsIndex::Product, ProductsIndex::City, ProductsIndex::Country],
           types: [ProductsIndex::Product, ProductsIndex::City, ProductsIndex::Country]
         )
@@ -651,7 +660,7 @@ describe Chewy::Search::Request do
         expect(outer_payload).to eq(
           index: ProductsIndex,
           indexes: [ProductsIndex],
-          request: {index: ['products'], type: %w[product city country], body: {query: {match: {name: 'name3'}}}, refresh: true},
+          request: {index: ['products'], type: %w[city country product], body: {query: {match: {name: 'name3'}}}, refresh: true},
           type: [ProductsIndex::Product, ProductsIndex::City, ProductsIndex::Country],
           types: [ProductsIndex::Product, ProductsIndex::City, ProductsIndex::Country]
         )
@@ -666,7 +675,7 @@ describe Chewy::Search::Request do
         expect(outer_payload).to eq(
           index: ProductsIndex,
           indexes: [ProductsIndex],
-          request: {index: ['products'], type: %w[product city country], body: {query: {match: {name: 'name3'}}}, refresh: false},
+          request: {index: ['products'], type: %w[city country product], body: {query: {match: {name: 'name3'}}}, refresh: false},
           type: [ProductsIndex::Product, ProductsIndex::City, ProductsIndex::Country],
           types: [ProductsIndex::Product, ProductsIndex::City, ProductsIndex::Country]
         )

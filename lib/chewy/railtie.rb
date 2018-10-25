@@ -69,11 +69,11 @@ module Chewy
 
     config.after_initialize do |app|
       loaded = app.config.middleware.to_a.map(&:name)
-      unless loaded.include? "RequestStrategy"
+      unless loaded.include? "Chewy::Railtie::RequestStrategy"
         raise <<-EOM
         The required middleware for Chewy has not been added
         To fix this, add
-          config.middleware.insert_after(Rails::Rack::Logger, RequestStrategy)
+          config.middleware.insert_after(Rails::Rack::Logger, Chewy::Railtie::RequestStrategy)
         to config/application.rb.
         EOM
       end

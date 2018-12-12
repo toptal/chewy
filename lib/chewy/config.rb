@@ -148,7 +148,11 @@ module Chewy
           if File.exist?(file)
             yaml = ERB.new(File.read(file)).result
             hash = YAML.load(yaml) # rubocop:disable Security/YAMLLoad
-            hash[Rails.env].try(:deep_symbolize_keys) if hash
+            if hash
+              strategy_config = hash.dig(Rails.env, 'request_strategy')
+              @request_strategy = strategy_config.to_sym if strategy_config.present?
+              hash[Rails.env].try(:deep_symbolize_keys)
+            end
           end
         end || {}
       end

@@ -1,5 +1,4 @@
 language: ruby
-sudo: false
 services:
   - mongodb
 jdk:

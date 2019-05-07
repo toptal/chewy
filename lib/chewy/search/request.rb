@@ -1,6 +1,6 @@
 module Chewy
   module Search
-    # The main requset DSL class. Supports multiple index requests.
+    # The main request DSL class. Supports multiple index requests.
     # Supports ES2 and ES5 search API and query DSL.
     #
     # @note The class tries to be as immutable as possible,

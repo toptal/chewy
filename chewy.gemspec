@@ -22,7 +22,7 @@ Gem::Specification.new do |spec| # rubocop:disable BlockLength
   spec.add_development_dependency 'elasticsearch-extensions'
   spec.add_development_dependency 'rake'
   spec.add_development_dependency 'resque_spec'
-  spec.add_development_dependency 'rspec', '~> 3.7.0'
+  spec.add_development_dependency 'rspec', '~> 3.8.0'
   spec.add_development_dependency 'rspec-collection_matchers'
   spec.add_development_dependency 'rspec-its'
   spec.add_development_dependency 'rubocop', '0.52.1'

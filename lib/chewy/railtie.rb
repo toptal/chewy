@@ -68,7 +68,7 @@ module Chewy
     end
 
     initializer 'chewy.request_strategy' do |app|
-      app.config.middleware.insert_after(Rails::Rack::Logger, RequestStrategy)
+      app.config.middleware.insert_before(ActionDispatch::ShowExceptions, RequestStrategy)
     end
 
     initializer 'chewy.add_indices_path' do |_app|

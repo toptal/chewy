@@ -2,14 +2,16 @@
 
 source "https://rubygems.org"
 
-gem "activerecord", "~> 4.2.0"
-gem "activesupport", "~> 4.2.0"
-gem "activejob", "~> 4.2.0"
+gem "elasticsearch", "~> 5.0"
+gem "sqlite3", "~> 1.4.0"
+gem "mongoid", github: "mongodb/mongoid"
+gem "activesupport", "~> 6.0.0"
+gem "activejob", "~> 6.0.0"
 gem "resque", require: false
 gem "shoryuken", require: false
 gem "aws-sdk-sqs", require: false
 gem "sidekiq", require: false
-gem "kaminari", "~> 0.17.0", require: false
+gem "kaminari", "~> 1.1.0", require: false
 gem "will_paginate", require: false
 gem "parallel", require: false
 

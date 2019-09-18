@@ -1,79 +1,50 @@
-%w[4.0 4.1 4.2].each do |activesupport|
-  appraise "rails.#{activesupport}.activerecord" do
-    gem 'activerecord', "~> #{activesupport}.0"
-    gem 'activesupport', "~> #{activesupport}.0"
+[
+  {rails: '4.2', es: '5', kaminari: '0.17'},
+  {rails: '4.2', mongoid: '5.4', es: '5', kaminari: '0.17'},
+  {rails: '5.2', es: '5'},
+  {rails: '5.2', mongoid: '6.4', es: '5'},
+  {rails: '5.2', sequel: '4.49', es: '5'},
+  {rails: '6.0', es: '5'},
+  {rails: '6.0', mongoid: 'master', es: '5'},
+  {rails: '6.0', sequel: '5.24', es: '5'},
+  {rails: '5.2', es: '6'},
+  {rails: '5.2', mongoid: '6.4', es: '6'},
+  {rails: '5.2', sequel: '4.49', es: '6'},
+  {rails: '6.0', es: '7'},
+  {rails: '6.0', mongoid: 'master', es: '7'},
+  {rails: '6.0', sequel: '5.24', es: '7'}
+].each do |config|
+  appraise config.to_a.join('.') do
+    gem 'elasticsearch', "~> #{config[:es]}.0"
 
-    gem 'activejob', "~> #{activesupport}.0" if activesupport >= '4.2'
-    gem 'resque', require: false
-    gem 'shoryuken', require: false
-    gem 'aws-sdk-sqs', require: false
-    gem 'sidekiq', require: false
+    if config[:rails] >= '6.0'
+      gem 'sqlite3', '~> 1.4.0'
+    else
+      gem 'sqlite3', '~> 1.3.6'
+    end
 
-    gem 'kaminari', '~> 0.17.0', require: false
-    gem 'will_paginate', require: false
+    if config.key?(:mongoid)
+      if config[:mongoid] == 'master'
+        gem 'mongoid', github: 'mongodb/mongoid'
+      else
+        gem 'mongoid', "~> #{config[:mongoid]}.0"
+      end
+    elsif config.key?(:sequel)
+      gem 'sequel', "~> #{config[:sequel]}.0"
+    else
+      gem 'activerecord', "~> #{config[:rails]}.0"
+    end
+    gem 'activesupport', "~> #{config[:rails]}.0"
 
-    gem 'parallel', require: false
-  end
-end
+    unless config.key?(:sequel)
+      gem 'activejob', "~> #{config[:rails]}.0"
+      gem 'resque', require: false
+      gem 'shoryuken', require: false
+      gem 'aws-sdk-sqs', require: false
+      gem 'sidekiq', require: false
+    end
 
-%w[5.0 5.1 5.2].each do |activesupport|
-  appraise "rails.#{activesupport}.activerecord" do
-    gem 'activerecord', "~> #{activesupport}.0"
-    gem 'activesupport', "~> #{activesupport}.0"
-
-    gem 'activejob', "~> #{activesupport}.0"
-    gem 'resque', require: false
-    gem 'shoryuken', require: false
-    gem 'aws-sdk-sqs', require: false
-    gem 'sidekiq', require: false
-
-    gem 'kaminari-core', '~> 1.1.0', require: false
-    gem 'will_paginate', require: false
-
-    gem 'parallel', require: false
-  end
-end
-
-appraise 'rails.4.2.mongoid.5.2' do
-  gem 'mongoid', '~> 5.2.0'
-  gem 'activesupport', '~> 4.2.0'
-
-  gem 'activejob', '~> 4.2.0'
-  gem 'resque', require: false
-  gem 'shoryuken', require: false
-  gem 'aws-sdk-sqs', require: false
-  gem 'sidekiq', require: false
-
-  gem 'kaminari', '~> 0.17.0', require: false
-  gem 'will_paginate', require: false
-
-  gem 'parallel', require: false
-end
-
-{'5.0' => '6.1', '5.1' => '6.3'}.each do |activesupport, mongoid|
-  appraise "rails.#{activesupport}.mongoid.#{mongoid}" do
-    gem 'mongoid', "~> #{mongoid}.0"
-    gem 'activesupport', "~> #{activesupport}.0"
-
-    gem 'activejob', "~> #{activesupport}.0"
-    gem 'resque', require: false
-    gem 'shoryuken', require: false
-    gem 'aws-sdk-sqs', require: false
-    gem 'sidekiq', require: false
-
-    gem 'kaminari-core', '~> 1.1.0', require: false
-    gem 'will_paginate', require: false
-
-    gem 'parallel', require: false
-  end
-end
-
-%w[4.45].each do |sequel|
-  appraise "sequel.#{sequel}" do
-    gem 'sequel', "~> #{sequel}.0"
-    gem 'activesupport', '~> 5.1.0'
-
-    gem 'kaminari-core', '~> 1.1.0', require: false
+    gem 'kaminari', "~> #{config[:kaminari] || '1.1'}.0", require: false
     gem 'will_paginate', require: false
 
     gem 'parallel', require: false

@@ -2,6 +2,8 @@ source 'https://rubygems.org'
 
 gemspec
 
+gem 'elasticsearch', '~> 5.0'
+
 gem 'activerecord'
 # gem 'mongoid'
 # gem 'sequel'

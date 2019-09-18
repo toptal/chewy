@@ -38,8 +38,7 @@ module SequelClassHelpers
 
     # Aliases for compatibility with specs that were written with ActiveRecord in mind...
     alias_method :save!, :save
-    alias_method :update_attributes, :update
-    alias_method :update_attributes!, :update
+    alias_method :update!, :update
 
     class << self
       alias_method :create!, :create

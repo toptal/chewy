@@ -7,7 +7,6 @@ describe Chewy::Query::Nodes::Range do
     end
 
     specify { expect(render { age > nil }).to eq(range: {'age' => {gt: nil}}) }
-    specify { expect(render { age == (nil..nil) }).to eq(range: {'age' => {gt: nil, lt: nil}}) }
 
     specify { expect(render { age > 42 }).to eq(range: {'age' => {gt: 42}}) }
     specify { expect(render { age == (42..45) }).to eq(range: {'age' => {gt: 42, lt: 45}}) }

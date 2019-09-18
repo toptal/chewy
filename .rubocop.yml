@@ -50,6 +50,7 @@ Metrics/BlockLength:
     - '**/*_spec.rb'
     - '**/*_examples.rb'
     - '**/*.rake'
+    - Appraisals
 
 Metrics/ModuleLength:
   Exclude:

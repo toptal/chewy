@@ -1,6 +1,5 @@
 require 'bundler/gem_tasks'
 require 'rspec/core/rake_task'
-require 'elasticsearch/extensions/test/cluster/tasks'
 
 RSpec::Core::RakeTask.new(:spec)
 
@@ -8,10 +7,12 @@ task default: :spec
 
 namespace :es do
   task :start do
-    Rake.application['elasticsearch:start'].invoke
+    require 'elasticsearch/extensions/test/cluster'
+    Elasticsearch::Extensions::Test::Cluster.start
   end
 
   task :stop do
-    Rake.application['elasticsearch:stop'].invoke
+    require 'elasticsearch/extensions/test/cluster'
+    Elasticsearch::Extensions::Test::Cluster.stop
   end
 end

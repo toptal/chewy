@@ -20,3 +20,5 @@ tmp
 _site
 .sass-cache
 file::memory:?cache=shared
+.ruby-version
+.ruby-gemset

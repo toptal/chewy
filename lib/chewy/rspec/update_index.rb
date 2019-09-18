@@ -44,13 +44,13 @@ RSpec::Matchers.define :update_index do |type_name, options = {}| # rubocop:disa
   # Specify reindexed attributes. Note that arrays are
   # compared position-independently.
   #
-  #   specify { expect { user.update_attributes!(name: 'Duke') }
+  #   specify { expect { user.update!(name: 'Duke') }
   #     .to update_index(UsersIndex.user).and_reindex(user, with: {name: 'Duke'}) }
   #
   # You can combine all the options and chain `and_reindex` method to
   # specify options for every indexed record:
   #
-  #   specify { expect { 2.times { [user1, user2].map { |u| u.update_attributes!(name: "Duke#{u.id}") } } }
+  #   specify { expect { 2.times { [user1, user2].map { |u| u.update!(name: "Duke#{u.id}") } } }
   #     .to update_index(UsersIndex.user)
   #     .and_reindex(user1, with: {name: 'Duke42'}) }
   #     .and_reindex(user2, times: 1, with: {name: 'Duke43'}) }

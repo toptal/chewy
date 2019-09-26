@@ -112,7 +112,16 @@ module Chewy
       # @see Chewy::Search::Response
       # @return [Chewy::Search::Response] a response object instance
       def response
-        @response ||= Response.new(perform, loader, collection_paginator)
+        @response ||= build_response(perform)
+      end
+
+      # Wraps and sets the raw Elasticsearch response to provide access
+      # to convenience methods.
+      # 
+      # @see Chewy::Search::Response
+      # @param from_elasticsearch [Hash] An Elasticsearch response
+      def response=(from_elasticsearch)
+        @response = build_response(from_elasticsearch)
       end
 
       # ES request body
@@ -948,6 +957,13 @@ module Chewy
           end
       end
 
+      # Returns whether or not the query has been performed.
+      # 
+      # @return [true, false]
+      def performed?
+        !@response.nil?
+      end
+
     protected
 
       def initialize_clone(origin)
@@ -956,6 +972,10 @@ module Chewy
       end
 
     private
+
+      def build_response(raw_response)
+        Response.new(raw_response, loader, collection_paginator)
+      end
 
       def compare_internals(other)
         parameters == other.parameters
@@ -1031,10 +1051,6 @@ module Chewy
         else
           hit.fetch('_source', {})[field]
         end
-      end
-
-      def performed?
-        !@response.nil?
       end
 
       def collection_paginator

@@ -5,14 +5,13 @@ module Chewy
 
       module ClassMethods
         def indexes
-          client.indices.get_alias(name: index_name).keys
+          client.indices.get(index: "#{index_name}*").keys
         rescue Elasticsearch::Transport::Transport::Errors::NotFound
           []
         end
 
         def aliases
-          name = index_name
-          client.indices.get_alias(index: name, name: '*')[name].try(:[], 'aliases').try(:keys) || []
+          client.indices.get(index: "#{index_name}*").values.flat_map {|i| i['aliases'].keys }
         rescue Elasticsearch::Transport::Transport::Errors::NotFound
           []
         end

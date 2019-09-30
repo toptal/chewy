@@ -172,7 +172,7 @@ module Chewy
         def reset!(suffix = nil, apply_journal: true, journal: false, **import_options)
           result = if suffix.present?
             start_time = Time.now
-            indexes = self.indexes
+            indexes = self.indexes - [index_name]
             create! suffix, alias: false
 
             general_name = index_name

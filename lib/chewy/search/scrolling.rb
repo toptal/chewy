@@ -31,16 +31,19 @@ module Chewy
         total = [raw_limit_value, result.fetch('hits', {}).fetch('total', 0)].compact.min
         last_batch_size = total % batch_size
         fetched = 0
+        scroll_id = nil
 
         loop do
           hits = result.fetch('hits', {}).fetch('hits', [])
           fetched += hits.size
           hits = hits.first(last_batch_size) if last_batch_size != 0 && fetched >= total
           yield(hits) if hits.present?
-          break if fetched >= total
           scroll_id = result['_scroll_id']
+          break if fetched >= total
           result = perform_scroll(scroll: scroll, scroll_id: scroll_id)
         end
+      ensure
+        Chewy.client.clear_scroll(scroll_id: scroll_id) if scroll_id
       end
 
       # @!method scroll_hits(batch_size: 1000, scroll: '1m')

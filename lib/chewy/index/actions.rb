@@ -59,7 +59,7 @@ module Chewy
 
           body = specification_hash
           body[:aliases] = {general_name => {}} if options[:alias] && suffixed_name != general_name
-          result = client.indices.create(index: suffixed_name, body: body)
+          result = client.indices.create(index: suffixed_name, body: body, include_type_name: true)
 
           Chewy.wait_for_status if result
           result

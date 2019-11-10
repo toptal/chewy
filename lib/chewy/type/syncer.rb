@@ -207,7 +207,8 @@ module Chewy
 
         mappings = @type.client.indices.get_mapping(
           index: @type.index_name,
-          type: @type.type_name
+          type: @type.type_name,
+          include_type_name: true
         ).values.first.fetch('mappings', {})
 
         @outdated_sync_field_type = mappings

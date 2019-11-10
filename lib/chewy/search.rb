@@ -58,7 +58,7 @@ module Chewy
       # @see https://www.elastic.co/guide/en/elasticsearch/reference/current/search-uri-request.html
       # @return [Hash] the request result
       def search_string(query, options = {})
-        options = options.merge(all.render.slice(:index, :type).merge(q: query))
+        options = options.merge(all.render.slice(:index, :type).merge(q: query)).merge(rest_total_hits_as_int: true)
         Chewy.client.search(options)
       end
 

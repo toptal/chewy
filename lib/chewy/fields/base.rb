@@ -4,11 +4,16 @@ module Chewy
       attr_reader :name, :options, :value, :children
       attr_accessor :parent
 
-      def initialize(name, options = {})
+      def initialize(name, value: nil, **options)
         @name = name.to_sym
-        @options = options.deep_symbolize_keys
-        @value = @options.delete(:value)
+        @options = {}
+        update_options!(options)
+        @value = value
         @children = []
+      end
+
+      def update_options!(**options)
+        @options = options
       end
 
       def multi_field?
@@ -28,6 +33,13 @@ module Chewy
           end
         mapping.reverse_merge!(options)
         mapping.reverse_merge!(type: (children.present? ? 'object' : Chewy.default_field_type))
+
+        # This is done to support ES2 journaling and will be removed soon
+        if mapping[:type] == 'keyword' && Chewy::Runtime.version < '5.0'
+          mapping[:type] = 'string'
+          mapping[:index] = 'not_analyzed'
+        end
+
         {name => mapping}
       end
 

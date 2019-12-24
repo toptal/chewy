@@ -5,7 +5,7 @@ describe Chewy::Fields::Root do
 
   describe '#dynamic_template' do
     specify do
-      field.dynamic_template 'hello', type: 'string'
+      field.dynamic_template 'hello', type: 'keyword'
       field.dynamic_template 'hello*', :integer
       field.dynamic_template 'hello.*'
       field.dynamic_template(/hello/)
@@ -14,7 +14,7 @@ describe Chewy::Fields::Root do
       field.dynamic_template(/hello\..*/)
 
       expect(field.mappings_hash).to eq(product: {dynamic_templates: [
-        {template_1: {mapping: {type: 'string'}, match: 'hello'}},
+        {template_1: {mapping: {type: 'keyword'}, match: 'hello'}},
         {template_2: {mapping: {}, match_mapping_type: 'integer', match: 'hello*'}},
         {template_3: {mapping: {}, path_match: 'hello.*'}},
         {template_4: {mapping: {}, match: 'hello', match_pattern: 'regexp'}},
@@ -32,10 +32,10 @@ describe Chewy::Fields::Root do
       end
 
       specify do
-        field.dynamic_template 'hello', type: 'string'
+        field.dynamic_template 'hello', type: 'keyword'
         expect(field.mappings_hash).to eq(product: {dynamic_templates: [
           {template_42: {mapping: {}, match: ''}},
-          {template_1: {mapping: {type: 'string'}, match: 'hello'}}
+          {template_1: {mapping: {type: 'keyword'}, match: 'hello'}}
         ]})
       end
     end
@@ -53,11 +53,11 @@ describe Chewy::Fields::Root do
       let(:city) { City.new(name: 'London', rating: 100) }
 
       specify do
-        expect(PlacesIndex::City.send(:build_root).compose(city))
+        expect(PlacesIndex::City.root.compose(city))
           .to match(hash_including('name' => 'London', 'rating' => 100))
       end
       specify do
-        expect(PlacesIndex::City.send(:build_root).compose(city, fields: %i[name borogoves]))
+        expect(PlacesIndex::City.root.compose(city, fields: %i[name borogoves]))
           .to eq('name' => 'London')
       end
     end
@@ -74,11 +74,11 @@ describe Chewy::Fields::Root do
       let(:city) { double(name: 'London', rating: 100) }
 
       specify do
-        expect(PlacesIndex::City.send(:build_root).compose(city))
+        expect(PlacesIndex::City.root.compose(city))
           .to eq('name' => 'London', 'rating' => 100)
       end
       specify do
-        expect(PlacesIndex::City.send(:build_root).compose(city, fields: %i[name borogoves]))
+        expect(PlacesIndex::City.root.compose(city, fields: %i[name borogoves]))
           .to eq('name' => 'London')
       end
     end
@@ -95,12 +95,12 @@ describe Chewy::Fields::Root do
       let(:city) { double(name: 'London', rating: 100) }
 
       specify do
-        expect(PlacesIndex::City.send(:build_root).compose(city))
+        expect(PlacesIndex::City.root.compose(city))
           .to eq('name' => 'LondonModified', 'rating' => 101)
       end
 
       specify do
-        expect(PlacesIndex::City.send(:build_root).compose(city, fields: %i[name borogoves]))
+        expect(PlacesIndex::City.root.compose(city, fields: %i[name borogoves]))
           .to eq('name' => 'LondonModified')
       end
     end
@@ -120,12 +120,12 @@ describe Chewy::Fields::Root do
       let(:city) { double(name: 'London', rating: 100) }
 
       specify do
-        expect(PlacesIndex::City.send(:build_root).compose(city))
+        expect(PlacesIndex::City.root.compose(city))
           .to eq('name' => 'LondonModifiedModified', 'rating' => 101)
       end
 
       specify do
-        expect(PlacesIndex::City.send(:build_root).compose(city, fields: %i[name borogoves]))
+        expect(PlacesIndex::City.root.compose(city, fields: %i[name borogoves]))
           .to eq('name' => 'LondonModifiedModified')
       end
     end
@@ -141,7 +141,7 @@ describe Chewy::Fields::Root do
     end
 
     specify do
-      expect(PlacesIndex::City.send(:build_root).child_hash).to match(
+      expect(PlacesIndex::City.root.child_hash).to match(
         name: an_instance_of(Chewy::Fields::Base).and(have_attributes(name: :name)),
         rating: an_instance_of(Chewy::Fields::Base).and(have_attributes(name: :rating))
       )

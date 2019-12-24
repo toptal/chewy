@@ -34,7 +34,7 @@ Chewy is an ODM and wrapper for [the official Elasticsearch client](https://gith
     * [Non-block notation](#non-block-notation)
     * [Designing your own strategies](#designing-your-own-strategies)
   * [Rails application strategies integration](#rails-application-strategies-integration)
-  * [ActiveSupport::Notifications support](#activesupport-notifications-support)
+  * [ActiveSupport::Notifications support](#activesupportnotifications-support)
   * [NewRelic integration](#newrelic-integration)
   * [Search requests](#search-requests)
     * [Composing requests](#composing-requests)
@@ -208,7 +208,7 @@ If you would like to use AWS's ElasticSearch using an IAM user policy, you will 
 
     define_type User.active.includes(:country, :badges, :projects) do
       root date_detection: false do
-        template 'about_translations.*', type: 'string', analyzer: 'standard'
+        template 'about_translations.*', type: 'text', analyzer: 'standard'
 
         field :first_name, :last_name
         field :email, analyzer: 'email'
@@ -335,7 +335,7 @@ This will automatically set the type or root field to `object`. You may also spe
 To define a multi field you have to specify any type except for `object` or `nested` in the root field:
 
 ```ruby
-field :full_name, type: 'string', value: ->{ full_name.strip } do
+field :full_name, type: 'text', value: ->{ full_name.strip } do
   field :ordered, analyzer: 'ordered'
   field :untouched, index: 'not_analyzed'
 end
@@ -807,36 +807,86 @@ Chewy has notifying the following events:
 To integrate with NewRelic you may use the following example source (config/initializers/chewy.rb):
 
 ```ruby
-ActiveSupport::Notifications.subscribe('import_objects.chewy') do |name, start, finish, id, payload|
-  metric_name = "Database/ElasticSearch/import"
-  duration = (finish - start).to_f
-  logged = "#{payload[:type]} #{payload[:import].to_a.map{ |i| i.join(':') }.join(', ')}"
+require 'new_relic/agent/instrumentation/evented_subscriber'
 
-  self.class.trace_execution_scoped([metric_name]) do
-    NewRelic::Agent.instance.transaction_sampler.notice_sql(logged, nil, duration)
-    NewRelic::Agent.instance.sql_sampler.notice_sql(logged, metric_name, nil, duration)
-    NewRelic::Agent.record_metric(metric_name, duration)
+class ChewySubscriber < NewRelic::Agent::Instrumentation::EventedSubscriber
+  def start(name, id, payload)
+    event = ChewyEvent.new(name, Time.current, nil, id, payload)
+    push_event(event)
+  end
+
+  def finish(_name, id, _payload)
+    pop_event(id).finish
+  end
+
+  class ChewyEvent < NewRelic::Agent::Instrumentation::Event
+    OPERATIONS = {
+      'import_objects.chewy' => 'import',
+      'search_query.chewy' => 'search',
+      'delete_query.chewy' => 'delete'
+    }.freeze
+
+    def initialize(*args)
+      super
+      @segment = start_segment
+    end
+
+    def start_segment
+      segment = NewRelic::Agent::Transaction::DatastoreSegment.new product, operation, collection, host, port
+      if (txn = state.current_transaction)
+        segment.transaction = txn
+      end
+      segment.notice_sql @payload[:request].to_s
+      segment.start
+      segment
+    end
+
+    def finish
+      if (txn = state.current_transaction)
+        txn.add_segment @segment
+      end
+      @segment.finish
+    end
+
+    private
+
+    def state
+      @state ||= NewRelic::Agent::TransactionState.tl_get
+    end
+
+    def product
+      'Elasticsearch'
+    end
+
+    def operation
+      OPERATIONS[name]
+    end
+
+    def collection
+      payload.values_at(:type, :index)
+             .reject { |value| value.try(:empty?) }
+             .first
+             .to_s
+    end
+
+    def host
+      Chewy.client.transport.hosts.first[:host]
+    end
+
+    def port
+      Chewy.client.transport.hosts.first[:port]
+    end
   end
 end
 
-ActiveSupport::Notifications.subscribe('search_query.chewy') do |name, start, finish, id, payload|
-  metric_name = "Database/ElasticSearch/search"
-  duration = (finish - start).to_f
-  logged = "#{payload[:type].presence || payload[:index]} #{payload[:request]}"
-
-  self.class.trace_execution_scoped([metric_name]) do
-    NewRelic::Agent.instance.transaction_sampler.notice_sql(logged, nil, duration)
-    NewRelic::Agent.instance.sql_sampler.notice_sql(logged, metric_name, nil, duration)
-    NewRelic::Agent.record_metric(metric_name, duration)
-  end
-end
+ActiveSupport::Notifications.subscribe(/.chewy$/, ChewySubscriber.new)
 ```
 
 ### Search requests
 
 Long story short: there is a new DSL that supports ES2 and ES5, the previous DSL version (which supports ES1 and ES2) documentation was moved to [LEGACY_DSL.md](LEGACY_DSL.md).
 
-If you want to use it - simply do `Chewy.search_class = Chewy::Query` somewhere before indices are initialized.
+If you want to use the old DSL - simply do `Chewy.search_class = Chewy::Query` somewhere before indices are initialized.
 
 The new DSL is enabled by default, here is a quick introduction.
 
@@ -936,9 +986,9 @@ rake chewy:reset[-users,places] # resets every index in the application except s
 
 Performs reset exactly the same way as `chewy:reset` does, but only when the index specification (setting or mapping) was changed.
 
-It works only when index specification is locked in `Chewy::Stash` index. The first run will reset all indexes and lock their specifications.
+It works only when index specification is locked in `Chewy::Stash::Specification` index. The first run will reset all indexes and lock their specifications.
 
-See [Chewy::Stash](lib/chewy/stash.rb) and [Chewy::Index::Specification](lib/chewy/index/specification.rb) for more details.
+See [Chewy::Stash::Specification](lib/chewy/stash.rb) and [Chewy::Index::Specification](lib/chewy/index/specification.rb) for more details.
 
 
 ```bash

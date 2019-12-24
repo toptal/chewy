@@ -83,9 +83,7 @@ RSpec::Matchers.define :update_index do |type_name, options = {}| # rubocop:disa
   #     .to update_index(UsersIndex.user).and_reindex(user1).only }
   #
   chain(:only) do |*_args|
-    if @reindex.blank? && @delete.blank?
-      raise 'Use `only` in conjunction with `and_reindex` or `and_delete`'
-    end
+    raise 'Use `only` in conjunction with `and_reindex` or `and_delete`' if @reindex.blank? && @delete.blank?
 
     @only = true
   end
@@ -128,13 +126,13 @@ RSpec::Matchers.define :update_index do |type_name, options = {}| # rubocop:disa
       end
     end
 
-    @reindex.each do |_, document|
+    @reindex.each_value do |document|
       document[:match_count] = (!document[:expected_count] && document[:real_count] > 0) ||
         (document[:expected_count] && document[:expected_count] == document[:real_count])
       document[:match_attributes] = document[:expected_attributes].blank? ||
         compare_attributes(document[:expected_attributes], document[:real_attributes])
     end
-    @delete.each do |_, document|
+    @delete.each_value do |document|
       document[:match_count] = (!document[:expected_count] && document[:real_count] > 0) ||
         (document[:expected_count] && document[:expected_count] == document[:real_count])
     end

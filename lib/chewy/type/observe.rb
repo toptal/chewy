@@ -9,14 +9,6 @@ module Chewy
           method = args.first
 
           proc do
-            backreference = if method && method.to_s == 'self'
-              self
-            elsif method
-              send(method)
-            else
-              instance_eval(&block)
-            end
-
             reference = if type_name.is_a?(Proc)
               if type_name.arity.zero?
                 instance_exec(&type_name)
@@ -27,7 +19,19 @@ module Chewy
               type_name
             end
 
-            Chewy.derive_type(reference).update_index(backreference, options)
+            type = Chewy.derive_type(reference)
+
+            next if Chewy.strategy.current.name == :bypass
+
+            backreference = if method && method.to_s == 'self'
+              self
+            elsif method
+              send(method)
+            else
+              instance_eval(&block)
+            end
+
+            type.update_index(backreference, options)
           end
         end
 

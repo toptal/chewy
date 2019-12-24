@@ -191,16 +191,44 @@ describe Chewy::Index do
       stub_index(:places) do
         def self.by_rating; end
 
-        def self.by_name; end
+        def self.colors(*colors)
+          filter(terms: {colors: colors.flatten(1).map(&:to_s)})
+        end
 
         define_type :city do
           def self.by_id; end
+          field :colors
         end
       end
     end
 
     specify { expect(described_class.scopes).to eq([]) }
-    specify { expect(PlacesIndex.scopes).to match_array(%i[by_rating by_name]) }
+    specify { expect(PlacesIndex.scopes).to match_array(%i[by_rating colors]) }
+
+    context do
+      before do
+        Chewy.massacre
+        PlacesIndex::City.import!(
+          double(colors: ['red']),
+          double(colors: %w[red green]),
+          double(colors: %w[green yellow])
+        )
+      end
+
+      specify do
+        # This `blank?`` call is for the messed scopes bug reproduction. See #573
+        PlacesIndex::City.blank?
+        expect(PlacesIndex.colors(:green).map(&:colors))
+          .to contain_exactly(%w[red green], %w[green yellow])
+      end
+
+      specify do
+        # This `blank?` call is for the messed scopes bug reproduction. See #573
+        PlacesIndex::City.blank?
+        expect(PlacesIndex::City.colors(:green).map(&:colors))
+          .to contain_exactly(%w[red green], %w[green yellow])
+      end
+    end
   end
 
   describe '.settings_hash' do
@@ -216,17 +244,17 @@ describe Chewy::Index do
     specify do
       expect(stub_index(:documents) do
                define_type :document do
-                 field :name, type: 'string'
+                 field :date, type: 'date'
                end
-             end.mappings_hash).to eq(mappings: {document: {properties: {name: {type: 'string'}}}})
+             end.mappings_hash).to eq(mappings: {document: {properties: {date: {type: 'date'}}}})
     end
     specify do
       expect(stub_index(:documents) do
                define_type :document do
-                 field :name, type: 'string'
+                 field :name
                end
                define_type :document2 do
-                 field :name, type: 'string'
+                 field :name
                end
              end.mappings_hash[:mappings].keys).to match_array(%i[document document2])
     end
@@ -240,7 +268,7 @@ describe Chewy::Index do
     specify do
       expect(stub_index(:documents) do
                define_type :document do
-                 field :name, type: 'string'
+                 field :name
                end
              end.specification_hash.keys).to eq([:mappings])
     end
@@ -248,7 +276,7 @@ describe Chewy::Index do
       expect(stub_index(:documents) do
                settings number_of_shards: 1
                define_type :document do
-                 field :name, type: 'string'
+                 field :name
                end
              end.specification_hash.keys).to match_array(%i[mappings settings])
     end
@@ -279,6 +307,31 @@ describe Chewy::Index do
 
       before { expect(ActiveSupport::Deprecation).to receive(:warn).once }
       specify { expect(DummiesIndex.index_name).to eq('borogoves_dummies') }
+    end
+  end
+
+  context 'index call inside index', :orm do
+    before do
+      stub_index(:cities) do
+        define_type :city do
+          field :country_name, value: (lambda do |city|
+            CountriesIndex::Country.filter(term: {_id: city.country_id}).first.name
+          end)
+        end
+      end
+
+      stub_index(:countries) do
+        define_type :country do
+          field :name
+        end
+      end
+
+      CountriesIndex::Country.import!(double(id: 1, name: 'Country'))
+    end
+
+    specify do
+      expect { CitiesIndex::City.import!(double(country_id: 1)) }
+        .to update_index(CitiesIndex::City).and_reindex(country_name: 'Country')
     end
   end
 end

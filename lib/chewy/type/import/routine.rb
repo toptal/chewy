@@ -13,7 +13,7 @@ module Chewy
       #   * performs the bulk request;
       #   * composes new leftovers bulk for the next iteration basing on the response errors if `update_failover` is true;
       #   * appends the rest of unfixable errors to the instance level errors array.
-      # 4. Perform the request for the last leftovers bulk if present using {#process_leftovers}.
+      # 4. Perform the request for the last leftovers bulk if present using {#extract_leftovers}.
       # 3. Return the result errors array.
       #
       # At the moment, it tries to restore only from the partial document update errors in cases
@@ -64,7 +64,7 @@ module Chewy
         # Creates the journal index and the type corresponding index if necessary.
         # @return [Object] whatever
         def create_indexes!
-          Chewy::Stash.create if @options[:journal]
+          Chewy::Stash::Journal.create if @options[:journal]
           return if Chewy.configuration[:skip_index_creation_on_import]
           @type.index.create!(@bulk_options.slice(:suffix)) unless @type.index.exists?
         end

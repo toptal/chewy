@@ -58,9 +58,9 @@ module Chewy
       private
 
         def alicorn
-          @alicorn ||= class_eval <<-RUBY
+          @alicorn ||= class_eval <<-RUBY, __FILE__, __LINE__ + 1
             -> (locals, object0, crutches) do
-              #{composed_values(@type.root_object, 0)}
+              #{composed_values(@type.root, 0)}
             end
           RUBY
         end

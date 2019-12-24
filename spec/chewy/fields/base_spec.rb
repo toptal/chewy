@@ -63,7 +63,7 @@ describe Chewy::Fields::Base do
     end
 
     context 'implicit values' do
-      let(:field) { described_class.new(:name, type: 'string') }
+      let(:field) { described_class.new(:name, type: 'integer') }
       before do
         field.children.push(described_class.new(:name))
         field.children.push(described_class.new(:untouched))
@@ -87,8 +87,8 @@ describe Chewy::Fields::Base do
 
   describe '#mappings_hash' do
     let(:field) { described_class.new(:name, type: :object) }
-    let(:fields1) { Array.new(2) { |i| described_class.new("name#{i + 1}", type: "string#{i + 1}") } }
-    let(:fields2) { Array.new(2) { |i| described_class.new("name#{i + 3}", type: "string#{i + 3}") } }
+    let(:fields1) { Array.new(2) { |i| described_class.new("name#{i + 1}", type: "integer#{i + 1}") } }
+    let(:fields2) { Array.new(2) { |i| described_class.new("name#{i + 3}", type: "integer#{i + 3}") } }
     before do
       fields1.each { |m| field.children.push(m) }
       fields2.each { |m| fields1[0].children.push(m) }
@@ -96,27 +96,74 @@ describe Chewy::Fields::Base do
 
     specify do
       expect(field.mappings_hash).to eq(name: {type: :object, properties: {
-        name1: {type: 'string1', fields: {
-          name3: {type: 'string3'}, name4: {type: 'string4'}
-        }}, name2: {type: 'string2'}
+        name1: {type: 'integer1', fields: {
+          name3: {type: 'integer3'}, name4: {type: 'integer4'}
+        }}, name2: {type: 'integer2'}
       }})
     end
 
     context do
-      let(:field) { described_class.new(:name, type: :string) }
-      let(:fields1) { Array.new(2) { |i| described_class.new("name#{i + 1}") } }
+      let(:field) { described_class.new(:name, type: :integer) }
+      let(:fields1) do
+        [described_class.new(:name1), described_class.new(:name2, type: 'integer')]
+      end
 
       specify do
-        expect(field.mappings_hash).to eq(name: {type: :string, fields: {
+        expect(field.mappings_hash).to eq(name: {type: :integer, fields: {
           name1: {type: 'object', properties: {
-            name3: {type: 'string3'}, name4: {type: 'string4'}
-          }}, name2: {type: 'string'}
+            name3: {type: 'integer3'}, name4: {type: 'integer4'}
+          }}, name2: {type: 'integer'}
         }})
       end
     end
   end
 
   context 'integration' do
+    context 'default field type' do
+      before do
+        stub_index(:events) do
+          define_type :event do
+            field :id
+            field :category do
+              field :id
+              field :licenses do
+                field :id
+                field :created_at, type: 'time'
+              end
+            end
+          end
+        end
+      end
+
+      around do |example|
+        previous_type = Chewy.default_field_type
+        Chewy.default_field_type = 'integer'
+        example.run
+        Chewy.default_field_type = previous_type
+      end
+
+      specify do
+        expect(EventsIndex::Event.mappings_hash).to eq(event: {
+          properties: {
+            id: {type: 'integer'},
+            category: {
+              type: 'object',
+              properties: {
+                id: {type: 'integer'},
+                licenses: {
+                  type: 'object',
+                  properties: {
+                    id: {type: 'integer'},
+                    created_at: {type: 'time'}
+                  }
+                }
+              }
+            }
+          }
+        })
+      end
+    end
+
     context 'objects, hashes and arrays' do
       before do
         stub_index(:events) do
@@ -134,64 +181,13 @@ describe Chewy::Fields::Base do
       end
 
       specify do
-        expect(EventsIndex::Event.mappings_hash).to eq(event: {
-          properties: {
-            id: {type: 'string'},
-            category: {
-              type: 'object',
-              properties: {
-                id: {type: 'string'},
-                licenses: {
-                  type: 'object',
-                  properties: {
-                    id: {type: 'string'},
-                    name: {type: 'string'}
-                  }
-                }
-              }
-            }
-          }
-        })
-      end
-
-      context 'default field type' do
-        around do |example|
-          previous_type = Chewy.default_field_type
-          Chewy.default_field_type = 'text'
-          example.run
-          Chewy.default_field_type = previous_type
-        end
-
-        specify do
-          expect(EventsIndex::Event.mappings_hash).to eq(event: {
-            properties: {
-              id: {type: 'text'},
-              category: {
-                type: 'object',
-                properties: {
-                  id: {type: 'text'},
-                  licenses: {
-                    type: 'object',
-                    properties: {
-                      id: {type: 'text'},
-                      name: {type: 'text'}
-                    }
-                  }
-                }
-              }
-            }
-          })
-        end
-      end
-
-      specify do
-        expect(EventsIndex::Event.root_object.compose(
+        expect(EventsIndex::Event.root.compose(
                  id: 1, category: {id: 2, licenses: {id: 3, name: 'Name'}}
         )).to eq('id' => 1, 'category' => {'id' => 2, 'licenses' => {'id' => 3, 'name' => 'Name'}})
       end
 
       specify do
-        expect(EventsIndex::Event.root_object.compose(id: 1, category: [
+        expect(EventsIndex::Event.root.compose(id: 1, category: [
           {id: 2, 'licenses' => {id: 3, name: 'Name1'}},
           {id: 4, licenses: nil}
         ])).to eq('id' => 1, 'category' => [
@@ -201,7 +197,7 @@ describe Chewy::Fields::Base do
       end
 
       specify do
-        expect(EventsIndex::Event.root_object.compose('id' => 1, category: {id: 2, licenses: [
+        expect(EventsIndex::Event.root.compose('id' => 1, category: {id: 2, licenses: [
           {id: 3, name: 'Name1'}, {id: 4, name: 'Name2'}
         ]})).to eq('id' => 1, 'category' => {'id' => 2, 'licenses' => [
           {'id' => 3, 'name' => 'Name1'}, {'id' => 4, 'name' => 'Name2'}
@@ -209,7 +205,7 @@ describe Chewy::Fields::Base do
       end
 
       specify do
-        expect(EventsIndex::Event.root_object.compose(id: 1, category: [
+        expect(EventsIndex::Event.root.compose(id: 1, category: [
           {id: 2, licenses: [
             {id: 3, 'name' => 'Name1'}, {id: 4, name: 'Name2'}
           ]},
@@ -223,13 +219,13 @@ describe Chewy::Fields::Base do
       end
 
       specify do
-        expect(EventsIndex::Event.root_object.compose(
+        expect(EventsIndex::Event.root.compose(
                  double(id: 1, category: double(id: 2, licenses: double(id: 3, name: 'Name')))
         )).to eq('id' => 1, 'category' => {'id' => 2, 'licenses' => {'id' => 3, 'name' => 'Name'}})
       end
 
       specify do
-        expect(EventsIndex::Event.root_object.compose(double(id: 1, category: [
+        expect(EventsIndex::Event.root.compose(double(id: 1, category: [
           double(id: 2, licenses: double(id: 3, name: 'Name1')),
           double(id: 4, licenses: nil)
         ]))).to eq('id' => 1, 'category' => [
@@ -239,7 +235,7 @@ describe Chewy::Fields::Base do
       end
 
       specify do
-        expect(EventsIndex::Event.root_object.compose(double(id: 1, category: double(id: 2, licenses: [
+        expect(EventsIndex::Event.root.compose(double(id: 1, category: double(id: 2, licenses: [
           double(id: 3, name: 'Name1'), double(id: 4, name: 'Name2')
         ])))).to eq('id' => 1, 'category' => {'id' => 2, 'licenses' => [
           {'id' => 3, 'name' => 'Name1'}, {'id' => 4, 'name' => 'Name2'}
@@ -247,7 +243,7 @@ describe Chewy::Fields::Base do
       end
 
       specify do
-        expect(EventsIndex::Event.root_object.compose(double(id: 1, category: [
+        expect(EventsIndex::Event.root.compose(double(id: 1, category: [
           double(id: 2, licenses: [
             double(id: 3, name: 'Name1'), double(id: 4, name: 'Name2')
           ]),
@@ -265,11 +261,11 @@ describe Chewy::Fields::Base do
       before do
         stub_index(:events) do
           define_type :event do
-            field :id
+            field :id, type: 'integer'
             field :category, value: -> { categories } do
-              field :id
+              field :id, type: 'integer'
               field :licenses, value: -> { license } do
-                field :id
+                field :id, type: 'integer'
                 field :name
               end
             end
@@ -278,7 +274,7 @@ describe Chewy::Fields::Base do
       end
 
       specify do
-        expect(EventsIndex::Event.root_object.compose(
+        expect(EventsIndex::Event.root.compose(
                  double(id: 1, categories: double(id: 2, license: double(id: 3, name: 'Name')))
         )).to eq('id' => 1, 'category' => {'id' => 2, 'licenses' => {'id' => 3, 'name' => 'Name'}})
       end
@@ -288,8 +284,8 @@ describe Chewy::Fields::Base do
       before do
         stub_index(:events) do
           define_type :event do
-            field :id
-            field :name, type: 'string' do
+            field :id, type: 'integer'
+            field :name, type: 'integer' do
               field :raw, analyzer: 'my_own'
             end
             field :category, type: 'object'
@@ -300,11 +296,11 @@ describe Chewy::Fields::Base do
       specify do
         expect(EventsIndex::Event.mappings_hash).to eq(event: {
           properties: {
-            id: {type: 'string'},
+            id: {type: 'integer'},
             name: {
-              type: 'string',
+              type: 'integer',
               fields: {
-                raw: {analyzer: 'my_own', type: 'string'}
+                raw: {analyzer: 'my_own', type: Chewy.default_field_type}
               }
             },
             category: {type: 'object'}
@@ -313,7 +309,7 @@ describe Chewy::Fields::Base do
       end
 
       specify do
-        expect(EventsIndex::Event.root_object.compose(
+        expect(EventsIndex::Event.root.compose(
                  double(id: 1, name: 'Jonny', category: double(id: 2, as_json: {'name' => 'Borogoves'}))
         )).to eq(
           'id' => 1,
@@ -323,7 +319,7 @@ describe Chewy::Fields::Base do
       end
 
       specify do
-        expect(EventsIndex::Event.root_object.compose(
+        expect(EventsIndex::Event.root.compose(
                  double(id: 1, name: 'Jonny', category: [
                    double(id: 2, as_json: {'name' => 'Borogoves1'}),
                    double(id: 3, as_json: {'name' => 'Borogoves2'})
@@ -388,7 +384,7 @@ describe Chewy::Fields::Base do
       end
 
       specify do
-        expect(CountriesIndex::Country.root_object.compose(country_with_cities)).to eq('id' => 1, 'cities' => [
+        expect(CountriesIndex::Country.root.compose(country_with_cities)).to eq('id' => 1, 'cities' => [
           {'id' => 1, 'name' => 'City1'}, {'id' => 2, 'name' => 'City2'}
         ])
       end
@@ -407,7 +403,7 @@ describe Chewy::Fields::Base do
         end
 
         specify do
-          expect(CitiesIndex::City.root_object.compose(
+          expect(CitiesIndex::City.root.compose(
                    City.create!(id: 1, country: Country.create!(id: 1, name: 'Country'))
           )).to eq('id' => 1, 'country' => {'id' => 1, 'name' => 'Country'})
         end

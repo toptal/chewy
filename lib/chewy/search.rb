@@ -58,12 +58,8 @@ module Chewy
       # @see https://www.elastic.co/guide/en/elasticsearch/reference/current/search-uri-request.html
       # @return [Hash] the request result
       def search_string(query, options = {})
-        options = options.merge(
-          index: all._indexes.map(&:index_name),
-          type: all._types.map(&:type_name),
-          q: query
-        )
-        Chewy.client(_indexes.first.hosts_name).search(options)
+        options = options.merge(all.render.slice(:index, :type).merge(q: query))
+        Chewy.client(@hosts_name).search(options)
       end
 
       # Delegates methods from the request class to the index or type class
@@ -91,12 +87,12 @@ module Chewy
 
       def build_search_class(base)
         search_class = Class.new(base)
+
         if self < Chewy::Type
           index_scopes = index.scopes - scopes
-
           delegate_scoped index, search_class, index_scopes
-          delegate_scoped index, self, index_scopes
         end
+
         delegate_scoped self, search_class, scopes
         const_set('Query', search_class)
       end

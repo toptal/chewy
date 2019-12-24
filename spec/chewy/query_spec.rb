@@ -36,6 +36,7 @@ describe Chewy::Query do
       specify { expect(subject.offset(6).count).to eq(3) }
       specify { expect(subject.query(match: {name: 'name3'}).highlight(fields: {name: {}}).first.name).to eq('Name3') }
       specify { expect(subject.query(match: {name: 'name3'}).highlight(fields: {name: {}}).first.name_highlight).to eq('<em>Name3</em>') }
+      specify { expect(subject.query({}).highlight(fields: {name: {}}).first.name_highlight).to eq(nil) }
       specify { expect(subject.query(match: {name: 'name3'}).highlight(fields: {name: {}}).first._data['_source']['name']).to eq('Name3') }
       specify { expect(subject.types(:product).count).to eq(3) }
       specify { expect(subject.types(:product, :country).count).to eq(6) }
@@ -216,7 +217,7 @@ describe Chewy::Query do
             define_type :product do
               root do
                 field :name, 'surname'
-                field :title, type: 'string' do
+                field :title do
                   field :subfield1
                 end
                 field 'price', type: 'float' do
@@ -237,7 +238,7 @@ describe Chewy::Query do
               define_type :product do
                 root do
                   field :name, 'surname'
-                  field :title, type: 'string' do
+                  field :title do
                     field :subfield1
                   end
                   field 'price', type: 'float' do

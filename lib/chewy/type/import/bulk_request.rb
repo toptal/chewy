@@ -54,15 +54,17 @@ module Chewy
 
         def request_bodies(body)
           if @bulk_size
+            serializer = ::Elasticsearch::API.serializer
             pieces = body.each_with_object(['']) do |piece, result|
               operation, meta = piece.to_a.first
               data = meta.delete(:data)
-              piece = [{operation => meta}, data].compact.map(&:to_json).join("\n")
+              piece = serializer.dump(operation => meta)
+              piece << "\n" << serializer.dump(data) if data.present?
 
               if result.last.bytesize + piece.bytesize > @bulk_size
                 result.push(piece)
               else
-                result[-1] = [result[-1], piece].reject(&:blank?).join("\n")
+                result[-1].blank? ? (result[-1] = piece) : (result[-1] << "\n" << piece)
               end
             end
             pieces.each { |piece| piece << "\n" }

@@ -57,14 +57,9 @@ module Chewy
           general_name = index_name
           suffixed_name = index_name(suffix: suffix)
 
-          if Chewy::Runtime.version(@hosts_name) >= 1.1
-            body = specification_hash
-            body[:aliases] = {general_name => {}} if options[:alias] && suffixed_name != general_name
-            result = client(@hosts_name).indices.create(index: suffixed_name, body: body)
-          else
-            result = client(@hosts_name).indices.create(index: suffixed_name, body: specification_hash)
-            result &&= client(@hosts_name).indices.put_alias(index: suffixed_name, name: general_name) if options[:alias] && name != index_name
-          end
+          body = specification_hash
+          body[:aliases] = {general_name => {}} if options[:alias] && suffixed_name != general_name
+          result = client(@hosts_name).indices.create(index: suffixed_name, body: body)
 
           Chewy.wait_for_status if result
           result
@@ -140,8 +135,15 @@ module Chewy
         #
         %i[import import!].each do |method|
           class_eval <<-METHOD, __FILE__, __LINE__ + 1
-            def #{method} options = {}
-              objects = options.reject { |k, v| !type_names.map(&:to_sym).include?(k) }
+            def #{method}(*args)
+              options = args.extract_options!
+              if args.one? && type_names.one?
+                objects = {type_names.first.to_sym => args.first}
+              elsif args.one?
+                fail ArgumentError, "Please pass objects for `#{method}` as a hash with type names"
+              else
+                objects = options.reject { |k, v| !type_names.map(&:to_sym).include?(k) }
+              end
               types.map do |type|
                 args = [objects[type.type_name.to_sym], options.dup].reject(&:blank?)
                 type.#{method} *args
@@ -164,7 +166,7 @@ module Chewy
         # @see http://www.elasticsearch.org/blog/changing-mapping-with-zero-downtime
         # @param suffix [String] a suffix for the newly created index
         # @param apply_journal [true, false] if true, journal is applied after the import is completed
-        # @param journal [true, false] journalig is switched off for import during reset by default
+        # @param journal [true, false] journaling is switched off for import during reset by default
         # @param import_options [Hash] options, passed to the import call
         # @return [true, false] false in case of errors
         def reset!(suffix = nil, apply_journal: true, journal: false, **import_options)
@@ -231,7 +233,7 @@ module Chewy
         end
 
         def index_settings(setting_name)
-          return {} unless settings_hash.key?(:settings) || settings_hash[:settings].key?(:index)
+          return {} unless settings_hash.key?(:settings) && settings_hash[:settings].key?(:index)
           settings_hash[:settings][:index].slice(setting_name)
         end
       end

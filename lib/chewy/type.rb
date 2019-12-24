@@ -14,7 +14,7 @@ require 'chewy/type/witchcraft'
 
 module Chewy
   class Type
-    IMPORT_OPTIONS_KEYS = %i[batch_size bulk_size refresh consistency replication raw_import journal].freeze
+    IMPORT_OPTIONS_KEYS = %i[batch_size bulk_size refresh consistency replication raw_import journal pipeline].freeze
 
     include Search
     include Mapping
@@ -34,7 +34,7 @@ module Chewy
       # Chewy index current type belongs to. Defined inside `Chewy.create_type`
       #
       def index
-        raise NotImplementedError, 'Looks like this type ws defined outside the index scope and `.index` method is undefined for it'
+        raise NotImplementedError, 'Looks like this type was defined outside the index scope and `.index` method is undefined for it'
       end
 
       # Current type adapter. Defined inside `Chewy.create_type`, derived from

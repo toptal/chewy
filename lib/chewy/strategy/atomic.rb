@@ -18,7 +18,7 @@ module Chewy
 
       def update(type, objects, _options = {})
         @stash[type] ||= []
-        @stash[type] |= type.send(:build_root).id ? Array.wrap(objects) : type.adapter.identify(objects)
+        @stash[type] |= type.root.id ? Array.wrap(objects) : type.adapter.identify(objects)
       end
 
       def leave

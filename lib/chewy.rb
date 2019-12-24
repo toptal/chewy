@@ -17,6 +17,7 @@ require 'active_support/core_ext/string/inflections'
 require 'i18n/core_ext/hash'
 require 'chewy/backports/deep_dup' unless Object.respond_to?(:deep_dup)
 require 'singleton'
+require 'base64'
 
 require 'elasticsearch'
 
@@ -145,7 +146,6 @@ module Chewy
     #
     def client(hosts=nil)
       # We are changing this to support multiple clusters in chewy.
-      # if Rails.env.production? and hosts
       if hosts
         thread_cache_key = "chewy_client_#{hosts}"
       else

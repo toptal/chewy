@@ -153,7 +153,6 @@ module Chewy
       end
       Thread.current[thread_cache_key.to_sym] ||= begin
         client_configuration = configuration.deep_dup
-        # if Rails.env.production? and hosts
         if hosts
           client_configuration[:hosts] = client_configuration[hosts]
         end
@@ -169,6 +168,7 @@ module Chewy
     # Does nothing in case of config `wait_for_status` is undefined.
     #
     def wait_for_status
+      # TODO(Max): Add hosts to this client call
       client.cluster.health wait_for_status: Chewy.configuration[:wait_for_status] if Chewy.configuration[:wait_for_status].present?
     end
 
@@ -176,6 +176,7 @@ module Chewy
     # Be careful, if current prefix is blank, this will destroy all the indexes.
     #
     def massacre
+      # TODO(Max): Add hosts to this client call
       Chewy.client.indices.delete(index: [Chewy.configuration[:prefix], '*'].reject(&:blank?).join('_'))
       Chewy.wait_for_status
     end

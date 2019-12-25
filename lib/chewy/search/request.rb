@@ -811,7 +811,7 @@ module Chewy
         if performed?
           total
         else
-          Chewy.client(_indexes.first.hosts_name).count(only(WHERE_STORAGES).render)['count']
+          Chewy.client(_indices.first.hosts_name).count(only(WHERE_STORAGES).render)['count']
         end
       rescue Elasticsearch::Transport::Transport::Errors::NotFound
         0
@@ -943,7 +943,7 @@ module Chewy
             if Runtime.version < '5.0'
               delete_by_query_plugin(request_body)
             else
-              Chewy.client(_indexes.first.hosts_name).delete_by_query(request_body)
+              Chewy.client(_indices.first.hosts_name).delete_by_query(request_body)
             end
           end
       end
@@ -978,7 +978,7 @@ module Chewy
         ActiveSupport::Notifications.instrument 'search_query.chewy',
           notification_payload(request: request_body) do
             begin
-              Chewy.client(_indexes.first.hosts_name).search(request_body)
+              Chewy.client(_indices.first.hosts_name).search(request_body)
             rescue Elasticsearch::Transport::Transport::Errors::NotFound
               {}
             end
@@ -1015,7 +1015,7 @@ module Chewy
           Elasticsearch::API::Utils.__listify(request[:type]),
           '_query'
         )
-        Chewy.client(_indexes.first.hosts_name).perform_request(Elasticsearch::API::HTTP_DELETE, path, {}, request[:body]).body
+        Chewy.client(_indices.first.hosts_name).perform_request(Elasticsearch::API::HTTP_DELETE, path, {}, request[:body]).body
       end
 
       def loader

@@ -979,7 +979,7 @@ module Chewy
     #
     def delete_all
       if Runtime.version >= '2.0'
-        plugins = Chewy.client.nodes.info(plugins: true)['nodes'].values.map { |item| item['plugins'] }.flatten
+        plugins = Chewy.client(_indexes.first.hosts_name).nodes.info(plugins: true)['nodes'].values.map { |item| item['plugins'] }.flatten
         raise PluginMissing, 'install delete-by-query plugin' unless plugins.find { |item| item['name'] == 'delete-by-query' }
       end
 
@@ -995,9 +995,9 @@ module Chewy
               Elasticsearch::API::Utils.__listify(request[:type]),
               '/_query'
             )
-            Chewy.client.perform_request(Elasticsearch::API::HTTP_DELETE, path, {}, request[:body]).body
+            Chewy.client(_indexes.first.hosts_name).perform_request(Elasticsearch::API::HTTP_DELETE, path, {}, request[:body]).body
           else
-            Chewy.client.delete_by_query(request)
+            Chewy.client(_indexes.first.hosts_name).delete_by_query(request)
           end
         end
     end
@@ -1101,7 +1101,7 @@ module Chewy
         index: _indexes.one? ? _indexes.first : _indexes,
         type: _types.one? ? _types.first : _types do
         begin
-          Chewy.client.search(_request)
+          Chewy.client(_indexes.first.hosts_name).search(_request)
         rescue Elasticsearch::Transport::Transport::Errors::NotFound => e
           raise e if e.message !~ /IndexMissingException/ && e.message !~ /index_not_found_exception/
           {}

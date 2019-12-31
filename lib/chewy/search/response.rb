@@ -23,7 +23,7 @@ module Chewy
       #
       # @return [Integer]
       def total
-        @total ||= hits_root['total'] || 0
+        @total ||= hits_root['total'] ? hits_root['total']['value'] || 0 : 0
       end
 
       # Response `max_score` field.
@@ -69,7 +69,7 @@ module Chewy
       # @return [Array<Chewy::Type>]
       def wrappers
         @wrappers ||= hits.map do |hit|
-          @loader.derive_type(hit['_index'], hit['_type']).build(hit)
+          @loader.derive_type(hit['_index'], hit['_source']['_index_type']).build(hit)
         end
       end
 

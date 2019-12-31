@@ -46,7 +46,7 @@ module Chewy
       # @param hits [Array<Hash>] ES hits array
       # @return [Array<Object, nil>] the array of corresponding ORM/ODM objects
       def load(hits)
-        hit_groups = hits.group_by { |hit| [hit['_index'], hit['_type']] }
+        hit_groups = hits.group_by { |hit| [hit['_index'], hit['_source']['_index_type']] }
         loaded_objects = hit_groups.each_with_object({}) do |((index_name, type_name), hit_group), result|
           next if skip_type?(type_name)
 

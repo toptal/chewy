@@ -139,6 +139,11 @@ module Chewy
       type.send(:define_singleton_method, :adapter) { adapter }
 
       type.class_eval(&block) if block
+
+      type.class_eval do
+        field :_index_type, value: -> () {adapter.name.underscore}, type: 'keyword'
+      end
+
       type
     end
 

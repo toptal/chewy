@@ -49,7 +49,6 @@ module Chewy
         def render
           {
             index: index_names.uniq.sort,
-            type: type_names.uniq.sort
           }.reject { |_, v| v.blank? }
         end
 

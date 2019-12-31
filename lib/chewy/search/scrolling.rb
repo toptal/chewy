@@ -28,7 +28,7 @@ module Chewy
         return enum_for(:scroll_batches, batch_size: batch_size, scroll: scroll) unless block_given?
 
         result = perform(size: batch_size, scroll: scroll)
-        total = [raw_limit_value, result.fetch('hits', {}).fetch('total', 0)].compact.min
+        total = [raw_limit_value, result.fetch('hits', {}).fetch('total', {}).fetch('value', 0)].compact.min
         last_batch_size = total % batch_size
         fetched = 0
 

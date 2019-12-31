@@ -228,7 +228,25 @@ module Chewy
       end
 
       def mappings_hash
-        mappings = types.map(&:mappings_hash).inject(:merge)
+        # Removes the type from type_mappings and merge fields from different types
+        type_mappings = types.map(&:mappings_hash)
+        mappings = {properties: {}}
+        type_mappings.each do |type_mapping|
+          if type_mapping.count != 1
+            raise "Type mapping must have 1 entry: #{type_mapping}"
+          end
+
+          fields = type_mapping.reduce[1][:properties]
+          fields.each do |field_name, field_settings|
+            existing_field_settings = mappings[:properties][field_name]
+            if existing_field_settings && existing_field_settings != field_settings
+              raise "Same field name has different settings: #{field_name}. Setting 1: #{existing_field_settings}. Setting 2: #{field_settings}"
+            end
+
+            mappings[:properties][field_name] = field_settings
+          end
+        end
+
         mappings.present? ? {mappings: mappings} : {}
       end
 

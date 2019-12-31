@@ -538,7 +538,7 @@ module Chewy
       #   @return [Chewy::Search::Request]
       %i[source stored_fields].each do |name|
         define_method name do |value, *values|
-          modify(name) { update!(values.empty? ? value : [value, *values]) }
+          modify(name) { update!(['_index_type', *value, *values]) }
         end
       end
 
@@ -937,7 +937,7 @@ module Chewy
       # @param refresh [true, false] field names
       # @return [Hash] the result of query execution
       def delete_all(refresh: true)
-        request_body = only(WHERE_STORAGES).render.merge(refresh: refresh)
+        request_body = only(WHERE_STORAGES).render.merge({refresh: refresh, body: {query: {match_all: {}}}})
         ActiveSupport::Notifications.instrument 'delete_query.chewy',
           notification_payload(request: request_body) do
             if Runtime.version < '5.0'

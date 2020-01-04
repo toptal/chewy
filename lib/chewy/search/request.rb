@@ -937,7 +937,7 @@ module Chewy
       # @param refresh [true, false] field names
       # @return [Hash] the result of query execution
       def delete_all(refresh: true)
-        request_body = only(WHERE_STORAGES).render.merge({refresh: refresh, body: {query: {match_all: {}}}})
+        request_body = only(WHERE_STORAGES).render.merge({refresh: refresh})
         ActiveSupport::Notifications.instrument 'delete_query.chewy',
           notification_payload(request: request_body) do
             if Runtime.version < '5.0'

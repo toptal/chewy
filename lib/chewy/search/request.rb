@@ -118,8 +118,8 @@ module Chewy
       # ES request body
       #
       # @return [Hash] request body
-      def render
-        @render ||= parameters.render
+      def render(replace_post_filter: false)
+        @render ||= parameters.render(replace_post_filter: replace_post_filter)
       end
 
       # Includes the class name and the result of rendering.
@@ -811,7 +811,7 @@ module Chewy
         if performed?
           total
         else
-          Chewy.client(_indices.first.hosts_name).count(only(WHERE_STORAGES).render)['count']
+          Chewy.client(_indices.first.hosts_name).count(only(WHERE_STORAGES).render(replace_post_filter: true))['count']
         end
       rescue Elasticsearch::Transport::Transport::Errors::NotFound
         0

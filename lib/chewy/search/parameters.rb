@@ -102,8 +102,8 @@ module Chewy
       # Renders and merges all the parameter storages into a single hash.
       #
       # @return [Hash] request body
-      def render
-        render_query_string_params.merge(render_body)
+      def render(replace_post_filter: false)
+        render_query_string_params.merge(render_body(replace_post_filter: replace_post_filter))
       end
 
     protected
@@ -134,22 +134,35 @@ module Chewy
         end
       end
 
-      def render_body
+      def render_body(replace_post_filter: false)
         exceptions = %i[filter query none] + QUERY_STRING_STORAGES
+        if replace_post_filter
+          exceptions += %i[post_filter]
+        end
+
         body = @storages.except(*exceptions).values.inject({}) do |result, storage|
           result.merge!(storage.render || {})
         end
-        body.merge!(render_query || {})
+        body.merge!(render_query(replace_post_filter: replace_post_filter) || {})
         {body: body}
       end
 
-      def render_query
+      def render_query(replace_post_filter: false)
         none = @storages[:none].render
 
         return none if none
 
+        post_filter = @storages[:post_filter].render
         filter = @storages[:filter].render
         query = @storages[:query].render
+
+        if replace_post_filter && post_filter
+          if query
+            query = {query: {bool: {must: [query[:query], post_filter[:post_filter]]}}}
+          else
+            query = post_filter[:post_filter]
+          end
+        end
 
         return query unless filter
 

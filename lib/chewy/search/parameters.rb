@@ -148,6 +148,7 @@ module Chewy
       end
 
       def render_query(replace_post_filter: false)
+        puts 'render_query! @storages=#{@storages}'
         none = @storages[:none].render
 
         return none if none
@@ -158,20 +159,26 @@ module Chewy
 
         if replace_post_filter && post_filter
           if query
+            puts 'render_query! 111'
             query = {query: {bool: {must: [query[:query], post_filter[:post_filter]]}}}
           else
+            puts 'render_query! 222'
             query = post_filter[:post_filter]
           end
         end
 
         return query unless filter
 
+        puts 'render_query! 333'
         if query && query[:query][:bool]
+          puts 'render_query! 444'
           query[:query][:bool].merge!(filter)
           query
         elsif query
+          puts 'render_query! 555'
           {query: {bool: {must: query[:query]}.merge!(filter)}}
         else
+          puts 'render_query! 777'
           {query: {bool: filter}}
         end
       end

@@ -161,8 +161,8 @@ module Chewy
             puts "merge quer with post_filter"
             query = {query: {bool: {must: [query[:query], post_filter[:post_filter]]}}}
           else
-            puts "onl post_filter"
-            query = post_filter[:post_filter]
+            puts "onl post_filter post_filter[:post_filter]=#{post_filter[:post_filter]}"
+            query = {query: {bool: {must: [post_filter[:post_filter]]}}}
           end
         end
 

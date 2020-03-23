@@ -164,14 +164,18 @@ module Chewy
           end
         end
 
+        puts "filter=#{filter}"
         return query unless filter
 
         if query && query[:query] && query[:query][:bool]
+          puts "render_query111"
           query[:query][:bool].merge!(filter)
           query
         elsif query
+          puts "render_query222"
           {query: {bool: {must: query[:query]}.merge!(filter)}}
         else
+          puts "render_query333"
           {query: {bool: filter}}
         end
       end

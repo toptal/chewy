@@ -158,27 +158,20 @@ module Chewy
 
         if replace_post_filter && post_filter
           if query
-            puts "merge quer with post_filter"
             query = {query: {bool: {must: [query[:query], post_filter[:post_filter]]}}}
           else
-            puts "onl post_filter post_filter[:post_filter]=#{post_filter[:post_filter]}"
             query = {query: {bool: {must: [post_filter[:post_filter]]}}}
           end
         end
 
-        puts "filter=#{filter}"
         return query unless filter
 
-        if query && query[:query] && query[:query][:bool]
-          puts "render_query111"
+        if query && query[:query][:bool]
           query[:query][:bool].merge!(filter)
           query
         elsif query
-          puts "render_query222"
-          puts "query=#{query}"
           {query: {bool: {must: query[:query]}.merge!(filter)}}
         else
-          puts "render_query333"
           {query: {bool: filter}}
         end
       end

@@ -33,7 +33,7 @@ module Chewy
     private
 
       def sidekiq_queue
-        Chewy.settings.fetch(:sidekiq, {})[:queue] || 'chewy'
+        Chewy.settings.dig(:sidekiq, :queue) || 'chewy'
       end
     end
   end

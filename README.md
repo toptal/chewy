@@ -678,6 +678,11 @@ Chewy.strategy(:sidekiq) do
 end
 ```
 
+The default queue name is `chewy`, you can customize it in settings: `sidekiq.queue_name`
+```
+Chewy.settings[:sidekiq] = {queue: :low}
+```
+
 #### `:active_job`
 
 This does the same thing as `:atomic`, but using ActiveJob. This will inherit the ActiveJob configuration settings including the `active_job.queue_adapter` setting for the environment. Patch `Chewy::Strategy::ActiveJob::Worker` for index updates improving.
@@ -686,6 +691,11 @@ This does the same thing as `:atomic`, but using ActiveJob. This will inherit th
 Chewy.strategy(:active_job) do
   City.popular.map(&:do_some_update_action!)
 end
+```
+
+The default queue name is `chewy`, you can customize it in settings: `active_job.queue_name`
+```
+Chewy.settings[:active_job] = {queue: :low}
 ```
 
 #### `:shoryuken`

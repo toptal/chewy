@@ -502,7 +502,7 @@ module Chewy
       #   @see https://www.elastic.co/guide/en/elasticsearch/reference/5.4/search-request-min-score.html
       #   @param value [String, Integer, Float]
       #   @return [Chewy::Search::Request]
-      %i[request_cache search_type preference timeout limit offset terminate_after min_score].each do |name|
+      %i[request_cache search_type preference timeout limit offset terminate_after min_score track_total_hits].each do |name|
         define_method name do |value|
           modify(name) { replace!(value) }
         end

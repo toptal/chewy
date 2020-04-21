@@ -39,7 +39,7 @@ module Chewy
           when ::Regexp
             Nodes::Regexp.new @name, other, *@args
           when ::Range
-            Nodes::Range.new @name, *__options_merge__(gt: other.first, lt: other.last)
+            Nodes::Range.new @name, *__options_merge__(gt: other.begin, lt: other.end)
           else
             if other.is_a?(Array) && other.first.is_a?(::Range)
               Nodes::Range.new @name, *__options_merge__(

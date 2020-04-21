@@ -30,7 +30,7 @@ module Chewy
         end
 
         mappings[name][:_parent] = parent.is_a?(Hash) ? parent : {type: parent} if parent
-        mappings
+        mappings[name]
       end
 
       def dynamic_template(*args)

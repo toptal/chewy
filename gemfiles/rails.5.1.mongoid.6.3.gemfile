@@ -12,5 +12,6 @@ gem "sidekiq", require: false
 gem "kaminari-core", "~> 1.1.0", require: false
 gem "will_paginate", require: false
 gem "parallel", require: false
+gem 'rspec_junit_formatter', '~> 0.4.1'
 
 gemspec path: "../"

@@ -87,6 +87,10 @@ module Chewy
         @parameters ||= Parameters.new
       end
 
+      def set_x_opaque_id(x_opaque_id)
+        @x_opaque_id = x_opaque_id
+      end
+
       # Compare two scopes or scope with a collection of wrappers.
       # If other is a collection it performs the request to fetch
       # data from ES.
@@ -811,7 +815,11 @@ module Chewy
         if performed?
           total
         else
-          Chewy.client(_indices.first.hosts_name).count(only(WHERE_STORAGES).render(replace_post_filter: true))['count']
+          count_params = only(WHERE_STORAGES).render(replace_post_filter: true)
+          if @x_opaque_id
+            count_params.merge!({opaque_id: @x_opaque_id})
+          end
+          Chewy.client(_indices.first.hosts_name).count(count_params)['count']
         end
       rescue Elasticsearch::Transport::Transport::Errors::NotFound
         0
@@ -978,6 +986,9 @@ module Chewy
         ActiveSupport::Notifications.instrument 'search_query.chewy',
           notification_payload(request: request_body) do
             begin
+              if @x_opaque_id
+                request_body.merge!({opaque_id: @x_opaque_id})
+              end
               Chewy.client(_indices.first.hosts_name).search(request_body)
             rescue Elasticsearch::Transport::Transport::Errors::NotFound
               {}

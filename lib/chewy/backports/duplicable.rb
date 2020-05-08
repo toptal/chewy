@@ -79,7 +79,7 @@ end
 require 'bigdecimal'
 class BigDecimal
   begin
-    BigDecimal.new('4.56').dup
+    BigDecimal('4.56').dup
 
     def duplicable?
       true

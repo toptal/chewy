@@ -117,7 +117,7 @@ describe Chewy::Type::Import::BulkBuilder do
       context 'updating parent' do
         before do
           PlacesIndex::City.import(city)
-          city.update_attributes(country_id: another_country.id)
+          city.update(country_id: another_country.id)
         end
         let(:index) { [city] }
 

@@ -54,7 +54,7 @@ describe Chewy::Journal do
             expect(Chewy::Stash::Journal.exists?).to eq true
 
             Timecop.freeze(update_time)
-            cities.first.update_attributes!(name: 'Supername')
+            cities.first.update!(name: 'Supername')
 
             Timecop.freeze(destroy_time)
             countries.last.destroy

@@ -35,8 +35,8 @@ module Chewy
         #   end
         #
         def root(**options)
-          self.root_object ||= Chewy::Fields::Root.new(type_name, Chewy.default_root_options.merge(options))
-          root_object.update_options!(options)
+          self.root_object ||= Chewy::Fields::Root.new(type_name, **Chewy.default_root_options.merge(options))
+          root_object.update_options!(**options)
           yield if block_given?
           root_object
         end
@@ -126,9 +126,9 @@ module Chewy
         #
         def field(*args, **options, &block)
           if args.size > 1
-            args.map { |name| field(name, options) }
+            args.map { |name| field(name, **options) }
           else
-            expand_nested(Chewy::Fields::Base.new(args.first, options), &block)
+            expand_nested(Chewy::Fields::Base.new(args.first, **options), &block)
           end
         end
 

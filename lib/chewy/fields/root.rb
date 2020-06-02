@@ -6,8 +6,8 @@ module Chewy
       attr_reader :parent
       attr_reader :parent_id
 
-      def initialize(*)
-        super
+      def initialize(name, **options)
+        super(name, **options)
 
         @value ||= -> { self }
         @dynamic_templates = []

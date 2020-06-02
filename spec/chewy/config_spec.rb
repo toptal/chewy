@@ -141,7 +141,7 @@ describe Chewy::Config do
     context 'when Rails::VERSION constant is defined' do
       it 'looks for configuration in "config/chewy.yml"' do
         module Rails
-          VERSION = '5.1.0'.freeze
+          VERSION = '5.1.1'.freeze
 
           def self.root
             Pathname.new(__dir__)

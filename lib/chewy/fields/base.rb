@@ -7,7 +7,7 @@ module Chewy
       def initialize(name, value: nil, **options)
         @name = name.to_sym
         @options = {}
-        update_options!(options)
+        update_options!(**options)
         @value = value
         @children = []
       end

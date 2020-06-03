@@ -132,7 +132,7 @@ module Chewy
     def create_type(index, target, options = {}, &block)
       type = Class.new(Chewy::Type)
 
-      adapter = adapters.find { |klass| klass.accepts?(target) }.new(target, options)
+      adapter = adapters.find { |klass| klass.accepts?(target) }.new(target, **options)
 
       index.const_set(adapter.name, type)
       type.send(:define_singleton_method, :index) { index }

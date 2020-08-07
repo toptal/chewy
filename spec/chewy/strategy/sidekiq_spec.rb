@@ -39,6 +39,18 @@ if defined?(::Sidekiq)
     end
 
     specify do
+      expect(CitiesIndex::City).to receive(:import!).with([city.id.to_s], suffix: '201601')
+      ::Sidekiq::Testing.fake! do
+        Chewy::Strategy::Sidekiq::Worker.perform_async(
+          'CitiesIndex::City',
+          [city.id.to_s],
+          'suffix' => '201601'
+        )
+      end
+      Chewy::Strategy::Sidekiq::Worker.drain
+    end
+
+    specify do
       expect(CitiesIndex::City).to receive(:import!).with([city.id, other_city.id], suffix: '201601')
       Chewy::Strategy::Sidekiq::Worker.new.perform('CitiesIndex::City', [city.id, other_city.id], suffix: '201601')
     end
@@ -47,6 +59,11 @@ if defined?(::Sidekiq)
       allow(Chewy).to receive(:disable_refresh_async).and_return(true)
       expect(CitiesIndex::City).to receive(:import!).with([city.id, other_city.id], suffix: '201601', refresh: false)
       Chewy::Strategy::Sidekiq::Worker.new.perform('CitiesIndex::City', [city.id, other_city.id], suffix: '201601')
+    end
+
+    specify do
+      expect(CitiesIndex::City).to receive(:import!).with([city.id, other_city.id], suffix: '201601')
+      Chewy::Strategy::Sidekiq::Worker.new.perform('CitiesIndex::City', [city.id, other_city.id], 'suffix' => '201601')
     end
   end
 end

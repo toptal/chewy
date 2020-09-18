@@ -22,17 +22,6 @@ module Chewy
     end
 
     module MigrationStrategy
-      extend ActiveSupport::Concern
-      included do
-        alias_method_chain :migrate, :chewy
-      end
-
-      def migrate_with_chewy(*args)
-        Chewy.strategy(:bypass) { migrate_without_chewy(*args) }
-      end
-    end
-
-    module Rails5MigrationStrategy
       def migrate(*args)
         Chewy.strategy(:bypass) { super }
       end
@@ -57,13 +46,8 @@ module Chewy
 
     initializer 'chewy.migration_strategy' do
       ActiveSupport.on_load(:active_record) do
-        if Rails::VERSION::MAJOR >= 5
-          ActiveRecord::Migration.prepend(Rails5MigrationStrategy)
-          ActiveRecord::Migrator.prepend(Rails5MigrationStrategy) if defined? ActiveRecord::Migrator
-        else
-          ActiveRecord::Migration.send(:include, MigrationStrategy)
-          ActiveRecord::Migrator.send(:include, MigrationStrategy) if defined? ActiveRecord::Migrator
-        end
+        ActiveRecord::Migration.prepend(MigrationStrategy)
+        ActiveRecord::Migrator.prepend(MigrationStrategy) if defined? ActiveRecord::Migrator
       end
     end
 

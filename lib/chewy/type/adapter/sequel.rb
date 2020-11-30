@@ -22,7 +22,7 @@ module Chewy
         end
 
         def import_scope(scope, options)
-          pluck_in_batches(scope, options.slice(:batch_size)).inject(true) do |result, ids|
+          pluck_in_batches(scope, **options.slice(:batch_size)).inject(true) do |result, ids|
             result & yield(grouped_objects(default_scope_where_ids_in(ids).all))
           end
         end

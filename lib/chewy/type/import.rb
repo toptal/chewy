@@ -10,7 +10,7 @@ module Chewy
 
       IMPORT_WORKER = lambda do |type, options, total, ids, index|
         ::Process.setproctitle("chewy [#{type}]: import data (#{index + 1}/#{total})")
-        routine = Routine.new(type, options)
+        routine = Routine.new(type, **options)
         type.adapter.import(*ids, routine.options) do |action_objects|
           routine.process(**action_objects)
         end
@@ -19,7 +19,7 @@ module Chewy
 
       LEFTOVERS_WORKER = lambda do |type, options, total, body, index|
         ::Process.setproctitle("chewy [#{type}]: import leftovers (#{index + 1}/#{total})")
-        routine = Routine.new(type, options)
+        routine = Routine.new(type, **options)
         routine.perform_bulk(body)
         routine.errors
       end
@@ -127,7 +127,7 @@ module Chewy
 
         def import_routine(*args)
           return if args.first.blank? && !args.first.nil?
-          routine = Routine.new(self, args.extract_options!)
+          routine = Routine.new(self, **args.extract_options!)
           routine.create_indexes!
 
           if routine.parallel_options

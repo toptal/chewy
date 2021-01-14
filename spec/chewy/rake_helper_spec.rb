@@ -352,9 +352,9 @@ Total: \\d+s\\Z
 
     specify do
       output = StringIO.new
-      described_class.journal_clean(time: 3.minutes.since, output: output)
+      described_class.journal_clean(time: 3.minutes.from_now.iso8601, output: output)
       expect(output.string).to match(Regexp.new(<<-OUTPUT, Regexp::MULTILINE))
-\\ACleaning journal entries created before [+-:\\d\\s]+
+\\ACleaning journal entries created before [+-:\\dT\\s]+
 Cleaned up 1 journal entries
 Total: \\d+s\\Z
       OUTPUT

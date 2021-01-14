@@ -5,8 +5,8 @@ require 'chewy/version'
 Gem::Specification.new do |spec| # rubocop:disable BlockLength
   spec.name          = 'chewy'
   spec.version       = Chewy::VERSION
-  spec.authors       = ['pyromaniac']
-  spec.email         = ['kinwizard@gmail.com']
+  spec.authors       = ['Toptal, LLC', 'pyromaniac']
+  spec.email         = ['open-source@toptal.com', 'kinwizard@gmail.com']
   spec.summary       = 'Elasticsearch ODM client wrapper'
   spec.description   = 'Chewy provides functionality for Elasticsearch index handling, documents import mappings and chainable query DSL'
   spec.homepage      = 'https://github.com/toptal/chewy'

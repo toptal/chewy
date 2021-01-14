@@ -1,7 +1,7 @@
 # Check https://circleci.com/docs/2.0/language-ruby/ for more details
 version: 2.1
 
-es56-env: &es56-env
+es68-env: &es68-env
   cluster.name: elasticsearch
   transport.host: localhost
   network.host: 127.0.0.1
@@ -111,9 +111,9 @@ jobs:
   rspec-ruby-25-activerecord52:
     docker:
       - image: circleci/ruby:2.5
-      - image: docker.elastic.co/elasticsearch/elasticsearch:5.6.7
+      - image: docker.elastic.co/elasticsearch/elasticsearch:6.8.13
         environment:
-          <<: *es56-env
+          <<: *es68-env
     working_directory: ~/repo
     environment:
       GEMFILE: gemfiles/rails.5.2.activerecord.gemfile
@@ -123,9 +123,9 @@ jobs:
   rspec-ruby-25-activerecord60:
     docker:
       - image: circleci/ruby:2.5
-      - image: docker.elastic.co/elasticsearch/elasticsearch:5.6.7
+      - image: docker.elastic.co/elasticsearch/elasticsearch:6.8.13
         environment:
-          <<: *es56-env
+          <<: *es68-env
     working_directory: ~/repo
     environment:
       GEMFILE: gemfiles/rails.6.0.activerecord.gemfile
@@ -136,9 +136,9 @@ jobs:
     docker:
       - image: circleci/ruby:2.5
       - image: circleci/mongo:4.2.5
-      - image: docker.elastic.co/elasticsearch/elasticsearch:5.6.7
+      - image: docker.elastic.co/elasticsearch/elasticsearch:6.8.13
         environment:
-          <<: *es56-env
+          <<: *es68-env
     working_directory: ~/repo
     environment:
       GEMFILE: gemfiles/rails.5.1.mongoid.6.3.gemfile
@@ -148,9 +148,9 @@ jobs:
   rspec-ruby-26-activerecord52:
     docker:
       - image: circleci/ruby:2.6
-      - image: docker.elastic.co/elasticsearch/elasticsearch:5.6.7
+      - image: docker.elastic.co/elasticsearch/elasticsearch:6.8.13
         environment:
-          <<: *es56-env
+          <<: *es68-env
     working_directory: ~/repo
     environment:
       GEMFILE: gemfiles/rails.5.2.activerecord.gemfile
@@ -160,9 +160,9 @@ jobs:
   rspec-ruby-26-activerecord60:
     docker:
       - image: circleci/ruby:2.6
-      - image: docker.elastic.co/elasticsearch/elasticsearch:5.6.7
+      - image: docker.elastic.co/elasticsearch/elasticsearch:6.8.13
         environment:
-          <<: *es56-env
+          <<: *es68-env
     working_directory: ~/repo
     environment:
       GEMFILE: gemfiles/rails.6.0.activerecord.gemfile
@@ -173,9 +173,9 @@ jobs:
     docker:
       - image: circleci/ruby:2.6
       - image: circleci/mongo:4.2.5
-      - image: docker.elastic.co/elasticsearch/elasticsearch:5.6.7
+      - image: docker.elastic.co/elasticsearch/elasticsearch:6.8.13
         environment:
-          <<: *es56-env
+          <<: *es68-env
     working_directory: ~/repo
     environment:
       GEMFILE: gemfiles/rails.5.1.mongoid.6.3.gemfile
@@ -185,9 +185,9 @@ jobs:
   rspec-ruby-27-activerecord52:
     docker:
       - image: circleci/ruby:2.7
-      - image: docker.elastic.co/elasticsearch/elasticsearch:5.6.7
+      - image: docker.elastic.co/elasticsearch/elasticsearch:6.8.13
         environment:
-          <<: *es56-env
+          <<: *es68-env
     working_directory: ~/repo
     environment:
       GEMFILE: gemfiles/rails.5.2.activerecord.gemfile
@@ -197,9 +197,9 @@ jobs:
   rspec-ruby-27-activerecord60:
     docker:
       - image: circleci/ruby:2.7
-      - image: docker.elastic.co/elasticsearch/elasticsearch:5.6.7
+      - image: docker.elastic.co/elasticsearch/elasticsearch:6.8.13
         environment:
-          <<: *es56-env
+          <<: *es68-env
     working_directory: ~/repo
     environment:
       GEMFILE: gemfiles/rails.6.0.activerecord.gemfile
@@ -210,9 +210,9 @@ jobs:
     docker:
       - image: circleci/ruby:2.7
       - image: circleci/mongo:4.2.5
-      - image: docker.elastic.co/elasticsearch/elasticsearch:5.6.7
+      - image: docker.elastic.co/elasticsearch/elasticsearch:6.8.13
         environment:
-          <<: *es56-env
+          <<: *es68-env
     working_directory: ~/repo
     environment:
       GEMFILE: gemfiles/rails.5.1.mongoid.6.3.gemfile
@@ -222,9 +222,9 @@ jobs:
   rspec-ruby-30-activerecord52:
     docker:
       - image: circleci/ruby:3.0
-      - image: docker.elastic.co/elasticsearch/elasticsearch:5.6.7
+      - image: docker.elastic.co/elasticsearch/elasticsearch:6.8.13
         environment:
-          <<: *es56-env
+          <<: *es68-env
     working_directory: ~/repo
     environment:
       GEMFILE: gemfiles/rails.5.2.activerecord.gemfile
@@ -234,9 +234,9 @@ jobs:
   rspec-ruby-30-activerecord60:
     docker:
       - image: circleci/ruby:3.0
-      - image: docker.elastic.co/elasticsearch/elasticsearch:5.6.7
+      - image: docker.elastic.co/elasticsearch/elasticsearch:6.8.13
         environment:
-          <<: *es56-env
+          <<: *es68-env
     working_directory: ~/repo
     environment:
       GEMFILE: gemfiles/rails.6.0.activerecord.gemfile
@@ -247,9 +247,9 @@ jobs:
     docker:
       - image: circleci/ruby:3.0
       - image: circleci/mongo:4.2.5
-      - image: docker.elastic.co/elasticsearch/elasticsearch:5.6.7
+      - image: docker.elastic.co/elasticsearch/elasticsearch:6.8.13
         environment:
-          <<: *es56-env
+          <<: *es68-env
     working_directory: ~/repo
     environment:
       GEMFILE: gemfiles/rails.5.1.mongoid.6.3.gemfile

@@ -32,46 +32,46 @@ describe Chewy::Stash::Journal, :orm do
 
   describe '.entries' do
     specify do
-      expect(described_class.entries(Time.now - 30.seconds).map(&:references))
+      expect(described_class.entries((Time.now - 30.seconds).iso8601).map(&:references))
         .to contain_exactly([1], [{'id' => 2, 'name' => 'Country'}], [{'id' => 3, 'name' => 'User'}])
     end
     specify do
-      expect(described_class.entries(Time.now + 30.seconds).map(&:references))
+      expect(described_class.entries((Time.now + 30.seconds).iso8601).map(&:references))
         .to contain_exactly([{'id' => 2, 'name' => 'Country'}], [{'id' => 3, 'name' => 'User'}])
     end
     specify do
-      expect(described_class.entries(Time.now + 90.seconds).map(&:references))
+      expect(described_class.entries((Time.now + 90.seconds).iso8601).map(&:references))
         .to contain_exactly([{'id' => 3, 'name' => 'User'}])
     end
 
     specify do
-      expect(described_class.entries(Time.now - 30.seconds, only: UsersIndex).map(&:references))
+      expect(described_class.entries((Time.now - 30.seconds).iso8601, only: UsersIndex).map(&:references))
         .to contain_exactly([{'id' => 3, 'name' => 'User'}])
     end
     specify do
-      expect(described_class.entries(Time.now - 30.seconds, only: [PlacesIndex::City, UsersIndex]).map(&:references))
+      expect(described_class.entries((Time.now - 30.seconds).iso8601, only: [PlacesIndex::City, UsersIndex]).map(&:references))
         .to contain_exactly([1], [{'id' => 3, 'name' => 'User'}])
     end
     specify do
-      expect(described_class.entries(Time.now + 30.seconds, only: [PlacesIndex::City, UsersIndex]).map(&:references))
+      expect(described_class.entries((Time.now + 30.seconds).iso8601, only: [PlacesIndex::City, UsersIndex]).map(&:references))
         .to contain_exactly([{'id' => 3, 'name' => 'User'}])
     end
     specify do
-      expect(described_class.entries(Time.now + 30.seconds, only: [BorogovesIndex])).to eq([])
+      expect(described_class.entries((Time.now + 30.seconds).iso8601, only: [BorogovesIndex])).to eq([])
     end
   end
 
   describe '.clean' do
     specify { expect(fetch_deleted_number(described_class.clean)).to eq(3) }
-    specify { expect(fetch_deleted_number(described_class.clean(Time.now - 30.seconds))).to eq(0) }
-    specify { expect(fetch_deleted_number(described_class.clean(Time.now + 30.seconds))).to eq(1) }
-    specify { expect(fetch_deleted_number(described_class.clean(Time.now + 90.seconds))).to eq(2) }
+    specify { expect(fetch_deleted_number(described_class.clean((Time.now - 30.seconds).iso8601))).to eq(0) }
+    specify { expect(fetch_deleted_number(described_class.clean((Time.now + 30.seconds).iso8601))).to eq(1) }
+    specify { expect(fetch_deleted_number(described_class.clean((Time.now + 90.seconds).iso8601))).to eq(2) }
     specify { expect(fetch_deleted_number(described_class.clean(only: BorogovesIndex))).to eq(0) }
     specify { expect(fetch_deleted_number(described_class.clean(only: UsersIndex))).to eq(1) }
     specify { expect(fetch_deleted_number(described_class.clean(only: [PlacesIndex::City, UsersIndex]))).to eq(2) }
 
-    specify { expect(fetch_deleted_number(described_class.clean(Time.now + 30.seconds, only: PlacesIndex::Country))).to eq(0) }
-    specify { expect(fetch_deleted_number(described_class.clean(Time.now + 30.seconds, only: PlacesIndex::City))).to eq(1) }
+    specify { expect(fetch_deleted_number(described_class.clean((Time.now + 30.seconds).iso8601, only: PlacesIndex::Country))).to eq(0) }
+    specify { expect(fetch_deleted_number(described_class.clean((Time.now + 30.seconds).iso8601, only: PlacesIndex::City))).to eq(1) }
   end
 
   describe '.for' do

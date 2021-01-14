@@ -1,4 +1,4 @@
-Copyright (c) 2013 pyromaniac
+Copyright (c) 2013-2021 Toptal, LLC
 
 MIT License
 

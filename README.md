@@ -1113,3 +1113,8 @@ Use the following Rake tasks to control the Elasticsearch cluster while developi
 rake elasticsearch:start # start Elasticsearch cluster on 9250 port for tests
 rake elasticsearch:stop # stop Elasticsearch
 ```
+
+## Copyright
+
+Copyright (c) 2013-2021 Toptal, LLC. See [LICENSE.txt](LICENSE.txt) for
+further details.

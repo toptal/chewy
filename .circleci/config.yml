@@ -23,9 +23,6 @@ workflows:
       - rspec-ruby-27-activerecord60
       - rspec-ruby-27-activerecord52
       - rspec-ruby-27-mongoid
-      - rspec-ruby-30-activerecord60
-      - rspec-ruby-30-activerecord52
-      - rspec-ruby-30-mongoid
         # TODO elastic 7
         # TODO sequel?
 
@@ -209,43 +206,6 @@ jobs:
   rspec-ruby-27-mongoid:
     docker:
       - image: circleci/ruby:2.7
-      - image: circleci/mongo:4.2.5
-      - image: docker.elastic.co/elasticsearch/elasticsearch:5.6.7
-        environment:
-          <<: *es56-env
-    working_directory: ~/repo
-    environment:
-      GEMFILE: gemfiles/rails.5.1.mongoid.6.3.gemfile
-    steps:
-      - rspec-test
-
-  rspec-ruby-30-activerecord52:
-    docker:
-      - image: circleci/ruby:3.0
-      - image: docker.elastic.co/elasticsearch/elasticsearch:5.6.7
-        environment:
-          <<: *es56-env
-    working_directory: ~/repo
-    environment:
-      GEMFILE: gemfiles/rails.5.2.activerecord.gemfile
-    steps:
-      - rspec-test
-
-  rspec-ruby-30-activerecord60:
-    docker:
-      - image: circleci/ruby:3.0
-      - image: docker.elastic.co/elasticsearch/elasticsearch:5.6.7
-        environment:
-          <<: *es56-env
-    working_directory: ~/repo
-    environment:
-      GEMFILE: gemfiles/rails.6.0.activerecord.gemfile
-    steps:
-      - rspec-test
-
-  rspec-ruby-30-mongoid:
-    docker:
-      - image: circleci/ruby:3.0
       - image: circleci/mongo:4.2.5
       - image: docker.elastic.co/elasticsearch/elasticsearch:5.6.7
         environment:

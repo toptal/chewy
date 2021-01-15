@@ -73,7 +73,6 @@ Chewy is an ODM and wrapper for [the official Elasticsearch client](https://gith
 
 * Support for ActiveRecord, [Mongoid](https://github.com/mongoid/mongoid) and [Sequel](https://github.com/jeremyevans/sequel).
 
-
 ## Installation
 
 Add this line to your application's Gemfile:
@@ -87,6 +86,16 @@ And then execute:
 Or install it yourself as:
 
     $ gem install chewy
+
+## Compatibility
+
+### Ruby
+
+Chewy is compatible with MRI 2.4-2.7. Ruby 3 support is currently in development.
+
+### Elasticsearch
+
+Chewy 5 is compatible with Elasticsearch 5. Future versions of Chewy will support Elasticsearch 6 and Elasticsearch 7.
 
 ## Usage
 

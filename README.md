@@ -5,7 +5,7 @@
 
 # Chewy
 
-Chewy is an ODM and wrapper for [the official Elasticsearch client](https://github.com/elastic/elasticsearch-ruby).
+Chewy is an ODM (Object Document Mapper), built on top of the [the official Elasticsearch client](https://github.com/elastic/elasticsearch-ruby).
 
 ## Table of Contents
 
@@ -48,12 +48,13 @@ Chewy is an ODM and wrapper for [the official Elasticsearch client](https://gith
     * [chewy:deploy](#chewydeploy)
     * [Parallelizing rake tasks](#parallelizing-rake-tasks)
     * [chewy:journal](#chewyjournal)
-  * [Rspec integration](#rspec-integration)
+  * [RSpec integration](#rspec-integration)
   * [Minitest integration](#minitest-integration)
-* [TODO a.k.a coming soon](#todo-aka-coming-soon)
 * [Contributing](#contributing)
 
 ## Why Chewy?
+
+In this section we'll cover why you might want to use Chewy instead of the official `elasticsearch-ruby` client gem.
 
 * Multi-model indices.
 
@@ -75,7 +76,7 @@ Chewy is an ODM and wrapper for [the official Elasticsearch client](https://gith
 
 ## Installation
 
-Add this line to your application's Gemfile:
+Add this line to your application's `Gemfile`:
 
     gem 'chewy'
 
@@ -101,9 +102,13 @@ Chewy 5 is compatible with Elasticsearch 5. Future versions of Chewy will suppor
 
 ### Client settings
 
-There are two ways to configure the Chewy client: the `Chewy.settings` hash and `chewy.yml`
+There are two ways to configure the Chewy client:
 
-You can create this file manually or run `rails g chewy:install`.
+* via the hash `Chewy.settings`
+* via the configuration file `chewy.yml`
+
+You can create `chewy.yml` manually or run `rails g chewy:install` to
+generate it.
 
 ```ruby
 # config/initializers/chewy.rb
@@ -135,28 +140,29 @@ Chewy.logger = Logger.new(STDOUT)
 
 See [config.rb](lib/chewy/config.rb) for more details.
 
-#### Aws Elastic Search
-If you would like to use AWS's ElasticSearch using an IAM user policy, you will need to sign your requests for the `es:*` action by injecting the appropriate headers passing a proc to `transport_options`.
+#### AWS Elasticsearch
+
+If you would like to use AWS's Elasticsearch using an IAM user policy, you will need to sign your requests for the `es:*` action by injecting the appropriate headers passing a proc to `transport_options`.
 You'll need an additional gem for Faraday middleware: add `gem 'faraday_middleware-aws-sigv4'` to your Gemfile.
 
 ```ruby
-  require 'faraday_middleware/aws_sigv4'
+require 'faraday_middleware/aws_sigv4'
 
-  Chewy.settings = {
-    host: 'http://my-es-instance-on-aws.us-east-1.es.amazonaws.com:80',
-    port: 80, # 443 for https host
-    transport_options: {
-      headers: { content_type: 'application/json' },
-      proc: -> (f) do
-          f.request :aws_sigv4,
-                    service: 'es',
-                    region: 'us-east-1',
-                    access_key_id: ENV['AWS_ACCESS_KEY'],
-                    secret_access_key: ENV['AWS_SECRET_ACCESS_KEY']
-      end
-    }
+Chewy.settings = {
+  host: 'http://my-es-instance-on-aws.us-east-1.es.amazonaws.com:80',
+  port: 80, # 443 for https host
+  transport_options: {
+    headers: { content_type: 'application/json' },
+    proc: -> (f) do
+        f.request :aws_sigv4,
+                  service: 'es',
+                  region: 'us-east-1',
+                  access_key_id: ENV['AWS_ACCESS_KEY'],
+                  secret_access_key: ENV['AWS_SECRET_ACCESS_KEY']
+    end
   }
-  ```
+}
+```
 
 ### Index definition
 
@@ -1080,7 +1086,7 @@ rake chewy:journal:apply["$(date -v-1H -u +%FT%TZ)"] # apply journaled changes f
 rake chewy:journal:apply["$(date -v-1H -u +%FT%TZ)",users] # apply journaled changes for the past hour on UsersIndex only
 ```
 
-### Rspec integration
+### RSpec integration
 
 Just add `require 'chewy/rspec'` to your spec_helper.rb and you will get additional features: See [update_index.rb](lib/chewy/rspec/update_index.rb) for more details.
 
@@ -1100,12 +1106,6 @@ If you use `DatabaseCleaner` in your tests with [the `transaction` strategy](htt
 #config/initializers/chewy.rb
 Chewy.use_after_commit_callbacks = !Rails.env.test?
 ```
-
-## TODO a.k.a coming soon:
-
-* Typecasting support
-* update_all support
-* Maybe, closer ORM/ODM integration, creating index classes implicitly
 
 ## Contributing
 

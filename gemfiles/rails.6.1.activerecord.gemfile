@@ -14,4 +14,6 @@ gem "will_paginate", require: false
 gem "parallel", require: false
 gem 'rspec_junit_formatter', '~> 0.4.1'
 
+eval(File.read('gemfiles/ruby3.gemfile'), nil, 'gemfiles/ruby3.gemfile') if RUBY_VERSION >= '3.0.0'
+
 gemspec path: "../"

@@ -63,10 +63,10 @@ module Chewy
           update_proc = Observe.update_proc(type_name, *args, &block)
 
           if Chewy.use_after_commit_callbacks
-            after_commit(callback_options, &update_proc)
+            after_commit(**callback_options, &update_proc)
           else
-            after_save(callback_options, &update_proc)
-            after_destroy(callback_options, &update_proc)
+            after_save(**callback_options, &update_proc)
+            after_destroy(**callback_options, &update_proc)
           end
         end
       end

@@ -72,18 +72,20 @@ describe Chewy::Search::Parameters do
   describe '#merge!' do
     let(:first) { described_class.new(offset: 10, order: 'foo') }
     let(:second) { described_class.new(limit: 20, offset: 20, order: 'bar') }
+    let(:first_clone) { first.clone }
+    let(:second_clone) { second.clone }
 
     specify do
       expect { first.merge!(second) }.to change { first.clone }
         .to(described_class.new(limit: 20, offset: 20, order: %w[foo bar]))
     end
-    specify { expect { first.merge!(second) }.not_to change { second.clone } }
+    specify { expect { first.merge!(second) }.not_to change { second_clone } }
 
     specify do
       expect { second.merge!(first) }.to change { second.clone }
         .to(described_class.new(limit: 20, offset: 10, order: %w[bar foo]))
     end
-    specify { expect { second.merge!(first) }.not_to change { first.clone } }
+    specify { expect { second.merge!(first) }.not_to change { first_clone } }
 
     context 'spawns new storages for the merge' do
       let(:names) { %i[limit offset order] }

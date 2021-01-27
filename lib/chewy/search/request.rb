@@ -943,6 +943,7 @@ module Chewy
             if Runtime.version < '5.0'
               delete_by_query_plugin(request_body)
             else
+              request_body[:body] = {query: {match_all: {}}} if request_body[:body].empty?
               Chewy.client.delete_by_query(request_body)
             end
           end

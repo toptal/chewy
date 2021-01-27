@@ -1,8 +1,14 @@
 # master
 
-  * Update gemspec dependencies for Rails. Update CI gemfiles and matrix to tests against current LTS Rails versions. (@bhacaz, #733)
+# Version 5.2.0
+
+## Changes
+
+  * Add support for Ruby 3 (@lowang, #734)
 
   * Correct deprecation warning for Elasticsearch 5.6 to 6: empty query for`_delete_by_query`, delete by alias, `index_already_exists_exception` renaming (@bhacaz, #735)
+
+  * Update gemspec dependencies for Rails. Update CI gemfiles and matrix to tests against current LTS Rails versions. (@bhacaz, #733)
 
 # Version 5.1.0
 

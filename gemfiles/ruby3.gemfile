@@ -1,0 +1,10 @@
+# kwargs support was added here:
+#   https://github.com/rspec/rspec-mocks/blob/main/lib/rspec/mocks/method_double.rb#L66
+# but this change was not released yet so for the time being use main branch
+gem 'rspec', github: 'rspec/rspec', branch: 'main'
+gem 'rspec-core', github: 'rspec/rspec-core', branch: 'main'
+gem 'rspec-expectations', github: 'rspec/rspec-expectations', branch: 'main'
+gem 'rspec-mocks', github: 'rspec/rspec-mocks', branch: 'main'
+gem 'rspec-support', github: 'rspec/rspec-support', branch: 'main'
+# extracted from stdlib
+gem 'rexml'

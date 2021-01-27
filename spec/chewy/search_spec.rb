@@ -71,12 +71,12 @@ describe Chewy::Search do
             filter { match name: "Name#{index}" }
           end
 
-          field :name, KEYWORD_FIELD
+          field :name, **KEYWORD_FIELD
           field :rating, type: :integer
         end
 
         define_type Country do
-          field :name, KEYWORD_FIELD
+          field :name, **KEYWORD_FIELD
           field :rating, type: :integer
         end
       end

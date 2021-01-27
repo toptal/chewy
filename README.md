@@ -92,7 +92,9 @@ Or install it yourself as:
 
 ### Ruby
 
-Chewy is compatible with MRI 2.4-2.7. Ruby 3 support is currently in development.
+Chewy is compatible with MRI 2.5-3.0¹. 
+
+> ¹ Ruby 3 is only supported with Rails 6.1
 
 ### Elasticsearch
 

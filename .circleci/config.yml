@@ -14,12 +14,11 @@ workflows:
   build:
     jobs:
       - rubocop
-      - rspec-ruby-25-activerecord60
-      - rspec-ruby-25-activerecord52
-      - rspec-ruby-25-mongoid
+      - rspec-ruby-26-activerecord61
       - rspec-ruby-26-activerecord60
       - rspec-ruby-26-activerecord52
       - rspec-ruby-26-mongoid
+      - rspec-ruby-27-activerecord61
       - rspec-ruby-27-activerecord60
       - rspec-ruby-27-activerecord52
       - rspec-ruby-27-mongoid
@@ -105,43 +104,6 @@ jobs:
           command: |
             bundle exec rubocop --format simple
 
-  rspec-ruby-25-activerecord52:
-    docker:
-      - image: circleci/ruby:2.5
-      - image: docker.elastic.co/elasticsearch/elasticsearch:5.6.7
-        environment:
-          <<: *es56-env
-    working_directory: ~/repo
-    environment:
-      GEMFILE: gemfiles/rails.5.2.activerecord.gemfile
-    steps:
-      - rspec-test
-
-  rspec-ruby-25-activerecord60:
-    docker:
-      - image: circleci/ruby:2.5
-      - image: docker.elastic.co/elasticsearch/elasticsearch:5.6.7
-        environment:
-          <<: *es56-env
-    working_directory: ~/repo
-    environment:
-      GEMFILE: gemfiles/rails.6.0.activerecord.gemfile
-    steps:
-      - rspec-test
-
-  rspec-ruby-25-mongoid:
-    docker:
-      - image: circleci/ruby:2.5
-      - image: circleci/mongo:4.2.5
-      - image: docker.elastic.co/elasticsearch/elasticsearch:5.6.7
-        environment:
-          <<: *es56-env
-    working_directory: ~/repo
-    environment:
-      GEMFILE: gemfiles/rails.5.1.mongoid.6.3.gemfile
-    steps:
-      - rspec-test
-
   rspec-ruby-26-activerecord52:
     docker:
       - image: circleci/ruby:2.6
@@ -166,6 +128,18 @@ jobs:
     steps:
       - rspec-test
 
+  rspec-ruby-26-activerecord61:
+    docker:
+      - image: circleci/ruby:2.6
+      - image: docker.elastic.co/elasticsearch/elasticsearch:5.6.7
+        environment:
+          <<: *es56-env
+    working_directory: ~/repo
+    environment:
+      GEMFILE: gemfiles/rails.6.1.activerecord.gemfile
+    steps:
+      - rspec-test
+
   rspec-ruby-26-mongoid:
     docker:
       - image: circleci/ruby:2.6
@@ -175,7 +149,7 @@ jobs:
           <<: *es56-env
     working_directory: ~/repo
     environment:
-      GEMFILE: gemfiles/rails.5.1.mongoid.6.3.gemfile
+      GEMFILE: gemfiles/rails.5.2.mongoid.6.4.gemfile
     steps:
       - rspec-test
 
@@ -203,6 +177,18 @@ jobs:
     steps:
       - rspec-test
 
+  rspec-ruby-27-activerecord61:
+    docker:
+      - image: circleci/ruby:2.7
+      - image: docker.elastic.co/elasticsearch/elasticsearch:5.6.7
+        environment:
+          <<: *es56-env
+    working_directory: ~/repo
+    environment:
+      GEMFILE: gemfiles/rails.6.1.activerecord.gemfile
+    steps:
+      - rspec-test
+
   rspec-ruby-27-mongoid:
     docker:
       - image: circleci/ruby:2.7
@@ -212,6 +198,6 @@ jobs:
           <<: *es56-env
     working_directory: ~/repo
     environment:
-      GEMFILE: gemfiles/rails.5.1.mongoid.6.3.gemfile
+      GEMFILE: gemfiles/rails.5.2.mongoid.6.4.gemfile
     steps:
       - rspec-test

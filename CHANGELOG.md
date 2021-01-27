@@ -1,5 +1,7 @@
 # master
 
+  * Update gemspec dependencies for Rails. Update CI gemfiles and matrix to tests against current LTS Rails versions.
+
 # Version 5.1.0
 
 ## Breaking changes

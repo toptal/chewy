@@ -74,7 +74,13 @@ module Chewy
         #   UsersIndex.delete '01-2014' # deletes `users_01-2014` index
         #
         def delete(suffix = nil)
-          result = client.indices.delete index: index_name(suffix: suffix)
+          # Verify that the index_name is really the index_name and not an alias.
+          #
+          #   "The index parameter in the delete index API no longer accepts alias names.
+          #   Instead, it accepts only index names (or wildcards which will expand to matching indices)."
+          #   https://www.elastic.co/guide/en/elasticsearch/reference/6.8/breaking-changes-6.0.html#_delete_index_api_resolves_indices_expressions_only_against_indices
+          index_names = client.indices.get_alias(index: index_name(suffix: suffix)).keys
+          result = client.indices.delete index: index_names.join(',')
           Chewy.wait_for_status if result
           result
           # es-ruby >= 1.0.10 handles Elasticsearch::Transport::Transport::Errors::NotFound

@@ -30,8 +30,8 @@ module Chewy
         # Suffixed index names might be used for zero-downtime mapping change, for example.
         # Description: (http://www.elasticsearch.org/blog/changing-mapping-with-zero-downtime/).
         #
-        def create(*args)
-          create!(*args)
+        def create(*args, **kwargs)
+          create!(*args, **kwargs)
         rescue Elasticsearch::Transport::Transport::Errors::BadRequest
           false
         end

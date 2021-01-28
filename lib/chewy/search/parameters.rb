@@ -35,10 +35,11 @@ module Chewy
       #     limit: Chewy::Search::Parameters::Offset.new(10)
       #   )
       # @param initial [{Symbol => Object, Chewy::Search::Parameters::Storage}]
-      def initialize(initial = {})
+      def initialize(initial = {}, **kinitial)
         @storages = Hash.new do |hash, name|
           hash[name] = self.class.storages[name].new
         end
+        initial = initial.deep_dup.merge(kinitial)
         initial.each_with_object(@storages) do |(name, value), result|
           storage_class = self.class.storages[name]
           storage = value.is_a?(storage_class) ? value : storage_class.new(value)

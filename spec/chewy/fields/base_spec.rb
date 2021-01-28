@@ -180,43 +180,45 @@ describe Chewy::Fields::Base do
         end
       end
 
+      # rubocop:disable Style/BracesAroundHashParameters
       specify do
-        expect(EventsIndex::Event.root.compose(
-                 id: 1, category: {id: 2, licenses: {id: 3, name: 'Name'}}
-        )).to eq('id' => 1, 'category' => {'id' => 2, 'licenses' => {'id' => 3, 'name' => 'Name'}})
+        expect(EventsIndex::Event.root.compose({
+          id: 1, category: {id: 2, licenses: {id: 3, name: 'Name'}}
+        })).to eq('id' => 1, 'category' => {'id' => 2, 'licenses' => {'id' => 3, 'name' => 'Name'}})
       end
 
       specify do
-        expect(EventsIndex::Event.root.compose(id: 1, category: [
+        expect(EventsIndex::Event.root.compose({id: 1, category: [
           {id: 2, 'licenses' => {id: 3, name: 'Name1'}},
           {id: 4, licenses: nil}
-        ])).to eq('id' => 1, 'category' => [
+        ]})).to eq('id' => 1, 'category' => [
           {'id' => 2, 'licenses' => {'id' => 3, 'name' => 'Name1'}},
           {'id' => 4, 'licenses' => nil.as_json}
         ])
       end
 
       specify do
-        expect(EventsIndex::Event.root.compose('id' => 1, category: {id: 2, licenses: [
+        expect(EventsIndex::Event.root.compose({'id' => 1, category: {id: 2, licenses: [
           {id: 3, name: 'Name1'}, {id: 4, name: 'Name2'}
-        ]})).to eq('id' => 1, 'category' => {'id' => 2, 'licenses' => [
+        ]}})).to eq('id' => 1, 'category' => {'id' => 2, 'licenses' => [
           {'id' => 3, 'name' => 'Name1'}, {'id' => 4, 'name' => 'Name2'}
         ]})
       end
 
       specify do
-        expect(EventsIndex::Event.root.compose(id: 1, category: [
+        expect(EventsIndex::Event.root.compose({id: 1, category: [
           {id: 2, licenses: [
             {id: 3, 'name' => 'Name1'}, {id: 4, name: 'Name2'}
           ]},
           {id: 5, licenses: []}
-        ])).to eq('id' => 1, 'category' => [
+        ]})).to eq('id' => 1, 'category' => [
           {'id' => 2, 'licenses' => [
             {'id' => 3, 'name' => 'Name1'}, {'id' => 4, 'name' => 'Name2'}
           ]},
           {'id' => 5, 'licenses' => []}
         ])
       end
+      # rubocop:enable Style/BracesAroundHashParameters
 
       specify do
         expect(EventsIndex::Event.root.compose(

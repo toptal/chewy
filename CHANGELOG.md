@@ -10,6 +10,22 @@
 
   * Update gemspec dependencies for Rails. Update CI gemfiles and matrix to tests against current LTS Rails versions. (@bhacaz, #733)
 
+  * Tweak some wording and formatting; add a note about compatibility; update copyright; remove broken logo; update the CI badge (@bbatsov)
+
+  * Update instructions for AWS ElasticSearch (@olancheg, #714)
+  
+  * Fix more ruby 2.7 keyword params deprecation warnings (@aglushkov, #728)
+  
+  * Fixed all deprecation warnings in Ruby 2.7 (@gseddon, #715)
+
+  * Added Ruby 2.7 to CircleCI config (@mrzasa, #718)  
+
+  * Allow configuration of Active Job queue name (@mrzasa, #707)
+
+  * Setup CI on CircleCI (@mrzasa, #711)
+
+  * Fix deprecation warning for contructing new BigDecimal (@AlexVPopov, #710)
+
 # Version 5.1.0
 
 ## Breaking changes

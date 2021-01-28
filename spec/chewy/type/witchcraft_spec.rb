@@ -181,6 +181,21 @@ describe Chewy::Type::Witchcraft do
           ]}.as_json)
         end
       end
+
+      context do
+        mapping do
+          field :not_present do
+            field :nothing
+          end
+        end
+
+        let(:object) do
+          double(not_present: nil)
+        end
+        specify do
+          expect(type.cauldron.brew(object)).to eq({not_present: nil}.as_json)
+        end
+      end
     end
 
     context 'dynamic fields' do

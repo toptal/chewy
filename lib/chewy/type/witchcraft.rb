@@ -79,7 +79,9 @@ module Chewy
           if field.children.present? && !field.multi_field?
             <<-RUBY
               (result#{nesting} = #{fetcher}
-              if result#{nesting}.respond_to?(:to_ary)
+              if result#{nesting}.nil?
+                nil
+              elsif result#{nesting}.respond_to?(:to_ary)
                 result#{nesting}.map do |object#{nesting}|
                   #{composed_values(field, nesting)}
                 end

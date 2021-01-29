@@ -74,6 +74,8 @@ module Chewy
         #   UsersIndex.delete '01-2014' # deletes `users_01-2014` index
         #
         def delete(suffix = nil)
+          return false unless exists?
+
           # Verify that the index_name is really the index_name and not an alias.
           #
           #   "The index parameter in the delete index API no longer accepts alias names.

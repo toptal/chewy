@@ -46,13 +46,18 @@ module Chewy
         types = something.flat_map { |s| Chewy.derive_types(s) }
         return none if something.present? && types.blank?
         scope = all
-        types.group_by(&:index).each do |index, index_types|
-          scope = scope.or(
-            filter(term: {index_name: index.derivable_name})
-              .filter(terms: {type_name: index_types.map(&:type_name)})
-          )
+        should_filter = types.group_by(&:index).map do |index, index_types|
+          {
+            bool: {
+              must: [
+                {term: {index_name: index.derivable_name}},
+                {terms: {type_name: index_types.map(&:type_name)}}
+              ]
+            }
+          }
         end
-        scope
+
+        scope.filter(bool: {should: should_filter})
       end
 
       define_type :journal do

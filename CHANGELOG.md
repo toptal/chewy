@@ -2,6 +2,7 @@
 
 ## Bug fixes
 
+  * [#742](https://github.com/toptal/chewy/pull/742): Update Chewy::Stash::Journal.for query to also support ES < 2 ([@bhacaz][])
   * [#736](https://github.com/toptal/chewy/pull/736): Fix nil children when using witchcraft ([@taylor-au][])
 
 ## Changes

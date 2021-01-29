@@ -1,5 +1,11 @@
 # master
 
+## Bug fixes
+
+  * [#736](https://github.com/toptal/chewy/pull/736): Fix nil children when using witchcraft ([@taylor-au][])
+
+## Changes
+
   * [#739](https://github.com/toptal/chewy/pull/739): Remove explicit `main` branch dependencies on rspec* gems after `rspec-mocks` 3.10.2 is released ([@rabotyaga][])
 
 # Version 5.2.0 (2021-01-28)
@@ -488,6 +494,7 @@
   * Initial version
 
 
+[@taylor-au]: https://github.com/taylor-au
 [@rabotyaga]: https://github.com/rabotyaga
 [@lowang]: https://github.com/lowang
 [@bhacaz]: https://github.com/bhacaz

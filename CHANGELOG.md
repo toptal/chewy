@@ -1,5 +1,7 @@
 # master
 
+  * [#739](https://github.com/toptal/chewy/pull/739): Remove explicit `main` branch dependencies on rspec* gems after `rspec-mocks` 3.10.2 is released ([@rabotyaga][])
+
 # Version 5.2.0 (2021-01-28)
 
 ## Changes
@@ -486,6 +488,7 @@
   * Initial version
 
 
+[@rabotyaga]: https://github.com/rabotyaga
 [@lowang]: https://github.com/lowang
 [@bhacaz]: https://github.com/bhacaz
 [@bbatsov]: https://github.com/bbatsov

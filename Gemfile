@@ -25,4 +25,4 @@ gem 'guard-rspec'
 gem 'redcarpet'
 gem 'yard'
 
-eval(File.read('gemfiles/ruby3.gemfile'), nil, 'gemfiles/ruby3.gemfile') if RUBY_VERSION >= '3.0.0' # rubocop:disable Security/Eval
+gem 'rexml' if RUBY_VERSION >= '3.0.0'

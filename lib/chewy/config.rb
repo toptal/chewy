@@ -46,7 +46,7 @@ module Chewy
       # Default options for root of Chewy type. Allows to set default options
       # for type mappings like `_all`.
       :default_root_options,
-      # Default field type for any field in any Chewy type. Defaults to 'string'.
+      # Default field type for any field in any Chewy type. Defaults to 'text'.
       :default_field_type
 
     attr_reader :transport_logger, :transport_tracer,

@@ -92,7 +92,7 @@ Or install it yourself as:
 
 ### Ruby
 
-Chewy is compatible with MRI 2.5-3.0¹. 
+Chewy is compatible with MRI 2.5-3.0¹.
 
 > ¹ Ruby 3 is only supported with Rails 6.1
 
@@ -197,7 +197,7 @@ Chewy.settings = {
       field :badges, value: ->(user) { user.badges.map(&:name) } # passing array values to index
       field :projects do # the same block syntax for multi_field, if `:type` is specified
         field :title
-        field :description # default data type is `string`
+        field :description # default data type is `text`
         # additional top-level objects passed to value proc:
         field :categories, value: ->(project, user) { project.categories.map(&:name) if user.active? }
       end

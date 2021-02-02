@@ -911,10 +911,7 @@ ActiveSupport::Notifications.subscribe(/.chewy$/, ChewySubscriber.new)
 
 ### Search requests
 
-Long story short: there is a new DSL that supports ES2 and ES5, the previous DSL version (which supports ES1 and ES2) documentation was moved to [LEGACY_DSL.md](LEGACY_DSL.md).
-
-If you want to use the old DSL - simply do `Chewy.search_class = Chewy::Query` somewhere before indices are initialized.
-
+[LEGACY_DSL.md](LEGACY_DSL.md) isn't supported any more.
 The new DSL is enabled by default, here is a quick introduction.
 
 #### Composing requests

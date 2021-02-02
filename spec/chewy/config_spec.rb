@@ -54,24 +54,6 @@ describe Chewy::Config do
     end
   end
 
-  describe '#search_class=' do
-    specify do
-      expect { subject.search_class = Chewy::Query }
-        .to change { subject.search_class }
-        .from(be < Chewy::Search::Request)
-        .to(be < Chewy::Query)
-    end
-
-    context do
-      before { hide_const('Kaminari') }
-
-      specify do
-        expect(subject.search_class.included_modules)
-          .to include(Chewy::Search::Pagination::WillPaginate)
-      end
-    end
-  end
-
   describe '#search_class' do
     context 'nothing is defined' do
       before do

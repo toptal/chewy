@@ -1,5 +1,4 @@
 require 'chewy/search/scoping'
-require 'chewy/query'
 require 'chewy/search/scrolling'
 require 'chewy/search/query_proxy'
 require 'chewy/search/parameters'
@@ -15,9 +14,7 @@ module Chewy
   # {Chewy::Type}.
   #
   # The class used as a request DSL provider is
-  # inherited from {Chewy::Search::Request} by default, but if you
-  # need ES < 2.0 DSL support - you can switch it to {Chewy::Query}
-  # using {Chewy::Config#search_class}
+  # inherited from {Chewy::Search::Request}
   #
   # Also, the search class is refined with one of the pagination-
   # providing modules: {Chewy::Search::Pagination::Kaminari} or

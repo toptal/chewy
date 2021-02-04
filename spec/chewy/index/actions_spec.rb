@@ -284,7 +284,13 @@ describe Chewy::Index::Actions do
     specify 'with an empty array' do
       expect(CitiesIndex).not_to receive(:exists?)
       expect(CitiesIndex).not_to receive(:create!)
-      CitiesIndex.import([])
+      expect(CitiesIndex.import([])).to eq(true)
+    end
+
+    specify 'with an empty relation' do
+      expect(CitiesIndex).not_to receive(:exists?)
+      expect(CitiesIndex).not_to receive(:create!)
+      expect(CitiesIndex.import(City.where('1 = 2'))).to eq(true)
     end
 
     context do
@@ -314,7 +320,13 @@ describe Chewy::Index::Actions do
     specify 'with an empty array' do
       expect(CitiesIndex).not_to receive(:exists?)
       expect(CitiesIndex).not_to receive(:create!)
-      CitiesIndex.import!([])
+      expect(CitiesIndex.import!([])).to eq(true)
+    end
+
+    specify 'with an empty relation' do
+      expect(CitiesIndex).not_to receive(:exists?)
+      expect(CitiesIndex).not_to receive(:create!)
+      expect(CitiesIndex.import!(City.where('1 = 2'))).to eq(true)
     end
 
     context do

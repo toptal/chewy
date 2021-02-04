@@ -2,6 +2,7 @@
 
 ## Bug fixes
 
+  * [#749](https://github.com/toptal/chewy/pull/749): Avoid importing everything when given an empty relation ([@JF-Lalonde][][@dalthon][])
   * [#736](https://github.com/toptal/chewy/pull/736): Fix nil children when using witchcraft ([@taylor-au][])
 
 ## Changes
@@ -494,6 +495,8 @@
   * Initial version
 
 
+[@JF-Lalonde]: https://github.com/JF-Lalonde
+[@dalthon]: https://github.com/dalthon
 [@taylor-au]: https://github.com/taylor-au
 [@rabotyaga]: https://github.com/rabotyaga
 [@lowang]: https://github.com/lowang

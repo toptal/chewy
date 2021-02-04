@@ -287,6 +287,12 @@ describe Chewy::Index::Actions do
       CitiesIndex.import([])
     end
 
+    specify 'with an empty relation' do
+      expect(CitiesIndex).not_to receive(:exists?)
+      expect(CitiesIndex).not_to receive(:create!)
+      CitiesIndex.import(City.where('1 = 2'))
+    end
+
     context do
       before do
         stub_index(:cities) do
@@ -315,6 +321,12 @@ describe Chewy::Index::Actions do
       expect(CitiesIndex).not_to receive(:exists?)
       expect(CitiesIndex).not_to receive(:create!)
       CitiesIndex.import!([])
+    end
+
+    specify 'with an empty relation' do
+      expect(CitiesIndex).not_to receive(:exists?)
+      expect(CitiesIndex).not_to receive(:create!)
+      CitiesIndex.import!(City.where('1 = 2'))
     end
 
     context do

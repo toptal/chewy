@@ -146,6 +146,8 @@ module Chewy
       # passed.
       #
       def define_type(target, options = {}, &block)
+        raise 'Multiple types are deprecated' if type_hash.present?
+
         type_class = Chewy.create_type(self, target, options, &block)
         self.type_hash = type_hash.merge(type_class.type_name => type_class)
       end

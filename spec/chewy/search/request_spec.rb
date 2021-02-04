@@ -10,16 +10,18 @@ describe Chewy::Search::Request do
         field :name
         field :age, type: :integer
       end
+    end
+
+    stub_index(:cities) do
       define_type :city do
-        field :id, type: :integer
-      end
-      define_type :country do
         field :id, type: :integer
       end
     end
 
-    stub_index(:cities) do
-      define_type :city
+    stub_index(:countries) do
+      define_type :country do
+        field :id, type: :integer
+      end
     end
   end
 
@@ -30,11 +32,7 @@ describe Chewy::Search::Request do
     specify { expect(described_class.new(ProductsIndex)).not_to eq(described_class.new(CitiesIndex)) }
     specify { expect(described_class.new(ProductsIndex)).not_to eq(described_class.new(ProductsIndex, CitiesIndex)) }
     specify { expect(described_class.new(CitiesIndex, ProductsIndex)).to eq(described_class.new(ProductsIndex, CitiesIndex)) }
-    specify { expect(described_class.new(ProductsIndex::Product)).to eq(described_class.new(ProductsIndex::Product)) }
-    specify { expect(described_class.new(ProductsIndex::Product)).not_to eq(described_class.new(ProductsIndex::City)) }
-    specify { expect(described_class.new(ProductsIndex::Product)).not_to eq(described_class.new(ProductsIndex::Product, ProductsIndex::City)) }
-    specify { expect(described_class.new(ProductsIndex::City, ProductsIndex::Product)).to eq(described_class.new(ProductsIndex::Product, ProductsIndex::City)) }
-    specify { expect(described_class.new(ProductsIndex::City, CitiesIndex::City)).to eq(described_class.new(CitiesIndex::City, ProductsIndex::City)) }
+    specify { expect(described_class.new(ProductsIndex, CitiesIndex)).to eq(described_class.new(CitiesIndex, ProductsIndex)) }
 
     specify { expect(described_class.new(ProductsIndex).limit(10)).to eq(described_class.new(ProductsIndex).limit(10)) }
     specify { expect(described_class.new(ProductsIndex).limit(10)).not_to eq(described_class.new(ProductsIndex).limit(20)) }
@@ -48,7 +46,7 @@ describe Chewy::Search::Request do
       expect(subject.render)
         .to match(
           index: %w[products],
-          type: array_including(%w[product city country]),
+          type: array_including(%w[product]),
           body: {}
         )
     end
@@ -57,11 +55,11 @@ describe Chewy::Search::Request do
   describe '#inspect' do
     specify do
       expect(described_class.new(ProductsIndex).inspect)
-        .to eq('<Chewy::Search::Request {:index=>["products"], :type=>["city", "country", "product"], :body=>{}}>')
+        .to eq('<Chewy::Search::Request {:index=>["products"], :type=>["product"], :body=>{}}>')
     end
     specify do
       expect(ProductsIndex.limit(10).inspect)
-        .to eq('<ProductsIndex::Query {:index=>["products"], :type=>["city", "country", "product"], :body=>{:size=>10}}>')
+        .to eq('<ProductsIndex::Query {:index=>["products"], :type=>["product"], :body=>{:size=>10}}>')
     end
   end
 
@@ -235,9 +233,8 @@ describe Chewy::Search::Request do
 
   describe '#types' do
     specify { expect(subject.types(:product).render[:type]).to contain_exactly('product') }
-    specify { expect(described_class.new(ProductsIndex::City).types(ProductsIndex::Country).render[:type]).to match_array(%w[city country]) }
-    specify { expect(subject.types(%i[product city]).types(nil).render[:type]).to match_array(%w[product city]) }
-    specify { expect(subject.types(:product).types(:product, :city, :something).render[:type]).to match_array(%w[product city]) }
+    specify { expect(subject.types(%i[product city]).types(nil).render[:type]).to match_array(%w[product]) }
+    specify { expect(subject.types(:product).types(:product, :city, :something).render[:type]).to match_array(%w[product]) }
     specify { expect(subject.types(nil).render[:body]).to be_blank }
     specify { expect { subject.types(:product) }.not_to change { subject.render } }
   end
@@ -279,14 +276,16 @@ describe Chewy::Search::Request do
         define_type City do
           field :rating, type: 'integer'
         end
+      end
 
+      stub_index(:countries) do
         define_type Country do
           field :rating, type: 'integer'
         end
       end
     end
 
-    before { PlacesIndex.import!(cities: cities, countries: countries) }
+    before { PlacesIndex.import!(cities) }
 
     let(:cities) { Array.new(2) { |i| City.create!(rating: i) } }
     let(:countries) { Array.new(2) { |i| Country.create!(rating: i + 2) } }
@@ -294,14 +293,14 @@ describe Chewy::Search::Request do
     subject { described_class.new(PlacesIndex).order(:rating) }
 
     describe '#objects' do
-      specify { expect(subject.objects).to eq([*cities, *countries]) }
+      specify { expect(subject.objects).to eq([*cities]) }
       specify { expect(subject.objects.class).to eq(Array) }
     end
 
     describe '#load' do
-      specify { expect(subject.load(only: 'city')).to eq([*cities, *countries]) }
-      specify { expect(subject.load(only: 'city').map(&:class).uniq).to eq([PlacesIndex::City, PlacesIndex::Country]) }
-      specify { expect(subject.load(only: 'city').objects).to eq([*cities, nil, nil]) }
+      specify { expect(subject.load(only: 'city')).to eq([*cities]) }
+      specify { expect(subject.load(only: 'city').map(&:class).uniq).to eq([PlacesIndex::City]) }
+      specify { expect(subject.load(only: 'city').objects).to eq([*cities]) }
     end
   end
 
@@ -388,13 +387,13 @@ describe Chewy::Search::Request do
   end
 
   context 'integration' do
-    let(:products) { Array.new(3) { |i| {id: i.next.to_i, name: "Name#{i.next}", age: 10 * i.next}.stringify_keys! } }
-    let(:cities) { Array.new(3) { |i| {id: (i.next + 3).to_i}.stringify_keys! } }
-    let(:countries) { Array.new(3) { |i| {id: (i.next + 6).to_i}.stringify_keys! } }
+    let(:products_count) { 9 }
+    let(:products) { Array.new(products_count) { |i| {id: i.next.to_i, name: "Name#{i.next}", age: 10 * i.next}.stringify_keys! } }
+    let(:cities) { Array.new(3) { |i| {id: (i.next + 9).to_i}.stringify_keys! } }
+    let(:countries) { Array.new(3) { |i| {id: (i.next + 12).to_i}.stringify_keys! } }
     before do
       ProductsIndex::Product.import!(products.map { |h| double(h) })
-      ProductsIndex::City.import!(cities.map { |h| double(h) })
-      ProductsIndex::Country.import!(countries.map { |h| double(h) })
+      CountriesIndex::Country.import!(countries.map { |h| double(h) })
       CitiesIndex::City.import!(cities.map { |h| double(h) })
     end
 
@@ -407,18 +406,11 @@ describe Chewy::Search::Request do
       specify { expect(subject.size).to eq(3) }
     end
 
-    context 'limited types' do
-      subject { described_class.new(ProductsIndex::City, ProductsIndex::Country) }
+    context 'mixed indexes' do
+      subject { described_class.new(CitiesIndex, ProductsIndex) }
 
-      specify { expect(subject.count).to eq(6) }
-      specify { expect(subject.size).to eq(6) }
-    end
-
-    context 'mixed types' do
-      subject { described_class.new(CitiesIndex, ProductsIndex::Product) }
-
-      specify { expect(subject.count).to eq(9) }
-      specify { expect(subject.size).to eq(9) }
+      specify { expect(subject.count).to eq(12) }
+      specify { expect(subject.size).to eq(10) } # pagination limit
     end
 
     context 'instrumentation' do
@@ -431,9 +423,9 @@ describe Chewy::Search::Request do
         expect(outer_payload).to eq(
           index: ProductsIndex,
           indexes: [ProductsIndex],
-          request: {index: ['products'], type: %w[city country product], body: {query: {match: {name: 'name3'}}}},
-          type: [ProductsIndex::Product, ProductsIndex::City, ProductsIndex::Country],
-          types: [ProductsIndex::Product, ProductsIndex::City, ProductsIndex::Country]
+          request: {index: ['products'], type: %w[product], body: {query: {match: {name: 'name3'}}}},
+          type: ProductsIndex::Product,
+          types: [ProductsIndex::Product]
         )
       end
     end
@@ -449,6 +441,8 @@ describe Chewy::Search::Request do
     end
 
     describe '#suggest' do
+      let(:products_count) { 3 }
+
       specify do
         expect(subject.suggest(
           foo: {
@@ -470,7 +464,7 @@ describe Chewy::Search::Request do
     describe '#aggs' do
       specify do
         expect(subject.aggs(avg_age: {avg: {field: :age}}).aggs)
-          .to eq('avg_age' => {'value' => 20.0})
+          .to eq('avg_age' => {'value' => 50.0})
       end
     end
 
@@ -490,8 +484,7 @@ describe Chewy::Search::Request do
       specify { expect(subject.count).to eq(9) }
       specify { expect(subject.limit(6).count).to eq(9) }
       specify { expect(subject.offset(6).count).to eq(9) }
-      specify { expect(subject.types(:product, :something).count).to eq(3) }
-      specify { expect(subject.types(:product, :country).count).to eq(6) }
+      specify { expect(subject.indices(:products, CountriesIndex).count).to eq(12) }
       specify { expect(subject.filter(term: {age: 10}).count).to eq(1) }
       specify { expect(subject.query(term: {age: 10}).count).to eq(1) }
       specify { expect(subject.order(nil).count).to eq(9) }
@@ -530,7 +523,7 @@ describe Chewy::Search::Request do
       context do
         before { expect(Chewy.client).to receive(:search).once.and_call_original }
 
-        specify { expect(subject.first).to be_a(ProductsIndex::Country).and have_attributes(id: 9) }
+        specify { expect(subject.first).to be_a(ProductsIndex::Product).and have_attributes(id: 9) }
         specify { expect(subject.first(3).map(&:id)).to eq([9, 8, 7]) }
         specify { expect(subject.first(10).map(&:id)).to have(9).items }
         specify { expect(subject.limit(5).first(10).map(&:id)).to have(9).items }
@@ -543,7 +536,7 @@ describe Chewy::Search::Request do
           expect(Chewy.client).not_to receive(:search)
         end
 
-        specify { expect(subject.first).to be_a(ProductsIndex::Country).and have_attributes(id: 9) }
+        specify { expect(subject.first).to be_a(ProductsIndex::Product).and have_attributes(id: 9) }
         specify { expect(subject.first(3).map(&:id)).to eq([9, 8, 7]) }
         specify { expect(subject.first(10).map(&:id)).to have(9).items }
 
@@ -576,7 +569,7 @@ describe Chewy::Search::Request do
       specify { expect { subject.post_filter(match: {name: 'name2'}).find('1', '3') }.to raise_error Chewy::DocumentNotFound, 'Could not find documents for ids: 1 and 3' }
 
       context 'make sure it returns everything' do
-        let(:countries) { Array.new(6) { |i| {id: (i.next + 6).to_i}.stringify_keys! } }
+        let(:products_count) { 12 }
         before { expect(Chewy.client).not_to receive(:scroll) }
 
         specify { expect(subject.find((1..12).to_a)).to have(12).items }
@@ -593,15 +586,15 @@ describe Chewy::Search::Request do
 
     describe '#pluck' do
       specify { expect(subject.limit(5).pluck(:_id)).to eq(%w[1 2 3 4 5]) }
-      specify { expect(subject.limit(5).pluck(:_id, :age)).to eq([['1', 10], ['2', 20], ['3', 30], ['4', nil], ['5', nil]]) }
-      specify { expect(subject.limit(5).source(:name).pluck(:id, :age)).to eq([[1, 10], [2, 20], [3, 30], [4, nil], [5, nil]]) }
+      specify { expect(subject.limit(5).pluck(:_id, :age)).to eq([['1', 10], ['2', 20], ['3', 30], ['4', 40], ['5', 50]]) }
+      specify { expect(subject.limit(5).source(:name).pluck(:id, :age)).to eq([[1, 10], [2, 20], [3, 30], [4, 40], [5, 50]]) }
       specify do
         expect(subject.limit(5).pluck(:_index, :_type, :name)).to eq([
           %w[products product Name1],
           %w[products product Name2],
           %w[products product Name3],
-          ['products', 'city', nil],
-          ['products', 'city', nil]
+          %w[products product Name4],
+          %w[products product Name5]
         ])
       end
 
@@ -634,21 +627,9 @@ describe Chewy::Search::Request do
       end
       specify do
         expect do
-          subject.types(:product).delete_all
-          Chewy.client.indices.refresh(index: 'products')
-        end.to change { described_class.new(ProductsIndex::Product).total_entries }.from(3).to(0)
-      end
-      specify do
-        expect do
           subject.delete_all
           Chewy.client.indices.refresh(index: 'products')
         end.to change { described_class.new(ProductsIndex).total }.from(9).to(0)
-      end
-      specify do
-        expect do
-          described_class.new(ProductsIndex::City).delete_all
-          Chewy.client.indices.refresh(index: 'products')
-        end.to change { described_class.new(ProductsIndex).total }.from(9).to(6)
       end
 
       specify do
@@ -660,9 +641,9 @@ describe Chewy::Search::Request do
         expect(outer_payload).to eq(
           index: ProductsIndex,
           indexes: [ProductsIndex],
-          request: {index: ['products'], type: %w[city country product], body: {query: {match: {name: 'name3'}}}, refresh: true},
-          type: [ProductsIndex::Product, ProductsIndex::City, ProductsIndex::Country],
-          types: [ProductsIndex::Product, ProductsIndex::City, ProductsIndex::Country]
+          request: {index: ['products'], type: %w[product], body: {query: {match: {name: 'name3'}}}, refresh: true},
+          type: ProductsIndex::Product,
+          types: [ProductsIndex::Product]
         )
       end
 
@@ -675,9 +656,9 @@ describe Chewy::Search::Request do
         expect(outer_payload).to eq(
           index: ProductsIndex,
           indexes: [ProductsIndex],
-          request: {index: ['products'], type: %w[city country product], body: {query: {match: {name: 'name3'}}}, refresh: false},
-          type: [ProductsIndex::Product, ProductsIndex::City, ProductsIndex::Country],
-          types: [ProductsIndex::Product, ProductsIndex::City, ProductsIndex::Country]
+          request: {index: ['products'], type: %w[product], body: {query: {match: {name: 'name3'}}}, refresh: false},
+          type: ProductsIndex::Product,
+          types: [ProductsIndex::Product]
         )
       end
     end

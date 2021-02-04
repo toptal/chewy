@@ -281,6 +281,18 @@ describe Chewy::Index::Actions do
 
     specify { expect(CitiesIndex.import).to eq(true) }
 
+    specify 'with an empty array' do
+      expect(CitiesIndex).not_to receive(:exists?)
+      expect(CitiesIndex).not_to receive(:create!)
+      expect(CitiesIndex.import([])).to eq(true)
+    end
+
+    specify 'with an empty relation' do
+      expect(CitiesIndex).not_to receive(:exists?)
+      expect(CitiesIndex).not_to receive(:create!)
+      expect(CitiesIndex.import(City.where('1 = 2'))).to eq(true)
+    end
+
     context do
       before do
         stub_index(:cities) do
@@ -304,6 +316,18 @@ describe Chewy::Index::Actions do
     let!(:dummy_cities) { Array.new(3) { |i| City.create(id: i + 1, name: "name#{i}") } }
 
     specify { expect(CitiesIndex.import!).to eq(true) }
+
+    specify 'with an empty array' do
+      expect(CitiesIndex).not_to receive(:exists?)
+      expect(CitiesIndex).not_to receive(:create!)
+      expect(CitiesIndex.import!([])).to eq(true)
+    end
+
+    specify 'with an empty relation' do
+      expect(CitiesIndex).not_to receive(:exists?)
+      expect(CitiesIndex).not_to receive(:create!)
+      expect(CitiesIndex.import!(City.where('1 = 2'))).to eq(true)
+    end
 
     context do
       before do

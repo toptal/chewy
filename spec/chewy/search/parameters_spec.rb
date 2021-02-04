@@ -141,7 +141,7 @@ describe Chewy::Search::Parameters do
 
     context do
       subject { described_class.new(filter: {moo: 'baz'}, none: true) }
-      specify { expect(subject.render).to eq(body: {query: {bool: {filter: {bool: {must_not: {match_all: {}}}}}}}) }
+      specify { expect(subject.render).to eq(body: {query: {match_none: {}}}) }
     end
   end
 end

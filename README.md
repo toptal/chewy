@@ -39,7 +39,6 @@ Chewy is an ODM (Object Document Mapper), built on top of the [the official Elas
     * [Named scopes](#named-scopes)
     * [Scroll API](#scroll-api)
     * [Loading objects](#loading-objects)
-    * [Legacy DSL incompatibilities](#legacy-dsl-incompatibilities)
   * [Rake tasks](#rake-tasks)
     * [chewy:reset](#chewyreset)
     * [chewy:upgrade](#chewyupgrade)
@@ -911,11 +910,7 @@ ActiveSupport::Notifications.subscribe(/.chewy$/, ChewySubscriber.new)
 
 ### Search requests
 
-Long story short: there is a new DSL that supports ES2 and ES5, the previous DSL version (which supports ES1 and ES2) documentation was moved to [LEGACY_DSL.md](LEGACY_DSL.md).
-
-If you want to use the old DSL - simply do `Chewy.search_class = Chewy::Query` somewhere before indices are initialized.
-
-The new DSL is enabled by default, here is a quick introduction.
+Quick introduction.
 
 #### Composing requests
 
@@ -982,17 +977,6 @@ scope.each do |wrapper|
   scope.object_hash[wrapper]
 end
 ```
-
-#### Legacy DSL incompatibilities
-
-* Filters advanced block DSL is not supported anymore, `elasticsearch-dsl` is used instead.
-* Things like `query_mode` and `filter_mode` are in past, use advanced DSL to achieve similar behavior. See [Chewy::Search::QueryProxy](lib/chewy/search/query_proxy.rb) for details.
-* `preload` method is no more, the collection returned by scope doesn't depend on loading options, scope always returns `Chewy::Type` wrappers. To get ORM/ODM objects, use `#objects` method.
-* Some of the methods have changed their purpose: `only` was used to filter fields before, now it filters the scope. To filter fields use `source` or `stored_fields`.
-* `types!` method is no more, use `except(:types).types(...)`
-* Named aggregations are not supported, use named scopes instead.
-* A lot of query-level methods were not ported: everything that is related to boost and scoring. Use `query` manipulation to provide them.
-* `Chewy::Type#_object` returns nil always. Use `Chewy::Search::Response#object_hash` instead.
 
 ### Rake tasks
 

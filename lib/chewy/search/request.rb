@@ -1,7 +1,7 @@
 module Chewy
   module Search
     # The main request DSL class. Supports multiple index requests.
-    # Supports ES2 and ES5 search API and query DSL.
+    # Supports ES5 search API and query DSL.
     #
     # @note The class tries to be as immutable as possible,
     #   so most of the methods return a new instance of the class.
@@ -928,11 +928,9 @@ module Chewy
       end
 
       # Deletes all the documents from the specified scope it uses
-      # `delete_by_query` API. For ES < 5.0 it uses `delete_by_query`
-      # plugin, which requires additional installation effort.
+      # `delete_by_query`
       #
       # @see https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-delete-by-query.html
-      # @see https://www.elastic.co/guide/en/elasticsearch/plugins/2.0/plugins-delete-by-query.html
       # @note The result hash is different for different API used.
       # @param refresh [true, false] field names
       # @return [Hash] the result of query execution
@@ -940,12 +938,8 @@ module Chewy
         request_body = only(WHERE_STORAGES).render.merge(refresh: refresh)
         ActiveSupport::Notifications.instrument 'delete_query.chewy',
           notification_payload(request: request_body) do
-            if Runtime.version < '5.0'
-              delete_by_query_plugin(request_body)
-            else
-              request_body[:body] = {query: {match_all: {}}} if request_body[:body].empty?
-              Chewy.client.delete_by_query(request_body)
-            end
+            request_body[:body] = {query: {match_all: {}}} if request_body[:body].empty?
+            Chewy.client.delete_by_query(request_body)
           end
       end
 
@@ -1008,15 +1002,6 @@ module Chewy
 
       def raw_offset_value
         parameters[:offset].value
-      end
-
-      def delete_by_query_plugin(request)
-        path = Elasticsearch::API::Utils.__pathify(
-          Elasticsearch::API::Utils.__listify(request[:index]),
-          Elasticsearch::API::Utils.__listify(request[:type]),
-          '_query'
-        )
-        Chewy.client.perform_request(Elasticsearch::API::HTTP_DELETE, path, {}, request[:body]).body
       end
 
       def loader

@@ -15,21 +15,18 @@ describe Chewy do
 
       stub_index('namespace/autocomplete') do
         define_type :developer
-        define_type :company
       end
     end
 
     specify { expect { described_class.derive_type('some#developers') }.to raise_error(Chewy::UnderivableType, /SomeIndex/) }
     specify { expect { described_class.derive_type('borogoves#developers') }.to raise_error(Chewy::UnderivableType, /Borogoves/) }
     specify { expect { described_class.derive_type('developers#borogoves') }.to raise_error(Chewy::UnderivableType, /DevelopersIndex.*borogoves/) }
-    specify { expect { described_class.derive_type('namespace/autocomplete') }.to raise_error(Chewy::UnderivableType, %r{AutocompleteIndex.*namespace/autocomplete#type_name}) }
 
     specify { expect(described_class.derive_type(DevelopersIndex::Developer)).to eq(DevelopersIndex::Developer) }
     specify { expect(described_class.derive_type('developers_index')).to eq(DevelopersIndex::Developer) }
     specify { expect(described_class.derive_type('developers')).to eq(DevelopersIndex::Developer) }
     specify { expect(described_class.derive_type('developers#developer')).to eq(DevelopersIndex::Developer) }
     specify { expect(described_class.derive_type('namespace/autocomplete#developer')).to eq(Namespace::AutocompleteIndex::Developer) }
-    specify { expect(described_class.derive_type('namespace/autocomplete#company')).to eq(Namespace::AutocompleteIndex::Company) }
   end
 
   describe '.derive_types' do
@@ -42,7 +39,6 @@ describe Chewy do
 
       stub_index('namespace/autocomplete') do
         define_type :developer
-        define_type :company
       end
     end
 
@@ -58,7 +54,6 @@ describe Chewy do
     specify { expect(described_class.derive_types('developers#developer')).to eq([DevelopersIndex::Developer]) }
     specify { expect(described_class.derive_types('namespace/autocomplete')).to match_array(Namespace::AutocompleteIndex.types) }
     specify { expect(described_class.derive_types('namespace/autocomplete#developer')).to eq([Namespace::AutocompleteIndex::Developer]) }
-    specify { expect(described_class.derive_types('namespace/autocomplete#company')).to eq([Namespace::AutocompleteIndex::Company]) }
   end
 
   describe '.create_type' do
@@ -130,7 +125,6 @@ describe Chewy do
       stub_index(:admins).create!
       allow(Chewy).to receive_messages(configuration: Chewy.configuration.merge(prefix: 'prefix2'))
       stub_index(:developers).create!
-      stub_index(:companies).create!
 
       Chewy.massacre
 
@@ -139,7 +133,6 @@ describe Chewy do
 
     specify { expect(AdminsIndex.exists?).to eq(true) }
     specify { expect(DevelopersIndex.exists?).to eq(false) }
-    specify { expect(CompaniesIndex.exists?).to eq(false) }
   end
 
   describe '.client' do

@@ -12,8 +12,11 @@ describe Chewy::Index do
       stub_model(:city)
       stub_model(:country)
 
-      stub_index(:places) do
+      stub_index(:cities) do
         define_type City
+      end
+
+      stub_index(:countries) do
         define_type Country
       end
     end
@@ -22,23 +25,23 @@ describe Chewy::Index do
     let!(:countries) { Array.new(2) { |i| Country.create! id: i + 1 } }
 
     specify do
-      expect { PlacesIndex.import }.to update_index(PlacesIndex::City).and_reindex(cities)
-      expect { PlacesIndex.import }.to update_index(PlacesIndex::Country).and_reindex(countries)
+      expect { CitiesIndex.import }.to update_index(CitiesIndex).and_reindex(cities)
+      expect { CountriesIndex.import }.to update_index(CountriesIndex).and_reindex(countries)
     end
 
     specify do
-      expect { PlacesIndex.import city: cities.first }.to update_index(PlacesIndex::City).and_reindex(cities.first).only
-      expect { PlacesIndex.import city: cities.first }.to update_index(PlacesIndex::Country).and_reindex(countries)
+      expect { CitiesIndex.import city: cities.first }.to update_index(CitiesIndex).and_reindex(cities.first).only
+      expect { CountriesIndex.import city: cities.first }.to update_index(CountriesIndex).and_reindex(countries)
     end
 
     specify do
-      expect { PlacesIndex.import city: cities.first, country: countries.last }.to update_index(PlacesIndex::City).and_reindex(cities.first).only
-      expect { PlacesIndex.import city: cities.first, country: countries.last }.to update_index(PlacesIndex::Country).and_reindex(countries.last).only
+      expect { CitiesIndex.import city: cities.first, country: countries.last }.to update_index(CitiesIndex).and_reindex(cities.first).only
+      expect { CountriesIndex.import city: cities.first, country: countries.last }.to update_index(CountriesIndex).and_reindex(countries.last).only
     end
 
     specify do
-      expect(PlacesIndex.client).to receive(:bulk).with(hash_including(refresh: false)).twice
-      PlacesIndex.import city: cities.first, refresh: false
+      expect(CitiesIndex.client).to receive(:bulk).with(hash_including(refresh: false)).once
+      CitiesIndex.import city: cities.first, refresh: false
     end
   end
 
@@ -101,42 +104,26 @@ describe Chewy::Index do
 
     context do
       before { stub_class('City') }
-      before { stub_class('City::District', City) }
-
-      specify do
-        expect do
-          Kernel.eval <<-DUMMY_CITY_INDEX
-            class DummyCityIndex < Chewy::Index
-              define_type City
-              define_type City::District
-            end
-          DUMMY_CITY_INDEX
-        end.not_to raise_error
-      end
+      before { stub_class('Country') }
 
       specify do
         expect do
           Kernel.eval <<-DUMMY_CITY_INDEX
             class DummyCityIndex2 < Chewy::Index
               define_type City
+              define_type Country
+            end
+          DUMMY_CITY_INDEX
+        end.to raise_error(/Multiple types are deprecated/)
+
+        expect do
+          Kernel.eval <<-DUMMY_CITY_INDEX
+            class DummyCityIndex2 < Chewy::Index
               define_type City::Nothing
             end
           DUMMY_CITY_INDEX
         end.to raise_error(NameError)
       end
-    end
-
-    context 'type methods should be deprecated and can\'t redefine existing ones' do
-      before do
-        stub_index(:places) do
-          def self.city; end
-          define_type :city
-          define_type :country
-        end
-      end
-
-      specify { expect(PlacesIndex.city).to be_nil }
-      specify { expect(PlacesIndex::Country).to be < Chewy::Type }
     end
   end
 
@@ -247,16 +234,6 @@ describe Chewy::Index do
                  field :date, type: 'date'
                end
              end.mappings_hash).to eq(mappings: {document: {properties: {date: {type: 'date'}}}})
-    end
-    specify do
-      expect(stub_index(:documents) do
-               define_type :document do
-                 field :name
-               end
-               define_type :document2 do
-                 field :name
-               end
-             end.mappings_hash[:mappings].keys).to match_array(%i[document document2])
     end
   end
 

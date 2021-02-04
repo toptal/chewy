@@ -142,6 +142,8 @@ module Chewy
         %i[import import!].each do |method|
           class_eval <<-METHOD, __FILE__, __LINE__ + 1
             def #{method}(*args)
+              return if args.first.blank? && !args.first.nil?
+
               options = args.extract_options!
               if args.one? && type_names.one?
                 objects = {type_names.first.to_sym => args.first}

@@ -3,18 +3,6 @@ module Chewy
     include Singleton
 
     attr_accessor :settings, :logger,
-      # Default query compilation mode. `:must` by default.
-      # See Chewy::Query#query_mode for details
-      #
-      :query_mode,
-      # Default filters compilation mode. `:and` by default.
-      # See Chewy::Query#filter_mode for details
-      #
-      :filter_mode,
-      # Default post_filters compilation mode. `nil` by default.
-      # See Chewy::Query#post_filter_mode for details
-      #
-      :post_filter_mode,
       # The first strategy in stack. `:base` by default.
       # If you need to return to the previous chewy behavior -
       # just set it to `:bypass`
@@ -59,8 +47,6 @@ module Chewy
 
     def initialize
       @settings = {}
-      @query_mode = :must
-      @filter_mode = :and
       @root_strategy = :base
       @request_strategy = :atomic
       @use_after_commit_callbacks = true
@@ -70,7 +56,7 @@ module Chewy
       @indices_path = 'app/chewy'
       @default_root_options = {}
       @default_field_type = 'text'.freeze
-      self.search_class = Chewy::Search::Request
+      @search_class = build_search_class(Chewy::Search::Request)
     end
 
     def transport_logger=(logger)
@@ -81,10 +67,6 @@ module Chewy
     def transport_tracer=(tracer)
       Chewy.client.transport.tracer = tracer
       @transport_tracer = tracer
-    end
-
-    def search_class=(base)
-      @search_class = build_search_class(base)
     end
 
     # Chewy core configurations. There is two ways to set it up:

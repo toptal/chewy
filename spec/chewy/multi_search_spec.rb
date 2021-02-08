@@ -10,8 +10,8 @@ describe Chewy::MultiSearch do
 
     stub_index(:places) do
       define_type City do
-        field :name, KEYWORD_FIELD
-        field :country_id, KEYWORD_FIELD
+        field :name, type: 'keyword'
+        field :country_id, type: 'keyword'
 
         def self.aggregate_by_country
           aggs(country: {terms: {field: :country_id}})

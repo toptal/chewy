@@ -9,7 +9,7 @@ module Chewy
     attr_reader :queries
 
     # Instantiate a new MultiSearch instance.
-    # 
+    #
     # @param queries [Array<Chewy::Search::Request>]
     # @option [Elasticsearch::Transport::Client] :client (Chewy.client)
     #   The Elasticsearch client that should be used for issuing requests.
@@ -19,14 +19,14 @@ module Chewy
     end
 
     # Adds a query to be performed by the MultiSearch
-    # 
+    #
     # @param query [Chewy::Search::Request]
     def add_query(query)
       @queries << query
     end
 
     # Performs any unperformed queries and returns the responses for all queries.
-    # 
+    #
     # @return [Array<Chewy::Search::Response>]
     def responses
       perform
@@ -38,19 +38,19 @@ module Chewy
       unperformed_queries = queries.reject(&:performed?)
       return if unperformed_queries.empty?
 
-      responses = msearch(unperformed_queries)["responses"]
-      unperformed_queries.zip(responses).map {|query, response| query.response = response }
+      responses = msearch(unperformed_queries)['responses']
+      unperformed_queries.zip(responses).map { |query, response| query.response = response }
     end
 
-    private
+  private
 
     attr_reader :client
 
     def msearch(queries_to_search)
-      body = queries_to_search.flat_map {|query|
+      body = queries_to_search.flat_map do |query|
         rendered = query.render
         [rendered.except(:body), rendered[:body]]
-      }
+      end
 
       client.msearch(body: body)
     end

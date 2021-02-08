@@ -14,7 +14,7 @@ describe Chewy::MultiSearch do
         field :country_id, KEYWORD_FIELD
 
         def self.aggregate_by_country
-          aggs(country: { terms: { field: :country_id } })
+          aggs(country: {terms: {field: :country_id}})
         end
       end
     end
@@ -32,9 +32,9 @@ describe Chewy::MultiSearch do
   describe '#add_query' do
     specify 'adds a query to the multi search' do
       multi_search = described_class.new([])
-      expect {
+      expect do
         multi_search.add_query(places_query)
-      }.to change {
+      end.to change {
         multi_search.queries
       }.from([]).to([places_query])
     end
@@ -50,13 +50,13 @@ describe Chewy::MultiSearch do
 
     describe '#perform' do
       specify 'performs each query' do
-        expect { multi_search.perform }.
-          to change(aggregates, :performed?).from(false).to(true).
-          and change(results, :performed?).from(false).to(true)
+        expect { multi_search.perform }
+          .to change(aggregates, :performed?).from(false).to(true)
+          .and change(results, :performed?).from(false).to(true)
       end
 
       specify 'issues a single request using the msearch endpoint', :aggregate_failures do
-        expect(Chewy.client).to receive(:msearch).once.and_return({'responses' => []})
+        expect(Chewy.client).to receive(:msearch).once.and_return('responses' => [])
         expect(Chewy.client).to_not receive(:search)
         multi_search.perform
       end

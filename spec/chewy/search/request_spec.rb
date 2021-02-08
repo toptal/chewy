@@ -683,17 +683,17 @@ describe Chewy::Search::Request do
       end
 
       it 'is true after the search request was issued' do
-        expect {
+        expect do
           # The `response` method has a side effect of performing unperformed
           # queries.
           query.response
-        }.to change(query, :performed?).from(false).to(true)
+        end.to change(query, :performed?).from(false).to(true)
       end
 
       it 'is true after assigning a raw response' do
-        expect {
+        expect do
           query.response = raw_response
-        }.to change(query, :performed?).from(false).to(true)
+        end.to change(query, :performed?).from(false).to(true)
       end
     end
   end

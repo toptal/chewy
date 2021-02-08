@@ -117,7 +117,7 @@ module Chewy
 
       # Wraps and sets the raw Elasticsearch response to provide access
       # to convenience methods.
-      # 
+      #
       # @see Chewy::Search::Response
       # @param from_elasticsearch [Hash] An Elasticsearch response
       def response=(from_elasticsearch)
@@ -953,7 +953,7 @@ module Chewy
       end
 
       # Returns whether or not the query has been performed.
-      # 
+      #
       # @return [true, false]
       def performed?
         !@response.nil?

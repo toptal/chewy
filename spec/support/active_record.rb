@@ -29,6 +29,26 @@ module ActiveRecordClassHelpers
     :active_record
   end
 
+  def expects_db_queries(&block)
+    have_queries = false
+    ActiveSupport::Notifications.subscribed(
+      ->(*_) { have_queries = true },
+      'sql.active_record',
+      &block
+    )
+    raise 'Expected some db queries, but none were made' unless have_queries
+  end
+
+  def expects_no_query(&block)
+    queries = []
+    ActiveSupport::Notifications.subscribed(
+      ->(*args) { queries << args[4][:sql] },
+      'sql.active_record',
+      &block
+    )
+    raise "Expected no DB queries, but the following ones were made: #{queries.join(', ')}" if queries.present?
+  end
+
   def stub_model(name, superclass = nil, &block)
     stub_class(name, superclass || ActiveRecord::Base, &block)
   end

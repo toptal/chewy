@@ -8,6 +8,7 @@
 
 ## Changes
 
+  * [#753](https://github.com/toptal/chewy/pull/753): Add support for direct_import parameter to skip objects reloading ([@TikiTDO][][@dalthon][])
   * [#739](https://github.com/toptal/chewy/pull/739): Remove explicit `main` branch dependencies on rspec* gems after `rspec-mocks` 3.10.2 is released ([@rabotyaga][])
 
 # Version 5.2.0 (2021-01-28)
@@ -572,6 +573,7 @@
 [@sharkzp]: https://github.com/@sharkzp
 [@socialchorus]: https://github.com/socialchorus
 [@taylor-au]: https://github.com/taylor-au
+[@TikiTDO]: https://github.com/TikiTDO
 [@undr]: https://github.com/@undr
 [@webgago]: https://github.com/@webgago
 [@yahooguntu]: https://github.com/yahooguntu

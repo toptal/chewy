@@ -45,6 +45,7 @@ module Chewy
         # Import options:
         #
         #   <tt>:batch_size</tt> - import batch size, 1000 objects by default
+        #   <tt>:direct_import</tt> - import objects without reloading
         #
         # Method handles destroyed objects as well. In case of objects ORM scope
         # or array passed, objects, responding with true to `destroyed?` method will be deleted
@@ -75,10 +76,10 @@ module Chewy
         def import(*args, &block)
           collection, options = import_args(*args)
 
-          if collection.is_a?(relation_class)
-            import_scope(collection, options, &block)
-          else
+          if !collection.is_a?(relation_class) || options[:direct_import]
             import_objects(collection, options, &block)
+          else
+            import_scope(collection, options, &block)
           end
         end
 
@@ -119,6 +120,8 @@ module Chewy
           indexed = collection_ids.each_slice(options[:batch_size]).map do |ids|
             batch = if options[:raw_import]
               raw_default_scope_where_ids_in(ids, options[:raw_import])
+            elsif options[:direct_import]
+              hash.values_at(*ids.map(&:to_s))
             else
               default_scope_where_ids_in(ids)
             end

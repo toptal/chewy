@@ -86,7 +86,19 @@ describe Chewy::Type::Adapter::ActiveRecord, :active_record do
           .to eq([{index: cities.first(2)}, {index: cities.last(1)}])
       end
 
-      specify { expect(import(cities)).to eq([{index: cities}]) }
+      specify do
+        cities
+        expects_db_queries do
+          expect(import(cities, direct_import: false)).to eq([{index: cities}])
+        end
+      end
+      specify do
+        cities
+        expects_no_query do
+          expect(import(cities, direct_import: true)).to eq([{index: cities}])
+        end
+      end
+
       specify do
         expect(import(cities, batch_size: 2))
           .to eq([{index: cities.first(2)}, {index: cities.last(1)}])

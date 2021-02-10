@@ -2,7 +2,7 @@ module Chewy
   class Type
     # This class is able to find missing and outdated documents in the ES
     # comparing ids from the data source and the ES index. Also, if `outdated_sync_field`
-    # existss in the index definition, it performs comparison of this field
+    # exists in the index definition, it performs comparison of this field
     # values for each source object and corresponding ES document. Usually,
     # this field is `updated_at` and if its value in the source is not equal
     # to the value in the index - this means that this document outdated and
@@ -205,10 +205,9 @@ module Chewy
         return @outdated_sync_field_type if instance_variable_defined?(:@outdated_sync_field_type)
         return unless @type.outdated_sync_field
 
-        mappings = @type.client.indices.get_mapping(
-          index: @type.index_name,
-          type: @type.type_name
-        ).values.first.fetch('mappings', {})
+        args = {index: @type.index_name, type: @type.type_name}
+        args[:include_type_name] = true if Runtime.version >= '6.7.0'
+        mappings = @type.client.indices.get_mapping(**args).values.first.fetch('mappings', {})
 
         @outdated_sync_field_type = mappings
           .fetch(@type.type_name, {})

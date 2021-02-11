@@ -4,7 +4,6 @@ describe Chewy::Search::Parameters::Indices do
   before do
     stub_index(:first) do
       define_type :one
-      define_type :two
     end
 
     stub_index(:second) do
@@ -70,7 +69,7 @@ describe Chewy::Search::Parameters::Indices do
     specify do
       expect(described_class.new(
         indices: FirstIndex
-      ).render).to eq(index: %w[first], type: %w[one two])
+      ).render).to eq(index: %w[first], type: %w[one])
     end
     specify do
       expect(described_class.new(
@@ -90,7 +89,7 @@ describe Chewy::Search::Parameters::Indices do
     specify do
       expect(described_class.new(
         indices: FirstIndex, types: SecondIndex::Three
-      ).render).to eq(index: %w[first second], type: %w[one three two])
+      ).render).to eq(index: %w[first second], type: %w[one three])
     end
     specify do
       expect(described_class.new(
@@ -100,7 +99,7 @@ describe Chewy::Search::Parameters::Indices do
     specify do
       expect(described_class.new(
         indices: FirstIndex, types: :whatever
-      ).render).to eq(index: %w[first], type: %w[one two])
+      ).render).to eq(index: %w[first], type: %w[one])
     end
     specify do
       expect(described_class.new(
@@ -130,7 +129,7 @@ describe Chewy::Search::Parameters::Indices do
     specify do
       expect(described_class.new(
         indices: FirstIndex, types: [SecondIndex::Three, :whatever]
-      ).render).to eq(index: %w[first second], type: %w[one three two])
+      ).render).to eq(index: %w[first second], type: %w[one three])
     end
     specify do
       expect(described_class.new(
@@ -151,7 +150,7 @@ describe Chewy::Search::Parameters::Indices do
         .to eq(described_class.new(indices: SecondIndex, types: :whatever))
     end
     specify do
-      expect(described_class.new(indices: :first, types: %w[one two]))
+      expect(described_class.new(indices: :first, types: %w[one]))
         .to eq(described_class.new(indices: FirstIndex))
     end
     specify do
@@ -175,7 +174,7 @@ describe Chewy::Search::Parameters::Indices do
         indices: [FirstIndex, :whatever],
         types: [SecondIndex::Three, :whatever]
       ).types).to contain_exactly(
-        FirstIndex::One, FirstIndex::Two, SecondIndex::Three
+        FirstIndex::One, SecondIndex::Three
       )
     end
 

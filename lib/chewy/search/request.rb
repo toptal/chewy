@@ -1,7 +1,7 @@
 module Chewy
   module Search
     # The main request DSL class. Supports multiple index requests.
-    # Supports ES2 and ES5 search API and query DSL.
+    # Supports ES5 search API and query DSL.
     #
     # @note The class tries to be as immutable as possible,
     #   so most of the methods return a new instance of the class.
@@ -112,7 +112,16 @@ module Chewy
       # @see Chewy::Search::Response
       # @return [Chewy::Search::Response] a response object instance
       def response
-        @response ||= Response.new(perform, loader, collection_paginator)
+        @response ||= build_response(perform)
+      end
+
+      # Wraps and sets the raw Elasticsearch response to provide access
+      # to convenience methods.
+      #
+      # @see Chewy::Search::Response
+      # @param from_elasticsearch [Hash] An Elasticsearch response
+      def response=(from_elasticsearch)
+        @response = build_response(from_elasticsearch)
       end
 
       # ES request body
@@ -928,11 +937,9 @@ module Chewy
       end
 
       # Deletes all the documents from the specified scope it uses
-      # `delete_by_query` API. For ES < 5.0 it uses `delete_by_query`
-      # plugin, which requires additional installation effort.
+      # `delete_by_query`
       #
       # @see https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-delete-by-query.html
-      # @see https://www.elastic.co/guide/en/elasticsearch/plugins/2.0/plugins-delete-by-query.html
       # @note The result hash is different for different API used.
       # @param refresh [true, false] field names
       # @return [Hash] the result of query execution
@@ -940,13 +947,16 @@ module Chewy
         request_body = only(WHERE_STORAGES).render.merge(refresh: refresh)
         ActiveSupport::Notifications.instrument 'delete_query.chewy',
           notification_payload(request: request_body) do
-            if Runtime.version < '5.0'
-              delete_by_query_plugin(request_body)
-            else
-              request_body[:body] = {query: {match_all: {}}} if request_body[:body].empty?
-              Chewy.client.delete_by_query(request_body)
-            end
+            request_body[:body] = {query: {match_all: {}}} if request_body[:body].empty?
+            Chewy.client.delete_by_query(request_body)
           end
+      end
+
+      # Returns whether or not the query has been performed.
+      #
+      # @return [true, false]
+      def performed?
+        !@response.nil?
       end
 
     protected
@@ -957,6 +967,10 @@ module Chewy
       end
 
     private
+
+      def build_response(raw_response)
+        Response.new(raw_response, loader, collection_paginator)
+      end
 
       def compare_internals(other)
         parameters == other.parameters
@@ -1010,15 +1024,6 @@ module Chewy
         parameters[:offset].value
       end
 
-      def delete_by_query_plugin(request)
-        path = Elasticsearch::API::Utils.__pathify(
-          Elasticsearch::API::Utils.__listify(request[:index]),
-          Elasticsearch::API::Utils.__listify(request[:type]),
-          '_query'
-        )
-        Chewy.client.perform_request(Elasticsearch::API::HTTP_DELETE, path, {}, request[:body]).body
-      end
-
       def loader
         @loader ||= Loader.new(
           indexes: parameters[:indices].indices,
@@ -1032,10 +1037,6 @@ module Chewy
         else
           hit.fetch('_source', {})[field]
         end
-      end
-
-      def performed?
-        !@response.nil?
       end
 
       def collection_paginator

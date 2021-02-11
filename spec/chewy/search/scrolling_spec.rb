@@ -7,12 +7,13 @@ describe Chewy::Search::Scrolling, :orm do
     stub_model(:city)
     stub_model(:country)
 
-    stub_index(:places) do
+    stub_index(:cities) do
       define_type City do
         field :name
         field :rating, type: 'integer'
       end
-
+    end
+    stub_index(:countries) do
       define_type Country do
         field :name
         field :rating, type: 'integer'
@@ -20,12 +21,15 @@ describe Chewy::Search::Scrolling, :orm do
     end
   end
 
-  let(:request) { Chewy::Search::Request.new(PlacesIndex).order(:rating) }
+  let(:request) { Chewy::Search::Request.new(CitiesIndex, CountriesIndex).order(:rating) }
 
   specify { expect(request.scroll_batches.to_a).to eq([]) }
 
   context do
-    before { PlacesIndex.import!(cities: cities, countries: countries) }
+    before do
+      CitiesIndex.import!(cities)
+      CountriesIndex.import!(countries: countries)
+    end
 
     let(:cities) { Array.new(2) { |i| City.create!(rating: i, name: "city #{i}") } }
     let(:countries) { Array.new(3) { |i| Country.create!(rating: i + 2, name: "country #{i}") } }
@@ -61,9 +65,9 @@ describe Chewy::Search::Scrolling, :orm do
       context do
         before { expect(Chewy.client).not_to receive(:scroll) }
         it 'respects limit and terminate_after' do
-          expect(request.terminate_after(2).limit(4).scroll_batches(batch_size: 3).map do |batch|
+          expect(request.terminate_after(1).limit(4).scroll_batches(batch_size: 3).map do |batch|
             batch.map { |hit| hit['_source']['rating'] }
-          end).to eq([[0, 1]])
+          end).to eq([[0, 2]])
         end
       end
 
@@ -118,18 +122,18 @@ describe Chewy::Search::Scrolling, :orm do
 
           expect(outer_payload).to match_array([
             hash_including(
-              index: PlacesIndex,
-              indexes: [PlacesIndex],
-              request: {index: ['places'], type: %w[city country], body: {sort: ['rating']}, size: 3, scroll: '1m'},
-              type: [PlacesIndex::City, PlacesIndex::Country],
-              types: [PlacesIndex::City, PlacesIndex::Country]
+              index: [CitiesIndex, CountriesIndex],
+              indexes: [CitiesIndex, CountriesIndex],
+              request: {index: %w[cities countries], type: %w[city country], body: {sort: ['rating']}, size: 3, scroll: '1m'},
+              type: [CitiesIndex::City, CountriesIndex::Country],
+              types: [CitiesIndex::City, CountriesIndex::Country]
             ),
             hash_including(
-              index: PlacesIndex,
-              indexes: [PlacesIndex],
+              index: [CitiesIndex, CountriesIndex],
+              indexes: [CitiesIndex, CountriesIndex],
               request: {scroll: '1m', scroll_id: an_instance_of(String)},
-              type: [PlacesIndex::City, PlacesIndex::Country],
-              types: [PlacesIndex::City, PlacesIndex::Country]
+              type: [CitiesIndex::City, CountriesIndex::Country],
+              types: [CitiesIndex::City, CountriesIndex::Country]
             )
           ])
         end
@@ -154,7 +158,7 @@ describe Chewy::Search::Scrolling, :orm do
       end
       specify do
         expect(request.scroll_wrappers(batch_size: 2).map(&:class).uniq)
-          .to eq([PlacesIndex::City, PlacesIndex::Country])
+          .to eq([CitiesIndex::City, CountriesIndex::Country])
       end
     end
 

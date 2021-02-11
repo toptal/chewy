@@ -7,12 +7,13 @@ describe Chewy::Search::Response, :orm do
     stub_model(:city)
     stub_model(:country)
 
-    stub_index(:places) do
+    stub_index(:cities) do
       define_type City do
         field :name
         field :rating, type: 'integer'
       end
-
+    end
+    stub_index(:countries) do
       define_type Country do
         field :name
         field :rating, type: 'integer'
@@ -20,15 +21,18 @@ describe Chewy::Search::Response, :orm do
     end
   end
 
-  before { PlacesIndex.import!(cities: cities, countries: countries) }
+  before do
+    CitiesIndex.import!(cities: cities)
+    CountriesIndex.import!(countries)
+  end
 
   let(:cities) { Array.new(2) { |i| City.create!(rating: i, name: "city #{i}") } }
   let(:countries) { Array.new(2) { |i| Country.create!(rating: i + 2, name: "country #{i}") } }
 
-  let(:request) { Chewy::Search::Request.new(PlacesIndex).order(:rating) }
+  let(:request) { Chewy::Search::Request.new(CitiesIndex, CountriesIndex).order(:rating) }
   let(:raw_response) { request.send(:perform) }
   let(:load_options) { {} }
-  let(:loader) { Chewy::Search::Loader.new(indexes: [PlacesIndex], **load_options) }
+  let(:loader) { Chewy::Search::Loader.new(indexes: [CitiesIndex, CountriesIndex], **load_options) }
   subject { described_class.new(raw_response, loader) }
 
   describe '#hits' do
@@ -59,7 +63,7 @@ describe Chewy::Search::Response, :orm do
     specify { expect(subject.max_score).to be_nil }
 
     context do
-      let(:request) { Chewy::Search::Request.new(PlacesIndex).query(range: {rating: {lte: 42}}) }
+      let(:request) { Chewy::Search::Request.new(CitiesIndex).query(range: {rating: {lte: 42}}) }
       specify { expect(subject.max_score).to eq(1.0) }
     end
   end
@@ -69,7 +73,7 @@ describe Chewy::Search::Response, :orm do
 
     context do
       let(:request) do
-        Chewy::Search::Request.new(PlacesIndex)
+        Chewy::Search::Request.new(CitiesIndex)
           .query(script: {script: {inline: 'sleep(100); true', lang: 'groovy'}})
       end
       specify do
@@ -84,7 +88,7 @@ describe Chewy::Search::Response, :orm do
 
     context do
       let(:request) do
-        Chewy::Search::Request.new(PlacesIndex)
+        Chewy::Search::Request.new(CitiesIndex)
           .query(script: {script: {inline: 'sleep(100); true', lang: 'groovy'}}).timeout('10ms')
       end
       specify do
@@ -99,7 +103,7 @@ describe Chewy::Search::Response, :orm do
 
     context do
       let(:request) do
-        Chewy::Search::Request.new(PlacesIndex).suggest(
+        Chewy::Search::Request.new(CitiesIndex).suggest(
           my_suggestion: {
             text: 'city country',
             term: {
@@ -123,7 +127,7 @@ describe Chewy::Search::Response, :orm do
     specify { expect(subject.aggs).to eq({}) }
 
     context do
-      let(:request) { Chewy::Search::Request.new(PlacesIndex).aggs(avg_rating: {avg: {field: :rating}}) }
+      let(:request) { Chewy::Search::Request.new(CitiesIndex, CountriesIndex).aggs(avg_rating: {avg: {field: :rating}}) }
       specify { expect(subject.aggs).to eq('avg_rating' => {'value' => 1.5}) }
     end
   end
@@ -133,7 +137,7 @@ describe Chewy::Search::Response, :orm do
     specify { expect(subject.wrappers).to have(4).items }
     specify do
       expect(subject.wrappers.map(&:class).uniq)
-        .to contain_exactly(PlacesIndex::City, PlacesIndex::Country)
+        .to contain_exactly(CitiesIndex::City, CountriesIndex::Country)
     end
     specify { expect(subject.wrappers.map(&:_data)).to eq(subject.hits) }
 
@@ -155,14 +159,14 @@ describe Chewy::Search::Response, :orm do
     context do
       let(:raw_response) do
         {'hits' => {'hits' => [
-          {'_index' => 'places',
+          {'_index' => 'cities',
            '_type' => 'city',
            '_id' => '1',
            '_score' => 1.3,
            '_source' => {'id' => 2, 'rating' => 0}}
         ]}}
       end
-      specify { expect(subject.wrappers.first).to be_a(PlacesIndex::City) }
+      specify { expect(subject.wrappers.first).to be_a(CitiesIndex::City) }
       specify { expect(subject.wrappers.first.id).to eq(2) }
       specify { expect(subject.wrappers.first.rating).to eq(0) }
       specify { expect(subject.wrappers.first._score).to eq(1.3) }
@@ -172,14 +176,14 @@ describe Chewy::Search::Response, :orm do
     context do
       let(:raw_response) do
         {'hits' => {'hits' => [
-          {'_index' => 'places',
+          {'_index' => 'countries',
            '_type' => 'country',
            '_id' => '2',
            '_score' => 1.2,
            '_explanation' => {foo: 'bar'}}
         ]}}
       end
-      specify { expect(subject.wrappers.first).to be_a(PlacesIndex::Country) }
+      specify { expect(subject.wrappers.first).to be_a(CountriesIndex::Country) }
       specify { expect(subject.wrappers.first.id).to eq('2') }
       specify { expect(subject.wrappers.first.rating).to be_nil }
       specify { expect(subject.wrappers.first._score).to eq(1.2) }

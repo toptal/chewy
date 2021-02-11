@@ -1,14 +1,21 @@
 # master
 
+# Version 6.0.0 (2021-02-11)
+
+## Breaking changes
+
+  * [#743](https://github.com/toptal/chewy/pull/743): Elasticsearch 6.x support added. See [migration guide](migration_guide.md) & ES [breaking changes](https://www.elastic.co/guide/en/elasticsearch/reference/6.8/breaking-changes-6.0.html). Removed legacy DSL support. Removed support for ES < 5 ([@mrzasa][], [@konalegi][], [@rabotyaga][])
+
 ## Bug fixes
 
-  * [#755](https://github.com/toptal/chewy/pull/755): attribute_highlights returns an array of highlights ([@musaffa][], [@dalthon][])
   * [#695](https://github.com/toptal/chewy/pull/695): Clear the scroll by id after completing scroll_batches ([@socialchorus][])
   * [#749](https://github.com/toptal/chewy/pull/749): Avoid importing everything when given an empty relation ([@JF-Lalonde][], [@dalthon][])
   * [#736](https://github.com/toptal/chewy/pull/736): Fix nil children when using witchcraft ([@taylor-au][])
 
 ## Changes
 
+  * [#751](https://github.com/toptal/chewy/pull/751): Add [Multi Search API](https://www.elastic.co/guide/en/elasticsearch/reference/6.8/search-multi-search.html) support ([@mpeychich][], [@dalthon][])
+  * [#755](https://github.com/toptal/chewy/pull/755): `attribute_highlights` returns an array of highlights ([@musaffa][], [@dalthon][])
   * [#753](https://github.com/toptal/chewy/pull/753): Add support for direct_import parameter to skip objects reloading ([@TikiTDO][], [@dalthon][])
   * [#739](https://github.com/toptal/chewy/pull/739): Remove explicit `main` branch dependencies on rspec* gems after `rspec-mocks` 3.10.2 is released ([@rabotyaga][])
 
@@ -500,62 +507,62 @@
 [@0x0badc0de]: https://github.com/0x0badc0de
 [@aglushkov]: https://github.com/aglushkov
 [@AlexVPopov]: https://github.com/AlexVPopov
-[@AndreySavelyev]: https://github.com/@AndreySavelyev
-[@arion]: https://github.com/@arion
-[@arturtr]: https://github.com/@arturtr
-[@averell23]: https://github.com/@averell23
+[@AndreySavelyev]: https://github.com/AndreySavelyev
+[@arion]: https://github.com/arion
+[@arturtr]: https://github.com/arturtr
 [@averell23]: https://github.com/averell23
-[@baronworks]: https://github.com/@baronworks
+[@baronworks]: https://github.com/baronworks
 [@barthez]: https://github.com/barthez
 [@bbatsov]: https://github.com/bbatsov
 [@bhacaz]: https://github.com/bhacaz
-[@biow0lf]: https://github.com/@biow0lf
+[@biow0lf]: https://github.com/biow0lf
 [@Borzik]: https://github.com/Borzik
-[@caldwecr]: https://github.com/@caldwecr
-[@clupprich]: https://github.com/@clupprich
+[@caldwecr]: https://github.com/caldwecr
+[@clupprich]: https://github.com/clupprich
 [@dalthon]: https://github.com/dalthon
-[@davekaro]: https://github.com/@davekaro
+[@davekaro]: https://github.com/davekaro
 [@dck]: https://github.com/dck
 [@dm1try]: https://github.com/dm1try
 [@dmitry]: https://github.com/dmitry
 [@dnd]: https://github.com/dnd
-[@DNNX]: https://github.com/@DNNX
 [@DNNX]: https://github.com/DNNX
 [@eManPrague]: https://github.com/eManPrague
 [@eproulx-petalmd]: https://github.com/eproulx-petalmd
-[@fabiotomio]: https://github.com/@fabiotomio
-[@feymartynov]: https://github.com/@feymartynov
+[@fabiotomio]: https://github.com/fabiotomio
+[@feymartynov]: https://github.com/feymartynov
 [@gseddon]: https://github.com/gseddon
 [@guigs]: https://github.com/guigs
 [@heartfulbird]: https://github.com/heartfulbird
-[@henrebotha]: https://github.com/@henrebotha
-[@inbeom]: https://github.com/@inbeom
-[@jesjos]: https://github.com/@jesjos
+[@henrebotha]: https://github.com/henrebotha
+[@inbeom]: https://github.com/inbeom
+[@jesjos]: https://github.com/jesjos
 [@JF-Lalonde]: https://github.com/JF-Lalonde
-[@jimmybaker]: https://github.com/@jimmybaker
-[@jirikolarik]: https://github.com/@jirikolarik
-[@jirutka]: https://github.com/@jirutka
-[@joeljunstrom]: https://github.com/@joeljunstrom
-[@jondavidford]: https://github.com/@jondavidford
-[@joonty]: https://github.com/@joonty
-[@josecoelho]: https://github.com/@josecoelho
+[@jimmybaker]: https://github.com/jimmybaker
+[@jirikolarik]: https://github.com/jirikolarik
+[@jirutka]: https://github.com/jirutka
+[@joeljunstrom]: https://github.com/joeljunstrom
+[@jondavidford]: https://github.com/jondavidford
+[@joonty]: https://github.com/joonty
+[@josecoelho]: https://github.com/josecoelho
 [@josephchoe]: https://github.com/josephchoe
-[@jshirley]: https://github.com/@jshirley
-[@ka8725]: https://github.com/@ka8725
-[@lardawge]: https://github.com/@lardawge
-[@leemhenson]: https://github.com/@leemhenson
-[@Linuus]: https://github.com/@Linuus
+[@jshirley]: https://github.com/jshirley
+[@ka8725]: https://github.com/ka8725
+[@konalegi]: https://github.com/konalegi
+[@lardawge]: https://github.com/lardawge
+[@leemhenson]: https://github.com/leemhenson
+[@Linuus]: https://github.com/Linuus
 [@lowang]: https://github.com/lowang
-[@mainameiz]: https://github.com/@mainameiz
-[@MarkMurphy]: https://github.com/@MarkMurphy
-[@marshall]: https://github.com/@marshall
+[@mainameiz]: https://github.com/mainameiz
+[@MarkMurphy]: https://github.com/MarkMurphy
+[@marshall]: https://github.com/marshall
 [@matchbookmac]: https://github.com/matchbookmac
-[@matthee]: https://github.com/@matthee
+[@matthee]: https://github.com/matthee
 [@mattzollinhofer]: https://github.com/mattzollinhofer
 [@menglewis]: https://github.com/menglewis
 [@mikeyhogarth]: https://github.com/mikeyhogarth
-[@mkcode]: https://github.com/@mkcode
-[@mrbrdo]: https://github.com/@mrbrdo
+[@mkcode]: https://github.com/mkcode
+[@mpeychich]: https://github.com/mpeychich
+[@mrbrdo]: https://github.com/mrbrdo
 [@mrzasa]: https://github.com/mrzasa
 [@musaffa]: https://github.com/musaffa
 [@nattfodd]: https://github.com/nattfodd
@@ -564,18 +571,18 @@
 [@parallel588]: https://github.com/parallel588
 [@pyromaniac]: https://github.com/pyromaniac
 [@rabotyaga]: https://github.com/rabotyaga
-[@reidab]: https://github.com/@reidab
+[@reidab]: https://github.com/reidab
 [@robacarp]: https://github.com/robacarp
 [@robertasg]: https://github.com/robertasg
-[@rschellhorn]: https://github.com/@rschellhorn
+[@rschellhorn]: https://github.com/rschellhorn
 [@sergey-kintsel]: https://github.com/sergey-kintsel
-[@sergeygaychuk]: https://github.com/@sergeygaychuk
-[@SeTeM]: https://github.com/@SeTeM
+[@sergeygaychuk]: https://github.com/sergeygaychuk
+[@SeTeM]: https://github.com/SeTeM
 [@sevab]: https://github.com/sevab
-[@sharkzp]: https://github.com/@sharkzp
+[@sharkzp]: https://github.com/sharkzp
 [@socialchorus]: https://github.com/socialchorus
 [@taylor-au]: https://github.com/taylor-au
 [@TikiTDO]: https://github.com/TikiTDO
-[@undr]: https://github.com/@undr
-[@webgago]: https://github.com/@webgago
+[@undr]: https://github.com/undr
+[@webgago]: https://github.com/webgago
 [@yahooguntu]: https://github.com/yahooguntu

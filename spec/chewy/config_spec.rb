@@ -6,9 +6,6 @@ describe Chewy::Config do
   its(:logger) { should be_nil }
   its(:transport_logger) { should be_nil }
   its(:transport_logger) { should be_nil }
-  its(:query_mode) { should == :must }
-  its(:filter_mode) { should == :and }
-  its(:post_filter_mode) { should be_nil }
   its(:root_strategy) { should == :base }
   its(:request_strategy) { should == :atomic }
   its(:use_after_commit_callbacks) { should == true }
@@ -51,24 +48,6 @@ describe Chewy::Config do
     specify do
       expect { subject.transport_tracer = tracer }
         .to change { subject.configuration[:tracer] }.from(nil).to(tracer)
-    end
-  end
-
-  describe '#search_class=' do
-    specify do
-      expect { subject.search_class = Chewy::Query }
-        .to change { subject.search_class }
-        .from(be < Chewy::Search::Request)
-        .to(be < Chewy::Query)
-    end
-
-    context do
-      before { hide_const('Kaminari') }
-
-      specify do
-        expect(subject.search_class.included_modules)
-          .to include(Chewy::Search::Pagination::WillPaginate)
-      end
     end
   end
 

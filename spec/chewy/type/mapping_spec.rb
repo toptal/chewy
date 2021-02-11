@@ -2,7 +2,7 @@ require 'spec_helper'
 
 describe Chewy::Type::Mapping do
   let(:product) { ProductsIndex::Product }
-  let(:review)  { ProductsIndex::Review }
+  let(:review)  { ReviewsIndex::Review }
 
   before do
     stub_index(:products) do
@@ -20,6 +20,8 @@ describe Chewy::Type::Mapping do
           end
         end
       end
+    end
+    stub_index(:reviews) do
       define_type :review do
         field :title, :body
         field :comments do

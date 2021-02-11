@@ -4,7 +4,7 @@ describe Chewy::Type::Import::BulkBuilder do
   before { Chewy.massacre }
 
   subject { described_class.new(type, index: index, delete: delete, fields: fields) }
-  let(:type) { PlacesIndex::City }
+  let(:type) { CitiesIndex::City }
   let(:index) { [] }
   let(:delete) { [] }
   let(:fields) { [] }
@@ -13,7 +13,7 @@ describe Chewy::Type::Import::BulkBuilder do
     context 'simple bulk', :orm do
       before do
         stub_model(:city)
-        stub_index(:places) do
+        stub_index(:cities) do
           define_type City do
             field :name, :rating
           end
@@ -67,98 +67,13 @@ describe Chewy::Type::Import::BulkBuilder do
       end
     end
 
-    context 'parent-child relationship', :orm do
-      before do
-        stub_model(:country)
-        stub_model(:city)
-        adapter == :sequel ? City.many_to_one(:country) : City.belongs_to(:country)
-      end
-
-      before do
-        stub_index(:places) do
-          define_type Country do
-            field :name
-          end
-
-          define_type City do
-            root parent: 'country', parent_id: -> { country_id } do
-              field :name
-              field :rating
-            end
-          end
-        end
-      end
-
-      before { PlacesIndex::Country.import(country) }
-      let(:country) { Country.create!(id: 1, name: 'country') }
-      let(:another_country) { Country.create!(id: 2, name: 'another country') }
-      let(:city) { City.create!(id: 4, country_id: country.id, name: 'city', rating: 42) }
-
-      context 'indexing' do
-        let(:index) { [city] }
-
-        specify do
-          expect(subject.bulk_body).to eq([
-            {index: {_id: city.id, parent: country.id, data: {'name' => 'city', 'rating' => 42}}}
-          ])
-        end
-
-        context do
-          let(:fields) { %w[name] }
-
-          specify do
-            expect(subject.bulk_body).to eq([
-              {update: {_id: city.id, parent: country.id, data: {doc: {'name' => 'city'}}}}
-            ])
-          end
-        end
-      end
-
-      context 'updating parent' do
-        before do
-          PlacesIndex::City.import(city)
-          city.update(country_id: another_country.id)
-        end
-        let(:index) { [city] }
-
-        specify do
-          expect(subject.bulk_body).to eq([
-            {delete: {_id: city.id, parent: country.id.to_s}},
-            {index: {_id: city.id, parent: another_country.id, data: {'name' => 'city', 'rating' => 42}}}
-          ])
-        end
-
-        context do
-          let(:fields) { %w[name] }
-
-          specify do
-            expect(subject.bulk_body).to eq([
-              {delete: {_id: city.id, parent: country.id.to_s}},
-              {index: {_id: city.id, parent: another_country.id, data: {'name' => 'city', 'rating' => 42}}}
-            ])
-          end
-        end
-      end
-
-      context 'destroying' do
-        before { PlacesIndex::City.import(city) }
-        let(:delete) { [city] }
-
-        specify do
-          expect(subject.bulk_body).to eq([
-            {delete: {_id: city.id, parent: country.id.to_s}}
-          ])
-        end
-      end
-    end
-
     context 'custom id', :orm do
       before do
         stub_model(:city)
       end
 
       before do
-        stub_index(:places) do
+        stub_index(:cities) do
           define_type City do
             root id: -> { name } do
               field :rating
@@ -170,8 +85,8 @@ describe Chewy::Type::Import::BulkBuilder do
       let(:london) { City.create(id: 1, name: 'London', rating: 4) }
 
       specify do
-        expect { PlacesIndex::City.import(london) }
-          .to update_index(PlacesIndex::City).and_reindex(london.name)
+        expect { CitiesIndex.import(london) }
+          .to update_index(CitiesIndex).and_reindex(london.name)
       end
 
       context 'indexing' do
@@ -197,7 +112,7 @@ describe Chewy::Type::Import::BulkBuilder do
 
     context 'crutches' do
       before do
-        stub_index(:places) do
+        stub_index(:cities) do
           define_type :city do
             crutch :names do |collection|
               collection.map { |item| [item.id, "Name#{item.id}"] }.to_h
@@ -217,7 +132,7 @@ describe Chewy::Type::Import::BulkBuilder do
       end
 
       context 'witchcraft' do
-        before { PlacesIndex::City.witchcraft! }
+        before { CitiesIndex::City.witchcraft! }
         specify do
           expect(subject.bulk_body).to eq([
             {index: {_id: 42, data: {'name' => 'Name42'}}}
@@ -228,7 +143,7 @@ describe Chewy::Type::Import::BulkBuilder do
 
     context 'empty ids' do
       before do
-        stub_index(:places) do
+        stub_index(:cities) do
           define_type :city do
             field :name
           end
@@ -264,7 +179,7 @@ describe Chewy::Type::Import::BulkBuilder do
 
   describe '#index_objects_by_id' do
     before do
-      stub_index(:places) do
+      stub_index(:cities) do
         define_type :city do
           field :name
         end

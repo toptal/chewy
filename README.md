@@ -1028,7 +1028,7 @@ rake chewy:update[-users,places#city] # updates every index in the application e
 
 #### `chewy:sync`
 
-Provides a way to synchronize outdated indexes with the source quickly and without doing a full reset.
+Provides a way to synchronize outdated indexes with the source quickly and without doing a full reset. By default field `updated_at` is used to find outdated records, but this could be customized by `outdated_sync_field` as described at [Chewy::Type::Syncer](lib/chewy/type/syncer.rb).
 
 Arguments are similar to the ones taken by `chewy:update` task. It is possible to specify a particular type or a whole index.
 

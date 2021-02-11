@@ -8,19 +8,19 @@ describe Chewy::MultiSearch do
     stub_model(:city)
     stub_model(:country)
 
-    stub_index(:places) do
+    stub_index(:cities) do
+      def self.aggregate_by_country
+        aggs(country: {terms: {field: :country_id}})
+      end
+
       define_type City do
         field :name, type: 'keyword'
         field :country_id, type: 'keyword'
-
-        def self.aggregate_by_country
-          aggs(country: {terms: {field: :country_id}})
-        end
       end
     end
   end
 
-  let(:places_query) { PlacesIndex.all }
+  let(:places_query) { CitiesIndex.all }
 
   describe '#queries' do
     specify 'returns the queries that are a part of the multi search' do
@@ -42,11 +42,11 @@ describe Chewy::MultiSearch do
 
   context 'when given two queries' do
     let(:queries) { [aggregates, results] }
-    let(:aggregates) { PlacesIndex::City.aggregate_by_country.limit(0) }
-    let(:results) { PlacesIndex::City.limit(10) }
+    let(:aggregates) { CitiesIndex.aggregate_by_country.limit(0) }
+    let(:results) { CitiesIndex.limit(10) }
     let(:multi_search) { described_class.new(queries) }
     let(:cities) { Array.new(3) { |i| City.create! name: "Name#{i + 2}", country_id: i + 1 } }
-    before { PlacesIndex.import! city: cities }
+    before { CitiesIndex.import! city: cities }
 
     describe '#perform' do
       specify 'performs each query' do
@@ -78,7 +78,7 @@ describe Chewy::MultiSearch do
         is_expected.to have(2).responses
         expect(responses[0]).to be_a(Chewy::Search::Response)
         expect(responses[1]).to be_a(Chewy::Search::Response)
-        expect(responses[1].wrappers).to all(be_a PlacesIndex::City)
+        expect(responses[1].wrappers).to all(be_a CitiesIndex::City)
       end
     end
   end

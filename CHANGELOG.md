@@ -14,6 +14,7 @@
 
 ## Changes
 
+  * [#751](https://github.com/toptal/chewy/pull/751): Add [Multi Search API](https://www.elastic.co/guide/en/elasticsearch/reference/6.8/search-multi-search.html) support ([@mpeychich][], [@dalthon][])
   * [#755](https://github.com/toptal/chewy/pull/755): `attribute_highlights` returns an array of highlights ([@musaffa][], [@dalthon][])
   * [#753](https://github.com/toptal/chewy/pull/753): Add support for direct_import parameter to skip objects reloading ([@TikiTDO][], [@dalthon][])
   * [#739](https://github.com/toptal/chewy/pull/739): Remove explicit `main` branch dependencies on rspec* gems after `rspec-mocks` 3.10.2 is released ([@rabotyaga][])
@@ -560,6 +561,7 @@
 [@menglewis]: https://github.com/menglewis
 [@mikeyhogarth]: https://github.com/mikeyhogarth
 [@mkcode]: https://github.com/mkcode
+[@mpeychich]: https://github.com/mpeychich
 [@mrbrdo]: https://github.com/mrbrdo
 [@mrzasa]: https://github.com/mrzasa
 [@musaffa]: https://github.com/musaffa

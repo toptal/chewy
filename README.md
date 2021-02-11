@@ -97,7 +97,11 @@ Chewy is compatible with MRI 2.5-3.0¹.
 
 ### Elasticsearch
 
-Chewy 5 is compatible with Elasticsearch 5. Future versions of Chewy will support Elasticsearch 6 and Elasticsearch 7.
+Chewy 5 is compatible with Elasticsearch 5.
+
+Chewy 6 is compatible with Elasticsearch 6. See [Migration guide](migration_guide.md).
+
+Future versions of Chewy will support Elasticsearch 7.
 
 ## Usage
 

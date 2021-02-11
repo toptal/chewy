@@ -2,13 +2,13 @@
 
 ## Bug fixes
 
-  * [#755](https://github.com/toptal/chewy/pull/755): attribute_highlights returns an array of highlights ([@musaffa][], [@dalthon][])
   * [#695](https://github.com/toptal/chewy/pull/695): Clear the scroll by id after completing scroll_batches ([@socialchorus][])
   * [#749](https://github.com/toptal/chewy/pull/749): Avoid importing everything when given an empty relation ([@JF-Lalonde][], [@dalthon][])
   * [#736](https://github.com/toptal/chewy/pull/736): Fix nil children when using witchcraft ([@taylor-au][])
 
 ## Changes
 
+  * [#755](https://github.com/toptal/chewy/pull/755): `attribute_highlights` returns an array of highlights ([@musaffa][], [@dalthon][])
   * [#753](https://github.com/toptal/chewy/pull/753): Add support for direct_import parameter to skip objects reloading ([@TikiTDO][], [@dalthon][])
   * [#739](https://github.com/toptal/chewy/pull/739): Remove explicit `main` branch dependencies on rspec* gems after `rspec-mocks` 3.10.2 is released ([@rabotyaga][])
 

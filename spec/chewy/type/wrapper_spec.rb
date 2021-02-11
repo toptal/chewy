@@ -66,7 +66,8 @@ describe Chewy::Type::Wrapper do
           .and respond_to(:name_highlights)
           .and have_attributes(
             name: 'Martin',
-            name_highlight: '<b>Mar</b>tin'
+            name_highlight: '<b>Mar</b>tin',
+            name_highlights: ['<b>Mar</b>tin']
           )
       end
     end

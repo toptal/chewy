@@ -437,6 +437,7 @@ describe Chewy::Search::Request do
     describe '#highlight' do
       specify { expect(subject.query(match: {name: 'name3'}).highlight(fields: {name: {}}).first.name).to eq('Name3') }
       specify { expect(subject.query(match: {name: 'name3'}).highlight(fields: {name: {}}).first.name_highlight).to eq('<em>Name3</em>') }
+      specify { expect(subject.query(match: {name: 'name3'}).highlight(fields: {name: {}}).first.name_highlights).to eq(['<em>Name3</em>']) }
       specify { expect(subject.query(match: {name: 'name3'}).highlight(fields: {name: {}}).first._data['_source']['name']).to eq('Name3') }
     end
 

@@ -18,7 +18,7 @@ module Chewy
           end.compact.uniq
         end
 
-        private
+      private
 
         def empty_if_not_found
           yield

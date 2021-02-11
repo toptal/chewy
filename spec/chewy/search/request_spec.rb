@@ -663,5 +663,38 @@ describe Chewy::Search::Request do
         )
       end
     end
+
+    describe '#response=' do
+      let(:query) { ProductsIndex.limit(0) }
+      let(:raw_response) { Chewy.client.search(query.render) }
+
+      it 'wraps and assigns the raw response' do
+        query.response = raw_response
+        expect(query.response).to be_a(Chewy::Search::Response)
+      end
+    end
+
+    describe '#performed?' do
+      let(:query) { ProductsIndex.limit(0) }
+      let(:raw_response) { Chewy.client.search(query.render) }
+
+      it 'is false on a new query' do
+        expect(query.performed?).to eq(false)
+      end
+
+      it 'is true after the search request was issued' do
+        expect do
+          # The `response` method has a side effect of performing unperformed
+          # queries.
+          query.response
+        end.to change(query, :performed?).from(false).to(true)
+      end
+
+      it 'is true after assigning a raw response' do
+        expect do
+          query.response = raw_response
+        end.to change(query, :performed?).from(false).to(true)
+      end
+    end
   end
 end

@@ -2,13 +2,13 @@
 
 ## master (unreleased)
 
+### New Features
+
+### Changes
+
+### Bugs Fixed
+
 ## 6.0.0 (2021-02-11)
-
-### Bug fixes
-
-* [#695](https://github.com/toptal/chewy/pull/695): Clear the scroll by id after completing scroll_batches ([@socialchorus][])
-* [#749](https://github.com/toptal/chewy/pull/749): Avoid importing everything when given an empty relation ([@JF-Lalonde][], [@dalthon][])
-* [#736](https://github.com/toptal/chewy/pull/736): Fix nil children when using witchcraft ([@taylor-au][])
 
 ### Changes
 
@@ -17,6 +17,12 @@
   * [#755](https://github.com/toptal/chewy/pull/755): `attribute_highlights` returns an array of highlights ([@musaffa][], [@dalthon][])
   * [#753](https://github.com/toptal/chewy/pull/753): Add support for direct_import parameter to skip objects reloading ([@TikiTDO][], [@dalthon][])
   * [#739](https://github.com/toptal/chewy/pull/739): Remove explicit `main` branch dependencies on rspec* gems after `rspec-mocks` 3.10.2 is released ([@rabotyaga][])
+
+### Bugs Fixed
+
+* [#695](https://github.com/toptal/chewy/pull/695): Clear the scroll by id after completing scroll_batches ([@socialchorus][])
+* [#749](https://github.com/toptal/chewy/pull/749): Avoid importing everything when given an empty relation ([@JF-Lalonde][], [@dalthon][])
+* [#736](https://github.com/toptal/chewy/pull/736): Fix nil children when using witchcraft ([@taylor-au][])
 
 ## 5.2.0 (2021-01-28)
 
@@ -61,7 +67,7 @@
   * [#565](https://github.com/toptal/chewy/pull/565): Fixed some Sequel deprecation warnings ([@arturtr][])
   * [#577](https://github.com/toptal/chewy/pull/577): Fixed some Sequel deprecation warnings ([@matchbookmac][])
 
-### Bugfixes
+### Bugs Fixed
 
   * [#593](https://github.com/toptal/chewy/pull/593): Fixed index settings logic error ([@yahooguntu][])
   * [#567](https://github.com/toptal/chewy/pull/567): Missed check in higlight method ([@heartfulbird][])
@@ -74,7 +80,7 @@
 
   * [#558](https://github.com/toptal/chewy/pull/558): Improved parallel worker titles
 
-### Bugfixes
+### Bugs Fixed
 
   * [#557](https://github.com/toptal/chewy/pull/557): Fixed request strategy initial debug message
   * [#556](https://github.com/toptal/chewy/pull/556): Fixed will objects paginated array initialization when pagination was not used
@@ -129,7 +135,7 @@
   * Witchcraft™ supports dynamically generated procs with variables from closure.
   * Added `Query#preference` for specifying shard replicas to query against. ([@menglewis][])
 
-### Bugfixes
+### Bugs Fixed
 
   * [#415](https://github.com/toptal/chewy/pull/415): `.script_fields` method in the Index class ([@dmitry][])
   * [#398](https://github.com/toptal/chewy/pull/398): Fix routing_missing_exception on delete with parent missing ([@guigs][])
@@ -154,7 +160,7 @@
   * Accessing types with methods is deprecated. Use `MyIndex::MyType` constant reference instead of `MyIndex.my_type` method.
   * [#294](https://github.com/toptal/chewy/pull/294): Sequel adapter improvements ([@mrbrdo][])
 
-### Bugfixes
+### Bugs Fixed
 
   * [#325](https://github.com/toptal/chewy/pull/325): Mongoid atomic strategy fix
   * [#324](https://github.com/toptal/chewy/pull/324): Method missing fix ([@jesjos][])
@@ -173,7 +179,7 @@
 
   * Sequel support completely reworked to use common ORM implementations + better sequel specs covarage.
 
-### Bugfixes
+### Bugs Fixed
 
   * Sequel objects transactional destruction fix
   * Correct Rspec mocking framework checking ([@mainameiz][])
@@ -195,13 +201,13 @@
   * Multiple grammar fixes ([@henrebotha][])
   * Ability to pass a proc to `update_index` to define updating index dynamically ([@SeTeM][])
 
-### Bugfixes
+### Bugs Fixed
 
   * Fixed transport logger and tracer configuration
 
 ## 0.8.1
 
-### Bugfixes
+### Bugs Fixed
 
   * Added support of elasticsearch-ruby 1.0.10
 
@@ -220,7 +226,7 @@
   * `:sidekiq` async strategy (inspired by [@sharkzp][])
   * Added `Query#search_type` for `search_type` request option setup ([@marshall-lee][])
 
-### Bugfixes
+### Bugs Fixed
 
   * Rails 4.2 migrations are not raising UndefinedUpdateStrategy anymore on data updates
   * Mongoid random failing specs fixes ([@marshall-lee][])
@@ -301,7 +307,7 @@
     ```
   * Implemented basic named scopes
 
-### Bugfixes
+### Bugs Fixed
 
   * `script_score` allow options ([@joeljunstrom][])
   * Chewy indexes eaged loading fixes ([@leemhenson][])
@@ -313,7 +319,7 @@
 
   * document root id custom value option ([@baronworks][])
 
-### Bugfixes
+### Bugs Fixed
 
   * Removed decay function defaults ([@Linuus][])
   * Correct config file handling in case of empty file
@@ -334,7 +340,7 @@
   * `timeout` and `timed_out` support ([@MarkMurphy][])
   * will_paginate support ([@josecoelho][])
 
-### Bugfixes
+### Bugs Fixed
 
   * All the query chainable methods delegated to indexes and types (partially [@Linuus][])
 
@@ -348,7 +354,7 @@
 
   * `Chewy.massacre` aliased to `Chewy.delete_all` method deletes all the indexes with current prefix
 
-### Bugfixes:
+### Bugs Fixed:
 
   * Advanced type classes resolving ([@inbeom][])
   * `import` ignores nil
@@ -365,7 +371,7 @@
   * Rspec 3 `update_index` matcher support ([@jimmybaker][])
   * Implemented function scoring ([@averell23][])
 
-### Bugfixes:
+### Bugs Fixed:
 
   * Indexed eager-loading fix ([@leemhenson][])
   * Field type deriving nested type support fix ([@rschellhorn][])
@@ -392,7 +398,7 @@
   * `highlight` and `rescore` query options support.
   * config/chewy.yml ERB support.
 
-### Bugfixes:
+### Bugs Fixed:
 
   * Fixed `missing` and `exists` filters DSL constructors.
   * Reworked index data composing.

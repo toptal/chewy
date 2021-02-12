@@ -4,18 +4,15 @@
 
 ## 6.0.0 (2021-02-11)
 
-### Breaking changes
-
-  * [#743](https://github.com/toptal/chewy/pull/743): Elasticsearch 6.x support added. See [migration guide](migration_guide.md) & ES [breaking changes](https://www.elastic.co/guide/en/elasticsearch/reference/6.8/breaking-changes-6.0.html). Removed legacy DSL support. Removed support for ES < 5 ([@mrzasa][], [@konalegi][], [@rabotyaga][])
-
 ### Bug fixes
 
-  * [#695](https://github.com/toptal/chewy/pull/695): Clear the scroll by id after completing scroll_batches ([@socialchorus][])
-  * [#749](https://github.com/toptal/chewy/pull/749): Avoid importing everything when given an empty relation ([@JF-Lalonde][], [@dalthon][])
-  * [#736](https://github.com/toptal/chewy/pull/736): Fix nil children when using witchcraft ([@taylor-au][])
+* [#695](https://github.com/toptal/chewy/pull/695): Clear the scroll by id after completing scroll_batches ([@socialchorus][])
+* [#749](https://github.com/toptal/chewy/pull/749): Avoid importing everything when given an empty relation ([@JF-Lalonde][], [@dalthon][])
+* [#736](https://github.com/toptal/chewy/pull/736): Fix nil children when using witchcraft ([@taylor-au][])
 
 ### Changes
 
+  * [#743](https://github.com/toptal/chewy/pull/743): **(Breaking)** Elasticsearch 6.x support added. See [migration guide](migration_guide.md) & ES [breaking changes](https://www.elastic.co/guide/en/elasticsearch/reference/6.8/breaking-changes-6.0.html). Removed legacy DSL support. Removed support for ES < 5 ([@mrzasa][], [@konalegi][], [@rabotyaga][])
   * [#751](https://github.com/toptal/chewy/pull/751): Add [Multi Search API](https://www.elastic.co/guide/en/elasticsearch/reference/6.8/search-multi-search.html) support ([@mpeychich][], [@dalthon][])
   * [#755](https://github.com/toptal/chewy/pull/755): `attribute_highlights` returns an array of highlights ([@musaffa][], [@dalthon][])
   * [#753](https://github.com/toptal/chewy/pull/753): Add support for direct_import parameter to skip objects reloading ([@TikiTDO][], [@dalthon][])
@@ -39,28 +36,22 @@
 
 ## 5.1.0 (2019-09-24)
 
-### Breaking changes
-
-  * [#657](https://github.com/toptal/chewy/pull/657): Add support for multiple indices in request ([@pyromaniac][])
-  * [#647](https://github.com/toptal/chewy/pull/647): Support `search_type`, `request_cache`, and `allow_partial_search_results` as query string parameters ([@mattzollinhofer][])
-
 ### Changes
 
+  * [#657](https://github.com/toptal/chewy/pull/657): **(Breaking)** Add support for multiple indices in request ([@pyromaniac][])
+  * [#647](https://github.com/toptal/chewy/pull/647): **(Breaking)** Support `search_type`, `request_cache`, and `allow_partial_search_results` as query string parameters ([@mattzollinhofer][])
   * [#606](https://github.com/toptal/chewy/pull/606): Speed up imports when `bulk_size` is specified ([@yahooguntu][])
   * [#682](https://github.com/toptal/chewy/pull/682): Insert `RequestStrategy` middleware before `ActionDispatch::ShowExceptions` ([@dck][])
 
 ## 5.0.0 (2018-02-13)
 
-### Breaking changes
-
-  * Try to align the gem version with the ElasticSearch version we support
-  * `Chewy.default_field_type` is `text` now.
-  * `Chewy::Stash` was split onto two indexes - `Chewy::Stash::Specification` and `Chewy::Stash::Journal`
-  * Data for journal and specification is stored in binary fields base64-encoded to bypass the limits of other fields.
-  * [#626](https://github.com/toptal/chewy/pull/626): Don't underscore suggested index name ([@dm1try][])
-
 ### Changes
 
+  * **(Breaking)** Try to align the gem version with the ElasticSearch version we support
+  * **(Breaking)** `Chewy.default_field_type` is `text` now.
+  * **(Breaking)** `Chewy::Stash` was split onto two indexes - `Chewy::Stash::Specification` and `Chewy::Stash::Journal`
+  * **(Breaking)** Data for journal and specification is stored in binary fields base64-encoded to bypass the limits of other fields.
+  * **(Breaking)** [#626](https://github.com/toptal/chewy/pull/626): Don't underscore suggested index name ([@dm1try][])
   * [#598](https://github.com/toptal/chewy/pull/598): `pipeline` import option support ([@eManPrague][])
   * [#625](https://github.com/toptal/chewy/pull/625): Proper Rails check ([@nattfodd][])
   * [#623](https://github.com/toptal/chewy/pull/623): Bypass strategy performance improvements ([@DNNX][])
@@ -74,6 +65,8 @@
 
   * [#593](https://github.com/toptal/chewy/pull/593): Fixed index settings logic error ([@yahooguntu][])
   * [#567](https://github.com/toptal/chewy/pull/567): Missed check in higlight method ([@heartfulbird][])
+
+-----------------------------------------------------------------------------------
 
 ## 0.10.1
 

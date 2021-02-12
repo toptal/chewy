@@ -1,27 +1,29 @@
-# master
+# Changelog
 
-# Version 6.0.0 (2021-02-11)
+## master (unreleased)
 
-## Breaking changes
+## Version 6.0.0 (2021-02-11)
+
+### Breaking changes
 
   * [#743](https://github.com/toptal/chewy/pull/743): Elasticsearch 6.x support added. See [migration guide](migration_guide.md) & ES [breaking changes](https://www.elastic.co/guide/en/elasticsearch/reference/6.8/breaking-changes-6.0.html). Removed legacy DSL support. Removed support for ES < 5 ([@mrzasa][], [@konalegi][], [@rabotyaga][])
 
-## Bug fixes
+### Bug fixes
 
   * [#695](https://github.com/toptal/chewy/pull/695): Clear the scroll by id after completing scroll_batches ([@socialchorus][])
   * [#749](https://github.com/toptal/chewy/pull/749): Avoid importing everything when given an empty relation ([@JF-Lalonde][], [@dalthon][])
   * [#736](https://github.com/toptal/chewy/pull/736): Fix nil children when using witchcraft ([@taylor-au][])
 
-## Changes
+### Changes
 
   * [#751](https://github.com/toptal/chewy/pull/751): Add [Multi Search API](https://www.elastic.co/guide/en/elasticsearch/reference/6.8/search-multi-search.html) support ([@mpeychich][], [@dalthon][])
   * [#755](https://github.com/toptal/chewy/pull/755): `attribute_highlights` returns an array of highlights ([@musaffa][], [@dalthon][])
   * [#753](https://github.com/toptal/chewy/pull/753): Add support for direct_import parameter to skip objects reloading ([@TikiTDO][], [@dalthon][])
   * [#739](https://github.com/toptal/chewy/pull/739): Remove explicit `main` branch dependencies on rspec* gems after `rspec-mocks` 3.10.2 is released ([@rabotyaga][])
 
-# Version 5.2.0 (2021-01-28)
+## Version 5.2.0 (2021-01-28)
 
-## Changes
+### Changes
 
   * [#734](https://github.com/toptal/chewy/pull/734): Add support for Ruby 3 ([@lowang][])
   * [#735](https://github.com/toptal/chewy/pull/735): Correct deprecation warning for Elasticsearch 5.6 to 6: empty query for`_delete_by_query`, delete by alias, `index_already_exists_exception` renaming ([@bhacaz][])
@@ -35,21 +37,21 @@
   * [#711](https://github.com/toptal/chewy/pull/711): Setup CI on CircleCI ([@mrzasa][])
   * [#710](https://github.com/toptal/chewy/pull/710): Fix deprecation warning for contructing new BigDecimal ([@AlexVPopov][])
 
-# Version 5.1.0 (2019-09-24)
+## Version 5.1.0 (2019-09-24)
 
-## Breaking changes
+### Breaking changes
 
   * [#657](https://github.com/toptal/chewy/pull/657): Add support for multiple indices in request ([@pyromaniac][])
   * [#647](https://github.com/toptal/chewy/pull/647): Support `search_type`, `request_cache`, and `allow_partial_search_results` as query string parameters ([@mattzollinhofer][])
 
-## Changes
+### Changes
 
   * [#606](https://github.com/toptal/chewy/pull/606): Speed up imports when `bulk_size` is specified ([@yahooguntu][])
   * [#682](https://github.com/toptal/chewy/pull/682): Insert `RequestStrategy` middleware before `ActionDispatch::ShowExceptions` ([@dck][])
 
-# Version 5.0.0 (2018-02-13)
+## Version 5.0.0 (2018-02-13)
 
-## Breaking changes
+### Breaking changes
 
   * Try to align the gem version with the ElasticSearch version we support
   * `Chewy.default_field_type` is `text` now.
@@ -57,7 +59,7 @@
   * Data for journal and specification is stored in binary fields base64-encoded to bypass the limits of other fields.
   * [#626](https://github.com/toptal/chewy/pull/626): Don't underscore suggested index name ([@dm1try][])
 
-## Changes
+### Changes
 
   * [#598](https://github.com/toptal/chewy/pull/598): `pipeline` import option support ([@eManPrague][])
   * [#625](https://github.com/toptal/chewy/pull/625): Proper Rails check ([@nattfodd][])
@@ -68,32 +70,32 @@
   * [#565](https://github.com/toptal/chewy/pull/565): Fixed some Sequel deprecation warnings ([@arturtr][])
   * [#577](https://github.com/toptal/chewy/pull/577): Fixed some Sequel deprecation warnings ([@matchbookmac][])
 
-## Bugfixes
+### Bugfixes
 
   * [#593](https://github.com/toptal/chewy/pull/593): Fixed index settings logic error ([@yahooguntu][])
   * [#567](https://github.com/toptal/chewy/pull/567): Missed check in higlight method ([@heartfulbird][])
 
-# Version 0.10.1
+## Version 0.10.1
 
-## Changes
+### Changes
 
   * [#558](https://github.com/toptal/chewy/pull/558): Improved parallel worker titles
 
-## Bugfixes
+### Bugfixes
 
   * [#557](https://github.com/toptal/chewy/pull/557): Fixed request strategy initial debug message
   * [#556](https://github.com/toptal/chewy/pull/556): Fixed will objects paginated array initialization when pagination was not used
   * [#555](https://github.com/toptal/chewy/pull/555): Fixed fields symbol/string value
   * [#554](https://github.com/toptal/chewy/pull/554): Fixed root field value proc
 
-# Version 0.10.0
+## Version 0.10.0
 
-## Breaking changes
+### Breaking changes
 
   * Changed behavior of `Chewy::Index.index_name`, it doesn't cache the values anymore.
   * Journal interfaces, related code and rake tasks were completely refactored and are not compatible with the previous version.
 
-## Changes
+### Changes
 
   * [#543](https://github.com/toptal/chewy/pull/543): Less noisy strategies logging ([@Borzik][])
   * Parallel import and the corresponding rake tasks.
@@ -116,9 +118,9 @@
   * [#467](https://github.com/toptal/chewy/pull/467): Bulk indexing optimizations with new additional options ([@eproulx-petalmd][])
   * [#438](https://github.com/toptal/chewy/pull/438): Configurable sidekiq options ([@averell23][])
 
-# Version 0.9.0
+## Version 0.9.0
 
-## Changes
+### Changes
 
   * [#443](https://github.com/toptal/chewy/pull/443): Add `preference` param to Query ([@menglewis][])
   * [#417](https://github.com/toptal/chewy/pull/417): Add the `track_scores` option to the query; `_score` to be computed and tracked even when there are no `_score` in sort. ([@dmitry][])
@@ -134,16 +136,16 @@
   * Witchcraft™ supports dynamically generated procs with variables from closure.
   * Added `Query#preference` for specifying shard replicas to query against. ([@menglewis][])
 
-## Bugfixes
+### Bugfixes
 
   * [#415](https://github.com/toptal/chewy/pull/415): `.script_fields` method in the Index class ([@dmitry][])
   * [#398](https://github.com/toptal/chewy/pull/398): Fix routing_missing_exception on delete with parent missing ([@guigs][])
   * [#385](https://github.com/toptal/chewy/pull/385): Sequel custom primary keys handling fix ([@okliv][])
   * [#374](https://github.com/toptal/chewy/pull/374): Bulk import fixes ([@0x0badc0de][])
 
-# Version 0.8.4
+## Version 0.8.4
 
-## Changes
+### Changes
 
   * Brand new import `:bulk_size` option, set desired ElasticSearch bulk size in bytes
   * Witchcraft™ technology
@@ -159,7 +161,7 @@
   * Accessing types with methods is deprecated. Use `MyIndex::MyType` constant reference instead of `MyIndex.my_type` method.
   * [#294](https://github.com/toptal/chewy/pull/294): Sequel adapter improvements ([@mrbrdo][])
 
-## Bugfixes
+### Bugfixes
 
   * [#325](https://github.com/toptal/chewy/pull/325): Mongoid atomic strategy fix
   * [#324](https://github.com/toptal/chewy/pull/324): Method missing fix ([@jesjos][])
@@ -167,18 +169,18 @@
   * [#306](https://github.com/toptal/chewy/pull/306): Better errors handling in strategies ([@barthez][])
   * [#303](https://github.com/toptal/chewy/pull/303): Assets strategies silencer fix for Rails 5 API mode ([@clupprich][])
 
-# Version 0.8.3
+## Version 0.8.3
 
-## Breaking changes:
+### Breaking changes:
 
   * `Chewy.atomic` and `Chewy.urgent_update=` methods was removed from the codebase, use `Chewy.strategy` block instead.
   * `delete_from_index?` hook is removed from the codebase.
 
-## Changes
+### Changes
 
   * Sequel support completely reworked to use common ORM implementations + better sequel specs covarage.
 
-## Bugfixes
+### Bugfixes
 
   * Sequel objects transactional destruction fix
   * Correct Rspec mocking framework checking ([@mainameiz][])
@@ -186,9 +188,9 @@
   * Safe unsubscribe on import ([@marshall-lee][])
   * Correct custom assets path silencer ([@davekaro][])
 
-# Version 0.8.2
+## Version 0.8.2
 
-## Changes
+### Changes
 
   * ActiveJob strategy by [@mkcode][]
   * Async strategies tweak ([@AndreySavelyev][])
@@ -200,23 +202,23 @@
   * Multiple grammar fixes ([@henrebotha][])
   * Ability to pass a proc to `update_index` to define updating index dynamically ([@SeTeM][])
 
-## Bugfixes
+### Bugfixes
 
   * Fixed transport logger and tracer configuration
 
-# Version 0.8.1
+## Version 0.8.1
 
-## Bugfixes
+### Bugfixes
 
   * Added support of elasticsearch-ruby 1.0.10
 
-# Version 0.8.0
+## Version 0.8.0
 
-## Breaking changes:
+### Breaking changes:
 
   * `:atomic` and `:urgent` strategies are using `import!` method raising exceptions
 
-## Changes
+### Changes
 
   * Crutches™ technology
   * Added `.script_fields` chainable method to query ([@ka8725][])
@@ -225,14 +227,14 @@
   * `:sidekiq` async strategy (inspired by [@sharkzp][])
   * Added `Query#search_type` for `search_type` request option setup ([@marshall-lee][])
 
-## Bugfixes
+### Bugfixes
 
   * Rails 4.2 migrations are not raising UndefinedUpdateStrategy anymore on data updates
   * Mongoid random failing specs fixes ([@marshall-lee][])
 
-# Version 0.7.0
+## Version 0.7.0
 
-## Breaking changes:
+### Breaking changes:
 
   * `Chewy.use_after_commit_callbacks = false` returns previous RDBMS behavior in tests
   * ActiveRecord import is now called after_commit instead of after_save and after_destroy
@@ -265,7 +267,7 @@
         end
     ```
 
-## Changes
+### Changes
 
   * Multiple enhancements by [@DNNX][]
   * Added `script_fields` to search criteria ([@ka8725][])
@@ -306,61 +308,61 @@
     ```
   * Implemented basic named scopes
 
-## Bugfixes
+### Bugfixes
 
   * `script_score` allow options ([@joeljunstrom][])
   * Chewy indexes eaged loading fixes ([@leemhenson][])
   * `Chewy::Index.import nil` imports nothing instead of initial data
 
-# Version 0.6.2
+## Version 0.6.2
 
-## Changes
+### Changes
 
   * document root id custom value option ([@baronworks][])
 
-## Bugfixes
+### Bugfixes
 
   * Removed decay function defaults ([@Linuus][])
   * Correct config file handling in case of empty file
 
-# Version 0.6.1
+## Version 0.6.1
 
-## Changes
+### Changes
 
   * `min_score` query option support ([@jshirley][])
   * `Chewy::Query#find` method for finding documents by id
 
-# Version 0.6.0
+## Version 0.6.0
 
-## Changes
+### Changes
 
   * Mongoid support YaY! ([@fabiotomio][], [@leemhenson][])
   * `urgent: true` option for `update_index` is deprecated and will be removed soon, use `Chewy.atomic` instead
   * `timeout` and `timed_out` support ([@MarkMurphy][])
   * will_paginate support ([@josecoelho][])
 
-## Bugfixes
+### Bugfixes
 
   * All the query chainable methods delegated to indexes and types (partially [@Linuus][])
 
-# Version 0.5.2
+## Version 0.5.2
 
-## Breaking changes:
+### Breaking changes:
 
   * `Chewy::Type::Base` removed in favour of using `Chewy::Type` as a base class for all types
 
-## Changes
+### Changes
 
   * `Chewy.massacre` aliased to `Chewy.delete_all` method deletes all the indexes with current prefix
 
-## Bugfixes:
+### Bugfixes:
 
   * Advanced type classes resolving ([@inbeom][])
   * `import` ignores nil
 
-# Version 0.5.1
+## Version 0.5.1
 
-## Changes:
+### Changes:
 
   * `chewy.yml` Rails generator ([@jirikolarik][])
   * Parent-child mappings feature support ([@inbeom][])
@@ -370,20 +372,20 @@
   * Rspec 3 `update_index` matcher support ([@jimmybaker][])
   * Implemented function scoring ([@averell23][])
 
-## Bugfixes:
+### Bugfixes:
 
   * Indexed eager-loading fix ([@leemhenson][])
   * Field type deriving nested type support fix ([@rschellhorn][])
 
-# Version 0.5.0
+## Version 0.5.0
 
-## Breaking changes:
+### Breaking changes:
 
   * 404 exception (IndexMissingException) while query is swallowed and treated like an empty result set.
   * `load` and `preload` for queries became lazy. Might be partially incompatible.
   * Changed mapping behavior: multi-fields are defined in conformity with ElasticSearch documentation (http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/_multi_fields.html#_multi_fields)
 
-## Changes:
+### Changes:
 
   * `suggest` query options support ([@rschellhorn][]).
   * Added hash data support. How it is possible to pass hashes to import.
@@ -397,7 +399,7 @@
   * `highlight` and `rescore` query options support.
   * config/chewy.yml ERB support.
 
-## Bugfixes:
+### Bugfixes:
 
   * Fixed `missing` and `exists` filters DSL constructors.
   * Reworked index data composing.
@@ -405,7 +407,7 @@
   * Correct waiting for status. After index creation, bulk import, and deletion.
   * [#23](https://github.com/toptal/chewy/pull/23): Fix "wrong constant name" with namespace models
 
-# Version 0.4.0
+## Version 0.4.0
 
   * Changed `update_index` matcher behavior. Now it compare array attributes position-independently.
   * Search aggregations API support ([@arion][]).
@@ -416,18 +418,18 @@
   * `import` now creates index before performing.
   * `Chewy.configuration[:wait_for_status]` option. Can be set to `red`, `yellow` or `green`. If set - chewy will wait for cluster status before creating, deleting index and import. Useful for specs.
 
-# Version 0.3.0
+## Version 0.3.0
 
   * Added `Chewy.configuration[:index]` config to setup common indexes options.
   * `Chewy.client_options` replaced with `Chewy.configuration`
   * Using source filtering instead of fields filter (http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/search-request-source-filtering.html).
 
-# Version 0.2.3
+## Version 0.2.3
 
   * `.import!` indexes method, raises import errors.
   * `.import!` types method, raises import errors. Useful for specs.
 
-# Version 0.2.2
+## Version 0.2.2
 
   * Support for `none` scope ([@undr][]).
   * Auto-resolved analyzers and analyzers repository ([@webgago][]):
@@ -443,7 +445,7 @@
     ```
     `title_analyzer` here will be automatically resolved and passed to index mapping
 
-# Version 0.2.0
+## Version 0.2.0
 
   * Reworked import error handling. Now all the import errors from ElasticSearch are handled properly, also import method returns true of false depending on the import process success.
   * `Chewy::Index.import` now takes types hash as argument within options hash:
@@ -461,7 +463,7 @@
     `CitiesIndex.all.load(scope: {city: -> { include(:country) }})`
     `CitiesIndex.all.load(scope: ->{ include(:country) })`
 
-# Version 0.1.0
+## Version 0.1.0
 
   * Added filters simplified DSL. See [filters.rb](lib/chewy/query/filters.rb) for more details.
   * Queries and filters join system reworked. See [query.rb](lib/chewy/query.rb) for more details.
@@ -498,7 +500,7 @@
   * Implemented isolated adapters to simplify adding new ORMs
   * Query DLS chainable methods delegated to index class (no longer need to call MyIndex.search.query, just MyIndex.query)
 
-# Version 0.0.1
+## Version 0.0.1
 
   * Query DSL
   * Basic index handling

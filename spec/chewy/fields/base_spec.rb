@@ -44,24 +44,9 @@ describe Chewy::Fields::Base do
     end
 
     context 'parent objects' do
-      let!(:country) do
-        described_class.new(:name, value: lambda { |country, crutches|
-                                            country.cities.map do |city|
-                                              double(districts: city.districts, name: crutches.city_name)
-                                            end
-                                          })
-      end
-      let!(:city) do
-        described_class.new(:name, value: lambda { |city, country, crutches|
-                                            city.districts.map do |district|
-                                              [district, country.name, crutches.suffix]
-                                            end
-                                          })
-      end
-      let(:district_value) { ->(district, city, country, crutches) { [district, city.name, country.name, crutches] } }
-      let!(:district) do
-        described_class.new(:name, value: district_value)
-      end
+      let!(:country) { described_class.new(:name, value: ->(country, crutches) { country.cities.map { |city| double(districts: city.districts, name: crutches.city_name) } }) }
+      let!(:city) { described_class.new(:name, value: ->(city, country, crutches) { city.districts.map { |district| [district, country.name, crutches.suffix] } }) }
+      let!(:district) { described_class.new(:name, value: ->(district, city, country, crutches) { [district, city.name, country.name, crutches] }) }
       let(:crutches) { double(suffix: 'suffix', city_name: 'Bangkok') }
 
       before do
@@ -553,6 +538,41 @@ describe Chewy::Fields::Base do
                 {'id' => 2, 'name' => 'City2'}
               ]
             )
+          end
+        end
+
+        context 'join field type' do
+          before do
+            stub_model(:comment)
+            stub_index(:comments) do
+              index_scope Comment
+              field :id
+              field :hierarchy, type: :join, relations: {question: %i[answer comment], answer: :vote, vote: :subvote}, join: {type: :comment_type, id: :commented_id}
+            end
+          end
+
+          specify do
+            expect(
+              CommentsIndex.root.compose(
+                {'id' => 1, 'comment_type' => 'question'}
+              )
+            ).to eq(
+              {'id' => 1, 'hierarchy' => 'question'}
+            )
+
+            expect(
+              CommentsIndex.root.compose(
+                {'id' => 2, 'comment_type' => 'answer', 'commented_id' => 1}
+              )
+            ).to eq(
+              {'id' => 2, 'hierarchy' => {'name' => 'answer', 'parent' => 1}}
+            )
+
+            expect do
+              CommentsIndex.root.compose(
+                {'id' => 2, 'comment_type' => 'asd', 'commented_id' => 1}
+              )
+            end.to raise_error Chewy::InvalidJoinFieldType
           end
         end
 

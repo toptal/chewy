@@ -18,7 +18,7 @@ module Chewy
       include Scoping
       include Scrolling
       UNDEFINED = Class.new.freeze
-      EVERFIELDS = %w[_index _type _id _parent].freeze
+      EVERFIELDS = %w[_index _type _id _parent _routing].freeze
       DELEGATED_METHODS = %i[
         query filter post_filter order reorder docvalue_fields
         track_scores track_total_hits request_cache explain version profile
@@ -914,7 +914,7 @@ module Chewy
 
       # Returns and array of values for specified fields.
       # Uses `source` to restrict the list of returned fields.
-      # Fields `_id`, `_type` and `_index` are also supported.
+      # Fields `_id`, `_type`, `_routing` and `_index` are also supported.
       #
       # @overload pluck(field)
       #   If single field is passed - it returns and array of values.

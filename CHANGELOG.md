@@ -4,6 +4,8 @@
 
 ### New Features
 
+ * [#760](https://github.com/toptal/chewy/pull/760): Replace parent-child mapping with a [join field](https://www.elastic.co/guide/en/elasticsearch/reference/current/removal-of-types.html#parent-child-mapping-types) ([@mrzasa][])
+
 ### Changes
 
 ### Bugs Fixed
@@ -723,4 +725,3 @@
 [@Vitalina-Vakulchyk]: https://github.com/Vitalina-Vakulchyk
 [@webgago]: https://github.com/webgago
 [@yahooguntu]: https://github.com/yahooguntu
-

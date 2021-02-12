@@ -493,6 +493,46 @@ describe Chewy::Index::Import do
 
       it_behaves_like 'importing'
     end
+
+    context 'with parent-child relationship' do
+      before do
+        stub_model(:comment)
+        stub_index(:comments) do
+          index_scope Comment
+          field :content
+          field :comment_type, type: :join, relations: {question: %i[answer comment], answer: :vote}, join: {type: :comment_type, id: :commented_id}
+        end
+      end
+
+      let!(:comments) do
+        [
+          Comment.create!(id: 1, content: 'Where is Nemo?', comment_type: :question),
+          Comment.create!(id: 2, content: 'Here.', comment_type: :answer, commented_id: 1),
+          Comment.create!(id: 3, content: 'There!', comment_type: :answer, commented_id: 1),
+          Comment.create!(id: 4, content: 'Yes, he is here.', comment_type: :vote, commented_id: 2)
+        ]
+      end
+
+      def imported_comments
+        CommentsIndex.all.map do |comment|
+          comment.attributes.except('_score', '_explanation')
+        end
+      end
+
+      it 'imports parent and children' do
+        CommentsIndex.import!(comments.map(&:id))
+
+        expect(imported_comments).to match_array([
+          {'id' => '1', 'content' => 'Where is Nemo?', 'comment_type' => 'question'},
+          {'id' => '2', 'content' => 'Here.', 'comment_type' => {'name' => 'answer', 'parent' => 1}},
+          {'id' => '3', 'content' => 'There!', 'comment_type' => {'name' => 'answer', 'parent' => 1}},
+          {'id' => '4', 'content' => 'Yes, he is here.', 'comment_type' => {'name' => 'vote', 'parent' => 2}}
+        ])
+
+        answer_ids = CommentsIndex.query(has_parent: {parent_type: 'question', query: {match: {content: 'Where'}}}).pluck(:_id)
+        expect(answer_ids).to match_array(%w[2 3])
+      end
+    end
   end
 
   describe '.import!', :orm do

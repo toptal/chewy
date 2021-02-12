@@ -101,11 +101,13 @@ module Chewy
           additional_scope = options[options[:_index].to_sym].try(:[], :scope) || options[:scope]
 
           loaded_objects = load_scope_objects(scope, additional_scope)
-            .index_by do |object|
-              object.public_send(primary_key).to_s
-            end
+          loaded_objects = raw(loaded_objects, options[:raw_import]) if options[:raw_import]
 
-          ids.map { |id| loaded_objects[id.to_s] }
+          indexed_objects = loaded_objects.index_by do |object|
+            object.public_send(primary_key).to_s
+          end
+
+          ids.map { |id| indexed_objects[id.to_s] }
         end
 
       private

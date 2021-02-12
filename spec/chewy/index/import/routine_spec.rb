@@ -11,8 +11,8 @@ describe Chewy::Index::Import::Routine do
     CitiesIndex.create!
   end
 
-  let(:index) { [double(id: 1, name: 'Name', object: {}), double(id: 2, name: 'Name', object: {})] }
-  let(:delete) { [double(id: 3, name: 'Name')] }
+  let(:index) { [double('city_1', id: 1, name: 'Name', object: {}), double('city_2', id: 2, name: 'Name', object: {})] }
+  let(:delete) { [double('city_3', id: 3, name: 'Name', object: {})] }
 
   describe '#options' do
     specify do
@@ -93,7 +93,7 @@ describe Chewy::Index::Import::Routine do
 
   describe '#errors' do
     subject { described_class.new(CitiesIndex) }
-    let(:index) { [double(id: 1, name: 'Name', object: ''), double(id: 2, name: 'Name', object: {})] }
+    let(:index) { [double('city_1', id: 1, name: 'Name', object: ''), double('city_2', id: 2, name: 'Name', object: {})] }
 
     specify { expect(subject.errors).to eq([]) }
     specify do

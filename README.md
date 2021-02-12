@@ -237,7 +237,7 @@ Chewy.settings = {
         field :projects do
           field :title
           field :description
-        end
+        en
         field :about_translations, type: 'object' # pass object type explicitly if necessary
         field :rating, type: 'integer'
         field :created, type: 'date', include_in_all: false,
@@ -364,6 +364,8 @@ end
 The `value:` option for internal fields will no longer be effective.
 
 ### Parent and children types
+
+TODO: show an example with `join` field
 
 To define [parent](https://www.elastic.co/guide/en/elasticsearch/guide/current/parent-child-mapping.html) type for a given index_type, you can include root options for the type where you can specify parent_type and parent_id
 

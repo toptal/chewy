@@ -158,6 +158,15 @@ describe Chewy::Type::Import do
         specify do
           expect { import City.where(id: dummy_cities.first.id) }.to update_index(CitiesIndex::City).and_reindex(dummy_cities.first).only
         end
+
+        specify do
+          allow(CitiesIndex::City).to receive(:import_linear).and_return(double(present?: false))
+          allow(CitiesIndex::City).to receive(:import_parallel).and_return(double(present?: false))
+
+          expects_no_query(except: /SELECT\s+1\s+AS\s+one\s+FROM/) do
+            import City.where(id: dummy_cities.first.id)
+          end
+        end
       end
     end
 

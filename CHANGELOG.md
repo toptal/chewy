@@ -6,6 +6,8 @@
 
 ### Changes
 
+  * [#761](https://github.com/toptal/chewy/pull/761): Avoid fetching scope data to check if it is blank ([@dalthon][])
+
 ### Bugs Fixed
 
 ## 6.0.0 (2021-02-11)

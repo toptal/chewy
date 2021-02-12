@@ -39,14 +39,15 @@ module ActiveRecordClassHelpers
     raise 'Expected some db queries, but none were made' unless have_queries
   end
 
-  def expects_no_query(&block)
+  def expects_no_query(except: nil, &block)
     queries = []
     ActiveSupport::Notifications.subscribed(
       ->(*args) { queries << args[4][:sql] },
       'sql.active_record',
       &block
     )
-    raise "Expected no DB queries, but the following ones were made: #{queries.join(', ')}" if queries.present?
+    ofending_queries = except ? queries.find_all { |query| !query.match(except) } : queries
+    raise "Expected no DB queries, but the following ones were made: #{ofending_queries.join(', ')}" if ofending_queries.present?
   end
 
   def stub_model(name, superclass = nil, &block)

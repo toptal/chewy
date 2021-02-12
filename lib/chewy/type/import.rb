@@ -127,7 +127,8 @@ module Chewy
       private
 
         def import_routine(*args)
-          return if args.first.blank? && !args.first.nil?
+          return if !args.first.nil? && empty_objects_or_scope?(args.first)
+
           routine = Routine.new(self, **args.extract_options!)
           routine.create_indexes!
 
@@ -135,6 +136,14 @@ module Chewy
             import_parallel(args, routine)
           else
             import_linear(args, routine)
+          end
+        end
+
+        def empty_objects_or_scope?(objects_or_scope)
+          if objects_or_scope.respond_to?(:empty?)
+            objects_or_scope.empty?
+          else
+            objects_or_scope.blank?
           end
         end
 

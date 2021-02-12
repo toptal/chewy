@@ -2,7 +2,7 @@
 
 ## master (unreleased)
 
-## Version 6.0.0 (2021-02-11)
+## 6.0.0 (2021-02-11)
 
 ### Breaking changes
 
@@ -21,7 +21,7 @@
   * [#753](https://github.com/toptal/chewy/pull/753): Add support for direct_import parameter to skip objects reloading ([@TikiTDO][], [@dalthon][])
   * [#739](https://github.com/toptal/chewy/pull/739): Remove explicit `main` branch dependencies on rspec* gems after `rspec-mocks` 3.10.2 is released ([@rabotyaga][])
 
-## Version 5.2.0 (2021-01-28)
+## 5.2.0 (2021-01-28)
 
 ### Changes
 
@@ -37,7 +37,7 @@
   * [#711](https://github.com/toptal/chewy/pull/711): Setup CI on CircleCI ([@mrzasa][])
   * [#710](https://github.com/toptal/chewy/pull/710): Fix deprecation warning for contructing new BigDecimal ([@AlexVPopov][])
 
-## Version 5.1.0 (2019-09-24)
+## 5.1.0 (2019-09-24)
 
 ### Breaking changes
 
@@ -49,7 +49,7 @@
   * [#606](https://github.com/toptal/chewy/pull/606): Speed up imports when `bulk_size` is specified ([@yahooguntu][])
   * [#682](https://github.com/toptal/chewy/pull/682): Insert `RequestStrategy` middleware before `ActionDispatch::ShowExceptions` ([@dck][])
 
-## Version 5.0.0 (2018-02-13)
+## 5.0.0 (2018-02-13)
 
 ### Breaking changes
 
@@ -75,7 +75,7 @@
   * [#593](https://github.com/toptal/chewy/pull/593): Fixed index settings logic error ([@yahooguntu][])
   * [#567](https://github.com/toptal/chewy/pull/567): Missed check in higlight method ([@heartfulbird][])
 
-## Version 0.10.1
+## 0.10.1
 
 ### Changes
 
@@ -88,7 +88,7 @@
   * [#555](https://github.com/toptal/chewy/pull/555): Fixed fields symbol/string value
   * [#554](https://github.com/toptal/chewy/pull/554): Fixed root field value proc
 
-## Version 0.10.0
+## 0.10.0
 
 ### Breaking changes
 
@@ -118,7 +118,7 @@
   * [#467](https://github.com/toptal/chewy/pull/467): Bulk indexing optimizations with new additional options ([@eproulx-petalmd][])
   * [#438](https://github.com/toptal/chewy/pull/438): Configurable sidekiq options ([@averell23][])
 
-## Version 0.9.0
+## 0.9.0
 
 ### Changes
 
@@ -143,7 +143,7 @@
   * [#385](https://github.com/toptal/chewy/pull/385): Sequel custom primary keys handling fix ([@okliv][])
   * [#374](https://github.com/toptal/chewy/pull/374): Bulk import fixes ([@0x0badc0de][])
 
-## Version 0.8.4
+## 0.8.4
 
 ### Changes
 
@@ -169,7 +169,7 @@
   * [#306](https://github.com/toptal/chewy/pull/306): Better errors handling in strategies ([@barthez][])
   * [#303](https://github.com/toptal/chewy/pull/303): Assets strategies silencer fix for Rails 5 API mode ([@clupprich][])
 
-## Version 0.8.3
+## 0.8.3
 
 ### Breaking changes:
 
@@ -188,7 +188,7 @@
   * Safe unsubscribe on import ([@marshall-lee][])
   * Correct custom assets path silencer ([@davekaro][])
 
-## Version 0.8.2
+## 0.8.2
 
 ### Changes
 
@@ -206,13 +206,13 @@
 
   * Fixed transport logger and tracer configuration
 
-## Version 0.8.1
+## 0.8.1
 
 ### Bugfixes
 
   * Added support of elasticsearch-ruby 1.0.10
 
-## Version 0.8.0
+## 0.8.0
 
 ### Breaking changes:
 
@@ -232,7 +232,7 @@
   * Rails 4.2 migrations are not raising UndefinedUpdateStrategy anymore on data updates
   * Mongoid random failing specs fixes ([@marshall-lee][])
 
-## Version 0.7.0
+## 0.7.0
 
 ### Breaking changes:
 
@@ -314,7 +314,7 @@
   * Chewy indexes eaged loading fixes ([@leemhenson][])
   * `Chewy::Index.import nil` imports nothing instead of initial data
 
-## Version 0.6.2
+## 0.6.2
 
 ### Changes
 
@@ -325,14 +325,14 @@
   * Removed decay function defaults ([@Linuus][])
   * Correct config file handling in case of empty file
 
-## Version 0.6.1
+## 0.6.1
 
 ### Changes
 
   * `min_score` query option support ([@jshirley][])
   * `Chewy::Query#find` method for finding documents by id
 
-## Version 0.6.0
+## 0.6.0
 
 ### Changes
 
@@ -345,7 +345,7 @@
 
   * All the query chainable methods delegated to indexes and types (partially [@Linuus][])
 
-## Version 0.5.2
+## 0.5.2
 
 ### Breaking changes:
 
@@ -360,7 +360,7 @@
   * Advanced type classes resolving ([@inbeom][])
   * `import` ignores nil
 
-## Version 0.5.1
+## 0.5.1
 
 ### Changes:
 
@@ -377,7 +377,7 @@
   * Indexed eager-loading fix ([@leemhenson][])
   * Field type deriving nested type support fix ([@rschellhorn][])
 
-## Version 0.5.0
+## 0.5.0
 
 ### Breaking changes:
 
@@ -407,7 +407,7 @@
   * Correct waiting for status. After index creation, bulk import, and deletion.
   * [#23](https://github.com/toptal/chewy/pull/23): Fix "wrong constant name" with namespace models
 
-## Version 0.4.0
+## 0.4.0
 
   * Changed `update_index` matcher behavior. Now it compare array attributes position-independently.
   * Search aggregations API support ([@arion][]).
@@ -418,18 +418,18 @@
   * `import` now creates index before performing.
   * `Chewy.configuration[:wait_for_status]` option. Can be set to `red`, `yellow` or `green`. If set - chewy will wait for cluster status before creating, deleting index and import. Useful for specs.
 
-## Version 0.3.0
+## 0.3.0
 
   * Added `Chewy.configuration[:index]` config to setup common indexes options.
   * `Chewy.client_options` replaced with `Chewy.configuration`
   * Using source filtering instead of fields filter (http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/search-request-source-filtering.html).
 
-## Version 0.2.3
+## 0.2.3
 
   * `.import!` indexes method, raises import errors.
   * `.import!` types method, raises import errors. Useful for specs.
 
-## Version 0.2.2
+## 0.2.2
 
   * Support for `none` scope ([@undr][]).
   * Auto-resolved analyzers and analyzers repository ([@webgago][]):
@@ -445,7 +445,7 @@
     ```
     `title_analyzer` here will be automatically resolved and passed to index mapping
 
-## Version 0.2.0
+## 0.2.0
 
   * Reworked import error handling. Now all the import errors from ElasticSearch are handled properly, also import method returns true of false depending on the import process success.
   * `Chewy::Index.import` now takes types hash as argument within options hash:
@@ -463,7 +463,7 @@
     `CitiesIndex.all.load(scope: {city: -> { include(:country) }})`
     `CitiesIndex.all.load(scope: ->{ include(:country) })`
 
-## Version 0.1.0
+## 0.1.0
 
   * Added filters simplified DSL. See [filters.rb](lib/chewy/query/filters.rb) for more details.
   * Queries and filters join system reworked. See [query.rb](lib/chewy/query.rb) for more details.
@@ -500,7 +500,7 @@
   * Implemented isolated adapters to simplify adding new ORMs
   * Query DLS chainable methods delegated to index class (no longer need to call MyIndex.search.query, just MyIndex.query)
 
-## Version 0.0.1
+## 0.0.1
 
   * Query DSL
   * Basic index handling

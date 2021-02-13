@@ -6,7 +6,7 @@
 
 ### Changes
 
-  * [#757](https://github.com/toptal/chewy/pull/757): Correctly report indices and aliases ([@mpeychich][], [@dalthon][])  
+  * [#757](https://github.com/toptal/chewy/pull/757): **(Breaking)** Fix `Chewy::Index.index` & `Chewy::Index.aliases` to correctly report indexes and aliases ([@mpeychich][], [@dalthon][])
   * [#761](https://github.com/toptal/chewy/pull/761): Avoid fetching scope data to check if it is blank ([@dalthon][])
 
 ### Bugs Fixed

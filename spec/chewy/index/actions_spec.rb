@@ -30,7 +30,7 @@ describe Chewy::Index::Actions do
     context do
       before do
         DummiesIndex.create '2013'
-        DummiesSuffixedIndex.create 'should_not_apper'
+        DummiesSuffixedIndex.create 'should_not_appear'
       end
 
       specify { expect(Chewy.client.indices.exists(index: 'dummies')).to eq(true) }
@@ -41,10 +41,7 @@ describe Chewy::Index::Actions do
       specify { expect(DummiesIndex.create('2014')['acknowledged']).to eq(true) }
 
       context do
-        before do
-          DummiesIndex.create '2014'
-          DummiesSuffixedIndex.create 'should_not_apper'
-        end
+        before { DummiesIndex.create '2014' }
 
         specify { expect(DummiesIndex.indexes).to match_array(%w[dummies_2013 dummies_2014]) }
       end
@@ -53,7 +50,7 @@ describe Chewy::Index::Actions do
     context do
       before do
         DummiesIndex.create '2013', alias: false
-        DummiesSuffixedIndex.create 'should_not_apper'
+        DummiesSuffixedIndex.create 'should_not_appear'
       end
 
       specify { expect(Chewy.client.indices.exists(index: 'dummies')).to eq(false) }
@@ -61,7 +58,7 @@ describe Chewy::Index::Actions do
       specify { expect(DummiesIndex.aliases).to eq([]) }
       specify { expect(DummiesIndex.indexes).to eq([]) }
       specify { expect(DummiesIndex.exists?).to eq(false) }
-      # Unfortunatelly, without alias we can't figure out that this dummies_2013 index is related to DummiesIndex
+      # Unfortunately, without alias we can't figure out that this dummies_2013 index is related to DummiesIndex
       # it would be awesome to have the following specs passing
       # specify { expect(DummiesIndex.indexes).to eq(['dummies_2013']) }
       # specify { expect(DummiesIndex.exists?).to eq(true) }
@@ -75,7 +72,7 @@ describe Chewy::Index::Actions do
     context do
       before do
         DummiesIndex.create
-        DummiesSuffixedIndex.create 'should_not_apper'
+        DummiesSuffixedIndex.create 'should_not_appear'
       end
 
       specify do
@@ -87,7 +84,7 @@ describe Chewy::Index::Actions do
     context do
       before do
         DummiesIndex.create! '2013'
-        DummiesSuffixedIndex.create 'should_not_apper'
+        DummiesSuffixedIndex.create! 'should_not_appear'
       end
 
       specify { expect(Chewy.client.indices.exists(index: 'dummies')).to eq(true) }
@@ -100,10 +97,7 @@ describe Chewy::Index::Actions do
       specify { expect(DummiesIndex.create!('2014')['acknowledged']).to eq(true) }
 
       context do
-        before do
-          DummiesIndex.create! '2014'
-          DummiesSuffixedIndex.create 'should_not_apper'
-        end
+        before { DummiesIndex.create! '2014' }
 
         specify { expect(DummiesIndex.indexes).to match_array(%w[dummies_2013 dummies_2014]) }
       end
@@ -112,7 +106,7 @@ describe Chewy::Index::Actions do
     context do
       before do
         DummiesIndex.create! '2013', alias: false
-        DummiesSuffixedIndex.create 'should_not_apper'
+        DummiesSuffixedIndex.create! 'should_not_appear'
       end
 
       specify { expect(Chewy.client.indices.exists(index: 'dummies')).to eq(false) }
@@ -120,7 +114,7 @@ describe Chewy::Index::Actions do
       specify { expect(DummiesIndex.aliases).to eq([]) }
       specify { expect(DummiesIndex.indexes).to eq([]) }
       specify { expect(DummiesIndex.exists?).to eq(false) }
-      # Unfortunatelly, without alias we can't figure out that this dummies_2013 index is related to DummiesIndex
+      # Unfortunately, without alias we can't figure out that this dummies_2013 index is related to DummiesIndex
       # it would be awesome to have the following specs passing
       # specify { expect(DummiesIndex.indexes).to eq(['dummies_2013']) }
       # specify { expect(DummiesIndex.exists?).to eq(true) }
@@ -134,7 +128,7 @@ describe Chewy::Index::Actions do
     context do
       before do
         DummiesIndex.create
-        DummiesSuffixedIndex.create 'should_not_apper'
+        DummiesSuffixedIndex.create 'should_not_appear'
       end
 
       specify { expect(DummiesIndex.delete['acknowledged']).to eq(true) }
@@ -142,13 +136,14 @@ describe Chewy::Index::Actions do
       context do
         before { DummiesIndex.delete }
         specify { expect(Chewy.client.indices.exists(index: 'dummies')).to eq(false) }
+        specify { expect(Chewy.client.indices.exists(index: 'dummies_suffixed')).to eq(true) }
       end
     end
 
     context do
       before do
         DummiesIndex.create '2013'
-        DummiesSuffixedIndex.create 'should_not_apper'
+        DummiesSuffixedIndex.create 'should_not_appear'
       end
 
       specify { expect(DummiesIndex.delete('2013')['acknowledged']).to eq(true) }
@@ -157,12 +152,12 @@ describe Chewy::Index::Actions do
         before { DummiesIndex.delete('2013') }
         specify { expect(Chewy.client.indices.exists(index: 'dummies')).to eq(false) }
         specify { expect(Chewy.client.indices.exists(index: 'dummies_2013')).to eq(false) }
+        specify { expect(Chewy.client.indices.exists(index: 'dummies_suffixed')).to eq(true) }
       end
 
       context do
         before do
           DummiesIndex.create '2014'
-          DummiesSuffixedIndex.create 'should_not_apper'
         end
 
         specify { expect(DummiesIndex.delete['acknowledged']).to eq(true) }
@@ -172,6 +167,7 @@ describe Chewy::Index::Actions do
           specify { expect(Chewy.client.indices.exists(index: 'dummies')).to eq(false) }
           specify { expect(Chewy.client.indices.exists(index: 'dummies_2013')).to eq(false) }
           specify { expect(Chewy.client.indices.exists(index: 'dummies_2014')).to eq(false) }
+          specify { expect(Chewy.client.indices.exists(index: 'dummies_suffixed')).to eq(true) }
         end
 
         context do
@@ -179,6 +175,7 @@ describe Chewy::Index::Actions do
           specify { expect(Chewy.client.indices.exists(index: 'dummies')).to eq(true) }
           specify { expect(Chewy.client.indices.exists(index: 'dummies_2013')).to eq(true) }
           specify { expect(Chewy.client.indices.exists(index: 'dummies_2014')).to eq(false) }
+          specify { expect(Chewy.client.indices.exists(index: 'dummies_suffixed')).to eq(true) }
         end
       end
     end
@@ -191,7 +188,7 @@ describe Chewy::Index::Actions do
     context do
       before do
         DummiesIndex.create
-        DummiesSuffixedIndex.create 'should_not_apper'
+        DummiesSuffixedIndex.create 'should_not_appear'
       end
 
       specify { expect(DummiesIndex.delete!['acknowledged']).to eq(true) }
@@ -199,13 +196,14 @@ describe Chewy::Index::Actions do
       context do
         before { DummiesIndex.delete! }
         specify { expect(Chewy.client.indices.exists(index: 'dummies')).to eq(false) }
+        specify { expect(Chewy.client.indices.exists(index: 'dummies_suffixed')).to eq(true) }
       end
     end
 
     context do
       before do
         DummiesIndex.create '2013'
-        DummiesSuffixedIndex.create 'should_not_apper'
+        DummiesSuffixedIndex.create 'should_not_appear'
       end
 
       specify { expect(DummiesIndex.delete!('2013')['acknowledged']).to eq(true) }
@@ -214,13 +212,11 @@ describe Chewy::Index::Actions do
         before { DummiesIndex.delete!('2013') }
         specify { expect(Chewy.client.indices.exists(index: 'dummies')).to eq(false) }
         specify { expect(Chewy.client.indices.exists(index: 'dummies_2013')).to eq(false) }
+        specify { expect(Chewy.client.indices.exists(index: 'dummies_suffixed')).to eq(true) }
       end
 
       context do
-        before do
-          DummiesIndex.create '2014'
-          DummiesSuffixedIndex.create 'should_not_apper'
-        end
+        before { DummiesIndex.create '2014' }
 
         specify { expect(DummiesIndex.delete!['acknowledged']).to eq(true) }
 
@@ -229,6 +225,7 @@ describe Chewy::Index::Actions do
           specify { expect(Chewy.client.indices.exists(index: 'dummies')).to eq(false) }
           specify { expect(Chewy.client.indices.exists(index: 'dummies_2013')).to eq(false) }
           specify { expect(Chewy.client.indices.exists(index: 'dummies_2014')).to eq(false) }
+          specify { expect(Chewy.client.indices.exists(index: 'dummies_suffixed')).to eq(true) }
         end
 
         context do
@@ -236,6 +233,7 @@ describe Chewy::Index::Actions do
           specify { expect(Chewy.client.indices.exists(index: 'dummies')).to eq(true) }
           specify { expect(Chewy.client.indices.exists(index: 'dummies_2013')).to eq(true) }
           specify { expect(Chewy.client.indices.exists(index: 'dummies_2014')).to eq(false) }
+          specify { expect(Chewy.client.indices.exists(index: 'dummies_suffixed')).to eq(true) }
         end
       end
     end

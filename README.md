@@ -95,13 +95,15 @@ Chewy is compatible with MRI 2.5-3.0¹.
 
 > ¹ Ruby 3 is only supported with Rails 6.1
 
-### Elasticsearch
+### Elasticsearch compatibility matrix
 
-Chewy 5 is compatible with Elasticsearch 5.
+| Chewy version | Elasticsearch version              |
+| ------------- | ---------------------------------- |
+| 7.0.0         | 6.8, 7.x                           |
+| 6.0.0         | 5.x, 6.x                           |
+| 5.x           | 5.x, limited support for 1.x & 2.x |
 
-Chewy 6 is compatible with Elasticsearch 6. See [Migration guide](migration_guide.md).
-
-Future versions of Chewy will support Elasticsearch 7.
+See [Migration guide](migration_guide.md).
 
 ## Usage
 

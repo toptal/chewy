@@ -990,6 +990,7 @@ module Chewy
 
       def perform(additional = {})
         request_body = render.merge(additional)
+        request_body[:rest_total_hits_as_int] = true if Runtime.version >= '7.0.0'
         ActiveSupport::Notifications.instrument 'search_query.chewy',
           notification_payload(request: request_body) do
             begin

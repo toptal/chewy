@@ -420,10 +420,12 @@ describe Chewy::Search::Request do
           outer_payload = payload
         end
         subject.query(match: {name: 'name3'}).to_a
+        request = {index: ['products'], type: %w[product], body: {query: {match: {name: 'name3'}}}}
+        request[:rest_total_hits_as_int] = true if Chewy::Runtime.version >= '7.0.0'
         expect(outer_payload).to eq(
           index: ProductsIndex,
           indexes: [ProductsIndex],
-          request: {index: ['products'], type: %w[product], body: {query: {match: {name: 'name3'}}}},
+          request: request,
           type: ProductsIndex::Product,
           types: [ProductsIndex::Product]
         )

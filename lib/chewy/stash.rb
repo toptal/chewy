@@ -24,7 +24,7 @@ module Chewy
       # @param since_time [Time, DateTime] a timestamp from which we load a journal
       # @param only [Chewy::Index, Array<Chewy::Index>] journal entries related to these indices will be loaded only
       def self.entries(since_time, only: [])
-        self.for(only).filter(range: {created_at: {gt: since_time}})
+        self.for(only).filter(range: {created_at: {gt: since_time}}).filter.minimum_should_match(1)
       end
 
       # Cleans up all the journal entries until the specified time. If nothing is

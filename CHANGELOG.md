@@ -8,6 +8,8 @@
 
 ### Bugs Fixed
 
+  * [#722](https://github.com/toptal/chewy/issues/722): Remove alias_method_chain, use Module#prepend instead ([@dalthon][])
+
 ## 7.0.0 (2021-02-22)
 
 ### New Features

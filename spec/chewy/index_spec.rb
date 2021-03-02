@@ -143,8 +143,6 @@ describe Chewy::Index do
 
   describe '.types' do
     specify { expect(DummiesIndex.types).to eq(DummiesIndex.type_hash.values) }
-    specify { expect(DummiesIndex.types(:dummy)).to be_a Chewy::Search::Request }
-    specify { expect(DummiesIndex.types(:user)).to be_a Chewy::Search::Request }
   end
 
   describe '.settings' do
@@ -233,7 +231,7 @@ describe Chewy::Index do
                define_type :document do
                  field :date, type: 'date'
                end
-             end.mappings_hash).to eq(mappings: {document: {properties: {date: {type: 'date'}}}})
+             end.mappings_hash).to eq(mappings: {properties: {date: {type: 'date'}}})
     end
   end
 

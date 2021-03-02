@@ -6,6 +6,13 @@
 
 ### Changes
 
+### Bugs Fixed
+
+## 7.1.0 (TODO)
+
+### Changes
+
+  * [TODO](): **(Breaking)** Drop support for Elasticsearch 6.x ([@rabotyaga][])
   * [#765](https://github.com/toptal/chewy/pull/765): Fix ruby 2.7 warnings in rake tasks ([@aglushkov][])
 
 ### Bugs Fixed

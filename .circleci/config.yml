@@ -23,8 +23,6 @@ workflows:
       - rspec-ruby-27-activerecord52
       - rspec-ruby-27-mongoid
       - rspec-ruby-30-activerecord61
-      - rspec-ruby-27-activerecord61-es6
-      - rspec-ruby-30-activerecord61-es6
 
 commands:
   rspec-test:
@@ -207,30 +205,6 @@ jobs:
     docker:
       - image: circleci/ruby:3.0
       - image: docker.elastic.co/elasticsearch/elasticsearch:7.10.1
-        environment:
-          <<: *es-env
-    working_directory: ~/repo
-    environment:
-      GEMFILE: gemfiles/rails.6.1.activerecord.gemfile
-    steps:
-      - rspec-test
-
-  rspec-ruby-27-activerecord61-es6:
-    docker:
-      - image: circleci/ruby:2.7
-      - image: docker.elastic.co/elasticsearch/elasticsearch:6.8.13
-        environment:
-          <<: *es-env
-    working_directory: ~/repo
-    environment:
-      GEMFILE: gemfiles/rails.6.1.activerecord.gemfile
-    steps:
-      - rspec-test
-
-  rspec-ruby-30-activerecord61-es6:
-    docker:
-      - image: circleci/ruby:3.0
-      - image: docker.elastic.co/elasticsearch/elasticsearch:6.8.13
         environment:
           <<: *es-env
     working_directory: ~/repo

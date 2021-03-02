@@ -41,7 +41,7 @@ module Chewy
       EXTRA_STORAGES = %i[aggs suggest].freeze
       # An array of storage names that are changing the returned hist collection in any way.
       WHERE_STORAGES = %i[
-        query filter post_filter none types min_score rescore indices_boost
+        query filter post_filter none min_score rescore indices_boost
       ].freeze
 
       delegate :hits, :wrappers, :objects, :records, :documents,
@@ -60,11 +60,11 @@ module Chewy
       #   Chewy::Search::Request.new(:places)
       #   # => <Chewy::Search::Request {:index=>["places"]}>
       #   Chewy::Search::Request.new(PlacesIndex)
-      #   # => <Chewy::Search::Request {:index=>["places"], :type=>["city", "country"]}>
+      #   # => <Chewy::Search::Request {:index=>["places"]}>
       #   Chewy::Search::Request.new(PlacesIndex::City)
-      #   # => <Chewy::Search::Request {:index=>["places"], :type=>["city"]}>
+      #   # => <Chewy::Search::Request {:index=>["places"]}>
       #   Chewy::Search::Request.new(UsersIndex, PlacesIndex::City)
-      #   # => <Chewy::Search::Request {:index=>["users", "places"], :type=>["city", "user"]}>
+      #   # => <Chewy::Search::Request {:index=>["users", "places"]}>
       # @param indexes_or_types [Array<Chewy::Index, Chewy::Type, String, Symbol>] indices and types in any combinations
       def initialize(*indices_or_types)
         indices = indices_or_types.reject do |klass|
@@ -75,8 +75,10 @@ module Chewy
           klass.is_a?(Class) && klass < Chewy::Type
         end
 
+        indices += types.map(&:index)
+
         parameters.modify!(:indices) do
-          replace!(indices: indices, types: types)
+          replace!(indices: indices)
         end
       end
 
@@ -305,34 +307,18 @@ module Chewy
         end
       end
 
-      # @!method indices(*values)
-      #   Modifies `index` request parameter. Updates the storage on every call.
-      #   Added passed indexes to the parameter list.
+      # Modifies `index` request parameter. Updates the storage on every call.
+      # Added passed indexes to the parameter list.
       #
-      #   @example
-      #     UsersIndex.indices(CitiesIndex).indices(:another)
-      #     # => <UsersIndex::Query {:index=>["another", "cities", "users"], :type=>["city", "user"]}>
-      #   @see Chewy::Search::Parameters::Indices
-      #   @see https://www.elastic.co/guide/en/elasticsearch/reference/current/search-search.html
-      #   @param values [Array<Chewy::Index, String, Symbol>] index names
-      #   @return [Chewy::Search::Request]
-      #
-      # @!method types(*values)
-      #   Modifies `type` request parameter. Updates the storage on every call.
-      #   Constrains types passed on the request initialization or adds them
-      #   to the list depending on circumstances.
-      #
-      #   @example
-      #     UsersIndex.types(CitiesIndex::City).types(:unexistent)
-      #     # => <UsersIndex::Query {:index=>["cities", "users"], :type=>["city", "user"]}>
-      #   @see Chewy::Search::Parameters::Indices
-      #   @see https://www.elastic.co/guide/en/elasticsearch/reference/current/search-search.html
-      #   @param values [Array<Chewy::Type, String, Symbol>] type names
-      #   @return [Chewy::Search::Request]
-      %i[indices types].each do |name|
-        define_method name do |value, *values|
-          modify(:indices) { update!(name => [value, *values]) }
-        end
+      # @example
+      #   UsersIndex.indices(CitiesIndex).indices(:another)
+      #   # => <UsersIndex::Query {:index=>["another", "cities", "users"]}>
+      # @see Chewy::Search::Parameters::Indices
+      # @see https://www.elastic.co/guide/en/elasticsearch/reference/current/search-search.html
+      # @param values [Array<Chewy::Index, String, Symbol>] index names
+      # @return [Chewy::Search::Request]
+      def indices(value, *values)
+        modify(:indices) { update!(indices: [value, *values]) }
       end
 
       # @overload reorder(*values)
@@ -990,7 +976,6 @@ module Chewy
 
       def perform(additional = {})
         request_body = render.merge(additional)
-        request_body[:rest_total_hits_as_int] = true if Runtime.version >= '7.0.0'
         ActiveSupport::Notifications.instrument 'search_query.chewy',
           notification_payload(request: request_body) do
             begin
@@ -1003,18 +988,13 @@ module Chewy
 
       def notification_payload(additional)
         {
-          indexes: _indices, types: _types,
-          index: _indices.one? ? _indices.first : _indices,
-          type: _types.one? ? _types.first : _types
+          indexes: _indices,
+          index: _indices.one? ? _indices.first : _indices
         }.merge(additional)
       end
 
       def _indices
         parameters[:indices].indices
-      end
-
-      def _types
-        parameters[:indices].types
       end
 
       def raw_limit_value

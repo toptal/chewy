@@ -9,14 +9,10 @@ module Chewy
     # @see Chewy::Search::Scrolling#scroll_objects
     class Loader
       # @param indexes [Array<Chewy::Index>] list of indexes to lookup types
-      # @param only [Array<String, Symbol>] list of selected type names to load
-      # @param except [Array<String, Symbol>] list of type names which will not be loaded
       # @param options [Hash] adapter-specific load options
       # @see Chewy::Type::Adapter::Base#load
-      def initialize(indexes: [], only: [], except: [], **options)
+      def initialize(indexes: [], **options)
         @indexes = indexes
-        @only = Array.wrap(only).map(&:to_s)
-        @except = Array.wrap(except).map(&:to_s)
         @options = options
       end
 
@@ -31,7 +27,7 @@ module Chewy
         (@derive_type ||= {})[[index, type]] ||= begin
           index_class = derive_index(index)
           raise Chewy::UnderivableType, "Can not find index named `#{index}`" unless index_class
-          index_class.type_hash[type] or raise Chewy::UnderivableType, "Index `#{index}` doesn`t have type named `#{type}`"
+          index_class.type_hash.values.first
         end
       end
 
@@ -48,8 +44,6 @@ module Chewy
       def load(hits)
         hit_groups = hits.group_by { |hit| [hit['_index'], hit['_type']] }
         loaded_objects = hit_groups.each_with_object({}) do |((index_name, type_name), hit_group), result|
-          next if skip_type?(type_name)
-
           type = derive_type(index_name, type_name)
           ids = hit_group.map { |hit| hit['_id'] }
           loaded = type.adapter.load(ids, **@options.merge(_type: type))
@@ -73,10 +67,6 @@ module Chewy
 
       def indexes_hash
         @indexes_hash ||= @indexes.index_by(&:index_name)
-      end
-
-      def skip_type?(type_name)
-        @except.include?(type_name) || @only.present? && !@only.include?(type_name)
       end
     end
   end

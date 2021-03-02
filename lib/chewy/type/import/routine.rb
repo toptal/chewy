@@ -69,8 +69,8 @@ module Chewy
           @type.index.create!(**@bulk_options.slice(:suffix)) unless @type.index.exists?
         end
 
-        # The main process method. Converts passed objects to thr bulk request body,
-        # appends journal entires, performs this request and handles errors performing
+        # The main process method. Converts passed objects to the bulk request body,
+        # appends journal entries, performs this request and handles errors performing
         # failover procedures if applicable.
         #
         # @param index [Array<Object>] any acceptable objects for indexing

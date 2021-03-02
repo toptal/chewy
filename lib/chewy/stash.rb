@@ -46,11 +46,8 @@ module Chewy
         types = something.flat_map { |s| Chewy.derive_types(s) }
         return none if something.present? && types.blank?
         scope = all
-        types.group_by(&:index).each do |index, index_types|
-          scope = scope.or(
-            filter(term: {index_name: index.derivable_name})
-              .filter(terms: {type_name: index_types.map(&:type_name)})
-          )
+        types.map(&:index).uniq.each do |index|
+          scope = scope.or(filter(term: {index_name: index.derivable_name}))
         end
         scope
       end

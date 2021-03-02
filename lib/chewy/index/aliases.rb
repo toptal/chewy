@@ -5,9 +5,7 @@ module Chewy
 
       module ClassMethods
         def indexes
-          get_args = {index: index_name}
-          get_args[:include_type_name] = true if Runtime.version >= '6.7.0'
-          indexes = empty_if_not_found { client.indices.get(**get_args).keys }
+          indexes = empty_if_not_found { client.indices.get(index: index_name).keys }
           indexes += empty_if_not_found { client.indices.get_alias(name: index_name).keys }
           indexes.compact.uniq
         end

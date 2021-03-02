@@ -17,8 +17,7 @@ module Chewy
             ].compact
           ).bulk_body.each do |item|
             item.values.first.merge!(
-              _index: Chewy::Stash::Journal.index_name,
-              _type: Chewy::Stash::Journal::Journal.type_name
+              _index: Chewy::Stash::Journal.index_name
             )
           end
         end

@@ -32,7 +32,6 @@ describe Chewy::Type::Import::BulkRequest do
     specify do
       expect(Chewy.client).to receive(:bulk).with(
         index: 'places',
-        type: 'city',
         body: [{index: {id: 42, data: {name: 'Name'}}}]
       )
       subject.perform([{index: {id: 42, data: {name: 'Name'}}}])
@@ -44,7 +43,6 @@ describe Chewy::Type::Import::BulkRequest do
       specify do
         expect(Chewy.client).to receive(:bulk).with(
           index: 'places_suffix',
-          type: 'city',
           body: [{index: {id: 42, data: {name: 'Name'}}}]
         )
         subject.perform([{index: {id: 42, data: {name: 'Name'}}}])
@@ -57,7 +55,6 @@ describe Chewy::Type::Import::BulkRequest do
       specify do
         expect(Chewy.client).to receive(:bulk).with(
           index: 'places',
-          type: 'city',
           body: "{\"index\":{\"id\":42}}\n{\"name\":\"#{'Name' * 10}\"}\n{\"index\":{\"id\":43}}\n{\"name\":\"#{'Shame' * 10}\"}\n"
         )
         subject.perform([
@@ -69,17 +66,14 @@ describe Chewy::Type::Import::BulkRequest do
       specify do
         expect(Chewy.client).to receive(:bulk).with(
           index: 'places',
-          type: 'city',
           body: "{\"index\":{\"id\":42}}\n{\"name\":\"#{'Name' * 30}\"}\n"
         )
         expect(Chewy.client).to receive(:bulk).with(
           index: 'places',
-          type: 'city',
           body: "{\"index\":{\"id\":43}}\n{\"name\":\"#{'Shame' * 100}\"}\n"
         )
         expect(Chewy.client).to receive(:bulk).with(
           index: 'places',
-          type: 'city',
           body: "{\"index\":{\"id\":44}}\n{\"name\":\"#{'Blame' * 30}\"}\n"
         )
         subject.perform([

@@ -17,7 +17,6 @@ Chewy is an ODM (Object Document Mapper), built on top of the [the official Elas
   * [Index definition](#index-definition)
   * [Type default import options](#type-default-import-options)
   * [Multi (nested) and object field types](#multi-nested-and-object-field-types)
-  * [Parent and children types](#parent-and-children-types)
   * [Geo Point fields](#geo-point-fields)
   * [Crutches™ technology](#crutches-technology)
   * [Witchcraft™ technology](#witchcraft-technology)
@@ -54,10 +53,6 @@ Chewy is an ODM (Object Document Mapper), built on top of the [the official Elas
 ## Why Chewy?
 
 In this section we'll cover why you might want to use Chewy instead of the official `elasticsearch-ruby` client gem.
-
-* Multi-model indices.
-
-  Index classes are independent from ORM/ODM models. Now, implementing e.g. cross-model autocomplete is much easier. You can just define the index and work with it in an object-oriented style. You can define several types for index - one per indexed model.
 
 * Every index is observable by all the related models.
 
@@ -366,18 +361,6 @@ end
 
 The `value:` option for internal fields will no longer be effective.
 
-### Parent and children types
-
-To define [parent](https://www.elastic.co/guide/en/elasticsearch/guide/current/parent-child-mapping.html) type for a given index_type, you can include root options for the type where you can specify parent_type and parent_id
-
-```ruby
-define_type User.includes(:account) do
-  root parent: 'account', parent_id: ->{ account_id } do
-    field :created_at, type: 'date'
-    field :task_id, type: 'integer'
-  end
-end
-```
 ### Geo Point fields
 
 You can use [Elasticsearch's geo mapping](https://www.elastic.co/guide/en/elasticsearch/reference/current/geo-point.html) with the `geo_point` field type, allowing you to query, filter and order by latitude and longitude. You can use the following hash format:
@@ -603,7 +586,7 @@ Imagine that you reset your index in a zero-downtime manner (to separate index),
 
 ### Types access
 
-You can access index-defined types with the following API:
+You can access index-defined type with the following API:
 
 ```ruby
 UsersIndex::User # => UsersIndex::User
@@ -631,11 +614,10 @@ UsersIndex::User.import # import with 0 arguments process all the data specified
 UsersIndex::User.import User.where('rating > 100') # or import specified users scope
 UsersIndex::User.import User.where('rating > 100').to_a # or import specified users array
 UsersIndex::User.import [1, 2, 42] # pass even ids for import, it will be handled in the most effective way
-UsersIndex::User.import User.where('rating > 100'), update_fields: [:email] # if update fields are specified - it will update their values only with the `update` bulk action.
+UsersIndex::User.import User.where('rating > 100'), update_fields: [:email] # if update fields are specified - it will update their values only with the `update` bulk action
 
-UsersIndex.import # import every defined type
-UsersIndex.import user: User.where('rating > 100') # import only active users to `user` type.
-  # Other index types, if exists, will be imported with default scope from the type definition.
+UsersIndex.import # same as UsersIndex::User.import
+UsersIndex.import user: User.where('rating > 100') # import only specified users
 UsersIndex.reset! # purges index and imports default data for all types
 ```
 
@@ -924,17 +906,23 @@ Quick introduction.
 The request DSL have the same chainable nature as AR or Mongoid ones. The main class is `Chewy::Search::Request`. It is possible to perform requests on behalf of indices or types:
 
 ```ruby
-PlaceIndex.query(match: {name: 'London'}) # returns documents of any type
-PlaceIndex::City.query(match: {name: 'London'}) # returns cities only.
+CitiesIndex.query(match: {name: 'London'}) # or
+CitiesIndex::City.query(match: {name: 'London'})
 ```
 
 Main methods of the request DSL are: `query`, `filter` and `post_filter`, it is possible to pass pure query hashes or use `elasticsearch-dsl`. Also, there is an additional
 
 ```ruby
-PlaceIndex
+CitiesIndex
   .filter(term: {name: 'Bangkok'})
   .query { match name: 'London' }
   .query.not(range: {population: {gt: 1_000_000}})
+```
+
+You can query a set of indexes at once:
+
+```ruby
+CitiesIndex.indices(CountriesIndex).query(match: {name: 'Some'})
 ```
 
 See https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl.html and https://github.com/elastic/elasticsearch-ruby/tree/master/elasticsearch-dsl for more details.
@@ -944,7 +932,7 @@ An important part of requests manipulation is merging. There are 4 methods to pe
 Every other request part is covered by a bunch of additional methods, see [Chewy::Search::Request](lib/chewy/search/request.rb) for details:
 
 ```ruby
-PlaceIndex.limit(10).offset(30).order(:name, {population: {order: :desc}})
+CitiesIndex.limit(10).offset(30).order(:name, {population: {order: :desc}})
 ```
 
 Request DSL also provides additional scope actions, like `delete_all`, `exists?`, `count`, `pluck`, etc.
@@ -970,8 +958,8 @@ See [Chewy::Search::Scrolling](lib/chewy/search/scrolling.rb) for details.
 It is possible to load ORM/ODM source objects with the `objects` method. To provide additional loading options use `load` method:
 
 ```ruby
-PlacesIndex.load(scope: -> { active }).to_a # to_a returns `Chewy::Type` wrappers.
-PlacesIndex.load(scope: -> { active }).objects # An array of AR source objects.
+CitiesIndex.load(scope: -> { active }).to_a # to_a returns `Chewy::Type` wrappers.
+CitiesIndex.load(scope: -> { active }).objects # An array of AR source objects.
 ```
 
 See [Chewy::Search::Loader](lib/chewy/search/loader.rb) for more details.
@@ -979,7 +967,7 @@ See [Chewy::Search::Loader](lib/chewy/search/loader.rb) for more details.
 In case when it is necessary to iterate through both of the wrappers and objects simultaneously, `object_hash` method helps a lot:
 
 ```ruby
-scope = PlacesIndex.load(scope: -> { active })
+scope = CitiesIndex.load(scope: -> { active })
 scope.each do |wrapper|
   scope.object_hash[wrapper]
 end
@@ -996,8 +984,8 @@ Performs zero-downtime reindexing as described [here](https://www.elastic.co/blo
 ```bash
 rake chewy:reset # resets all the existing indices
 rake chewy:reset[users] # resets UsersIndex only
-rake chewy:reset[users,places] # resets UsersIndex and PlacesIndex
-rake chewy:reset[-users,places] # resets every index in the application except specified ones
+rake chewy:reset[users,cities] # resets UsersIndex and CitiesIndex
+rake chewy:reset[-users,cities] # resets every index in the application except specified ones
 ```
 
 #### `chewy:upgrade`
@@ -1012,8 +1000,8 @@ See [Chewy::Stash::Specification](lib/chewy/stash.rb) and [Chewy::Index::Specifi
 ```bash
 rake chewy:upgrade # upgrades all the existing indices
 rake chewy:upgrade[users] # upgrades UsersIndex only
-rake chewy:upgrade[users,places] # upgrades UsersIndex and PlacesIndex
-rake chewy:upgrade[-users,places] # upgrades every index in the application except specified ones
+rake chewy:upgrade[users,cities] # upgrades UsersIndex and CitiesIndex
+rake chewy:upgrade[-users,cities] # upgrades every index in the application except specified ones
 ```
 
 #### `chewy:update`
@@ -1025,8 +1013,8 @@ Unlike `reset` or `upgrade` tasks, it is possible to pass type references to upd
 ```bash
 rake chewy:update # updates all the existing indices
 rake chewy:update[users] # updates UsersIndex only
-rake chewy:update[users,places#city] # updates the whole UsersIndex and PlacesIndex::City type
-rake chewy:update[-users,places#city] # updates every index in the application except every type defined in UsersIndex and the rest of the types defined in PlacesIndex
+rake chewy:update[users,cities#city] # updates UsersIndex and CitiesIndex (if City type is defined on CitiesIndex)
+rake chewy:update[-users,cities#city] # updates every index in the application except UsersIndex and CitiesIndex::City
 ```
 
 #### `chewy:sync`
@@ -1040,8 +1028,8 @@ See [Chewy::Type::Syncer](lib/chewy/type/syncer.rb) for more details.
 ```bash
 rake chewy:sync # synchronizes all the existing indices
 rake chewy:sync[users] # synchronizes UsersIndex only
-rake chewy:sync[users,places#city] # synchronizes the whole UsersIndex and PlacesIndex::City type
-rake chewy:sync[-users,places#city] # synchronizes every index in the application except every type defined in UsersIndex and the rest of the types defined in PlacesIndex
+rake chewy:sync[users,cities#city] # synchronizes UsersIndex and CitiesIndex (if City type is defined on CitiesIndex)
+rake chewy:sync[-users,cities#city] # synchronizes every index in the application except except UsersIndex and CitiesIndex::City
 ```
 
 #### `chewy:deploy`
@@ -1065,7 +1053,7 @@ If the number of processes is not specified explicitly - `parallel` gem tries to
 ```bash
 rake chewy:parallel:reset
 rake chewy:parallel:upgrade[4]
-rake chewy:parallel:update[4,places#city]
+rake chewy:parallel:update[4,cities#city]
 rake chewy:parallel:sync[4,-users]
 rake chewy:parallel:deploy[4] # performs parallel upgrade and parallel sync afterwards
 ```

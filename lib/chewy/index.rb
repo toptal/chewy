@@ -152,23 +152,12 @@ module Chewy
         self.type_hash = type_hash.merge(type_class.type_name => type_class)
       end
 
-      # Types method has double usage.
-      # If no arguments are passed - it returns array of defined types:
+      # Returns defined type:
       #
-      #   UsersIndex.types # => [UsersIndex::Admin, UsersIndex::Manager, UsersIndex::User]
+      #   UsersIndex.types # => [UsersIndex::User]
       #
-      # If arguments are passed it treats like a part of chainable query DSL and
-      # adds types array for index to select.
-      #
-      #   UsersIndex.filters { name =~ 'ro' }.types(:admin, :manager)
-      #   UsersIndex.types(:admin, :manager).filters { name =~ 'ro' } # the same as the first example
-      #
-      def types(*args)
-        if args.present?
-          all.types(*args)
-        else
-          type_hash.values
-        end
+      def types
+        type_hash.values
       end
 
       # Returns defined types names:

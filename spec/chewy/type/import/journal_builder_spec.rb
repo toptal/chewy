@@ -29,7 +29,6 @@ describe Chewy::Type::Import::JournalBuilder, :orm do
         expect(subject.bulk_body).to eq([{
           index: {
             _index: 'chewy_journal',
-            _type: 'journal',
             data: {
               'index_name' => 'namespace/cities',
               'type_name' => 'city',
@@ -48,7 +47,6 @@ describe Chewy::Type::Import::JournalBuilder, :orm do
         expect(subject.bulk_body).to eq([{
           index: {
             _index: 'chewy_journal',
-            _type: 'journal',
             data: {
               'index_name' => 'namespace/cities',
               'type_name' => 'city',
@@ -69,7 +67,6 @@ describe Chewy::Type::Import::JournalBuilder, :orm do
         expect(subject.bulk_body).to eq([{
           index: {
             _index: 'chewy_journal',
-            _type: 'journal',
             data: {
               'index_name' => 'namespace/countries',
               'type_name' => 'country',
@@ -81,7 +78,6 @@ describe Chewy::Type::Import::JournalBuilder, :orm do
         }, {
           index: {
             _index: 'chewy_journal',
-            _type: 'journal',
             data: {
               'index_name' => 'namespace/countries',
               'type_name' => 'country',

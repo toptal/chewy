@@ -183,7 +183,7 @@ module Chewy
         # Returns compiled mappings hash for current type
         #
         def mappings_hash
-          root.mappings_hash[type_name.to_sym].present? ? root.mappings_hash : {}
+          root.mappings_hash
         end
 
         # Check whether the type has outdated_sync_field defined with a simple value.

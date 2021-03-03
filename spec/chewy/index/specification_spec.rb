@@ -56,12 +56,12 @@ describe Chewy::Index::Specification do
     specify do
       expect { specification1.lock! }.to change { Chewy::Stash::Specification.all.hits }.from([]).to([{
         '_index' => 'chewy_specifications',
-        '_type' => 'specification',
+        '_type' => '_doc',
         '_id' => 'places',
         '_score' => 1.0,
         '_source' => {'specification' => Base64.encode64({
           'settings' => {'index' => {'number_of_shards' => 1, 'number_of_replicas' => 0}},
-          'mappings' => {'city' => {'properties' => {'founded_on' => {'type' => 'date'}}}}
+          'mappings' => {'properties' => {'founded_on' => {'type' => 'date'}}}
         }.to_json)}
       }])
     end
@@ -72,21 +72,21 @@ describe Chewy::Index::Specification do
       specify do
         expect { specification5.lock! }.to change { Chewy::Stash::Specification.all.hits }.to([{
           '_index' => 'chewy_specifications',
-          '_type' => 'specification',
+          '_type' => '_doc',
           '_id' => 'places',
           '_score' => 1.0,
           '_source' => {'specification' => Base64.encode64({
             'settings' => {'index' => {'number_of_shards' => 1, 'number_of_replicas' => 0}},
-            'mappings' => {'city' => {'properties' => {'founded_on' => {'type' => 'date'}}}}
+            'mappings' => {'properties' => {'founded_on' => {'type' => 'date'}}}
           }.to_json)}
         }, {
           '_index' => 'chewy_specifications',
-          '_type' => 'specification',
+          '_type' => '_doc',
           '_id' => 'namespace/cities',
           '_score' => 1.0,
           '_source' => {'specification' => Base64.encode64({
             'settings' => {'index' => {'number_of_shards' => 1, 'number_of_replicas' => 0}},
-            'mappings' => {'city' => {'properties' => {'population' => {'type' => 'integer'}}}}
+            'mappings' => {'properties' => {'population' => {'type' => 'integer'}}}
           }.to_json)}
         }])
       end
@@ -97,14 +97,14 @@ describe Chewy::Index::Specification do
     specify do
       expect { specification1.lock! }.to change { specification1.locked }.from({}).to(
         'settings' => {'index' => {'number_of_shards' => 1, 'number_of_replicas' => 0}},
-        'mappings' => {'city' => {'properties' => {'founded_on' => {'type' => 'date'}}}}
+        'mappings' => {'properties' => {'founded_on' => {'type' => 'date'}}}
       )
     end
 
     specify do
       expect { specification5.lock! }.to change { specification5.locked }.from({}).to(
         'settings' => {'index' => {'number_of_shards' => 1, 'number_of_replicas' => 0}},
-        'mappings' => {'city' => {'properties' => {'population' => {'type' => 'integer'}}}}
+        'mappings' => {'properties' => {'population' => {'type' => 'integer'}}}
       )
     end
 
@@ -114,20 +114,20 @@ describe Chewy::Index::Specification do
       specify do
         expect { specification2.lock! }.to change { specification2.locked }.from(
           'settings' => {'index' => {'number_of_shards' => 1, 'number_of_replicas' => 0}},
-          'mappings' => {'city' => {'properties' => {'founded_on' => {'type' => 'date'}}}}
+          'mappings' => {'properties' => {'founded_on' => {'type' => 'date'}}}
         ).to(
           'settings' => {'analyzer' => {}, 'index' => {'number_of_shards' => 1, 'number_of_replicas' => 0}},
-          'mappings' => {'city' => {'properties' => {'founded_on' => {'type' => 'date'}}}}
+          'mappings' => {'properties' => {'founded_on' => {'type' => 'date'}}}
         )
       end
 
       specify do
         expect { specification3.lock! }.to change { specification3.locked }.from(
           'settings' => {'index' => {'number_of_shards' => 1, 'number_of_replicas' => 0}},
-          'mappings' => {'city' => {'properties' => {'founded_on' => {'type' => 'date'}}}}
+          'mappings' => {'properties' => {'founded_on' => {'type' => 'date'}}}
         ).to(
           'settings' => {'index' => {'number_of_shards' => 1, 'number_of_replicas' => 0}},
-          'mappings' => {'city' => {'properties' => {'founded_on' => {'type' => 'date'}, 'population' => {'type' => 'integer'}}}}
+          'mappings' => {'properties' => {'founded_on' => {'type' => 'date'}, 'population' => {'type' => 'integer'}}}
         )
       end
     end
@@ -136,7 +136,7 @@ describe Chewy::Index::Specification do
   describe '#current' do
     specify do
       expect(specification2.current).to eq(
-        'mappings' => {'city' => {'properties' => {'founded_on' => {'type' => 'date'}}}},
+        'mappings' => {'properties' => {'founded_on' => {'type' => 'date'}}},
         'settings' => {'analyzer' => {}, 'index' => {'number_of_shards' => 1, 'number_of_replicas' => 0}}
       )
     end

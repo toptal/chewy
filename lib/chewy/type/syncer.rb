@@ -205,12 +205,9 @@ module Chewy
         return @outdated_sync_field_type if instance_variable_defined?(:@outdated_sync_field_type)
         return unless @type.outdated_sync_field
 
-        args = {index: @type.index_name, type: @type.type_name}
-        args[:include_type_name] = true if Runtime.version >= '6.7.0'
-        mappings = @type.client.indices.get_mapping(**args).values.first.fetch('mappings', {})
+        mappings = @type.client.indices.get_mapping(index: @type.index_name).values.first.fetch('mappings', {})
 
         @outdated_sync_field_type = mappings
-          .fetch(@type.type_name, {})
           .fetch('properties', {})
           .fetch(@type.outdated_sync_field.to_s, {})['type']
       rescue Elasticsearch::Transport::Transport::Errors::NotFound

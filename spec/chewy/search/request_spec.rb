@@ -46,7 +46,6 @@ describe Chewy::Search::Request do
       expect(subject.render)
         .to match(
           index: %w[products],
-          type: array_including(%w[product]),
           body: {}
         )
     end
@@ -55,11 +54,11 @@ describe Chewy::Search::Request do
   describe '#inspect' do
     specify do
       expect(described_class.new(ProductsIndex).inspect)
-        .to eq('<Chewy::Search::Request {:index=>["products"], :type=>["product"], :body=>{}}>')
+        .to eq('<Chewy::Search::Request {:index=>["products"], :body=>{}}>')
     end
     specify do
       expect(ProductsIndex.limit(10).inspect)
-        .to eq('<ProductsIndex::Query {:index=>["products"], :type=>["product"], :body=>{:size=>10}}>')
+        .to eq('<ProductsIndex::Query {:index=>["products"], :body=>{:size=>10}}>')
     end
   end
 
@@ -229,14 +228,6 @@ describe Chewy::Search::Request do
     specify { expect(subject.indices(CitiesIndex, :whatever).render[:index]).to eq(%w[cities products whatever]) }
     specify { expect(subject.indices([CitiesIndex, :products]).render[:index]).to eq(%w[cities products]) }
     specify { expect { subject.indices(:cities) }.not_to change { subject.render } }
-  end
-
-  describe '#types' do
-    specify { expect(subject.types(:product).render[:type]).to contain_exactly('product') }
-    specify { expect(subject.types(%i[product city]).types(nil).render[:type]).to match_array(%w[product]) }
-    specify { expect(subject.types(:product).types(:product, :city, :something).render[:type]).to match_array(%w[product]) }
-    specify { expect(subject.types(nil).render[:body]).to be_blank }
-    specify { expect { subject.types(:product) }.not_to change { subject.render } }
   end
 
   describe '#indices_boost' do
@@ -420,14 +411,10 @@ describe Chewy::Search::Request do
           outer_payload = payload
         end
         subject.query(match: {name: 'name3'}).to_a
-        request = {index: ['products'], type: %w[product], body: {query: {match: {name: 'name3'}}}}
-        request[:rest_total_hits_as_int] = true if Chewy::Runtime.version >= '7.0.0'
         expect(outer_payload).to eq(
           index: ProductsIndex,
           indexes: [ProductsIndex],
-          request: request,
-          type: ProductsIndex::Product,
-          types: [ProductsIndex::Product]
+          request: {index: ['products'], body: {query: {match: {name: 'name3'}}}}
         )
       end
     end
@@ -592,12 +579,12 @@ describe Chewy::Search::Request do
       specify { expect(subject.limit(5).pluck(:_id, :age)).to eq([['1', 10], ['2', 20], ['3', 30], ['4', 40], ['5', 50]]) }
       specify { expect(subject.limit(5).source(:name).pluck(:id, :age)).to eq([[1, 10], [2, 20], [3, 30], [4, 40], [5, 50]]) }
       specify do
-        expect(subject.limit(5).pluck(:_index, :_type, :name)).to eq([
-          %w[products product Name1],
-          %w[products product Name2],
-          %w[products product Name3],
-          %w[products product Name4],
-          %w[products product Name5]
+        expect(subject.limit(5).pluck(:_index, :name)).to eq([
+          %w[products Name1],
+          %w[products Name2],
+          %w[products Name3],
+          %w[products Name4],
+          %w[products Name5]
         ])
       end
 
@@ -644,9 +631,7 @@ describe Chewy::Search::Request do
         expect(outer_payload).to eq(
           index: ProductsIndex,
           indexes: [ProductsIndex],
-          request: {index: ['products'], type: %w[product], body: {query: {match: {name: 'name3'}}}, refresh: true},
-          type: ProductsIndex::Product,
-          types: [ProductsIndex::Product]
+          request: {index: ['products'], body: {query: {match: {name: 'name3'}}}, refresh: true}
         )
       end
 
@@ -659,9 +644,7 @@ describe Chewy::Search::Request do
         expect(outer_payload).to eq(
           index: ProductsIndex,
           indexes: [ProductsIndex],
-          request: {index: ['products'], type: %w[product], body: {query: {match: {name: 'name3'}}}, refresh: false},
-          type: ProductsIndex::Product,
-          types: [ProductsIndex::Product]
+          request: {index: ['products'], body: {query: {match: {name: 'name3'}}}, refresh: false}
         )
       end
     end

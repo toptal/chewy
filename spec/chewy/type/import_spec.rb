@@ -366,8 +366,8 @@ describe Chewy::Type::Import do
 
           # Full match doesn't work here.
           expect(payload[:errors][:update].keys).to match([
-            hash_including('type' => 'document_missing_exception', 'reason' => '[city][1]: document missing'),
-            hash_including('type' => 'document_missing_exception', 'reason' => '[city][3]: document missing')
+            hash_including('type' => 'document_missing_exception', 'reason' => '[_doc][1]: document missing'),
+            hash_including('type' => 'document_missing_exception', 'reason' => '[_doc][3]: document missing')
           ])
           expect(payload[:errors][:update].values).to eq([['1'], ['3']])
           expect(imported_cities).to match_array([

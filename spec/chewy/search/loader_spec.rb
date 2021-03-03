@@ -37,7 +37,6 @@ describe Chewy::Search::Loader do
     specify { expect(subject.derive_type('cities', 'city')).to eq(CitiesIndex::City) }
     specify { expect(subject.derive_type('cities_suffix', 'city')).to eq(CitiesIndex::City) }
 
-    specify { expect { subject.derive_type('cities', 'place') }.to raise_error(Chewy::UnderivableType) }
     specify { expect { subject.derive_type('whatever', 'city') }.to raise_error(Chewy::UnderivableType) }
     specify { expect { subject.derive_type('citiessuffix', 'city') }.to raise_error(Chewy::UnderivableType) }
 
@@ -53,21 +52,6 @@ describe Chewy::Search::Loader do
     let(:hits) { Chewy::Search::Request.new(CitiesIndex, CountriesIndex).order(:rating).hits }
 
     specify { expect(subject.load(hits)).to eq([*cities, *countries]) }
-
-    context do
-      let(:options) { {only: 'city'} }
-      specify { expect(subject.load(hits)).to eq([*cities, nil, nil]) }
-    end
-
-    context do
-      let(:options) { {except: 'city'} }
-      specify { expect(subject.load(hits)).to eq([nil, nil, *countries]) }
-    end
-
-    context do
-      let(:options) { {except: %w[city country]} }
-      specify { expect(subject.load(hits)).to eq([nil, nil, nil, nil]) }
-    end
 
     context 'scopes', :active_record do
       context do

@@ -37,12 +37,12 @@ describe Chewy::Search do
     end
 
     specify do
-      expect(ProductsIndex.client).to receive(:search).with(hash_including(index: ['products'], type: %w[product]))
+      expect(ProductsIndex.client).to receive(:search).with(hash_including(index: ['products']))
       ProductsIndex.search_string('hello')
     end
 
     specify do
-      expect(ProductsIndex.client).to receive(:search).with(hash_including(index: ['products'], type: %w[product]))
+      expect(ProductsIndex.client).to receive(:search).with(hash_including(index: ['products']))
       product.search_string('hello')
     end
   end

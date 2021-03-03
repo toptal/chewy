@@ -137,7 +137,7 @@ describe Chewy::Journal do
             expect(journal_entries.size).to eq 4
 
             # simulate lost data
-            Chewy.client.delete(index: "#{Chewy.settings[:prefix]}_cities", type: 'city', id: 1, refresh: true)
+            Chewy.client.delete(index: "#{Chewy.settings[:prefix]}_cities", id: 1, refresh: true)
             expect(cities_index.count).to eq 1
 
             described_class.new.apply(time)
@@ -192,8 +192,8 @@ describe Chewy::Journal do
             Array.new(2) { |i| Country.create!(id: i + 1) }
 
             # simulate lost data
-            Chewy.client.delete(index: 'cities', type: 'city', id: 1, refresh: true)
-            Chewy.client.delete(index: 'countries', type: 'country', id: 1, refresh: true)
+            Chewy.client.delete(index: 'cities', id: 1, refresh: true)
+            Chewy.client.delete(index: 'countries', id: 1, refresh: true)
             expect(CitiesIndex.all.to_a.length).to eq 1
             expect(CountriesIndex.all.to_a.length).to eq 1
 
@@ -203,7 +203,7 @@ describe Chewy::Journal do
             expect(CountriesIndex.all.to_a.length).to eq 1
 
             # Replay on both
-            Chewy.client.delete(index: 'cities', type: 'city', id: 1, refresh: true)
+            Chewy.client.delete(index: 'cities', id: 1, refresh: true)
             expect(CitiesIndex.all.to_a.length).to eq 1
             expect(described_class.new(CitiesIndex, CountriesIndex).apply(time)).to eq(4)
             expect(CitiesIndex.all.to_a.length).to eq 2

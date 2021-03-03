@@ -119,22 +119,16 @@ describe Chewy::Search::Scrolling, :orm do
             outer_payload << payload
           end
           request.scroll_batches(batch_size: 3).to_a
-          request = {index: %w[cities countries], type: %w[city country], body: {sort: ['rating']}, size: 3, scroll: '1m'}
-          request[:rest_total_hits_as_int] = true if Chewy::Runtime.version >= '7.0.0'
           expect(outer_payload).to match_array([
             hash_including(
               index: [CitiesIndex, CountriesIndex],
               indexes: [CitiesIndex, CountriesIndex],
-              request: request,
-              type: [CitiesIndex::City, CountriesIndex::Country],
-              types: [CitiesIndex::City, CountriesIndex::Country]
+              request: {index: %w[cities countries], body: {sort: ['rating']}, size: 3, scroll: '1m'}
             ),
             hash_including(
               index: [CitiesIndex, CountriesIndex],
               indexes: [CitiesIndex, CountriesIndex],
-              request: {scroll: '1m', scroll_id: an_instance_of(String)},
-              type: [CitiesIndex::City, CountriesIndex::Country],
-              types: [CitiesIndex::City, CountriesIndex::Country]
+              request: {scroll: '1m', scroll_id: an_instance_of(String)}
             )
           ])
         end

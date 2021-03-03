@@ -59,7 +59,7 @@ describe Chewy::Type::Mapping do
         Chewy.default_root_options = previous_options
       end
 
-      specify { expect(product.mappings_hash[:product]).to include(_all: {enabled: false}) }
+      specify { expect(product.mappings_hash).to include(_all: {enabled: false}) }
     end
   end
 
@@ -90,12 +90,11 @@ describe Chewy::Type::Mapping do
         before do
           stub_index(:products) do
             define_type :product do
-              root _parent: 'project', other_option: 'nothing' do
+              root other_option: 'nothing' do
                 field :name do
                   field :last_name # will be redefined in the following root flock
                 end
               end
-              root _parent: 'something_else'
               root other_option: 'option_value' do
                 field :identifier
                 field :name, type: 'integer'
@@ -105,45 +104,14 @@ describe Chewy::Type::Mapping do
         end
 
         specify do
-          expect(product.mappings_hash).to eq(product: {
+          expect(product.mappings_hash).to eq(
             properties: {
               name: {type: 'integer'},
               identifier: {type: Chewy.default_field_type}
             },
-            other_option: 'option_value',
-            _parent: {type: 'something_else'}
-          })
+            other_option: 'option_value'
+          )
         end
-      end
-    end
-
-    context 'parent-child relationship' do
-      context do
-        before do
-          stub_index(:products) do
-            define_type :product do
-              root _parent: 'project', parent_id: -> { project_id } do
-                field :name, 'surname'
-              end
-            end
-          end
-        end
-
-        specify { expect(product.mappings_hash[:product][:_parent]).to eq(type: 'project') }
-      end
-
-      context do
-        before do
-          stub_index(:products) do
-            define_type :product do
-              root parent: {'type' => 'project'}, parent_id: -> { project_id } do
-                field :name, 'surname'
-              end
-            end
-          end
-        end
-
-        specify { expect(product.mappings_hash[:product][:_parent]).to eq('type' => 'project') }
       end
     end
   end

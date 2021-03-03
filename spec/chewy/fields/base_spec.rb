@@ -143,7 +143,7 @@ describe Chewy::Fields::Base do
       end
 
       specify do
-        expect(EventsIndex::Event.mappings_hash).to eq(event: {
+        expect(EventsIndex::Event.mappings_hash).to eq(
           properties: {
             id: {type: 'integer'},
             category: {
@@ -160,7 +160,7 @@ describe Chewy::Fields::Base do
               }
             }
           }
-        })
+        )
       end
     end
 
@@ -296,7 +296,7 @@ describe Chewy::Fields::Base do
       end
 
       specify do
-        expect(EventsIndex::Event.mappings_hash).to eq(event: {
+        expect(EventsIndex::Event.mappings_hash).to eq(
           properties: {
             id: {type: 'integer'},
             name: {
@@ -307,7 +307,7 @@ describe Chewy::Fields::Base do
             },
             category: {type: 'object'}
           }
-        })
+        )
       end
 
       specify do

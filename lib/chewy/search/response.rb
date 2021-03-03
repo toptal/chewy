@@ -23,7 +23,7 @@ module Chewy
       #
       # @return [Integer]
       def total
-        @total ||= hits_root['total'] || 0
+        @total ||= hits_root.fetch('total', {}).fetch('value', 0)
       end
 
       # Response `max_score` field.

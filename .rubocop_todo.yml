@@ -18,13 +18,6 @@ Gemspec/RequiredRubyVersion:
   Exclude:
     - 'chewy.gemspec'
 
-# Offense count: 1
-# Cop supports --auto-correct.
-# Configuration parameters: Width, IgnoredPatterns.
-Layout/IndentationWidth:
-  Exclude:
-    - 'lib/chewy/rspec/update_index.rb'
-
 # Offense count: 3
 # Configuration parameters: AllowedMethods.
 # AllowedMethods: enums

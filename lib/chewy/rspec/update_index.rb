@@ -180,9 +180,9 @@ RSpec::Matchers.define :update_index do |type_name, options = {}| # rubocop:disa
       unless document[:match_count]
         result << "Expected document with id `#{id}` to be deleted"
         result << if document[:real_count] > 0 && document[:expected_count]
-                    "\n   #{document[:expected_count]} times, but was deleted #{document[:real_count]} times"
+          "\n   #{document[:expected_count]} times, but was deleted #{document[:real_count]} times"
         else
-                    ', but it was not'
+          ', but it was not'
         end
         result << "\n"
       end

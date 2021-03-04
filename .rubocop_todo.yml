@@ -18,14 +18,6 @@ Gemspec/RequiredRubyVersion:
   Exclude:
     - 'chewy.gemspec'
 
-# Offense count: 1
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyleAlignWith, Severity.
-# SupportedStylesAlignWith: keyword, variable, start_of_line
-Layout/EndAlignment:
-  Exclude:
-    - 'lib/chewy/rspec/update_index.rb'
-
 # Offense count: 36
 # Cop supports --auto-correct.
 # Configuration parameters: IndentationWidth.

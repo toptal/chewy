@@ -183,7 +183,7 @@ RSpec::Matchers.define :update_index do |type_name, options = {}| # rubocop:disa
                     "\n   #{document[:expected_count]} times, but was deleted #{document[:real_count]} times"
         else
                     ', but it was not'
-                  end
+        end
         result << "\n"
       end
     end

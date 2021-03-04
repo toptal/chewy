@@ -1,10 +1,7 @@
 module Chewy
   module Fields
     class Root < Chewy::Fields::Base
-      attr_reader :dynamic_templates
-      attr_reader :id
-      attr_reader :parent
-      attr_reader :parent_id
+      attr_reader :dynamic_templates, :id, :parent, :parent_id
 
       def initialize(name, **options)
         super(name, **options)

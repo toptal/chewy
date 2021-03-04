@@ -73,14 +73,6 @@ Naming/VariableNumber:
   Exclude:
     - 'spec/chewy/fields/root_spec.rb'
 
-# Offense count: 4
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: separated, grouped
-Style/AccessorGrouping:
-  Exclude:
-    - 'lib/chewy/fields/root.rb'
-
 # Offense count: 63
 Style/Documentation:
   Enabled: false

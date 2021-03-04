@@ -10,13 +10,6 @@
 # Cop supports --auto-correct.
 # Configuration parameters: TreatCommentsAsGroupSeparators, ConsiderPunctuation, Include.
 # Include: **/*.gemfile, **/Gemfile, **/gems.rb
-Bundler/OrderedGems:
-  Exclude:
-    - 'gemfiles/rails.5.2.activerecord.gemfile'
-    - 'gemfiles/rails.5.2.mongoid.6.4.gemfile'
-    - 'gemfiles/rails.6.0.activerecord.gemfile'
-    - 'gemfiles/rails.6.1.activerecord.gemfile'
-    - 'gemfiles/sequel.4.45.gemfile'
 
 # Offense count: 1
 # Configuration parameters: Include.

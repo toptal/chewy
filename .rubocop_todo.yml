@@ -18,12 +18,6 @@ Gemspec/RequiredRubyVersion:
   Exclude:
     - 'chewy.gemspec'
 
-# Offense count: 10
-# Cop supports --auto-correct.
-Layout/BlockEndNewline:
-  Exclude:
-    - 'spec/chewy/rspec/update_index_spec.rb'
-
 # Offense count: 5
 # Cop supports --auto-correct.
 Layout/ClosingParenthesisIndentation:

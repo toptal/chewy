@@ -18,19 +18,6 @@ Gemspec/RequiredRubyVersion:
   Exclude:
     - 'chewy.gemspec'
 
-# Offense count: 25
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle, IndentationWidth.
-# SupportedStyles: with_first_argument, with_fixed_indentation
-Layout/ArgumentAlignment:
-  Exclude:
-    - 'lib/chewy/config.rb'
-    - 'lib/chewy/search/request.rb'
-    - 'lib/chewy/search/scrolling.rb'
-    - 'spec/chewy/type/adapter/active_record_spec.rb'
-    - 'spec/chewy/type/adapter/mongoid_spec.rb'
-    - 'spec/chewy/type/adapter/sequel_spec.rb'
-
 # Offense count: 10
 # Cop supports --auto-correct.
 Layout/BlockEndNewline:

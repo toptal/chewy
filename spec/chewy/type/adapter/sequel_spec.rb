@@ -420,7 +420,7 @@ describe Chewy::Type::Adapter::Sequel, :sequel do
       end
       specify do
         expect(subject.load(city_ids,
-          _type: type, scope: -> { where(rating: 0) }, user: {scope: -> { where(rating: 1) }}))
+                            _type: type, scope: -> { where(rating: 0) }, user: {scope: -> { where(rating: 1) }}))
           .to eq([nil, nil] + cities.last(1))
       end
       xspecify 'sequel does not support scopes merge' do
@@ -429,7 +429,7 @@ describe Chewy::Type::Adapter::Sequel, :sequel do
       end
       specify do
         expect(subject.load(city_ids,
-          _type: type, scope: City.where(rating: 1), user: {scope: -> { where(rating: 0) }}))
+                            _type: type, scope: City.where(rating: 1), user: {scope: -> { where(rating: 0) }}))
           .to eq(cities.first(2) + [nil])
       end
     end
@@ -455,7 +455,7 @@ describe Chewy::Type::Adapter::Sequel, :sequel do
       end
       specify do
         expect(subject.load(city_ids,
-          _type: type, scope: -> { where(country_id: 0) }, user: {scope: -> { where(country_id: 1) }}))
+                            _type: type, scope: -> { where(country_id: 0) }, user: {scope: -> { where(country_id: 1) }}))
           .to eq([nil, nil] + cities.last(1))
       end
       xspecify 'sequel does not support scopes merge' do
@@ -464,7 +464,7 @@ describe Chewy::Type::Adapter::Sequel, :sequel do
       end
       specify do
         expect(subject.load(city_ids,
-          _type: type, scope: City.where(country_id: 1), user: {scope: -> { where(country_id: 0) }}))
+                            _type: type, scope: City.where(country_id: 1), user: {scope: -> { where(country_id: 0) }}))
           .to eq(cities.first(2) + [nil])
       end
     end

@@ -12,6 +12,9 @@ Layout/ParameterAlignment:
 Layout/CaseIndentation:
   EnforcedStyle: end
 
+Layout/EndAlignment:
+  EnforcedStyleAlignWith: variable
+
 Layout/FirstArrayElementIndentation:
   EnforcedStyle: consistent
 
@@ -32,9 +35,6 @@ Layout/SpaceInsideHashLiteralBraces:
 
 Lint/AmbiguousBlockAssociation:
   Enabled: false
-
-Lint/EndAlignment:
-  EnforcedStyleAlignWith: variable
 
 Style/Alias:
   EnforcedStyle: prefer_alias_method

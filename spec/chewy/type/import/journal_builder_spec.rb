@@ -27,17 +27,17 @@ describe Chewy::Type::Import::JournalBuilder, :orm do
       let(:index) { [{id: 1, name: 'City'}] }
       specify do
         expect(subject.bulk_body).to eq([{
-                                          index: {
-                                            _index: 'chewy_journal',
-                                            data: {
-                                              'index_name' => 'namespace/cities',
-                                              'type_name' => 'city',
-                                              'action' => 'index',
-                                              'references' => [Base64.encode64('{"id":1,"name":"City"}')],
-                                              'created_at' => time.as_json
-                                            }
-                                          }
-                                        }])
+          index: {
+            _index: 'chewy_journal',
+            data: {
+              'index_name' => 'namespace/cities',
+              'type_name' => 'city',
+              'action' => 'index',
+              'references' => [Base64.encode64('{"id":1,"name":"City"}')],
+              'created_at' => time.as_json
+            }
+          }
+        }])
       end
     end
 
@@ -45,17 +45,17 @@ describe Chewy::Type::Import::JournalBuilder, :orm do
       let(:delete) { [{id: 1, name: 'City'}] }
       specify do
         expect(subject.bulk_body).to eq([{
-                                          index: {
-                                            _index: 'chewy_journal',
-                                            data: {
-                                              'index_name' => 'namespace/cities',
-                                              'type_name' => 'city',
-                                              'action' => 'delete',
-                                              'references' => [Base64.encode64('{"id":1,"name":"City"}')],
-                                              'created_at' => time.as_json
-                                            }
-                                          }
-                                        }])
+          index: {
+            _index: 'chewy_journal',
+            data: {
+              'index_name' => 'namespace/cities',
+              'type_name' => 'city',
+              'action' => 'delete',
+              'references' => [Base64.encode64('{"id":1,"name":"City"}')],
+              'created_at' => time.as_json
+            }
+          }
+        }])
       end
     end
 
@@ -65,28 +65,28 @@ describe Chewy::Type::Import::JournalBuilder, :orm do
       let(:delete) { [Country.new(id: 2, name: 'City')] }
       specify do
         expect(subject.bulk_body).to eq([{
-                                          index: {
-                                            _index: 'chewy_journal',
-                                            data: {
-                                              'index_name' => 'namespace/countries',
-                                              'type_name' => 'country',
-                                              'action' => 'index',
-                                              'references' => [Base64.encode64('1')],
-                                              'created_at' => time.as_json
-                                            }
-                                          }
-                                        }, {
-                                          index: {
-                                            _index: 'chewy_journal',
-                                            data: {
-                                              'index_name' => 'namespace/countries',
-                                              'type_name' => 'country',
-                                              'action' => 'delete',
-                                              'references' => [Base64.encode64('2')],
-                                              'created_at' => time.as_json
-                                            }
-                                          }
-                                        }])
+          index: {
+            _index: 'chewy_journal',
+            data: {
+              'index_name' => 'namespace/countries',
+              'type_name' => 'country',
+              'action' => 'index',
+              'references' => [Base64.encode64('1')],
+              'created_at' => time.as_json
+            }
+          }
+        }, {
+          index: {
+            _index: 'chewy_journal',
+            data: {
+              'index_name' => 'namespace/countries',
+              'type_name' => 'country',
+              'action' => 'delete',
+              'references' => [Base64.encode64('2')],
+              'created_at' => time.as_json
+            }
+          }
+        }])
       end
     end
   end

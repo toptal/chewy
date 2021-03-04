@@ -13,13 +13,6 @@ Gemspec/RequiredRubyVersion:
   Exclude:
     - 'chewy.gemspec'
 
-# Offense count: 36
-# Cop supports --auto-correct.
-# Configuration parameters: IndentationWidth.
-# SupportedStyles: special_inside_parentheses, consistent, align_braces
-Layout/FirstHashElementIndentation:
-  EnforcedStyle: special_inside_parentheses
-
 # Offense count: 3
 # Configuration parameters: AllowedMethods.
 # AllowedMethods: enums

@@ -24,6 +24,7 @@ module Chewy
 
       # @return [{Symbol => Chewy::Search::Parameters::Storage}]
       attr_accessor :storages
+
       delegate :[], :[]=, to: :storages
 
       # Accepts an initial hash as basic values or parameter storages.

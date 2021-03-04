@@ -113,38 +113,6 @@ Style/ExpandPathArguments:
     - 'chewy.gemspec'
     - 'lib/generators/chewy/install_generator.rb'
 
-# Offense count: 9
-# Cop supports --auto-correct.
-Style/ExplicitBlockArgument:
-  Exclude:
-    - 'lib/chewy/minitest/helpers.rb'
-    - 'lib/chewy/rake_helper.rb'
-    - 'lib/chewy/search/scrolling.rb'
-    - 'lib/chewy/type/adapter/mongoid.rb'
-    - 'lib/chewy/type/adapter/object.rb'
-    - 'lib/chewy/type/adapter/orm.rb'
-
-# Offense count: 208
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: always, always_true, never
-Style/FrozenStringLiteralComment:
-  Enabled: false
-
-# Offense count: 7
-# Cop supports --auto-correct.
-Style/GlobalStdStream:
-  Exclude:
-    - 'lib/chewy/rake_helper.rb'
-
-# Offense count: 1
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: braces, no_braces
-Style/HashAsLastArrayItem:
-  Exclude:
-    - 'spec/chewy/search/parameters/order_spec.rb'
-
 # Offense count: 4
 # Cop supports --auto-correct.
 # Configuration parameters: AllowSplatArgument.
@@ -166,56 +134,6 @@ Style/HashTransformValues:
 Style/MissingRespondToMissing:
   Exclude:
     - 'lib/chewy/index.rb'
-
-# Offense count: 1
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: literals, strict
-Style/MutableConstant:
-  Exclude:
-    - 'lib/chewy/type/syncer.rb'
-
-# Offense count: 8
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle, IgnoredMethods.
-# SupportedStyles: predicate, comparison
-Style/NumericPredicate:
-  Exclude:
-    - 'spec/**/*'
-    - 'lib/chewy/fields/base.rb'
-    - 'lib/chewy/rake_helper.rb'
-    - 'lib/chewy/rspec/update_index.rb'
-    - 'lib/chewy/type/witchcraft.rb'
-
-# Offense count: 4
-# Cop supports --auto-correct.
-# Configuration parameters: ConvertCodeThatCanStartToReturnNil, AllowedMethods.
-# AllowedMethods: present?, blank?, presence, try, try!
-Style/SafeNavigation:
-  Exclude:
-    - 'lib/chewy/rake_helper.rb'
-    - 'lib/chewy/strategy.rb'
-    - 'lib/chewy/type.rb'
-    - 'lib/tasks/chewy.rake'
-
-# Offense count: 4
-# Cop supports --auto-correct.
-Style/StringConcatenation:
-  Exclude:
-    - 'spec/chewy/fields/root_spec.rb'
-    - 'spec/chewy/type/import_spec.rb'
-
-# Offense count: 74
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle, ConsistentQuotesInMultiline.
-# SupportedStyles: single_quotes, double_quotes
-Style/StringLiterals:
-  Exclude:
-    - 'gemfiles/rails.5.2.activerecord.gemfile'
-    - 'gemfiles/rails.5.2.mongoid.6.4.gemfile'
-    - 'gemfiles/rails.6.0.activerecord.gemfile'
-    - 'gemfiles/rails.6.1.activerecord.gemfile'
-    - 'gemfiles/sequel.4.45.gemfile'
 
 # Offense count: 281
 # Cop supports --auto-correct.

@@ -62,11 +62,11 @@ module Chewy
       #   @example
       #     PlaceIndex.scroll_hits.map { |hit| hit['_id'] }
       #   @return [Enumerator] a standard ruby Enumerator
-      def scroll_hits(**options)
+      def scroll_hits(**options, &block)
         return enum_for(:scroll_hits, **options) unless block_given?
 
         scroll_batches(**options).each do |batch|
-          batch.each { |hit| yield hit }
+          batch.each(&block)
         end
       end
 
@@ -114,12 +114,12 @@ module Chewy
       #   @example
       #     PlaceIndex.scroll_objects.map { |record| record.id }
       #   @return [Enumerator] a standard ruby Enumerator
-      def scroll_objects(**options)
+      def scroll_objects(**options, &block)
         return enum_for(:scroll_objects, **options) unless block_given?
 
         except(:source, :stored_fields, :script_fields, :docvalue_fields)
           .source(false).scroll_batches(**options).each do |batch|
-            loader.load(batch).each { |object| yield object }
+            loader.load(batch).each(&block)
           end
       end
       alias_method :scroll_records, :scroll_objects

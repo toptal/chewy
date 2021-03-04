@@ -114,16 +114,14 @@ module Chewy
         #   end
         #
         # @see Chewy::Type::Adapter::Base#import_fields
-        def import_fields(*args)
+        def import_fields(*args, &block)
           return enum_for(:import_fields, *args) unless block_given?
 
           options = args.extract_options!
           options[:batch_size] ||= BATCH_SIZE
 
           if args.empty? && @target.respond_to?(pluck_method)
-            @target.send(pluck_method, :id, *options[:fields]).each_slice(options[:batch_size]) do |batch|
-              yield batch
-            end
+            @target.send(pluck_method, :id, *options[:fields]).each_slice(options[:batch_size], &block)
           elsif options[:fields].blank?
             import_references(*args, options) do |batch|
               yield batch.map { |object| object_field(object, :id) || object }
@@ -142,13 +140,11 @@ module Chewy
         # For the Object adapter returns the objects themselves in batches.
         #
         # @see Chewy::Type::Adapter::Base#import_references
-        def import_references(*args)
+        def import_references(*args, &block)
           return enum_for(:import_references, *args) unless block_given?
 
           collection, options = import_args(*args)
-          collection.each_slice(options[:batch_size]) do |batch|
-            yield batch
-          end
+          collection.each_slice(options[:batch_size], &block)
         end
 
         # This method is used internally by the request DSL when the

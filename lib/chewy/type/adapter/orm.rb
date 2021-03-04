@@ -92,9 +92,7 @@ module Chewy
             collection = all_scope_where_ids_in(identify(collection)) unless collection.is_a?(relation_class)
             pluck_in_batches(collection, **options.slice(:fields, :batch_size, :typecast), &block)
           else
-            identify(collection).each_slice(options[:batch_size]) do |batch|
-              yield batch
-            end
+            identify(collection).each_slice(options[:batch_size], &block)
           end
         end
         alias_method :import_references, :import_fields

@@ -77,6 +77,7 @@ module Chewy
       def base_name
         @base_name ||= name.sub(/Index\z/, '').demodulize.underscore if name
         raise UndefinedIndex if @base_name.blank?
+
         @base_name
       end
 

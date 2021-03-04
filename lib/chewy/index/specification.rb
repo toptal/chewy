@@ -36,6 +36,7 @@ module Chewy
         filter = {ids: {values: [@index.derivable_name]}}
         document = Chewy::Stash::Specification.filter(filter).first
         return {} unless document
+
         JSON.load(Base64.decode64(document.specification)) # rubocop:disable Security/JSONLoad
       end
 

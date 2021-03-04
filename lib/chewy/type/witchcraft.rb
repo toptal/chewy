@@ -141,6 +141,7 @@ module Chewy
 
         def non_proc_fields_for(parent, nesting)
           return [] unless parent
+
           fields = (parent.children || []).reject { |field| field.value.is_a?(Proc) }
 
           if nesting.zero? && @fields.present?
@@ -152,6 +153,7 @@ module Chewy
 
         def proc_fields_for(parent, nesting)
           return [] unless parent
+
           fields = (parent.children || []).select { |field| field.value.is_a?(Proc) }
 
           if nesting.zero? && @fields.present?
@@ -192,6 +194,7 @@ module Chewy
 
         def exctract_lambdas(node)
           return unless node.is_a?(Parser::AST::Node)
+
           if node.type == :block && node.children[0].type == :send && node.children[0].to_a == [nil, :lambda]
             [node.children[2]]
           else
@@ -253,6 +256,7 @@ module Chewy
 
         def binding_variable_list(node)
           return unless node.is_a?(Parser::AST::Node)
+
           if node.type == :send && node.children[0].nil?
             node.children[1]
           else

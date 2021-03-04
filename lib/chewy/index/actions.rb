@@ -242,6 +242,7 @@ module Chewy
 
         def index_settings(setting_name)
           return {} unless settings_hash.key?(:settings) && settings_hash[:settings].key?(:index)
+
           settings_hash[:settings][:index].slice(setting_name)
         end
       end

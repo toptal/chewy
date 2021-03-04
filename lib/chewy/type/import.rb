@@ -87,6 +87,7 @@ module Chewy
         def import!(*args)
           errors = import_routine(*args)
           raise Chewy::ImportFailed.new(self, errors) if errors.present?
+
           true
         end
 

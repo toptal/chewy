@@ -99,6 +99,7 @@ module Chewy
 
       types = derive_types(name)
       raise Chewy::UnderivableType, "Index `#{types.first.index}` has more than one type, please specify type via `#{types.first.index.derivable_name}#type_name`" unless types.one?
+
       types.first
     end
 
@@ -119,6 +120,7 @@ module Chewy
       class_name = "#{index_name.camelize.gsub(/Index\z/, '')}Index"
       index = class_name.safe_constantize
       raise Chewy::UnderivableType, "Can not find index named `#{class_name}`" unless index && index < Chewy::Index
+
       if type_name.present?
         type = index.type_hash[type_name] or raise Chewy::UnderivableType, "Index `#{class_name}` doesn`t have type named `#{type_name}`"
         [type]
@@ -227,6 +229,7 @@ module Chewy
 
     def eager_load!
       return unless defined?(Chewy::Railtie)
+
       dirs = Chewy::Railtie.all_engines.map { |engine| engine.paths[Chewy.configuration[:indices_path]] }.compact.map(&:existent).flatten.uniq
 
       dirs.each do |dir|

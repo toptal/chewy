@@ -60,6 +60,7 @@ module Chewy
 
     def pop
       raise "Can't pop root strategy" if @stack.one?
+
       result = @stack.pop.tap(&:leave)
       debug "[#{@stack.size}] -> #{result.name}, now #{current.name}" if @stack.size > 1
       result
@@ -76,6 +77,7 @@ module Chewy
 
     def debug(string)
       return unless Chewy.logger && Chewy.logger.debug?
+
       line = caller.detect { |l| l !~ %r{lib/chewy/strategy.rb:|lib/chewy.rb:} }
       Chewy.logger.debug(["Chewy strategies stack: #{string}", line.sub(/:in\s.+$/, '')].join(' @ '))
     end
@@ -85,6 +87,7 @@ module Chewy
     rescue NameError => ex
       # WORKAROUND: Strange behavior of `safe_constantize` with mongoid gem
       raise "Can't find update strategy `#{name}`" if ex.name.to_s.demodulize == name.to_s.camelize
+
       raise
     end
   end

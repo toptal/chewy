@@ -95,6 +95,7 @@ module Chewy
       def perform
         ids = missing_ids | outdated_ids
         return 0 if ids.blank?
+
         @type.import(ids, parallel: @parallel) && ids.count
       end
 
@@ -122,6 +123,7 @@ module Chewy
       # @return [Array<String>] an array of outdated ids
       def outdated_ids
         return [] if source_data.blank? || index_data.blank? || !@type.supports_outdated_sync?
+
         @outdated_ids ||= begin
           if @parallel
             parallel_outdated_ids
@@ -180,6 +182,7 @@ module Chewy
 
       def data_ids(data)
         return data unless @type.supports_outdated_sync?
+
         data.map(&:first)
       end
 

@@ -61,6 +61,7 @@ module Chewy
           while ids.present?
             yield ids
             break if ids.size < batch_size
+
             last_id = ids.last.is_a?(Array) ? ids.last.first : ids.last
             ids = pluck(scope.where { |_o| full_column_name(primary_key) > last_id }, fields: fields)
           end

@@ -163,6 +163,7 @@ module Chewy
       # @return [Array<Chewy::Type>] types that were actually updated
       def journal_apply(time: nil, only: nil, except: nil, output: STDOUT)
         raise ArgumentError, 'Please specify the time to start with' unless time
+
         subscribed_task_stats(output) do
           output.puts "Applying journal entries created after #{time}"
           count = Chewy::Journal.new(types_from(only: only, except: except)).apply(time)
@@ -210,6 +211,7 @@ module Chewy
 
       def normalize_index(identifier)
         return identifier if identifier.is_a?(Class) && identifier < Chewy::Index
+
         "#{identifier.to_s.gsub(/identifier\z/i, '').camelize}Index".constantize
       end
 

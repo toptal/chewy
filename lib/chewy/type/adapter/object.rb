@@ -116,6 +116,7 @@ module Chewy
         # @see Chewy::Type::Adapter::Base#import_fields
         def import_fields(*args)
           return enum_for(:import_fields, *args) unless block_given?
+
           options = args.extract_options!
           options[:batch_size] ||= BATCH_SIZE
 

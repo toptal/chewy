@@ -120,6 +120,7 @@ module Chewy
 
       def assert_storages(names)
         raise ArgumentError, 'No storage names were specified' if names.empty?
+
         names = names.map(&:to_sym)
         self.class.storages.values_at(*names)
         names

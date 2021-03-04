@@ -223,7 +223,7 @@ describe Chewy::Fields::Base do
       specify do
         expect(EventsIndex::Event.root.compose(
                  double(id: 1, category: double(id: 2, licenses: double(id: 3, name: 'Name')))
-        )).to eq('id' => 1, 'category' => {'id' => 2, 'licenses' => {'id' => 3, 'name' => 'Name'}})
+               )).to eq('id' => 1, 'category' => {'id' => 2, 'licenses' => {'id' => 3, 'name' => 'Name'}})
       end
 
       specify do
@@ -278,7 +278,7 @@ describe Chewy::Fields::Base do
       specify do
         expect(EventsIndex::Event.root.compose(
                  double(id: 1, categories: double(id: 2, license: double(id: 3, name: 'Name')))
-        )).to eq('id' => 1, 'category' => {'id' => 2, 'licenses' => {'id' => 3, 'name' => 'Name'}})
+               )).to eq('id' => 1, 'category' => {'id' => 2, 'licenses' => {'id' => 3, 'name' => 'Name'}})
       end
     end
 
@@ -313,11 +313,11 @@ describe Chewy::Fields::Base do
       specify do
         expect(EventsIndex::Event.root.compose(
                  double(id: 1, name: 'Jonny', category: double(id: 2, as_json: {'name' => 'Borogoves'}))
-        )).to eq(
-          'id' => 1,
-          'name' => 'Jonny',
-          'category' => {'name' => 'Borogoves'}
-        )
+               )).to eq(
+                 'id' => 1,
+                 'name' => 'Jonny',
+                 'category' => {'name' => 'Borogoves'}
+               )
       end
 
       specify do
@@ -326,14 +326,14 @@ describe Chewy::Fields::Base do
                    double(id: 2, as_json: {'name' => 'Borogoves1'}),
                    double(id: 3, as_json: {'name' => 'Borogoves2'})
                  ])
-        )).to eq(
-          'id' => 1,
-          'name' => 'Jonny',
-          'category' => [
-            {'name' => 'Borogoves1'},
-            {'name' => 'Borogoves2'}
-          ]
-        )
+               )).to eq(
+                 'id' => 1,
+                 'name' => 'Jonny',
+                 'category' => [
+                   {'name' => 'Borogoves1'},
+                   {'name' => 'Borogoves2'}
+                 ]
+               )
       end
     end
 
@@ -407,7 +407,7 @@ describe Chewy::Fields::Base do
         specify do
           expect(CitiesIndex::City.root.compose(
                    City.create!(id: 1, country: Country.create!(id: 1, name: 'Country'))
-          )).to eq('id' => 1, 'country' => {'id' => 1, 'name' => 'Country'})
+                 )).to eq('id' => 1, 'country' => {'id' => 1, 'name' => 'Country'})
         end
       end
     end

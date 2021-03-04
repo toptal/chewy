@@ -18,12 +18,6 @@ Gemspec/RequiredRubyVersion:
   Exclude:
     - 'chewy.gemspec'
 
-# Offense count: 5
-# Cop supports --auto-correct.
-Layout/ClosingParenthesisIndentation:
-  Exclude:
-    - 'spec/chewy/fields/base_spec.rb'
-
 # Offense count: 1
 # Cop supports --auto-correct.
 Layout/ElseAlignment:

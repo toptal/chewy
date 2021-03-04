@@ -180,7 +180,6 @@ describe Chewy::Fields::Base do
         end
       end
 
-      # rubocop:disable Style/BracesAroundHashParameters
       specify do
         expect(EventsIndex::Event.root.compose({
                                                  id: 1, category: {id: 2, licenses: {id: 3, name: 'Name'}}
@@ -218,8 +217,6 @@ describe Chewy::Fields::Base do
           {'id' => 5, 'licenses' => []}
         ])
       end
-      # rubocop:enable Style/BracesAroundHashParameters
-
       specify do
         expect(EventsIndex::Event.root.compose(
                  double(id: 1, category: double(id: 2, licenses: double(id: 3, name: 'Name')))

@@ -241,7 +241,7 @@ module Chewy
       end
 
       # Handling old default_prefix if it is not defined.
-      def method_missing(name, *args, &block) # rubocop:disable Style/MethodMissing
+      def method_missing(name, *args, &block)
         if name == :default_prefix
           ActiveSupport::Deprecation.warn '`Chewy::Index.default_prefix` is deprecated and will be removed soon, use `Chewy::Index.prefix` instead'
           prefix

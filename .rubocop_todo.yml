@@ -27,25 +27,18 @@ Lint/ConstantDefinitionInBlock:
     - 'lib/chewy/rspec/update_index.rb'
     - 'spec/chewy/config_spec.rb'
 
-# Offense count: 3
+# Offense count: 3   #TODO
 Lint/MissingSuper:
   Exclude:
     - 'lib/chewy/strategy/atomic.rb'
     - 'lib/chewy/type/adapter/object.rb'
     - 'lib/chewy/type/adapter/orm.rb'
 
-# Offense count: 2
+# Offense count: 2   #TODO
 # Cop supports --auto-correct.
 Lint/NonDeterministicRequireOrder:
   Exclude:
     - 'lib/chewy/search/parameters.rb'
-
-# Offense count: 2
-# Cop supports --auto-correct.
-Lint/RedundantCopDisableDirective:
-  Exclude:
-    - 'lib/chewy/index.rb'
-    - 'spec/chewy/fields/base_spec.rb'
 
 # Offense count: 36
 # Configuration parameters: IgnoredMethods, CountRepeatedAttributes.

@@ -65,13 +65,6 @@ Metrics/ModuleLength:
 Metrics/PerceivedComplexity:
   Max: 13
 
-# Offense count: 4
-# Cop supports --auto-correct.
-Migration/DepartmentName:
-  Exclude:
-    - 'chewy.gemspec'
-    - 'lib/chewy/rspec/update_index.rb'
-
 # Offense count: 1
 # Cop supports --auto-correct.
 # Configuration parameters: PreferredName.

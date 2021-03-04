@@ -18,12 +18,6 @@ Gemspec/RequiredRubyVersion:
   Exclude:
     - 'chewy.gemspec'
 
-# Offense count: 1
-# Cop supports --auto-correct.
-Layout/ElseAlignment:
-  Exclude:
-    - 'lib/chewy/rspec/update_index.rb'
-
 # Offense count: 36
 # Cop supports --auto-correct.
 Layout/EmptyLineAfterGuardClause:

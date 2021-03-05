@@ -4,13 +4,11 @@ module Chewy
       duration = (finish - start).ceil
       stats = payload.fetch(:import, {}).map { |key, count| "#{key} #{count}" }.join(', ')
       output.puts "  Imported #{payload[:type]} in #{human_duration(duration)}, stats: #{stats}"
-      if payload[:errors]
-        payload[:errors].each do |action, errors|
-          output.puts "    #{action.to_s.humanize} errors:"
-          errors.each do |error, documents|
-            output.puts "      `#{error}`"
-            output.puts "        on #{documents.count} documents: #{documents}"
-          end
+      payload[:errors]&.each do |action, errors|
+        output.puts "    #{action.to_s.humanize} errors:"
+        errors.each do |error, documents|
+          output.puts "      `#{error}`"
+          output.puts "        on #{documents.count} documents: #{documents}"
         end
       end
     end

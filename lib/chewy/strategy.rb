@@ -76,7 +76,7 @@ module Chewy
   private
 
     def debug(string)
-      return unless Chewy.logger && Chewy.logger.debug?
+      return unless Chewy.logger&.debug?
 
       line = caller.detect { |l| l !~ %r{lib/chewy/strategy.rb:|lib/chewy.rb:} }
       Chewy.logger.debug(["Chewy strategies stack: #{string}", line.sub(/:in\s.+$/, '')].join(' @ '))

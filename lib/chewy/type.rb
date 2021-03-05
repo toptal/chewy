@@ -64,7 +64,7 @@ module Chewy
       # @see Chewy::Index.derivable_name
       # @return [String, nil] derivable name or nil when it is impossible to calculate
       def derivable_name
-        @derivable_name ||= [index.derivable_name, type_name].join('#') if index && index.derivable_name
+        @derivable_name ||= [index.derivable_name, type_name].join('#') if index&.derivable_name
       end
 
       # This method is an API shared with {Chewy::Index}, added for convenience.

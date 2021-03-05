@@ -114,17 +114,6 @@ Style/MissingRespondToMissing:
 
 # Offense count: 4
 # Cop supports --auto-correct.
-# Configuration parameters: ConvertCodeThatCanStartToReturnNil, AllowedMethods.
-# AllowedMethods: present?, blank?, presence, try, try!
-Style/SafeNavigation:
-  Exclude:
-    - 'lib/chewy/rake_helper.rb'
-    - 'lib/chewy/strategy.rb'
-    - 'lib/chewy/type.rb'
-    - 'lib/tasks/chewy.rake'
-
-# Offense count: 4
-# Cop supports --auto-correct.
 Style/StringConcatenation:
   Exclude:
     - 'spec/chewy/fields/root_spec.rb'

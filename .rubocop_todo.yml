@@ -43,12 +43,6 @@ Lint/MissingSuper:
     - 'lib/chewy/type/adapter/object.rb'
     - 'lib/chewy/type/adapter/orm.rb'
 
-# Offense count: 2
-# Cop supports --auto-correct.
-Lint/NonDeterministicRequireOrder:
-  Exclude:
-    - 'lib/chewy/search/parameters.rb'
-
 # Offense count: 36
 # Configuration parameters: IgnoredMethods, CountRepeatedAttributes.
 Metrics/AbcSize:

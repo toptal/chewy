@@ -175,7 +175,7 @@ module Chewy
           if proc.arity.zero?
             source = replace_self(source, :"object#{nesting}")
             source = replace_send(source, :"object#{nesting}")
-          elsif proc.arity < 0
+          elsif proc.arity.negative?
             raise "Splat arguments are unsupported by witchcraft:\n`#{proc.source}"
           else
             (nesting + 1).times do |n|

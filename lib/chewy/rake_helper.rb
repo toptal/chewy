@@ -134,7 +134,7 @@ module Chewy
             sync_result = type.sync(parallel: parallel)
             if !sync_result
               output.puts "  Something went wrong with the #{type} synchronization"
-            elsif sync_result[:count] > 0
+            elsif (sync_result[:count]).positive?
               output.puts "  Missing documents: #{sync_result[:missing]}" if sync_result[:missing].present?
               output.puts "  Outdated documents: #{sync_result[:outdated]}" if sync_result[:outdated].present?
               synced_types.push(type)
@@ -287,7 +287,7 @@ module Chewy
 
       def human_duration(seconds)
         [[60, :s], [60, :m], [24, :h]].map do |amount, unit|
-          if seconds > 0
+          if seconds.positive?
             seconds, n = seconds.divmod(amount)
             "#{n.to_i}#{unit}"
           end

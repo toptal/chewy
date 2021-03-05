@@ -112,18 +112,6 @@ Style/MissingRespondToMissing:
   Exclude:
     - 'lib/chewy/index.rb'
 
-# Offense count: 8
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle, IgnoredMethods.
-# SupportedStyles: predicate, comparison
-Style/NumericPredicate:
-  Exclude:
-    - 'spec/**/*'
-    - 'lib/chewy/fields/base.rb'
-    - 'lib/chewy/rake_helper.rb'
-    - 'lib/chewy/rspec/update_index.rb'
-    - 'lib/chewy/type/witchcraft.rb'
-
 # Offense count: 4
 # Cop supports --auto-correct.
 # Configuration parameters: ConvertCodeThatCanStartToReturnNil, AllowedMethods.

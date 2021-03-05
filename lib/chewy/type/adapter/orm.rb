@@ -113,7 +113,7 @@ module Chewy
 
         def import_objects(collection, options)
           collection_ids = identify(collection)
-          hash = Hash[collection_ids.map(&:to_s).zip(collection)]
+          hash = collection_ids.map(&:to_s).zip(collection).to_h
 
           indexed = collection_ids.each_slice(options[:batch_size]).map do |ids|
             batch = if options[:raw_import]

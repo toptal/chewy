@@ -209,7 +209,7 @@ RSpec::Matchers.define :update_index do |type_name, options = {}| # rubocop:disa
     expected_count = options[:times] || options[:count]
     expected_attributes = (options[:with] || options[:attributes] || {}).deep_symbolize_keys
 
-    Hash[args.flatten.map do |document|
+    args.flatten.map do |document|
       id = document.respond_to?(:id) ? document.id.to_s : document.to_s
       [id, {
         document: document,
@@ -218,7 +218,7 @@ RSpec::Matchers.define :update_index do |type_name, options = {}| # rubocop:disa
         real_count: 0,
         real_attributes: {}
       }]
-    end]
+    end.to_h
   end
 
   def compare_attributes(expected, real)

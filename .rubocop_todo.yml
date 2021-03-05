@@ -109,15 +109,6 @@ Style/FrozenStringLiteralComment:
 
 # Offense count: 4
 # Cop supports --auto-correct.
-# Configuration parameters: AllowSplatArgument.
-Style/HashConversion:
-  Exclude:
-    - 'lib/chewy/minitest/search_index_receiver.rb'
-    - 'lib/chewy/rspec/update_index.rb'
-    - 'lib/chewy/type/adapter/orm.rb'
-
-# Offense count: 4
-# Cop supports --auto-correct.
 Style/HashTransformValues:
   Exclude:
     - 'lib/chewy/journal.rb'

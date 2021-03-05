@@ -112,13 +112,6 @@ Style/MissingRespondToMissing:
   Exclude:
     - 'lib/chewy/index.rb'
 
-# Offense count: 4
-# Cop supports --auto-correct.
-Style/StringConcatenation:
-  Exclude:
-    - 'spec/chewy/fields/root_spec.rb'
-    - 'spec/chewy/type/import_spec.rb'
-
 # Offense count: 281
 # Cop supports --auto-correct.
 # Configuration parameters: AutoCorrect, AllowHeredoc, AllowURI, URISchemes, IgnoreCopDirectives, IgnoredPatterns.

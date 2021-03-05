@@ -87,7 +87,7 @@ describe Chewy::Fields::Root do
       before do
         stub_index(:places) do
           define_type :city do
-            root value: ->(o) { {name: o.name + 'Modified', rating: o.rating.next} }
+            root value: ->(o) { {name: "#{o.name}Modified", rating: o.rating.next} }
           end
         end
       end
@@ -109,8 +109,8 @@ describe Chewy::Fields::Root do
       before do
         stub_index(:places) do
           define_type :city do
-            root value: ->(o) { {name: o.name + 'Modified', rating: o.rating.next} } do
-              field :name, value: ->(o) { o[:name] + 'Modified' }
+            root value: ->(o) { {name: "#{o.name}Modified", rating: o.rating.next} } do
+              field :name, value: ->(o) { "#{o[:name]}Modified" }
               field :rating
             end
           end

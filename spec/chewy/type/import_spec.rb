@@ -509,7 +509,7 @@ describe Chewy::Type::Import do
       stub_index(:cities) do
         define_type :city do
           crutch :names do |collection|
-            collection.map { |o| [o.name, o.name + '42'] }.to_h
+            collection.map { |o| [o.name, "#{o.name}42"] }.to_h
           end
           field :name, value: ->(o, c) { c.names[o.name] }
           field :rating

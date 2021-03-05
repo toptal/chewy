@@ -100,13 +100,6 @@ Style/EvalWithLocation:
   Exclude:
     - 'spec/chewy/index_spec.rb'
 
-# Offense count: 2
-# Cop supports --auto-correct.
-Style/ExpandPathArguments:
-  Exclude:
-    - 'chewy.gemspec'
-    - 'lib/generators/chewy/install_generator.rb'
-
 # Offense count: 208
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyle.

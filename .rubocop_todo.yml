@@ -107,14 +107,6 @@ Style/EvalWithLocation:
 Style/FrozenStringLiteralComment:
   Enabled: false
 
-# Offense count: 4
-# Cop supports --auto-correct.
-Style/HashTransformValues:
-  Exclude:
-    - 'lib/chewy/journal.rb'
-    - 'lib/chewy/minitest/search_index_receiver.rb'
-    - 'lib/chewy/search/parameters/concerns/query_storage.rb'
-
 # Offense count: 1
 Style/MissingRespondToMissing:
   Exclude:

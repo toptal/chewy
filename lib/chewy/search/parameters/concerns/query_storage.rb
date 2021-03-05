@@ -86,7 +86,7 @@ module Chewy
           def reduce
             value = to_h
               .reject { |_, v| v.blank? }
-              .map { |k, v| [k, v.is_a?(Array) && v.one? ? v.first : v] }.to_h
+              .transform_values { |v| v.is_a?(Array) && v.one? ? v.first : v }
             value.delete(:minimum_should_match) if should.empty?
             value
           end

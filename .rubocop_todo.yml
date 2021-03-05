@@ -107,12 +107,6 @@ Style/EvalWithLocation:
 Style/FrozenStringLiteralComment:
   Enabled: false
 
-# Offense count: 7
-# Cop supports --auto-correct.
-Style/GlobalStdStream:
-  Exclude:
-    - 'lib/chewy/rake_helper.rb'
-
 # Offense count: 4
 # Cop supports --auto-correct.
 # Configuration parameters: AllowSplatArgument.

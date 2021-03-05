@@ -161,9 +161,7 @@ module Chewy
         end
 
         def import_parallel(objects, routine)
-          unless '::Parallel'.safe_constantize
-            raise "The `parallel` gem is required for parallel import, please add `gem 'parallel'` to your Gemfile"
-          end
+          raise "The `parallel` gem is required for parallel import, please add `gem 'parallel'` to your Gemfile" unless '::Parallel'.safe_constantize
 
           ActiveSupport::Notifications.instrument 'import_objects.chewy', type: self do |payload|
             batches = adapter.import_references(*objects, routine.options.slice(:batch_size)).to_a

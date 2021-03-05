@@ -167,9 +167,7 @@ RSpec::Matchers.define :update_index do |type_name, options = {}| # rubocop:disa
       unless document[:match_count] && document[:match_attributes]
         result << "Expected document with id `#{id}` to be reindexed"
         if (document[:real_count]).positive?
-          if document[:expected_count] && !document[:match_count]
-            result << "\n   #{document[:expected_count]} times, but was reindexed #{document[:real_count]} times"
-          end
+          result << "\n   #{document[:expected_count]} times, but was reindexed #{document[:real_count]} times" if document[:expected_count] && !document[:match_count]
           if document[:expected_attributes].present? && !document[:match_attributes]
             result << "\n   with #{document[:expected_attributes]}, but it was reindexed with #{document[:real_attributes]}"
           end

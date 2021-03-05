@@ -2,9 +2,7 @@ require 'database_cleaner'
 
 ActiveRecord::Base.establish_connection(adapter: 'sqlite3', database: 'file::memory:?cache=shared', pool: 10)
 ActiveRecord::Base.logger = Logger.new('/dev/null')
-if ActiveRecord::Base.respond_to?(:raise_in_transactional_callbacks)
-  ActiveRecord::Base.raise_in_transactional_callbacks = true
-end
+ActiveRecord::Base.raise_in_transactional_callbacks = true if ActiveRecord::Base.respond_to?(:raise_in_transactional_callbacks)
 
 ActiveRecord::Base.connection.execute("DROP TABLE IF EXISTS 'countries'")
 ActiveRecord::Base.connection.execute("DROP TABLE IF EXISTS 'cities'")
@@ -49,9 +47,7 @@ module ActiveRecordClassHelpers
       &block
     )
     ofending_queries = except ? queries.find_all { |query| !query.match(except) } : queries
-    if ofending_queries.present?
-      raise "Expected no DB queries, but the following ones were made: #{ofending_queries.join(', ')}"
-    end
+    raise "Expected no DB queries, but the following ones were made: #{ofending_queries.join(', ')}" if ofending_queries.present?
   end
 
   def stub_model(name, superclass = nil, &block)

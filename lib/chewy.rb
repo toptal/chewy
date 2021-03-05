@@ -165,9 +165,7 @@ module Chewy
     # Does nothing in case of config `wait_for_status` is undefined.
     #
     def wait_for_status
-      if Chewy.configuration[:wait_for_status].present?
-        client.cluster.health wait_for_status: Chewy.configuration[:wait_for_status]
-      end
+      client.cluster.health wait_for_status: Chewy.configuration[:wait_for_status] if Chewy.configuration[:wait_for_status].present?
     end
 
     # Deletes all corresponding indexes with current prefix from ElasticSearch.

@@ -243,9 +243,7 @@ module Chewy
                   "Please provide a parameter or a block to `#{method}`"
           end
 
-          if !block && query_hash_or_scope.is_a?(Chewy::Search::Request)
-            query_hash_or_scope = query_hash_or_scope.parameters[@parameter_name].value
-          end
+          query_hash_or_scope = query_hash_or_scope.parameters[@parameter_name].value if !block && query_hash_or_scope.is_a?(Chewy::Search::Request)
           @request.send(:modify, @parameter_name) { send(method, block || query_hash_or_scope) }
         end
       end

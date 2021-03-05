@@ -31,11 +31,17 @@ describe Chewy::Search::Request do
     specify { expect(described_class.new(ProductsIndex)).to eq(described_class.new(ProductsIndex)) }
     specify { expect(described_class.new(ProductsIndex)).not_to eq(described_class.new(CitiesIndex)) }
     specify { expect(described_class.new(ProductsIndex)).not_to eq(described_class.new(ProductsIndex, CitiesIndex)) }
-    specify { expect(described_class.new(CitiesIndex, ProductsIndex)).to eq(described_class.new(ProductsIndex, CitiesIndex)) }
-    specify { expect(described_class.new(ProductsIndex, CitiesIndex)).to eq(described_class.new(CitiesIndex, ProductsIndex)) }
+    specify do
+      expect(described_class.new(CitiesIndex, ProductsIndex)).to eq(described_class.new(ProductsIndex, CitiesIndex))
+    end
+    specify do
+      expect(described_class.new(ProductsIndex, CitiesIndex)).to eq(described_class.new(CitiesIndex, ProductsIndex))
+    end
 
     specify { expect(described_class.new(ProductsIndex).limit(10)).to eq(described_class.new(ProductsIndex).limit(10)) }
-    specify { expect(described_class.new(ProductsIndex).limit(10)).not_to eq(described_class.new(ProductsIndex).limit(20)) }
+    specify do
+      expect(described_class.new(ProductsIndex).limit(10)).not_to eq(described_class.new(ProductsIndex).limit(20))
+    end
 
     specify { expect(ProductsIndex.limit(10)).to eq(ProductsIndex.limit(10)) }
     specify { expect(ProductsIndex.limit(10)).not_to eq(CitiesIndex.limit(10)) }
@@ -64,16 +70,24 @@ describe Chewy::Search::Request do
 
   %i[query post_filter].each do |name|
     describe "##{name}" do
-      specify { expect(subject.send(name, match: {foo: 'bar'}).render[:body]).to include(name => {match: {foo: 'bar'}}) }
+      specify do
+        expect(subject.send(name, match: {foo: 'bar'}).render[:body]).to include(name => {match: {foo: 'bar'}})
+      end
       specify { expect(subject.send(name, nil)).to be_a described_class }
-      specify { expect(subject.send(name) { match foo: 'bar' }.render[:body]).to include(name => {match: {foo: 'bar'}}) }
+      specify do
+        expect(subject.send(name) do
+                 match foo: 'bar'
+               end.render[:body]).to include(name => {match: {foo: 'bar'}})
+      end
       specify do
         expect(subject.send(name, match: {foo: 'bar'}).send(name) { multi_match foo: 'bar' }.render[:body])
           .to include(name => {bool: {must: [{match: {foo: 'bar'}}, {multi_match: {foo: 'bar'}}]}})
       end
       specify { expect { subject.send(name, match: {foo: 'bar'}) }.not_to change { subject.render } }
       specify do
-        expect(subject.send(name).should(match: {foo: 'bar'}).send(name).must_not { multi_match foo: 'bar' }.render[:body])
+        expect(subject.send(name).should(match: {foo: 'bar'}).send(name).must_not do
+                 multi_match foo: 'bar'
+               end.render[:body])
           .to include(name => {bool: {should: {match: {foo: 'bar'}}, must_not: {multi_match: {foo: 'bar'}}}})
       end
 
@@ -82,16 +96,23 @@ describe Chewy::Search::Request do
 
         specify do
           expect(subject.send(name).not(other_scope).render[:body])
-            .to include(name => {bool: {must_not: {bool: {must: {match: {foo: 'bar'}}, should: {multi_match: {foo: 'bar'}}}}}})
+            .to include(name => {bool: {must_not: {bool: {must: {match: {foo: 'bar'}},
+                                                          should: {multi_match: {foo: 'bar'}}}}}})
         end
       end
     end
   end
 
   describe '#filter' do
-    specify { expect(subject.filter(match: {foo: 'bar'}).render[:body]).to include(query: {bool: {filter: {match: {foo: 'bar'}}}}) }
+    specify do
+      expect(subject.filter(match: {foo: 'bar'}).render[:body]).to include(query: {bool: {filter: {match: {foo: 'bar'}}}})
+    end
     specify { expect(subject.filter(nil)).to be_a described_class }
-    specify { expect(subject.filter { match foo: 'bar' }.render[:body]).to include(query: {bool: {filter: {match: {foo: 'bar'}}}}) }
+    specify do
+      expect(subject.filter do
+               match foo: 'bar'
+             end.render[:body]).to include(query: {bool: {filter: {match: {foo: 'bar'}}}})
+    end
     specify do
       expect(subject.filter(match: {foo: 'bar'}).filter { multi_match foo: 'bar' }.render[:body])
         .to include(query: {bool: {filter: [{match: {foo: 'bar'}}, {multi_match: {foo: 'bar'}}]}})
@@ -99,7 +120,8 @@ describe Chewy::Search::Request do
     specify { expect { subject.filter(match: {foo: 'bar'}) }.not_to change { subject.render } }
     specify do
       expect(subject.filter.should(match: {foo: 'bar'}).filter.must_not { multi_match foo: 'bar' }.render[:body])
-        .to include(query: {bool: {filter: {bool: {should: {match: {foo: 'bar'}}, must_not: {multi_match: {foo: 'bar'}}}}}})
+        .to include(query: {bool: {filter: {bool: {should: {match: {foo: 'bar'}},
+                                                   must_not: {multi_match: {foo: 'bar'}}}}}})
     end
 
     context do
@@ -107,7 +129,8 @@ describe Chewy::Search::Request do
 
       specify do
         expect(subject.filter.not(other_scope).render[:body])
-          .to include(query: {bool: {filter: {bool: {must_not: {bool: {must: {match: {foo: 'bar'}}, should: {multi_match: {foo: 'bar'}}}}}}}})
+          .to include(query: {bool: {filter: {bool: {must_not: {bool: {must: {match: {foo: 'bar'}},
+                                                                       should: {multi_match: {foo: 'bar'}}}}}}}})
       end
     end
   end
@@ -175,23 +198,52 @@ describe Chewy::Search::Request do
     specify { expect(subject.source(:foo, :bar).source(nil).render[:body]).to include(_source: %w[foo bar]) }
     specify { expect(subject.source(%i[foo bar]).source(nil).render[:body]).to include(_source: %w[foo bar]) }
     specify { expect(subject.source(excludes: :foo).render[:body]).to include(_source: {excludes: %w[foo]}) }
-    specify { expect(subject.source(excludes: :foo).source(excludes: %i[foo bar]).render[:body]).to include(_source: {excludes: %w[foo bar]}) }
-    specify { expect(subject.source(excludes: :foo).source(excludes: %i[foo bar]).render[:body]).to include(_source: {excludes: %w[foo bar]}) }
-    specify { expect(subject.source(excludes: :foo).source(:bar).render[:body]).to include(_source: {includes: %w[bar], excludes: %w[foo]}) }
+    specify do
+      expect(subject.source(excludes: :foo).source(excludes: %i[foo
+                                                                bar]).render[:body]).to include(_source: {excludes: %w[foo
+                                                                                                                       bar]})
+    end
+    specify do
+      expect(subject.source(excludes: :foo).source(excludes: %i[foo
+                                                                bar]).render[:body]).to include(_source: {excludes: %w[foo
+                                                                                                                       bar]})
+    end
+    specify do
+      expect(subject.source(excludes: :foo).source(:bar).render[:body]).to include(_source: {includes: %w[bar],
+                                                                                             excludes: %w[foo]})
+    end
     specify { expect(subject.source(excludes: :foo).source(false).render[:body]).to include(_source: false) }
-    specify { expect(subject.source(excludes: :foo).source(false).source(excludes: :bar).render[:body]).to include(_source: {excludes: %w[foo bar]}) }
-    specify { expect(subject.source(excludes: :foo).source(false).source(true).render[:body]).to include(_source: {excludes: %w[foo]}) }
+    specify do
+      expect(subject.source(excludes: :foo).source(false).source(excludes: :bar).render[:body]).to include(_source: {excludes: %w[
+        foo bar
+      ]})
+    end
+    specify do
+      expect(subject.source(excludes: :foo).source(false).source(true).render[:body]).to include(_source: {excludes: %w[foo]})
+    end
     specify { expect(subject.source(nil).render[:body]).to be_blank }
     specify { expect { subject.source(:foo) }.not_to change { subject.render } }
   end
 
   describe '#stored_fields' do
     specify { expect(subject.stored_fields(:foo).render[:body]).to include(stored_fields: ['foo']) }
-    specify { expect(subject.stored_fields(%i[foo bar]).stored_fields(nil).render[:body]).to include(stored_fields: %w[foo bar]) }
-    specify { expect(subject.stored_fields(:foo).stored_fields(:foo, :bar).render[:body]).to include(stored_fields: %w[foo bar]) }
-    specify { expect(subject.stored_fields(:foo).stored_fields(false).render[:body]).to include(stored_fields: '_none_') }
-    specify { expect(subject.stored_fields(:foo).stored_fields(false).stored_fields(:bar).render[:body]).to include(stored_fields: %w[foo bar]) }
-    specify { expect(subject.stored_fields(:foo).stored_fields(false).stored_fields(true).render[:body]).to include(stored_fields: %w[foo]) }
+    specify do
+      expect(subject.stored_fields(%i[foo bar]).stored_fields(nil).render[:body]).to include(stored_fields: %w[foo bar])
+    end
+    specify do
+      expect(subject.stored_fields(:foo).stored_fields(:foo, :bar).render[:body]).to include(stored_fields: %w[foo bar])
+    end
+    specify do
+      expect(subject.stored_fields(:foo).stored_fields(false).render[:body]).to include(stored_fields: '_none_')
+    end
+    specify do
+      expect(subject.stored_fields(:foo).stored_fields(false).stored_fields(:bar).render[:body]).to include(stored_fields: %w[
+        foo bar
+      ])
+    end
+    specify do
+      expect(subject.stored_fields(:foo).stored_fields(false).stored_fields(true).render[:body]).to include(stored_fields: %w[foo])
+    end
     specify { expect(subject.stored_fields(nil).render[:body]).to be_blank }
     specify { expect { subject.stored_fields(:foo) }.not_to change { subject.render } }
   end
@@ -199,8 +251,16 @@ describe Chewy::Search::Request do
   %i[script_fields highlight].each do |name|
     describe "##{name}" do
       specify { expect(subject.send(name, foo: {bar: 42}).render[:body]).to include(name => {'foo' => {bar: 42}}) }
-      specify { expect(subject.send(name, foo: {bar: 42}).send(name, moo: {baz: 43}).render[:body]).to include(name => {'foo' => {bar: 42}, 'moo' => {baz: 43}}) }
-      specify { expect(subject.send(name, foo: {bar: 42}).send(name, nil).render[:body]).to include(name => {'foo' => {bar: 42}}) }
+      specify do
+        expect(subject.send(name, foo: {bar: 42}).send(name,
+                                                       moo: {baz: 43}).render[:body]).to include(name => {
+                                                         'foo' => {bar: 42}, 'moo' => {baz: 43}
+                                                       })
+      end
+      specify do
+        expect(subject.send(name, foo: {bar: 42}).send(name,
+                                                       nil).render[:body]).to include(name => {'foo' => {bar: 42}})
+      end
       specify { expect { subject.send(name, foo: {bar: 42}) }.not_to change { subject.render } }
     end
   end
@@ -208,16 +268,31 @@ describe Chewy::Search::Request do
   %i[suggest aggs].each do |name|
     describe "##{name}" do
       specify { expect(subject.send(name, foo: {bar: 42}).render[:body]).to include(name => {'foo' => {bar: 42}}) }
-      specify { expect(subject.send(name, foo: {bar: 42}).send(name, moo: {baz: 43}).render[:body]).to include(name => {'foo' => {bar: 42}, 'moo' => {baz: 43}}) }
-      specify { expect(subject.send(name, foo: {bar: 42}).send(name, nil).render[:body]).to include(name => {'foo' => {bar: 42}}) }
+      specify do
+        expect(subject.send(name, foo: {bar: 42}).send(name,
+                                                       moo: {baz: 43}).render[:body]).to include(name => {
+                                                         'foo' => {bar: 42}, 'moo' => {baz: 43}
+                                                       })
+      end
+      specify do
+        expect(subject.send(name, foo: {bar: 42}).send(name,
+                                                       nil).render[:body]).to include(name => {'foo' => {bar: 42}})
+      end
       specify { expect { subject.send(name, foo: {bar: 42}) }.not_to change { subject.render } }
     end
   end
 
   describe '#docvalue_fields' do
     specify { expect(subject.docvalue_fields(:foo).render[:body]).to include(docvalue_fields: ['foo']) }
-    specify { expect(subject.docvalue_fields(%i[foo bar]).docvalue_fields(nil).render[:body]).to include(docvalue_fields: %w[foo bar]) }
-    specify { expect(subject.docvalue_fields(:foo).docvalue_fields(:foo, :bar).render[:body]).to include(docvalue_fields: %w[foo bar]) }
+    specify do
+      expect(subject.docvalue_fields(%i[foo
+                                        bar]).docvalue_fields(nil).render[:body]).to include(docvalue_fields: %w[foo
+                                                                                                                 bar])
+    end
+    specify do
+      expect(subject.docvalue_fields(:foo).docvalue_fields(:foo,
+                                                           :bar).render[:body]).to include(docvalue_fields: %w[foo bar])
+    end
     specify { expect(subject.docvalue_fields(nil).render[:body]).to be_blank }
     specify { expect { subject.docvalue_fields(:foo) }.not_to change { subject.render } }
   end
@@ -232,14 +307,22 @@ describe Chewy::Search::Request do
 
   describe '#indices_boost' do
     specify { expect(subject.indices_boost(foo: 1.2).render[:body]).to include(indices_boost: [{'foo' => 1.2}]) }
-    specify { expect(subject.indices_boost(foo: 1.2).indices_boost(moo: 1.3).render[:body]).to include(indices_boost: [{'foo' => 1.2}, {'moo' => 1.3}]) }
-    specify { expect(subject.indices_boost(foo: 1.2).indices_boost(nil).render[:body]).to include(indices_boost: [{'foo' => 1.2}]) }
+    specify do
+      expect(subject.indices_boost(foo: 1.2).indices_boost(moo: 1.3).render[:body]).to include(indices_boost: [
+        {'foo' => 1.2}, {'moo' => 1.3}
+      ])
+    end
+    specify do
+      expect(subject.indices_boost(foo: 1.2).indices_boost(nil).render[:body]).to include(indices_boost: [{'foo' => 1.2}])
+    end
     specify { expect { subject.indices_boost(foo: 1.2) }.not_to change { subject.render } }
   end
 
   describe '#rescore' do
     specify { expect(subject.rescore(foo: 42).render[:body]).to include(rescore: [{foo: 42}]) }
-    specify { expect(subject.rescore(foo: 42).rescore(moo: 43).render[:body]).to include(rescore: [{foo: 42}, {moo: 43}]) }
+    specify do
+      expect(subject.rescore(foo: 42).rescore(moo: 43).render[:body]).to include(rescore: [{foo: 42}, {moo: 43}])
+    end
     specify { expect(subject.rescore(foo: 42).rescore(nil).render[:body]).to include(rescore: [{foo: 42}]) }
     specify { expect { subject.rescore(foo: 42) }.not_to change { subject.render } }
   end
@@ -253,7 +336,9 @@ describe Chewy::Search::Request do
 
   describe '#search_after' do
     specify { expect(subject.search_after(:foo, :bar).render[:body]).to include(search_after: %i[foo bar]) }
-    specify { expect(subject.search_after(%i[foo bar]).search_after(:baz).render[:body]).to include(search_after: [:baz]) }
+    specify do
+      expect(subject.search_after(%i[foo bar]).search_after(:baz).render[:body]).to include(search_after: [:baz])
+    end
     specify { expect(subject.search_after(:foo).search_after(nil).render[:body]).to be_blank }
     specify { expect { subject.search_after(:foo) }.not_to change { subject.render } }
   end
@@ -310,7 +395,9 @@ describe Chewy::Search::Request do
 
   context do
     let(:first_scope) { subject.query(foo: 'bar').filter.should(moo: 'baz').post_filter.must_not(boo: 'baf').limit(10) }
-    let(:second_scope) { subject.filter(foo: 'bar').post_filter.should(moo: 'baz').query.must_not(boo: 'baf').limit(20) }
+    let(:second_scope) do
+      subject.filter(foo: 'bar').post_filter.should(moo: 'baz').query.must_not(boo: 'baf').limit(20)
+    end
 
     describe '#and' do
       specify do
@@ -379,7 +466,11 @@ describe Chewy::Search::Request do
 
   context 'integration' do
     let(:products_count) { 9 }
-    let(:products) { Array.new(products_count) { |i| {id: i.next.to_i, name: "Name#{i.next}", age: 10 * i.next}.stringify_keys! } }
+    let(:products) do
+      Array.new(products_count) do |i|
+        {id: i.next.to_i, name: "Name#{i.next}", age: 10 * i.next}.stringify_keys!
+      end
+    end
     let(:cities) { Array.new(3) { |i| {id: (i.next + 9).to_i}.stringify_keys! } }
     let(:countries) { Array.new(3) { |i| {id: (i.next + 12).to_i}.stringify_keys! } }
     before do
@@ -425,9 +516,15 @@ describe Chewy::Search::Request do
 
     describe '#highlight' do
       specify { expect(subject.query(match: {name: 'name3'}).highlight(fields: {name: {}}).first.name).to eq('Name3') }
-      specify { expect(subject.query(match: {name: 'name3'}).highlight(fields: {name: {}}).first.name_highlight).to eq('<em>Name3</em>') }
-      specify { expect(subject.query(match: {name: 'name3'}).highlight(fields: {name: {}}).first.name_highlights).to eq(['<em>Name3</em>']) }
-      specify { expect(subject.query(match: {name: 'name3'}).highlight(fields: {name: {}}).first._data['_source']['name']).to eq('Name3') }
+      specify do
+        expect(subject.query(match: {name: 'name3'}).highlight(fields: {name: {}}).first.name_highlight).to eq('<em>Name3</em>')
+      end
+      specify do
+        expect(subject.query(match: {name: 'name3'}).highlight(fields: {name: {}}).first.name_highlights).to eq(['<em>Name3</em>'])
+      end
+      specify do
+        expect(subject.query(match: {name: 'name3'}).highlight(fields: {name: {}}).first._data['_source']['name']).to eq('Name3')
+      end
     end
 
     describe '#suggest' do
@@ -551,12 +648,40 @@ describe Chewy::Search::Request do
       specify { expect(subject.find { |w| w.id == 2 }).to be_a(ProductsIndex::Product).and have_attributes(id: 2) }
       specify { expect(subject.limit(2).find('1', '3', '7').map(&:id)).to contain_exactly(1, 3, 7) }
       specify { expect(subject.find(1, 3, 7).map(&:id)).to contain_exactly(1, 3, 7) }
-      specify { expect { subject.find('1', '3', '42') }.to raise_error Chewy::DocumentNotFound, 'Could not find documents for ids: 42' }
-      specify { expect { subject.find(1, 3, 42) }.to raise_error Chewy::DocumentNotFound, 'Could not find documents for ids: 42' }
-      specify { expect { subject.query(match: {name: 'name3'}).find('1', '3') }.to raise_error Chewy::DocumentNotFound, 'Could not find documents for ids: 1' }
-      specify { expect { subject.query(match: {name: 'name2'}).find('1', '3') }.to raise_error Chewy::DocumentNotFound, 'Could not find documents for ids: 1 and 3' }
-      specify { expect { subject.filter(match: {name: 'name2'}).find('1', '3') }.to raise_error Chewy::DocumentNotFound, 'Could not find documents for ids: 1 and 3' }
-      specify { expect { subject.post_filter(match: {name: 'name2'}).find('1', '3') }.to raise_error Chewy::DocumentNotFound, 'Could not find documents for ids: 1 and 3' }
+      specify do
+        expect do
+          subject.find('1', '3', '42')
+        end.to raise_error Chewy::DocumentNotFound, 'Could not find documents for ids: 42'
+      end
+      specify do
+        expect do
+          subject.find(1, 3, 42)
+        end.to raise_error Chewy::DocumentNotFound, 'Could not find documents for ids: 42'
+      end
+      specify do
+        expect do
+          subject.query(match: {name: 'name3'}).find('1',
+                                                     '3')
+        end.to raise_error Chewy::DocumentNotFound, 'Could not find documents for ids: 1'
+      end
+      specify do
+        expect do
+          subject.query(match: {name: 'name2'}).find('1',
+                                                     '3')
+        end.to raise_error Chewy::DocumentNotFound, 'Could not find documents for ids: 1 and 3'
+      end
+      specify do
+        expect do
+          subject.filter(match: {name: 'name2'}).find('1',
+                                                      '3')
+        end.to raise_error Chewy::DocumentNotFound, 'Could not find documents for ids: 1 and 3'
+      end
+      specify do
+        expect do
+          subject.post_filter(match: {name: 'name2'}).find('1',
+                                                           '3')
+        end.to raise_error Chewy::DocumentNotFound, 'Could not find documents for ids: 1 and 3'
+      end
 
       context 'make sure it returns everything' do
         let(:products_count) { 12 }
@@ -576,8 +701,12 @@ describe Chewy::Search::Request do
 
     describe '#pluck' do
       specify { expect(subject.limit(5).pluck(:_id)).to eq(%w[1 2 3 4 5]) }
-      specify { expect(subject.limit(5).pluck(:_id, :age)).to eq([['1', 10], ['2', 20], ['3', 30], ['4', 40], ['5', 50]]) }
-      specify { expect(subject.limit(5).source(:name).pluck(:id, :age)).to eq([[1, 10], [2, 20], [3, 30], [4, 40], [5, 50]]) }
+      specify do
+        expect(subject.limit(5).pluck(:_id, :age)).to eq([['1', 10], ['2', 20], ['3', 30], ['4', 40], ['5', 50]])
+      end
+      specify do
+        expect(subject.limit(5).source(:name).pluck(:id, :age)).to eq([[1, 10], [2, 20], [3, 30], [4, 40], [5, 50]])
+      end
       specify do
         expect(subject.limit(5).pluck(:_index, :name)).to eq([
           %w[products Name1],

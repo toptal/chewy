@@ -113,7 +113,10 @@ describe :update_index do
     end
     specify do
       expect do
-        expect { DummiesIndex::Dummy.bulk body: [{index: {_id: 42, data: {}}}, {index: {_id: 43, data: {}}}, {delete: {_id: 41}}] }
+        expect do
+          DummiesIndex::Dummy.bulk body: [{index: {_id: 42, data: {}}}, {index: {_id: 43, data: {}}},
+                                          {delete: {_id: 41}}]
+        end
           .to update_index(DummiesIndex).and_reindex(42).only
       end
         .to fail_matching 'to update documents ["42"] only, but ["43"] was updated and ["41"] was deleted also'
@@ -127,7 +130,9 @@ describe :update_index do
     end
     specify do
       expect do
-        expect { DummiesIndex::Dummy.bulk body: [{index: {_id: 42, data: {}}}, {delete: {_id: 41}}, {delete: {_id: 43}}] }
+        expect do
+          DummiesIndex::Dummy.bulk body: [{index: {_id: 42, data: {}}}, {delete: {_id: 41}}, {delete: {_id: 43}}]
+        end
           .to update_index(DummiesIndex).and_delete(41).only
       end
         .to fail_matching 'to delete documents ["41"] only, but ["42"] was updated and ["43"] was deleted also'

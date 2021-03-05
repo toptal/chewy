@@ -18,15 +18,30 @@ describe Chewy do
       end
     end
 
-    specify { expect { described_class.derive_type('some#developers') }.to raise_error(Chewy::UnderivableType, /SomeIndex/) }
-    specify { expect { described_class.derive_type('borogoves#developers') }.to raise_error(Chewy::UnderivableType, /Borogoves/) }
-    specify { expect { described_class.derive_type('developers#borogoves') }.to raise_error(Chewy::UnderivableType, /DevelopersIndex.*borogoves/) }
+    specify do
+      expect do
+        described_class.derive_type('some#developers')
+      end.to raise_error(Chewy::UnderivableType, /SomeIndex/)
+    end
+    specify do
+      expect do
+        described_class.derive_type('borogoves#developers')
+      end.to raise_error(Chewy::UnderivableType, /Borogoves/)
+    end
+    specify do
+      expect do
+        described_class.derive_type('developers#borogoves')
+      end.to raise_error(Chewy::UnderivableType,
+                         /DevelopersIndex.*borogoves/)
+    end
 
     specify { expect(described_class.derive_type(DevelopersIndex::Developer)).to eq(DevelopersIndex::Developer) }
     specify { expect(described_class.derive_type('developers_index')).to eq(DevelopersIndex::Developer) }
     specify { expect(described_class.derive_type('developers')).to eq(DevelopersIndex::Developer) }
     specify { expect(described_class.derive_type('developers#developer')).to eq(DevelopersIndex::Developer) }
-    specify { expect(described_class.derive_type('namespace/autocomplete#developer')).to eq(Namespace::AutocompleteIndex::Developer) }
+    specify do
+      expect(described_class.derive_type('namespace/autocomplete#developer')).to eq(Namespace::AutocompleteIndex::Developer)
+    end
   end
 
   describe '.derive_types' do
@@ -42,18 +57,37 @@ describe Chewy do
       end
     end
 
-    specify { expect { described_class.derive_types('some#developers') }.to raise_error(Chewy::UnderivableType, /SomeIndex/) }
-    specify { expect { described_class.derive_types('borogoves#developers') }.to raise_error(Chewy::UnderivableType, /Borogoves/) }
-    specify { expect { described_class.derive_types('developers#borogoves') }.to raise_error(Chewy::UnderivableType, /DevelopersIndex.*borogoves/) }
+    specify do
+      expect do
+        described_class.derive_types('some#developers')
+      end.to raise_error(Chewy::UnderivableType, /SomeIndex/)
+    end
+    specify do
+      expect do
+        described_class.derive_types('borogoves#developers')
+      end.to raise_error(Chewy::UnderivableType, /Borogoves/)
+    end
+    specify do
+      expect do
+        described_class.derive_types('developers#borogoves')
+      end.to raise_error(Chewy::UnderivableType,
+                         /DevelopersIndex.*borogoves/)
+    end
 
-    specify { expect(described_class.derive_types(Namespace::AutocompleteIndex)).to match_array(Namespace::AutocompleteIndex.types) }
+    specify do
+      expect(described_class.derive_types(Namespace::AutocompleteIndex)).to match_array(Namespace::AutocompleteIndex.types)
+    end
     specify { expect(described_class.derive_types(DevelopersIndex::Developer)).to eq([DevelopersIndex::Developer]) }
 
     specify { expect(described_class.derive_types('developers_index')).to eq([DevelopersIndex::Developer]) }
     specify { expect(described_class.derive_types('developers')).to eq([DevelopersIndex::Developer]) }
     specify { expect(described_class.derive_types('developers#developer')).to eq([DevelopersIndex::Developer]) }
-    specify { expect(described_class.derive_types('namespace/autocomplete')).to match_array(Namespace::AutocompleteIndex.types) }
-    specify { expect(described_class.derive_types('namespace/autocomplete#developer')).to eq([Namespace::AutocompleteIndex::Developer]) }
+    specify do
+      expect(described_class.derive_types('namespace/autocomplete')).to match_array(Namespace::AutocompleteIndex.types)
+    end
+    specify do
+      expect(described_class.derive_types('namespace/autocomplete#developer')).to eq([Namespace::AutocompleteIndex::Developer])
+    end
   end
 
   describe '.create_type' do

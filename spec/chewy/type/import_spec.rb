@@ -78,13 +78,29 @@ describe Chewy::Type::Import do
       let(:names) { %w[name0 name1] }
 
       context 'mongoid', :mongoid do
-        specify { expect { import(City.where(:name.in => names)) }.to update_index(CitiesIndex::City).and_reindex(dummy_cities.first(2)) }
-        specify { expect { import(City.where(:name.in => names).map(&:id)) }.to update_index(CitiesIndex::City).and_reindex(dummy_cities.first(2)) }
+        specify do
+          expect do
+            import(City.where(:name.in => names))
+          end.to update_index(CitiesIndex::City).and_reindex(dummy_cities.first(2))
+        end
+        specify do
+          expect do
+            import(City.where(:name.in => names).map(&:id))
+          end.to update_index(CitiesIndex::City).and_reindex(dummy_cities.first(2))
+        end
       end
 
       context 'active record', :active_record do
-        specify { expect { import(City.where(name: names)) }.to update_index(CitiesIndex::City).and_reindex(dummy_cities.first(2)) }
-        specify { expect { import(City.where(name: names).map(&:id)) }.to update_index(CitiesIndex::City).and_reindex(dummy_cities.first(2)) }
+        specify do
+          expect do
+            import(City.where(name: names))
+          end.to update_index(CitiesIndex::City).and_reindex(dummy_cities.first(2))
+        end
+        specify do
+          expect do
+            import(City.where(name: names).map(&:id))
+          end.to update_index(CitiesIndex::City).and_reindex(dummy_cities.first(2))
+        end
       end
     end
 
@@ -120,7 +136,11 @@ describe Chewy::Type::Import do
     context ':bulk_size' do
       let!(:dummy_cities) { Array.new(3) { |i| City.create(id: i + 1, name: "name#{i}" * 20) } }
 
-      specify { expect { import(dummy_cities, bulk_size: 1.2.kilobyte) }.to update_index(CitiesIndex::City).and_reindex(dummy_cities) }
+      specify do
+        expect do
+          import(dummy_cities, bulk_size: 1.2.kilobyte)
+        end.to update_index(CitiesIndex::City).and_reindex(dummy_cities)
+      end
 
       context do
         before { expect(Chewy.client).to receive(:bulk).exactly(3).times.and_call_original }
@@ -150,13 +170,17 @@ describe Chewy::Type::Import do
 
       context 'mongoid', :mongoid do
         specify do
-          expect { import City.where(_id: dummy_cities.first.id) }.to update_index(CitiesIndex::City).and_reindex(dummy_cities.first).only
+          expect do
+            import City.where(_id: dummy_cities.first.id)
+          end.to update_index(CitiesIndex::City).and_reindex(dummy_cities.first).only
         end
       end
 
       context 'active record', :active_record do
         specify do
-          expect { import City.where(id: dummy_cities.first.id) }.to update_index(CitiesIndex::City).and_reindex(dummy_cities.first).only
+          expect do
+            import City.where(id: dummy_cities.first.id)
+          end.to update_index(CitiesIndex::City).and_reindex(dummy_cities.first).only
         end
 
         specify do
@@ -266,7 +290,9 @@ describe Chewy::Type::Import do
         import(objects, update_fields: %i[name])
 
         expect(payload).to eq(
-          errors: {index: {{'type' => 'mapper_parsing_exception', 'reason' => 'object mapping for [object] tried to parse field [object] as object, but found a concrete value'} => %w[2 4]}},
+          errors: {index: {{'type' => 'mapper_parsing_exception',
+                            'reason' => 'object mapping for [object] tried to parse field [object] as object, but found a concrete value'} => %w[2
+                                                                                                                                                 4]}},
           import: {index: 6},
           type: CitiesIndex::City
         )
@@ -284,7 +310,9 @@ describe Chewy::Type::Import do
         import(objects, batch_size: 2, update_fields: %i[name])
 
         expect(payload).to eq(
-          errors: {index: {{'type' => 'mapper_parsing_exception', 'reason' => 'object mapping for [object] tried to parse field [object] as object, but found a concrete value'} => %w[2 4]}},
+          errors: {index: {{'type' => 'mapper_parsing_exception',
+                            'reason' => 'object mapping for [object] tried to parse field [object] as object, but found a concrete value'} => %w[2
+                                                                                                                                                 4]}},
           import: {index: 6},
           type: CitiesIndex::City
         )
@@ -305,7 +333,9 @@ describe Chewy::Type::Import do
           import(objects, batch_size: 2, update_fields: %i[name])
 
           expect(payload).to eq(
-            errors: {index: {{'type' => 'mapper_parsing_exception', 'reason' => 'object mapping for [object] tried to parse field [object] as object, but found a concrete value'} => %w[2 4]}},
+            errors: {index: {{'type' => 'mapper_parsing_exception',
+                              'reason' => 'object mapping for [object] tried to parse field [object] as object, but found a concrete value'} => %w[2
+                                                                                                                                                   4]}},
             import: {index: 6},
             type: CitiesIndex::City
           )
@@ -412,7 +442,9 @@ describe Chewy::Type::Import do
           import(objects, update_fields: %i[object])
 
           expect(payload).to eq(
-            errors: {update: {{'type' => 'mapper_parsing_exception', 'reason' => 'object mapping for [object] tried to parse field [object] as object, but found a concrete value'} => %w[2 4]}},
+            errors: {update: {{'type' => 'mapper_parsing_exception',
+                               'reason' => 'object mapping for [object] tried to parse field [object] as object, but found a concrete value'} => %w[2
+                                                                                                                                                    4]}},
             import: {index: 6},
             type: CitiesIndex::City
           )

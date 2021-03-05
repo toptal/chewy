@@ -97,7 +97,8 @@ module Chewy
       # @return [Array<Chewy::Type>] types that were actually updated
       def update(only: nil, except: nil, parallel: nil, output: $stdout)
         subscribed_task_stats(output) do
-          types_from(only: only, except: except).group_by(&:index).each_with_object([]) do |(index, types), update_types|
+          types_from(only: only,
+except: except).group_by(&:index).each_with_object([]) do |(index, types), update_types|
             if index.exists?
               output.puts "Updating #{index}"
               types.each { |type| type.import(parallel: parallel) }

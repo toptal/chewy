@@ -98,7 +98,10 @@ module Chewy
       return name if name.is_a?(Class) && name < Chewy::Type
 
       types = derive_types(name)
-      raise Chewy::UnderivableType, "Index `#{types.first.index}` has more than one type, please specify type via `#{types.first.index.derivable_name}#type_name`" unless types.one?
+      unless types.one?
+        raise Chewy::UnderivableType,
+              "Index `#{types.first.index}` has more than one type, please specify type via `#{types.first.index.derivable_name}#type_name`"
+      end
 
       types.first
     end
@@ -122,7 +125,8 @@ module Chewy
       raise Chewy::UnderivableType, "Can not find index named `#{class_name}`" unless index && index < Chewy::Index
 
       if type_name.present?
-        type = index.type_hash[type_name] or raise Chewy::UnderivableType, "Index `#{class_name}` doesn`t have type named `#{type_name}`"
+        type = index.type_hash[type_name] or raise Chewy::UnderivableType,
+                                                   "Index `#{class_name}` doesn`t have type named `#{type_name}`"
         [type]
       else
         index.types
@@ -161,7 +165,9 @@ module Chewy
     # Does nothing in case of config `wait_for_status` is undefined.
     #
     def wait_for_status
-      client.cluster.health wait_for_status: Chewy.configuration[:wait_for_status] if Chewy.configuration[:wait_for_status].present?
+      if Chewy.configuration[:wait_for_status].present?
+        client.cluster.health wait_for_status: Chewy.configuration[:wait_for_status]
+      end
     end
 
     # Deletes all corresponding indexes with current prefix from ElasticSearch.
@@ -230,7 +236,9 @@ module Chewy
     def eager_load!
       return unless defined?(Chewy::Railtie)
 
-      dirs = Chewy::Railtie.all_engines.map { |engine| engine.paths[Chewy.configuration[:indices_path]] }.compact.map(&:existent).flatten.uniq
+      dirs = Chewy::Railtie.all_engines.map do |engine|
+        engine.paths[Chewy.configuration[:indices_path]]
+      end.compact.map(&:existent).flatten.uniq
 
       dirs.each do |dir|
         Dir.glob(File.join(dir, '**/*.rb')).each do |file|

@@ -37,7 +37,8 @@ module Chewy
       # Chewy index current type belongs to. Defined inside `Chewy.create_type`
       #
       def index
-        raise NotImplementedError, 'Looks like this type was defined outside the index scope and `.index` method is undefined for it'
+        raise NotImplementedError,
+              'Looks like this type was defined outside the index scope and `.index` method is undefined for it'
       end
 
       # Current type adapter. Defined inside `Chewy.create_type`, derived from

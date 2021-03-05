@@ -167,8 +167,12 @@ RSpec::Matchers.define :update_index do |type_name, options = {}| # rubocop:disa
       unless document[:match_count] && document[:match_attributes]
         result << "Expected document with id `#{id}` to be reindexed"
         if (document[:real_count]).positive?
-          result << "\n   #{document[:expected_count]} times, but was reindexed #{document[:real_count]} times" if document[:expected_count] && !document[:match_count]
-          result << "\n   with #{document[:expected_attributes]}, but it was reindexed with #{document[:real_attributes]}" if document[:expected_attributes].present? && !document[:match_attributes]
+          if document[:expected_count] && !document[:match_count]
+            result << "\n   #{document[:expected_count]} times, but was reindexed #{document[:real_count]} times"
+          end
+          if document[:expected_attributes].present? && !document[:match_attributes]
+            result << "\n   with #{document[:expected_attributes]}, but it was reindexed with #{document[:real_attributes]}"
+          end
         else
           result << ', but it was not'
         end
@@ -193,7 +197,9 @@ RSpec::Matchers.define :update_index do |type_name, options = {}| # rubocop:disa
 
   failure_message_when_negated do
     if mock_bulk_request.updates.present?
-      "Expected index `#{type_name}` not to be updated, but it was with #{mock_bulk_request.updates.map(&:values).flatten.group_by { |documents| documents[:_id] }.map do |id, documents|
+      "Expected index `#{type_name}` not to be updated, but it was with #{mock_bulk_request.updates.map(&:values).flatten.group_by do |documents|
+                                                                            documents[:_id]
+                                                                          end.map do |id, documents|
                                                                             "\n  document id `#{id}` (#{documents.count} times)"
                                                                           end.join}\n"
     end

@@ -17,7 +17,9 @@ module Chewy
       private
 
         def cleanup_default_scope!
-          Chewy.logger.warn('Default type scope order, limit and offset are ignored and will be nullified') if Chewy.logger && @default_scope.options.values_at(:sort, :limit, :skip).compact.present?
+          Chewy.logger.warn('Default type scope order, limit and offset are ignored and will be nullified') if Chewy.logger && @default_scope.options.values_at(
+            :sort, :limit, :skip
+          ).compact.present?
 
           @default_scope.options.delete(:limit)
           @default_scope.options.delete(:skip)
@@ -39,7 +41,10 @@ module Chewy
         end
 
         def pluck_in_batches(scope, fields: [], batch_size: nil, **options, &block)
-          return enum_for(:pluck_in_batches, scope, fields: fields, batch_size: batch_size, **options) unless block_given?
+          unless block_given?
+            return enum_for(:pluck_in_batches, scope, fields: fields, batch_size: batch_size,
+**options)
+          end
 
           scope.batch_size(batch_size).no_timeout.pluck(primary_key, *fields).each_slice(batch_size, &block)
         end

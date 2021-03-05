@@ -111,10 +111,3 @@ Style/FrozenStringLiteralComment:
 Style/MissingRespondToMissing:
   Exclude:
     - 'lib/chewy/index.rb'
-
-# Offense count: 281
-# Cop supports --auto-correct.
-# Configuration parameters: AutoCorrect, AllowHeredoc, AllowURI, URISchemes, IgnoreCopDirectives, IgnoredPatterns.
-# URISchemes: http, https
-Layout/LineLength:
-  Max: 198

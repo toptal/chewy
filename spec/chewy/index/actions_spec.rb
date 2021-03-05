@@ -76,9 +76,15 @@ describe Chewy::Index::Actions do
       end
 
       specify do
-        expect { DummiesIndex.create! }.to raise_error(Elasticsearch::Transport::Transport::Errors::BadRequest).with_message(/already exists.*dummies/)
+        expect do
+          DummiesIndex.create!
+        end.to raise_error(Elasticsearch::Transport::Transport::Errors::BadRequest).with_message(/already exists.*dummies/)
       end
-      specify { expect { DummiesIndex.create!('2013') }.to raise_error(Elasticsearch::Transport::Transport::Errors::BadRequest).with_message(/Invalid alias name \[dummies\]/) }
+      specify do
+        expect do
+          DummiesIndex.create!('2013')
+        end.to raise_error(Elasticsearch::Transport::Transport::Errors::BadRequest).with_message(/Invalid alias name \[dummies\]/)
+      end
     end
 
     context do
@@ -92,7 +98,9 @@ describe Chewy::Index::Actions do
       specify { expect(DummiesIndex.aliases).to eq(['dummies']) }
       specify { expect(DummiesIndex.indexes).to eq(['dummies_2013']) }
       specify do
-        expect { DummiesIndex.create!('2013') }.to raise_error(Elasticsearch::Transport::Transport::Errors::BadRequest).with_message(/already exists.*dummies_2013/)
+        expect do
+          DummiesIndex.create!('2013')
+        end.to raise_error(Elasticsearch::Transport::Transport::Errors::BadRequest).with_message(/already exists.*dummies_2013/)
       end
       specify { expect(DummiesIndex.create!('2014')['acknowledged']).to eq(true) }
 
@@ -183,7 +191,11 @@ describe Chewy::Index::Actions do
 
   describe '.delete!' do
     specify { expect { DummiesIndex.delete! }.to raise_error(Elasticsearch::Transport::Transport::Errors::NotFound) }
-    specify { expect { DummiesIndex.delete!('2013') }.to raise_error(Elasticsearch::Transport::Transport::Errors::NotFound) }
+    specify do
+      expect do
+        DummiesIndex.delete!('2013')
+      end.to raise_error(Elasticsearch::Transport::Transport::Errors::NotFound)
+    end
 
     context do
       before do
@@ -511,9 +523,11 @@ describe Chewy::Index::Actions do
           end
 
           specify do
-            expect(CitiesIndex.client.indices).to receive(:put_settings).with(index: name, body: before_import_body).once
+            expect(CitiesIndex.client.indices).to receive(:put_settings).with(index: name,
+body: before_import_body).once
             expect(CitiesIndex.client.indices).to receive(:put_settings).with(index: name, body: after_import_body).once
-            expect(CitiesIndex).to receive(:import).with(suffix: suffix, journal: false, refresh: false).and_call_original
+            expect(CitiesIndex).to receive(:import).with(suffix: suffix, journal: false,
+refresh: false).and_call_original
             expect(CitiesIndex.reset!(suffix)).to eq(true)
           end
 
@@ -654,7 +668,8 @@ describe Chewy::Index::Actions do
       end
 
       specify do
-        expect(CitiesIndex::City).to receive(:import).with(suffix: 'suffix', parallel: true, journal: false, refresh: true).once.and_return(true)
+        expect(CitiesIndex::City).to receive(:import).with(suffix: 'suffix', parallel: true, journal: false,
+refresh: true).once.and_return(true)
         expect(CitiesIndex.reset!('suffix', parallel: true)).to eq(true)
       end
     end

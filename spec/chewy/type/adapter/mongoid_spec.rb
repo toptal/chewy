@@ -268,11 +268,21 @@ describe Chewy::Type::Adapter::Mongoid, :mongoid do
       context 'objects' do
         specify { expect(subject.import(cities + deleted) { |_data| true }).to eq(true) }
         specify { expect(subject.import(cities + deleted) { |_data| false }).to eq(false) }
-        specify { expect(subject.import(cities + deleted, batch_size: 2, &data_comparer.curry[cities[0].id])).to eq(false) }
-        specify { expect(subject.import(cities + deleted, batch_size: 2, &data_comparer.curry[cities[2].id])).to eq(false) }
-        specify { expect(subject.import(cities + deleted, batch_size: 2, &data_comparer.curry[cities[4].id])).to eq(false) }
-        specify { expect(subject.import(cities + deleted, batch_size: 2, &data_comparer.curry[deleted[0].id])).to eq(false) }
-        specify { expect(subject.import(cities + deleted, batch_size: 2, &data_comparer.curry[deleted[2].id])).to eq(false) }
+        specify do
+          expect(subject.import(cities + deleted, batch_size: 2, &data_comparer.curry[cities[0].id])).to eq(false)
+        end
+        specify do
+          expect(subject.import(cities + deleted, batch_size: 2, &data_comparer.curry[cities[2].id])).to eq(false)
+        end
+        specify do
+          expect(subject.import(cities + deleted, batch_size: 2, &data_comparer.curry[cities[4].id])).to eq(false)
+        end
+        specify do
+          expect(subject.import(cities + deleted, batch_size: 2, &data_comparer.curry[deleted[0].id])).to eq(false)
+        end
+        specify do
+          expect(subject.import(cities + deleted, batch_size: 2, &data_comparer.curry[deleted[2].id])).to eq(false)
+        end
       end
 
       context 'ids' do
@@ -293,21 +303,28 @@ describe Chewy::Type::Adapter::Mongoid, :mongoid do
     let!(:cities) { Array.new(6) { |i| City.create!(rating: i + 3, country_id: (i + 4) / 2) { |c| c.id = i + 3 } } }
 
     specify { expect(subject.import_fields).to match([contain_exactly(1, 2, 3, 4)]) }
-    specify { expect(subject.import_fields(fields: [:rating])).to match([contain_exactly([1, 0], [2, 1], [3, 2], [4, 3])]) }
+    specify do
+      expect(subject.import_fields(fields: [:rating])).to match([contain_exactly([1, 0], [2, 1], [3, 2], [4, 3])])
+    end
 
     context 'scopes' do
       context do
         subject { described_class.new(Country.includes(:cities)) }
 
         specify { expect(subject.import_fields).to match([contain_exactly(1, 2, 3, 4)]) }
-        specify { expect(subject.import_fields(fields: [:rating])).to match([contain_exactly([1, 0], [2, 1], [3, 2], [4, 3])]) }
+        specify do
+          expect(subject.import_fields(fields: [:rating])).to match([contain_exactly([1, 0], [2, 1], [3, 2], [4, 3])])
+        end
       end
 
       context 'ignores default scope if another scope is passed' do
         subject { described_class.new(Country.where(:rating.gt => 2)) }
 
         specify { expect(subject.import_fields(Country.where(:rating.lt => 2))).to match([contain_exactly(1, 2)]) }
-        specify { expect(subject.import_fields(Country.where(:rating.lt => 2), fields: [:rating])).to match([contain_exactly([1, 0], [2, 1])]) }
+        specify do
+          expect(subject.import_fields(Country.where(:rating.lt => 2),
+                                       fields: [:rating])).to match([contain_exactly([1, 0], [2, 1])])
+        end
       end
     end
 
@@ -316,21 +333,39 @@ describe Chewy::Type::Adapter::Mongoid, :mongoid do
       specify { expect(subject.import_fields(1, 2, fields: [:rating])).to match([contain_exactly([1, 0], [2, 1])]) }
 
       specify { expect(subject.import_fields(countries.first(2))).to match([contain_exactly(1, 2)]) }
-      specify { expect(subject.import_fields(countries.first(2), fields: [:rating])).to match([contain_exactly([1, 0], [2, 1])]) }
+      specify do
+        expect(subject.import_fields(countries.first(2), fields: [:rating])).to match([contain_exactly([1, 0], [2, 1])])
+      end
     end
 
     context 'batch_size' do
       specify { expect(subject.import_fields(batch_size: 2)).to match([contain_exactly(1, 2), contain_exactly(3, 4)]) }
-      specify { expect(subject.import_fields(batch_size: 2, fields: [:rating])).to match([contain_exactly([1, 0], [2, 1]), contain_exactly([3, 2], [4, 3])]) }
+      specify do
+        expect(subject.import_fields(batch_size: 2,
+       fields: [:rating])).to match([contain_exactly([1, 0], [2, 1]), contain_exactly([3, 2], [4, 3])])
+      end
 
-      specify { expect(subject.import_fields(Country.where(:rating.lt => 2), batch_size: 2)).to match([contain_exactly(1, 2)]) }
-      specify { expect(subject.import_fields(Country.where(:rating.lt => 2), batch_size: 2, fields: [:rating])).to match([contain_exactly([1, 0], [2, 1])]) }
+      specify do
+        expect(subject.import_fields(Country.where(:rating.lt => 2), batch_size: 2)).to match([contain_exactly(1, 2)])
+      end
+      specify do
+        expect(subject.import_fields(Country.where(:rating.lt => 2), batch_size: 2,
+       fields: [:rating])).to match([contain_exactly([1, 0], [2, 1])])
+      end
 
       specify { expect(subject.import_fields(1, 2, 3, batch_size: 2)).to match([contain_exactly(1, 2), [3]]) }
-      specify { expect(subject.import_fields(1, 2, 3, batch_size: 2, fields: [:rating])).to match([contain_exactly([1, 0], [2, 1]), [[3, 2]]]) }
+      specify do
+        expect(subject.import_fields(1, 2, 3, batch_size: 2,
+       fields: [:rating])).to match([contain_exactly([1, 0], [2, 1]), [[3, 2]]])
+      end
 
-      specify { expect(subject.import_fields(countries.first(3), batch_size: 2)).to match([contain_exactly(1, 2), [3]]) }
-      specify { expect(subject.import_fields(countries.first(3), batch_size: 2, fields: [:rating])).to match([contain_exactly([1, 0], [2, 1]), [[3, 2]]]) }
+      specify do
+        expect(subject.import_fields(countries.first(3), batch_size: 2)).to match([contain_exactly(1, 2), [3]])
+      end
+      specify do
+        expect(subject.import_fields(countries.first(3), batch_size: 2,
+       fields: [:rating])).to match([contain_exactly([1, 0], [2, 1]), [[3, 2]]])
+      end
     end
   end
 

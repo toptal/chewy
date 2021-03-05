@@ -23,9 +23,15 @@ module Chewy
 
         def check_requirements!
           messages = []
-          messages << "MethodSource gem is required for the Witchcraft, please add `gem 'method_source'` to your Gemfile" unless Proc.method_defined?(:source)
-          messages << "Parser gem is required for the Witchcraft, please add `gem 'parser'` to your Gemfile" unless '::Parser'.safe_constantize
-          messages << "Unparser gem is required for the Witchcraft, please add `gem 'unparser'` to your Gemfile" unless '::Unparser'.safe_constantize
+          unless Proc.method_defined?(:source)
+            messages << "MethodSource gem is required for the Witchcraft, please add `gem 'method_source'` to your Gemfile"
+          end
+          unless '::Parser'.safe_constantize
+            messages << "Parser gem is required for the Witchcraft, please add `gem 'parser'` to your Gemfile"
+          end
+          unless '::Unparser'.safe_constantize
+            messages << "Unparser gem is required for the Witchcraft, please add `gem 'unparser'` to your Gemfile"
+          end
           messages = messages.join("\n")
 
           raise messages if messages.present?

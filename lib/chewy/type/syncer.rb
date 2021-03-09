@@ -56,7 +56,10 @@ module Chewy
       def self.typecast_date(string)
         if string.is_a?(String) && (match = ISO_DATETIME.match(string))
           microsec = (match[7].to_r * 1_000_000).to_i
-          date = "#{match[1]}-#{match[2]}-#{match[3]}T#{match[4]}:#{match[5]}:#{match[6]}.#{format('%06d', microsec)}+00:00"
+          day = "#{match[1]}-#{match[2]}-#{match[3]}"
+          time_with_seconds = "#{match[4]}:#{match[5]}:#{match[6]}"
+          microseconds = format('%06d', microsec)
+          date = "#{day}T#{time_with_seconds}.#{microseconds}+00:00"
           Time.iso8601(date)
         else
           string

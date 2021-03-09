@@ -165,7 +165,8 @@ module Chewy
 
       def fetch_source_data
         if @type.supports_outdated_sync?
-          @type.adapter.import_fields(fields: [@type.outdated_sync_field], batch_size: DEFAULT_SYNC_BATCH_SIZE, typecast: false).to_a.flatten(1).each do |data|
+          import_fields_args = { fields: [@type.outdated_sync_field], batch_size: DEFAULT_SYNC_BATCH_SIZE, typecast: false }
+          @type.adapter.import_fields(import_fields_args).to_a.flatten(1).each do |data|
             data[0] = data[0].to_s
           end
         else
@@ -198,7 +199,8 @@ module Chewy
         batches = index_data.each_slice(size)
 
         ::ActiveRecord::Base.connection.close if defined?(::ActiveRecord::Base)
-        result = ::Parallel.map(batches, @parallel, &OUTDATED_IDS_WORKER.curry[outdated_sync_field_type, source_data.to_h, @type, batches.size]).flatten(1)
+        curried_outdated_ids_worker = OUTDATED_IDS_WORKER.curry[outdated_sync_field_type, source_data.to_h, @type, batches.size]
+        result = ::Parallel.map(batches, @parallel, &curried_outdated_ids_worker).flatten(1)
         ::ActiveRecord::Base.connection.reconnect! if defined?(::ActiveRecord::Base)
         result
       end

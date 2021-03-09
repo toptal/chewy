@@ -17,13 +17,17 @@ module Chewy
       private
 
         def cleanup_default_scope!
-          if Chewy.logger && @default_scope.options.values_at(:sort, :limit, :skip).compact.present?
+          if Chewy.logger && sort_or_limit_or_skip_options?
             Chewy.logger.warn('Default type scope order, limit and offset are ignored and will be nullified')
           end
 
           @default_scope.options.delete(:limit)
           @default_scope.options.delete(:skip)
           @default_scope = @default_scope.reorder(nil)
+        end
+
+        def sort_or_limit_or_skip_options?
+          @default_scope.options.values_at(:sort, :limit, :skip).compact.present?
         end
 
         def import_scope(scope, options)

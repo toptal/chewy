@@ -66,7 +66,8 @@ module Chewy
               scope,
               fields: fields,
               batch_size: batch_size,
-              typecast: typecast)
+              typecast: typecast
+            )
           end
 
           scope = scope.reorder(target_id.asc).limit(batch_size)

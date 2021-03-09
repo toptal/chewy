@@ -49,7 +49,8 @@ module Chewy
               scope,
               fields: fields,
               batch_size: batch_size,
-              **options)
+              **options
+            )
           end
 
           scope.batch_size(batch_size).no_timeout.pluck(primary_key, *fields).each_slice(batch_size, &block)

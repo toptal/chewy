@@ -75,9 +75,8 @@ describe Chewy::Search::Request do
       end
       specify { expect(subject.send(name, nil)).to be_a described_class }
       specify do
-        expect(subject.send(name) do
-                 match foo: 'bar'
-               end.render[:body]).to include(name => {match: {foo: 'bar'}})
+        expect(subject.send(name) { match foo: 'bar' }.render[:body])
+          .to include(name => {match: {foo: 'bar'}})
       end
       specify do
         expect(subject.send(name, match: {foo: 'bar'}).send(name) { multi_match foo: 'bar' }.render[:body])
@@ -106,9 +105,8 @@ describe Chewy::Search::Request do
     end
     specify { expect(subject.filter(nil)).to be_a described_class }
     specify do
-      expect(subject.filter do
-               match foo: 'bar'
-             end.render[:body]).to include(query: {bool: {filter: {match: {foo: 'bar'}}}})
+      expect(subject.filter(match: {foo: 'bar'}).render[:body])
+        .to include(query: {bool: {filter: {match: {foo: 'bar'}}}})
     end
     specify do
       expect(subject.filter(match: {foo: 'bar'}).filter { multi_match foo: 'bar' }.render[:body])

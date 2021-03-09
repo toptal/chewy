@@ -438,8 +438,9 @@ describe Chewy::Type::Adapter::ActiveRecord, :active_record do
 
         specify { expect(subject.import_fields(Country.where('rating < 2'))).to match([contain_exactly(1, 2)]) }
         specify do
-          expect(subject.import_fields(Country.where('rating < 2'),
-                                       fields: [:rating])).to match([contain_exactly([1, 0], [2, 1])])
+          expect(
+            subject.import_fields(Country.where('rating < 2'), fields: [:rating])
+          ).to match([contain_exactly([1, 0], [2, 1])])
         end
       end
     end
@@ -450,23 +451,27 @@ describe Chewy::Type::Adapter::ActiveRecord, :active_record do
 
       specify { expect(subject.import_fields(countries.first(2))).to match([contain_exactly(1, 2)]) }
       specify do
-        expect(subject.import_fields(countries.first(2), fields: [:rating])).to match([contain_exactly([1, 0], [2, 1])])
+        expect(
+          subject.import_fields(countries.first(2), fields: [:rating])
+        ).to match([contain_exactly([1, 0], [2, 1])])
       end
     end
 
     context 'batch_size' do
       specify { expect(subject.import_fields(batch_size: 2)).to match([contain_exactly(1, 2), [3]]) }
       specify do
-        expect(subject.import_fields(batch_size: 2,
-fields: [:rating])).to match([contain_exactly([1, 0], [2, 1]), [[3, 2]]])
+        expect(
+          subject.import_fields(batch_size: 2, fields: [:rating])
+        ).to match([contain_exactly([1, 0], [2, 1]), [[3, 2]]])
       end
 
       specify do
         expect(subject.import_fields(Country.where('rating < 2'), batch_size: 2)).to match([contain_exactly(1, 2)])
       end
       specify do
-        expect(subject.import_fields(Country.where('rating < 2'), batch_size: 2,
-       fields: [:rating])).to match([contain_exactly([1, 0], [2, 1])])
+        expect(
+          subject.import_fields(Country.where('rating < 2'), batch_size: 2, fields: [:rating])
+        ).to match([contain_exactly([1, 0], [2, 1])])
       end
 
       specify { expect(subject.import_fields(1, 2, batch_size: 1)).to match([[1], [2]]) }
@@ -474,8 +479,8 @@ fields: [:rating])).to match([contain_exactly([1, 0], [2, 1]), [[3, 2]]])
 
       specify { expect(subject.import_fields(countries.first(2), batch_size: 1)).to match([[1], [2]]) }
       specify do
-        expect(subject.import_fields(countries.first(2), batch_size: 1,
-fields: [:rating])).to match([[[1, 0]], [[2, 1]]])
+        expect(subject.import_fields(countries.first(2), batch_size: 1, fields: [:rating]))
+          .to match([[[1, 0]], [[2, 1]]])
       end
     end
 

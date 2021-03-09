@@ -93,22 +93,23 @@ describe Chewy::Search do
 
     specify { expect(CitiesIndex.indices(CountriesIndex).by_rating(1).map(&:rating)).to eq([1, 1]) }
     specify do
-      expect(CitiesIndex.indices(CountriesIndex).by_rating(1).map(&:class)).to match_array([CitiesIndex::City,
-                                                                                            CountriesIndex::Country])
+      expect(CitiesIndex.indices(CountriesIndex).by_rating(1).map(&:class))
+        .to match_array([CitiesIndex::City, CountriesIndex::Country])
     end
     specify { expect(CitiesIndex.indices(CountriesIndex).by_rating(1).by_name(2).map(&:rating)).to eq([1]) }
     specify do
-      expect(CitiesIndex.indices(CountriesIndex).by_rating(1).by_name(2).map(&:class)).to eq([CitiesIndex::City])
+      expect(CitiesIndex.indices(CountriesIndex).by_rating(1).by_name(2).map(&:class))
+        .to eq([CitiesIndex::City])
     end
     specify { expect(CitiesIndex.indices(CountriesIndex).by_name(3).map(&:rating)).to eq([2, 1]) }
     specify do
-      expect(CitiesIndex.indices(CountriesIndex).by_name(3).map(&:class)).to eq([CitiesIndex::City,
-                                                                                 CountriesIndex::Country])
+      expect(CitiesIndex.indices(CountriesIndex).by_name(3).map(&:class))
+        .to eq([CitiesIndex::City, CountriesIndex::Country])
     end
     specify { expect(CitiesIndex.indices(CountriesIndex).order(:name).by_rating(1).map(&:rating)).to eq([1, 1]) }
     specify do
-      expect(CitiesIndex.indices(CountriesIndex).order(:name).by_rating(1).map(&:class)).to match_array([CitiesIndex::City,
-                                                                                                         CountriesIndex::Country])
+      expect(CitiesIndex.indices(CountriesIndex).order(:name).by_rating(1).map(&:class))
+        .to match_array([CitiesIndex::City, CountriesIndex::Country])
     end
 
     specify { expect(CitiesIndex.by_rating(2).map(&:rating)).to eq([2]) }

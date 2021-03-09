@@ -11,40 +11,33 @@ shared_examples :query_storage do |param_name|
       expect(described_class.new(nil).value.to_h).to eq(must: [], should: [], must_not: [], minimum_should_match: nil)
     end
     specify do
-      expect(described_class.new(foobar: {}).value.to_h).to eq(must: [{foobar: {}}], should: [], must_not: [],
-     minimum_should_match: nil)
+      expect(described_class.new(foobar: {}).value.to_h).to eq(must: [{foobar: {}}], should: [], must_not: [], minimum_should_match: nil)
     end
     specify do
-      expect(described_class.new(must: {}, should: {},
-     must_not: {}).value.to_h).to eq(must: [], should: [], must_not: [], minimum_should_match: nil)
+      expect(described_class.new(must: {}, should: {}, must_not: {}).value.to_h).to eq(must: [], should: [], must_not: [], minimum_should_match: nil)
     end
     specify do
       expect(described_class.new(must: {foo: 'bar'}, should: {foo: 'bar'}, foobar: {}).value.to_h)
         .to eq(must: [{foo: 'bar'}], should: [{foo: 'bar'}], must_not: [], minimum_should_match: nil)
     end
     specify do
-      expect(subject.value.to_h).to eq(must: [{foo: 'bar'}], should: [{moo: 'baz'}], must_not: [],
-     minimum_should_match: nil)
+      expect(subject.value.to_h).to eq(must: [{foo: 'bar'}], should: [{moo: 'baz'}], must_not: [], minimum_should_match: nil)
     end
     specify do
       expect(described_class.new(proc {
                                    match foo: 'bar'
-                                 }).value.to_h).to eq(must: [match: {foo: 'bar'}], should: [], must_not: [],
-    minimum_should_match: nil)
+                                 }).value.to_h).to eq(must: [match: {foo: 'bar'}], should: [], must_not: [], minimum_should_match: nil)
     end
     specify do
       expect(described_class.new(must: proc {
                                          match foo: 'bar'
-                                       }).value.to_h).to eq(must: [match: {foo: 'bar'}], should: [], must_not: [],
-    minimum_should_match: nil)
+                                       }).value.to_h).to eq(must: [match: {foo: 'bar'}], should: [], must_not: [], minimum_should_match: nil)
     end
     specify do
-      expect(described_class.new(minimum_should_match: 3).value.to_h).to eq(must: [], should: [], must_not: [],
-     minimum_should_match: 3)
+      expect(described_class.new(minimum_should_match: 3).value.to_h).to eq(must: [], should: [], must_not: [], minimum_should_match: 3)
     end
     specify do
-      expect(described_class.new(must: {foo: 'bar'},
-     minimum_should_match: 3).value.to_h).to eq(must: [{foo: 'bar'}], should: [], must_not: [], minimum_should_match: 3)
+      expect(described_class.new(must: {foo: 'bar'}, minimum_should_match: 3).value.to_h).to eq(must: [{foo: 'bar'}], should: [], must_not: [], minimum_should_match: 3)
     end
     specify do
       expect(described_class.new(must: [proc { match foo: 'bar' }, {moo: 'baz'}]).value.to_h)

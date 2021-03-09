@@ -31,8 +31,7 @@ describe Chewy do
     specify do
       expect do
         described_class.derive_type('developers#borogoves')
-      end.to raise_error(Chewy::UnderivableType,
-                         /DevelopersIndex.*borogoves/)
+      end.to raise_error(Chewy::UnderivableType, /DevelopersIndex.*borogoves/)
     end
 
     specify { expect(described_class.derive_type(DevelopersIndex::Developer)).to eq(DevelopersIndex::Developer) }

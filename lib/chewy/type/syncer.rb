@@ -200,7 +200,11 @@ module Chewy
 
         ::ActiveRecord::Base.connection.close if defined?(::ActiveRecord::Base)
         curried_outdated_ids_worker = OUTDATED_IDS_WORKER.curry[outdated_sync_field_type, source_data.to_h, @type, batches.size]
-        result = ::Parallel.map(batches, @parallel, &curried_outdated_ids_worker).flatten(1)
+        result = ::Parallel.map(
+          batches,
+          @parallel,
+          &curried_outdated_ids_worker
+        ).flatten(1)
         ::ActiveRecord::Base.connection.reconnect! if defined?(::ActiveRecord::Base)
         result
       end

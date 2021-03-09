@@ -52,8 +52,12 @@ module Chewy
 
         def pluck_in_batches(scope, fields: [], batch_size: nil, **options)
           unless block_given?
-            return enum_for(:pluck_in_batches, scope, fields: fields, batch_size: batch_size,
-**options)
+            return enum_for(
+              :pluck_in_batches,
+              scope,
+              fields: fields,
+              batch_size: batch_size,
+              **options)
           end
 
           scope = scope.unordered.order(full_column_name(primary_key).asc).limit(batch_size)

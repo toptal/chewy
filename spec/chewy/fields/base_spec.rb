@@ -58,7 +58,7 @@ describe Chewy::Fields::Base do
                                             end
                                           })
       end
-      let(:district_value){ lambda { |district, city, country, crutches| [district, city.name, country.name, crutches]} }
+      let(:district_value) { ->(district, city, country, crutches) { [district, city.name, country.name, crutches] } }
       let!(:district) do
         described_class.new(:name, value: district_value)
       end

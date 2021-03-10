@@ -271,23 +271,23 @@ describe Chewy::Type::Adapter::Mongoid, :mongoid do
         specify do
           expect(subject.import(cities + deleted, batch_size: 2, &data_comparer.curry[cities[0].id]))
             .to eq(false)
-        end  
+        end
         specify do
           expect(subject.import(cities + deleted, batch_size: 2, &data_comparer.curry[cities[2].id]))
             .to eq(false)
-        end  
+        end
         specify do
           expect(subject.import(cities + deleted, batch_size: 2, &data_comparer.curry[cities[4].id]))
             .to eq(false)
-        end  
+        end
         specify do
           expect(subject.import(cities + deleted, batch_size: 2, &data_comparer.curry[deleted[0].id]))
             .to eq(false)
-        end  
+        end
         specify do
           expect(subject.import(cities + deleted, batch_size: 2, &data_comparer.curry[deleted[2].id]))
             .to eq(false)
-        end  
+        end
       end
 
       context 'ids' do

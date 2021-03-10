@@ -15,11 +15,11 @@ describe Chewy::Search::Parameters::Source do
     specify do
       expect(described_class.new(includes: :foo, excludes: 42).value)
         .to eq(includes: %w[foo], excludes: %w[42], enabled: true)
-    end  
+    end
     specify do
       expect(described_class.new(includes: :foo, excludes: 42, enabled: false).value)
         .to eq(includes: %w[foo], excludes: %w[42], enabled: true)
-    end  
+    end
   end
 
   describe '#replace!' do
@@ -150,7 +150,7 @@ describe Chewy::Search::Parameters::Source do
     specify do
       expect(described_class.new(includes: :foo, excludes: 42).render)
         .to eq(_source: {includes: %w[foo], excludes: %w[42]})
-    end  
+    end
 
     specify { expect(described_class.new(false).render).to eq(_source: false) }
 

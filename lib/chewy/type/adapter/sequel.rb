@@ -16,7 +16,9 @@ module Chewy
       private
 
         def cleanup_default_scope!
-          Chewy.logger.warn('Default type scope order, limit and offset are ignored and will be nullified') if Chewy.logger && @default_scope != @default_scope.unordered.unlimited
+          if Chewy.logger && @default_scope != @default_scope.unordered.unlimited
+            Chewy.logger.warn('Default type scope order, limit and offset are ignored and will be nullified')
+          end
 
           @default_scope = @default_scope.unordered.unlimited
         end

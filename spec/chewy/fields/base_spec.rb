@@ -324,7 +324,15 @@ describe Chewy::Fields::Base do
 
       specify do
         expect(
-          EventsIndex::Event.root.compose(double(id: 1, categories: double(id: 2, license: double(id: 3, name: 'Name'))))
+          EventsIndex::Event.root.compose(
+            double(
+              id: 1, categories: double(
+                id: 2, license: double(
+                  id: 3, name: 'Name'
+                )
+              )
+            )
+          )
         ).to eq('id' => 1, 'category' => {'id' => 2, 'licenses' => {'id' => 3, 'name' => 'Name'}})
       end
     end
@@ -359,7 +367,13 @@ describe Chewy::Fields::Base do
 
       specify do
         expect(
-          EventsIndex::Event.root.compose(double(id: 1, name: 'Jonny', category: double(id: 2, as_json: {'name' => 'Borogoves'})))
+          EventsIndex::Event.root.compose(
+            double(
+              id: 1, name: 'Jonny', category: double(
+                id: 2, as_json: {'name' => 'Borogoves'}
+              )
+            )
+          )
         ).to eq(
           'id' => 1,
           'name' => 'Jonny',

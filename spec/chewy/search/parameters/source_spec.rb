@@ -12,8 +12,14 @@ describe Chewy::Search::Parameters::Source do
     specify { expect(described_class.new(true).value).to eq(includes: [], excludes: [], enabled: true) }
     specify { expect(described_class.new(a: 1).value).to eq(includes: [], excludes: [], enabled: true) }
     specify { expect(described_class.new(includes: :foo).value).to eq(includes: %w[foo], excludes: [], enabled: true) }
-    specify { expect(described_class.new(includes: :foo, excludes: 42).value).to eq(includes: %w[foo], excludes: %w[42], enabled: true) }
-    specify { expect(described_class.new(includes: :foo, excludes: 42, enabled: false).value).to eq(includes: %w[foo], excludes: %w[42], enabled: true) }
+    specify do
+      expect(described_class.new(includes: :foo, excludes: 42).value)
+        .to eq(includes: %w[foo], excludes: %w[42], enabled: true)
+    end  
+    specify do
+      expect(described_class.new(includes: :foo, excludes: 42, enabled: false).value)
+        .to eq(includes: %w[foo], excludes: %w[42], enabled: true)
+    end  
   end
 
   describe '#replace!' do
@@ -141,7 +147,10 @@ describe Chewy::Search::Parameters::Source do
     specify { expect(described_class.new.render).to be_nil }
     specify { expect(described_class.new(:foo).render).to eq(_source: %w[foo]) }
     specify { expect(described_class.new(excludes: :foo).render).to eq(_source: {excludes: %w[foo]}) }
-    specify { expect(described_class.new(includes: :foo, excludes: 42).render).to eq(_source: {includes: %w[foo], excludes: %w[42]}) }
+    specify do
+      expect(described_class.new(includes: :foo, excludes: 42).render)
+        .to eq(_source: {includes: %w[foo], excludes: %w[42]})
+    end  
 
     specify { expect(described_class.new(false).render).to eq(_source: false) }
 

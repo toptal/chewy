@@ -268,21 +268,11 @@ describe Chewy::Type::Adapter::Mongoid, :mongoid do
       context 'objects' do
         specify { expect(subject.import(cities + deleted) { |_data| true }).to eq(true) }
         specify { expect(subject.import(cities + deleted) { |_data| false }).to eq(false) }
-        specify do
-          expect(subject.import(cities + deleted, batch_size: 2, &data_comparer.curry[cities[0].id])).to eq(false)
-        end
-        specify do
-          expect(subject.import(cities + deleted, batch_size: 2, &data_comparer.curry[cities[2].id])).to eq(false)
-        end
-        specify do
-          expect(subject.import(cities + deleted, batch_size: 2, &data_comparer.curry[cities[4].id])).to eq(false)
-        end
-        specify do
-          expect(subject.import(cities + deleted, batch_size: 2, &data_comparer.curry[deleted[0].id])).to eq(false)
-        end
-        specify do
-          expect(subject.import(cities + deleted, batch_size: 2, &data_comparer.curry[deleted[2].id])).to eq(false)
-        end
+        specify { expect(subject.import(cities + deleted, batch_size: 2, &data_comparer.curry[cities[0].id])).to eq(false) }
+        specify { expect(subject.import(cities + deleted, batch_size: 2, &data_comparer.curry[cities[2].id])).to eq(false) }
+        specify { expect(subject.import(cities + deleted, batch_size: 2, &data_comparer.curry[cities[4].id])).to eq(false) }
+        specify { expect(subject.import(cities + deleted, batch_size: 2, &data_comparer.curry[deleted[0].id])).to eq(false) }
+        specify { expect(subject.import(cities + deleted, batch_size: 2, &data_comparer.curry[deleted[2].id])).to eq(false) }
       end
 
       context 'ids' do
@@ -304,7 +294,9 @@ describe Chewy::Type::Adapter::Mongoid, :mongoid do
 
     specify { expect(subject.import_fields).to match([contain_exactly(1, 2, 3, 4)]) }
     specify do
-      expect(subject.import_fields(fields: [:rating])).to match([contain_exactly([1, 0], [2, 1], [3, 2], [4, 3])])
+      expect(
+        subject.import_fields(fields: [:rating])
+      ).to match([contain_exactly([1, 0], [2, 1], [3, 2], [4, 3])])
     end
 
     context 'scopes' do
@@ -313,7 +305,9 @@ describe Chewy::Type::Adapter::Mongoid, :mongoid do
 
         specify { expect(subject.import_fields).to match([contain_exactly(1, 2, 3, 4)]) }
         specify do
-          expect(subject.import_fields(fields: [:rating])).to match([contain_exactly([1, 0], [2, 1], [3, 2], [4, 3])])
+          expect(
+            subject.import_fields(fields: [:rating])
+          ).to match([contain_exactly([1, 0], [2, 1], [3, 2], [4, 3])])
         end
       end
 
@@ -322,8 +316,9 @@ describe Chewy::Type::Adapter::Mongoid, :mongoid do
 
         specify { expect(subject.import_fields(Country.where(:rating.lt => 2))).to match([contain_exactly(1, 2)]) }
         specify do
-          expect(subject.import_fields(Country.where(:rating.lt => 2),
-                                       fields: [:rating])).to match([contain_exactly([1, 0], [2, 1])])
+          expect(
+            subject.import_fields(Country.where(:rating.lt => 2), fields: [:rating])
+          ).to match([contain_exactly([1, 0], [2, 1])])
         end
       end
     end
@@ -334,7 +329,9 @@ describe Chewy::Type::Adapter::Mongoid, :mongoid do
 
       specify { expect(subject.import_fields(countries.first(2))).to match([contain_exactly(1, 2)]) }
       specify do
-        expect(subject.import_fields(countries.first(2), fields: [:rating])).to match([contain_exactly([1, 0], [2, 1])])
+        expect(
+          subject.import_fields(countries.first(2), fields: [:rating])
+        ).to match([contain_exactly([1, 0], [2, 1])])
       end
     end
 
@@ -346,25 +343,30 @@ describe Chewy::Type::Adapter::Mongoid, :mongoid do
       end
 
       specify do
-        expect(subject.import_fields(Country.where(:rating.lt => 2), batch_size: 2)).to match([contain_exactly(1, 2)])
+        expect(
+          subject.import_fields(Country.where(:rating.lt => 2), batch_size: 2)
+        ).to match([contain_exactly(1, 2)])
       end
       specify do
-        expect(subject.import_fields(Country.where(:rating.lt => 2), batch_size: 2,
-       fields: [:rating])).to match([contain_exactly([1, 0], [2, 1])])
+        expect(
+          subject.import_fields(Country.where(:rating.lt => 2), batch_size: 2, fields: [:rating])
+        ).to match([contain_exactly([1, 0], [2, 1])])
       end
 
       specify { expect(subject.import_fields(1, 2, 3, batch_size: 2)).to match([contain_exactly(1, 2), [3]]) }
       specify do
-        expect(subject.import_fields(1, 2, 3, batch_size: 2,
-       fields: [:rating])).to match([contain_exactly([1, 0], [2, 1]), [[3, 2]]])
+        expect(
+          subject.import_fields(1, 2, 3, batch_size: 2, fields: [:rating])
+        ).to match([contain_exactly([1, 0], [2, 1]), [[3, 2]]])
       end
 
       specify do
         expect(subject.import_fields(countries.first(3), batch_size: 2)).to match([contain_exactly(1, 2), [3]])
       end
       specify do
-        expect(subject.import_fields(countries.first(3), batch_size: 2,
-       fields: [:rating])).to match([contain_exactly([1, 0], [2, 1]), [[3, 2]]])
+        expect(
+          subject.import_fields(countries.first(3), batch_size: 2, fields: [:rating])
+        ).to match([contain_exactly([1, 0], [2, 1]), [[3, 2]]])
       end
     end
   end
@@ -385,22 +387,24 @@ describe Chewy::Type::Adapter::Mongoid, :mongoid do
       specify { expect(subject.load(deleted_ids, _type: type)).to eq([nil, nil]) }
       specify { expect(subject.load(city_ids + deleted_ids, _type: type)).to eq([*cities, nil, nil]) }
       specify do
-        expect(subject.load(city_ids, _type: type, scope: -> { where(rating: 0) }))
-          .to eq(cities.first(2) + [nil])
+        expect(
+          subject.load(city_ids, _type: type, scope: -> { where(rating: 0) })
+        ).to eq(cities.first(2) + [nil])
       end
       specify do
-        expect(subject.load(city_ids,
-                            _type: type, scope: -> { where(rating: 0) }, user: {scope: -> { where(rating: 1) }}))
-          .to eq([nil, nil] + cities.last(1))
+        expect(
+          subject.load(city_ids, _type: type, scope: -> { where(rating: 0) }, user: {scope: -> { where(rating: 1) }})
+        ).to eq([nil, nil] + cities.last(1))
       end
       specify do
-        expect(subject.load(city_ids, _type: type, scope: City.where(rating: 1)))
-          .to eq([nil, nil] + cities.last(1))
+        expect(
+          subject.load(city_ids, _type: type, scope: City.where(rating: 1))
+        ).to eq([nil, nil] + cities.last(1))
       end
       specify do
-        expect(subject.load(city_ids,
-                            _type: type, scope: City.where(rating: 1), user: {scope: -> { where(rating: 0) }}))
-          .to eq(cities.first(2) + [nil])
+        expect(
+          subject.load(city_ids, _type: type, scope: City.where(rating: 1), user: {scope: -> { where(rating: 0) }})
+        ).to eq(cities.first(2) + [nil])
       end
     end
   end

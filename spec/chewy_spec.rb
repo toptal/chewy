@@ -39,7 +39,8 @@ describe Chewy do
     specify { expect(described_class.derive_type('developers')).to eq(DevelopersIndex::Developer) }
     specify { expect(described_class.derive_type('developers#developer')).to eq(DevelopersIndex::Developer) }
     specify do
-      expect(described_class.derive_type('namespace/autocomplete#developer')).to eq(Namespace::AutocompleteIndex::Developer)
+      expect(described_class.derive_type('namespace/autocomplete#developer'))
+        .to eq(Namespace::AutocompleteIndex::Developer)
     end
   end
 
@@ -74,7 +75,8 @@ describe Chewy do
     end
 
     specify do
-      expect(described_class.derive_types(Namespace::AutocompleteIndex)).to match_array(Namespace::AutocompleteIndex.types)
+      expect(described_class.derive_types(Namespace::AutocompleteIndex))
+        .to match_array(Namespace::AutocompleteIndex.types)
     end
     specify { expect(described_class.derive_types(DevelopersIndex::Developer)).to eq([DevelopersIndex::Developer]) }
 
@@ -85,7 +87,8 @@ describe Chewy do
       expect(described_class.derive_types('namespace/autocomplete')).to match_array(Namespace::AutocompleteIndex.types)
     end
     specify do
-      expect(described_class.derive_types('namespace/autocomplete#developer')).to eq([Namespace::AutocompleteIndex::Developer])
+      expect(described_class.derive_types('namespace/autocomplete#developer'))
+        .to eq([Namespace::AutocompleteIndex::Developer])
     end
   end
 

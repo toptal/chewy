@@ -206,10 +206,12 @@ describe Chewy::Fields::Base do
       end
 
       specify do
-        expect(EventsIndex::Event.root.compose({id: 1, category: [
-          {id: 2, 'licenses' => {id: 3, name: 'Name1'}},
-          {id: 4, licenses: nil}
-        ]})).to eq('id' => 1, 'category' => [
+        expect(
+          EventsIndex::Event.root.compose({id: 1, category: [
+            {id: 2, 'licenses' => {id: 3, name: 'Name1'}},
+            {id: 4, licenses: nil}
+          ]})
+        ).to eq('id' => 1, 'category' => [
           {'id' => 2, 'licenses' => {'id' => 3, 'name' => 'Name1'}},
           {'id' => 4, 'licenses' => nil.as_json}
         ])

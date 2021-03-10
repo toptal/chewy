@@ -294,9 +294,7 @@ describe Chewy::Type::Adapter::Mongoid, :mongoid do
 
     specify { expect(subject.import_fields).to match([contain_exactly(1, 2, 3, 4)]) }
     specify do
-      expect(
-        subject.import_fields(fields: [:rating])
-      ).to match([contain_exactly([1, 0], [2, 1], [3, 2], [4, 3])])
+      expect(subject.import_fields(fields: [:rating])).to match([contain_exactly([1, 0], [2, 1], [3, 2], [4, 3])])
     end
 
     context 'scopes' do

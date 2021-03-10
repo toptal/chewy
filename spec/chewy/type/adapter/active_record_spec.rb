@@ -466,7 +466,9 @@ describe Chewy::Type::Adapter::ActiveRecord, :active_record do
       end
 
       specify do
-        expect(subject.import_fields(Country.where('rating < 2'), batch_size: 2)).to match([contain_exactly(1, 2)])
+        expect(
+          subject.import_fields(Country.where('rating < 2'), batch_size: 2)
+        ).to match([contain_exactly(1, 2)])
       end
       specify do
         expect(

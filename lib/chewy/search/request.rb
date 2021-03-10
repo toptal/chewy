@@ -728,7 +728,10 @@ module Chewy
       #     scope1.and(scope2)
       #     # => <PlacesIndex::Query {..., :body=>{:query=>{:bool=>{
       #     #      :must=>[{:match=>{:name=>"London"}}, {:match=>{:name=>"Washington"}}],
-      #     #      :filter=>{:bool=>{:must=>[{:term=>{:name=>"Moscow"}}, {:bool=>{:must_not=>{:term=>{:name=>"Berlin"}}}}]}}}}}}>
+      #     #      :filter=>{
+      #     #        :bool=>{:must=>[{:term=>{:name=>"Moscow"}}, {:bool=>{:must_not=>{:term=>{:name=>"Berlin"}}}}]}
+      #     #      }
+      #     #    }}}}>
       #   @param other [Chewy::Search::Request] scope to merge
       #   @return [Chewy::Search::Request] new scope
       #
@@ -745,7 +748,10 @@ module Chewy
       #     scope1.or(scope2)
       #     # => <PlacesIndex::Query {..., :body=>{:query=>{:bool=>{
       #     #      :should=>[{:match=>{:name=>"London"}}, {:match=>{:name=>"Washington"}}],
-      #     #      :filter=>{:bool=>{:should=>[{:term=>{:name=>"Moscow"}}, {:bool=>{:must_not=>{:term=>{:name=>"Berlin"}}}}]}}}}}}>
+      #     #      :filter=>{
+      #     #        :bool=>{:should=>[{:term=>{:name=>"Moscow"}}, {:bool=>{:must_not=>{:term=>{:name=>"Berlin"}}}}]}
+      #     #      }
+      #     #    }}}}>
       #   @param other [Chewy::Search::Request] scope to merge
       #   @return [Chewy::Search::Request] new scope
       #
@@ -762,7 +768,13 @@ module Chewy
       #     scope1.not(scope2)
       #     # => <PlacesIndex::Query {..., :body=>{:query=>{:bool=>{
       #     #      :must=>{:match=>{:name=>"London"}}, :must_not=>{:match=>{:name=>"Washington"}},
-      #     #      :filter=>{:bool=>{:must=>{:term=>{:name=>"Moscow"}}, :must_not=>{:bool=>{:must_not=>{:term=>{:name=>"Berlin"}}}}}}}}}}>
+      #     #      :filter=>{
+      #     #        :bool=>{
+      #     #          :must=>{:term=>{:name=>"Moscow"}},
+      #     #          :must_not=>{:bool=>{:must_not=>{:term=>{:name=>"Berlin"}}}}
+      #     #        }
+      #     #      }
+      #     #    }}}}>
       #   @param other [Chewy::Search::Request] scope to merge
       #   @return [Chewy::Search::Request] new scope
       %i[and or not].each do |name|

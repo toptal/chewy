@@ -7,7 +7,8 @@ module Chewy
   #   journal.clean
   #
   class Journal
-    # @param only [Array<String, Chewy::Index, Chewy::Type>] indexes/types or even string references to perform actions on
+    # @param only [Array<String, Chewy::Index, Chewy::Type>] indexes/types or even string references to 
+    # perform actions on
     def initialize(*only)
       @only = only
     end

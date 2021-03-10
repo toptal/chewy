@@ -197,9 +197,7 @@ RSpec::Matchers.define :update_index do |type_name, options = {}| # rubocop:disa
 
   failure_message_when_negated do
     if mock_bulk_request.updates.present?
-      "Expected index `#{type_name}` not to be updated, but it was with #{mock_bulk_request.updates.map(&:values).flatten.group_by do |documents|
-                                                                            documents[:_id]
-                                                                          end.map do |id, documents|
+      "Expected index `#{type_name}` not to be updated, but it was with #{mock_bulk_request.updates.map(&:values).flatten.group_by { |documents| documents[:_id] }.map do |id, documents|
                                                                             "\n  document id `#{id}` (#{documents.count} times)"
                                                                           end.join}\n"
     end

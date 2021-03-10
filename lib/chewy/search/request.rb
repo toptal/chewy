@@ -931,8 +931,7 @@ module Chewy
       # @return [Hash] the result of query execution
       def delete_all(refresh: true)
         request_body = only(WHERE_STORAGES).render.merge(refresh: refresh)
-        ActiveSupport::Notifications.instrument 'delete_query.chewy',
-                                                notification_payload(request: request_body) do
+        ActiveSupport::Notifications.instrument 'delete_query.chewy', notification_payload(request: request_body) do
           request_body[:body] = {query: {match_all: {}}} if request_body[:body].empty?
           Chewy.client.delete_by_query(request_body)
         end
@@ -976,8 +975,7 @@ module Chewy
 
       def perform(additional = {})
         request_body = render.merge(additional)
-        ActiveSupport::Notifications.instrument 'search_query.chewy',
-                                                notification_payload(request: request_body) do
+        ActiveSupport::Notifications.instrument 'search_query.chewy', notification_payload(request: request_body) do
           begin
             Chewy.client.search(request_body)
           rescue Elasticsearch::Transport::Transport::Errors::NotFound

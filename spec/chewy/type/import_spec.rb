@@ -343,7 +343,8 @@ describe Chewy::Type::Import do
               index: {{
                 'type' => 'mapper_parsing_exception',
                 'reason' => 'object mapping for [object] tried to parse field [object] as object, but found a concrete value'
-              } => %w[2 4]}},
+              } => %w[2 4]}
+            },
             import: {index: 6},
             type: CitiesIndex::City
           )
@@ -450,9 +451,12 @@ describe Chewy::Type::Import do
           import(objects, update_fields: %i[object])
 
           expect(payload).to eq(
-            errors: {update: {{'type' => 'mapper_parsing_exception',
-                               'reason' => 'object mapping for [object] tried to parse field [object] as object, but found a concrete value'} => %w[2
-                                                                                                                                                    4]}},
+            errors: {
+              update: {{
+                'type' => 'mapper_parsing_exception',
+                'reason' => 'object mapping for [object] tried to parse field [object] as object, but found a concrete value'
+              } => %w[2 4]}
+            },
             import: {index: 6},
             type: CitiesIndex::City
           )

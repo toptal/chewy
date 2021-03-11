@@ -128,14 +128,6 @@ Style/IfUnlessModifier:
     - 'lib/chewy/type/witchcraft.rb'
     - 'spec/support/active_record.rb'
 
-# Offense count: 1
-# Cop supports --auto-correct.
-# Configuration parameters: ConvertCodeThatCanStartToReturnNil, AllowedMethods.
-# AllowedMethods: present?, blank?, presence, try, try!
-Style/SafeNavigation:
-  Exclude:
-    - 'lib/tasks/chewy.rake'
-
 # Offense count: 64
 # Cop supports --auto-correct.
 # Configuration parameters: AutoCorrect, AllowHeredoc, AllowURI, URISchemes, IgnoreCopDirectives, IgnoredPatterns.

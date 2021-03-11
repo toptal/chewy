@@ -240,12 +240,7 @@ module Chewy
       end
 
       def prefix_with_deprecation
-        if respond_to?(:default_prefix)
-          ActiveSupport::Deprecation.warn '`Chewy::Index.default_prefix` is deprecated and will be removed soon, define `Chewy::Index.prefix` method instead'
-          default_prefix
-        else
-          prefix
-        end
+        prefix
       end
     end
   end

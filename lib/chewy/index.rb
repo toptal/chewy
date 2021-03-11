@@ -251,6 +251,10 @@ module Chewy
         end
       end
 
+      def respond_to_missing?(name, *args, &block)
+        name == :default_prefix || super
+      end
+
       def prefix_with_deprecation
         if respond_to?(:default_prefix)
           ActiveSupport::Deprecation.warn '`Chewy::Index.default_prefix` is deprecated and will be removed soon, define `Chewy::Index.prefix` method instead'

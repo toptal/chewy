@@ -223,16 +223,6 @@ module Chewy
         output.puts "Total: #{human_duration(Time.now - start)}"
       end
 
-      def reset_index(*indexes)
-        ActiveSupport::Deprecation.warn '`Chewy::RakeHelper.reset_index` is deprecated and will be removed soon, use `Chewy::RakeHelper.reset` instead'
-        reset(only: indexes)
-      end
-
-      def update_all(*except)
-        ActiveSupport::Deprecation.warn '`Chewy::RakeHelper.update_all` is deprecated and will be removed soon, use `Chewy::RakeHelper.update` instead'
-        update(except: except)
-      end
-
     private
 
       def indexes_from(only: nil, except: nil)

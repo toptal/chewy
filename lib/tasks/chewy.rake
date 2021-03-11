@@ -99,7 +99,7 @@ namespace :chewy do
       else
         timestamp, retries = params
         time = Time.at(timestamp.to_i)
-        Chewy::Journal.new.apply(time, retries: retries&.to_i)
+        Chewy::Journal.new.apply(time, retries: (retries.to_i if retries))
       end
     end
   end

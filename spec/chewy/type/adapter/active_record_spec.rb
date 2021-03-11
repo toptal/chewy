@@ -438,9 +438,8 @@ describe Chewy::Type::Adapter::ActiveRecord, :active_record do
 
         specify { expect(subject.import_fields(Country.where('rating < 2'))).to match([contain_exactly(1, 2)]) }
         specify do
-          expect(
-            subject.import_fields(Country.where('rating < 2'), fields: [:rating])
-          ).to match([contain_exactly([1, 0], [2, 1])])
+          expect(subject.import_fields(Country.where('rating < 2'), fields: [:rating]))
+            .to match([contain_exactly([1, 0], [2, 1])])
         end
       end
     end

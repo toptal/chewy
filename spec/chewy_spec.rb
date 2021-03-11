@@ -19,19 +19,16 @@ describe Chewy do
     end
 
     specify do
-      expect do
-        described_class.derive_type('some#developers')
-      end.to raise_error(Chewy::UnderivableType, /SomeIndex/)
+      expect { described_class.derive_type('some#developers') }
+        .to raise_error(Chewy::UnderivableType, /SomeIndex/)
     end
     specify do
-      expect do
-        described_class.derive_type('borogoves#developers')
-      end.to raise_error(Chewy::UnderivableType, /Borogoves/)
+      expect { described_class.derive_type('borogoves#developers') }
+        .to raise_error(Chewy::UnderivableType, /Borogoves/)
     end
     specify do
-      expect do
-        described_class.derive_type('developers#borogoves')
-      end.to raise_error(Chewy::UnderivableType, /DevelopersIndex.*borogoves/)
+      expect { described_class.derive_type('developers#borogoves') }
+        .to raise_error(Chewy::UnderivableType, /DevelopersIndex.*borogoves/)
     end
 
     specify { expect(described_class.derive_type(DevelopersIndex::Developer)).to eq(DevelopersIndex::Developer) }
@@ -58,20 +55,16 @@ describe Chewy do
     end
 
     specify do
-      expect do
-        described_class.derive_types('some#developers')
-      end.to raise_error(Chewy::UnderivableType, /SomeIndex/)
+      expect { described_class.derive_types('some#developers') }
+        .to raise_error(Chewy::UnderivableType, /SomeIndex/)
     end
     specify do
-      expect do
-        described_class.derive_types('borogoves#developers')
-      end.to raise_error(Chewy::UnderivableType, /Borogoves/)
+      expect { described_class.derive_types('borogoves#developers') }
+        .to raise_error(Chewy::UnderivableType, /Borogoves/)
     end
     specify do
-      expect do
-        described_class.derive_types('developers#borogoves')
-      end.to raise_error(Chewy::UnderivableType,
-                         /DevelopersIndex.*borogoves/)
+      expect { described_class.derive_types('developers#borogoves') }
+        .to raise_error(Chewy::UnderivableType, /DevelopersIndex.*borogoves/)
     end
 
     specify do

@@ -79,27 +79,23 @@ describe Chewy::Type::Import do
 
       context 'mongoid', :mongoid do
         specify do
-          expect do
-            import(City.where(:name.in => names))
-          end.to update_index(CitiesIndex::City).and_reindex(dummy_cities.first(2))
+          expect { import(City.where(:name.in => names)) }
+            .to update_index(CitiesIndex::City).and_reindex(dummy_cities.first(2))
         end
         specify do
-          expect do
-            import(City.where(:name.in => names).map(&:id))
-          end.to update_index(CitiesIndex::City).and_reindex(dummy_cities.first(2))
+          expect { import(City.where(:name.in => names).map(&:id)) }
+            .to update_index(CitiesIndex::City).and_reindex(dummy_cities.first(2))
         end
       end
 
       context 'active record', :active_record do
         specify do
-          expect do
-            import(City.where(name: names))
-          end.to update_index(CitiesIndex::City).and_reindex(dummy_cities.first(2))
+          expect { import(City.where(name: names)) }
+            .to update_index(CitiesIndex::City).and_reindex(dummy_cities.first(2))
         end
         specify do
-          expect do
-            import(City.where(name: names).map(&:id))
-          end.to update_index(CitiesIndex::City).and_reindex(dummy_cities.first(2))
+          expect { import(City.where(name: names).map(&:id)) }
+            .to update_index(CitiesIndex::City).and_reindex(dummy_cities.first(2))
         end
       end
     end
@@ -137,9 +133,8 @@ describe Chewy::Type::Import do
       let!(:dummy_cities) { Array.new(3) { |i| City.create(id: i + 1, name: "name#{i}" * 20) } }
 
       specify do
-        expect do
-          import(dummy_cities, bulk_size: 1.2.kilobyte)
-        end.to update_index(CitiesIndex::City).and_reindex(dummy_cities)
+        expect { import(dummy_cities, bulk_size: 1.2.kilobyte) }
+          .to update_index(CitiesIndex::City).and_reindex(dummy_cities)
       end
 
       context do
@@ -170,17 +165,15 @@ describe Chewy::Type::Import do
 
       context 'mongoid', :mongoid do
         specify do
-          expect do
-            import City.where(_id: dummy_cities.first.id)
-          end.to update_index(CitiesIndex::City).and_reindex(dummy_cities.first).only
+          expect { import City.where(_id: dummy_cities.first.id) }
+            .to update_index(CitiesIndex::City).and_reindex(dummy_cities.first).only
         end
       end
 
       context 'active record', :active_record do
         specify do
-          expect do
-            import City.where(id: dummy_cities.first.id)
-          end.to update_index(CitiesIndex::City).and_reindex(dummy_cities.first).only
+          expect { import City.where(id: dummy_cities.first.id) }
+            .to update_index(CitiesIndex::City).and_reindex(dummy_cities.first).only
         end
 
         specify do

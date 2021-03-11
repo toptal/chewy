@@ -142,8 +142,8 @@ describe Chewy::Type::Adapter::Object do
       subject { described_class.new(-> { objects }) }
       specify { expect(subject.import_fields(batch_size: 2)).to match([[1, 2], [3]]) }
       specify do
-        expect(subject.import_fields(fields: [:name],
-       batch_size: 2)).to match([[[1, 'Name0'], [2, 'Name1']], [[3, 'Name2']]])
+        expect(subject.import_fields(fields: [:name], batch_size: 2))
+          .to match([[[1, 'Name0'], [2, 'Name1']], [[3, 'Name2']]])
       end
     end
 

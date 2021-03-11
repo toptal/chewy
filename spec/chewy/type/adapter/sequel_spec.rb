@@ -447,18 +447,18 @@ describe Chewy::Type::Adapter::Sequel, :sequel do
           .to eq(cities.first(2) + [nil])
       end
       specify do
-        expect(subject.load(city_ids,
-                            _type: type, scope: -> { where(rating: 0) }, user: {scope: -> { where(rating: 1) }}))
-          .to eq([nil, nil] + cities.last(1))
+        expect(
+          subject.load(city_ids, _type: type, scope: -> { where(rating: 0) }, user: {scope: -> { where(rating: 1) }})
+        ).to eq([nil, nil] + cities.last(1))          
       end
       xspecify 'sequel does not support scopes merge' do
         expect(subject.load(city_ids, _type: type, scope: City.where(rating: 1)))
           .to eq([nil, nil] + cities.last(1))
       end
       specify do
-        expect(subject.load(city_ids,
-                            _type: type, scope: City.where(rating: 1), user: {scope: -> { where(rating: 0) }}))
-          .to eq(cities.first(2) + [nil])
+        expect(
+          subject.load(city_ids, _type: type, scope: City.where(rating: 1), user: {scope: -> { where(rating: 0) }})
+        ).to eq(cities.first(2) + [nil])
       end
     end
 
@@ -482,20 +482,22 @@ describe Chewy::Type::Adapter::Sequel, :sequel do
           .to eq(cities.first(2) + [nil])
       end
       specify do
-        expect(subject.load(city_ids,
-                            _type: type, scope: -> { where(country_id: 0) }, user: {scope: lambda {
-                                                                                             where(country_id: 1)
-                                                                                           }}))
-          .to eq([nil, nil] + cities.last(1))
+        expect(
+          subject.load(
+            city_ids, _type: type, scope: -> { where(country_id: 0) }, user: {scope: lambda { where(country_id: 1) }}
+          )
+        ).to eq([nil, nil] + cities.last(1))
       end
       xspecify 'sequel does not support scopes merge' do
         expect(subject.load(city_ids, _type: type, scope: City.where(country_id: 1)))
           .to eq([nil, nil] + cities.last(1))
       end
       specify do
-        expect(subject.load(city_ids,
-                            _type: type, scope: City.where(country_id: 1), user: {scope: -> { where(country_id: 0) }}))
-          .to eq(cities.first(2) + [nil])
+        expect(
+          subject.load(
+            city_ids, _type: type, scope: City.where(country_id: 1), user: {scope: -> { where(country_id: 0) }}
+          )
+        ).to eq(cities.first(2) + [nil])
       end
     end
   end

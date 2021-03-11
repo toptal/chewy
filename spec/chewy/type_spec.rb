@@ -44,9 +44,8 @@ describe Chewy::Type do
 
     specify { expect(PlacesIndex::City._default_import_options).to eq({}) }
     specify do
-      expect do
-        PlacesIndex::City.default_import_options(invalid_option: 'Yeah!')
-      end.to raise_error(ArgumentError)
+      expect { PlacesIndex::City.default_import_options(invalid_option: 'Yeah!') }
+        .to raise_error(ArgumentError)
     end
 
     context 'default_import_options is set' do

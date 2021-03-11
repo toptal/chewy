@@ -686,38 +686,28 @@ describe Chewy::Search::Request do
       specify { expect(subject.limit(2).find('1', '3', '7').map(&:id)).to contain_exactly(1, 3, 7) }
       specify { expect(subject.find(1, 3, 7).map(&:id)).to contain_exactly(1, 3, 7) }
       specify do
-        expect do
-          subject.find('1', '3', '42')
-        end.to raise_error Chewy::DocumentNotFound, 'Could not find documents for ids: 42'
+        expect { subject.find('1', '3', '42') }
+          .to raise_error Chewy::DocumentNotFound, 'Could not find documents for ids: 42'      
       end
       specify do
-        expect do
-          subject.find(1, 3, 42)
-        end.to raise_error Chewy::DocumentNotFound, 'Could not find documents for ids: 42'
+        expect { subject.find(1, 3, 42) }
+          .to raise_error Chewy::DocumentNotFound, 'Could not find documents for ids: 42'
       end
       specify do
-        expect do
-          subject.query(match: {name: 'name3'}).find('1',
-                                                     '3')
-        end.to raise_error Chewy::DocumentNotFound, 'Could not find documents for ids: 1'
+        expect { subject.query(match: {name: 'name3'}).find('1', '3') }
+          .to raise_error Chewy::DocumentNotFound, 'Could not find documents for ids: 1'
       end
       specify do
-        expect do
-          subject.query(match: {name: 'name2'}).find('1',
-                                                     '3')
-        end.to raise_error Chewy::DocumentNotFound, 'Could not find documents for ids: 1 and 3'
+        expect { subject.query(match: {name: 'name2'}).find('1', '3') }
+          .to raise_error Chewy::DocumentNotFound, 'Could not find documents for ids: 1 and 3'
       end
       specify do
-        expect do
-          subject.filter(match: {name: 'name2'}).find('1',
-                                                      '3')
-        end.to raise_error Chewy::DocumentNotFound, 'Could not find documents for ids: 1 and 3'
+        expect { subject.filter(match: {name: 'name2'}).find('1', '3') }
+          .to raise_error Chewy::DocumentNotFound, 'Could not find documents for ids: 1 and 3'
       end
       specify do
-        expect do
-          subject.post_filter(match: {name: 'name2'}).find('1',
-                                                           '3')
-        end.to raise_error Chewy::DocumentNotFound, 'Could not find documents for ids: 1 and 3'
+        expect { subject.post_filter(match: {name: 'name2'}).find('1', '3') }
+          .to raise_error Chewy::DocumentNotFound, 'Could not find documents for ids: 1 and 3'
       end
 
       context 'make sure it returns everything' do

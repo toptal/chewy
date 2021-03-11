@@ -668,8 +668,10 @@ refresh: false).and_call_original
       end
 
       specify do
-        expect(CitiesIndex::City).to receive(:import).with(suffix: 'suffix', parallel: true, journal: false,
-refresh: true).once.and_return(true)
+        expect(CitiesIndex::City)
+          .to receive(:import)
+          .with(suffix: 'suffix', parallel: true, journal: false, refresh: true)
+          .once.and_return(true)
         expect(CitiesIndex.reset!('suffix', parallel: true)).to eq(true)
       end
     end

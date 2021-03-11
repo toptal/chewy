@@ -35,14 +35,10 @@ describe Chewy::Index do
     end
 
     specify do
-      expect do
-        CitiesIndex.import city: cities.first,
-       country: countries.last
-      end.to update_index(CitiesIndex).and_reindex(cities.first).only
-      expect do
-        CountriesIndex.import city: cities.first,
-       country: countries.last
-      end.to update_index(CountriesIndex).and_reindex(countries.last).only
+      expect { CitiesIndex.import city: cities.first, country: countries.last }
+        .to update_index(CitiesIndex).and_reindex(cities.first).only
+      expect { CountriesIndex.import city: cities.first, country: countries.last }
+        .to update_index(CountriesIndex).and_reindex(countries.last).only
     end
 
     specify do

@@ -111,7 +111,7 @@ module Chewy
         # or normal composing under the hood.
         #
         # @param object [Object] a data source object
-        # @param crutches [Object] optional crutches object; if ommited - a crutch for the single passed object is created as a fallback
+        # @param crutches [Object] optional crutches object; if omitted - a crutch for the single passed object is created as a fallback
         # @param fields [Array<Symbol>] and array of fields to restrict the generated document
         # @return [Hash] a JSON-ready hash
         def compose(object, crutches = nil, fields: [])

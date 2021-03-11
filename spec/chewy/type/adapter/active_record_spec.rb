@@ -560,7 +560,7 @@ describe Chewy::Type::Adapter::ActiveRecord, :active_record do
       specify do
         expect(
           subject.load(
-            city_ids, _type: type, scope: -> { where(country_id: 0) }, user: {scope: lambda { where(country_id: 1) }}
+            city_ids, _type: type, scope: -> { where(country_id: 0) }, user: {scope: -> { where(country_id: 1) }}
           )
         ).to eq([nil, nil] + cities.last(1))
       end

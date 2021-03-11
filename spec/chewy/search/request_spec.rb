@@ -687,7 +687,7 @@ describe Chewy::Search::Request do
       specify { expect(subject.find(1, 3, 7).map(&:id)).to contain_exactly(1, 3, 7) }
       specify do
         expect { subject.find('1', '3', '42') }
-          .to raise_error Chewy::DocumentNotFound, 'Could not find documents for ids: 42'      
+          .to raise_error Chewy::DocumentNotFound, 'Could not find documents for ids: 42'
       end
       specify do
         expect { subject.find(1, 3, 42) }

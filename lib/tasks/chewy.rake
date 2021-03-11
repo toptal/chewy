@@ -87,26 +87,4 @@ namespace :chewy do
       Chewy::RakeHelper.journal_clean(**parse_journal_args(args.extras))
     end
   end
-
-  task apply_changes_from: :environment do |_task, args|
-    ActiveSupport::Deprecation.warn '`rake chewy:apply_changes_from` is deprecated and will be removed soon, use `rake chewy:journal:apply` instead'
-
-    Chewy::RakeHelper.subscribed_task_stats do
-      params = args.extras
-
-      if params.empty?
-        puts 'Please specify a timestamp like chewy:apply_changes_from[1469528705]'
-      else
-        timestamp, retries = params
-        time = Time.at(timestamp.to_i)
-        Chewy::Journal.new.apply(time, retries: (retries.to_i if retries))
-      end
-    end
-  end
-
-  task clean_journal: :environment do |_task, args|
-    ActiveSupport::Deprecation.warn '`rake chewy:clean_journal` is deprecated and will be removed soon, use `rake chewy:journal:clean` instead'
-
-    Chewy::Journal.new.clean(args.extras.first)
-  end
 end

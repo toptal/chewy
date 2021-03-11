@@ -228,16 +228,6 @@ module Chewy
         reset(only: indexes)
       end
 
-      def reset_all(*except)
-        ActiveSupport::Deprecation.warn '`Chewy::RakeHelper.reset_all` is deprecated and will be removed soon, use `Chewy::RakeHelper.reset` instead'
-        reset(except: except)
-      end
-
-      def update_index(*indexes)
-        ActiveSupport::Deprecation.warn '`Chewy::RakeHelper.update_index` is deprecated and will be removed soon, use `Chewy::RakeHelper.update` instead'
-        update(only: indexes)
-      end
-
       def update_all(*except)
         ActiveSupport::Deprecation.warn '`Chewy::RakeHelper.update_all` is deprecated and will be removed soon, use `Chewy::RakeHelper.update` instead'
         update(except: except)

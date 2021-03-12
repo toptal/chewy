@@ -55,7 +55,7 @@ module Chewy
           @base_name = suggest.to_s.presence
         else
           [
-            prefix || prefix_with_deprecation,
+            prefix || self.prefix,
             base_name,
             suffix
           ].reject(&:blank?).join('_')
@@ -227,20 +227,6 @@ module Chewy
       # @return [Chewy::Index::Specification] a specification object instance for this particular index
       def specification
         @specification ||= Specification.new(self)
-      end
-
-      # Handling old default_prefix if it is not defined.
-      def method_missing(name, *args, &block) # rubocop:disable Style/MethodMissing
-        if name == :default_prefix
-          ActiveSupport::Deprecation.warn '`Chewy::Index.default_prefix` is deprecated and will be removed soon, use `Chewy::Index.prefix` instead'
-          prefix
-        else
-          super
-        end
-      end
-
-      def prefix_with_deprecation
-        prefix
       end
     end
   end

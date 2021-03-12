@@ -55,6 +55,16 @@ commands:
             - ./vendor/bundle
           key: dependencies-{{ checksum ".ruby.version" }}-{{ checksum ".Gemfile.lock.path" }}
       - run:
+          name: Install dockerize
+          command: |
+            wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSION/dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz && sudo tar -C /usr/local/bin -xzvf dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz && rm dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz
+          environment:
+            DOCKERIZE_VERSION: v0.6.1
+      - run:
+          name: Wait for Elasticsearch
+          command: |
+            dockerize -wait tcp://localhost:9250 -timeout 1m
+      - run:
           name: Disable replication of elastic indices
           command: |
             curl -XPUT 'http://localhost:9250/_all/_settings?preserve_existing=true' -d '{

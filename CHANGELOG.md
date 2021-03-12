@@ -6,6 +6,16 @@
 
 ### Changes
 
+  * [#769](https://github.com/toptal/chewy/pull/769): Remove `Chewy::Index.index_params`, use `Chewy::Index.specification_hash` instead ([@Vitalina-Vakulchyk][])
+  * [#769](https://github.com/toptal/chewy/pull/769): Remove `Chewy::Index.derivable_index_name`, use `Chewy::Index.derivable_name` instead ([@Vitalina-Vakulchyk][])
+  * [#769](https://github.com/toptal/chewy/pull/769): Remove `Chewy::Index.build_index_name`, use `Chewy::Index.index_name` instead ([@Vitalina-Vakulchyk][])
+  * [#769](https://github.com/toptal/chewy/pull/769): Remove `Chewy::RakeHelper.reset_index`, use `Chewy::RakeHelper.reset` instead ([@Vitalina-Vakulchyk][])
+  * [#769](https://github.com/toptal/chewy/pull/769): Remove `Chewy::RakeHelper.reset_all`, use `Chewy::RakeHelper.reset` instead ([@Vitalina-Vakulchyk][])
+  * [#769](https://github.com/toptal/chewy/pull/769): Remove `Chewy::RakeHelper.update_index`, use `Chewy::RakeHelper.update` instead ([@Vitalina-Vakulchyk][])
+  * [#769](https://github.com/toptal/chewy/pull/769): Remove `Chewy::RakeHelper.update_all`, use `Chewy::RakeHelper.update` instead ([@Vitalina-Vakulchyk][])
+  * [#769](https://github.com/toptal/chewy/pull/769): Remove `rake chewy:apply_changes_from`, use `rake chewy:journal:apply` instead ([@Vitalina-Vakulchyk][])
+  * [#769](https://github.com/toptal/chewy/pull/769): Remove `rake chewy:clean_journal`, use `rake chewy:journal:clean` instead ([@Vitalina-Vakulchyk][])
+
 ### Bugs Fixed
 
 ## 7.1.0 (2021-03-03)
@@ -607,5 +617,6 @@
 [@taylor-au]: https://github.com/taylor-au
 [@TikiTDO]: https://github.com/TikiTDO
 [@undr]: https://github.com/undr
+[@Vitalina-Vakulchyk]: https://github.com/Vitalina-Vakulchyk
 [@webgago]: https://github.com/webgago
 [@yahooguntu]: https://github.com/yahooguntu

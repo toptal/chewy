@@ -48,7 +48,7 @@ module Chewy
       #
       #   @param prefix [String] index name prefix, uses {.prefix} method by default
       #   @param suffix [String] index name suffix, used for creating several indexes for the same
-      #   alias during the zero-downtime reset
+      #     alias during the zero-downtime reset
       #   @raise [UndefinedIndex] if the base name is blank
       #   @return [String] result index name
       def index_name(suggest = nil, prefix: nil, suffix: nil)

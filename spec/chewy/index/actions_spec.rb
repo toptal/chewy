@@ -523,11 +523,11 @@ describe Chewy::Index::Actions do
           end
 
           specify do
-            expect(CitiesIndex.client.indices).to receive(:put_settings).with(index: name,
-body: before_import_body).once
+            expect(CitiesIndex.client.indices)
+              .to receive(:put_settings).with(index: name, body: before_import_body).once
             expect(CitiesIndex.client.indices).to receive(:put_settings).with(index: name, body: after_import_body).once
-            expect(CitiesIndex).to receive(:import).with(suffix: suffix, journal: false,
-refresh: false).and_call_original
+            expect(CitiesIndex)
+              .to receive(:import).with(suffix: suffix, journal: false, refresh: false).and_call_original
             expect(CitiesIndex.reset!(suffix)).to eq(true)
           end
 

@@ -43,7 +43,10 @@ describe Chewy::Type do
     specify { expect { PlacesIndex::City.non_existing_method_call }.to raise_error(NoMethodError) }
 
     specify { expect(PlacesIndex::City._default_import_options).to eq({}) }
-    specify { expect { PlacesIndex::City.default_import_options(invalid_option: 'Yeah!') }.to raise_error(ArgumentError) }
+    specify do
+      expect { PlacesIndex::City.default_import_options(invalid_option: 'Yeah!') }
+        .to raise_error(ArgumentError)
+    end
 
     context 'default_import_options is set' do
       let(:converter) { -> {} }

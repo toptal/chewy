@@ -71,6 +71,7 @@ module Chewy
             [{delete: entry.except(:data).merge(parent: parent)}, {index: entry}]
           elsif @fields.present?
             return [] unless entry[:_id]
+
             entry[:data] = {doc: @type.compose(object, crutches, fields: @fields)}
             [{update: entry}]
           else
@@ -89,6 +90,7 @@ module Chewy
           if parents
             parent = entry[:_id].present? && parents[entry[:_id].to_s]
             return [] unless parent
+
             entry[:parent] = parent
           end
 

@@ -104,7 +104,13 @@ describe Chewy::Type::Adapter::Object do
     end
 
     context 'error handling' do
-      let(:products) { Array.new(3) { |i| double.tap { |product| allow(product).to receive_messages(rating: i.next) } } }
+      let(:products) do
+        Array.new(3) do |i|
+          double.tap do |product|
+            allow(product).to receive_messages(rating: i.next)
+          end
+        end
+      end
       let(:deleted) { Array.new(2) { |i| double(destroyed?: true, rating: i + 4) } }
       subject { described_class.new('product') }
 
@@ -135,13 +141,18 @@ describe Chewy::Type::Adapter::Object do
     context do
       subject { described_class.new(-> { objects }) }
       specify { expect(subject.import_fields(batch_size: 2)).to match([[1, 2], [3]]) }
-      specify { expect(subject.import_fields(fields: [:name], batch_size: 2)).to match([[[1, 'Name0'], [2, 'Name1']], [[3, 'Name2']]]) }
+      specify do
+        expect(subject.import_fields(fields: [:name], batch_size: 2))
+          .to match([[[1, 'Name0'], [2, 'Name1']], [[3, 'Name2']]])
+      end
     end
 
     context do
       subject { described_class.new(-> { objects }) }
       specify { expect(subject.import_fields(objects.first(2))).to match([[1, 2]]) }
-      specify { expect(subject.import_fields(objects.first(2), fields: [:name])).to match([[[1, 'Name0'], [2, 'Name1']]]) }
+      specify do
+        expect(subject.import_fields(objects.first(2), fields: [:name])).to match([[[1, 'Name0'], [2, 'Name1']]])
+      end
     end
 
     context do
@@ -178,7 +189,9 @@ describe Chewy::Type::Adapter::Object do
       context do
         subject { described_class.new(Product) }
         specify { expect(subject.import_fields(objects.first(2))).to match([[1, 2]]) }
-        specify { expect(subject.import_fields(objects.first(2), fields: [:name])).to match([[[1, 'Name0'], [2, 'Name1']]]) }
+        specify do
+          expect(subject.import_fields(objects.first(2), fields: [:name])).to match([[[1, 'Name0'], [2, 'Name1']]])
+        end
       end
 
       context 'batch_size' do
@@ -196,7 +209,9 @@ describe Chewy::Type::Adapter::Object do
     specify { expect(subject.import_references).to match([objects]) }
     specify { expect(subject.import_references(batch_size: 2)).to match([objects.first(2), objects.last(1)]) }
     specify { expect(subject.import_references(objects.first(2))).to match([objects.first(2)]) }
-    specify { expect(subject.import_references(objects.first(2), batch_size: 1)).to match([objects.first(1), [objects[1]]]) }
+    specify do
+      expect(subject.import_references(objects.first(2), batch_size: 1)).to match([objects.first(1), [objects[1]]])
+    end
   end
 
   describe '#load' do

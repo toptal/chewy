@@ -59,7 +59,7 @@ module Chewy
         if value.is_a?(Proc)
           if value.arity.zero?
             object.instance_exec(&value)
-          elsif value.arity < 0
+          elsif value.arity.negative?
             value.call(*object)
           else
             value.call(*objects.first(value.arity))

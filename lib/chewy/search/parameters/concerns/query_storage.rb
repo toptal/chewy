@@ -5,7 +5,7 @@ module Chewy
     class Parameters
       # This is a basic storage implementation for `query`, `filter`
       # and `post_filter` storages. It uses `bool` query as a root
-      # structure for each of them. The `bool` root is ommited on
+      # structure for each of them. The `bool` root is omitted on
       # rendering if there is only a single query in the `must` or
       # `should` array. Besides the standard parameter storage
       # capabilities, it provides specialized methods for the `bool`
@@ -86,7 +86,7 @@ module Chewy
           def reduce
             value = to_h
               .reject { |_, v| v.blank? }
-              .map { |k, v| [k, v.is_a?(Array) && v.one? ? v.first : v] }.to_h
+              .transform_values { |v| v.is_a?(Array) && v.one? ? v.first : v }
             value.delete(:minimum_should_match) if should.empty?
             value
           end

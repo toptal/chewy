@@ -14,7 +14,9 @@ module Chewy
         if Rails.application.config.respond_to?(:assets) && env['PATH_INFO'].start_with?(Rails.application.config.assets.prefix)
           @app.call(env)
         else
-          Chewy.logger.info("Chewy request strategy is `#{Chewy.request_strategy}`") if Chewy.logger && @request_strategy != Chewy.request_strategy
+          if Chewy.logger && @request_strategy != Chewy.request_strategy
+            Chewy.logger.info("Chewy request strategy is `#{Chewy.request_strategy}`")
+          end
           @request_strategy = Chewy.request_strategy
           Chewy.strategy(Chewy.request_strategy) { @app.call(env) }
         end

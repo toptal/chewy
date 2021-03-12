@@ -20,7 +20,7 @@ require 'i18n/core_ext/hash'
 #   specify { expect { user1.destroy!; user2.save! } }
 #     .to update_index(UsersIndex::User).and_reindex(user2).and_delete(user1) }
 #
-RSpec::Matchers.define :update_index do |type_name, options = {}| # rubocop:disable BlockLength
+RSpec::Matchers.define :update_index do |type_name, options = {}| # rubocop:disable Metrics/BlockLength
   if !respond_to?(:failure_message) && respond_to?(:failure_message_for_should)
     alias_method :failure_message, :failure_message_for_should
     alias_method :failure_message_when_negated, :failure_message_for_should_not
@@ -92,7 +92,7 @@ RSpec::Matchers.define :update_index do |type_name, options = {}| # rubocop:disa
     true
   end
 
-  match do |block| # rubocop:disable BlockLength
+  match do |block| # rubocop:disable Metrics/BlockLength
     @reindex ||= {}
     @delete ||= {}
     @missed_reindex = []
@@ -127,13 +127,13 @@ RSpec::Matchers.define :update_index do |type_name, options = {}| # rubocop:disa
     end
 
     @reindex.each_value do |document|
-      document[:match_count] = (!document[:expected_count] && document[:real_count] > 0) ||
+      document[:match_count] = (!document[:expected_count] && (document[:real_count]).positive?) ||
         (document[:expected_count] && document[:expected_count] == document[:real_count])
       document[:match_attributes] = document[:expected_attributes].blank? ||
         compare_attributes(document[:expected_attributes], document[:real_attributes])
     end
     @delete.each_value do |document|
-      document[:match_count] = (!document[:expected_count] && document[:real_count] > 0) ||
+      document[:match_count] = (!document[:expected_count] && (document[:real_count]).positive?) ||
         (document[:expected_count] && document[:expected_count] == document[:real_count])
     end
 
@@ -142,7 +142,7 @@ RSpec::Matchers.define :update_index do |type_name, options = {}| # rubocop:disa
       @delete.all? { |_, document| document[:match_count] }
   end
 
-  failure_message do # rubocop:disable BlockLength
+  failure_message do # rubocop:disable Metrics/BlockLength
     output = ''
 
     if mock_bulk_request.updates.none?
@@ -166,9 +166,13 @@ RSpec::Matchers.define :update_index do |type_name, options = {}| # rubocop:disa
     output << @reindex.each.with_object('') do |(id, document), result|
       unless document[:match_count] && document[:match_attributes]
         result << "Expected document with id `#{id}` to be reindexed"
-        if document[:real_count] > 0
-          result << "\n   #{document[:expected_count]} times, but was reindexed #{document[:real_count]} times" if document[:expected_count] && !document[:match_count]
-          result << "\n   with #{document[:expected_attributes]}, but it was reindexed with #{document[:real_attributes]}" if document[:expected_attributes].present? && !document[:match_attributes]
+        if (document[:real_count]).positive?
+          if document[:expected_count] && !document[:match_count]
+            result << "\n   #{document[:expected_count]} times, but was reindexed #{document[:real_count]} times"
+          end
+          if document[:expected_attributes].present? && !document[:match_attributes]
+            result << "\n   with #{document[:expected_attributes]}, but it was reindexed with #{document[:real_attributes]}"
+          end
         else
           result << ', but it was not'
         end
@@ -179,11 +183,11 @@ RSpec::Matchers.define :update_index do |type_name, options = {}| # rubocop:disa
     output << @delete.each.with_object('') do |(id, document), result|
       unless document[:match_count]
         result << "Expected document with id `#{id}` to be deleted"
-        result << if document[:real_count] > 0 && document[:expected_count]
-                    "\n   #{document[:expected_count]} times, but was deleted #{document[:real_count]} times"
-                  else
-                    ', but it was not'
-                  end
+        result << if (document[:real_count]).positive? && document[:expected_count]
+          "\n   #{document[:expected_count]} times, but was deleted #{document[:real_count]} times"
+        else
+          ', but it was not'
+        end
         result << "\n"
       end
     end
@@ -209,7 +213,7 @@ RSpec::Matchers.define :update_index do |type_name, options = {}| # rubocop:disa
     expected_count = options[:times] || options[:count]
     expected_attributes = (options[:with] || options[:attributes] || {}).deep_symbolize_keys
 
-    Hash[args.flatten.map do |document|
+    args.flatten.map do |document|
       id = document.respond_to?(:id) ? document.id.to_s : document.to_s
       [id, {
         document: document,
@@ -218,7 +222,7 @@ RSpec::Matchers.define :update_index do |type_name, options = {}| # rubocop:disa
         real_count: 0,
         real_attributes: {}
       }]
-    end]
+    end.to_h
   end
 
   def compare_attributes(expected, real)

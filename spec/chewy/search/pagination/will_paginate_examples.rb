@@ -35,8 +35,16 @@ shared_examples :will_paginate do |request_base_class|
     end
 
     describe '#paginate' do
-      specify { expect(search.paginate(page: 2, per_page: 4).map { |e| e.attributes.except(*except_fields) }).to eq(data[4..7]) }
-      specify { expect(search.paginate(per_page: 2, page: 3).page(3).map { |e| e.attributes.except(*except_fields) }).to eq(data[4..5]) }
+      specify do
+        expect(search.paginate(page: 2, per_page: 4).map do |e|
+                 e.attributes.except(*except_fields)
+               end).to eq(data[4..7])
+      end
+      specify do
+        expect(search.paginate(per_page: 2, page: 3).page(3).map do |e|
+                 e.attributes.except(*except_fields)
+               end).to eq(data[4..5])
+      end
       specify { expect(search.paginate(per_page: 5).map { |e| e.attributes.except(*except_fields) }).to eq(data[0..4]) }
       specify { expect(search.paginate(per_page: 4).map { |e| e.attributes.except(*except_fields) }).to eq(data[0..3]) }
     end

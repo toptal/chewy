@@ -14,7 +14,7 @@ module Chewy
       #
       # @return [SearchIndexReceiver] for optional further assertions on the nature of the index changes.
       #
-      def assert_indexes(index, strategy: :atomic, bypass_actual_index: true)
+      def assert_indexes(index, strategy: :atomic, bypass_actual_index: true, &block)
         type = Chewy.derive_type index
         receiver = SearchIndexReceiver.new
 
@@ -30,9 +30,7 @@ module Chewy
 
         type.define_singleton_method :bulk, bulk_mock
 
-        Chewy.strategy(strategy) do
-          yield
-        end
+        Chewy.strategy(strategy, &block)
 
         type.define_singleton_method :bulk, bulk_method
 
@@ -44,10 +42,8 @@ module Chewy
       # Run indexing for the database changes during the block provided.
       # By default, indexing is run at the end of the block.
       # @param strategy [Symbol] the Chewy index update strategy see Chewy docs.
-      def run_indexing(strategy: :atomic)
-        Chewy.strategy strategy do
-          yield
-        end
+      def run_indexing(strategy: :atomic, &block)
+        Chewy.strategy strategy, &block
       end
 
       module ClassMethods

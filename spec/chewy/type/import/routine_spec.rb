@@ -68,7 +68,9 @@ describe Chewy::Type::Import::Routine do
     specify { expect(described_class.new(CitiesIndex::City).parallel_options).to be_nil }
     specify { expect(described_class.new(CitiesIndex::City, parallel: true).parallel_options).to eq({}) }
     specify { expect(described_class.new(CitiesIndex::City, parallel: 3).parallel_options).to eq(in_processes: 3) }
-    specify { expect(described_class.new(CitiesIndex::City, parallel: {in_threads: 2}).parallel_options).to eq(in_threads: 2) }
+    specify do
+      expect(described_class.new(CitiesIndex::City, parallel: {in_threads: 2}).parallel_options).to eq(in_threads: 2)
+    end
   end
 
   describe '#stats' do

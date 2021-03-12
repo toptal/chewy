@@ -24,5 +24,7 @@ describe 'Time fields' do
 
   specify { expect(PostsIndex.total).to eq(3) }
   specify { expect(PostsIndex.filter(range: {published_at: {gte: range.min, lte: range.max}}).size).to eq(1) }
-  specify { expect(PostsIndex.filter(range: {published_at: {gt: range.min.utc, lt: (range.max + 1.hour).utc}}).size).to eq(2) }
+  specify do
+    expect(PostsIndex.filter(range: {published_at: {gt: range.min.utc, lt: (range.max + 1.hour).utc}}).size).to eq(2)
+  end
 end

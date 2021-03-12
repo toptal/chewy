@@ -45,8 +45,8 @@ module Chewy
       ].freeze
 
       delegate :hits, :wrappers, :objects, :records, :documents,
-        :object_hash, :record_hash, :document_hash,
-        :total, :max_score, :took, :timed_out?, to: :response
+               :object_hash, :record_hash, :document_hash,
+               :total, :max_score, :took, :timed_out?, to: :response
       delegate :each, :size, :to_a, :[], to: :wrappers
       alias_method :to_ary, :to_a
       alias_method :total_count, :total
@@ -728,7 +728,10 @@ module Chewy
       #     scope1.and(scope2)
       #     # => <PlacesIndex::Query {..., :body=>{:query=>{:bool=>{
       #     #      :must=>[{:match=>{:name=>"London"}}, {:match=>{:name=>"Washington"}}],
-      #     #      :filter=>{:bool=>{:must=>[{:term=>{:name=>"Moscow"}}, {:bool=>{:must_not=>{:term=>{:name=>"Berlin"}}}}]}}}}}}>
+      #     #      :filter=>{
+      #     #        :bool=>{:must=>[{:term=>{:name=>"Moscow"}}, {:bool=>{:must_not=>{:term=>{:name=>"Berlin"}}}}]}
+      #     #      }
+      #     #    }}}}>
       #   @param other [Chewy::Search::Request] scope to merge
       #   @return [Chewy::Search::Request] new scope
       #
@@ -745,7 +748,10 @@ module Chewy
       #     scope1.or(scope2)
       #     # => <PlacesIndex::Query {..., :body=>{:query=>{:bool=>{
       #     #      :should=>[{:match=>{:name=>"London"}}, {:match=>{:name=>"Washington"}}],
-      #     #      :filter=>{:bool=>{:should=>[{:term=>{:name=>"Moscow"}}, {:bool=>{:must_not=>{:term=>{:name=>"Berlin"}}}}]}}}}}}>
+      #     #      :filter=>{
+      #     #        :bool=>{:should=>[{:term=>{:name=>"Moscow"}}, {:bool=>{:must_not=>{:term=>{:name=>"Berlin"}}}}]}
+      #     #      }
+      #     #    }}}}>
       #   @param other [Chewy::Search::Request] scope to merge
       #   @return [Chewy::Search::Request] new scope
       #
@@ -762,7 +768,13 @@ module Chewy
       #     scope1.not(scope2)
       #     # => <PlacesIndex::Query {..., :body=>{:query=>{:bool=>{
       #     #      :must=>{:match=>{:name=>"London"}}, :must_not=>{:match=>{:name=>"Washington"}},
-      #     #      :filter=>{:bool=>{:must=>{:term=>{:name=>"Moscow"}}, :must_not=>{:bool=>{:must_not=>{:term=>{:name=>"Berlin"}}}}}}}}}}>
+      #     #      :filter=>{
+      #     #        :bool=>{
+      #     #          :must=>{:term=>{:name=>"Moscow"}},
+      #     #          :must_not=>{:bool=>{:must_not=>{:term=>{:name=>"Berlin"}}}}
+      #     #        }
+      #     #      }
+      #     #    }}}}>
       #   @param other [Chewy::Search::Request] scope to merge
       #   @return [Chewy::Search::Request] new scope
       %i[and or not].each do |name|
@@ -931,11 +943,10 @@ module Chewy
       # @return [Hash] the result of query execution
       def delete_all(refresh: true)
         request_body = only(WHERE_STORAGES).render.merge(refresh: refresh)
-        ActiveSupport::Notifications.instrument 'delete_query.chewy',
-          notification_payload(request: request_body) do
-            request_body[:body] = {query: {match_all: {}}} if request_body[:body].empty?
-            Chewy.client.delete_by_query(request_body)
-          end
+        ActiveSupport::Notifications.instrument 'delete_query.chewy', notification_payload(request: request_body) do
+          request_body[:body] = {query: {match_all: {}}} if request_body[:body].empty?
+          Chewy.client.delete_by_query(request_body)
+        end
       end
 
       # Returns whether or not the query has been performed.
@@ -976,14 +987,13 @@ module Chewy
 
       def perform(additional = {})
         request_body = render.merge(additional)
-        ActiveSupport::Notifications.instrument 'search_query.chewy',
-          notification_payload(request: request_body) do
-            begin
-              Chewy.client.search(request_body)
-            rescue Elasticsearch::Transport::Transport::Errors::NotFound
-              {}
-            end
+        ActiveSupport::Notifications.instrument 'search_query.chewy', notification_payload(request: request_body) do
+          begin
+            Chewy.client.search(request_body)
+          rescue Elasticsearch::Transport::Transport::Errors::NotFound
+            {}
           end
+        end
       end
 
       def notification_payload(additional)

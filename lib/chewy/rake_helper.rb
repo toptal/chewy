@@ -4,13 +4,11 @@ module Chewy
       duration = (finish - start).ceil
       stats = payload.fetch(:import, {}).map { |key, count| "#{key} #{count}" }.join(', ')
       output.puts "  Imported #{payload[:type]} in #{human_duration(duration)}, stats: #{stats}"
-      if payload[:errors]
-        payload[:errors].each do |action, errors|
-          output.puts "    #{action.to_s.humanize} errors:"
-          errors.each do |error, documents|
-            output.puts "      `#{error}`"
-            output.puts "        on #{documents.count} documents: #{documents}"
-          end
+      payload[:errors]&.each do |action, errors|
+        output.puts "    #{action.to_s.humanize} errors:"
+        errors.each do |error, documents|
+          output.puts "      `#{error}`"
+          output.puts "        on #{documents.count} documents: #{documents}"
         end
       end
     end
@@ -36,7 +34,7 @@ module Chewy
       # @param parallel [true, Integer, Hash] any acceptable parallel options for import
       # @param output [IO] output io for logging
       # @return [Array<Chewy::Index>] indexes that were reset
-      def reset(only: nil, except: nil, parallel: nil, output: STDOUT)
+      def reset(only: nil, except: nil, parallel: nil, output: $stdout)
         subscribed_task_stats(output) do
           indexes_from(only: only, except: except).each do |index|
             reset_one(index, output, parallel: parallel)
@@ -59,7 +57,7 @@ module Chewy
       # @param parallel [true, Integer, Hash] any acceptable parallel options for import
       # @param output [IO] output io for logging
       # @return [Array<Chewy::Index>] indexes that were actually reset
-      def upgrade(only: nil, except: nil, parallel: nil, output: STDOUT)
+      def upgrade(only: nil, except: nil, parallel: nil, output: $stdout)
         subscribed_task_stats(output) do
           indexes = indexes_from(only: only, except: except)
 
@@ -97,7 +95,7 @@ module Chewy
       # @param parallel [true, Integer, Hash] any acceptable parallel options for import
       # @param output [IO] output io for logging
       # @return [Array<Chewy::Type>] types that were actually updated
-      def update(only: nil, except: nil, parallel: nil, output: STDOUT)
+      def update(only: nil, except: nil, parallel: nil, output: $stdout)
         subscribed_task_stats(output) do
           types_from(only: only, except: except).group_by(&:index).each_with_object([]) do |(index, types), update_types|
             if index.exists?
@@ -125,7 +123,7 @@ module Chewy
       # @param parallel [true, Integer, Hash] any acceptable parallel options for sync
       # @param output [IO] output io for logging
       # @return [Array<Chewy::Type>] types that were actually updated
-      def sync(only: nil, except: nil, parallel: nil, output: STDOUT)
+      def sync(only: nil, except: nil, parallel: nil, output: $stdout)
         subscribed_task_stats(output) do
           types_from(only: only, except: except).each_with_object([]) do |type, synced_types|
             output.puts "Synchronizing #{type}"
@@ -134,7 +132,7 @@ module Chewy
             sync_result = type.sync(parallel: parallel)
             if !sync_result
               output.puts "  Something went wrong with the #{type} synchronization"
-            elsif sync_result[:count] > 0
+            elsif (sync_result[:count]).positive?
               output.puts "  Missing documents: #{sync_result[:missing]}" if sync_result[:missing].present?
               output.puts "  Outdated documents: #{sync_result[:outdated]}" if sync_result[:outdated].present?
               synced_types.push(type)
@@ -161,8 +159,9 @@ module Chewy
       # @param except [Array<Chewy::Index, Chewy::Type, String>, Chewy::Index, Chewy::Type, String] indexes or types to exclude from processing
       # @param output [IO] output io for logging
       # @return [Array<Chewy::Type>] types that were actually updated
-      def journal_apply(time: nil, only: nil, except: nil, output: STDOUT)
+      def journal_apply(time: nil, only: nil, except: nil, output: $stdout)
         raise ArgumentError, 'Please specify the time to start with' unless time
+
         subscribed_task_stats(output) do
           output.puts "Applying journal entries created after #{time}"
           count = Chewy::Journal.new(types_from(only: only, except: except)).apply(time)
@@ -186,7 +185,7 @@ module Chewy
       # @param except [Array<Chewy::Index, Chewy::Type, String>, Chewy::Index, Chewy::Type, String] indexes or types to exclude from processing
       # @param output [IO] output io for logging
       # @return [Array<Chewy::Type>] types that were actually updated
-      def journal_clean(time: nil, only: nil, except: nil, output: STDOUT)
+      def journal_clean(time: nil, only: nil, except: nil, output: $stdout)
         subscribed_task_stats(output) do
           output.puts "Cleaning journal entries created before #{time}" if time
           response = Chewy::Journal.new(types_from(only: only, except: except)).clean(time)
@@ -210,15 +209,14 @@ module Chewy
 
       def normalize_index(identifier)
         return identifier if identifier.is_a?(Class) && identifier < Chewy::Index
+
         "#{identifier.to_s.gsub(/identifier\z/i, '').camelize}Index".constantize
       end
 
-      def subscribed_task_stats(output = STDOUT)
+      def subscribed_task_stats(output = $stdout, &block)
         start = Time.now
         ActiveSupport::Notifications.subscribed(JOURNAL_CALLBACK.curry[output], 'apply_journal.chewy') do
-          ActiveSupport::Notifications.subscribed(IMPORT_CALLBACK.curry[output], 'import_objects.chewy') do
-            yield
-          end
+          ActiveSupport::Notifications.subscribed(IMPORT_CALLBACK.curry[output], 'import_objects.chewy', &block)
         end
         output.puts "Total: #{human_duration(Time.now - start)}"
       end
@@ -267,7 +265,7 @@ module Chewy
 
       def human_duration(seconds)
         [[60, :s], [60, :m], [24, :h]].map do |amount, unit|
-          if seconds > 0
+          if seconds.positive?
             seconds, n = seconds.divmod(amount)
             "#{n.to_i}#{unit}"
           end

@@ -187,7 +187,11 @@ module Chewy
             suffixed_name = index_name(suffix: suffix)
 
             optimize_index_settings suffixed_name
-            result = import import_options.merge(suffix: suffix, journal: journal, refresh: !Chewy.reset_disable_refresh_interval)
+            result = import import_options.merge(
+              suffix: suffix,
+              journal: journal,
+              refresh: !Chewy.reset_disable_refresh_interval
+            )
             original_index_settings suffixed_name
 
             delete if indexes.blank?
@@ -242,6 +246,7 @@ module Chewy
 
         def index_settings(setting_name)
           return {} unless settings_hash.key?(:settings) && settings_hash[:settings].key?(:index)
+
           settings_hash[:settings][:index].slice(setting_name)
         end
       end

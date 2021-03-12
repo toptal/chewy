@@ -72,14 +72,20 @@ describe Chewy::Stash::Journal, :orm do
     specify { expect(fetch_deleted_number(described_class.clean(only: UsersIndex))).to eq(1) }
     specify { expect(fetch_deleted_number(described_class.clean(only: [CitiesIndex, UsersIndex]))).to eq(2) }
 
-    specify { expect(fetch_deleted_number(described_class.clean(Time.now + 30.seconds, only: CountriesIndex))).to eq(0) }
+    specify do
+      expect(fetch_deleted_number(described_class.clean(Time.now + 30.seconds, only: CountriesIndex))).to eq(0)
+    end
     specify { expect(fetch_deleted_number(described_class.clean(Time.now + 30.seconds, only: CitiesIndex))).to eq(1) }
   end
 
   describe '.for' do
     specify { expect(described_class.for(UsersIndex).map(&:index_name)).to eq(['users']) }
-    specify { expect(described_class.for(CitiesIndex, CountriesIndex).map(&:type_name)).to contain_exactly('city', 'country') }
-    specify { expect(described_class.for(CitiesIndex, UsersIndex).map(&:index_name)).to contain_exactly('cities', 'users') }
+    specify do
+      expect(described_class.for(CitiesIndex, CountriesIndex).map(&:type_name)).to contain_exactly('city', 'country')
+    end
+    specify do
+      expect(described_class.for(CitiesIndex, UsersIndex).map(&:index_name)).to contain_exactly('cities', 'users')
+    end
   end
 
   describe '#type' do

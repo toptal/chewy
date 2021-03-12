@@ -14,7 +14,10 @@ describe Chewy::Strategy do
   end
 
   describe '#push' do
-    specify { expect { strategy.push(:unexistant) }.to raise_error(RuntimeError).with_message("Can't find update strategy `unexistant`") }
+    specify do
+      expect { strategy.push(:unexistant) }
+        .to raise_error(RuntimeError).with_message("Can't find update strategy `unexistant`")
+    end
 
     specify do
       expect { strategy.push(:atomic) }
@@ -35,7 +38,10 @@ describe Chewy::Strategy do
   end
 
   describe '#wrap' do
-    specify { expect { strategy.wrap(:unexistant) {} }.to raise_error(RuntimeError).with_message("Can't find update strategy `unexistant`") }
+    specify do
+      expect { strategy.wrap(:unexistant) {} }
+        .to raise_error(RuntimeError).with_message("Can't find update strategy `unexistant`")
+    end
 
     specify do
       expect do

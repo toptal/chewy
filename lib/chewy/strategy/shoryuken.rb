@@ -26,6 +26,7 @@ module Chewy
       def leave
         @stash.each do |type, ids|
           next if ids.empty?
+
           Shoryuken::Worker.perform_async({type: type.name, ids: ids}, queue: shoryuken_queue)
         end
       end

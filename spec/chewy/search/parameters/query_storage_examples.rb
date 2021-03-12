@@ -4,19 +4,46 @@ shared_examples :query_storage do |param_name|
   subject { described_class.new(must: {foo: 'bar'}, should: {moo: 'baz'}) }
 
   describe '#initialize' do
-    specify { expect(described_class.new.value.to_h).to eq(must: [], should: [], must_not: [], minimum_should_match: nil) }
-    specify { expect(described_class.new(nil).value.to_h).to eq(must: [], should: [], must_not: [], minimum_should_match: nil) }
-    specify { expect(described_class.new(foobar: {}).value.to_h).to eq(must: [{foobar: {}}], should: [], must_not: [], minimum_should_match: nil) }
-    specify { expect(described_class.new(must: {}, should: {}, must_not: {}).value.to_h).to eq(must: [], should: [], must_not: [], minimum_should_match: nil) }
+    specify do
+      expect(described_class.new.value.to_h)
+        .to eq(must: [], should: [], must_not: [], minimum_should_match: nil)
+    end
+    specify do
+      expect(described_class.new(nil).value.to_h)
+        .to eq(must: [], should: [], must_not: [], minimum_should_match: nil)
+    end
+    specify do
+      expect(described_class.new(foobar: {}).value.to_h)
+        .to eq(must: [{foobar: {}}], should: [], must_not: [], minimum_should_match: nil)
+    end
+    specify do
+      expect(described_class.new(must: {}, should: {}, must_not: {}).value.to_h)
+        .to eq(must: [], should: [], must_not: [], minimum_should_match: nil)
+    end
     specify do
       expect(described_class.new(must: {foo: 'bar'}, should: {foo: 'bar'}, foobar: {}).value.to_h)
         .to eq(must: [{foo: 'bar'}], should: [{foo: 'bar'}], must_not: [], minimum_should_match: nil)
     end
-    specify { expect(subject.value.to_h).to eq(must: [{foo: 'bar'}], should: [{moo: 'baz'}], must_not: [], minimum_should_match: nil) }
-    specify { expect(described_class.new(proc { match foo: 'bar' }).value.to_h).to eq(must: [match: {foo: 'bar'}], should: [], must_not: [], minimum_should_match: nil) }
-    specify { expect(described_class.new(must: proc { match foo: 'bar' }).value.to_h).to eq(must: [match: {foo: 'bar'}], should: [], must_not: [], minimum_should_match: nil) }
-    specify { expect(described_class.new(minimum_should_match: 3).value.to_h).to eq(must: [], should: [], must_not: [], minimum_should_match: 3) }
-    specify { expect(described_class.new(must: {foo: 'bar'}, minimum_should_match: 3).value.to_h).to eq(must: [{foo: 'bar'}], should: [], must_not: [], minimum_should_match: 3) }
+    specify do
+      expect(subject.value.to_h)
+        .to eq(must: [{foo: 'bar'}], should: [{moo: 'baz'}], must_not: [], minimum_should_match: nil)
+    end
+    specify do
+      expect(described_class.new(proc { match foo: 'bar' }).value.to_h)
+        .to eq(must: [match: {foo: 'bar'}], should: [], must_not: [], minimum_should_match: nil)
+    end
+    specify do
+      expect(described_class.new(must: proc { match foo: 'bar' }).value.to_h)
+        .to eq(must: [match: {foo: 'bar'}], should: [], must_not: [], minimum_should_match: nil)
+    end
+    specify do
+      expect(described_class.new(minimum_should_match: 3).value.to_h)
+        .to eq(must: [], should: [], must_not: [], minimum_should_match: 3)
+    end
+    specify do
+      expect(described_class.new(must: {foo: 'bar'}, minimum_should_match: 3).value.to_h)
+        .to eq(must: [{foo: 'bar'}], should: [], must_not: [], minimum_should_match: 3)
+    end
     specify do
       expect(described_class.new(must: [proc { match foo: 'bar' }, {moo: 'baz'}]).value.to_h)
         .to eq(must: [{match: {foo: 'bar'}}, {moo: 'baz'}], should: [], must_not: [], minimum_should_match: nil)
@@ -73,14 +100,16 @@ shared_examples :query_storage do |param_name|
       expect { subject.and(moo: 'baz') }
         .to change { subject.value.to_h }
         .from(must: [{foo: 'bar'}], should: [{moo: 'baz'}], must_not: [], minimum_should_match: nil)
-        .to(must: [{bool: {must: {foo: 'bar'}, should: {moo: 'baz'}}}, {moo: 'baz'}], should: [], must_not: [], minimum_should_match: nil)
+        .to(must: [{bool: {must: {foo: 'bar'}, should: {moo: 'baz'}}},
+                   {moo: 'baz'}], should: [], must_not: [], minimum_should_match: nil)
     end
 
     specify do
       expect { subject.and([{moo: 'baz'}, {doo: 'scooby'}]) }
         .to change { subject.value.to_h }
         .from(must: [{foo: 'bar'}], should: [{moo: 'baz'}], must_not: [], minimum_should_match: nil)
-        .to(must: [{bool: {must: {foo: 'bar'}, should: {moo: 'baz'}}}, bool: {must: [{moo: 'baz'}, {doo: 'scooby'}]}], should: [], must_not: [], minimum_should_match: nil)
+        .to(must: [{bool: {must: {foo: 'bar'}, should: {moo: 'baz'}}},
+                   bool: {must: [{moo: 'baz'}, {doo: 'scooby'}]}], should: [], must_not: [], minimum_should_match: nil)
     end
 
     specify do
@@ -93,7 +122,8 @@ shared_examples :query_storage do |param_name|
       expect { subject.and(should: {foo: 'bar'}) }
         .to change { subject.value.to_h }
         .from(must: [{foo: 'bar'}], should: [{moo: 'baz'}], must_not: [], minimum_should_match: nil)
-        .to(must: [{bool: {must: {foo: 'bar'}, should: {moo: 'baz'}}}, {bool: {should: {foo: 'bar'}}}], should: [], must_not: [], minimum_should_match: nil)
+        .to(must: [{bool: {must: {foo: 'bar'}, should: {moo: 'baz'}}},
+                   {bool: {should: {foo: 'bar'}}}], should: [], must_not: [], minimum_should_match: nil)
     end
 
     context do
@@ -113,14 +143,16 @@ shared_examples :query_storage do |param_name|
       expect { subject.or(moo: 'baz') }
         .to change { subject.value.to_h }
         .from(must: [{foo: 'bar'}], should: [{moo: 'baz'}], must_not: [], minimum_should_match: nil)
-        .to(must: [], should: [{bool: {must: {foo: 'bar'}, should: {moo: 'baz'}}}, {moo: 'baz'}], must_not: [], minimum_should_match: nil)
+        .to(must: [], should: [{bool: {must: {foo: 'bar'}, should: {moo: 'baz'}}},
+                               {moo: 'baz'}], must_not: [], minimum_should_match: nil)
     end
 
     specify do
       expect { subject.or([{moo: 'baz'}, {doo: 'scooby'}]) }
         .to change { subject.value.to_h }
         .from(must: [{foo: 'bar'}], should: [{moo: 'baz'}], must_not: [], minimum_should_match: nil)
-        .to(must: [], should: [{bool: {must: {foo: 'bar'}, should: {moo: 'baz'}}}, bool: {must: [{moo: 'baz'}, {doo: 'scooby'}]}], must_not: [], minimum_should_match: nil)
+        .to(must: [], should: [{bool: {must: {foo: 'bar'}, should: {moo: 'baz'}}},
+                               bool: {must: [{moo: 'baz'}, {doo: 'scooby'}]}], must_not: [], minimum_should_match: nil)
     end
 
     specify do
@@ -133,7 +165,8 @@ shared_examples :query_storage do |param_name|
       expect { subject.or(should: {foo: 'bar'}) }
         .to change { subject.value.to_h }
         .from(must: [{foo: 'bar'}], should: [{moo: 'baz'}], must_not: [], minimum_should_match: nil)
-        .to(must: [], should: [{bool: {must: {foo: 'bar'}, should: {moo: 'baz'}}}, {bool: {should: {foo: 'bar'}}}], must_not: [], minimum_should_match: nil)
+        .to(must: [], should: [{bool: {must: {foo: 'bar'}, should: {moo: 'baz'}}},
+                               {bool: {should: {foo: 'bar'}}}], must_not: [], minimum_should_match: nil)
     end
 
     context do
@@ -160,7 +193,12 @@ shared_examples :query_storage do |param_name|
       expect { subject.not([{moo: 'baz'}, {doo: 'scooby'}]) }
         .to change { subject.value.to_h }
         .from(must: [{foo: 'bar'}], should: [{moo: 'baz'}], must_not: [], minimum_should_match: nil)
-        .to(must: [{foo: 'bar'}], should: [{moo: 'baz'}], must_not: [{bool: {must: [{moo: 'baz'}, {doo: 'scooby'}]}}], minimum_should_match: nil)
+        .to(
+          must: [{foo: 'bar'}],
+          should: [{moo: 'baz'}],
+          must_not: [{bool: {must: [{moo: 'baz'}, {doo: 'scooby'}]}}],
+          minimum_should_match: nil
+        )
     end
 
     specify do
@@ -173,7 +211,11 @@ shared_examples :query_storage do |param_name|
       expect { subject.not(should: {foo: 'bar'}) }
         .to change { subject.value.to_h }
         .from(must: [{foo: 'bar'}], should: [{moo: 'baz'}], must_not: [], minimum_should_match: nil)
-        .to(must: [{foo: 'bar'}], should: [{moo: 'baz'}], must_not: [{bool: {should: {foo: 'bar'}}}], minimum_should_match: nil)
+        .to(
+          must: [{foo: 'bar'}], should: [{moo: 'baz'}],
+          must_not: [{bool: {should: {foo: 'bar'}}}],
+          minimum_should_match: nil
+        )
     end
 
     context do
@@ -223,7 +265,8 @@ shared_examples :query_storage do |param_name|
       expect { subject.update!(must: proc { match foo: 'bar' }) }
         .to change { subject.value.to_h }
         .from(must: [{foo: 'bar'}], should: [{moo: 'baz'}], must_not: [], minimum_should_match: nil)
-        .to(must: [{foo: 'bar'}, {match: {foo: 'bar'}}], should: [{moo: 'baz'}], must_not: [], minimum_should_match: nil)
+        .to(must: [{foo: 'bar'},
+                   {match: {foo: 'bar'}}], should: [{moo: 'baz'}], must_not: [], minimum_should_match: nil)
     end
 
     specify do
@@ -237,7 +280,8 @@ shared_examples :query_storage do |param_name|
       expect { subject.update!(foobar: {foo: 'bar'}) }
         .to change { subject.value.to_h }
         .from(must: [{foo: 'bar'}], should: [{moo: 'baz'}], must_not: [], minimum_should_match: nil)
-        .to(must: [{foo: 'bar'}, {foobar: {foo: 'bar'}}], should: [{moo: 'baz'}], must_not: [], minimum_should_match: nil)
+        .to(must: [{foo: 'bar'},
+                   {foobar: {foo: 'bar'}}], should: [{moo: 'baz'}], must_not: [], minimum_should_match: nil)
     end
 
     specify do
@@ -279,7 +323,8 @@ shared_examples :query_storage do |param_name|
       expect { subject.merge!(described_class.new(moo: 'baz')) }
         .to change { subject.value.to_h }
         .from(must: [{foo: 'bar'}], should: [{moo: 'baz'}], must_not: [], minimum_should_match: nil)
-        .to(must: [{bool: {must: {foo: 'bar'}, should: {moo: 'baz'}}}, {moo: 'baz'}], should: [], must_not: [], minimum_should_match: nil)
+        .to(must: [{bool: {must: {foo: 'bar'}, should: {moo: 'baz'}}},
+                   {moo: 'baz'}], should: [], must_not: [], minimum_should_match: nil)
     end
 
     specify do
@@ -292,7 +337,8 @@ shared_examples :query_storage do |param_name|
       expect { subject.merge!(described_class.new(should: {foo: 'bar'})) }
         .to change { subject.value.to_h }
         .from(must: [{foo: 'bar'}], should: [{moo: 'baz'}], must_not: [], minimum_should_match: nil)
-        .to(must: [{bool: {must: {foo: 'bar'}, should: {moo: 'baz'}}}, {bool: {should: {foo: 'bar'}}}], should: [], must_not: [], minimum_should_match: nil)
+        .to(must: [{bool: {must: {foo: 'bar'}, should: {moo: 'baz'}}},
+                   {bool: {should: {foo: 'bar'}}}], should: [], must_not: [], minimum_should_match: nil)
     end
 
     context do

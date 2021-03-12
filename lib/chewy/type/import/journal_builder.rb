@@ -26,6 +26,7 @@ module Chewy
 
         def entries(action, objects)
           return unless objects.present?
+
           {
             index_name: @type.index.derivable_name,
             type_name: @type.type_name,

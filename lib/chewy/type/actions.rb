@@ -24,7 +24,8 @@ module Chewy
         #
         # @see Chewy::Type::Syncer
         # @param parallel [true, Integer, Hash] options for parallel execution or the number of processes
-        # @return [Hash{Symbol, Object}, nil] a number of missing and outdated documents reindexed and their ids, nil in case of errors
+        # @return [Hash{Symbol, Object}, nil] a number of missing and outdated documents reindexed and their ids,
+        #   nil in case of errors
         def sync(parallel: nil)
           syncer = Syncer.new(self, parallel: parallel)
           count = syncer.perform

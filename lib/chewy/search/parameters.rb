@@ -1,5 +1,5 @@
-Dir.glob(File.join(File.dirname(__FILE__), 'parameters', 'concerns', '*.rb')) { |f| require f }
-Dir.glob(File.join(File.dirname(__FILE__), 'parameters', '*.rb')) { |f| require f }
+Dir.glob(File.join(File.dirname(__FILE__), 'parameters', 'concerns', '*.rb')).sort.each { |f| require f }
+Dir.glob(File.join(File.dirname(__FILE__), 'parameters', '*.rb')).sort.each { |f| require f }
 
 module Chewy
   module Search
@@ -24,6 +24,7 @@ module Chewy
 
       # @return [{Symbol => Chewy::Search::Parameters::Storage}]
       attr_accessor :storages
+
       delegate :[], :[]=, to: :storages
 
       # Accepts an initial hash as basic values or parameter storages.
@@ -120,6 +121,7 @@ module Chewy
 
       def assert_storages(names)
         raise ArgumentError, 'No storage names were specified' if names.empty?
+
         names = names.map(&:to_sym)
         self.class.storages.values_at(*names)
         names

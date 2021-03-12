@@ -12,8 +12,14 @@ describe Chewy::Search::Parameters::Source do
     specify { expect(described_class.new(true).value).to eq(includes: [], excludes: [], enabled: true) }
     specify { expect(described_class.new(a: 1).value).to eq(includes: [], excludes: [], enabled: true) }
     specify { expect(described_class.new(includes: :foo).value).to eq(includes: %w[foo], excludes: [], enabled: true) }
-    specify { expect(described_class.new(includes: :foo, excludes: 42).value).to eq(includes: %w[foo], excludes: %w[42], enabled: true) }
-    specify { expect(described_class.new(includes: :foo, excludes: 42, enabled: false).value).to eq(includes: %w[foo], excludes: %w[42], enabled: true) }
+    specify do
+      expect(described_class.new(includes: :foo, excludes: 42).value)
+        .to eq(includes: %w[foo], excludes: %w[42], enabled: true)
+    end
+    specify do
+      expect(described_class.new(includes: :foo, excludes: 42, enabled: false).value)
+        .to eq(includes: %w[foo], excludes: %w[42], enabled: true)
+    end
   end
 
   describe '#replace!' do

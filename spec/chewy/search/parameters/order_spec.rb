@@ -10,7 +10,7 @@ describe Chewy::Search::Parameters::Order do
     specify { expect(described_class.new(42).value).to eq('42' => nil) }
     specify { expect(described_class.new([42, 43]).value).to eq('42' => nil, '43' => nil) }
     specify { expect(described_class.new(a: 1).value).to eq('a' => 1) }
-    specify { expect(described_class.new(['', 43, a: 1]).value).to eq('a' => 1, '43' => nil) }
+    specify { expect(described_class.new(['', 43, {a: 1}]).value).to eq('a' => 1, '43' => nil) }
   end
 
   describe '#replace!' do

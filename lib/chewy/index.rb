@@ -47,7 +47,8 @@ module Chewy
       #     UsersIndex.index_name(prefix: '', suffix: '2017') # => 'users_2017'
       #
       #   @param prefix [String] index name prefix, uses {.prefix} method by default
-      #   @param suffix [String] index name suffix, used for creating several indexes for the same alias during the zero-downtime reset
+      #   @param suffix [String] index name suffix, used for creating several indexes for the same
+      #     alias during the zero-downtime reset
       #   @raise [UndefinedIndex] if the base name is blank
       #   @return [String] result index name
       def index_name(suggest = nil, prefix: nil, suffix: nil)
@@ -77,6 +78,7 @@ module Chewy
       def base_name
         @base_name ||= name.sub(/Index\z/, '').demodulize.underscore if name
         raise UndefinedIndex if @base_name.blank?
+
         @base_name
       end
 
@@ -240,13 +242,17 @@ module Chewy
       end
 
       # Handling old default_prefix if it is not defined.
-      def method_missing(name, *args, &block) # rubocop:disable Style/MethodMissing
+      def method_missing(name, *args, &block)
         if name == :default_prefix
           ActiveSupport::Deprecation.warn '`Chewy::Index.default_prefix` is deprecated and will be removed soon, use `Chewy::Index.prefix` instead'
           prefix
         else
           super
         end
+      end
+
+      def respond_to_missing?(name, *args, &block)
+        name == :default_prefix || super
       end
 
       def prefix_with_deprecation

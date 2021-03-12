@@ -37,7 +37,8 @@ module Chewy
       # Chewy index current type belongs to. Defined inside `Chewy.create_type`
       #
       def index
-        raise NotImplementedError, 'Looks like this type was defined outside the index scope and `.index` method is undefined for it'
+        raise NotImplementedError,
+              'Looks like this type was defined outside the index scope and `.index` method is undefined for it'
       end
 
       # Current type adapter. Defined inside `Chewy.create_type`, derived from
@@ -64,7 +65,7 @@ module Chewy
       # @see Chewy::Index.derivable_name
       # @return [String, nil] derivable name or nil when it is impossible to calculate
       def derivable_name
-        @derivable_name ||= [index.derivable_name, type_name].join('#') if index && index.derivable_name
+        @derivable_name ||= [index.derivable_name, type_name].join('#') if index&.derivable_name
       end
 
       # This method is an API shared with {Chewy::Index}, added for convenience.

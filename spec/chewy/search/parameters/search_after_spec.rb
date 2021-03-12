@@ -20,7 +20,10 @@ describe Chewy::Search::Parameters::SearchAfter do
   end
 
   describe '#merge!' do
-    specify { expect { subject.merge!(described_class.new(:baz)) }.to change { subject.value }.from([:foo, 42]).to([:baz]) }
+    specify do
+      expect { subject.merge!(described_class.new(:baz)) }
+        .to change { subject.value }.from([:foo, 42]).to([:baz])
+    end
     specify { expect { subject.merge!(described_class.new) }.not_to change { subject.value }.from([:foo, 42]) }
   end
 

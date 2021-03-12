@@ -79,7 +79,10 @@ describe Chewy::Type::Observe do
       specify { expect { city.update!(country: nil) }.to update_index('countries#country').and_reindex(country1).only }
 
       specify { expect { city.update!(country: country2) }.to update_index('cities#city').and_reindex(city).only }
-      specify { expect { city.update!(country: country2) }.to update_index('countries#country').and_reindex(country1, country2).only }
+      specify do
+        expect { city.update!(country: country2) }
+          .to update_index('countries#country').and_reindex(country1, country2).only
+      end
     end
 
     context do

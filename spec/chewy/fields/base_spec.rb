@@ -10,8 +10,12 @@ describe Chewy::Fields::Base do
     specify { expect(field.compose(double(value: 'hello'))).to eq(name: 'hello') }
     specify { expect(field.compose(double(value: %w[hello world]))).to eq(name: %w[hello world]) }
 
-    specify { expect(described_class.new(:name, value: :last_name).compose(double(last_name: 'hello'))).to eq(name: 'hello') }
-    specify { expect(described_class.new(:name, value: :last_name).compose('last_name' => 'hello')).to eq(name: 'hello') }
+    specify do
+      expect(described_class.new(:name, value: :last_name).compose(double(last_name: 'hello'))).to eq(name: 'hello')
+    end
+    specify do
+      expect(described_class.new(:name, value: :last_name).compose('last_name' => 'hello')).to eq(name: 'hello')
+    end
     specify { expect(described_class.new(:name).compose(double(name: 'hello'))).to eq(name: 'hello') }
     specify { expect(described_class.new(:false_value).compose(false_value: false)).to eq(false_value: false) }
     specify { expect(described_class.new(:true_value).compose(true_value: true)).to eq(true_value: true) }
@@ -40,9 +44,24 @@ describe Chewy::Fields::Base do
     end
 
     context 'parent objects' do
-      let!(:country) { described_class.new(:name, value: ->(country, crutches) { country.cities.map { |city| double(districts: city.districts, name: crutches.city_name) } }) }
-      let!(:city) { described_class.new(:name, value: ->(city, country, crutches) { city.districts.map { |district| [district, country.name, crutches.suffix] } }) }
-      let!(:district) { described_class.new(:name, value: ->(district, city, country, crutches) { [district, city.name, country.name, crutches] }) }
+      let!(:country) do
+        described_class.new(:name, value: lambda { |country, crutches|
+                                            country.cities.map do |city|
+                                              double(districts: city.districts, name: crutches.city_name)
+                                            end
+                                          })
+      end
+      let!(:city) do
+        described_class.new(:name, value: lambda { |city, country, crutches|
+                                            city.districts.map do |district|
+                                              [district, country.name, crutches.suffix]
+                                            end
+                                          })
+      end
+      let(:district_value) { ->(district, city, country, crutches) { [district, city.name, country.name, crutches] } }
+      let!(:district) do
+        described_class.new(:name, value: district_value)
+      end
       let(:crutches) { double(suffix: 'suffix', city_name: 'Bangkok') }
 
       before do
@@ -180,82 +199,110 @@ describe Chewy::Fields::Base do
         end
       end
 
-      # rubocop:disable Style/BracesAroundHashParameters
       specify do
-        expect(EventsIndex::Event.root.compose({
-          id: 1, category: {id: 2, licenses: {id: 3, name: 'Name'}}
-        })).to eq('id' => 1, 'category' => {'id' => 2, 'licenses' => {'id' => 3, 'name' => 'Name'}})
+        expect(
+          EventsIndex::Event.root.compose({id: 1, category: {id: 2, licenses: {id: 3, name: 'Name'}}})
+        ).to eq('id' => 1, 'category' => {'id' => 2, 'licenses' => {'id' => 3, 'name' => 'Name'}})
       end
 
       specify do
-        expect(EventsIndex::Event.root.compose({id: 1, category: [
-          {id: 2, 'licenses' => {id: 3, name: 'Name1'}},
-          {id: 4, licenses: nil}
-        ]})).to eq('id' => 1, 'category' => [
+        expect(
+          EventsIndex::Event.root.compose({id: 1, category: [
+            {id: 2, 'licenses' => {id: 3, name: 'Name1'}},
+            {id: 4, licenses: nil}
+          ]})
+        ).to eq('id' => 1, 'category' => [
           {'id' => 2, 'licenses' => {'id' => 3, 'name' => 'Name1'}},
           {'id' => 4, 'licenses' => nil.as_json}
         ])
       end
 
       specify do
-        expect(EventsIndex::Event.root.compose({'id' => 1, category: {id: 2, licenses: [
-          {id: 3, name: 'Name1'}, {id: 4, name: 'Name2'}
-        ]}})).to eq('id' => 1, 'category' => {'id' => 2, 'licenses' => [
-          {'id' => 3, 'name' => 'Name1'}, {'id' => 4, 'name' => 'Name2'}
-        ]})
+        expect(
+          EventsIndex::Event.root.compose({
+            'id' => 1,
+            category: {
+              id: 2, licenses: [
+                {id: 3, name: 'Name1'},
+                {id: 4, name: 'Name2'}
+              ]
+            }
+          })
+        ).to eq(
+          'id' => 1,
+          'category' => {
+            'id' => 2,
+            'licenses' => [
+              {'id' => 3, 'name' => 'Name1'},
+              {'id' => 4, 'name' => 'Name2'}
+            ]
+          }
+        )
       end
 
       specify do
-        expect(EventsIndex::Event.root.compose({id: 1, category: [
-          {id: 2, licenses: [
-            {id: 3, 'name' => 'Name1'}, {id: 4, name: 'Name2'}
-          ]},
-          {id: 5, licenses: []}
-        ]})).to eq('id' => 1, 'category' => [
-          {'id' => 2, 'licenses' => [
-            {'id' => 3, 'name' => 'Name1'}, {'id' => 4, 'name' => 'Name2'}
-          ]},
-          {'id' => 5, 'licenses' => []}
-        ])
+        expect(
+          EventsIndex::Event.root.compose({id: 1, category: [
+            {id: 2, licenses: [
+              {id: 3, 'name' => 'Name1'}, {id: 4, name: 'Name2'}
+            ]},
+            {id: 5, licenses: []}
+          ]})
+        ).to eq(
+          'id' => 1,
+          'category' => [
+            {'id' => 2, 'licenses' => [
+              {'id' => 3, 'name' => 'Name1'},
+              {'id' => 4, 'name' => 'Name2'}
+            ]},
+            {'id' => 5, 'licenses' => []}
+          ]
+        )
       end
-      # rubocop:enable Style/BracesAroundHashParameters
+      specify do
+        expect(
+          EventsIndex::Event.root.compose(double(id: 1, category: double(id: 2, licenses: double(id: 3, name: 'Name'))))
+        ).to eq('id' => 1, 'category' => {'id' => 2, 'licenses' => {'id' => 3, 'name' => 'Name'}})
+      end
 
       specify do
-        expect(EventsIndex::Event.root.compose(
-                 double(id: 1, category: double(id: 2, licenses: double(id: 3, name: 'Name')))
-        )).to eq('id' => 1, 'category' => {'id' => 2, 'licenses' => {'id' => 3, 'name' => 'Name'}})
-      end
-
-      specify do
-        expect(EventsIndex::Event.root.compose(double(id: 1, category: [
-          double(id: 2, licenses: double(id: 3, name: 'Name1')),
-          double(id: 4, licenses: nil)
-        ]))).to eq('id' => 1, 'category' => [
+        expect(
+          EventsIndex::Event.root.compose(double(id: 1, category: [
+            double(id: 2, licenses: double(id: 3, name: 'Name1')),
+            double(id: 4, licenses: nil)
+          ]))
+        ).to eq('id' => 1, 'category' => [
           {'id' => 2, 'licenses' => {'id' => 3, 'name' => 'Name1'}},
           {'id' => 4, 'licenses' => nil.as_json}
         ])
       end
 
       specify do
-        expect(EventsIndex::Event.root.compose(double(id: 1, category: double(id: 2, licenses: [
-          double(id: 3, name: 'Name1'), double(id: 4, name: 'Name2')
-        ])))).to eq('id' => 1, 'category' => {'id' => 2, 'licenses' => [
-          {'id' => 3, 'name' => 'Name1'}, {'id' => 4, 'name' => 'Name2'}
-        ]})
-      end
-
-      specify do
-        expect(EventsIndex::Event.root.compose(double(id: 1, category: [
-          double(id: 2, licenses: [
+        expect(
+          EventsIndex::Event.root.compose(double(id: 1, category: double(id: 2, licenses: [
             double(id: 3, name: 'Name1'), double(id: 4, name: 'Name2')
-          ]),
-          double(id: 5, licenses: [])
-        ]))).to eq('id' => 1, 'category' => [
-          {'id' => 2, 'licenses' => [
-            {'id' => 3, 'name' => 'Name1'}, {'id' => 4, 'name' => 'Name2'}
-          ]},
-          {'id' => 5, 'licenses' => []}
-        ])
+          ])))
+        ).to eq('id' => 1, 'category' => {'id' => 2, 'licenses' => [
+          {'id' => 3, 'name' => 'Name1'}, {'id' => 4, 'name' => 'Name2'}
+        ]})
+      end
+
+      specify do
+        expect(
+          EventsIndex::Event.root.compose(double(id: 1, category: [
+            double(id: 2, licenses: [
+              double(id: 3, name: 'Name1'), double(id: 4, name: 'Name2')
+            ]),
+            double(id: 5, licenses: [])
+          ]))
+        ).to eq(
+          'id' => 1, 'category' => [
+            {'id' => 2, 'licenses' => [
+              {'id' => 3, 'name' => 'Name1'}, {'id' => 4, 'name' => 'Name2'}
+            ]},
+            {'id' => 5, 'licenses' => []}
+          ]
+        )
       end
     end
 
@@ -276,9 +323,17 @@ describe Chewy::Fields::Base do
       end
 
       specify do
-        expect(EventsIndex::Event.root.compose(
-                 double(id: 1, categories: double(id: 2, license: double(id: 3, name: 'Name')))
-        )).to eq('id' => 1, 'category' => {'id' => 2, 'licenses' => {'id' => 3, 'name' => 'Name'}})
+        expect(
+          EventsIndex::Event.root.compose(
+            double(
+              id: 1, categories: double(
+                id: 2, license: double(
+                  id: 3, name: 'Name'
+                )
+              )
+            )
+          )
+        ).to eq('id' => 1, 'category' => {'id' => 2, 'licenses' => {'id' => 3, 'name' => 'Name'}})
       end
     end
 
@@ -311,9 +366,15 @@ describe Chewy::Fields::Base do
       end
 
       specify do
-        expect(EventsIndex::Event.root.compose(
-                 double(id: 1, name: 'Jonny', category: double(id: 2, as_json: {'name' => 'Borogoves'}))
-        )).to eq(
+        expect(
+          EventsIndex::Event.root.compose(
+            double(
+              id: 1, name: 'Jonny', category: double(
+                id: 2, as_json: {'name' => 'Borogoves'}
+              )
+            )
+          )
+        ).to eq(
           'id' => 1,
           'name' => 'Jonny',
           'category' => {'name' => 'Borogoves'}
@@ -321,12 +382,14 @@ describe Chewy::Fields::Base do
       end
 
       specify do
-        expect(EventsIndex::Event.root.compose(
-                 double(id: 1, name: 'Jonny', category: [
-                   double(id: 2, as_json: {'name' => 'Borogoves1'}),
-                   double(id: 3, as_json: {'name' => 'Borogoves2'})
-                 ])
-        )).to eq(
+        expect(
+          EventsIndex::Event.root.compose(
+            double(id: 1, name: 'Jonny', category: [
+              double(id: 2, as_json: {'name' => 'Borogoves1'}),
+              double(id: 3, as_json: {'name' => 'Borogoves2'})
+            ])
+          )
+        ).to eq(
           'id' => 1,
           'name' => 'Jonny',
           'category' => [
@@ -405,9 +468,9 @@ describe Chewy::Fields::Base do
         end
 
         specify do
-          expect(CitiesIndex::City.root.compose(
-                   City.create!(id: 1, country: Country.create!(id: 1, name: 'Country'))
-          )).to eq('id' => 1, 'country' => {'id' => 1, 'name' => 'Country'})
+          expect(
+            CitiesIndex::City.root.compose(City.create!(id: 1, country: Country.create!(id: 1, name: 'Country')))
+          ).to eq('id' => 1, 'country' => {'id' => 1, 'name' => 'Country'})
         end
       end
     end

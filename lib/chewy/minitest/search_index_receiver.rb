@@ -28,9 +28,7 @@ class SearchIndexReceiver
     if index
       mutation_for(index).indexes
     else
-      Hash[
-        @mutations.map { |a, b| [a, b.indexes] }
-      ]
+      @mutations.transform_values(&:indexes)
     end
   end
   alias_method :indexes, :indexes_for
@@ -41,9 +39,7 @@ class SearchIndexReceiver
     if index
       mutation_for(index).deletes
     else
-      Hash[
-        @mutations.map { |a, b| [a, b.deletes] }
-      ]
+      @mutations.transform_values(&:deletes)
     end
   end
   alias_method :deletes, :deletes_for

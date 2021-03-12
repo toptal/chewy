@@ -17,7 +17,11 @@ module Chewy
         # In case of hash, respective values are concatenated as well.
         #
         # @see Chewy::Search::Parameters::Storage#update!
-        # @param other_value [true, false, {Symbol => Array<String, Symbol>, String, Symbol}, Array<String, Symbol>, String, Symbol] any acceptable storage value
+        # @param other_value
+        #   [true, false, {
+        #     Symbol => Array<String, Symbol>, String, Symbol},
+        #     Array<String, Symbol>, String, Symbol
+        #   ] any acceptable storage value
         # @return [{Symbol => Array<String>, true, false}] updated value
         def update!(other_value)
           new_value = normalize(other_value)

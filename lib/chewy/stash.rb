@@ -45,6 +45,7 @@ module Chewy
         something = something.flatten.compact
         types = something.flat_map { |s| Chewy.derive_types(s) }
         return none if something.present? && types.blank?
+
         scope = all
         types.map(&:index).uniq.each do |index|
           scope = scope.or(filter(term: {index_name: index.derivable_name}))

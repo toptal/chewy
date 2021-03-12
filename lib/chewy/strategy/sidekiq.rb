@@ -22,6 +22,7 @@ module Chewy
       def leave
         @stash.each do |type, ids|
           next if ids.empty?
+
           ::Sidekiq::Client.push(
             'queue' => sidekiq_queue,
             'class' => Chewy::Strategy::Sidekiq::Worker,

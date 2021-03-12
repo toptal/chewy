@@ -40,6 +40,7 @@ module Chewy
           yield(hits) if hits.present?
           scroll_id = result['_scroll_id']
           break if fetched >= total
+
           result = perform_scroll(scroll: scroll, scroll_id: scroll_id)
         end
       ensure
@@ -61,11 +62,11 @@ module Chewy
       #   @example
       #     PlaceIndex.scroll_hits.map { |hit| hit['_id'] }
       #   @return [Enumerator] a standard ruby Enumerator
-      def scroll_hits(**options)
+      def scroll_hits(**options, &block)
         return enum_for(:scroll_hits, **options) unless block_given?
 
         scroll_batches(**options).each do |batch|
-          batch.each { |hit| yield hit }
+          batch.each(&block)
         end
       end
 
@@ -113,12 +114,12 @@ module Chewy
       #   @example
       #     PlaceIndex.scroll_objects.map { |record| record.id }
       #   @return [Enumerator] a standard ruby Enumerator
-      def scroll_objects(**options)
+      def scroll_objects(**options, &block)
         return enum_for(:scroll_objects, **options) unless block_given?
 
         except(:source, :stored_fields, :script_fields, :docvalue_fields)
           .source(false).scroll_batches(**options).each do |batch|
-            loader.load(batch).each { |object| yield object }
+            loader.load(batch).each(&block)
           end
       end
       alias_method :scroll_records, :scroll_objects
@@ -127,10 +128,9 @@ module Chewy
     private
 
       def perform_scroll(body)
-        ActiveSupport::Notifications.instrument 'search_query.chewy',
-          notification_payload(request: body) do
-            Chewy.client.scroll(body)
-          end
+        ActiveSupport::Notifications.instrument 'search_query.chewy', notification_payload(request: body) do
+          Chewy.client.scroll(body)
+        end
       end
     end
   end

@@ -7,7 +7,8 @@ module Chewy
   #   journal.clean
   #
   class Journal
-    # @param only [Array<String, Chewy::Index, Chewy::Type>] indexes/types or even string references to perform actions on
+    # @param only [Array<String, Chewy::Index, Chewy::Type>] indexes/types or even string references to
+    # perform actions on
     def initialize(*only)
       @only = only
     end
@@ -47,9 +48,9 @@ module Chewy
   private
 
     def reference_groups(entries)
-      entries.group_by(&:type).map do |type, grouped_entries|
-        [type, grouped_entries.map(&:references).inject(:|)]
-      end.to_h
+      entries.group_by(&:type).transform_values do |grouped_entries|
+        grouped_entries.map(&:references).inject(:|)
+      end
     end
   end
 end

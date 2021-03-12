@@ -1,8 +1,8 @@
-lib = File.expand_path('../lib', __FILE__)
+lib = File.expand_path('lib', __dir__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 require 'chewy/version'
 
-Gem::Specification.new do |spec| # rubocop:disable BlockLength
+Gem::Specification.new do |spec| # rubocop:disable Metrics/BlockLength
   spec.name          = 'chewy'
   spec.version       = Chewy::VERSION
   spec.authors       = ['Toptal, LLC', 'pyromaniac']
@@ -25,7 +25,7 @@ Gem::Specification.new do |spec| # rubocop:disable BlockLength
   spec.add_development_dependency 'rspec', '>= 3.7.0'
   spec.add_development_dependency 'rspec-collection_matchers'
   spec.add_development_dependency 'rspec-its'
-  spec.add_development_dependency 'rubocop', '0.52.1'
+  spec.add_development_dependency 'rubocop', '1.11'
   spec.add_development_dependency 'sqlite3'
   spec.add_development_dependency 'timecop'
 

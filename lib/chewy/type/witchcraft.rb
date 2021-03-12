@@ -23,9 +23,15 @@ module Chewy
 
         def check_requirements!
           messages = []
-          messages << "MethodSource gem is required for the Witchcraft, please add `gem 'method_source'` to your Gemfile" unless Proc.method_defined?(:source)
-          messages << "Parser gem is required for the Witchcraft, please add `gem 'parser'` to your Gemfile" unless '::Parser'.safe_constantize
-          messages << "Unparser gem is required for the Witchcraft, please add `gem 'unparser'` to your Gemfile" unless '::Unparser'.safe_constantize
+          unless Proc.method_defined?(:source)
+            messages << "MethodSource gem is required for the Witchcraft, please add `gem 'method_source'` to your Gemfile"
+          end
+          unless '::Parser'.safe_constantize
+            messages << "Parser gem is required for the Witchcraft, please add `gem 'parser'` to your Gemfile"
+          end
+          unless '::Unparser'.safe_constantize
+            messages << "Unparser gem is required for the Witchcraft, please add `gem 'unparser'` to your Gemfile"
+          end
           messages = messages.join("\n")
 
           raise messages if messages.present?
@@ -141,6 +147,7 @@ module Chewy
 
         def non_proc_fields_for(parent, nesting)
           return [] unless parent
+
           fields = (parent.children || []).reject { |field| field.value.is_a?(Proc) }
 
           if nesting.zero? && @fields.present?
@@ -152,6 +159,7 @@ module Chewy
 
         def proc_fields_for(parent, nesting)
           return [] unless parent
+
           fields = (parent.children || []).select { |field| field.value.is_a?(Proc) }
 
           if nesting.zero? && @fields.present?
@@ -173,7 +181,7 @@ module Chewy
           if proc.arity.zero?
             source = replace_self(source, :"object#{nesting}")
             source = replace_send(source, :"object#{nesting}")
-          elsif proc.arity < 0
+          elsif proc.arity.negative?
             raise "Splat arguments are unsupported by witchcraft:\n`#{proc.source}"
           else
             (nesting + 1).times do |n|
@@ -192,6 +200,7 @@ module Chewy
 
         def exctract_lambdas(node)
           return unless node.is_a?(Parser::AST::Node)
+
           if node.type == :block && node.children[0].type == :send && node.children[0].to_a == [nil, :lambda]
             [node.children[2]]
           else
@@ -253,6 +262,7 @@ module Chewy
 
         def binding_variable_list(node)
           return unless node.is_a?(Parser::AST::Node)
+
           if node.type == :send && node.children[0].nil?
             node.children[1]
           else

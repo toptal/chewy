@@ -27,6 +27,7 @@ module Chewy
         (@derive_type ||= {})[[index, type]] ||= begin
           index_class = derive_index(index)
           raise Chewy::UnderivableType, "Can not find index named `#{index}`" unless index_class
+
           index_class.type_hash.values.first
         end
       end

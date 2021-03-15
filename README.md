@@ -92,12 +92,12 @@ Chewy is compatible with MRI 2.5-3.0¹.
 
 ### Elasticsearch compatibility matrix
 
-| Chewy version | Elasticsearch version              |
-| ------------- | ---------------------------------- |
-| 7.1.x         | 7.x                                |
-| 7.0.0         | 6.8, 7.x                           |
-| 6.0.0         | 5.x, 6.x                           |
-| 5.x           | 5.x, limited support for 1.x & 2.x |
+| Chewy version | Elasticsearch version              | Active Record version |
+| ------------- | ---------------------------------- | --------------------- |
+| 7.1.x         | 7.x                                | 5.2, 6.0, 6.1         |
+| 7.0.0         | 6.8, 7.x                           | 5.2, 6.0, 6.1         |
+| 6.0.0         | 5.x, 6.x                           | 5.2, 6.0, 6.1         |
+| 5.x           | 5.x, limited support for 1.x & 2.x | 5.2, 6.0, 6.1         |
 
 See [Migration guide](migration_guide.md).
 

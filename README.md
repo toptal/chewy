@@ -792,6 +792,24 @@ RSpec.configure do |config|
 end
 ```
 
+### Elasticsearch client options
+
+For search connection request all options, except the `:prefix`, are passed to the `Elasticseach::Client.new`:
+
+```# Main elasticsearch-ruby client instance
+#
+def client
+  Thread.current[:chewy_client] ||= begin
+    client_configuration = configuration.deep_dup
+    client_configuration.delete(:prefix) # used by Chewy, not relevant to Elasticsearch::Client
+    block = client_configuration[:transport_options].try(:delete, :proc)
+    ::Elasticsearch::Client.new(client_configuration, &block)
+  end
+end
+```
+
+Elasticsearch side documentation: https://rubydoc.info/gems/elasticsearch-transport#setting-hosts
+
 ### `ActiveSupport::Notifications` support
 
 Chewy has notifying the following events:

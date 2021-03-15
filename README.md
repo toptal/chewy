@@ -11,7 +11,17 @@ Chewy is an ODM (Object Document Mapper), built on top of the [the official Elas
 
 * [Why Chewy?](#why-chewy)
 * [Installation](#installation)
-* [Usage](#usage)
+* [Compatibility](#compatibility)
+    * [Ruby](#ruby)
+    * [Elasticsearch compatibility matrix](#elasticsearch-compatibility-matrix)
+    * [Active Record](#active-record)
+* [Getting Started](#getting-started)
+    * [Minimal client setting](*minimal-client-setting)
+    * [Elasticsearch](#elasticsearch)
+    * [Index](#index)
+    * [Model](#model)
+    * [Example of data request](#example-of-data-request)
+* [Usage and configuration](#usage)
   * [Client settings](#client-settings)
     * [AWS ElasticSearch configuration](#aws-elastic-search)
   * [Index definition](#index-definition)
@@ -30,6 +40,7 @@ Chewy is an ODM (Object Document Mapper), built on top of the [the official Elas
     * [Non-block notation](#non-block-notation)
     * [Designing your own strategies](#designing-your-own-strategies)
   * [Rails application strategies integration](#rails-application-strategies-integration)
+  * [Elasticsearch client options](#elasticsearch-client-options)
   * [ActiveSupport::Notifications support](#activesupportnotifications-support)
   * [NewRelic integration](#newrelic-integration)
   * [Search requests](#search-requests)
@@ -101,22 +112,156 @@ Chewy is compatible with MRI 2.5-3.0¹.
 
 See [Migration guide](migration_guide.md).
 
-## Usage
+### Active Record
+
+5.2, 6.0, 6.1 Active Record versions are supported by all Chewy versions.
+
+## Getting Started
+
+Chewy provides functionality for Elasticsearch index handling, documents import mappings, index update strategies and chainable query DSL.
+
+### Minimal client setting
+
+Create `config/initializers/chewy.rb` with this line:
+
+```ruby
+Chewy.settings = {host: 'localhost:9250'}
+```
+
+And run `rails g chewy:install` to generate `chewy.yml`:
+
+```yaml
+# config/chewy.yml
+# separate environment configs
+test:
+  host: 'localhost:9250'
+  prefix: 'test'
+development:
+  host: 'localhost:9200'
+```
+
+### Elasticsearch
+
+Make sure you have Elasticsearch up and running. You can [install](https://www.elastic.co/guide/en/elasticsearch/reference/current/install-elasticsearch.html) it locally, but the easiest way is to use [Docker](https://www.docker.com/get-started):
+
+```shell
+$ docker run --rm --name elasticsearch -p 9200:9200 -p 9300:9300 -e "discovery.type=single-node" elasticsearch:7.11.1
+```
+
+### Index
+
+Create `app/chewy/user_index.rb` with User Index:
+
+```ruby
+class UsersIndex < Chewy::Index
+  settings analysis: {
+    analyzer: {
+      email: {
+        tokenizer: 'keyword',
+        filter: ['lowercase']
+      }
+    }
+  }
+
+  define_type User do
+    field :first_name
+    field :last_name
+    field :email, analyzer: 'email'
+  end
+end
+```
+
+### Model
+
+Add User model, table and migrate it:
+
+```shell
+$ bundle exec rails g model User first_name last_name email
+$ bundle exec rails db:migrate
+```
+
+Add `update_index` to app/models/user.rb:
+
+```ruby
+class User < ApplicationRecord
+  update_index('users#user') { self }
+end
+```
+
+### Example of data request
+
+1. Once a record is created (could be done via the Rails console), it creates User index too:
+
+```
+User.create(
+  first_name: "test1",
+  last_name: "test1",
+  email: 'test1@example.com',
+  # other fields
+)
+# UsersIndex::User Import (355.3ms) {:index=>1}
+# => #<User id: 1, first_name: "test1", last_name: "test1", email: "test1@example.com", # other fields>
+```
+
+2. A query could be exposed at a given `UsersController`:
+
+```ruby
+def search
+  @users = UsersIndex.query(query_string: { fields: [:first_name, :last_name, :email, ...], query: search_params[:query], default_operator: 'and' })
+  render json: @users.to_json, status: :ok
+end
+
+private
+
+def search_params
+  params.permit(:query, :page, :per)
+end
+```
+
+3. So a request against `http://localhost:3000/users/search?query=test1@example.com` issuing a response like:
+
+```json
+[
+  {
+    "attributes":{
+      "id":"1",
+      "first_name":"test1",
+      "last_name":"test1",
+      "email":"test1@example.com",
+      ...
+      "_score":0.9808291,
+      "_explanation":null
+    },
+    "_data":{
+      "_index":"users",
+      "_type":"_doc",
+      "_id":"1",
+      "_score":0.9808291,
+      "_source":{
+        "first_name":"test1",
+        "last_name":"test1",
+        "email":"test1@example.com",
+        ...
+      }
+    }
+  }
+]
+```
+
+## Usage and configuration
 
 ### Client settings
 
-There are two ways to configure the Chewy client:
-
-* via the hash `Chewy.settings`
-* via the configuration file `chewy.yml`
-
-You can create `chewy.yml` manually or run `rails g chewy:install` to
-generate it.
+To configure the Chewy client you need to add `chewy.rb` file with `Chewy.settings` hash:
 
 ```ruby
 # config/initializers/chewy.rb
 Chewy.settings = {host: 'localhost:9250'} # do not use environments
 ```
+
+And add `chewy.yml` configuration file.
+
+You can create `chewy.yml` manually or run `rails g chewy:install` to generate it:
 
 ```yaml
 # config/chewy.yml
@@ -167,7 +312,7 @@ Chewy.settings = {
 }
 ```
 
-### Index definition
+#### Index definition
 
 1. Create `/app/chewy/users_index.rb`
 
@@ -787,6 +932,12 @@ RSpec.configure do |config|
   end
 end
 ```
+
+### Elasticsearch client options
+
+All connection options, except the `:prefix`, are passed to the `Elasticseach::Client.new` ([chewy/lib/chewy.rb](https://github.com/toptal/chewy/blob/f5bad9f83c21416ac10590f6f34009c645062e89/lib/chewy.rb#L153-L160)):
+
+Here's the relevant Elasticsearch documentation on the subject: https://rubydoc.info/gems/elasticsearch-transport#setting-hosts
 
 ### `ActiveSupport::Notifications` support
 

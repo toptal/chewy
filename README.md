@@ -30,6 +30,7 @@ Chewy is an ODM (Object Document Mapper), built on top of the [the official Elas
     * [Non-block notation](#non-block-notation)
     * [Designing your own strategies](#designing-your-own-strategies)
   * [Rails application strategies integration](#rails-application-strategies-integration)
+  * [Elasticsearch client options](#elasticsearch-client-options)
   * [ActiveSupport::Notifications support](#activesupportnotifications-support)
   * [NewRelic integration](#newrelic-integration)
   * [Search requests](#search-requests)

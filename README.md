@@ -794,9 +794,10 @@ end
 
 ### Elasticsearch client options
 
-For search connection request all options, except the `:prefix`, are passed to the `Elasticseach::Client.new`:
+To make search connection request all options, except the `:prefix`, are passed to the `Elasticseach::Client.new`:
 
-```# Main elasticsearch-ruby client instance
+```ruby	
+# Main elasticsearch-ruby client instance
 #
 def client
   Thread.current[:chewy_client] ||= begin

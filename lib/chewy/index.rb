@@ -56,7 +56,7 @@ module Chewy
           @base_name = suggest.to_s.presence
         else
           [
-            prefix || prefix_with_deprecation,
+            prefix || self.prefix,
             base_name,
             suffix
           ].reject(&:blank?).join('_')
@@ -225,48 +225,10 @@ module Chewy
         [settings_hash, mappings_hash].inject(:merge)
       end
 
-      def index_params
-        ActiveSupport::Deprecation.warn '`Chewy::Index.index_params` is deprecated and will be removed soon, use `Chewy::Index.specification_hash`'
-        specification_hash
-      end
-
       # @see Chewy::Index::Specification
       # @return [Chewy::Index::Specification] a specification object instance for this particular index
       def specification
         @specification ||= Specification.new(self)
-      end
-
-      def derivable_index_name
-        ActiveSupport::Deprecation.warn '`Chewy::Index.derivable_index_name` is deprecated and will be removed soon, use `Chewy::Index.derivable_name` instead'
-        derivable_name
-      end
-
-      # Handling old default_prefix if it is not defined.
-      def method_missing(name, *args, &block)
-        if name == :default_prefix
-          ActiveSupport::Deprecation.warn '`Chewy::Index.default_prefix` is deprecated and will be removed soon, use `Chewy::Index.prefix` instead'
-          prefix
-        else
-          super
-        end
-      end
-
-      def respond_to_missing?(name, *args, &block)
-        name == :default_prefix || super
-      end
-
-      def prefix_with_deprecation
-        if respond_to?(:default_prefix)
-          ActiveSupport::Deprecation.warn '`Chewy::Index.default_prefix` is deprecated and will be removed soon, define `Chewy::Index.prefix` method instead'
-          default_prefix
-        else
-          prefix
-        end
-      end
-
-      def build_index_name(*args)
-        ActiveSupport::Deprecation.warn '`Chewy::Index.build_index_name` is deprecated and will be removed soon, use `Chewy::Index.index_name` instead'
-        index_name(args.extract_options!)
       end
     end
   end

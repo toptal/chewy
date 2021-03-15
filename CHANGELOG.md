@@ -6,6 +6,18 @@
 
 ### Changes
 
+  * [#769](https://github.com/toptal/chewy/pull/769): **(Breaking)** Removal of deprecated methods and rake tasks ([@Vitalina-Vakulchyk][]):
+    * `Chewy::Index.index_params` is removed, use `Chewy::Index.specification_hash` instead
+    * `Chewy::Index.derivable_index_name` is removed, use `Chewy::Index.derivable_name` instead
+    * `Chewy::Index.default_prefix` is removed, use `Chewy::Index.prefix` instead
+    * `Chewy::Index.build_index_name` is removed, use `Chewy::Index.index_name` instead
+    * `Chewy::RakeHelper.reset_index` is removed, use `Chewy::RakeHelper.reset` instead
+    * `Chewy::RakeHelper.reset_all` is removed, use `Chewy::RakeHelper.reset` instead
+    * `Chewy::RakeHelper.update_index` is removed, use `Chewy::RakeHelper.update` instead
+    * `Chewy::RakeHelper.update_all` is removed, use `Chewy::RakeHelper.update` instead
+    * `rake chewy:apply_changes_from` is removed, use `rake chewy:journal:apply` instead
+    * `rake chewy:clean_journal` is removed, use `rake chewy:journal:clean` instead
+
 ### Bugs Fixed
 
 ## 7.1.0 (2021-03-03)
@@ -607,5 +619,6 @@
 [@taylor-au]: https://github.com/taylor-au
 [@TikiTDO]: https://github.com/TikiTDO
 [@undr]: https://github.com/undr
+[@Vitalina-Vakulchyk]: https://github.com/Vitalina-Vakulchyk
 [@webgago]: https://github.com/webgago
 [@yahooguntu]: https://github.com/yahooguntu

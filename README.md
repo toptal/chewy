@@ -121,8 +121,7 @@ Chewy.settings = {host: 'localhost:9250'} # do not use environments
 
 And add the configuration file `chewy.yml`.
 
-You can create `chewy.yml` manually or run `rails g chewy:install` to
-generate it.
+You can create `chewy.yml` manually or run `rails g chewy:install` to generate it:
 
 ```yaml
 # config/chewy.yml
@@ -333,7 +332,12 @@ Chewy.settings = {
 You can add new user via Rails console:
 
 ```ruby
-User.create(name: 'test1', email: 'test1@example.com', # other fields)
+User.create(
+  first_name: "test1",
+  last_name: "test1",
+  email: 'test1@example.com',
+  # other fields
+)
 ```
 
 It created User index:
@@ -341,17 +345,18 @@ It created User index:
 ```ruby
 ...
   UsersIndex::User Import (355.3ms) {:index=>1}
-=> #<User id: 1, name: "test1", email: "test1@example.com", # other fields>
+=> #<User id: 1, first_name: "test1", last_name: "test1", email: "test1@example.com", # other fields>
 ```
 
-By `http://localhost:3000/users/search?query=test1` request you will get the following response:
+By `http://localhost:3000/users/search?query=test1@example.com` request you will get the following response:
 
-```
+```json
 [
   {
     "attributes":{
       "id":"1",
-      "name":"test1",
+      "first_name":"test1",
+      "last_name":"test1",
       "email":"test1@example.com",
       # other fields
       "_score":0.9808291,
@@ -363,7 +368,8 @@ By `http://localhost:3000/users/search?query=test1` request you will get the fol
       "_id":"1",
       "_score":0.9808291,
       "_source":{
-        "name":"test1",
+        "first_name":"test1",
+        "last_name":"test1",
         "email":"test1@example.com",
         # other fields
       }

@@ -20,7 +20,7 @@
   * [#773](https://github.com/toptal/chewy/pull/773): Update Readme ([@Vitalina-Vakulchyk][]):
     * Add `Getting Started` section
     * Add `Elasticsearch client options` section
-    * Update `Compatibility` section
+    * Update `Compatibility` section with Active Record versions information
 
 ### Bugs Fixed
 

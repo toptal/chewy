@@ -119,7 +119,7 @@ To configure the Chewy client you need to add `chewy.rb` file with `Chewy.settin
 Chewy.settings = {host: 'localhost:9250'} # do not use environments
 ```
 
-And add the configuration file `chewy.yml`.
+And add `chewy.yml` configuration file.
 
 You can create `chewy.yml` manually or run `rails g chewy:install` to generate it:
 
@@ -848,7 +848,7 @@ end
 
 ### Elasticsearch client options
 
-To make search connection request all options, except the `:prefix`, are passed to the `Elasticseach::Client.new` from [chewy/lib/chewy.rb](https://github.com/toptal/chewy/blob/f5bad9f83c21416ac10590f6f34009c645062e89/lib/chewy.rb#L153-L160):
+To make search connection request - all options, except the `:prefix`, are passed to the `Elasticseach::Client.new` from [chewy/lib/chewy.rb](https://github.com/toptal/chewy/blob/f5bad9f83c21416ac10590f6f34009c645062e89/lib/chewy.rb#L153-L160):
 
 ```ruby	
 # Main elasticsearch-ruby client instance

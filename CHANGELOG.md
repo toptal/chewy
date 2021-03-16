@@ -17,7 +17,7 @@
     * `Chewy::RakeHelper.update_all` is removed, use `Chewy::RakeHelper.update` instead
     * `rake chewy:apply_changes_from` is removed, use `rake chewy:journal:apply` instead
     * `rake chewy:clean_journal` is removed, use `rake chewy:journal:clean` instead
-  * [#772](https://github.com/toptal/chewy/pull/772): Update Readme ([@Vitalina-Vakulchyk][]):
+  * [#773](https://github.com/toptal/chewy/pull/773): Update Readme ([@Vitalina-Vakulchyk][]):
     * Add `Getting Started` section
     * Add `Elasticsearch client options` section
     * Update `Compatibility` section

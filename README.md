@@ -329,7 +329,7 @@ Chewy.settings = {
 
 #### Example of data request
 
-You can use the next query
+You can use the next query:
 
 ```ruby
 def search

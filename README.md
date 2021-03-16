@@ -16,6 +16,7 @@ Chewy is an ODM (Object Document Mapper), built on top of the [the official Elas
     * [AWS ElasticSearch configuration](#aws-elastic-search)
   * [Getting Started](#getting-started)
     * [Index definition](#index-definition)
+    * [Example of data request](#example-of-data-request)
   * [Type default import options](#type-default-import-options)
   * [Multi (nested) and object field types](#multi-nested-and-object-field-types)
   * [Geo Point fields](#geo-point-fields)
@@ -326,6 +327,50 @@ Chewy.settings = {
   Sequel::Model.plugin :chewy_observe  # for all models, or...
   User.plugin :chewy_observe           # just for User
   ```
+
+#### Example of data request
+
+You can add new user via Rails console:
+
+```ruby
+User.create(name: 'test1', email: 'test1@example.com', # other fields)
+```
+
+It created User index:
+
+```ruby
+...
+  UsersIndex::User Import (355.3ms) {:index=>1}
+=> #<User id: 1, name: "test1", email: "test1@example.com", # other fields>
+```
+
+By `http://localhost:3000/users/search?query=test1` request you will get the following response:
+
+```
+[
+  {
+    "attributes":{
+      "id":"1",
+      "name":"test1",
+      "email":"test1@example.com",
+      # other fields
+      "_score":0.9808291,
+      "_explanation":null
+    },
+    "_data":{
+      "_index":"users",
+      "_type":"_doc",
+      "_id":"1",
+      "_score":0.9808291,
+      "_source":{
+        "name":"test1",
+        "email":"test1@example.com",
+        # other fields
+      }
+    }
+  }
+]
+```
 
 ### Type default import options
 

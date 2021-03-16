@@ -358,7 +358,7 @@ By `http://localhost:3000/users/search?query=test1@example.com` request you will
       "first_name":"test1",
       "last_name":"test1",
       "email":"test1@example.com",
-      # other fields,
+      ...
       "_score":0.9808291,
       "_explanation":null
     },
@@ -371,7 +371,7 @@ By `http://localhost:3000/users/search?query=test1@example.com` request you will
         "first_name":"test1",
         "last_name":"test1",
         "email":"test1@example.com",
-        # other fields
+        ...
       }
     }
   }

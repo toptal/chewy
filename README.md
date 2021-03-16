@@ -340,7 +340,7 @@ User.create(
 )
 ```
 
-It created User index:
+It creates User index:
 
 ```ruby
 ...

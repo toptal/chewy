@@ -14,7 +14,8 @@ Chewy is an ODM (Object Document Mapper), built on top of the [the official Elas
 * [Usage](#usage)
   * [Client settings](#client-settings)
     * [AWS ElasticSearch configuration](#aws-elastic-search)
-  * [Index definition](#index-definition)
+  * [Getting Started](#getting-started)
+    * [Index definition](#index-definition)
   * [Type default import options](#type-default-import-options)
   * [Multi (nested) and object field types](#multi-nested-and-object-field-types)
   * [Geo Point fields](#geo-point-fields)
@@ -171,7 +172,9 @@ Chewy.settings = {
 }
 ```
 
-### Index definition
+### Getting Started
+
+#### Index definition
 
 1. Create `/app/chewy/users_index.rb`
 

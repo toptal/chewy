@@ -110,18 +110,17 @@ See [Migration guide](migration_guide.md).
 
 ### Client settings
 
-There are two ways to configure the Chewy client:
-
-* via the hash `Chewy.settings`
-* via the configuration file `chewy.yml`
-
-You can create `chewy.yml` manually or run `rails g chewy:install` to
-generate it.
+To configure the Chewy client you need to add `chewy.rb` file with `Chewy.settings` hash:
 
 ```ruby
 # config/initializers/chewy.rb
 Chewy.settings = {host: 'localhost:9250'} # do not use environments
 ```
+
+And add the configuration file `chewy.yml`.
+
+You can create `chewy.yml` manually or run `rails g chewy:install` to
+generate it.
 
 ```yaml
 # config/chewy.yml

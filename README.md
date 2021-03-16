@@ -350,7 +350,7 @@ It created User index:
 
 By `http://localhost:3000/users/search?query=test1@example.com` request you will get the following response:
 
-```json
+```
 [
   {
     "attributes":{

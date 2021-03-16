@@ -329,7 +329,16 @@ Chewy.settings = {
 
 #### Example of data request
 
-You can add new user via Rails console:
+You can use the next query
+
+```ruby
+def search
+  @users = UsersIndex.query(query_string: { fields: [:name, :email, :phone], query: search_params[:name], default_operator: 'and' })
+  render json: @users.to_json, status: :ok
+end
+```
+
+And add new user via Rails console:
 
 ```ruby
 User.create(

@@ -353,7 +353,7 @@ end
 
 3. So a request against `http://localhost:3000/users/search?query=test1@example.com` issuing a response like:
 
-```
+```json
 [
   {
     "attributes":{

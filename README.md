@@ -159,7 +159,7 @@ $ bundle exec rails db:migrate
 
 Add `update_index` to app/models/user.rb:
 
-```
+```ruby
 class User < ApplicationRecord
   update_index('users#user') { self }
 end
@@ -169,7 +169,7 @@ end
 
 Create `app/chewy/user_index.rb` with User Index:
 
-```
+```ruby
 class UsersIndex < Chewy::Index
   settings analysis: {
     analyzer: {

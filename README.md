@@ -106,7 +106,7 @@ See [Migration guide](migration_guide.md).
 
 ### Compatibility with Active Record
 
-`5.2, 6.0, 6.1` Active Records versions are supported by all Chewy versions.
+5.2, 6.0, 6.1 Active Record versions are supported by all Chewy versions.
 
 ## Usage
 
@@ -329,16 +329,7 @@ Chewy.settings = {
 
 #### Example of data request
 
-You can use the next query:
-
-```ruby
-def search
-  @users = UsersIndex.query(query_string: { fields: [:first_name, :last_name, :email, ...], query: search_params[:query], default_operator: 'and' })
-  render json: @users.to_json, status: :ok
-end
-```
-
-And add new user via Rails console:
+1. Once a record is created (could be done via Rails console), it creates User index too:
 
 ```ruby
 User.create(
@@ -347,17 +338,20 @@ User.create(
   email: 'test1@example.com',
   # other fields
 )
+# UsersIndex::User Import (355.3ms) {:index=>1}
+# => #<User id: 1, first_name: "test1", last_name: "test1", email: "test1@example.com", # other fields>
 ```
 
-It creates User index too:
+2. A query could be exposed at a given `UsersController`:
 
 ```ruby
-...
-  UsersIndex::User Import (355.3ms) {:index=>1}
-=> #<User id: 1, first_name: "test1", last_name: "test1", email: "test1@example.com", # other fields>
+def search
+  @users = UsersIndex.query(query_string: { fields: [:first_name, :last_name, :email, ...], query: search_params[:query], default_operator: 'and' })
+  render json: @users.to_json, status: :ok
+end
 ```
 
-By `http://localhost:3000/users/search?query=test1@example.com` request you will get the following response:
+3. So a request against `http://localhost:3000/users/search?query=test1@example.com` issuing a response like:
 
 ```
 [
@@ -859,20 +853,7 @@ end
 
 All connection options, except the `:prefix`, are passed to the `Elasticseach::Client.new` ([chewy/lib/chewy.rb](https://github.com/toptal/chewy/blob/f5bad9f83c21416ac10590f6f34009c645062e89/lib/chewy.rb#L153-L160)):
 
-```ruby	
-# Main elasticsearch-ruby client instance
-#
-def client
-  Thread.current[:chewy_client] ||= begin
-    client_configuration = configuration.deep_dup
-    client_configuration.delete(:prefix) # used by Chewy, not relevant to Elasticsearch::Client
-    block = client_configuration[:transport_options].try(:delete, :proc)
-    ::Elasticsearch::Client.new(client_configuration, &block)
-  end
-end
-```
-
-Elasticsearch side documentation: https://rubydoc.info/gems/elasticsearch-transport#setting-hosts
+Here's the relevant Elasticsearch documentation on the subject: https://rubydoc.info/gems/elasticsearch-transport#setting-hosts
 
 ### `ActiveSupport::Notifications` support
 

@@ -18,8 +18,8 @@ Chewy is an ODM (Object Document Mapper), built on top of the [the official Elas
 * [Getting Started](#getting-started)
     * [Minimal client setting](*minimal-client-setting)
     * [Docker](#docker)
+    * [Index](#index)    
     * [Model](#model)
-    * [Index](#index)
     * [Example of data request](#example-of-data-request)
 * [Usage and configuration](#usage)
   * [Client settings](#client-settings)
@@ -148,23 +148,6 @@ You can run Docker with:
 $ docker run --rm -p 9250:9200 -e "discovery.type=single-node"
 ```
 
-### Model
-
-Add User model, table and migrate it:
-
-```
-$ bundle exec rails g model User first_name last_name email
-$ bundle exec rails db:migrate
-```
-
-Add `update_index` to app/models/user.rb:
-
-```ruby
-class User < ApplicationRecord
-  update_index('users#user') { self }
-end
-```
-
 ### Index
 
 Create `app/chewy/user_index.rb` with User Index:
@@ -185,6 +168,23 @@ class UsersIndex < Chewy::Index
     field :last_name
     field :email, analyzer: 'email'
   end
+end
+```
+
+### Model
+
+Add User model, table and migrate it:
+
+```
+$ bundle exec rails g model User first_name last_name email
+$ bundle exec rails db:migrate
+```
+
+Add `update_index` to app/models/user.rb:
+
+```ruby
+class User < ApplicationRecord
+  update_index('users#user') { self }
 end
 ```
 

@@ -11,12 +11,20 @@ Chewy is an ODM (Object Document Mapper), built on top of the [the official Elas
 
 * [Why Chewy?](#why-chewy)
 * [Installation](#installation)
-* [Usage](#usage)
+* [Compatibility](#compatibility)
+    * [Ruby](#ruby)
+    * [Elasticsearch compatibility matrix](#elasticsearch-compatibility-matrix)
+    * [Active Record](#active-record)
+* [Getting Started](#getting-started)
+    * [Minimal client setting](*minimal-client-setting)
+    * [Docker](#docker)
+    * [Model](#model)
+    * [Index](#index)
+    * [Example of data request](#example-of-data-request)
+* [Usage and configuration](#usage)
   * [Client settings](#client-settings)
     * [AWS ElasticSearch configuration](#aws-elastic-search)
-  * [Getting Started](#getting-started)
     * [Index definition](#index-definition)
-    * [Example of data request](#example-of-data-request)
   * [Type default import options](#type-default-import-options)
   * [Multi (nested) and object field types](#multi-nested-and-object-field-types)
   * [Geo Point fields](#geo-point-fields)
@@ -104,11 +112,143 @@ Chewy is compatible with MRI 2.5-3.0¹.
 
 See [Migration guide](migration_guide.md).
 
-### Compatibility with Active Record
+### Active Record
 
 5.2, 6.0, 6.1 Active Record versions are supported by all Chewy versions.
 
-## Usage
+##Getting Started
+
+Chewy is pretty good, so, let's get started!
+
+### Minimal client setting
+
+Create `config/initializers/chewy.rb` with this line:
+
+```ruby
+Chewy.settings = {host: 'localhost:9250'}
+```
+
+And run `rails g chewy:install` to generate `chewy.yml`:
+
+```yaml
+# config/chewy.yml
+# separate environment configs
+test:
+  host: 'localhost:9250'
+  prefix: 'test'
+development:
+  host: 'localhost:9200'
+```
+
+### Docker
+
+You can run Docker with:
+
+```
+$ docker run --rm -p 9250:9200 -e "discovery.type=single-node"
+```
+
+### Model
+
+Add User model, table and migrate it:
+
+```
+$ bundle exec rails g model User first_name last_name email
+$ bundle exec rails db:migrate
+```
+
+Add `update_index` to app/models/user.rb:
+
+```
+class User < ApplicationRecord
+  update_index('users#user') { self }
+end
+```
+
+### Index
+
+Create `app/chewy/user_index.rb` with User Index:
+
+```
+class UsersIndex < Chewy::Index
+  settings analysis: {
+    analyzer: {
+      email: {
+        tokenizer: 'keyword',
+        filter: ['lowercase']
+      }
+    }
+  }
+
+  define_type User do
+    field :first_name
+    field :last_name
+    field :email, analyzer: 'email'
+  end
+end
+```
+
+### Example of data request
+
+1. Once a record is created (could be done via Rails console), it creates User index too:
+
+```ruby
+User.create(
+  first_name: "test1",
+  last_name: "test1",
+  email: 'test1@example.com',
+  # other fields
+)
+# UsersIndex::User Import (355.3ms) {:index=>1}
+# => #<User id: 1, first_name: "test1", last_name: "test1", email: "test1@example.com", # other fields>
+```
+
+2. A query could be exposed at a given `UsersController`:
+
+```ruby
+def search
+  @users = UsersIndex.query(query_string: { fields: [:first_name, :last_name, :email, ...], query: search_params[:query], default_operator: 'and' })
+  render json: @users.to_json, status: :ok
+end
+
+private
+
+def search_params
+  params.permit(:query, :page, :per)
+end
+```
+
+3. So a request against `http://localhost:3000/users/search?query=test1@example.com` issuing a response like:
+
+```json
+[
+  {
+    "attributes":{
+      "id":"1",
+      "first_name":"test1",
+      "last_name":"test1",
+      "email":"test1@example.com",
+      ...
+      "_score":0.9808291,
+      "_explanation":null
+    },
+    "_data":{
+      "_index":"users",
+      "_type":"_doc",
+      "_id":"1",
+      "_score":0.9808291,
+      "_source":{
+        "first_name":"test1",
+        "last_name":"test1",
+        "email":"test1@example.com",
+        ...
+      }
+    }
+  }
+]
+```
+
+## Usage and configuration
 
 ### Client settings
 
@@ -171,8 +311,6 @@ Chewy.settings = {
   }
 }
 ```
-
-### Getting Started
 
 #### Index definition
 
@@ -326,60 +464,6 @@ Chewy.settings = {
   Sequel::Model.plugin :chewy_observe  # for all models, or...
   User.plugin :chewy_observe           # just for User
   ```
-
-#### Example of data request
-
-1. Once a record is created (could be done via Rails console), it creates User index too:
-
-```ruby
-User.create(
-  first_name: "test1",
-  last_name: "test1",
-  email: 'test1@example.com',
-  # other fields
-)
-# UsersIndex::User Import (355.3ms) {:index=>1}
-# => #<User id: 1, first_name: "test1", last_name: "test1", email: "test1@example.com", # other fields>
-```
-
-2. A query could be exposed at a given `UsersController`:
-
-```ruby
-def search
-  @users = UsersIndex.query(query_string: { fields: [:first_name, :last_name, :email, ...], query: search_params[:query], default_operator: 'and' })
-  render json: @users.to_json, status: :ok
-end
-```
-
-3. So a request against `http://localhost:3000/users/search?query=test1@example.com` issuing a response like:
-
-```json
-[
-  {
-    "attributes":{
-      "id":"1",
-      "first_name":"test1",
-      "last_name":"test1",
-      "email":"test1@example.com",
-      ...
-      "_score":0.9808291,
-      "_explanation":null
-    },
-    "_data":{
-      "_index":"users",
-      "_type":"_doc",
-      "_id":"1",
-      "_score":0.9808291,
-      "_source":{
-        "first_name":"test1",
-        "last_name":"test1",
-        "email":"test1@example.com",
-        ...
-      }
-    }
-  }
-]
-```
 
 ### Type default import options
 

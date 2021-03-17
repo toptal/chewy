@@ -116,7 +116,7 @@ See [Migration guide](migration_guide.md).
 
 5.2, 6.0, 6.1 Active Record versions are supported by all Chewy versions.
 
-##Getting Started
+## Getting Started
 
 Chewy is pretty good, so, let's get started!
 

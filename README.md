@@ -192,7 +192,7 @@ end
 
 1. Once a record is created (could be done via Rails console), it creates User index too:
 
-```ruby
+```
 User.create(
   first_name: "test1",
   last_name: "test1",

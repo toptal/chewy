@@ -14,8 +14,8 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v2
 
-      run: bundle install
-      run: aaa
+    run: bundle install
+    run: aaa
       
 commands:
   aaa:

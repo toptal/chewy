@@ -118,7 +118,7 @@ See [Migration guide](migration_guide.md).
 
 ## Getting Started
 
-Chewy is pretty good, so, let's get started
+Chewy provides functionality for Elasticsearch index handling, documents import mappings, index update strategies and chainable query DSL.
 
 ### Minimal client setting
 

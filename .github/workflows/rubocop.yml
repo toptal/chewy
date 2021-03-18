@@ -19,4 +19,5 @@ jobs:
         bundle install
     - name: Run RuboCop
       run: rubocop
-
+    - name: rspec-ruby-26-activerecord61
+      run: rspec-ruby-26-activerecord61

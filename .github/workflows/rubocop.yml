@@ -14,7 +14,7 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v2
 
-      run: bundle install
-      run: rubocop
-      run: aaa
+    # Runs the Super-Linter action
+    - name: Run RuboCop
+      run: bundle exec rubocop
      

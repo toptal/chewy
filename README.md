@@ -144,7 +144,7 @@ development:
 
 You can run Docker with:
 
-```
+```shell
 $ docker run --rm -p 9250:9200 -e "discovery.type=single-node"
 ```
 
@@ -175,7 +175,7 @@ end
 
 Add User model, table and migrate it:
 
-```
+```shell
 $ bundle exec rails g model User first_name last_name email
 $ bundle exec rails db:migrate
 ```

@@ -1,0 +1,224 @@
+# Check https://circleci.com/docs/2.0/language-ruby/ for more details
+version: 2.1
+
+es-env: &es-env
+  cluster.name: elasticsearch
+  transport.host: localhost
+  network.host: 127.0.0.1
+  http.port: 9250
+  discovery.type: single-node
+  xpack.security.enabled: false
+  xpack.monitoring.enabled: false
+
+workflows:
+  build:
+    jobs:
+      - rubocop
+      - rspec-ruby-26-activerecord61
+      - rspec-ruby-26-activerecord60
+      - rspec-ruby-26-activerecord52
+      - rspec-ruby-26-mongoid
+      - rspec-ruby-27-activerecord61
+      - rspec-ruby-27-activerecord60
+      - rspec-ruby-27-activerecord52
+      - rspec-ruby-27-mongoid
+      - rspec-ruby-30-activerecord61
+
+commands:
+  rspec-test:
+    description: Test rspec in current ruby
+    parameters:
+      pre-steps:
+        description: Necessary steps after checkout
+        type: steps
+        default: []
+    steps:
+      - checkout
+      - run:
+          name: ruby version
+          command: |
+            ruby -e "STDERR.puts RUBY_VERSION; puts RUBY_VERSION.gsub(/^(\d+)\.(\d+)\..*/, '\1_\2')" > .ruby.version
+      - run:
+          name: Gemfile.lock version
+          command: |
+           echo "$GEMFILE.lock" > .Gemfile.lock.path
+      - steps: << parameters.pre-steps >>
+      - restore_cache:
+          keys:
+            - dependencies-{{ checksum ".ruby.version" }}-{{ checksum ".Gemfile.lock.path" }}
+      - run:
+          name: install dependencies
+          command: |
+            bundle install --jobs=4 --retry=3 --path vendor/bundle --gemfile=$GEMFILE
+      - save_cache:
+          paths:
+            - ./vendor/bundle
+          key: dependencies-{{ checksum ".ruby.version" }}-{{ checksum ".Gemfile.lock.path" }}
+      - run:
+          name: Install dockerize
+          command: |
+            wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSION/dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz && sudo tar -C /usr/local/bin -xzvf dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz && rm dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz
+          environment:
+            DOCKERIZE_VERSION: v0.6.1
+      - run:
+          name: Wait for Elasticsearch
+          command: |
+            dockerize -wait tcp://localhost:9250 -timeout 1m
+      - run:
+          name: Disable replication of elastic indices
+          command: |
+            curl -XPUT 'http://localhost:9250/_all/_settings?preserve_existing=true' -d '{
+              "index.number_of_replicas":"0"
+            }'
+      - run:
+          name: run tests
+          command: |
+            ruby -v
+            git config --global user.email "you@example.com"
+            git config --global user.name "Your Name"
+            mkdir /tmp/test-results
+            TEST_FILES="$(circleci tests glob "spec/**/*_spec.rb" | circleci tests split --split-by=timings)"
+            BUNDLE_GEMFILE=$GEMFILE bundle exec rspec --format progress --format RspecJunitFormatter --out /tmp/test-results/rspec.xml $TEST_FILES
+      - store_test_results:
+          path: /tmp/test-results
+
+jobs:
+  rubocop:
+    docker:
+      - image: circleci/ruby:2.6
+    working_directory: ~/repo
+    steps:
+      - checkout
+      - run:
+          name: ruby version
+          command: |
+            ruby -e "STDERR.puts RUBY_VERSION; puts RUBY_VERSION.gsub(/^(\d+)\.(\d+)\..*/, '\1_\2')" > .ruby.version
+      - run:
+          name: Gemfile.lock version
+          command: |
+           echo "$GEMFILE.lock" > .Gemfile.lock.path
+      - restore_cache:
+          keys:
+            - dependencies-{{ checksum ".ruby.version" }}-{{ checksum ".Gemfile.lock.path" }}
+      - run:
+          name: install dependencies
+          command: |
+            bundle install --jobs=4 --retry=3 --path vendor/bundle --binstubs=/usr/local/bundle/bin
+      - save_cache:
+          paths:
+            - ./vendor/bundle
+          key: dependencies-{{ checksum ".ruby.version" }}-{{ checksum ".Gemfile.lock.path" }}
+      - run:
+          name: run rubocop
+          command: |
+            bundle exec rubocop --format simple
+
+  rspec-ruby-26-activerecord52:
+    docker:
+      - image: circleci/ruby:2.6
+      - image: docker.elastic.co/elasticsearch/elasticsearch:7.10.1
+        environment:
+          <<: *es-env
+    working_directory: ~/repo
+    environment:
+      GEMFILE: gemfiles/rails.5.2.activerecord.gemfile
+    steps:
+      - rspec-test
+
+  rspec-ruby-26-activerecord60:
+    docker:
+      - image: circleci/ruby:2.6
+      - image: docker.elastic.co/elasticsearch/elasticsearch:7.10.1
+        environment:
+          <<: *es-env
+    working_directory: ~/repo
+    environment:
+      GEMFILE: gemfiles/rails.6.0.activerecord.gemfile
+    steps:
+      - rspec-test
+
+  rspec-ruby-26-activerecord61:
+    docker:
+      - image: circleci/ruby:2.6
+      - image: docker.elastic.co/elasticsearch/elasticsearch:7.10.1
+        environment:
+          <<: *es-env
+    working_directory: ~/repo
+    environment:
+      GEMFILE: gemfiles/rails.6.1.activerecord.gemfile
+    steps:
+      - rspec-test
+
+  rspec-ruby-26-mongoid:
+    docker:
+      - image: circleci/ruby:2.6
+      - image: circleci/mongo:4.2.5
+      - image: docker.elastic.co/elasticsearch/elasticsearch:7.10.1
+        environment:
+          <<: *es-env
+    working_directory: ~/repo
+    environment:
+      GEMFILE: gemfiles/rails.5.2.mongoid.6.4.gemfile
+    steps:
+      - rspec-test
+
+  rspec-ruby-27-activerecord52:
+    docker:
+      - image: circleci/ruby:2.7
+      - image: docker.elastic.co/elasticsearch/elasticsearch:7.10.1
+        environment:
+          <<: *es-env
+    working_directory: ~/repo
+    environment:
+      GEMFILE: gemfiles/rails.5.2.activerecord.gemfile
+    steps:
+      - rspec-test
+
+  rspec-ruby-27-activerecord60:
+    docker:
+      - image: circleci/ruby:2.7
+      - image: docker.elastic.co/elasticsearch/elasticsearch:7.10.1
+        environment:
+          <<: *es-env
+    working_directory: ~/repo
+    environment:
+      GEMFILE: gemfiles/rails.6.0.activerecord.gemfile
+    steps:
+      - rspec-test
+
+  rspec-ruby-27-activerecord61:
+    docker:
+      - image: circleci/ruby:2.7
+      - image: docker.elastic.co/elasticsearch/elasticsearch:7.10.1
+        environment:
+          <<: *es-env
+    working_directory: ~/repo
+    environment:
+      GEMFILE: gemfiles/rails.6.1.activerecord.gemfile
+    steps:
+      - rspec-test
+
+  rspec-ruby-27-mongoid:
+    docker:
+      - image: circleci/ruby:2.7
+      - image: circleci/mongo:4.2.5
+      - image: docker.elastic.co/elasticsearch/elasticsearch:7.10.1
+        environment:
+          <<: *es-env
+    working_directory: ~/repo
+    environment:
+      GEMFILE: gemfiles/rails.5.2.mongoid.6.4.gemfile
+    steps:
+      - rspec-test
+
+  rspec-ruby-30-activerecord61:
+    docker:
+      - image: circleci/ruby:3.0
+      - image: docker.elastic.co/elasticsearch/elasticsearch:7.10.1
+        environment:
+          <<: *es-env
+    working_directory: ~/repo
+    environment:
+      GEMFILE: gemfiles/rails.6.1.activerecord.gemfile
+    steps:
+      - rspec-test

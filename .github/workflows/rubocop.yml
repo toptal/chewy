@@ -16,5 +16,12 @@ jobs:
 
     # Runs the Super-Linter action
     - name: Run RuboCop
-      run: bundle exec rubocop
+      run: aaa
+      
+jobs:
+  aaa:
+    runs-on: ubuntu-latest
+    name: aaa
+    steps:
+      run: rubocop
      

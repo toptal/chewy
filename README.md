@@ -18,7 +18,7 @@ Chewy is an ODM (Object Document Mapper), built on top of the [the official Elas
 * [Getting Started](#getting-started)
     * [Minimal client setting](*minimal-client-setting)
     * [Docker](#docker)
-    * [Index](#index)    
+    * [Index](#index)
     * [Model](#model)
     * [Example of data request](#example-of-data-request)
 * [Usage and configuration](#usage)
@@ -118,7 +118,7 @@ See [Migration guide](migration_guide.md).
 
 ## Getting Started
 
-Chewy is pretty good, so, let's get started!
+Chewy is pretty good, so, let's get started
 
 ### Minimal client setting
 

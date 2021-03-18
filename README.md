@@ -17,7 +17,7 @@ Chewy is an ODM (Object Document Mapper), built on top of the [the official Elas
     * [Active Record](#active-record)
 * [Getting Started](#getting-started)
     * [Minimal client setting](*minimal-client-setting)
-    * [Docker](#docker)
+    * [Elasticsearch](#elasticsearch)
     * [Index](#index)
     * [Model](#model)
     * [Example of data request](#example-of-data-request)
@@ -140,12 +140,12 @@ development:
   host: 'localhost:9200'
 ```
 
-### Docker
+### Elasticsearch
 
-You can run Docker with:
+Make sure you have Elasticsearch up and running. You can [install](https://www.elastic.co/guide/en/elasticsearch/reference/current/install-elasticsearch.html) it locally, but the easiest way is to use [Docker](https://www.docker.com/get-started):
 
 ```shell
-$ docker run --rm -p 9250:9200 -e "discovery.type=single-node"
+$ docker run --rm --name elasticsearch -p 9200:9200 -p 9300:9300 -e "discovery.type=single-node" elasticsearch:7.11.1
 ```
 
 ### Index
@@ -190,7 +190,7 @@ end
 
 ### Example of data request
 
-1. Once a record is created (could be done via Rails console), it creates User index too:
+1. Once a record is created (could be done via the Rails console), it creates User index too:
 
 ```
 User.create(

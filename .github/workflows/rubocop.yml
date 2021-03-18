@@ -14,15 +14,7 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v2
 
-    - name: Install gems
-      run:
-        bundle install
-    - name: Run RuboCop
+      run: bundle install
       run: rubocop
-    - name: rspec-ruby-26-activerecord61
       run: aaa
-      
-commands:
-  aaa:
-    steps:
-      - run: rubocop      
+     

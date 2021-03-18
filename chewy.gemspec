@@ -17,7 +17,6 @@ Gem::Specification.new do |spec| # rubocop:disable Metrics/BlockLength
   spec.test_files    = spec.files.grep(%r{^(test|spec|features)/})
   spec.require_paths = ['lib']
 
-  spec.add_development_dependency 'appraisal'
   spec.add_development_dependency 'database_cleaner'
   spec.add_development_dependency 'elasticsearch-extensions'
   spec.add_development_dependency 'rake'

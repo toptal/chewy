@@ -21,12 +21,11 @@ jobs:
       # Checks out a copy of your repository on the ubuntu-latest machine
       - name: Checkout code
         uses: actions/checkout@v2
-      - uses: ./        
-        with:
-          ruby-version: 2.6        
 
       - name: Setup Ruby
         uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 2.6
 
       - name: ruby version
         run: ruby -e "STDERR.puts RUBY_VERSION; puts RUBY_VERSION.gsub(/^(\d+)\.(\d+)\..*/, '\1_\2')" > .ruby.version

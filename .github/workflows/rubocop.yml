@@ -13,9 +13,9 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: ~/repo    
+        working-directory: ~/chewy    
     env: # $BUNDLE_GEMFILE must be set at the job level, so it is set for all steps
-      working_directory: ~/repo
+      working_directory: ~/chewy
       BUNDLE_GEMFILE: gemfiles/${{ matrix.gemfile }}.gemfile    
     steps:
       # Checks out a copy of your repository on the ubuntu-latest machine

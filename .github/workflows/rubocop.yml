@@ -18,7 +18,6 @@ jobs:
       # Checks out a copy of your repository on the ubuntu-latest machine
       - name: Checkout code
         uses: actions/checkout@v2
-        working-directory: ${{env.working-directory}}
 
       - name: Setup Ruby
         uses: ruby/setup-ruby@v1

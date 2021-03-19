@@ -14,7 +14,6 @@ jobs:
     env: # $BUNDLE_GEMFILE must be set at the job level, so it is set for all steps
       working_directory: ~/repo
       BUNDLE_GEMFILE: gemfiles/${{ matrix.gemfile }}.gemfile
-    working-directory: ${{env.working-directory}}
     steps:
       # Checks out a copy of your repository on the ubuntu-latest machine
       - name: Checkout code

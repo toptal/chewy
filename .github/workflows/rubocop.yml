@@ -32,16 +32,14 @@ jobs:
         uses: actions/cache@v1
         with:
           path: ./vendor/bundle
-          key: dependencies-{{ checksum ".ruby.version" }}-{{ checksum ".Gemfile.lock.path" }}
-          restore-keys: |
-            dependencies-{{ checksum ".ruby.version" }}-
+          key: ${{ runner.os }}-gems-${{ hashFiles('**/Gemfile.lock')
+          restore-keys: ${{ runner.os }}-gems-
 
       - name: install dependencies
         run: bundle install --jobs=4 --retry=3 --path vendor/bundle --binstubs=/usr/local/bundle/bin
 
       - name: run rubocop
         run: bundle exec rubocop --format simple
-        
 
 
 

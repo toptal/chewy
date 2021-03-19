@@ -18,30 +18,8 @@ jobs:
       working_directory: ~/repo
       BUNDLE_GEMFILE: gemfiles/${{ matrix.gemfile }}.gemfile    
     steps:
-      # Checks out a copy of your repository on the ubuntu-latest machine
-      - name: Checkout code
-        uses: actions/checkout@v2
-
-      - name: Setup Ruby
-        uses: ruby/setup-ruby@v1
+      - uses: actions/checkout@v2
+      - uses: ./
         with:
-          ruby-version: 2.6 
-      
-      - name: Ruby gem cache
-        id: gem-cache
-        uses: actions/cache@v1
-        with:
-          path: ./vendor/bundle
-          key: ${{ runner.os }}-gems-${{ hashFiles('**/Gemfile.lock')
-          restore-keys: ${{ runner.os }}-gems-
-
-      - name: install dependencies
-        run: bundle install --jobs=4 --retry=3 --path vendor/bundle --binstubs=/usr/local/bundle/bin
-
-      - name: run rubocop
-        run: bundle exec rubocop --format simple
-
-
-
-
-
+          ruby-version: 2.6
+          bundler-cache: true 

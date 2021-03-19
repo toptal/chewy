@@ -13,11 +13,12 @@ jobs:
     runs-on: ubuntu-latest
     env: # $BUNDLE_GEMFILE must be set at the job level, so it is set for all steps
       working_directory: ~/repo
-      BUNDLE_GEMFILE: gemfiles/${{ matrix.gemfile }}.gemfile
+      BUNDLE_GEMFILE: gemfiles/${{ matrix.gemfile }}.gemfile    
     steps:
       # Checks out a copy of your repository on the ubuntu-latest machine
       - name: Checkout code
         uses: actions/checkout@v2
+        working-directory: ${{env.working-directory}}
 
       - name: Setup Ruby
         uses: ruby/setup-ruby@v1

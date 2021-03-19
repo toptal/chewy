@@ -11,6 +11,9 @@ jobs:
       matrix:
         gemfile: [ rails.5.2.activerecord ]
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ~/repo    
     env: # $BUNDLE_GEMFILE must be set at the job level, so it is set for all steps
       working_directory: ~/repo
       BUNDLE_GEMFILE: gemfiles/${{ matrix.gemfile }}.gemfile    

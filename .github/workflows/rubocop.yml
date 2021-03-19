@@ -25,18 +25,12 @@ jobs:
       - name: Setup Ruby
         uses: ruby/setup-ruby@v1
         with:
-          ruby-version: 2.6
-
-      - run: ls
-      - run: pwd 
+          ruby-version: 2.6 
       
-      - name: ruby version
-        run: ruby -e "STDERR.puts RUBY_VERSION; puts RUBY_VERSION.gsub(/^(\d+)\.(\d+)\..*/, '\1_\2')" > .ruby.version
-      
-      - name: Gemfile.lock version
-        run: echo "$GEMFILE.lock" > .Gemfile.lock.path
+        run: ruby -v
       
       - name: Ruby gem cache
+        id: gem-cache
         uses: actions/cache@v1
         with:
           path: ./vendor/bundle
@@ -51,7 +45,34 @@ jobs:
         run: bundle exec rubocop --format simple
 
 
+# .github/workflows/rubocop.yml
 
+name: RuboCop
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v1
+    - name: Set up Ruby 2.5 
+      uses: actions/setup-ruby@v1
+      with:
+        ruby-version: 2.5.x # Replace with your ruby version
+    - name: Gems Cache
+      id: gem-cache
+      uses: actions/cache@v1
+      with:
+        path: vendor/bundle
+        key: ${{ runner.os }}-gem-${{ hashFiles('**/Gemfile.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-gem-
+    - name: Rubocop Linter Action
+      uses: andrewmcodes/rubocop-linter-action@v3.0.0
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
 
 

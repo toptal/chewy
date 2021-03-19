@@ -21,29 +21,7 @@ jobs:
       - uses: actions/checkout@v2
 
       - name: Setup Ruby
-        uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: 2.6
-
-      - name: ruby version
-      - run: ruby -e "STDERR.puts RUBY_VERSION; puts RUBY_VERSION.gsub(/^(\d+)\.(\d+)\..*/, '\1_\2')" > .ruby.version
-      
-      - name: Gemfile.lock version
-      - run: echo "$GEMFILE.lock" > .Gemfile.lock.path
-      
-      - name: Ruby gem cache
-        uses: actions/cache@v1
-        with:
-          path: ./vendor/bundle
-          key: dependencies-{{ checksum ".ruby.version" }}-{{ checksum ".Gemfile.lock.path" }}
-          restore-keys: |
-            dependencies-{{ checksum ".ruby.version" }}-
-
-      - name: install dependencies
-      - run: bundle install --jobs=4 --retry=3 --path vendor/bundle --binstubs=/usr/local/bundle/bin
-
-      - name: run rubocop
-      - run: bundle exec rubocop --format simple
+      - run: Rubocop
 
 
 

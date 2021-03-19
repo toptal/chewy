@@ -7,21 +7,21 @@ jobs:
   # Set the job key. The key is displayed as the job name
   # when a job name is not provided
   build:
+    strategy:
+      matrix:
+        gemfile: [ rails.5.2.activerecord, rails.5.2.mongoid.6.4, rails.6.0.activerecord, rails.6.1.activerecord, sequel.4.45 ]
     runs-on: ubuntu-latest
-
+    env: # $BUNDLE_GEMFILE must be set at the job level, so it is set for all steps
+      working_directory: ~/repo
+      BUNDLE_GEMFILE: gemfiles/${{ matrix.gemfile }}.gemfile
     steps:
-    # Checks out a copy of your repository on the ubuntu-latest machine
-    - name: Checkout code
-      uses: actions/checkout@v2
+      # Checks out a copy of your repository on the ubuntu-latest machine
+      - name: Checkout code
+        uses: actions/checkout@v2
 
-    # Runs the Super-Linter action
-    - name: Run RuboCop
-      run: aaa
+      # Runs the Super-Linter action
+      - name: Run RuboCop
+        run: rubocop
       
-jobs:
-  aaa:
-    runs-on: ubuntu-latest
-    name: aaa
-    steps:
-      run: rubocop
-     
+      
+  

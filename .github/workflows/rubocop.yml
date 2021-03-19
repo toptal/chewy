@@ -27,6 +27,7 @@ jobs:
         with:
           ruby-version: 2.6 
       
+      - name: ruby version
         run: ruby -v
       
       - name: Ruby gem cache

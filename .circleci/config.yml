@@ -14,15 +14,6 @@ workflows:
   build:
     jobs:
       - rubocop
-      - rspec-ruby-26-activerecord61
-      - rspec-ruby-26-activerecord60
-      - rspec-ruby-26-activerecord52
-      - rspec-ruby-26-mongoid
-      - rspec-ruby-27-activerecord61
-      - rspec-ruby-27-activerecord60
-      - rspec-ruby-27-activerecord52
-      - rspec-ruby-27-mongoid
-      - rspec-ruby-30-activerecord61
 
 commands:
   rspec-test:

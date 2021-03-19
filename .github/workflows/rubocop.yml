@@ -27,9 +27,6 @@ jobs:
         with:
           ruby-version: 2.6
 
-      - name: ruby version
-        run: ruby -v
-      
       - name: Gemfile.lock version
         run: echo "$GEMFILE.lock" > .Gemfile.lock.path
       

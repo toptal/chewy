@@ -28,7 +28,10 @@ jobs:
           ruby-version: 2.6
 
       - name: ruby version
-        run: ruby -e "STDERR.puts RUBY_VERSION; puts RUBY_VERSION.gsub(/^(\d+)\.(\d+)\..*/, '\1_\2')" > .ruby.version
+        run: ruby -e "STDERR.puts RUBY_VERSION
+        
+      - name: ruby version 2  
+        run: puts RUBY_VERSION.gsub(/^(\d+)\.(\d+)\..*/, '\1_\2')" > .ruby.version
       
       - name: Gemfile.lock version
         run: echo "$GEMFILE.lock" > .Gemfile.lock.path

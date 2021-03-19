@@ -19,7 +19,6 @@ jobs:
       BUNDLE_GEMFILE: gemfiles/${{ matrix.gemfile }}.gemfile    
     steps:
       - uses: actions/checkout@v2
-      - uses: ./
         with:
           ruby-version: 2.6
-          bundler-cache: true 
+          bundler-cache: true

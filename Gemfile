@@ -13,7 +13,6 @@ gem 'sidekiq', require: false
 gem 'aws-sdk-sqs', require: false
 gem 'shoryuken', require: false
 
-gem 'kaminari', require: false
 gem 'kaminari-core', require: false
 gem 'will_paginate', require: false
 

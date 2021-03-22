@@ -29,17 +29,13 @@ end
 
 try_require 'kaminari'
 try_require 'kaminari/core'
-try_require 'will_paginate'
-try_require 'will_paginate/collection'
 try_require 'parallel'
 
 ActiveSupport.on_load(:active_record) do
-  try_require 'will_paginate/active_record'
   try_require 'kaminari/activerecord'
 end
 
 ActiveSupport.on_load(:mongoid) do
-  try_require 'will_paginate/mongoid'
   try_require 'kaminari/mongoid'
 end
 

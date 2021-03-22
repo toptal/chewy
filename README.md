@@ -1,5 +1,5 @@
 [![Gem Version](https://badge.fury.io/rb/chewy.svg)](http://badge.fury.io/rb/chewy)
-[![GitHub Actions](https://github.com/toptal/chewy/actions/workflows/ci.yml/badge.svg)](https://github.com/toptal/chewy/actions/workflows/ci.yml)
+[![GitHub Actions](https://github.com/toptal/chewy/actions/workflows/CI.yml/badge.svg)](https://github.com/toptal/chewy/actions/workflows/CI.yml)
 [![Code Climate](https://codeclimate.com/github/toptal/chewy.svg)](https://codeclimate.com/github/toptal/chewy)
 [![Inline docs](http://inch-ci.org/github/toptal/chewy.svg?branch=master)](http://inch-ci.org/github/toptal/chewy)
 

@@ -1,6 +1,5 @@
 [![Gem Version](https://badge.fury.io/rb/chewy.svg)](http://badge.fury.io/rb/chewy)
-[![GitHub Actions](https://action-badges.now.sh/toptal/chewy?branch=ci-reconfiguration)](https://action-badges.now.sh/toptal/chewy)
-![GitHub Actions](https://github.com/toptal/chewy/.github/workflows/ruby.yml?branch=ci-reconfiguration)
+[![GitHub Actions](https://github.com/toptal/chewy/actions/workflows/ruby.yml/badge.svg)](https://github.com/toptal/chewy/actions/workflows/ruby.yml)
 [![Code Climate](https://codeclimate.com/github/toptal/chewy.svg)](https://codeclimate.com/github/toptal/chewy)
 [![Inline docs](http://inch-ci.org/github/toptal/chewy.svg?branch=master)](http://inch-ci.org/github/toptal/chewy)
 

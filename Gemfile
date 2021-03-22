@@ -14,7 +14,6 @@ gem 'aws-sdk-sqs', require: false
 gem 'shoryuken', require: false
 
 gem 'kaminari-core', require: false
-gem 'will_paginate', require: false
 
 gem 'parallel', require: false
 gem 'ruby-progressbar', require: false

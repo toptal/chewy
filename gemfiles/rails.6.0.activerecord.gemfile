@@ -10,6 +10,5 @@ gem 'resque', require: false
 gem 'rspec_junit_formatter', '~> 0.4.1'
 gem 'shoryuken', require: false
 gem 'sidekiq', require: false
-gem 'will_paginate', require: false
 
 gemspec path: '../'

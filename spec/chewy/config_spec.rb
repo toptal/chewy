@@ -64,7 +64,6 @@ describe Chewy::Config do
     end
 
     context 'kaminari' do
-
       specify do
         expect(subject.search_class.included_modules)
           .to include(Chewy::Search::Pagination::Kaminari)

@@ -6,6 +6,8 @@
 
 ### Changes
 
+  * [#ABC](https://github.com/toptal/chewy/pull/ABC): Drop will_paginate support ([@Vitalina-Vakulchyk][])
+
   * [#769](https://github.com/toptal/chewy/pull/769): **(Breaking)** Removal of deprecated methods and rake tasks ([@Vitalina-Vakulchyk][]):
     * `Chewy::Index.index_params` is removed, use `Chewy::Index.specification_hash` instead
     * `Chewy::Index.derivable_index_name` is removed, use `Chewy::Index.derivable_name` instead

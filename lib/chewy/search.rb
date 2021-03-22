@@ -6,7 +6,6 @@ require 'chewy/search/response'
 require 'chewy/search/loader'
 require 'chewy/search/request'
 require 'chewy/search/pagination/kaminari'
-require 'chewy/search/pagination/will_paginate'
 
 module Chewy
   # This module being included to any provides an interface to the

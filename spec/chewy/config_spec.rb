@@ -55,31 +55,19 @@ describe Chewy::Config do
     context 'nothing is defined' do
       before do
         hide_const('Kaminari')
-        hide_const('WillPaginate')
       end
 
       specify do
         expect(subject.search_class.included_modules)
           .not_to include(Chewy::Search::Pagination::Kaminari)
       end
-
-      specify do
-        expect(subject.search_class.included_modules)
-          .not_to include(Chewy::Search::Pagination::WillPaginate)
-      end
     end
 
     context 'kaminari' do
-      before { hide_const('WillPaginate') }
 
       specify do
         expect(subject.search_class.included_modules)
           .to include(Chewy::Search::Pagination::Kaminari)
-      end
-
-      specify do
-        expect(subject.search_class.included_modules)
-          .not_to include(Chewy::Search::Pagination::WillPaginate)
       end
     end
 
@@ -90,22 +78,12 @@ describe Chewy::Config do
         expect(subject.search_class.included_modules)
           .not_to include(Chewy::Search::Pagination::Kaminari)
       end
-
-      specify do
-        expect(subject.search_class.included_modules)
-          .to include(Chewy::Search::Pagination::WillPaginate)
-      end
     end
 
     context 'both are defined' do
       specify do
         expect(subject.search_class.included_modules)
           .to include(Chewy::Search::Pagination::Kaminari)
-      end
-
-      specify do
-        expect(subject.search_class.included_modules)
-          .not_to include(Chewy::Search::Pagination::WillPaginate)
       end
     end
   end

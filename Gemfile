@@ -7,7 +7,6 @@ gem 'activerecord'
 # gem 'sequel'
 
 gem 'activejob', require: false
-gem 'resque', require: false
 gem 'sidekiq', require: false
 
 gem 'aws-sdk-sqs', require: false

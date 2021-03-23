@@ -57,7 +57,6 @@ end
 module Chewy
   @adapters = [
     Chewy::Type::Adapter::ActiveRecord,
-    Chewy::Type::Adapter::Sequel,
     Chewy::Type::Adapter::Object
   ]
 

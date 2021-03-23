@@ -4,7 +4,6 @@ Bundler.require
 
 begin
   require 'active_record'
-  require 'sequel'
 rescue LoadError
   nil
 end
@@ -49,11 +48,9 @@ end
 
 if defined?(::ActiveRecord)
   require 'support/active_record'
-elsif defined?(::Sequel)
-  require 'support/sequel'
 else
   RSpec.configure do |config|
-    %i[orm active_record sequel].each do |group|
+    %i[orm active_record].each do |group|
       config.filter_run_excluding(group)
     end
   end

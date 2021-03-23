@@ -77,17 +77,6 @@ describe Chewy::Type::Import do
     describe 'criteria-driven importing' do
       let(:names) { %w[name0 name1] }
 
-      context 'mongoid', :mongoid do
-        specify do
-          expect { import(City.where(:name.in => names)) }
-            .to update_index(CitiesIndex::City).and_reindex(dummy_cities.first(2))
-        end
-        specify do
-          expect { import(City.where(:name.in => names).map(&:id)) }
-            .to update_index(CitiesIndex::City).and_reindex(dummy_cities.first(2))
-        end
-      end
-
       context 'active record', :active_record do
         specify do
           expect { import(City.where(name: names)) }
@@ -147,12 +136,7 @@ describe Chewy::Type::Import do
       before do
         names = %w[name0 name1]
 
-        criteria = case adapter
-        when :mongoid
-          {:name.in => names}
-        else
-          {name: names}
-        end
+        criteria = {name: names}
 
         stub_index(:cities) do
           define_type City.where(criteria) do
@@ -162,13 +146,6 @@ describe Chewy::Type::Import do
       end
 
       specify { expect { import }.to update_index(CitiesIndex::City).and_reindex(dummy_cities.first(2)) }
-
-      context 'mongoid', :mongoid do
-        specify do
-          expect { import City.where(_id: dummy_cities.first.id) }
-            .to update_index(CitiesIndex::City).and_reindex(dummy_cities.first).only
-        end
-      end
 
       context 'active record', :active_record do
         specify do

@@ -77,7 +77,7 @@ In this section we'll cover why you might want to use Chewy instead of the offic
 
   Chewy has an ActiveRecord-style query DSL. It is chainable, mergeable and lazy, so you can produce queries in the most efficient way. It also has object-oriented query and filter builders.
 
-* Support for ActiveRecord, [Mongoid](https://github.com/mongoid/mongoid) and [Sequel](https://github.com/jeremyevans/sequel).
+* Support for ActiveRecord and [Sequel](https://github.com/jeremyevans/sequel).
 
 ## Installation
 
@@ -443,8 +443,7 @@ Chewy.settings = {
     update_index('cities#city') { self }
     update_index 'countries#country' do
       # For the latest active_record changed values are
-      # already in `previous_changes` hash,
-      # but for mongoid you have to use `changes` hash
+      # already in `previous_changes` hash
       previous_changes['country_id'] || country
     end
   end
@@ -538,7 +537,7 @@ class ProductsIndex < Chewy::Index
 end
 ```
 
-Then the Chewy reindexing flow will look like the following pseudo-code (even in Mongoid):
+Then the Chewy reindexing flow will look like the following pseudo-code:
 
 ```ruby
 Product.includes(:categories).find_in_batches(1000) do |batch|
@@ -1044,7 +1043,7 @@ Quick introduction.
 
 #### Composing requests
 
-The request DSL have the same chainable nature as AR or Mongoid ones. The main class is `Chewy::Search::Request`. It is possible to perform requests on behalf of indices or types:
+The request DSL have the same chainable nature as AR. The main class is `Chewy::Search::Request`. It is possible to perform requests on behalf of indices or types:
 
 ```ruby
 CitiesIndex.query(match: {name: 'London'}) # or

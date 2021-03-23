@@ -6,7 +6,6 @@ gem 'activesupport', '~> 5.2.0'
 gem 'aws-sdk-sqs', require: false
 gem 'kaminari-core', '~> 1.1.0', require: false
 gem 'parallel', require: false
-gem 'resque', require: false
 gem 'rspec_junit_formatter', '~> 0.4.1'
 gem 'shoryuken', require: false
 gem 'sidekiq', require: false

@@ -413,9 +413,6 @@ describe Chewy::Fields::Base do
           else
             Country.has_many :cities, order: :id
           end
-        when :sequel
-          City.many_to_one :country
-          Country.one_to_many :cities, order: :id
         end
 
         stub_index(:countries) do
@@ -432,13 +429,7 @@ describe Chewy::Fields::Base do
       let(:country_with_cities) do
         cities = [City.create!(id: 1, name: 'City1'), City.create!(id: 2, name: 'City2')]
 
-        if adapter == :sequel
-          Country.create(id: 1).tap do |country|
-            cities.each { |city| country.add_city(city) }
-          end
-        else
-          Country.create!(id: 1, cities: cities)
-        end
+        Country.create!(id: 1, cities: cities)
       end
 
       specify do

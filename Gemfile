@@ -3,7 +3,6 @@ source 'https://rubygems.org'
 gemspec
 
 gem 'activerecord'
-# gem 'sequel'
 
 gem 'activejob', require: false
 gem 'sidekiq', require: false

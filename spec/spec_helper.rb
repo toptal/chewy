@@ -49,13 +49,11 @@ end
 
 if defined?(::ActiveRecord)
   require 'support/active_record'
-elsif defined?(::Mongoid)
-  require 'support/mongoid'
 elsif defined?(::Sequel)
   require 'support/sequel'
 else
   RSpec.configure do |config|
-    %i[orm mongoid active_record sequel].each do |group|
+    %i[orm active_record sequel].each do |group|
       config.filter_run_excluding(group)
     end
   end

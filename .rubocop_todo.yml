@@ -122,7 +122,6 @@ Style/IfUnlessModifier:
     - 'lib/chewy/railtie.rb'
     - 'lib/chewy/rspec/update_index.rb'
     - 'lib/chewy/search/query_proxy.rb'
-    - 'lib/chewy/type/adapter/mongoid.rb'
     - 'lib/chewy/type/adapter/sequel.rb'
     - 'lib/chewy/type/import.rb'
     - 'lib/chewy/type/witchcraft.rb'

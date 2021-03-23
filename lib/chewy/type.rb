@@ -1,7 +1,6 @@
 require 'chewy/search'
 require 'chewy/type/adapter/object'
 require 'chewy/type/adapter/active_record'
-require 'chewy/type/adapter/sequel'
 require 'chewy/type/mapping'
 require 'chewy/type/wrapper'
 require 'chewy/type/observe'

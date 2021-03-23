@@ -20,7 +20,6 @@ Gem::Specification.new do |spec| # rubocop:disable Metrics/BlockLength
   spec.add_development_dependency 'database_cleaner'
   spec.add_development_dependency 'elasticsearch-extensions'
   spec.add_development_dependency 'rake'
-  spec.add_development_dependency 'resque_spec'
   spec.add_development_dependency 'rspec', '>= 3.7.0'
   spec.add_development_dependency 'rspec-collection_matchers'
   spec.add_development_dependency 'rspec-its'

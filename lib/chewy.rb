@@ -35,10 +35,6 @@ ActiveSupport.on_load(:active_record) do
   try_require 'kaminari/activerecord'
 end
 
-ActiveSupport.on_load(:mongoid) do
-  try_require 'kaminari/mongoid'
-end
-
 require 'chewy/version'
 require 'chewy/errors'
 require 'chewy/config'
@@ -58,20 +54,9 @@ ActiveSupport.on_load(:active_record) do
   extend Chewy::Type::Observe::ActiveRecordMethods
 end
 
-ActiveSupport.on_load(:mongoid) do
-  module Mongoid
-    module Document
-      module ClassMethods
-        include Chewy::Type::Observe::MongoidMethods
-      end
-    end
-  end
-end
-
 module Chewy
   @adapters = [
     Chewy::Type::Adapter::ActiveRecord,
-    Chewy::Type::Adapter::Mongoid,
     Chewy::Type::Adapter::Sequel,
     Chewy::Type::Adapter::Object
   ]

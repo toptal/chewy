@@ -16,8 +16,7 @@ module Chewy
   # inherited from {Chewy::Search::Request}
   #
   # Also, the search class is refined with one of the pagination-
-  # providing modules: {Chewy::Search::Pagination::Kaminari} or
-  # {Chewy::Search::Pagination::WillPaginate}.
+  # providing modules: {Chewy::Search::Pagination::Kaminari}
   #
   # @example
   #   PlacesIndex.query(match: {name: 'Moscow'})
@@ -27,7 +26,6 @@ module Chewy
   # @see Chewy::Search::Request
   # @see Chewy::Search::ClassMethods
   # @see Chewy::Search::Pagination::Kaminari
-  # @see Chewy::Search::Pagination::WillPaginate
   module Search
     extend ActiveSupport::Concern
 

@@ -77,7 +77,7 @@ In this section we'll cover why you might want to use Chewy instead of the offic
 
   Chewy has an ActiveRecord-style query DSL. It is chainable, mergeable and lazy, so you can produce queries in the most efficient way. It also has object-oriented query and filter builders.
 
-* Support for ActiveRecord and [Sequel](https://github.com/jeremyevans/sequel).
+* Support for ActiveRecord.
 
 ## Installation
 
@@ -447,21 +447,6 @@ Chewy.settings = {
       previous_changes['country_id'] || country
     end
   end
-  ```
-
-  You can observe Sequel models in the same way as ActiveRecord:
-
-  ```ruby
-  class User < Sequel::Model
-    update_index('users#user') { self }
-  end
-  ```
-
-  However, to make it work, you must load the chewy plugin into Sequel model:
-
-  ```ruby
-  Sequel::Model.plugin :chewy_observe  # for all models, or...
-  User.plugin :chewy_observe           # just for User
   ```
 
 ### Type default import options

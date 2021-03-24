@@ -7,7 +7,6 @@ gem 'activerecord'
 gem 'activejob', require: false
 gem 'sidekiq', require: false
 
-gem 'aws-sdk-sqs', require: false
 gem 'shoryuken', require: false
 
 gem 'kaminari-core', require: false

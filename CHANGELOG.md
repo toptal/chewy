@@ -6,11 +6,11 @@
 
 ### Changes
 
-  * [#ABC](https://github.com/toptal/chewy/pull/ABC): Removal of unnecessary features and integrations ([@Vitalina-Vakulchyk][])
-    * drop will_paginate gem support
-    * drop sequel gem support
-    * remove `:resque` async strategy
-    * remove mongoid gem support
+  * [#ABC](https://github.com/toptal/chewy/pull/ABC): Removal of unnecessary features and integrations ([@Vitalina-Vakulchyk][]):
+    * mongoid gem support
+    * sequel gem
+    * will_paginate gem
+    * `:resque` async strategy
 
   * [#769](https://github.com/toptal/chewy/pull/769): **(Breaking)** Removal of deprecated methods and rake tasks ([@Vitalina-Vakulchyk][]):
     * `Chewy::Index.index_params` is removed, use `Chewy::Index.specification_hash` instead

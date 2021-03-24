@@ -11,6 +11,7 @@
     * sequel gem
     * will_paginate gem
     * `:resque` async strategy
+    * `:shoryuken` async strategy
 
   * [#769](https://github.com/toptal/chewy/pull/769): **(Breaking)** Removal of deprecated methods and rake tasks ([@Vitalina-Vakulchyk][]):
     * `Chewy::Index.index_params` is removed, use `Chewy::Index.specification_hash` instead

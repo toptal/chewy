@@ -7,8 +7,8 @@
 ### Changes
 
   * [#ABC](https://github.com/toptal/chewy/pull/ABC): Removal of unnecessary features and integrations ([@Vitalina-Vakulchyk][])
-    * drop `will_paginate` gem support
-    * drop `sequel` gem support
+    * drop will_paginate gem support
+    * drop sequel gem support
     * remove `:resque` async strategy
     * remove mongoid gem support
 

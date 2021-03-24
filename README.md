@@ -822,16 +822,6 @@ The default queue name is `chewy`, you can customize it in settings: `active_job
 Chewy.settings[:active_job] = {queue: :low}
 ```
 
-#### `:shoryuken`
-
-This does the same thing as `:atomic`, but asynchronously using shoryuken. Patch `Chewy::Strategy::Shoryuken::Worker` for index updates improving.
-
-```ruby
-Chewy.strategy(:shoryuken) do
-  City.popular.map(&:do_some_update_action!)
-end
-```
-
 #### `:urgent`
 
 The following strategy is convenient if you are going to update documents in your index one by one.

@@ -7,6 +7,7 @@
 ### Changes
 
   * [#ABC](https://github.com/toptal/chewy/pull/ABC): Removal of unnecessary features and integrations ([@Vitalina-Vakulchyk][]):
+    * aws-sdk-sqs gem
     * mongoid gem support
     * sequel gem
     * will_paginate gem

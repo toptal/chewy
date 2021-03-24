@@ -1,8 +1,6 @@
 require 'spec_helper'
 
 if defined?(::Shoryuken)
-  require 'aws-sdk-sqs'
-
   describe Chewy::Strategy::Shoryuken do
     around do |example|
       shoryuken_settings = Chewy.settings[:shoryuken]

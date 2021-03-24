@@ -6,7 +6,7 @@
 
 ### Changes
 
-  * [#ABC](https://github.com/toptal/chewy/pull/ABC): Removal of unnecessary features and integrations ([@Vitalina-Vakulchyk][]):
+  * [#776](https://github.com/toptal/chewy/pull/776): Removal of unnecessary features and integrations ([@Vitalina-Vakulchyk][]):
     * aws-sdk-sqs gem
     * mongoid gem
     * sequel gem

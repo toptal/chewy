@@ -69,22 +69,6 @@ describe Chewy::Config do
           .to include(Chewy::Search::Pagination::Kaminari)
       end
     end
-
-    context 'will_paginate' do
-      before { hide_const('Kaminari') }
-
-      specify do
-        expect(subject.search_class.included_modules)
-          .not_to include(Chewy::Search::Pagination::Kaminari)
-      end
-    end
-
-    context 'both are defined' do
-      specify do
-        expect(subject.search_class.included_modules)
-          .to include(Chewy::Search::Pagination::Kaminari)
-      end
-    end
   end
 
   describe '#configuration' do

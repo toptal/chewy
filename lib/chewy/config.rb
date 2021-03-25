@@ -138,9 +138,7 @@ module Chewy
 
     def build_search_class(base)
       Class.new(base).tap do |search_class|
-        if defined?(::Kaminari)
-          search_class.send :include, Chewy::Search::Pagination::Kaminari
-        end
+        search_class.send :include, Chewy::Search::Pagination::Kaminari if defined?(::Kaminari)
       end
     end
   end

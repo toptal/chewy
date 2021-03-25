@@ -405,15 +405,8 @@ describe Chewy::Fields::Base do
         stub_model(:city)
         stub_model(:country)
 
-        case adapter
-        when :active_record
-          City.belongs_to :country
-          if ActiveRecord::VERSION::MAJOR >= 4
-            Country.has_many :cities, -> { order :id }
-          else
-            Country.has_many :cities, order: :id
-          end
-        end
+        City.belongs_to :country
+        Country.has_many :cities, order: :id
 
         stub_index(:countries) do
           define_type Country do

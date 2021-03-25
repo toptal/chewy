@@ -8,6 +8,7 @@ end
 
 ActiveRecord::Base.connection.execute("DROP TABLE IF EXISTS 'countries'")
 ActiveRecord::Base.connection.execute("DROP TABLE IF EXISTS 'cities'")
+ActiveRecord::Base.connection.execute("DROP TABLE IF EXISTS 'locations'")
 ActiveRecord::Schema.define do
   create_table :countries do |t|
     t.column :name, :string
@@ -21,6 +22,12 @@ ActiveRecord::Schema.define do
     t.column :name, :string
     t.column :rating, :integer
     t.column :updated_at, :datetime
+  end
+
+  create_table :locations do |t|
+    t.column :city_id, :integer
+    t.column :lat, :string
+    t.column :lon, :string
   end
 end
 

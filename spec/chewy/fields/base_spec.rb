@@ -402,12 +402,15 @@ describe Chewy::Fields::Base do
 
     context 'objects and scopes', :orm do
       before do
+        stub_model(:location)
         stub_model(:city)
         stub_model(:country)
 
         case adapter
         when :active_record
           City.belongs_to :country
+          City.has_one :location
+          Location.belongs_to :city
           if ActiveRecord::VERSION::MAJOR >= 4
             Country.has_many :cities, -> { order :id }
           else
@@ -431,13 +434,18 @@ describe Chewy::Fields::Base do
             field :cities do
               field :id
               field :name
+              field :location, type: :geo_point do
+                field :lat
+                field :lon
+              end
             end
           end
         end
       end
 
       let(:country_with_cities) do
-        cities = [City.create!(id: 1, name: 'City1'), City.create!(id: 2, name: 'City2')]
+        location = Location.create!(lat: '1', lon: '1')
+        cities = [City.create!(id: 1, name: 'City1', location: location), City.create!(id: 2, name: 'City2', location: location)]
 
         if adapter == :sequel
           Country.create(id: 1).tap do |country|
@@ -450,7 +458,8 @@ describe Chewy::Fields::Base do
 
       specify do
         expect(CountriesIndex::Country.root.compose(country_with_cities)).to eq('id' => 1, 'cities' => [
-          {'id' => 1, 'name' => 'City1'}, {'id' => 2, 'name' => 'City2'}
+          {'id' => 1, 'name' => 'City1',
+           'location' => {'city_id' => 2, 'id' => 1, 'lat' => '1', 'lon' => '1'}}, {'id' => 2, 'name' => 'City2', 'location' => {'city_id' => 2, 'id' => 1, 'lat' => '1', 'lon' => '1'}}
         ])
       end
 

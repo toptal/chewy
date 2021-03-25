@@ -42,8 +42,6 @@ RSpec.configure do |config|
 
   config.include FailHelpers
   config.include ClassHelpers
-
-  Aws.config.update(stub_responses: true) if defined?(::Aws)
 end
 
 if defined?(::ActiveRecord)

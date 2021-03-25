@@ -442,8 +442,6 @@ Chewy.settings = {
 
     update_index('cities#city') { self }
     update_index 'countries#country' do
-      # For the latest active_record changed values are
-      # already in `previous_changes` hash
       previous_changes['country_id'] || country
     end
   end

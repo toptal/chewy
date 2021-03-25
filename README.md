@@ -532,9 +532,8 @@ Product.includes(:categories).find_in_batches(1000) do |batch|
 end
 ```
 
-But in Rails 4.1 and 4.2 you may face a problem with slow associations (take a look at https://github.com/rails/rails/pull/19423). Also, there might be really complicated cases when associations are not applicable.
-
-Then you can replace Rails associations with Chewy Crutches™ technology:
+In case of a problem with slow associations (take a look at https://github.com/rails/rails/pull/19423) or if you meet complicated cases when associations are not applicable,
+then you can replace Rails associations with Chewy Crutches™ technology:
 
 ```ruby
 class ProductsIndex < Chewy::Index

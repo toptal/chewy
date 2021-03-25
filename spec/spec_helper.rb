@@ -48,8 +48,6 @@ if defined?(::ActiveRecord)
   require 'support/active_record'
 else
   RSpec.configure do |config|
-    %i[orm active_record].each do |group|
-      config.filter_run_excluding(group)
-    end
+    config.filter_run_excluding(:orm)
   end
 end

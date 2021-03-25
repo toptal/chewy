@@ -15,8 +15,7 @@ module Chewy
   # The class used as a request DSL provider is
   # inherited from {Chewy::Search::Request}
   #
-  # Also, the search class is refined with one of the pagination-
-  # providing modules: {Chewy::Search::Pagination::Kaminari}
+  # Also, the search class is refined with the pagination module {Chewy::Search::Pagination::Kaminari}.
   #
   # @example
   #   PlacesIndex.query(match: {name: 'Moscow'})

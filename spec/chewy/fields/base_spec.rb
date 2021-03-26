@@ -428,15 +428,21 @@ describe Chewy::Fields::Base do
         end
 
         let(:country_with_cities) do
-          cities = [City.create!(id: 1, name: '', surname: '', description: ''), City.create!(id: 2, name: '', surname: '', description: '')]
+          cities = [
+            City.create!(id: 1, name: '', surname: '', description: ''),
+            City.create!(id: 2, name: '', surname: '', description: '')
+          ]
 
           Country.create!(id: 1, cities: cities)
         end
 
         specify do
-          expect(CountriesIndex::Country.root.compose(country_with_cities)).to eq('id' => 1, 'cities' => [
-            {'id' => 1, 'name' => '', 'surname' => ''}, {'id' => 2, 'name' => '', 'surname' => ''}
-          ])
+          expect(CountriesIndex::Country.root.compose(country_with_cities)).to eq(
+            'id' => 1, 'cities' => [
+              {'id' => 1, 'name' => '', 'surname' => ''},
+              {'id' => 2, 'name' => '', 'surname' => ''}
+            ]
+          )
         end
       end
 
@@ -514,13 +520,6 @@ describe Chewy::Fields::Base do
               end
             end
           end
-        end
-
-        let(:country_with_cities) do
-          location = Location.create!(lat: '1', lon: '1')
-          cities = [City.create!(id: 1, name: 'City1'), City.create!(id: 2, name: 'City2')]
-
-          Country.create!(id: 1, cities: cities)
         end
 
         specify do

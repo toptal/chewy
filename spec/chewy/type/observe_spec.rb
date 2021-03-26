@@ -30,7 +30,7 @@ describe Chewy::Type::Observe do
     before do
       stub_model(:city) do
         update_index(->(city) { "cities##{city.class.name.underscore}" }) { self }
-        update_index 'countries#country', &->(*) { changes['country_id'] || previous_changes['country_id'] || country }
+        update_index('countries#country') { changes['country_id'] || previous_changes['country_id'] || country }
       end
 
       stub_model(:country) do

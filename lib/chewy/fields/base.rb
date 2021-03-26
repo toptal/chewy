@@ -48,13 +48,20 @@ module Chewy
           end
         end
 
-        unless (@options[:ignore_blank] && @options[:ignore_blank] == true && !result.nil? && result.empty?) || (!@options[:ignore_blank] && @options[:type] && @options[:type] == :geo_point)
+        unless field_with_empty_value?(result) || geo_point_field_without_ignore_blank_flag?(result)
           {name => result}
         end
-        # {name => result}
       end
 
     private
+
+      def field_with_empty_value?(result)
+        @options[:ignore_blank] && @options[:ignore_blank] == true && !result.nil? && result.empty?
+      end
+
+      def geo_point_field_without_ignore_blank_flag?(result)
+        !@options[:ignore_blank] && @options[:type] && @options[:type] == :geo_point && !result.nil? && result.empty?
+      end
 
       def evaluate(objects)
         object = objects.first

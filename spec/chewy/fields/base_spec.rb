@@ -407,6 +407,8 @@ describe Chewy::Fields::Base do
         stub_model(:country)
 
         City.belongs_to :country
+        Location.belongs_to :city
+        City.has_one :location, -> { order :id }
         Country.has_many :cities, -> { order :id }
       end
 
@@ -516,7 +518,7 @@ describe Chewy::Fields::Base do
 
         let(:country_with_cities) do
           location = Location.create!(lat: '1', lon: '1')
-          cities = [City.create!(id: 1, name: 'City1', location: location), City.create!(id: 2, name: 'City2', location: location)]
+          cities = [City.create!(id: 1, name: 'City1'), City.create!(id: 2, name: 'City2')]
 
           Country.create!(id: 1, cities: cities)
         end
@@ -536,10 +538,7 @@ describe Chewy::Fields::Base do
 
         specify do
           expect(CountriesIndex::Country.root.compose(
-            'id' => 1, 'cities' => [
-              {'id' => 1, 'name' => 'City1'},
-              {'id' => 2, 'name' => 'City2'}]
-            )
+            country_with_cities)
           ).to eq(
             'id' => 1, 'cities' => [
               {'id' => 1, 'name' => 'City1'},

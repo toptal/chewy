@@ -434,7 +434,7 @@ describe Chewy::Fields::Base do
             field :cities do
               field :id
               field :name
-              field :location, type: :geo_point do
+              field :location, type: :geo_point, ignore_blank: true do
                 field :lat
                 field :lon
               end

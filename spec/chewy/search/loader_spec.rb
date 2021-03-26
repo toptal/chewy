@@ -65,18 +65,6 @@ describe Chewy::Search::Loader do
       end
     end
 
-    context 'scopes', :mongoid do
-      context do
-        let(:options) { {scope: -> { where(:rating.gt => 2) }} }
-        specify { expect(subject.load(hits)).to eq([nil, nil, nil, countries.last]) }
-      end
-
-      context do
-        let(:options) { {country: {scope: -> { where(:rating.gt => 2) }}} }
-        specify { expect(subject.load(hits)).to eq([*cities, nil, countries.last]) }
-      end
-    end
-
     context 'objects' do
       before do
         stub_index(:cities) do

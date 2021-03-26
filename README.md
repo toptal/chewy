@@ -1050,7 +1050,7 @@ Request DSL also provides additional scope actions, like `delete_all`, `exists?`
 
 #### Pagination
 
-The request DSL supports pagination with `Kaminari` and `WillPaginate`. An appropriate extension is enabled on initializtion if any of libraries is available. See [Chewy::Search](lib/chewy/search.rb) and [Chewy::Search::Pagination](lib/chewy/search/pagination/) namespace for details.
+The request DSL supports pagination with `Kaminari`. An appropriate extension is enabled on initializtion if any of libraries is available. See [Chewy::Search](lib/chewy/search.rb) and [Chewy::Search::Pagination](lib/chewy/search/pagination/) namespace for details.
 
 #### Named scopes
 

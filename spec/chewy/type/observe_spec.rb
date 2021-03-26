@@ -28,11 +28,9 @@ describe Chewy::Type::Observe do
     let(:update_condition) { true }
 
     before do
-      city_countries_update_proc = ->(*) { changes['country_id'] || previous_changes['country_id'] || country }
-
       stub_model(:city) do
         update_index(->(city) { "cities##{city.class.name.underscore}" }) { self }
-        update_index 'countries#country', &city_countries_update_proc
+        update_index 'countries#country', &->(*) { changes['country_id'] || previous_changes['country_id'] || country }
       end
 
       stub_model(:country) do

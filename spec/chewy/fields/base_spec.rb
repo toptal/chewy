@@ -533,6 +533,19 @@ describe Chewy::Fields::Base do
               {'id' => 2, 'name' => 'City2'}]
           )
         end
+
+        specify do
+          expect(CountriesIndex::Country.root.compose(
+            'id' => 1, 'cities' => [
+              {'id' => 1, 'name' => 'City1'},
+              {'id' => 2, 'name' => 'City2'}]
+            )
+          ).to eq(
+            'id' => 1, 'cities' => [
+              {'id' => 1, 'name' => 'City1'},
+              {'id' => 2, 'name' => 'City2'}]
+          )
+        end
       end
 
       context 'nested object' do

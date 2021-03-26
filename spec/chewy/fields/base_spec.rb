@@ -408,28 +408,62 @@ describe Chewy::Fields::Base do
 
         City.belongs_to :country
         Country.has_many :cities, -> { order :id }
+      end
 
-        stub_index(:countries) do
-          define_type Country do
-            field :id
-            field :cities do
+      context 'text fields type with and without ignore_blank flag' do
+        before do
+          stub_index(:countries) do
+            define_type Country do
               field :id
-              field :name
+              field :cities do
+                field :id
+                field :name
+                field :surname, ignore_blank: false
+                field :description, ignore_blank: true
+              end
             end
           end
         end
+
+        let(:country_with_cities) do
+          cities = [City.create!(id: 1, name: '', surname: '', description: ''), City.create!(id: 2, name: '', surname: '', description: '')]
+
+          Country.create!(id: 1, cities: cities)
+        end
+
+        specify do
+          expect(CountriesIndex::Country.root.compose(country_with_cities)).to eq('id' => 1, 'cities' => [
+            {'id' => 1, 'name' => '', 'surname' => ''}, {'id' => 2, 'name' => '', 'surname' => ''}
+          ])
+        end
       end
 
-      let(:country_with_cities) do
-        cities = [City.create!(id: 1, name: 'City1'), City.create!(id: 2, name: 'City2')]
+      context 'fields with ignore_blank: true flag for different types of empty content' do
+        before do
+          stub_index(:countries) do
+            define_type Country do
+              field :id
+              field :cities do
+                field :id
+                field :name, ignore_blank: true
+                field :surname, ignore_blank: true
+                field :description, ignore_blank: true
+              end
+            end
+          end
+        end
 
-        Country.create!(id: 1, cities: cities)
-      end
-
-      specify do
-        expect(CountriesIndex::Country.root.compose(country_with_cities)).to eq('id' => 1, 'cities' => [
-          {'id' => 1, 'name' => 'City1'}, {'id' => 2, 'name' => 'City2'}
-        ])
+        specify do
+          expect(CountriesIndex::Country.root.compose(
+            'id' => 1, 'cities' => [
+              {'id' => 1, 'name' => {}, 'surname' => '', 'description' => nil}
+            ]
+          )).to eq(
+            'id' => 1, 'cities' => [
+              {'id' => 1, 'description' => nil}
+            ]
+          )
+        end
       end
 
       context 'geo_point type with ignore_blank: true flag' do
@@ -447,13 +481,6 @@ describe Chewy::Fields::Base do
               end
             end
           end
-        end
-
-        let(:country_with_cities) do
-          location = Location.create!(lat: '1', lon: '1')
-          cities = [City.create!(id: 1, name: 'City1', location: location), City.create!(id: 2, name: 'City2', location: location)]
-
-          Country.create!(id: 1, cities: cities)
         end
 
         specify do

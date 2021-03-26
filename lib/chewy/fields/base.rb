@@ -48,7 +48,7 @@ module Chewy
           end
         end
 
-        unless (@options[:ignore_blank] && @options[:ignore_blank] == true && result.empty?) || (!@options[:ignore_blank] && @options[:type] && @options[:type] == :geo_point)
+        unless (@options[:ignore_blank] && @options[:ignore_blank] == true && !result.nil? && result.empty?) || (!@options[:ignore_blank] && @options[:type] && @options[:type] == :geo_point)
           {name => result}
         end
         # {name => result}

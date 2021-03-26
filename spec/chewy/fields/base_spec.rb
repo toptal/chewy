@@ -406,7 +406,7 @@ describe Chewy::Fields::Base do
         stub_model(:country)
 
         City.belongs_to :country
-        Country.has_many :cities, order: :id
+        Country.has_many :cities, -> { order :id }
 
         stub_index(:countries) do
           define_type Country do

@@ -2,11 +2,7 @@ require 'bundler'
 
 Bundler.require
 
-begin
-  require 'active_record'
-rescue LoadError
-  nil
-end
+require 'active_record'
 
 require 'rspec/its'
 require 'rspec/collection_matchers'
@@ -44,10 +40,4 @@ RSpec.configure do |config|
   config.include ClassHelpers
 end
 
-if defined?(::ActiveRecord)
-  require 'support/active_record'
-else
-  RSpec.configure do |config|
-    config.filter_run_excluding(:orm)
-  end
-end
+require 'support/active_record'

@@ -28,15 +28,9 @@ describe Chewy::Type::Observe do
     let(:update_condition) { true }
 
     before do
-      city_countries_update_proc = if adapter == :sequel
-        ->(*) { previous_changes.try(:[], :country_id) || country }
-      else
-        ->(*) { changes['country_id'] || previous_changes['country_id'] || country }
-      end
-
       stub_model(:city) do
         update_index(->(city) { "cities##{city.class.name.underscore}" }) { self }
-        update_index 'countries#country', &city_countries_update_proc
+        update_index('countries#country') { changes['country_id'] || previous_changes['country_id'] || country }
       end
 
       stub_model(:country) do
@@ -45,18 +39,8 @@ describe Chewy::Type::Observe do
         attr_accessor :update_condition
       end
 
-      if adapter == :sequel
-        City.many_to_one :country
-        Country.one_to_many :cities
-        City.plugin :dirty
-      else
-        if adapter == :mongoid && Mongoid::VERSION.start_with?('6')
-          City.belongs_to :country, optional: true
-        else
-          City.belongs_to :country
-        end
-        Country.has_many :cities
-      end
+      City.belongs_to :country
+      Country.has_many :cities
 
       stub_index(:cities) do
         define_type City
@@ -89,13 +73,7 @@ describe Chewy::Type::Observe do
       let!(:country) do
         Chewy.strategy(:atomic) do
           cities = Array.new(2) { |i| City.create!(id: i) }
-          if adapter == :sequel
-            Country.create(id: 1, update_condition: update_condition).tap do |country|
-              cities.each { |city| country.add_city(city) }
-            end
-          else
-            Country.create!(id: 1, cities: cities, update_condition: update_condition)
-          end
+          Country.create!(id: 1, cities: cities, update_condition: update_condition)
         end
       end
 

@@ -6,7 +6,6 @@ require 'chewy/search/response'
 require 'chewy/search/loader'
 require 'chewy/search/request'
 require 'chewy/search/pagination/kaminari'
-require 'chewy/search/pagination/will_paginate'
 
 module Chewy
   # This module being included to any provides an interface to the
@@ -16,9 +15,7 @@ module Chewy
   # The class used as a request DSL provider is
   # inherited from {Chewy::Search::Request}
   #
-  # Also, the search class is refined with one of the pagination-
-  # providing modules: {Chewy::Search::Pagination::Kaminari} or
-  # {Chewy::Search::Pagination::WillPaginate}.
+  # Also, the search class is refined with the pagination module {Chewy::Search::Pagination::Kaminari}.
   #
   # @example
   #   PlacesIndex.query(match: {name: 'Moscow'})
@@ -28,7 +25,6 @@ module Chewy
   # @see Chewy::Search::Request
   # @see Chewy::Search::ClassMethods
   # @see Chewy::Search::Pagination::Kaminari
-  # @see Chewy::Search::Pagination::WillPaginate
   module Search
     extend ActiveSupport::Concern
 

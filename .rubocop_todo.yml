@@ -26,7 +26,6 @@ Lint/ConstantDefinitionInBlock:
 # Configuration parameters: AllowComments, AllowEmptyLambdas.
 Lint/EmptyBlock:
   Exclude:
-    - 'lib/sequel/plugins/chewy_observe.rb'
     - 'spec/chewy/minitest/helpers_spec.rb'
     - 'spec/chewy/rspec/update_index_spec.rb'
     - 'spec/chewy/search/scrolling_spec.rb'
@@ -122,8 +121,6 @@ Style/IfUnlessModifier:
     - 'lib/chewy/railtie.rb'
     - 'lib/chewy/rspec/update_index.rb'
     - 'lib/chewy/search/query_proxy.rb'
-    - 'lib/chewy/type/adapter/mongoid.rb'
-    - 'lib/chewy/type/adapter/sequel.rb'
     - 'lib/chewy/type/import.rb'
     - 'lib/chewy/type/witchcraft.rb'
     - 'spec/support/active_record.rb'

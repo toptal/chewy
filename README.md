@@ -77,7 +77,7 @@ In this section we'll cover why you might want to use Chewy instead of the offic
 
   Chewy has an ActiveRecord-style query DSL. It is chainable, mergeable and lazy, so you can produce queries in the most efficient way. It also has object-oriented query and filter builders.
 
-* Support for ActiveRecord, [Mongoid](https://github.com/mongoid/mongoid) and [Sequel](https://github.com/jeremyevans/sequel).
+* Support for ActiveRecord.
 
 ## Installation
 
@@ -442,27 +442,9 @@ Chewy.settings = {
 
     update_index('cities#city') { self }
     update_index 'countries#country' do
-      # For the latest active_record changed values are
-      # already in `previous_changes` hash,
-      # but for mongoid you have to use `changes` hash
       previous_changes['country_id'] || country
     end
   end
-  ```
-
-  You can observe Sequel models in the same way as ActiveRecord:
-
-  ```ruby
-  class User < Sequel::Model
-    update_index('users#user') { self }
-  end
-  ```
-
-  However, to make it work, you must load the chewy plugin into Sequel model:
-
-  ```ruby
-  Sequel::Model.plugin :chewy_observe  # for all models, or...
-  User.plugin :chewy_observe           # just for User
   ```
 
 ### Type default import options
@@ -538,7 +520,7 @@ class ProductsIndex < Chewy::Index
 end
 ```
 
-Then the Chewy reindexing flow will look like the following pseudo-code (even in Mongoid):
+Then the Chewy reindexing flow will look like the following pseudo-code:
 
 ```ruby
 Product.includes(:categories).find_in_batches(1000) do |batch|
@@ -550,9 +532,7 @@ Product.includes(:categories).find_in_batches(1000) do |batch|
 end
 ```
 
-But in Rails 4.1 and 4.2 you may face a problem with slow associations (take a look at https://github.com/rails/rails/pull/19423). Also, there might be really complicated cases when associations are not applicable.
-
-Then you can replace Rails associations with Chewy Crutches™ technology:
+If you meet complicated cases when associations are not applicable you can replace Rails associations with Chewy Crutches™ technology:
 
 ```ruby
 class ProductsIndex < Chewy::Index
@@ -808,16 +788,6 @@ end
 
 Using this strategy delays the index update request until the end of the block. Updated records are aggregated and the index update happens with the bulk API. So this strategy is highly optimized.
 
-#### `:resque`
-
-This does the same thing as `:atomic`, but asynchronously using resque. The default queue name is `chewy`. Patch `Chewy::Strategy::Resque::Worker` for index updates improving.
-
-```ruby
-Chewy.strategy(:resque) do
-  City.popular.map(&:do_some_update_action!)
-end
-```
-
 #### `:sidekiq`
 
 This does the same thing as `:atomic`, but asynchronously using sidekiq. Patch `Chewy::Strategy::Sidekiq::Worker` for index updates improving.
@@ -846,16 +816,6 @@ end
 The default queue name is `chewy`, you can customize it in settings: `active_job.queue_name`
 ```
 Chewy.settings[:active_job] = {queue: :low}
-```
-
-#### `:shoryuken`
-
-This does the same thing as `:atomic`, but asynchronously using shoryuken. Patch `Chewy::Strategy::Shoryuken::Worker` for index updates improving.
-
-```ruby
-Chewy.strategy(:shoryuken) do
-  City.popular.map(&:do_some_update_action!)
-end
 ```
 
 #### `:urgent`
@@ -1054,7 +1014,7 @@ Quick introduction.
 
 #### Composing requests
 
-The request DSL have the same chainable nature as AR or Mongoid ones. The main class is `Chewy::Search::Request`. It is possible to perform requests on behalf of indices or types:
+The request DSL have the same chainable nature as AR. The main class is `Chewy::Search::Request`. It is possible to perform requests on behalf of indices or types:
 
 ```ruby
 CitiesIndex.query(match: {name: 'London'}) # or
@@ -1090,7 +1050,7 @@ Request DSL also provides additional scope actions, like `delete_all`, `exists?`
 
 #### Pagination
 
-The request DSL supports pagination with `Kaminari` and `WillPaginate`. An appropriate extension is enabled on initializtion if any of libraries is available. See [Chewy::Search](lib/chewy/search.rb) and [Chewy::Search::Pagination](lib/chewy/search/pagination/) namespace for details.
+The request DSL supports pagination with `Kaminari`. An extension is enabled on initializtion if `Kaminari` is available. See [Chewy::Search](lib/chewy/search.rb) and [Chewy::Search::Pagination::Kaminari](lib/chewy/search/pagination/kaminari.rb) for details.
 
 #### Named scopes
 

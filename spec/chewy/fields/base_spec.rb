@@ -406,27 +406,8 @@ describe Chewy::Fields::Base do
         stub_model(:city)
         stub_model(:country)
 
-        case adapter
-        when :active_record
-          City.belongs_to :country
-          City.has_one :location
-          Location.belongs_to :city
-          if ActiveRecord::VERSION::MAJOR >= 4
-            Country.has_many :cities, -> { order :id }
-          else
-            Country.has_many :cities, order: :id
-          end
-        when :mongoid
-          if Mongoid::VERSION.start_with?('6')
-            City.belongs_to :country, optional: true
-          else
-            City.belongs_to :country
-          end
-          Country.has_many :cities, order: :id.asc
-        when :sequel
-          City.many_to_one :country
-          Country.one_to_many :cities, order: :id
-        end
+        City.belongs_to :country
+        Country.has_many :cities, -> { order :id }
 
         stub_index(:countries) do
           define_type Country do
@@ -447,13 +428,7 @@ describe Chewy::Fields::Base do
         location = Location.create!(lat: '1', lon: '1')
         cities = [City.create!(id: 1, name: 'City1', location: location), City.create!(id: 2, name: 'City2', location: location)]
 
-        if adapter == :sequel
-          Country.create(id: 1).tap do |country|
-            cities.each { |city| country.add_city(city) }
-          end
-        else
-          Country.create!(id: 1, cities: cities)
-        end
+        Country.create!(id: 1, cities: cities)
       end
 
       specify do

@@ -415,28 +415,59 @@ describe Chewy::Fields::Base do
             field :cities do
               field :id
               field :name
-              field :location, type: :geo_point, ignore_blank: true do
-                field :lat
-                field :lon
-              end
             end
           end
         end
       end
 
       let(:country_with_cities) do
-        location = Location.create!(lat: '1', lon: '1')
-        cities = [City.create!(id: 1, name: 'City1', location: location), City.create!(id: 2, name: 'City2', location: location)]
+        cities = [City.create!(id: 1, name: 'City1'), City.create!(id: 2, name: 'City2')]
 
         Country.create!(id: 1, cities: cities)
       end
 
       specify do
-        expect(CountriesIndex::Country.root.compose(
-          'id' => 1, 'cities' => [{'id' => 1, 'name' => 'City1', 'location' => {}}, {'id' => 2, 'name' => 'City2', 'location' => {}}])
-        ).to eq(
-          'id' => 1, 'cities' => [{'id' => 1, 'name' => 'City1'}, {'id' => 2, 'name' => 'City2'}]
-        )
+        expect(CountriesIndex::Country.root.compose(country_with_cities)).to eq('id' => 1, 'cities' => [
+          {'id' => 1, 'name' => 'City1'}, {'id' => 2, 'name' => 'City2'}
+        ])
+      end
+
+      context 'geo_point type with ignore_blank: true flag' do
+        before do
+          stub_index(:countries) do
+            define_type Country do
+              field :id
+              field :cities do
+                field :id
+                field :name
+                field :location, type: :geo_point, ignore_blank: true do
+                  field :lat
+                  field :lon
+                end
+              end
+            end
+          end
+        end
+
+        let(:country_with_cities) do
+          location = Location.create!(lat: '1', lon: '1')
+          cities = [City.create!(id: 1, name: 'City1', location: location), City.create!(id: 2, name: 'City2', location: location)]
+
+          Country.create!(id: 1, cities: cities)
+        end
+
+        specify do
+          expect(CountriesIndex::Country.root.compose(
+            'id' => 1, 'cities' => [
+              {'id' => 1, 'name' => 'City1', 'location' => {}},
+              {'id' => 2, 'name' => 'City2', 'location' => {}}]
+            )
+          ).to eq(
+            'id' => 1, 'cities' => [
+              {'id' => 1, 'name' => 'City1'},
+              {'id' => 2, 'name' => 'City2'}]
+          )
+        end
       end
 
       context 'nested object' do

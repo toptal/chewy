@@ -2,6 +2,8 @@ source 'https://rubygems.org'
 
 gemspec
 
+gem 'pry'
+
 gem 'activerecord'
 
 gem 'activejob', require: false

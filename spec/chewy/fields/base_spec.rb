@@ -446,7 +446,7 @@ describe Chewy::Fields::Base do
         end
       end
 
-      context 'fields with ignore_blank: true flag for different types of empty content' do
+      context 'fields with ignore_blank: true flag for nil value and with .empty? method' do
         before do
           stub_index(:countries) do
             define_type Country do
@@ -461,12 +461,16 @@ describe Chewy::Fields::Base do
           end
         end
 
+        let(:country_with_cities) do
+          cities = [
+            City.create!(id: 1, name: '', surname: '', description: nil)
+          ]
+
+          Country.create!(id: 1, cities: cities)
+        end
+
         specify do
-          expect(CountriesIndex::Country.root.compose(
-            'id' => 1, 'cities' => [
-              {'id' => 1, 'name' => {}, 'surname' => '', 'description' => nil}
-            ]
-          )).to eq(
+          expect(CountriesIndex::Country.root.compose(country_with_cities)).to eq(
             'id' => 1, 'cities' => [
               {'id' => 1, 'description' => nil}
             ]
@@ -489,8 +493,14 @@ describe Chewy::Fields::Base do
           end
         end
 
+        let(:country_with_cities) do
+          cities = []
+
+          Country.create!(id: 1, cities: cities)
+        end
+
         specify do
-          expect(CountriesIndex::Country.root.compose('id' => 1, 'cities' => []))
+          expect(CountriesIndex::Country.root.compose(country_with_cities))
             .to eq('id' => 1)
         end
       end
@@ -510,8 +520,14 @@ describe Chewy::Fields::Base do
           end
         end
 
+        let(:country_with_cities) do
+          cities = []
+
+          Country.create!(id: 1, cities: cities)
+        end
+
         specify do
-          expect(CountriesIndex::Country.root.compose('id' => 1, 'cities' => []))
+          expect(CountriesIndex::Country.root.compose(country_with_cities))
             .to eq('id' => 1, 'cities' => [])
         end
       end

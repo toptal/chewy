@@ -550,10 +550,12 @@ describe Chewy::Fields::Base do
         end
 
         specify do
-          expect(CountriesIndex::Country.root.compose(
-            'id' => 1, 'cities' => [
-              {'id' => 1, 'name' => 'City1', 'location' => {}},
-              {'id' => 2, 'name' => 'City2', 'location' => {}}]
+          expect(
+            CountriesIndex::Country.root.compose(
+              'id' => 1,
+              'cities' => [
+                {'id' => 1, 'name' => 'City1', 'location' => {}},
+                {'id' => 2, 'name' => 'City2', 'location' => {}}]
             )
           ).to eq(
             'id' => 1, 'cities' => [

@@ -48,11 +48,9 @@ module Chewy
           end
         end
 
-        if field_with_ignore_blank_flag?(result) || geo_point_field_without_ignore_blank_flag?(result)
-          return
-        else
-          {name => result}
-        end
+        return if field_with_ignore_blank_flag?(result) || geo_point_field_without_ignore_blank_flag?(result)
+
+        {name => result}
       end
 
     private

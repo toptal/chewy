@@ -515,7 +515,7 @@ describe Chewy::Fields::Base do
         specify do
           expect(CountriesIndex::Country.root.compose(country_with_cities)).to eq(
             'id' => 1, 'cities' => [
-              {'id' => 1, "name" => '', 'description' => nil}
+              {'id' => 1, 'name' => '', 'description' => nil}
             ]
           )
         end

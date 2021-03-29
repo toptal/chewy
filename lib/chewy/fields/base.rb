@@ -40,6 +40,8 @@ module Chewy
       def compose(*objects)
         result = evaluate(objects)
 
+        return {} if field_with_ignore_blank_flag?(result) || geo_point_field_without_ignore_blank_flag?(result)
+
         if children.present? && !multi_field?
           result = if result.respond_to?(:to_ary)
             result.to_ary.map { |item| compose_children(item, *objects) }
@@ -47,8 +49,6 @@ module Chewy
             compose_children(result, *objects)
           end
         end
-
-        return if field_with_ignore_blank_flag?(result) || geo_point_field_without_ignore_blank_flag?(result)
 
         {name => result}
       end

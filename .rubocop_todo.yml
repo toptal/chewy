@@ -47,11 +47,6 @@ Lint/RedundantDirGlobSort:
   Exclude:
     - 'lib/chewy/search/parameters.rb'
 
-# Offense count: 1
-Lint/Syntax:
-  Exclude:
-    - 'lib/chewy/type/witchcraft.rb'
-
 # Offense count: 35
 # Configuration parameters: IgnoredMethods, CountRepeatedAttributes.
 Metrics/AbcSize:

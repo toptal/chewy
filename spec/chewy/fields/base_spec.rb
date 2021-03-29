@@ -571,7 +571,7 @@ describe Chewy::Fields::Base do
           location = Location.create!
 
           cities = [
-            City.create!(id: 1, name: 'City1', location: location )
+            City.create!(id: 1, name: 'City1', location: location)
           ]
 
           Country.create!(id: 1, cities: cities)

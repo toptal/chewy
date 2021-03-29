@@ -223,7 +223,7 @@ module Chewy
         def replace_send(node, variable)
           if node.is_a?(Parser::AST::Node)
             if node.type == :send && node.children[0].nil?
-              node.updated(nil, [Parser::AST::Node.new(:lvar, [variable]), *node.children[1..]])
+              node.updated(nil, [Parser::AST::Node.new(:lvar, [variable]), *node.children[1..-1]])
             else
               node.updated(nil, node.children.map { |child| replace_send(child, variable) })
             end

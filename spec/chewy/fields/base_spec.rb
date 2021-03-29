@@ -490,11 +490,8 @@ describe Chewy::Fields::Base do
         end
 
         specify do
-          expect(CountriesIndex::Country.root.compose(
-            'id' => 1, 'cities' => []
-          )).to eq(
-            'id' => 1
-          )
+          expect(CountriesIndex::Country.root.compose('id' => 1, 'cities' => []))
+            .to eq('id' => 1)
         end
       end
 
@@ -514,11 +511,8 @@ describe Chewy::Fields::Base do
         end
 
         specify do
-          expect(CountriesIndex::Country.root.compose(
-            'id' => 1, 'cities' => []
-          )).to eq(
-            'id' => 1, 'cities' => []
-          )
+          expect(CountriesIndex::Country.root.compose('id' => 1, 'cities' => []))
+            .to eq('id' => 1, 'cities' => [])
         end
       end
 

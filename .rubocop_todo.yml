@@ -130,10 +130,12 @@ Style/IfUnlessModifier:
     - 'lib/chewy/type/witchcraft.rb'
     - 'spec/support/active_record.rb'
 
-# Offense count: 1
+# Offense count: 3
 # Cop supports --auto-correct.
 Style/RedundantBegin:
   Exclude:
+    - 'lib/chewy/config.rb'
+    - 'lib/chewy/type/syncer.rb'
     - 'lib/chewy/search/request.rb'
 
 # Offense count: 1

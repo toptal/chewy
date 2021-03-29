@@ -498,6 +498,30 @@ describe Chewy::Fields::Base do
         end
       end
 
+      context 'parental field without ignore_blank: true flag' do
+        before do
+          stub_index(:countries) do
+            define_type Country do
+              field :id
+              field :cities do
+                field :id
+                field :name
+                field :surname
+                field :description
+              end
+            end
+          end
+        end
+
+        specify do
+          expect(CountriesIndex::Country.root.compose(
+            'id' => 1, 'cities' => []
+          )).to eq(
+            'id' => 1, 'cities' => []
+          )
+        end
+      end
+
       context 'geo_point type with ignore_blank: true flag' do
         before do
           stub_index(:countries) do

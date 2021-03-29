@@ -548,7 +548,7 @@ describe Chewy::Fields::Base do
         end
       end
 
-      context 'geo_point type with ignore_blank: true flag' do
+      xcontext 'geo_point type with ignore_blank: true flag' do
         before do
           stub_index(:countries) do
             define_type Country do

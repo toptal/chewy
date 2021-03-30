@@ -493,11 +493,7 @@ describe Chewy::Fields::Base do
           end
         end
 
-        let(:country_without_cities) do
-          cities = []
-
-          Country.create!(id: 1, cities: cities)
-        end
+        let(:country_without_cities){ Country.create!(id: 1) }
 
         let(:country_with_cities) do
           cities = [
@@ -536,11 +532,7 @@ describe Chewy::Fields::Base do
           end
         end
 
-        let(:country_with_cities) do
-          cities = []
-
-          Country.create!(id: 1, cities: cities)
-        end
+        let(:country_with_cities){ Country.create!(id: 1) }
 
         specify do
           expect(CountriesIndex::Country.root.compose(country_with_cities))

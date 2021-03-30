@@ -400,7 +400,7 @@ describe Chewy::Fields::Base do
       end
     end
 
-    context 'objects and scopes', :orm do
+    context 'ignore_blank option for field method', :orm do
       before do
         stub_model(:location)
         stub_model(:city)
@@ -412,7 +412,7 @@ describe Chewy::Fields::Base do
         Country.has_many :cities, -> { order :id }
       end
 
-      context 'text fields type with and without ignore_blank flag' do
+      context 'text fields type with and without ignore_blank option' do
         before do
           stub_index(:countries) do
             define_type Country do
@@ -446,7 +446,7 @@ describe Chewy::Fields::Base do
         end
       end
 
-      context 'fields with ignore_blank: true flag with .empty? method' do
+      context 'fields with ignore_blank: true flag with .blank? method' do
         before do
           stub_index(:countries) do
             define_type Country do
@@ -478,7 +478,7 @@ describe Chewy::Fields::Base do
         end
       end
 
-      context 'parental and children fields with ignore_blank flag' do
+      context 'nested fields' do 
         before do
           stub_index(:countries) do
             define_type Country do
@@ -492,47 +492,49 @@ describe Chewy::Fields::Base do
             end
           end
         end
-
-        let(:country) { Country.create!(id: 1, cities: cities) }
-        context('without cities') do
-          let(:cities) { [] }
-          specify do
-            expect(CountriesIndex::Country.root.compose(country))
-              .to eq('id' => 1)
+        
+        context 'with ignore_blank flag' do
+          let(:country) { Country.create!(id: 1, cities: cities) }
+          context('without cities') do
+            let(:cities) { [] }
+            specify do
+              expect(CountriesIndex::Country.root.compose(country))
+                .to eq('id' => 1)
+            end
           end
-        end
-        context('with cities') do
-          let(:cities) { [City.create!(id: 1, name: '', historical_name: '')] }
-          specify do
-            expect(CountriesIndex::Country.root.compose(country)).to eq(
-              'id' => 1, 'cities' => [
-                {'id' => 1, 'name' => '', 'description' => nil}
-              ]
-            )
-          end
-        end
-      end
-
-      context 'parental field without ignore_blank: true flag' do
-        before do
-          stub_index(:countries) do
-            define_type Country do
-              field :id
-              field :cities do
-                field :id
-                field :name
-                field :historical_name
-                field :description
-              end
+          context('with cities') do
+            let(:cities) { [City.create!(id: 1, name: '', historical_name: '')] }
+            specify do
+              expect(CountriesIndex::Country.root.compose(country)).to eq(
+                'id' => 1, 'cities' => [
+                  {'id' => 1, 'name' => '', 'description' => nil}
+                ]
+              )
             end
           end
         end
 
-        let(:country_with_cities) { Country.create!(id: 1) }
+        context 'without ignore_blank: true flag' do
+          before do
+            stub_index(:countries) do
+              define_type Country do
+                field :id
+                field :cities do
+                  field :id
+                  field :name
+                  field :historical_name
+                  field :description
+                end
+              end
+            end
+          end
 
-        specify do
-          expect(CountriesIndex::Country.root.compose(country_with_cities))
-            .to eq('id' => 1, 'cities' => [])
+          let(:country_with_cities) { Country.create!(id: 1) }
+
+          specify do
+            expect(CountriesIndex::Country.root.compose(country_with_cities))
+              .to eq('id' => 1, 'cities' => [])
+          end
         end
       end
 
@@ -572,109 +574,143 @@ describe Chewy::Fields::Base do
         end
       end
 
-      context 'geo_point type with ignore_blank: true flag' do
-        before do
-          stub_index(:countries) do
-            define_type Country do
-              field :id
-              field :cities do
+      context 'geo_point field type' do
+        context 'with ignore_blank: true flag' do
+          before do
+            stub_index(:countries) do
+              define_type Country do
                 field :id
-                field :name
-                field :location, type: :geo_point, ignore_blank: true do
-                  field :lat
-                  field :lon
+                field :cities do
+                  field :id
+                  field :name
+                  field :location, type: :geo_point, ignore_blank: true do
+                    field :lat
+                    field :lon
+                  end
                 end
               end
             end
           end
-        end
 
-        specify do
-          expect(
-            CountriesIndex::Country.root.compose({
-              'id' => 1,
-              'cities' => [
-                {'id' => 1, 'name' => 'City1', 'location' => {}},
-                {'id' => 2, 'name' => 'City2', 'location' => {}}
+          specify do
+            expect(
+              CountriesIndex::Country.root.compose({
+                'id' => 1,
+                'cities' => [
+                  {'id' => 1, 'name' => 'City1', 'location' => {}},
+                  {'id' => 2, 'name' => 'City2', 'location' => {}}
+                ]
+              })
+            ).to eq(
+              'id' => 1, 'cities' => [
+                {'id' => 1, 'name' => 'City1'},
+                {'id' => 2, 'name' => 'City2'}
               ]
-            })
-          ).to eq(
-            'id' => 1, 'cities' => [
-              {'id' => 1, 'name' => 'City1'},
-              {'id' => 2, 'name' => 'City2'}
-            ]
-          )
+            )
+          end
         end
-      end
 
-      context 'geo_point type without ignore_blank: true flag' do
-        before do
-          stub_index(:countries) do
-            define_type Country do
-              field :id
-              field :cities do
+        context 'without ignore_blank: true flag' do
+          before do
+            stub_index(:countries) do
+              define_type Country do
                 field :id
-                field :name
-                field :location, type: :geo_point do
-                  field :lat
-                  field :lon
+                field :cities do
+                  field :id
+                  field :name
+                  field :location, type: :geo_point do
+                    field :lat
+                    field :lon
+                  end
                 end
               end
             end
           end
-        end
 
-        specify do
-          expect(
-            CountriesIndex::Country.root.compose({
-              'id' => 1,
-              'cities' => [
-                {'id' => 1, 'name' => 'City1', 'location' => {}},
-                {'id' => 2, 'name' => 'City2', 'location' => {}}
+          specify do
+            expect(
+              CountriesIndex::Country.root.compose({
+                'id' => 1,
+                'cities' => [
+                  {'id' => 1, 'name' => 'City1', 'location' => {}},
+                  {'id' => 2, 'name' => 'City2', 'location' => {}}
+                ]
+              })
+            ).to eq(
+              'id' => 1, 'cities' => [
+                {'id' => 1, 'name' => 'City1'},
+                {'id' => 2, 'name' => 'City2'}
               ]
-            })
-          ).to eq(
-            'id' => 1, 'cities' => [
-              {'id' => 1, 'name' => 'City1'},
-              {'id' => 2, 'name' => 'City2'}
-            ]
-          )
+            )
+          end
         end
-      end
 
-      context 'geo_point type with ignore_blank: false flag' do
-        before do
-          stub_index(:countries) do
-            define_type Country do
-              field :id
-              field :cities do
+        context 'with ignore_blank: false flag' do
+          before do
+            stub_index(:countries) do
+              define_type Country do
                 field :id
-                field :name
-                field :location, type: :geo_point, ignore_blank: false do
-                  field :lat
-                  field :lon
+                field :cities do
+                  field :id
+                  field :name
+                  field :location, type: :geo_point, ignore_blank: false do
+                    field :lat
+                    field :lon
+                  end
                 end
               end
             end
           end
-        end
 
-        specify do
-          expect(
-            CountriesIndex::Country.root.compose({
-              'id' => 1,
-              'cities' => [
+          specify do
+            expect(
+              CountriesIndex::Country.root.compose({
+                'id' => 1,
+                'cities' => [
+                  {'id' => 1, 'location' => {}, 'name' => 'City1'},
+                  {'id' => 2, 'location' => '', 'name' => 'City2'}
+                ]
+              })
+            ).to eq(
+              'id' => 1, 'cities' => [
                 {'id' => 1, 'location' => {}, 'name' => 'City1'},
                 {'id' => 2, 'location' => '', 'name' => 'City2'}
               ]
-            })
-          ).to eq(
-            'id' => 1, 'cities' => [
-              {'id' => 1, 'location' => {}, 'name' => 'City1'},
-              {'id' => 2, 'location' => '', 'name' => 'City2'}
-            ]
-          )
+            )
+          end
         end
+      end
+    end  
+
+    context 'objects and scopes', :orm do
+      before do
+        stub_model(:city)
+        stub_model(:country)
+
+        City.belongs_to :country
+        Country.has_many :cities, -> { order :id }
+
+        stub_index(:countries) do
+          define_type Country do
+            field :id
+            field :cities do
+              field :id
+              field :name
+            end
+          end
+        end
+      end
+
+      let(:country_with_cities) do
+        cities = [City.create!(id: 1, name: 'City1'), City.create!(id: 2, name: 'City2')]
+
+        Country.create!(id: 1, cities: cities)
+      end
+
+      specify do
+        expect(CountriesIndex::Country.root.compose(country_with_cities)).to eq('id' => 1, 'cities' => [
+          {'id' => 1, 'name' => 'City1'}, {'id' => 2, 'name' => 'City2'}
+        ])
       end
 
       context 'nested object' do

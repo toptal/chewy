@@ -493,29 +493,25 @@ describe Chewy::Fields::Base do
           end
         end
 
-        let(:country_without_cities){ Country.create!(id: 1) }
-
-        let(:country_with_cities) do
-          cities = [
-            City.create!(id: 1, name: '', historical_name: '', description: nil)
-          ]
-
-          Country.create!(id: 1, cities: cities)
+        let(:country) { Country.create!(id: 1, cities: cities) }
+        context('without cities') do
+          let(:cities) { [] }
+          specify do
+            expect(CountriesIndex::Country.root.compose(country))
+              .to eq('id' => 1)
+          end
         end
-
-        specify do
-          expect(CountriesIndex::Country.root.compose(country_without_cities))
-            .to eq('id' => 1)
+        context('with cities') do
+          let(:cities) { [City.create!(id: 1, name: '', historical_name: '') ] }
+          specify do
+            expect(CountriesIndex::Country.root.compose(country)).to eq(
+              'id' => 1, 'cities' => [
+                {'id' => 1, 'name' => '', 'description' => nil}
+              ]
+            )
+          end
         end
-
-        specify do
-          expect(CountriesIndex::Country.root.compose(country_with_cities)).to eq(
-            'id' => 1, 'cities' => [
-              {'id' => 1, 'name' => '', 'description' => nil}
-            ]
-          )
-        end
-      end
+      end  
 
       context 'parental field without ignore_blank: true flag' do
         before do

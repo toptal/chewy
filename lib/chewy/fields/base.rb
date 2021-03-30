@@ -60,7 +60,7 @@ module Chewy
       end
 
       def geo_point_field_without_ignore_blank_flag?(result)
-        !@options[:ignore_blank] && @options[:type] == :geo_point && result.empty?
+        !@options[:ignore_blank] && @options[:type] == :geo_point && result.blank?
       end
 
       def evaluate(objects)

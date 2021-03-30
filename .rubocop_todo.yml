@@ -43,6 +43,7 @@ Lint/MissingSuper:
 
 # Offense count: 2
 # Cop supports --auto-correct.
+
 Lint/RedundantDirGlobSort:
   Exclude:
     - 'lib/chewy/search/parameters.rb'

@@ -536,6 +536,42 @@ describe Chewy::Fields::Base do
         end
       end
 
+      context 'pass ignore_blank with string key' do
+        before do
+          stub_index(:countries) do
+            define_type Country do
+              field :id
+              field :cities do
+                field :id
+                field :name, 'ignore_blank': false
+                field :historical_name, 'ignore_blank': true
+                field :location, type: :geo_point, 'ignore_blank': true do
+                  field :lat
+                  field :lon
+                end
+              end
+            end
+          end
+        end
+
+        specify do
+          expect(
+            CountriesIndex::Country.root.compose({
+              'id' => 1,
+              'cities' => [
+                {'id' => 1, 'name' => '', 'historical_name' => '', 'location' => {}},
+                {'id' => 2, 'name' => '', 'location' => {}}
+              ]
+            })
+          ).to eq(
+            'id' => 1, 'cities' => [
+              {'id' => 1, 'name' => ''},
+              {'id' => 2, 'name' => ''}
+            ]
+          )
+        end
+      end
+
       context 'geo_point type with ignore_blank: true flag' do
         before do
           stub_index(:countries) do

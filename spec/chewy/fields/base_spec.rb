@@ -446,7 +446,7 @@ describe Chewy::Fields::Base do
         end
       end
 
-      context 'fields with ignore_blank: true flag for nil value and with .empty? method' do
+      context 'fields with ignore_blank: true flag with .empty? method' do
         before do
           stub_index(:countries) do
             define_type Country do
@@ -472,7 +472,7 @@ describe Chewy::Fields::Base do
         specify do
           expect(CountriesIndex::Country.root.compose(country_with_cities)).to eq(
             'id' => 1, 'cities' => [
-              {'id' => 1, 'description' => nil}
+              {'id' => 1}
             ]
           )
         end

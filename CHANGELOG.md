@@ -6,6 +6,10 @@
 
 ### Changes
 
+  * [#778](https://github.com/toptal/chewy/pull/778): Add ignore_blank flag for field method ([@Vitalina-Vakulchyk][]):
+    * true by default for geo_point type
+    * false by default for other types
+
   * [#776](https://github.com/toptal/chewy/pull/776): **(Breaking)** Removal of unnecessary features and integrations ([@Vitalina-Vakulchyk][]):
     * `aws-sdk-sqs` / `shoryuken`
     * `mongoid`

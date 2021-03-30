@@ -420,7 +420,7 @@ describe Chewy::Fields::Base do
               field :cities do
                 field :id
                 field :name
-                field :surname, ignore_blank: false
+                field :historical_name, ignore_blank: false
                 field :description, ignore_blank: true
               end
             end
@@ -429,8 +429,8 @@ describe Chewy::Fields::Base do
 
         let(:country_with_cities) do
           cities = [
-            City.create!(id: 1, name: '', surname: '', description: ''),
-            City.create!(id: 2, name: '', surname: '', description: '')
+            City.create!(id: 1, name: '', historical_name: '', description: ''),
+            City.create!(id: 2, name: '', historical_name: '', description: '')
           ]
 
           Country.create!(id: 1, cities: cities)
@@ -439,8 +439,8 @@ describe Chewy::Fields::Base do
         specify do
           expect(CountriesIndex::Country.root.compose(country_with_cities)).to eq(
             'id' => 1, 'cities' => [
-              {'id' => 1, 'name' => '', 'surname' => ''},
-              {'id' => 2, 'name' => '', 'surname' => ''}
+              {'id' => 1, 'name' => '', 'historical_name' => ''},
+              {'id' => 2, 'name' => '', 'historical_name' => ''}
             ]
           )
         end
@@ -454,7 +454,7 @@ describe Chewy::Fields::Base do
               field :cities do
                 field :id
                 field :name, ignore_blank: true
-                field :surname, ignore_blank: true
+                field :historical_name, ignore_blank: true
                 field :description, ignore_blank: true
               end
             end
@@ -463,7 +463,7 @@ describe Chewy::Fields::Base do
 
         let(:country_with_cities) do
           cities = [
-            City.create!(id: 1, name: '', surname: '', description: nil)
+            City.create!(id: 1, name: '', historical_name: '', description: nil)
           ]
 
           Country.create!(id: 1, cities: cities)
@@ -486,7 +486,7 @@ describe Chewy::Fields::Base do
               field :cities, ignore_blank: true do
                 field :id
                 field :name
-                field :surname, ignore_blank: true
+                field :historical_name, ignore_blank: true
                 field :description
               end
             end
@@ -501,7 +501,7 @@ describe Chewy::Fields::Base do
 
         let(:country_with_cities) do
           cities = [
-            City.create!(id: 1, name: '', surname: '', description: nil)
+            City.create!(id: 1, name: '', historical_name: '', description: nil)
           ]
 
           Country.create!(id: 1, cities: cities)
@@ -529,7 +529,7 @@ describe Chewy::Fields::Base do
               field :cities do
                 field :id
                 field :name
-                field :surname
+                field :historical_name
                 field :description
               end
             end

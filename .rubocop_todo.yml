@@ -41,6 +41,11 @@ Lint/MissingSuper:
     - 'lib/chewy/type/adapter/object.rb'
     - 'lib/chewy/type/adapter/orm.rb'
 
+# Offense count: 3
+Lint/SymbolConversion:
+  Exclude:
+    - 'spec/chewy/fields/base_spec.rb'
+
 # Offense count: 2
 # Cop supports --auto-correct.
 

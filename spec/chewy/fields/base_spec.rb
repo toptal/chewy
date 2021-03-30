@@ -478,7 +478,7 @@ describe Chewy::Fields::Base do
         end
       end
 
-      context 'nested fields' do 
+      context 'nested fields' do
         before do
           stub_index(:countries) do
             define_type Country do
@@ -492,7 +492,7 @@ describe Chewy::Fields::Base do
             end
           end
         end
-        
+
         context 'with ignore_blank flag' do
           let(:country) { Country.create!(id: 1, cities: cities) }
           context('without cities') do
@@ -680,7 +680,7 @@ describe Chewy::Fields::Base do
           end
         end
       end
-    end  
+    end
 
     context 'objects and scopes', :orm do
       before do

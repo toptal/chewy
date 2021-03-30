@@ -40,7 +40,7 @@ module Chewy
       def compose(*objects)
         result = evaluate(objects)
 
-        return {} if field_with_ignore_blank_flag?(result) || geo_point_field_without_ignore_blank_flag?(result)
+        return {} if result.blank? && ignore_blank?
 
         if children.present? && !multi_field?
           result = if result.respond_to?(:to_ary)
@@ -55,12 +55,12 @@ module Chewy
 
     private
 
-      def field_with_ignore_blank_flag?(result)
-        @options[:ignore_blank] == true && result.blank?
+      def geo_point?
+        @options[:type].to_s == 'geo_point'
       end
 
-      def geo_point_field_without_ignore_blank_flag?(result)
-        @options[:ignore_blank] != false && @options[:type] && @options[:type].to_sym == :geo_point && result.blank?
+      def ignore_blank?
+        @options.fetch(:ignore_blank) { geo_point? }
       end
 
       def evaluate(objects)

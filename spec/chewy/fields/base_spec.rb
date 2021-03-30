@@ -646,8 +646,8 @@ describe Chewy::Fields::Base do
             })
           ).to eq(
             'id' => 1, 'cities' => [
-              {'id' => 1, 'name' => 'City1'},
-              {'id' => 2, 'name' => 'City2'}
+              {'id' => 1, 'location' => {}, 'name' => 'City1'},
+              {'id' => 2, 'location' => '', 'name' => 'City2'}
             ]
           )
         end

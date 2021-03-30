@@ -618,6 +618,41 @@ describe Chewy::Fields::Base do
         end
       end
 
+      context 'geo_point type with ignore_blank: false flag' do
+        before do
+          stub_index(:countries) do
+            define_type Country do
+              field :id
+              field :cities do
+                field :id
+                field :name
+                field :location, type: :geo_point, ignore_blank: false do
+                  field :lat
+                  field :lon
+                end
+              end
+            end
+          end
+        end
+
+        specify do
+          expect(
+            CountriesIndex::Country.root.compose({
+              'id' => 1,
+              'cities' => [
+                {'id' => 1, 'name' => 'City1', 'location' => {}},
+                {'id' => 2, 'name' => 'City2', 'location' => ''}
+              ]
+            })
+          ).to eq(
+            'id' => 1, 'cities' => [
+              {'id' => 1, 'name' => 'City1'},
+              {'id' => 2, 'name' => 'City2'}
+            ]
+          )
+        end
+      end
+
       context 'nested object' do
         before do
           stub_index(:cities) do

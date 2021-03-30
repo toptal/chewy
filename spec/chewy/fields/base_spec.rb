@@ -502,7 +502,7 @@ describe Chewy::Fields::Base do
           end
         end
         context('with cities') do
-          let(:cities) { [City.create!(id: 1, name: '', historical_name: '') ] }
+          let(:cities) { [City.create!(id: 1, name: '', historical_name: '')] }
           specify do
             expect(CountriesIndex::Country.root.compose(country)).to eq(
               'id' => 1, 'cities' => [
@@ -511,7 +511,7 @@ describe Chewy::Fields::Base do
             )
           end
         end
-      end  
+      end
 
       context 'parental field without ignore_blank: true flag' do
         before do
@@ -528,7 +528,7 @@ describe Chewy::Fields::Base do
           end
         end
 
-        let(:country_with_cities){ Country.create!(id: 1) }
+        let(:country_with_cities) { Country.create!(id: 1) }
 
         specify do
           expect(CountriesIndex::Country.root.compose(country_with_cities))

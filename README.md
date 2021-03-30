@@ -32,6 +32,8 @@ Chewy is an ODM (Object Document Mapper), built on top of the [the official Elas
   * [Witchcraft™ technology](#witchcraft-technology)
   * [Raw Import](#raw-import)
   * [Index creation during import](#index-creation-during-import)
+  * [Skip record fields during import](#skip-record-fields-during-import)
+    * [geo_point type](#geo_point-type)
   * [Journaling](#journaling)
   * [Types access](#types-access)
   * [Index manipulation](#index-manipulation)
@@ -660,6 +662,25 @@ By default, when you perform import Chewy checks whether an index exists and cre
 You can turn off this feature to decrease Elasticsearch hits count.
 To do so you need to set `skip_index_creation_on_import` parameter to `false` in your `config/chewy.yml`
 
+### Skip record fields during import
+
+You can use `ignore_blank: true` to skip fields, that return `true` for `.empty?` method: 
+
+```ruby
+define_type Country do
+  field :id
+  field :cities, ignore_blank: true do
+    field :id
+    field :name
+    field :surname, ignore_blank: true
+    field :description
+  end
+end
+```
+
+#### geo_point type
+
+By default `ignore_blank` is `true` for geo_point type.
 
 ### Journaling
 

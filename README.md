@@ -33,7 +33,7 @@ Chewy is an ODM (Object Document Mapper), built on top of the [the official Elas
   * [Raw Import](#raw-import)
   * [Index creation during import](#index-creation-during-import)
   * [Skip record fields during import](#skip-record-fields-during-import)
-    * [geo_point type](#geo_point-type)
+    * [Default values for different types](#default-values-for-different-types)
   * [Journaling](#journaling)
   * [Types access](#types-access)
   * [Index manipulation](#index-manipulation)
@@ -664,7 +664,7 @@ To do so you need to set `skip_index_creation_on_import` parameter to `false` in
 
 ### Skip record fields during import
 
-You can use `ignore_blank: true` to skip fields, that return `true` for `.empty?` method:
+You can use `ignore_blank: true` to skip fields that return `true` for `.blank?` method:
 
 ```ruby
 define_type Country do
@@ -678,9 +678,9 @@ define_type Country do
 end
 ```
 
-#### geo_point type
+#### Default values for different types
 
-By default `ignore_blank` is `true` for geo_point type.
+By default `ignore_blank` is false on every type except `geo_point`.
 
 ### Journaling
 

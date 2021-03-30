@@ -664,7 +664,7 @@ To do so you need to set `skip_index_creation_on_import` parameter to `false` in
 
 ### Skip record fields during import
 
-You can use `ignore_blank: true` to skip fields, that return `true` for `.empty?` method: 
+You can use `ignore_blank: true` to skip fields, that return `true` for `.empty?` method:
 
 ```ruby
 define_type Country do

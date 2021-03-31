@@ -13,6 +13,9 @@ module Chewy
                   # for more info.
                   #
                   :request_strategy,
+                  # Current request strategy middleware
+                  #
+                  :strategy,
                   # Use after_commit callbacks for RDBMS instead of
                   # after_save and after_destroy. True by default. Useful
                   # in tests with transactional fixtures or transactional

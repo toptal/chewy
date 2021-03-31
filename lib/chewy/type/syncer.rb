@@ -127,12 +127,10 @@ module Chewy
       def outdated_ids
         return [] if source_data.blank? || index_data.blank? || !@type.supports_outdated_sync?
 
-        @outdated_ids ||= begin
-          if @parallel
-            parallel_outdated_ids
-          else
-            linear_outdated_ids
-          end
+        @outdated_ids ||= if @parallel
+          parallel_outdated_ids
+        else
+          linear_outdated_ids
         end
       end
 
@@ -147,19 +145,17 @@ module Chewy
       end
 
       def source_and_index_data
-        @source_and_index_data ||= begin
-          if @parallel
-            ::ActiveRecord::Base.connection.close if defined?(::ActiveRecord::Base)
-            result = ::Parallel.map(%i[source index], @parallel, &SOURCE_OR_INDEX_DATA_WORKER.curry[self, @type])
-            ::ActiveRecord::Base.connection.reconnect! if defined?(::ActiveRecord::Base)
-            if result.first.keys.first == :source
-              [result.first.values.first, result.second.values.first]
-            else
-              [result.second.values.first, result.first.values.first]
-            end
+        @source_and_index_data ||= if @parallel
+          ::ActiveRecord::Base.connection.close if defined?(::ActiveRecord::Base)
+          result = ::Parallel.map(%i[source index], @parallel, &SOURCE_OR_INDEX_DATA_WORKER.curry[self, @type])
+          ::ActiveRecord::Base.connection.reconnect! if defined?(::ActiveRecord::Base)
+          if result.first.keys.first == :source
+            [result.first.values.first, result.second.values.first]
           else
-            [fetch_source_data, fetch_index_data]
+            [result.second.values.first, result.first.values.first]
           end
+        else
+          [fetch_source_data, fetch_index_data]
         end
       end
 

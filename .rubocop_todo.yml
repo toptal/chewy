@@ -141,7 +141,6 @@ Style/IfUnlessModifier:
 Style/RedundantBegin:
   Exclude:
     - 'lib/chewy/config.rb'
-    - 'lib/chewy/type/syncer.rb'
     - 'lib/chewy/search/request.rb'
 
 # Offense count: 1

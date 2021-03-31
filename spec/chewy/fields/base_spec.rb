@@ -479,7 +479,7 @@ describe Chewy::Fields::Base do
       end
 
       context 'nested fields' do
-        context 'with ignore_blank: true flag' do      
+        context 'with ignore_blank: true flag' do
           before do
             stub_index(:countries) do
               define_type Country do
@@ -561,6 +561,7 @@ describe Chewy::Fields::Base do
         end
       end
 
+      # rubocop:disable Lint/SymbolConversion
       context 'pass ignore_blank with string key' do
         before do
           stub_index(:countries) do
@@ -596,6 +597,7 @@ describe Chewy::Fields::Base do
           )
         end
       end
+      # rubocop:enable Lint/SymbolConversion
 
       context 'geo_point field type' do
         context 'with ignore_blank: true flag' do

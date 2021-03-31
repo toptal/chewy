@@ -125,12 +125,6 @@ Style/IfUnlessModifier:
     - 'lib/chewy/type/witchcraft.rb'
     - 'spec/support/active_record.rb'
 
-# Offense count: 1
-# Cop supports --auto-correct.
-Style/RedundantBegin:
-  Exclude:
-    - 'lib/chewy/config.rb'
-
 # Offense count: 53
 # Cop supports --auto-correct.
 # Configuration parameters: AutoCorrect, AllowHeredoc, AllowURI, URISchemes, IgnoreCopDirectives, IgnoredPatterns.

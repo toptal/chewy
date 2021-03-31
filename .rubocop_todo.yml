@@ -150,12 +150,6 @@ Style/RedundantFreeze:
   Exclude:
     - 'lib/chewy/type/syncer.rb'
 
-# Offense count: 1
-# Cop supports --auto-correct.
-Style/SlicingWithRange:
-  Exclude:
-    - 'lib/chewy/type/witchcraft.rb'
-
 # Offense count: 53
 # Cop supports --auto-correct.
 # Configuration parameters: AutoCorrect, AllowHeredoc, AllowURI, URISchemes, IgnoreCopDirectives, IgnoredPatterns.

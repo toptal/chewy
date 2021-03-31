@@ -479,21 +479,21 @@ describe Chewy::Fields::Base do
       end
 
       context 'nested fields' do
-        before do
-          stub_index(:countries) do
-            define_type Country do
-              field :id
-              field :cities, ignore_blank: true do
+        context 'with ignore_blank: true flag' do      
+          before do
+            stub_index(:countries) do
+              define_type Country do
                 field :id
-                field :name
-                field :historical_name, ignore_blank: true
-                field :description
+                field :cities, ignore_blank: true do
+                  field :id
+                  field :name
+                  field :historical_name, ignore_blank: true
+                  field :description
+                end
               end
             end
           end
-        end
 
-        context 'with ignore_blank flag' do
           let(:country) { Country.create!(id: 1, cities: cities) }
           context('without cities') do
             let(:cities) { [] }
@@ -511,6 +511,29 @@ describe Chewy::Fields::Base do
                 ]
               )
             end
+          end
+        end
+
+        context 'with ignore_blank: false flag' do
+          before do
+            stub_index(:countries) do
+              define_type Country do
+                field :id
+                field :cities, ignore_blank: false do
+                  field :id
+                  field :name
+                  field :historical_name
+                  field :description
+                end
+              end
+            end
+          end
+
+          let(:country_with_cities) { Country.create!(id: 1) }
+
+          specify do
+            expect(CountriesIndex::Country.root.compose(country_with_cities))
+              .to eq('id' => 1, 'cities' => [])
           end
         end
 

@@ -46,13 +46,6 @@ Lint/SymbolConversion:
   Exclude:
     - 'spec/chewy/fields/base_spec.rb'
 
-# Offense count: 2
-# Cop supports --auto-correct.
-
-Lint/RedundantDirGlobSort:
-  Exclude:
-    - 'lib/chewy/search/parameters.rb'
-
 # Offense count: 35
 # Configuration parameters: IgnoredMethods, CountRepeatedAttributes.
 Metrics/AbcSize:
@@ -141,12 +134,6 @@ Style/IfUnlessModifier:
 Style/RedundantBegin:
   Exclude:
     - 'lib/chewy/config.rb'
-
-# Offense count: 1
-# Cop supports --auto-correct.
-Style/RedundantFreeze:
-  Exclude:
-    - 'lib/chewy/type/syncer.rb'
 
 # Offense count: 53
 # Cop supports --auto-correct.

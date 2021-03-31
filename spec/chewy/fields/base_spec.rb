@@ -412,7 +412,7 @@ describe Chewy::Fields::Base do
         Country.has_many :cities, -> { order :id }
       end
 
-      context 'text fields type with and without ignore_blank option' do
+      context 'text fields with and without ignore_blank option' do
         before do
           stub_index(:countries) do
             define_type Country do
@@ -446,40 +446,8 @@ describe Chewy::Fields::Base do
         end
       end
 
-      context 'fields with ignore_blank: true flag with .blank? method' do
-        before do
-          stub_index(:countries) do
-            define_type Country do
-              field :id
-              field :cities do
-                field :id
-                field :name, ignore_blank: true
-                field :historical_name, ignore_blank: true
-                field :description, ignore_blank: true
-              end
-            end
-          end
-        end
-
-        let(:country_with_cities) do
-          cities = [
-            City.create!(id: 1, name: '', historical_name: '', description: nil)
-          ]
-
-          Country.create!(id: 1, cities: cities)
-        end
-
-        specify do
-          expect(CountriesIndex::Country.root.compose(country_with_cities)).to eq(
-            'id' => 1, 'cities' => [
-              {'id' => 1}
-            ]
-          )
-        end
-      end
-
       context 'nested fields' do
-        context 'with ignore_blank: true flag' do
+        context 'with ignore_blank: true option' do
           before do
             stub_index(:countries) do
               define_type Country do
@@ -514,7 +482,7 @@ describe Chewy::Fields::Base do
           end
         end
 
-        context 'with ignore_blank: false flag' do
+        context 'with ignore_blank: false option' do
           before do
             stub_index(:countries) do
               define_type Country do
@@ -537,7 +505,7 @@ describe Chewy::Fields::Base do
           end
         end
 
-        context 'without ignore_blank: true flag' do
+        context 'without ignore_blank: true option' do
           before do
             stub_index(:countries) do
               define_type Country do
@@ -561,46 +529,8 @@ describe Chewy::Fields::Base do
         end
       end
 
-      # rubocop:disable Lint/SymbolConversion
-      context 'pass ignore_blank with string key' do
-        before do
-          stub_index(:countries) do
-            define_type Country do
-              field :id
-              field :cities do
-                field :id
-                field :name, 'ignore_blank': false
-                field :historical_name, 'ignore_blank': true
-                field :location, type: :geo_point, 'ignore_blank': true do
-                  field :lat
-                  field :lon
-                end
-              end
-            end
-          end
-        end
-
-        specify do
-          expect(
-            CountriesIndex::Country.root.compose({
-              'id' => 1,
-              'cities' => [
-                {'id' => 1, 'name' => '', 'historical_name' => '', 'location' => {}},
-                {'id' => 2, 'name' => '', 'location' => {}}
-              ]
-            })
-          ).to eq(
-            'id' => 1, 'cities' => [
-              {'id' => 1, 'name' => ''},
-              {'id' => 2, 'name' => ''}
-            ]
-          )
-        end
-      end
-      # rubocop:enable Lint/SymbolConversion
-
       context 'geo_point field type' do
-        context 'with ignore_blank: true flag' do
+        context 'with ignore_blank: true option' do
           before do
             stub_index(:countries) do
               define_type Country do
@@ -635,7 +565,7 @@ describe Chewy::Fields::Base do
           end
         end
 
-        context 'without ignore_blank: true flag' do
+        context 'without ignore_blank option' do
           before do
             stub_index(:countries) do
               define_type Country do

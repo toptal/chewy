@@ -19,6 +19,8 @@ module Chewy
                   # DatabaseCleaner strategy.
                   #
                   :console_strategy,
+                  # Allows to set default console strategy.
+                  # `:urgent` by default.
                   :use_after_commit_callbacks,
                   # Where Chewy expects to find index definitions
                   # within a Rails app folder.

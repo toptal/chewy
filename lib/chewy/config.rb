@@ -18,6 +18,7 @@ module Chewy
                   # in tests with transactional fixtures or transactional
                   # DatabaseCleaner strategy.
                   #
+                  :console_strategy,
                   :use_after_commit_callbacks,
                   # Where Chewy expects to find index definitions
                   # within a Rails app folder.

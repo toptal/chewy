@@ -10,7 +10,12 @@
 
 ### Changes
 
-  * [#778](https://github.com/toptal/chewy/pull/778): **(Breaking)** Drop support for Ruby 2.5 ([@Vitalina-Vakulchyk][]):
+  * [#780](https://github.com/toptal/chewy/pull/780): Changing default console strategy ([@Vitalina-Vakulchyk][]):
+    * ability to set default console strategy with `Chewy.console_strategy`
+    * `:urgent` is used by default if `Chewy.console_strategy` is not set
+
+  * [#778](https://github.com/toptal/chewy/pull/778): **(Breaking)** Drop support for Ruby 2.5 ([@Vitalina-Vakulchyk][])
+
   * [#776](https://github.com/toptal/chewy/pull/776): **(Breaking)** Removal of unnecessary features and integrations ([@Vitalina-Vakulchyk][]):
     * `aws-sdk-sqs` / `shoryuken`
     * `mongoid`

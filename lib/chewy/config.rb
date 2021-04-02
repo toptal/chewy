@@ -20,7 +20,8 @@ module Chewy
                   #
                   :console_strategy,
                   # Allows to set default console strategy.
-                  # `:urgent` by default.
+                  # `:urgent` is used by default if `console_strategy` is not set
+                  #
                   :use_after_commit_callbacks,
                   # Where Chewy expects to find index definitions
                   # within a Rails app folder.

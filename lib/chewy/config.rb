@@ -13,14 +13,14 @@ module Chewy
                   # for more info.
                   #
                   :request_strategy,
+                  # Default console strategy.
+                  # `:urgent` is used by default if `console_strategy` is not set.
+                  #
+                  :console_strategy,
                   # Use after_commit callbacks for RDBMS instead of
                   # after_save and after_destroy. True by default. Useful
                   # in tests with transactional fixtures or transactional
                   # DatabaseCleaner strategy.
-                  #
-                  :console_strategy,
-                  # Allows to set default console strategy.
-                  # `:urgent` is used by default if `console_strategy` is not set
                   #
                   :use_after_commit_callbacks,
                   # Where Chewy expects to find index definitions

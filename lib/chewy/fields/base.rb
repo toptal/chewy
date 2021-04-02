@@ -40,6 +40,8 @@ module Chewy
       def compose(*objects)
         result = evaluate(objects)
 
+        return {} if result.blank? && ignore_blank?
+
         if children.present? && !multi_field?
           result = if result.respond_to?(:to_ary)
             result.to_ary.map { |item| compose_children(item, *objects) }
@@ -52,6 +54,14 @@ module Chewy
       end
 
     private
+
+      def geo_point?
+        @options[:type].to_s == 'geo_point'
+      end
+
+      def ignore_blank?
+        @options.fetch(:ignore_blank) { geo_point? }
+      end
 
       def evaluate(objects)
         object = objects.first

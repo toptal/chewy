@@ -4,15 +4,19 @@
 
 ### New Features
 
+  * [#778](https://github.com/toptal/chewy/pull/778): Add `ignore_blank` option to `field` method ([@Vitalina-Vakulchyk][]):
+    * `true` by default for the `geo_point` type
+    * `false` by default for other types
+
 ### Changes
 
+  * [#778](https://github.com/toptal/chewy/pull/778): **(Breaking)** Drop support for Ruby 2.5 ([@Vitalina-Vakulchyk][]):
   * [#776](https://github.com/toptal/chewy/pull/776): **(Breaking)** Removal of unnecessary features and integrations ([@Vitalina-Vakulchyk][]):
     * `aws-sdk-sqs` / `shoryuken`
     * `mongoid`
     * `sequel`
     * `will_paginate`
     * `resque`
-
   * [#769](https://github.com/toptal/chewy/pull/769): **(Breaking)** Removal of deprecated methods and rake tasks ([@Vitalina-Vakulchyk][]):
     * `Chewy::Index.index_params` is removed, use `Chewy::Index.specification_hash` instead
     * `Chewy::Index.derivable_index_name` is removed, use `Chewy::Index.derivable_name` instead

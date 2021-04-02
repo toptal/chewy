@@ -32,6 +32,8 @@ Chewy is an ODM (Object Document Mapper), built on top of the [the official Elas
   * [Witchcraft™ technology](#witchcraft-technology)
   * [Raw Import](#raw-import)
   * [Index creation during import](#index-creation-during-import)
+  * [Skip record fields during import](#skip-record-fields-during-import)
+    * [Default values for different types](#default-values-for-different-types)
   * [Journaling](#journaling)
   * [Types access](#types-access)
   * [Index manipulation](#index-manipulation)
@@ -97,7 +99,7 @@ Or install it yourself as:
 
 ### Ruby
 
-Chewy is compatible with MRI 2.5-3.0¹.
+Chewy is compatible with MRI 2.6-3.0¹.
 
 > ¹ Ruby 3 is only supported with Rails 6.1
 
@@ -660,6 +662,25 @@ By default, when you perform import Chewy checks whether an index exists and cre
 You can turn off this feature to decrease Elasticsearch hits count.
 To do so you need to set `skip_index_creation_on_import` parameter to `false` in your `config/chewy.yml`
 
+### Skip record fields during import
+
+You can use `ignore_blank: true` to skip fields that return `true` for the `.blank?` method:
+
+```ruby
+define_type Country do
+  field :id
+  field :cities, ignore_blank: true do
+    field :id
+    field :name
+    field :surname, ignore_blank: true
+    field :description
+  end
+end
+```
+
+#### Default values for different types
+
+By default `ignore_blank` is false on every type except `geo_point`.
 
 ### Journaling
 

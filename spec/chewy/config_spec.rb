@@ -98,11 +98,13 @@ describe Chewy::Config do
 
   describe '.console_strategy' do
     context 'sets .console_strategy' do
-      let(:strategy) { :atomic }
+      let(:default_strategy) { subject.console_strategy }
+      let(:new_strategy) { :atomic }
+      after { subject.console_strategy = default_strategy }
 
       specify do
-        expect { subject.console_strategy = strategy }
-          .to change { subject.console_strategy }.to(strategy)
+        expect { subject.console_strategy = new_strategy }
+          .to change { subject.console_strategy }.to(new_strategy)
       end
     end
   end

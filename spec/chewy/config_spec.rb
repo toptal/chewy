@@ -8,6 +8,7 @@ describe Chewy::Config do
   its(:transport_logger) { should be_nil }
   its(:root_strategy) { should == :base }
   its(:request_strategy) { should == :atomic }
+  its(:console_strategy) { should == :urgent }
   its(:use_after_commit_callbacks) { should == true }
   its(:indices_path) { should == 'app/chewy' }
   its(:reset_disable_refresh_interval) { should == false }

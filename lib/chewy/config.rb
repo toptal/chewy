@@ -13,6 +13,9 @@ module Chewy
                   # for more info.
                   #
                   :request_strategy,
+                  # Rails console strategy, `:urgent` by default.
+                  #
+                  :console_strategy,
                   # Use after_commit callbacks for RDBMS instead of
                   # after_save and after_destroy. True by default. Useful
                   # in tests with transactional fixtures or transactional
@@ -49,6 +52,7 @@ module Chewy
       @settings = {}
       @root_strategy = :base
       @request_strategy = :atomic
+      @console_strategy = :urgent
       @use_after_commit_callbacks = true
       @reset_disable_refresh_interval = false
       @reset_no_replicas = false

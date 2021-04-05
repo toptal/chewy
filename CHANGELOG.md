@@ -10,7 +10,8 @@
 
 ### Changes
 
-  * [#778](https://github.com/toptal/chewy/pull/778): **(Breaking)** Drop support for Ruby 2.5 ([@Vitalina-Vakulchyk][]):
+  * [#495](https://github.com/toptal/chewy/issues/495): Ability to change Rails console strategy with `Chewy.console_strategy` ([@Vitalina-Vakulchyk][])
+  * [#778](https://github.com/toptal/chewy/pull/778): **(Breaking)** Drop support for Ruby 2.5 ([@Vitalina-Vakulchyk][])
   * [#776](https://github.com/toptal/chewy/pull/776): **(Breaking)** Removal of unnecessary features and integrations ([@Vitalina-Vakulchyk][]):
     * `aws-sdk-sqs` / `shoryuken`
     * `mongoid`

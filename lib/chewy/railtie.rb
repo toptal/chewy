@@ -37,7 +37,7 @@ module Chewy
       if app.sandbox?
         Chewy.strategy(:bypass)
       else
-        Chewy.strategy(:urgent)
+        Chewy.strategy(Chewy.console_strategy)
       end
       puts "Chewy console strategy is `#{Chewy.strategy.current.name}`"
     end

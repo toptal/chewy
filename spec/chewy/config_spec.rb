@@ -8,6 +8,7 @@ describe Chewy::Config do
   its(:transport_logger) { should be_nil }
   its(:root_strategy) { should == :base }
   its(:request_strategy) { should == :atomic }
+  its(:console_strategy) { should == :urgent }
   its(:use_after_commit_callbacks) { should == true }
   its(:indices_path) { should == 'app/chewy' }
   its(:reset_disable_refresh_interval) { should == false }
@@ -91,6 +92,19 @@ describe Chewy::Config do
         expect(File).to receive(:exist?)
           .with(Pathname.new(__dir__).join('config', 'chewy.yml'))
         subject.configuration
+      end
+    end
+  end
+
+  describe '.console_strategy' do
+    context 'sets .console_strategy' do
+      let(:default_strategy) { subject.console_strategy }
+      let(:new_strategy) { :atomic }
+      after { subject.console_strategy = default_strategy }
+
+      specify do
+        expect { subject.console_strategy = new_strategy }
+          .to change { subject.console_strategy }.to(new_strategy)
       end
     end
   end

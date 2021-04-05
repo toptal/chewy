@@ -13,8 +13,7 @@ module Chewy
                   # for more info.
                   #
                   :request_strategy,
-                  # Default console strategy.
-                  # `:urgent` is used by default if `console_strategy` is not set.
+                  # Rails console strategy, `:urgent` by default.
                   #
                   :console_strategy,
                   # Use after_commit callbacks for RDBMS instead of

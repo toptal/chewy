@@ -221,6 +221,10 @@ module Chewy
           @journal ||= Chewy::Journal.new(self)
         end
 
+        def clear_cache(**args)
+          Elasticsearch::API::Indices::Actions#clear_cache(args)
+        end
+
       private
 
         def optimize_index_settings(index_name)

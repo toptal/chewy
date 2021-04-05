@@ -53,6 +53,7 @@ module Chewy
       @settings = {}
       @root_strategy = :base
       @request_strategy = :atomic
+      @console_strategy = :urgent
       @use_after_commit_callbacks = true
       @reset_disable_refresh_interval = false
       @reset_no_replicas = false

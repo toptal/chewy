@@ -39,7 +39,6 @@ module Chewy
       else
         Chewy.strategy(Chewy.console_strategy)
       end
-
       puts "Chewy console strategy is `#{Chewy.strategy.current.name}`"
     end
 

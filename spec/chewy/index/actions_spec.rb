@@ -694,7 +694,7 @@ describe Chewy::Index::Actions do
       let(:index_name_with_prefix) { 'cities_test_index' }
       let(:unexisted_index_name) { 'dummy_index' }
 
-      context 'with unexisted index' do
+      context 'with existed index' do
         before do
           CitiesIndex.create(index_name)
         end
@@ -702,8 +702,21 @@ describe Chewy::Index::Actions do
         specify do
           expect(CitiesIndex)
             .to receive(:clear_cache)
+            .with({index: index_name_with_prefix})
+            .once
             .and_call_original
-          expect{ CitiesIndex.clear_cache({ index: unexisted_index_name }) }
+          CitiesIndex.clear_cache({index: index_name_with_prefix})
+        end
+      end
+
+      context 'with unexisted index' do
+        specify do
+          expect(CitiesIndex)
+            .to receive(:clear_cache)
+            .with({index: unexisted_index_name})
+            .once
+            .and_call_original
+          expect { CitiesIndex.clear_cache({index: unexisted_index_name}) }
             .to raise_error Elasticsearch::Transport::Transport::Errors::NotFound
         end
       end

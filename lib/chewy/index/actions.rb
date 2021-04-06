@@ -222,7 +222,7 @@ module Chewy
         end
 
         def clear_cache(**args)
-          Chewy.client.actions.clear_cache(args)
+          client.indices.clear_cache(args)
         end
 
       private

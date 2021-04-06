@@ -702,8 +702,6 @@ describe Chewy::Index::Actions do
         specify do
           expect(CitiesIndex)
             .to receive(:clear_cache)
-            .with({index: index_name_with_prefix})
-            .once
             .and_call_original
           CitiesIndex.clear_cache({index: index_name_with_prefix})
         end
@@ -713,8 +711,6 @@ describe Chewy::Index::Actions do
         specify do
           expect(CitiesIndex)
             .to receive(:clear_cache)
-            .with({index: unexisted_index_name})
-            .once
             .and_call_original
           expect { CitiesIndex.clear_cache({index: unexisted_index_name}) }
             .to raise_error Elasticsearch::Transport::Transport::Errors::NotFound

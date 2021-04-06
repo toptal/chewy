@@ -692,7 +692,7 @@ describe Chewy::Index::Actions do
     context do
       let(:index_name) { 'test_index' }
       let(:index_name_with_prefix) { 'cities_test_index' }
-      let(:unexisted_index_name) { 'dummy_index' }
+      let(:unexisted_index_name) { 'wrong_index' }
 
       context 'with existed index' do
         before do

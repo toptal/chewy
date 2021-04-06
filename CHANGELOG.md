@@ -4,6 +4,7 @@
 
 ### New Features
 
+  * [#781](hhtps://github.com/toptal/chewy/pull/780): Wrapped `Elasticsearch::API::Indices::Actions#clear_cache` with `.clear_cache` in Index class ([@Vitalina-Vakulchyk][])
   * [#778](https://github.com/toptal/chewy/pull/778): Add `ignore_blank` option to `field` method ([@Vitalina-Vakulchyk][]):
     * `true` by default for the `geo_point` type
     * `false` by default for other types

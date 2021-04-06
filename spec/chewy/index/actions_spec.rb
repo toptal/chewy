@@ -689,47 +689,45 @@ describe Chewy::Index::Actions do
       end
     end
 
-    context do
-      let(:index_name) { 'test_index' }
-      let(:index_name_with_prefix) { 'cities_test_index' }
-      let(:unexisted_index_name) { 'wrong_index' }
+    let(:index_name) { 'test_index' }
+    let(:index_name_with_prefix) { 'cities_test_index' }
+    let(:unexisted_index_name) { 'wrong_index' }
 
-      context 'with existed index' do
-        before do
-          CitiesIndex.create(index_name)
-        end
-
-        specify do
-          expect(CitiesIndex)
-            .to receive(:clear_cache)
-            .and_call_original
-          expect { CitiesIndex.clear_cache({index: index_name_with_prefix}) }
-            .not_to raise_error Elasticsearch::Transport::Transport::Errors::NotFound
-        end
+    context 'with existed index' do
+      before do
+        CitiesIndex.create(index_name)
       end
 
-      context 'with unexisted index' do
-        specify do
-          expect(CitiesIndex)
-            .to receive(:clear_cache)
-            .and_call_original
-          expect { CitiesIndex.clear_cache({index: unexisted_index_name}) }
-            .to raise_error Elasticsearch::Transport::Transport::Errors::NotFound
-        end
+      specify do
+        expect(CitiesIndex)
+          .to receive(:clear_cache)
+          .and_call_original
+        expect { CitiesIndex.clear_cache({index: index_name_with_prefix}) }
+          .not_to raise_error Elasticsearch::Transport::Transport::Errors::NotFound
+      end
+    end
+
+    context 'with unexisted index' do
+      specify do
+        expect(CitiesIndex)
+          .to receive(:clear_cache)
+          .and_call_original
+        expect { CitiesIndex.clear_cache({index: unexisted_index_name}) }
+          .to raise_error Elasticsearch::Transport::Transport::Errors::NotFound
+      end
+    end
+
+    context 'without arguments' do
+      before do
+        CitiesIndex.create
       end
 
-      context 'without arguments' do
-        before do
-          CitiesIndex.create
-        end
-
-        specify do
-          expect(CitiesIndex)
-            .to receive(:clear_cache)
-            .and_call_original
-          expect { CitiesIndex.clear_cache }
-            .not_to raise_error Elasticsearch::Transport::Transport::Errors::NotFound
-        end
+      specify do
+        expect(CitiesIndex)
+          .to receive(:clear_cache)
+          .and_call_original
+        expect { CitiesIndex.clear_cache }
+          .not_to raise_error Elasticsearch::Transport::Transport::Errors::NotFound
       end
     end
   end

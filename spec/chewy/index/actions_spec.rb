@@ -680,4 +680,33 @@ describe Chewy::Index::Actions do
   describe '.journal' do
     specify { expect(DummiesIndex.journal).to be_a(Chewy::Journal) }
   end
+
+  describe '.clear_cache' do
+    before do
+      stub_model(:city)
+      stub_index(:cities) do
+        define_type City
+      end
+    end
+
+    context do
+      let(:index_name) { 'test_index' }
+      let(:index_name_with_prefix) { 'cities_test_index' }
+      let(:unexisted_index_name) { 'dummy_index' }
+
+      context 'with unexisted index' do
+        before do
+          CitiesIndex.create(index_name)
+        end
+
+        specify do
+          expect(CitiesIndex)
+            .to receive(:clear_cache)
+            .and_call_original
+          expect{ CitiesIndex.clear_cache({ index: unexisted_index_name }) }
+            .to raise_error Elasticsearch::Transport::Transport::Errors::NotFound
+        end
+      end
+    end
+  end
 end

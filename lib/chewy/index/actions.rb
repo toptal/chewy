@@ -222,7 +222,7 @@ module Chewy
         end
 
         def clear_cache(**args)
-          Elasticsearch::API::Indices::Actions#clear_cache(args)
+          Chewy.client.actions.clear_cache(args)
         end
 
       private

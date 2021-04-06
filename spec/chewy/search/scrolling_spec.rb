@@ -8,16 +8,14 @@ describe Chewy::Search::Scrolling, :orm do
     stub_model(:country)
 
     stub_index(:cities) do
-      define_type City do
-        field :name
-        field :rating, type: 'integer'
-      end
+      index_scope City
+      field :name
+      field :rating, type: 'integer'
     end
     stub_index(:countries) do
-      define_type Country do
-        field :name
-        field :rating, type: 'integer'
-      end
+      index_scope Country
+      field :name
+      field :rating, type: 'integer'
     end
   end
 
@@ -153,7 +151,7 @@ describe Chewy::Search::Scrolling, :orm do
       end
       specify do
         expect(request.scroll_wrappers(batch_size: 2).map(&:class).uniq)
-          .to eq([CitiesIndex::City, CountriesIndex::Country])
+          .to eq([CitiesIndex, CountriesIndex])
       end
     end
 

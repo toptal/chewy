@@ -8,17 +8,15 @@ describe Chewy::Search::Loader do
     stub_model(:country)
 
     stub_index(:cities) do
-      define_type City do
-        field :name
-        field :rating, type: 'integer'
-      end
+      index_scope City
+      field :name
+      field :rating, type: 'integer'
     end
 
     stub_index(:countries) do
-      define_type Country do
-        field :name
-        field :rating, type: 'integer'
-      end
+      index_scope Country
+      field :name
+      field :rating, type: 'integer'
     end
   end
 
@@ -33,18 +31,18 @@ describe Chewy::Search::Loader do
   let(:options) { {} }
   subject { described_class.new(indexes: [CitiesIndex, CountriesIndex], **options) }
 
-  describe '#derive_type' do
-    specify { expect(subject.derive_type('cities', 'city')).to eq(CitiesIndex::City) }
-    specify { expect(subject.derive_type('cities_suffix', 'city')).to eq(CitiesIndex::City) }
+  describe '#derive_index' do
+    specify { expect(subject.derive_index('cities')).to eq(CitiesIndex) }
+    specify { expect(subject.derive_index('cities_suffix')).to eq(CitiesIndex) }
 
-    specify { expect { subject.derive_type('whatever', 'city') }.to raise_error(Chewy::UnderivableType) }
-    specify { expect { subject.derive_type('citiessuffix', 'city') }.to raise_error(Chewy::UnderivableType) }
+    specify { expect { subject.derive_index('whatever') }.to raise_error(Chewy::UndefinedIndex) }
+    specify { expect { subject.derive_index('citiessuffix') }.to raise_error(Chewy::UndefinedIndex) }
 
     context do
       before { CitiesIndex.index_name :boro_goves }
 
-      specify { expect(subject.derive_type('boro_goves', 'city')).to eq(CitiesIndex::City) }
-      specify { expect(subject.derive_type('boro_goves_suffix', 'city')).to eq(CitiesIndex::City) }
+      specify { expect(subject.derive_index('boro_goves')).to eq(CitiesIndex) }
+      specify { expect(subject.derive_index('boro_goves_suffix')).to eq(CitiesIndex) }
     end
   end
 
@@ -60,7 +58,7 @@ describe Chewy::Search::Loader do
       end
 
       context do
-        let(:options) { {country: {scope: -> { where('rating > 2') }}} }
+        let(:options) { {countries: {scope: -> { where('rating > 2') }}} }
         specify { expect(subject.load(hits)).to eq([*cities, nil, countries.last]) }
       end
     end
@@ -68,21 +66,17 @@ describe Chewy::Search::Loader do
     context 'objects' do
       before do
         stub_index(:cities) do
-          define_type :city do
-            field :name
-            field :rating, type: 'integer'
-          end
+          field :name
+          field :rating, type: 'integer'
         end
 
         stub_index(:countries) do
-          define_type :country do
-            field :name
-            field :rating, type: 'integer'
-          end
+          field :name
+          field :rating, type: 'integer'
         end
       end
 
-      specify { expect(subject.load(hits).map(&:class).uniq).to eq([CitiesIndex::City, CountriesIndex::Country]) }
+      specify { expect(subject.load(hits).map(&:class).uniq).to eq([CitiesIndex, CountriesIndex]) }
       specify { expect(subject.load(hits).map(&:rating)).to eq([*cities, *countries].map(&:rating)) }
     end
   end

@@ -9,17 +9,16 @@ module Chewy
     #       query(match: {name: name})
     #     end
     #
-    #     define_type :user do
-    #       def self.by_age(age)
-    #         filter(term: {age: age})
-    #       end
+    #
+    #     def self.by_age(age)
+    #       filter(term: {age: age})
     #     end
     #   end
     #
     #   UsersIndex.limit(10).by_name('Martin')
     #   # => <UsersIndex::Query {..., :body=>{:size=>10, :query=>{:match=>{:name=>"Martin"}}}}>
-    #   UsersIndex::User.limit(10).by_name('Martin').by_age(42)
-    #   # => <UsersIndex::User::Query {..., :body=>{:size=>10, :query=>{:bool=>{
+    #   UsersIndex.limit(10).by_name('Martin').by_age(42)
+    #   # => <UsersIndex::Query {..., :body=>{:size=>10, :query=>{:bool=>{
     #   #      :must=>{:match=>{:name=>"Martin"}},
     #   #      :filter=>{:term=>{:age=>42}}}}}}>
     module Scoping
@@ -28,7 +27,7 @@ module Chewy
       module ClassMethods
         # The scopes stack.
         #
-        # @return [Array<Chewy::Search::Reques>] array of scopes
+        # @return [Array<Chewy::Search::Request>] array of scopes
         def scopes
           Thread.current[:chewy_scopes] ||= []
         end

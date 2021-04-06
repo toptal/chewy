@@ -5,44 +5,34 @@ describe Chewy::Index::Specification do
 
   let(:index1) do
     stub_index(:places) do
-      define_type(:city) do
-        field :founded_on, type: 'date'
-      end
+      field :founded_on, type: 'date'
     end
   end
 
   let(:index2) do
     stub_index(:places) do
       settings analyzer: {}
-      define_type(:city) do
-        field :founded_on, type: 'date'
-      end
+      field :founded_on, type: 'date'
     end
   end
 
   let(:index3) do
     stub_index(:places) do
-      define_type(:city) do
-        field :founded_on, type: 'date'
-        field :population, type: 'integer'
-      end
+      field :founded_on, type: 'date'
+      field :population, type: 'integer'
     end
   end
 
   let(:index4) do
     stub_index(:places) do
-      define_type(:city) do
-        field :population, type: 'integer'
-        field :founded_on, type: 'date'
-      end
+      field :population, type: 'integer'
+      field :founded_on, type: 'date'
     end
   end
 
   let(:index5) do
     stub_index('namespace/cities') do
-      define_type(:city) do
-        field :population, type: 'integer'
-      end
+      field :population, type: 'integer'
     end
   end
 

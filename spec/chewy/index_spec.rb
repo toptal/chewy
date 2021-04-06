@@ -2,9 +2,7 @@ require 'spec_helper'
 
 describe Chewy::Index do
   before do
-    stub_index(:dummies) do
-      define_type :dummy
-    end
+    stub_index(:dummies)
   end
 
   describe '.import', :orm do
@@ -13,11 +11,11 @@ describe Chewy::Index do
       stub_model(:country)
 
       stub_index(:cities) do
-        define_type City
+        index_scope City
       end
 
       stub_index(:countries) do
-        define_type Country
+        index_scope Country
       end
     end
 
@@ -30,20 +28,13 @@ describe Chewy::Index do
     end
 
     specify do
-      expect { CitiesIndex.import city: cities.first }.to update_index(CitiesIndex).and_reindex(cities.first).only
-      expect { CountriesIndex.import city: cities.first }.to update_index(CountriesIndex).and_reindex(countries)
-    end
-
-    specify do
-      expect { CitiesIndex.import city: cities.first, country: countries.last }
-        .to update_index(CitiesIndex).and_reindex(cities.first).only
-      expect { CountriesIndex.import city: cities.first, country: countries.last }
-        .to update_index(CountriesIndex).and_reindex(countries.last).only
+      expect { CitiesIndex.import cities.first }.to update_index(CitiesIndex).and_reindex(cities.first).only
+      expect { CountriesIndex.import countries.last }.to update_index(CountriesIndex).and_reindex(countries.last).only
     end
 
     specify do
       expect(CitiesIndex.client).to receive(:bulk).with(hash_including(refresh: false)).once
-      CitiesIndex.import city: cities.first, refresh: false
+      CitiesIndex.import cities.first, refresh: false
     end
   end
 
@@ -98,18 +89,18 @@ describe Chewy::Index do
     specify { expect(Class.new(Chewy::Index).prefix).to eq('testing') }
   end
 
-  describe '.define_type' do
-    specify { expect(DummiesIndex.type_hash['dummy']).to eq(DummiesIndex::Dummy) }
+  describe '.index_scope' do
+    specify { expect(DummiesIndex.adapter.name).to eq('Default') }
 
     context do
-      before { stub_index(:dummies) { define_type :dummy, name: :borogoves } }
-      specify { expect(DummiesIndex.type_hash['borogoves']).to eq(DummiesIndex::Borogoves) }
+      before { stub_index(:dummies) { index_scope :dummy, name: :borogoves } }
+      specify { expect(DummiesIndex.adapter.name).to eq('Borogoves') }
     end
 
     context do
       before { stub_class(:city) }
-      before { stub_index(:dummies) { define_type City, name: :country } }
-      specify { expect(DummiesIndex.type_hash['country']).to eq(DummiesIndex::Country) }
+      before { stub_index(:dummies) { index_scope City, name: :country } }
+      specify { expect(DummiesIndex.adapter.name).to eq('Country') }
     end
 
     context do
@@ -120,39 +111,21 @@ describe Chewy::Index do
         expect do
           Kernel.eval <<-DUMMY_CITY_INDEX
             class DummyCityIndex2 < Chewy::Index
-              define_type City
-              define_type Country
+              index_scope City
+              index_scope Country
             end
           DUMMY_CITY_INDEX
-        end.to raise_error(/Multiple types are deprecated/)
+        end.to raise_error(/Index scope is already defined/)
 
         expect do
           Kernel.eval <<-DUMMY_CITY_INDEX
             class DummyCityIndex2 < Chewy::Index
-              define_type City::Nothing
+              index_scope City::Nothing
             end
           DUMMY_CITY_INDEX
         end.to raise_error(NameError)
       end
     end
-  end
-
-  describe '.type_hash' do
-    specify { expect(DummiesIndex.type_hash['dummy']).to eq(DummiesIndex::Dummy) }
-    specify { expect(DummiesIndex.type_hash).to have_key 'dummy' }
-    specify { expect(DummiesIndex.type_hash['dummy']).to be < Chewy::Type }
-    specify { expect(DummiesIndex.type_hash['dummy'].type_name).to eq('dummy') }
-  end
-
-  describe '.type' do
-    specify { expect(DummiesIndex.type('dummy')).to eq(DummiesIndex::Dummy) }
-    specify { expect { DummiesIndex.type('not-the-dummy') }.to raise_error(Chewy::UndefinedType) }
-  end
-
-  specify { expect(DummiesIndex.type_names).to eq(DummiesIndex.type_hash.keys) }
-
-  describe '.types' do
-    specify { expect(DummiesIndex.types).to eq(DummiesIndex.type_hash.values) }
   end
 
   describe '.settings' do
@@ -194,20 +167,18 @@ describe Chewy::Index do
           filter(terms: {colors: colors.flatten(1).map(&:to_s)})
         end
 
-        define_type :city do
-          def self.by_id; end
-          field :colors
-        end
+        def self.by_id; end
+        field :colors
       end
     end
 
     specify { expect(described_class.scopes).to eq([]) }
-    specify { expect(PlacesIndex.scopes).to match_array(%i[by_rating colors]) }
+    specify { expect(PlacesIndex.scopes).to match_array(%i[by_rating colors by_id]) }
 
     context do
       before do
         Chewy.massacre
-        PlacesIndex::City.import!(
+        PlacesIndex.import!(
           double(colors: ['red']),
           double(colors: %w[red green]),
           double(colors: %w[green yellow])
@@ -215,16 +186,12 @@ describe Chewy::Index do
       end
 
       specify do
-        # This `blank?`` call is for the messed scopes bug reproduction. See #573
-        PlacesIndex::City.blank?
         expect(PlacesIndex.colors(:green).map(&:colors))
           .to contain_exactly(%w[red green], %w[green yellow])
       end
 
       specify do
-        # This `blank?` call is for the messed scopes bug reproduction. See #573
-        PlacesIndex::City.blank?
-        expect(PlacesIndex::City.colors(:green).map(&:colors))
+        expect(PlacesIndex.colors(:green).map(&:colors))
           .to contain_exactly(%w[red green], %w[green yellow])
       end
     end
@@ -243,12 +210,10 @@ describe Chewy::Index do
 
   describe '.mappings_hash' do
     specify { expect(stub_index(:documents).mappings_hash).to eq({}) }
-    specify { expect(stub_index(:documents) { define_type :document }.mappings_hash).to eq({}) }
+    specify { expect(stub_index(:documents) { index_scope :document }.mappings_hash).to eq({}) }
     specify do
       expect(stub_index(:documents) do
-               define_type :document do
-                 field :date, type: 'date'
-               end
+               field :date, type: 'date'
              end.mappings_hash).to eq(mappings: {properties: {date: {type: 'date'}}})
     end
   end
@@ -264,17 +229,13 @@ describe Chewy::Index do
     end
     specify do
       expect(stub_index(:documents) do
-               define_type :document do
-                 field :name
-               end
+               field :name
              end.specification_hash.keys).to eq([:mappings])
     end
     specify do
       expect(stub_index(:documents) do
                settings number_of_shards: 1
-               define_type :document do
-                 field :name
-               end
+               field :name
              end.specification_hash.keys).to match_array(%i[mappings settings])
     end
   end
@@ -288,25 +249,21 @@ describe Chewy::Index do
   context 'index call inside index', :orm do
     before do
       stub_index(:cities) do
-        define_type :city do
-          field :country_name, value: (lambda do |city|
-            CountriesIndex::Country.filter(term: {_id: city.country_id}).first.name
-          end)
-        end
+        field :country_name, value: (lambda do |city|
+          CountriesIndex.filter(term: {_id: city.country_id}).first.name
+        end)
       end
 
       stub_index(:countries) do
-        define_type :country do
-          field :name
-        end
+        field :name
       end
 
-      CountriesIndex::Country.import!(double(id: 1, name: 'Country'))
+      CountriesIndex.import!(double(id: 1, name: 'Country'))
     end
 
     specify do
-      expect { CitiesIndex::City.import!(double(country_id: 1)) }
-        .to update_index(CitiesIndex::City).and_reindex(country_name: 'Country')
+      expect { CitiesIndex.import!(double(country_id: 1)) }
+        .to update_index(CitiesIndex).and_reindex(country_name: 'Country')
     end
   end
 end

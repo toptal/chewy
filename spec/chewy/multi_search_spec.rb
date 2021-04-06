@@ -13,10 +13,9 @@ describe Chewy::MultiSearch do
         aggs(country: {terms: {field: :country_id}})
       end
 
-      define_type City do
-        field :name, type: 'keyword'
-        field :country_id, type: 'keyword'
-      end
+      index_scope City
+      field :name, type: 'keyword'
+      field :country_id, type: 'keyword'
     end
   end
 
@@ -78,7 +77,7 @@ describe Chewy::MultiSearch do
         is_expected.to have(2).responses
         expect(responses[0]).to be_a(Chewy::Search::Response)
         expect(responses[1]).to be_a(Chewy::Search::Response)
-        expect(responses[1].wrappers).to all(be_a CitiesIndex::City)
+        expect(responses[1].wrappers).to all(be_a CitiesIndex)
       end
     end
   end

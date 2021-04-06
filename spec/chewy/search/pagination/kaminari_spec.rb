@@ -5,7 +5,7 @@ describe Chewy::Search::Pagination::Kaminari do
     describe '#objects' do
       let(:data) { Array.new(12) { |i| {id: i.next.to_s, name: "Name#{i.next}", age: 10 * i.next}.stringify_keys! } }
 
-      before { ProductsIndex::Product.import!(data.map { |h| double(h) }) }
+      before { ProductsIndex.import!(data.map { |h| double(h) }) }
       before { allow(::Kaminari.config).to receive_messages(default_per_page: 17) }
 
       specify { expect(search.objects.class).to eq(Kaminari::PaginatableArray) }

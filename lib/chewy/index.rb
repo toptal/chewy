@@ -1,22 +1,47 @@
 require 'chewy/search'
 require 'chewy/index/actions'
+require 'chewy/index/adapter/active_record'
+require 'chewy/index/adapter/object'
 require 'chewy/index/aliases'
+require 'chewy/index/crutch'
+require 'chewy/index/import'
+require 'chewy/index/mapping'
+require 'chewy/index/observe'
 require 'chewy/index/settings'
 require 'chewy/index/specification'
+require 'chewy/index/syncer'
+require 'chewy/index/witchcraft'
+require 'chewy/index/wrapper'
 
 module Chewy
   class Index
+    IMPORT_OPTIONS_KEYS = %i[
+      batch_size bulk_size consistency direct_import journal
+      pipeline raw_import refresh replication
+    ].freeze
+
     include Search
     include Actions
     include Aliases
+    include Import
+    include Mapping
+    include Observe
+    include Crutch
+    include Witchcraft
+    include Wrapper
 
     singleton_class.delegate :client, to: 'Chewy'
 
-    class_attribute :type_hash
-    self.type_hash = {}
+    class_attribute :adapter
+    self.adapter = Chewy::Index::Adapter::Object.new(:default)
+
+    class_attribute :index_scope_defined
 
     class_attribute :_settings
     self._settings = Chewy::Index::Settings.new
+
+    class_attribute :_default_import_options
+    self._default_import_options = {}
 
     class << self
       # @overload index_name(suggest)
@@ -113,69 +138,30 @@ module Chewy
         Chewy.configuration[:prefix]
       end
 
-      # Defines type for the index. Arguments depends on adapter used. For
+      # Defines scope and options for the index. Arguments depends on adapter used. For
       # ActiveRecord you can pass model or scope and options
       #
       #   class CarsIndex < Chewy::Index
-      #     define_type Car do
-      #       ...
-      #     end # defines VehiclesIndex::Car type
+      #     index_scope Car
+      #     ...
       #   end
       #
-      # Type name might be passed in complicated cases:
-      #
-      #   class VehiclesIndex < Chewy::Index
-      #     define_type Vehicle.cars.includes(:manufacturer), name: 'cars' do
-      #        ...
-      #     end # defines VehiclesIndex::Cars type
-      #
-      #     define_type Vehicle.motocycles.includes(:manufacturer), name: 'motocycles' do
-      #        ...
-      #     end # defines VehiclesIndex::Motocycles type
-      #   end
-      #
-      # For plain objects:
+      # For plain objects you can completely omit this directive, unless you need to specify some options:
       #
       #   class PlanesIndex < Chewy::Index
-      #     define_type :plane do
-      #       ...
-      #     end # defines PlanesIndex::Plane type
+      #     ...
       #   end
       #
       # The main difference between using plain objects or ActiveRecord models for indexing
-      # is import. If you will call `CarsIndex::Car.import` - it will import all the cars
-      # automatically, while `PlanesIndex::Plane.import(my_planes)` requires import data to be
+      # is import. If you will call `CarsIndex.import` - it will import all the cars
+      # automatically, while `PlanesIndex.import(my_planes)` requires import data to be
       # passed.
       #
-      def define_type(target, options = {}, &block)
-        raise 'Multiple types are deprecated' if type_hash.present?
+      def index_scope(target, options = {})
+        raise 'Index scope is already defined' if index_scope_defined?
 
-        type_class = Chewy.create_type(self, target, options, &block)
-        self.type_hash = type_hash.merge(type_class.type_name => type_class)
-      end
-
-      # Returns defined type:
-      #
-      #   UsersIndex.types # => [UsersIndex::User]
-      #
-      def types
-        type_hash.values
-      end
-
-      # Returns defined types names:
-      #
-      #   UsersIndex.type_names # => ['admin', 'manager', 'user']
-      #
-      def type_names
-        type_hash.keys
-      end
-
-      # Returns named type:
-      #
-      #    UserIndex.type('admin') # => UsersIndex::Admin
-      #
-      def type(type_name)
-        type_hash.fetch(type_name) { raise UndefinedType, "Unknown type in #{name}: #{type_name}" }
+        self.adapter = Chewy.adapters.find { |klass| klass.accepts?(target) }.new(target, **options)
+        self.index_scope_defined = true
       end
 
       # Used as a part of index definition DSL. Defines settings:
@@ -212,7 +198,7 @@ module Chewy
       end
 
       def mappings_hash
-        mappings = types.map(&:mappings_hash).inject(:merge)
+        mappings = root.mappings_hash
         mappings.present? ? {mappings: mappings} : {}
       end
 
@@ -229,6 +215,11 @@ module Chewy
       # @return [Chewy::Index::Specification] a specification object instance for this particular index
       def specification
         @specification ||= Specification.new(self)
+      end
+
+      def default_import_options(params)
+        params.assert_valid_keys(IMPORT_OPTIONS_KEYS)
+        self._default_import_options = _default_import_options.merge(params)
       end
     end
   end

@@ -2,14 +2,8 @@ require 'spec_helper'
 
 describe Chewy::Search::Parameters::Indices do
   before do
-    stub_index(:first) do
-      define_type :one
-    end
-
-    stub_index(:second) do
-      define_type :three
-    end
-
+    stub_index(:first)
+    stub_index(:second)
     stub_index(:third)
   end
 

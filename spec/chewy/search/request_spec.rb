@@ -5,23 +5,17 @@ describe Chewy::Search::Request do
 
   before do
     stub_index(:products) do
-      define_type :product do
-        field :id, type: :integer
-        field :name
-        field :age, type: :integer
-      end
+      field :id, type: :integer
+      field :name
+      field :age, type: :integer
     end
 
     stub_index(:cities) do
-      define_type :city do
-        field :id, type: :integer
-      end
+      field :id, type: :integer
     end
 
     stub_index(:countries) do
-      define_type :country do
-        field :id, type: :integer
-      end
+      field :id, type: :integer
     end
   end
 
@@ -383,15 +377,13 @@ describe Chewy::Search::Request do
       stub_model(:country)
 
       stub_index(:places) do
-        define_type City do
-          field :rating, type: 'integer'
-        end
+        index_scope City
+        field :rating, type: 'integer'
       end
 
       stub_index(:countries) do
-        define_type Country do
-          field :rating, type: 'integer'
-        end
+        index_scope Country
+        field :rating, type: 'integer'
       end
     end
 
@@ -409,7 +401,7 @@ describe Chewy::Search::Request do
 
     describe '#load' do
       specify { expect(subject.load(only: 'city')).to eq([*cities]) }
-      specify { expect(subject.load(only: 'city').map(&:class).uniq).to eq([PlacesIndex::City]) }
+      specify { expect(subject.load(only: 'city').map(&:class).uniq).to eq([PlacesIndex]) }
       specify { expect(subject.load(only: 'city').objects).to eq([*cities]) }
     end
   end
@@ -508,9 +500,9 @@ describe Chewy::Search::Request do
     let(:cities) { Array.new(3) { |i| {id: (i.next + 9).to_i}.stringify_keys! } }
     let(:countries) { Array.new(3) { |i| {id: (i.next + 12).to_i}.stringify_keys! } }
     before do
-      ProductsIndex::Product.import!(products.map { |h| double(h) })
-      CountriesIndex::Country.import!(countries.map { |h| double(h) })
-      CitiesIndex::City.import!(cities.map { |h| double(h) })
+      ProductsIndex.import!(products.map { |h| double(h) })
+      CountriesIndex.import!(countries.map { |h| double(h) })
+      CitiesIndex.import!(cities.map { |h| double(h) })
     end
 
     specify { expect(subject[0]._data).to be_a Hash }
@@ -647,7 +639,7 @@ describe Chewy::Search::Request do
       context do
         before { expect(Chewy.client).to receive(:search).once.and_call_original }
 
-        specify { expect(subject.first).to be_a(ProductsIndex::Product).and have_attributes(id: 9) }
+        specify { expect(subject.first).to be_a(ProductsIndex).and have_attributes(id: 9) }
         specify { expect(subject.first(3).map(&:id)).to eq([9, 8, 7]) }
         specify { expect(subject.first(10).map(&:id)).to have(9).items }
         specify { expect(subject.limit(5).first(10).map(&:id)).to have(9).items }
@@ -660,7 +652,7 @@ describe Chewy::Search::Request do
           expect(Chewy.client).not_to receive(:search)
         end
 
-        specify { expect(subject.first).to be_a(ProductsIndex::Product).and have_attributes(id: 9) }
+        specify { expect(subject.first).to be_a(ProductsIndex).and have_attributes(id: 9) }
         specify { expect(subject.first(3).map(&:id)).to eq([9, 8, 7]) }
         specify { expect(subject.first(10).map(&:id)).to have(9).items }
 
@@ -681,8 +673,8 @@ describe Chewy::Search::Request do
     end
 
     describe '#find' do
-      specify { expect(subject.find('1')).to be_a(ProductsIndex::Product).and have_attributes(id: 1) }
-      specify { expect(subject.find { |w| w.id == 2 }).to be_a(ProductsIndex::Product).and have_attributes(id: 2) }
+      specify { expect(subject.find('1')).to be_a(ProductsIndex).and have_attributes(id: 1) }
+      specify { expect(subject.find { |w| w.id == 2 }).to be_a(ProductsIndex).and have_attributes(id: 2) }
       specify { expect(subject.limit(2).find('1', '3', '7').map(&:id)).to contain_exactly(1, 3, 7) }
       specify { expect(subject.find(1, 3, 7).map(&:id)).to contain_exactly(1, 3, 7) }
       specify do
@@ -722,7 +714,7 @@ describe Chewy::Search::Request do
         before { expect(Chewy.client).to receive(:scroll).once.and_call_original }
 
         specify { expect(subject.find((1..9).to_a)).to have(9).items }
-        specify { expect(subject.find((1..9).to_a)).to all be_a(Chewy::Type) }
+        specify { expect(subject.find((1..9).to_a)).to all be_a(Chewy::Index) }
       end
     end
 

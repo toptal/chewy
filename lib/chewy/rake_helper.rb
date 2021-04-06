@@ -3,7 +3,7 @@ module Chewy
     IMPORT_CALLBACK = lambda do |output, _name, start, finish, _id, payload|
       duration = (finish - start).ceil
       stats = payload.fetch(:import, {}).map { |key, count| "#{key} #{count}" }.join(', ')
-      output.puts "  Imported #{payload[:type]} in #{human_duration(duration)}, stats: #{stats}"
+      output.puts "  Imported #{payload[:index]} in #{human_duration(duration)}, stats: #{stats}"
       payload[:errors]&.each do |action, errors|
         output.puts "    #{action.to_s.humanize} errors:"
         errors.each do |error, documents|
@@ -85,23 +85,21 @@ module Chewy
       #
       # @example
       #   Chewy::RakeHelper.update # updates everything
-      #   Chewy::RakeHelper.update(only: 'places') # updates only PlacesIndex::City and PlacesIndex::Country
-      #   Chewy::RakeHelper.update(only: 'places#city') # updates PlacesIndex::City only
-      #   Chewy::RakeHelper.update(except: PlacesIndex::Country) # updates everything, but PlacesIndex::Country
-      #   Chewy::RakeHelper.update(only: 'places', except: 'places#country') # updates PlacesIndex::City only
+      #   Chewy::RakeHelper.update(only: 'places') # updates only PlacesIndex
+      #   Chewy::RakeHelper.update(except: PlacesIndex) # updates everything, but PlacesIndex
       #
-      # @param only [Array<Chewy::Index, Chewy::Type, String>, Chewy::Index, Chewy::Type, String] indexes or types to update; if nothing is passed - uses all the types defined in the app
-      # @param except [Array<Chewy::Index, Chewy::Type, String>, Chewy::Index, Chewy::Type, String] indexes or types to exclude from processing
+      # @param only [Array<Chewy::Index, String>, Chewy::Index, String] indexes to update; if nothing is passed - uses all the indexes defined in the app
+      # @param except [Array<Chewy::Index, String>, Chewy::Index, String] indexes to exclude from processing
       # @param parallel [true, Integer, Hash] any acceptable parallel options for import
       # @param output [IO] output io for logging
-      # @return [Array<Chewy::Type>] types that were actually updated
+      # @return [Array<Chewy::Index>] indexes that were actually updated
       def update(only: nil, except: nil, parallel: nil, output: $stdout)
         subscribed_task_stats(output) do
-          types_from(only: only, except: except).group_by(&:index).each_with_object([]) do |(index, types), update_types|
+          indexes_from(only: only, except: except).each_with_object([]) do |index, updated_indexes|
             if index.exists?
               output.puts "Updating #{index}"
-              types.each { |type| type.import(parallel: parallel) }
-              update_types.concat(types)
+              index.import(parallel: parallel)
+              updated_indexes.push(index)
             else
               output.puts "Skipping #{index}, it does not exists (use rake chewy:reset[#{index.derivable_name}] to create and update it)"
             end
@@ -113,31 +111,29 @@ module Chewy
       #
       # @example
       #   Chewy::RakeHelper.sync # synchronizes everything
-      #   Chewy::RakeHelper.sync(only: 'places') # synchronizes only PlacesIndex::City and PlacesIndex::Country
-      #   Chewy::RakeHelper.sync(only: 'places#city') # synchronizes PlacesIndex::City only
-      #   Chewy::RakeHelper.sync(except: PlacesIndex::Country) # synchronizes everything, but PlacesIndex::Country
-      #   Chewy::RakeHelper.sync(only: 'places', except: 'places#country') # synchronizes PlacesIndex::City only
+      #   Chewy::RakeHelper.sync(only: 'places') # synchronizes only PlacesIndex
+      #   Chewy::RakeHelper.sync(except: PlacesIndex) # synchronizes everything, but PlacesIndex
       #
-      # @param only [Array<Chewy::Index, Chewy::Type, String>, Chewy::Index, Chewy::Type, String] indexes or types to synchronize; if nothing is passed - uses all the types defined in the app
-      # @param except [Array<Chewy::Index, Chewy::Type, String>, Chewy::Index, Chewy::Type, String] indexes or types to exclude from processing
+      # @param only [Array<Chewy::Index, String>, Chewy::Index, String] indexes to synchronize; if nothing is passed - uses all the indexes defined in the app
+      # @param except [Array<Chewy::Index, String>, Chewy::Index, String] indexes to exclude from processing
       # @param parallel [true, Integer, Hash] any acceptable parallel options for sync
       # @param output [IO] output io for logging
-      # @return [Array<Chewy::Type>] types that were actually updated
+      # @return [Array<Chewy::Index>] indexes that were actually updated
       def sync(only: nil, except: nil, parallel: nil, output: $stdout)
         subscribed_task_stats(output) do
-          types_from(only: only, except: except).each_with_object([]) do |type, synced_types|
-            output.puts "Synchronizing #{type}"
-            output.puts "  #{type} doesn't support outdated synchronization" unless type.supports_outdated_sync?
+          indexes_from(only: only, except: except).each_with_object([]) do |index, synced_indexes|
+            output.puts "Synchronizing #{index}"
+            output.puts "  #{index} doesn't support outdated synchronization" unless index.supports_outdated_sync?
             time = Time.now
-            sync_result = type.sync(parallel: parallel)
+            sync_result = index.sync(parallel: parallel)
             if !sync_result
-              output.puts "  Something went wrong with the #{type} synchronization"
+              output.puts "  Something went wrong with the #{index} synchronization"
             elsif (sync_result[:count]).positive?
               output.puts "  Missing documents: #{sync_result[:missing]}" if sync_result[:missing].present?
               output.puts "  Outdated documents: #{sync_result[:outdated]}" if sync_result[:outdated].present?
-              synced_types.push(type)
+              synced_indexes.push(index)
             else
-              output.puts "  Skipping #{type}, up to date"
+              output.puts "  Skipping #{index}, up to date"
             end
             output.puts "  Took #{human_duration(Time.now - time)}"
           end
@@ -145,50 +141,46 @@ module Chewy
       end
 
       # Applies changes that were done after the specified time for the
-      # specified indexes/types or all of them.
+      # specified indexes or all of them.
       #
       # @example
       #   Chewy::RakeHelper.journal_apply(time: 1.minute.ago) # applies entries created for the last minute
-      #   Chewy::RakeHelper.journal_apply(time: 1.minute.ago, only: 'places') # applies only PlacesIndex::City and PlacesIndex::Country entries reated for the last minute
-      #   Chewy::RakeHelper.journal_apply(time: 1.minute.ago, only: 'places#city') # applies PlacesIndex::City entries reated for the last minute only
-      #   Chewy::RakeHelper.journal_apply(time: 1.minute.ago, except: PlacesIndex::Country) # applies everything, but PlacesIndex::Country entries reated for the last minute
-      #   Chewy::RakeHelper.journal_apply(time: 1.minute.ago, only: 'places', except: 'places#country') # applies PlacesIndex::City entries reated for the last minute only
+      #   Chewy::RakeHelper.journal_apply(time: 1.minute.ago, only: 'places') # applies only PlacesIndex entries created for the last minute
+      #   Chewy::RakeHelper.journal_apply(time: 1.minute.ago, except: PlacesIndex) # applies everything, but PlacesIndex, entries created for the last minute
       #
       # @param time [Time, DateTime] use only journal entries created after this time
-      # @param only [Array<Chewy::Index, Chewy::Type, String>, Chewy::Index, Chewy::Type, String] indexes or types to synchronize; if nothing is passed - uses all the types defined in the app
-      # @param except [Array<Chewy::Index, Chewy::Type, String>, Chewy::Index, Chewy::Type, String] indexes or types to exclude from processing
+      # @param only [Array<Chewy::Index, String>, Chewy::Index, String] indexes to synchronize; if nothing is passed - uses all the indexes defined in the app
+      # @param except [Array<Chewy::Index, String>, Chewy::Index, String] indexes to exclude from processing
       # @param output [IO] output io for logging
-      # @return [Array<Chewy::Type>] types that were actually updated
+      # @return [Array<Chewy::Index>] indexes that were actually updated
       def journal_apply(time: nil, only: nil, except: nil, output: $stdout)
         raise ArgumentError, 'Please specify the time to start with' unless time
 
         subscribed_task_stats(output) do
           output.puts "Applying journal entries created after #{time}"
-          count = Chewy::Journal.new(types_from(only: only, except: except)).apply(time)
+          count = Chewy::Journal.new(indexes_from(only: only, except: except)).apply(time)
           output.puts 'No journal entries were created after the specified time' if count.zero?
         end
       end
 
       # Removes journal records created before the specified timestamp for
-      # the specified indexes/types or all of them.
+      # the specified indexes or all of them.
       #
       # @example
       #   Chewy::RakeHelper.journal_clean # cleans everything
       #   Chewy::RakeHelper.journal_clean(time: 1.minute.ago) # leaves only entries created for the last minute
-      #   Chewy::RakeHelper.journal_clean(only: 'places') # cleans only PlacesIndex::City and PlacesIndex::Country entries
-      #   Chewy::RakeHelper.journal_clean(only: 'places#city') # cleans PlacesIndex::City entries only
-      #   Chewy::RakeHelper.journal_clean(except: PlacesIndex::Country) # cleans everything, but PlacesIndex::Country entries
-      #   Chewy::RakeHelper.journal_clean(only: 'places', except: 'places#country') # cleans PlacesIndex::City entries only
+      #   Chewy::RakeHelper.journal_clean(only: 'places') # cleans only PlacesIndex entries
+      #   Chewy::RakeHelper.journal_clean(except: PlacesIndex) # cleans everything, but PlacesIndex entries
       #
       # @param time [Time, DateTime] clean all the journal entries created before this time
-      # @param only [Array<Chewy::Index, Chewy::Type, String>, Chewy::Index, Chewy::Type, String] indexes or types to synchronize; if nothing is passed - uses all the types defined in the app
-      # @param except [Array<Chewy::Index, Chewy::Type, String>, Chewy::Index, Chewy::Type, String] indexes or types to exclude from processing
+      # @param only [Array<Chewy::Index, String>, Chewy::Index, String] indexes to synchronize; if nothing is passed - uses all the indexes defined in the app
+      # @param except [Array<Chewy::Index, String>, Chewy::Index, String] indexes to exclude from processing
       # @param output [IO] output io for logging
-      # @return [Array<Chewy::Type>] types that were actually updated
+      # @return [Array<Chewy::Index>] indexes that were actually updated
       def journal_clean(time: nil, only: nil, except: nil, output: $stdout)
         subscribed_task_stats(output) do
           output.puts "Cleaning journal entries created before #{time}" if time
-          response = Chewy::Journal.new(types_from(only: only, except: except)).clean(time)
+          response = Chewy::Journal.new(indexes_from(only: only, except: except)).clean(time)
           count = response['deleted'] || response['_indices']['_all']['deleted']
           output.puts "Cleaned up #{count} journal entries"
         end
@@ -227,7 +219,7 @@ module Chewy
       def update_mapping(name:, output: $stdout)
         subscribed_task_stats(output) do
           output.puts "Index name is #{name}"
-          Chewy::Index.update_mapping(name)
+          normalize_index(name).update_mapping
           output.puts "#{name} index successfully updated"
         end
       end
@@ -239,7 +231,7 @@ module Chewy
       def normalize_index(identifier)
         return identifier if identifier.is_a?(Class) && identifier < Chewy::Index
 
-        "#{identifier.to_s.gsub(/identifier\z/i, '').camelize}Index".constantize
+        "#{identifier.to_s.camelize}Index".constantize
       end
 
       def subscribed_task_stats(output = $stdout, &block)
@@ -266,30 +258,6 @@ module Chewy
         end
 
         indexes.sort_by(&:derivable_name)
-      end
-
-      def types_from(only: nil, except: nil)
-        types = if only.present?
-          normalize_types(Array.wrap(only))
-        else
-          all_indexes.flat_map(&:types)
-        end
-
-        types = if except.present?
-          types - normalize_types(Array.wrap(except))
-        else
-          types
-        end
-
-        types.sort_by(&:derivable_name)
-      end
-
-      def normalize_types(*identifiers)
-        identifiers.flatten(1).flat_map { |identifier| normalize_type(identifier) }
-      end
-
-      def normalize_type(identifier)
-        Chewy.derive_types(identifier)
       end
 
       def human_duration(seconds)

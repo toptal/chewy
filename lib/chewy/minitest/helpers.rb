@@ -6,7 +6,7 @@ module Chewy
       extend ActiveSupport::Concern
 
       # Assert that an index *changes* during a block.
-      # @param index [Chewy::Type] the index / type to watch, eg EntitiesIndex::Entity.
+      # @param index [Chewy::Index] the index to watch, eg EntitiesIndex.
       # @param strategy [Symbol] the Chewy strategy to use around the block. See Chewy docs.
       # @param bypass_actual_index [true, false]
       #   True to preempt the http call to Elastic, false otherwise.
@@ -15,10 +15,10 @@ module Chewy
       # @return [SearchIndexReceiver] for optional further assertions on the nature of the index changes.
       #
       def assert_indexes(index, strategy: :atomic, bypass_actual_index: true, &block)
-        type = Chewy.derive_type index
+        index_class = Chewy.derive_name index
         receiver = SearchIndexReceiver.new
 
-        bulk_method = type.method :bulk
+        bulk_method = index_class.method :bulk
         # Manually mocking #bulk because we need to properly capture `self`
         bulk_mock = lambda do |*bulk_args|
           receiver.catch bulk_args, self
@@ -28,11 +28,11 @@ module Chewy
           {}
         end
 
-        type.define_singleton_method :bulk, bulk_mock
+        index_class.define_singleton_method :bulk, bulk_mock
 
         Chewy.strategy(strategy, &block)
 
-        type.define_singleton_method :bulk, bulk_method
+        index_class.define_singleton_method :bulk, bulk_method
 
         assert_includes receiver.updated_indexes, index, "Expected #{index} to be updated but it wasn't"
 

@@ -8,16 +8,14 @@ describe Chewy::Search::Response, :orm do
     stub_model(:country)
 
     stub_index(:cities) do
-      define_type City do
-        field :name
-        field :rating, type: 'integer'
-      end
+      index_scope City
+      field :name
+      field :rating, type: 'integer'
     end
     stub_index(:countries) do
-      define_type Country do
-        field :name
-        field :rating, type: 'integer'
-      end
+      index_scope Country
+      field :name
+      field :rating, type: 'integer'
     end
   end
 
@@ -139,7 +137,7 @@ describe Chewy::Search::Response, :orm do
     specify { expect(subject.wrappers).to have(4).items }
     specify do
       expect(subject.wrappers.map(&:class).uniq)
-        .to contain_exactly(CitiesIndex::City, CountriesIndex::Country)
+        .to contain_exactly(CitiesIndex, CountriesIndex)
     end
     specify { expect(subject.wrappers.map(&:_data)).to eq(subject.hits) }
 
@@ -168,7 +166,7 @@ describe Chewy::Search::Response, :orm do
            '_source' => {'id' => 2, 'rating' => 0}}
         ]}}
       end
-      specify { expect(subject.wrappers.first).to be_a(CitiesIndex::City) }
+      specify { expect(subject.wrappers.first).to be_a(CitiesIndex) }
       specify { expect(subject.wrappers.first.id).to eq(2) }
       specify { expect(subject.wrappers.first.rating).to eq(0) }
       specify { expect(subject.wrappers.first._score).to eq(1.3) }
@@ -185,7 +183,7 @@ describe Chewy::Search::Response, :orm do
            '_explanation' => {foo: 'bar'}}
         ]}}
       end
-      specify { expect(subject.wrappers.first).to be_a(CountriesIndex::Country) }
+      specify { expect(subject.wrappers.first).to be_a(CountriesIndex) }
       specify { expect(subject.wrappers.first.id).to eq('2') }
       specify { expect(subject.wrappers.first.rating).to be_nil }
       specify { expect(subject.wrappers.first._score).to eq(1.2) }

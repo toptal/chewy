@@ -109,11 +109,10 @@ class UsersIndex < Chewy::Index
     }
   }
 
-  define_type User do
-    field :first_name
-    field :last_name
-    field :email, analyzer: 'email'
-  end
+  index_scope User
+  field :first_name
+  field :last_name
+  field :email, analyzer: 'email'
 end
 ```
 
@@ -130,7 +129,7 @@ Add `update_index` to app/models/user.rb:
 
 ```ruby
 class User < ApplicationRecord
-  update_index('users#user') { self }
+  update_index('users') { self }
 end
 ```
 
@@ -145,7 +144,7 @@ User.create(
   email: 'test1@example.com',
   # other fields
 )
-# UsersIndex::User Import (355.3ms) {:index=>1}
+# UsersIndex Import (355.3ms) {:index=>1}
 # => #<User id: 1, first_name: "test1", last_name: "test1", email: "test1@example.com", # other fields>
 ```
 
@@ -268,41 +267,38 @@ Chewy.settings = {
   end
   ```
 
-2. Add one or more types mapping
+2. Define index scope (you can omit this part if you don't need to specify a scope (i.e. use PORO objects for import) or options)
 
   ```ruby
   class UsersIndex < Chewy::Index
-    define_type User.active # or just model instead_of scope: define_type User
+    index_scope User.active # or just model instead_of scope: index_scope User
   end
   ```
 
-  Newly-defined index type class is accessible via `UsersIndex.user` or `UsersIndex::User`
-
-3. Add some type mappings
+3. Add some mappings
 
   ```ruby
   class UsersIndex < Chewy::Index
-    define_type User.active.includes(:country, :badges, :projects) do
-      field :first_name, :last_name # multiple fields without additional options
-      field :email, analyzer: 'email' # Elasticsearch-related options
-      field :country, value: ->(user) { user.country.name } # custom value proc
-      field :badges, value: ->(user) { user.badges.map(&:name) } # passing array values to index
-      field :projects do # the same block syntax for multi_field, if `:type` is specified
-        field :title
-        field :description # default data type is `text`
-        # additional top-level objects passed to value proc:
-        field :categories, value: ->(project, user) { project.categories.map(&:name) if user.active? }
-      end
-      field :rating, type: 'integer' # custom data type
-      field :created, type: 'date', include_in_all: false,
-        value: ->{ created_at } # value proc for source object context
+    index_scope User.active.includes(:country, :badges, :projects)
+    field :first_name, :last_name # multiple fields without additional options
+    field :email, analyzer: 'email' # Elasticsearch-related options
+    field :country, value: ->(user) { user.country.name } # custom value proc
+    field :badges, value: ->(user) { user.badges.map(&:name) } # passing array values to index
+    field :projects do # the same block syntax for multi_field, if `:type` is specified
+      field :title
+      field :description # default data type is `text`
+      # additional top-level objects passed to value proc:
+      field :categories, value: ->(project, user) { project.categories.map(&:name) if user.active? }
     end
+    field :rating, type: 'integer' # custom data type
+    field :created, type: 'date', include_in_all: false,
+      value: ->{ created_at } # value proc for source object context
   end
   ```
 
   [See here for mapping definitions](https://www.elastic.co/guide/en/elasticsearch/reference/current/mapping.html).
 
-4. Add some index- and type-related settings. Analyzer repositories might be used as well. See `Chewy::Index.settings` docs for details:
+4. Add some index-related settings. Analyzer repositories might be used as well. See `Chewy::Index.settings` docs for details:
 
   ```ruby
   class UsersIndex < Chewy::Index
@@ -315,23 +311,22 @@ Chewy.settings = {
       }
     }
 
-    define_type User.active.includes(:country, :badges, :projects) do
-      root date_detection: false do
-        template 'about_translations.*', type: 'text', analyzer: 'standard'
+    index_scope User.active.includes(:country, :badges, :projects)
+    root date_detection: false do
+      template 'about_translations.*', type: 'text', analyzer: 'standard'
 
-        field :first_name, :last_name
-        field :email, analyzer: 'email'
-        field :country, value: ->(user) { user.country.name }
-        field :badges, value: ->(user) { user.badges.map(&:name) }
-        field :projects do
-          field :title
-          field :description
-        end
-        field :about_translations, type: 'object' # pass object type explicitly if necessary
-        field :rating, type: 'integer'
-        field :created, type: 'date', include_in_all: false,
-          value: ->{ created_at }
+      field :first_name, :last_name
+      field :email, analyzer: 'email'
+      field :country, value: ->(user) { user.country.name }
+      field :badges, value: ->(user) { user.badges.map(&:name) }
+      field :projects do
+        field :title
+        field :description
       end
+      field :about_translations, type: 'object' # pass object type explicitly if necessary
+      field :rating, type: 'integer'
+      field :created, type: 'date', include_in_all: false,
+        value: ->{ created_at }
     end
   end
   ```
@@ -345,39 +340,32 @@ Chewy.settings = {
 
   ```ruby
   class User < ActiveRecord::Base
-    update_index('users#user') { self } # specifying index, type and back-reference
+    update_index('users') { self } # specifying index and back-reference
                                         # for updating after user save or destroy
   end
 
   class Country < ActiveRecord::Base
     has_many :users
 
-    update_index('users#user') { users } # return single object or collection
+    update_index('users') { users } # return single object or collection
   end
 
   class Project < ActiveRecord::Base
-    update_index('users#user') { user if user.active? } # you can return even `nil` from the back-reference
-  end
-
-  class Badge < ActiveRecord::Base
-    has_and_belongs_to_many :users
-
-    update_index('users') { users } # if index has only one type
-                                    # there is no need to specify updated type
+    update_index('users') { user if user.active? } # you can return even `nil` from the back-reference
   end
 
   class Book < ActiveRecord::Base
-    update_index(->(book) {"books#book_#{book.language}"}) { self } # dynamic index and type with proc.
-                                                                    # For book with language == "en"
-                                                                    # this code will generate `books#book_en`
+    update_index(->(book) {"books_#{book.language}"}) { self } # dynamic index name with proc.
+                                                               # For book with language == "en"
+                                                               # this code will generate `books_en`
   end
   ```
 
   Also, you can use the second argument for method name passing:
 
   ```ruby
-  update_index('users#user', :self)
-  update_index('users#user', :users)
+  update_index('users', :self)
+  update_index('users', :users)
   ```
 
   In the case of a belongs_to association you may need to update both associated objects, previous and current:
@@ -386,29 +374,28 @@ Chewy.settings = {
   class City < ActiveRecord::Base
     belongs_to :country
 
-    update_index('cities#city') { self }
-    update_index 'countries#country' do
+    update_index('cities') { self }
+    update_index 'countries' do
       previous_changes['country_id'] || country
     end
   end
   ```
 
-### Type default import options
+### Default import options
 
-Every type has `default_import_options` configuration to specify, suddenly, default import options:
+Every index has `default_import_options` configuration to specify, suddenly, default import options:
 
 ```ruby
 class ProductsIndex < Chewy::Index
-  define_type Post.includes(:tags) do
-    default_import_options batch_size: 100, bulk_size: 10.megabytes, refresh: false
+  index_scope Post.includes(:tags)
+  default_import_options batch_size: 100, bulk_size: 10.megabytes, refresh: false
 
-    field :name
-    field :tags, value: -> { tags.map(&:name) }
-  end
+  field :name
+  field :tags, value: -> { tags.map(&:name) }
 end
 ```
 
-See [import.rb](lib/chewy/type/import.rb) for available options.
+See [import.rb](lib/chewy/index/import.rb) for available options.
 
 ### Multi (nested) and object field types
 
@@ -459,10 +446,9 @@ Assume you are defining your index like this (product has_many categories throug
 
 ```ruby
 class ProductsIndex < Chewy::Index
-  define_type Product.includes(:categories) do
-    field :name
-    field :category_names, value: ->(product) { product.categories.map(&:name) } # or shorter just -> { categories.map(&:name) }
-  end
+  index_scope Product.includes(:categories)
+  field :name
+  field :category_names, value: ->(product) { product.categories.map(&:name) } # or shorter just -> { categories.map(&:name) }
 end
 ```
 
@@ -482,20 +468,19 @@ If you meet complicated cases when associations are not applicable you can repla
 
 ```ruby
 class ProductsIndex < Chewy::Index
-  define_type Product do
-    crutch :categories do |collection| # collection here is a current batch of products
-      # data is fetched with a lightweight query without objects initialization
-      data = ProductCategory.joins(:category).where(product_id: collection.map(&:id)).pluck(:product_id, 'categories.name')
-      # then we have to convert fetched data to appropriate format
-      # this will return our data in structure like:
-      # {123 => ['sweets', 'juices'], 456 => ['meat']}
-      data.each.with_object({}) { |(id, name), result| (result[id] ||= []).push(name) }
-    end
-
-    field :name
-    # simply use crutch-fetched data as a value:
-    field :category_names, value: ->(product, crutches) { crutches.categories[product.id] }
+  index_scope Product
+  crutch :categories do |collection| # collection here is a current batch of products
+    # data is fetched with a lightweight query without objects initialization
+    data = ProductCategory.joins(:category).where(product_id: collection.map(&:id)).pluck(:product_id, 'categories.name')
+    # then we have to convert fetched data to appropriate format
+    # this will return our data in structure like:
+    # {123 => ['sweets', 'juices'], 456 => ['meat']}
+    data.each.with_object({}) { |(id, name), result| (result[id] ||= []).push(name) }
   end
+
+  field :name
+  # simply use crutch-fetched data as a value:
+  field :category_names, value: ->(product, crutches) { crutches.categories[product.id] }
 end
 ```
 
@@ -517,22 +502,21 @@ So Chewy Crutches™ technology is able to increase your indexing performance in
 
 ### Witchcraft™ technology
 
-One more experimental technology to increase import performance. As far as you know, chewy defines value proc for every imported field in mapping, so at the import time each of this procs is executed on imported object to extract result document to import. It would be great for performance to use one huge whole-document-returning proc instead. So basically the idea or Witchcraft™ technology is to compile a single document-returning proc from the type definition.
+One more experimental technology to increase import performance. As far as you know, chewy defines value proc for every imported field in mapping, so at the import time each of this procs is executed on imported object to extract result document to import. It would be great for performance to use one huge whole-document-returning proc instead. So basically the idea or Witchcraft™ technology is to compile a single document-returning proc from the index definition.
 
 ```ruby
-define_type Product do
-  witchcraft!
+index_scope Product
+witchcraft!
 
-  field :title
-  field :tags, value: -> { tags.map(&:name) }
-  field :categories do
-    field :name, value: -> (product, category) { category.name }
-    field :type, value: -> (product, category, crutch) { crutch.types[category.name] }
-  end
+field :title
+field :tags, value: -> { tags.map(&:name) }
+field :categories do
+  field :name, value: -> (product, category) { category.name }
+  field :type, value: -> (product, category, crutch) { crutch.types[category.name] }
 end
 ```
 
-The type definition above will be compiled to something close to:
+The index definition above will be compiled to something close to:
 
 ```ruby
 -> (object, crutches) do
@@ -562,7 +546,7 @@ Obviously not every type of definition might be compiled. There are some restric
   end
   ```
 
-However, it is quite possible that your type definition will be supported by Witchcraft™ technology out of the box in the most of the cases.
+However, it is quite possible that your index definition will be supported by Witchcraft™ technology out of the box in the most of the cases.
 
 ### Raw Import
 
@@ -589,13 +573,12 @@ class LightweightProduct
   end
 end
 
-define_type Product do
-  default_import_options raw_import: ->(hash) {
-    LightweightProduct.new(hash)
-  }
+index_scope Product
+default_import_options raw_import: ->(hash) {
+  LightweightProduct.new(hash)
+}
 
-  field :created_at, 'datetime'
-end
+field :created_at, 'datetime'
 ```
 
 Also, you can pass `:raw_import` option to the `import` method explicitly.
@@ -611,14 +594,13 @@ To do so you need to set `skip_index_creation_on_import` parameter to `false` in
 You can use `ignore_blank: true` to skip fields that return `true` for the `.blank?` method:
 
 ```ruby
-define_type Country do
+index_scope Country
+field :id
+field :cities, ignore_blank: true do
   field :id
-  field :cities, ignore_blank: true do
-    field :id
-    field :name
-    field :surname, ignore_blank: true
-    field :description
-  end
+  field :name
+  field :surname, ignore_blank: true
+  field :description
 end
 ```
 
@@ -638,7 +620,6 @@ Common journal record looks like this:
   "action": "index",
   "object_id": [1, 2, 3],
   "index_name": "...",
-  "type_name": "...",
   "created_at": "<timestamp>"
 }
 ```
@@ -664,28 +645,14 @@ Or as a default import option for an index:
 
 ```ruby
 class CityIndex
-  define_type City do
-    default_import_options journal: true
-  end
+  index_scope City
+  default_import_options journal: true
 end
 ```
 
 You may be wondering why do you need it? The answer is simple: not to lose the data.
 
 Imagine that you reset your index in a zero-downtime manner (to separate index), and at the meantime somebody keeps updating the data frequently (to old index). So all these actions will be written to the journal index and you'll be able to apply them after index reset using the `Chewy::Journal` interface.
-
-### Types access
-
-You can access index-defined type with the following API:
-
-```ruby
-UsersIndex::User # => UsersIndex::User
-UsersIndex.type_hash['user'] # => UsersIndex::User
-UsersIndex.type('user') # => UsersIndex::User
-UsersIndex.type('foo') # => raises error UndefinedType("Unknown type in UsersIndex: foo")
-UsersIndex.types # => [UsersIndex::User]
-UsersIndex.type_names # => ['user']
-```
 
 ### Index manipulation
 
@@ -699,24 +666,21 @@ UsersIndex.create! # use bang or non-bang methods
 UsersIndex.purge
 UsersIndex.purge! # deletes then creates index
 
-UsersIndex::User.import # import with 0 arguments process all the data specified in type definition
-                        # literally, User.active.includes(:country, :badges, :projects).find_in_batches
-UsersIndex::User.import User.where('rating > 100') # or import specified users scope
-UsersIndex::User.import User.where('rating > 100').to_a # or import specified users array
-UsersIndex::User.import [1, 2, 42] # pass even ids for import, it will be handled in the most effective way
-UsersIndex::User.import User.where('rating > 100'), update_fields: [:email] # if update fields are specified - it will update their values only with the `update` bulk action
+UsersIndex.import # import with 0 arguments process all the data specified in index_scope definition
+UsersIndex.import User.where('rating > 100') # or import specified users scope
+UsersIndex.import User.where('rating > 100').to_a # or import specified users array
+UsersIndex.import [1, 2, 42] # pass even ids for import, it will be handled in the most effective way
+UsersIndex.import User.where('rating > 100'), update_fields: [:email] # if update fields are specified - it will update their values only with the `update` bulk action
 
-UsersIndex.import # same as UsersIndex::User.import
-UsersIndex.import user: User.where('rating > 100') # import only specified users
 UsersIndex.reset! # purges index and imports default data for all types
 ```
 
-If the passed user is `#destroyed?`, or satisfies a `delete_if` type option, or the specified id does not exist in the database, import will perform delete from index action for this object.
+If the passed user is `#destroyed?`, or satisfies a `delete_if` index_scope option, or the specified id does not exist in the database, import will perform delete from index action for this object.
 
 ```ruby
-define_type User, delete_if: :deleted_at
-define_type User, delete_if: -> { deleted_at }
-define_type User, delete_if: ->(user) { user.deleted_at }
+index_scope User, delete_if: :deleted_at
+index_scope User, delete_if: -> { deleted_at }
+index_scope User, delete_if: ->(user) { user.deleted_at }
 ```
 
 See [actions.rb](lib/chewy/index/actions.rb) for more details.
@@ -727,13 +691,12 @@ Assume you've got the following code:
 
 ```ruby
 class City < ActiveRecord::Base
-  update_index 'cities#city', :self
+  update_index 'cities', :self
 end
 
 class CitiesIndex < Chewy::Index
-  define_type City do
-    field :name
-  end
+  index_scope City
+  field :name
 end
 ```
 
@@ -875,7 +838,7 @@ Chewy has notifying the following events:
 
 #### `import_objects.chewy` payload
 
-  * `payload[:type]`: currently imported type
+  * `payload[:index]`: currently imported index name
   * `payload[:import]`: imports stats, total imported and deleted objects count:
 
     ```ruby
@@ -979,14 +942,13 @@ Quick introduction.
 
 #### Composing requests
 
-The request DSL have the same chainable nature as AR. The main class is `Chewy::Search::Request`. It is possible to perform requests on behalf of indices or types:
+The request DSL have the same chainable nature as AR. The main class is `Chewy::Search::Request`.
 
 ```ruby
-CitiesIndex.query(match: {name: 'London'}) # or
-CitiesIndex::City.query(match: {name: 'London'})
+CitiesIndex.query(match: {name: 'London'})
 ```
 
-Main methods of the request DSL are: `query`, `filter` and `post_filter`, it is possible to pass pure query hashes or use `elasticsearch-dsl`. Also, there is an additional
+Main methods of the request DSL are: `query`, `filter` and `post_filter`, it is possible to pass pure query hashes or use `elasticsearch-dsl`.
 
 ```ruby
 CitiesIndex
@@ -1034,7 +996,7 @@ See [Chewy::Search::Scrolling](lib/chewy/search/scrolling.rb) for details.
 It is possible to load ORM/ODM source objects with the `objects` method. To provide additional loading options use `load` method:
 
 ```ruby
-CitiesIndex.load(scope: -> { active }).to_a # to_a returns `Chewy::Type` wrappers.
+CitiesIndex.load(scope: -> { active }).to_a # to_a returns `Chewy::Index` wrappers.
 CitiesIndex.load(scope: -> { active }).objects # An array of AR source objects.
 ```
 
@@ -1084,35 +1046,33 @@ rake chewy:upgrade[-users,cities] # upgrades every index in the application exce
 
 It doesn't create indexes, it simply imports everything to the existing ones and fails if the index was not created before.
 
-Unlike `reset` or `upgrade` tasks, it is possible to pass type references to update the particular type. In index name is passed without the type specified, it will update all the types defined for this index.
-
 ```bash
 rake chewy:update # updates all the existing indices
 rake chewy:update[users] # updates UsersIndex only
-rake chewy:update[users,cities#city] # updates UsersIndex and CitiesIndex (if City type is defined on CitiesIndex)
-rake chewy:update[-users,cities#city] # updates every index in the application except UsersIndex and CitiesIndex::City
+rake chewy:update[users,cities] # updates UsersIndex and CitiesIndex
+rake chewy:update[-users,cities] # updates every index in the application except UsersIndex and CitiesIndex
 ```
 
 #### `chewy:sync`
 
-Provides a way to synchronize outdated indexes with the source quickly and without doing a full reset. By default field `updated_at` is used to find outdated records, but this could be customized by `outdated_sync_field` as described at [Chewy::Type::Syncer](lib/chewy/type/syncer.rb).
+Provides a way to synchronize outdated indexes with the source quickly and without doing a full reset. By default field `updated_at` is used to find outdated records, but this could be customized by `outdated_sync_field` as described at [Chewy::Index::Syncer](lib/chewy/index/syncer.rb).
 
-Arguments are similar to the ones taken by `chewy:update` task. It is possible to specify a particular type or a whole index.
+Arguments are similar to the ones taken by `chewy:update` task.
 
-See [Chewy::Type::Syncer](lib/chewy/type/syncer.rb) for more details.
+See [Chewy::Index::Syncer](lib/chewy/index/syncer.rb) for more details.
 
 ```bash
 rake chewy:sync # synchronizes all the existing indices
 rake chewy:sync[users] # synchronizes UsersIndex only
-rake chewy:sync[users,cities#city] # synchronizes UsersIndex and CitiesIndex (if City type is defined on CitiesIndex)
-rake chewy:sync[-users,cities#city] # synchronizes every index in the application except except UsersIndex and CitiesIndex::City
+rake chewy:sync[users,cities] # synchronizes UsersIndex and CitiesIndex
+rake chewy:sync[-users,cities] # synchronizes every index in the application except except UsersIndex and CitiesIndex
 ```
 
 #### `chewy:deploy`
 
 This rake task is especially useful during the production deploy. It is a combination of `chewy:upgrade` and `chewy:sync` and the latter is called only for the indexes that were not reset during the first stage.
 
-It is not possible to specify any particular types/indexes for this task as it doesn't make much sense.
+It is not possible to specify any particular indexes for this task as it doesn't make much sense.
 
 Right now the approach is that if some data had been updated, but index definition was not changed (no changes satisfying the synchronization algorithm were done), it would be much faster to perform manual partial index update inside data migrations or even manually after the deploy.
 
@@ -1129,14 +1089,14 @@ If the number of processes is not specified explicitly - `parallel` gem tries to
 ```bash
 rake chewy:parallel:reset
 rake chewy:parallel:upgrade[4]
-rake chewy:parallel:update[4,cities#city]
+rake chewy:parallel:update[4,cities]
 rake chewy:parallel:sync[4,-users]
 rake chewy:parallel:deploy[4] # performs parallel upgrade and parallel sync afterwards
 ```
 
 #### `chewy:journal`
 
-This namespace contains two tasks for the journal manipulations: `chewy:journal:apply` and `chewy:journal:clean`. Both are taking time as the first argument (optional for clean) and a list of indexes/types exactly as the tasks above. Time can be in any format parsable by ActiveSupport.
+This namespace contains two tasks for the journal manipulations: `chewy:journal:apply` and `chewy:journal:clean`. Both are taking time as the first argument (optional for clean) and a list of indexes exactly as the tasks above. Time can be in any format parsable by ActiveSupport.
 
 ```bash
 rake chewy:journal:apply["$(date -v-1H -u +%FT%TZ)"] # apply journaled changes for the past hour
@@ -1173,7 +1133,7 @@ Chewy.use_after_commit_callbacks = !Rails.env.test?
 5. Push to the branch (`git push origin my-new-feature`)
 6. Create new Pull Request
 
-Use the following Rake tasks to control the Elasticsearch cluster while developing.
+Use the following Rake tasks to control the Elasticsearch cluster while developing, if you prefer native Elasticsearch installation over the dockerized one:
 
 ```bash
 rake elasticsearch:start # start Elasticsearch cluster on 9250 port for tests

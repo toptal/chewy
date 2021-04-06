@@ -703,7 +703,8 @@ describe Chewy::Index::Actions do
           expect(CitiesIndex)
             .to receive(:clear_cache)
             .and_call_original
-          CitiesIndex.clear_cache({index: index_name_with_prefix})
+          expect { CitiesIndex.clear_cache({index: index_name_with_prefix}) }
+            .not_to raise_error Elasticsearch::Transport::Transport::Errors::NotFound
         end
       end
 
@@ -714,6 +715,20 @@ describe Chewy::Index::Actions do
             .and_call_original
           expect { CitiesIndex.clear_cache({index: unexisted_index_name}) }
             .to raise_error Elasticsearch::Transport::Transport::Errors::NotFound
+        end
+      end
+
+      context 'without arguments' do
+        before do
+          CitiesIndex.create
+        end
+
+        specify do
+          expect(CitiesIndex)
+            .to receive(:clear_cache)
+            .and_call_original
+          expect { CitiesIndex.clear_cache }
+            .not_to raise_error Elasticsearch::Transport::Transport::Errors::NotFound
         end
       end
     end

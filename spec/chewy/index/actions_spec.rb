@@ -693,7 +693,7 @@ describe Chewy::Index::Actions do
     let(:index_name_with_prefix) { 'cities_test_index' }
     let(:unexisted_index_name) { 'wrong_index' }
 
-    context 'with existed index' do
+    context 'with existing index' do
       before do
         CitiesIndex.create(index_name)
       end

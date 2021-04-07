@@ -731,4 +731,52 @@ describe Chewy::Index::Actions do
       end
     end
   end
+
+
+  describe '._reindex' do
+    before do
+      stub_model(:city)
+      stub_index(:cities) do
+        define_type City
+      end
+      CitiesIndex.create(source_index)
+      CitiesIndex.create(dest_index)
+    end
+
+    let(:source_index) { 'source_index' }
+    let(:source_index_with_prefix) { 'cities_source_index' }
+    let(:dest_index) { 'dest_index' }
+    let(:dest_index_with_prefix) { 'cities_dest_index' }
+    let(:unexisted_index) { 'wrong_index' }
+
+    context 'with existing indexes' do
+      specify do
+        expect(CitiesIndex)
+          .to receive(:_reindex)
+          .and_call_original
+        expect { CitiesIndex._reindex(source_index_with_prefix, dest_index_with_prefix) }
+          .not_to raise_error
+      end
+    end
+
+    context 'with unexisting source index' do
+      specify do
+        expect(CitiesIndex)
+          .to receive(:_reindex)
+          .and_call_original
+        expect { CitiesIndex._reindex(unexisted_index, dest_index_with_prefix) }
+          .to raise_error Elasticsearch::Transport::Transport::Errors::NotFound
+      end
+    end
+
+    context 'with unexisting dest index' do
+      specify do
+        expect(CitiesIndex)
+          .to receive(:_reindex)
+          .and_call_original
+        expect { CitiesIndex._reindex(source_index_with_prefix, unexisted_index) }
+          .not_to raise_error
+      end
+    end
+  end
 end

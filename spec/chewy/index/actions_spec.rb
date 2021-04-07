@@ -707,7 +707,7 @@ describe Chewy::Index::Actions do
       end
     end
 
-    context 'with unexisted index' do
+    context 'with unexisting index' do
       specify do
         expect(CitiesIndex)
           .to receive(:clear_cache)

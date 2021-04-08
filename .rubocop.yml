@@ -57,4 +57,5 @@ Metrics/BlockLength:
 
 Metrics/ModuleLength:
   Exclude:
+    - 'lib/chewy/rake_helper.rb'
     - '**/*_spec.rb'

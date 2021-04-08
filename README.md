@@ -16,7 +16,7 @@ Chewy is an ODM (Object Document Mapper), built on top of the [the official Elas
     * [Elasticsearch compatibility matrix](#elasticsearch-compatibility-matrix)
     * [Active Record](#active-record)
 * [Getting Started](#getting-started)
-    * [Minimal client setting](*minimal-client-setting)
+    * [Minimal client setting](#minimal-client-setting)
     * [Elasticsearch](#elasticsearch)
     * [Index](#index)
     * [Model](#model)

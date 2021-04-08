@@ -221,6 +221,10 @@ module Chewy
           @journal ||= Chewy::Journal.new(self)
         end
 
+        def clear_cache(args = {index: index_name})
+          client.indices.clear_cache(args)
+        end
+
       private
 
         def optimize_index_settings(index_name)

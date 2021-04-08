@@ -732,7 +732,6 @@ describe Chewy::Index::Actions do
     end
   end
 
-
   describe '._reindex' do
     before do
       stub_model(:city)

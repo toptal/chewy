@@ -405,15 +405,25 @@ Total: \\d+s\\Z
     let(:dest_index) { 'countries' }
     let(:indexes_array) { [source_index, dest_index] }
 
-    specify do
-      output = StringIO.new
-      described_class._reindex(only: indexes_array, output: output)
-      expect(output.string).to match(Regexp.new(<<-OUTPUT, Regexp::MULTILINE))
+    context 'with right arguments' do
+      specify do
+        output = StringIO.new
+        described_class._reindex(only: indexes_array, output: output)
+        expect(output.string).to match(Regexp.new(<<-OUTPUT, Regexp::MULTILINE))
 \\Source index is cities
 \\Destination index is countries
 cities index successfully reindexed with countries index data
 Total: \\d+s\\Z
-      OUTPUT
+        OUTPUT
+      end
+    end
+
+    context 'with wrong count of arguments' do
+      specify do
+        output = StringIO.new
+        expect { described_class._reindex(only: [source_index], output: output) }
+          .to raise_error ArgumentError
+      end
     end
   end
 end

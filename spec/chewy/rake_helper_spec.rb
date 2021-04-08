@@ -393,4 +393,27 @@ Total: \\d+s\\Z
       OUTPUT
     end
   end
+
+  describe '._reindex' do
+    before do
+      journal
+      CitiesIndex.create!
+      CountriesIndex.create!
+    end
+
+    let(:source_index) { 'cities' }
+    let(:dest_index) { 'countries' }
+    let(:indexes_array) { [source_index, dest_index] }
+
+    specify do
+      output = StringIO.new
+      described_class._reindex(only: indexes_array, output: output)
+      expect(output.string).to match(Regexp.new(<<-OUTPUT, Regexp::MULTILINE))
+\\Source index is cities
+\\Destination index is countries
+cities index successfully reindexed with countries index data
+Total: \\d+s\\Z
+      OUTPUT
+    end
+  end
 end

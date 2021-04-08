@@ -12,6 +12,8 @@ gem 'kaminari-core', require: false
 gem 'parallel', require: false
 gem 'ruby-progressbar', require: false
 
+gem 'pry'
+
 gem 'guard'
 gem 'guard-rspec'
 

@@ -228,6 +228,8 @@ module Chewy
       #
       # @param only [Array<Chewy::Index, String>, Chewy::Index, String] indexes to reindex
       def _reindex(only: nil, output: $stdout)
+        raise ArgumentError, 'Please specify the source index and the destination index' unless only.length == 2
+
         subscribed_task_stats(output) do
           output.puts "Source index is #{only[0]}\nDestination index is #{only[1]}"
           Chewy::Index._reindex(*only)

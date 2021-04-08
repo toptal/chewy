@@ -42,10 +42,6 @@ module Chewy
         end
       end
 
-      def _reindex(only: nil)
-        Chewy::Index._reindex(*only)
-      end
-
       # Performs zero-downtime reindexing of all documents for the specified
       # indexes only if a particular index specification was changed.
       #
@@ -223,6 +219,16 @@ module Chewy
           ActiveSupport::Notifications.subscribed(IMPORT_CALLBACK.curry[output], 'import_objects.chewy', &block)
         end
         output.puts "Total: #{human_duration(Time.now - start)}"
+      end
+
+      # Reindex data from source index to destination index
+      #
+      # @example
+      #   Chewy::RakeHelper._reindex(only: ['users_index', 'cities_index']) reindex data from 'users_index' index to 'cities_index'
+      #
+      # @param only [Array<Chewy::Index, String>, Chewy::Index, String] indexes to reindex
+      def _reindex(only: nil)
+        Chewy::Index._reindex(*only)
       end
 
     private

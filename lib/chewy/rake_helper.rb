@@ -42,6 +42,10 @@ module Chewy
         end
       end
 
+      def _reindex(only: nil)
+        Chewy::Index._reindex(*only)
+      end
+
       # Performs zero-downtime reindexing of all documents for the specified
       # indexes only if a particular index specification was changed.
       #

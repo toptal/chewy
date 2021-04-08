@@ -47,6 +47,11 @@ namespace :chewy do
     Chewy::RakeHelper.sync(except: processed)
   end
 
+  desc 'Reindex data from source index to destination index'
+  task _reindex: :environment do |_task, args|
+    Chewy::RakeHelper._reindex(**parse_classes(args.extras))
+  end
+
   namespace :parallel do
     desc 'Parallel version of `rake chewy:reset`'
     task reset: :environment do |_task, args|

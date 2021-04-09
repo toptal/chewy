@@ -225,7 +225,7 @@ module Chewy
           client.indices.clear_cache(args)
         end
 
-        def _reindex(source_index, dest_index)
+        def reindex(source_index, dest_index)
           client.perform_request('POST', '_reindex', {}, {source: {index: source_index}, dest: {index: dest_index}})
         end
 

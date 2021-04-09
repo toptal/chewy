@@ -206,15 +206,15 @@ module Chewy
       # Reindex data from source index to destination index
       #
       # @example
-      #   Chewy::RakeHelper._reindex(only: ['users_index', 'cities_index']) reindex data from 'users_index' index to 'cities_index'
+      #   Chewy::RakeHelper.reindex(only: ['users_index', 'cities_index']) reindex data from 'users_index' index to 'cities_index'
       #
       # @param only [Array<Chewy::Index, String>, Chewy::Index, String] indexes to reindex
-      def _reindex(only: nil, output: $stdout)
+      def reindex(only: nil, output: $stdout)
         raise ArgumentError, 'Please specify the source index and the destination index' unless only.length == 2
 
         subscribed_task_stats(output) do
           output.puts "Source index is #{only[0]}\nDestination index is #{only[1]}"
-          Chewy::Index._reindex(*only)
+          Chewy::Index.reindex(*only)
           output.puts "#{only[0]} index successfully reindexed with #{only[1]} index data"
         end
       end

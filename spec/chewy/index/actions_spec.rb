@@ -781,7 +781,7 @@ describe Chewy::Index::Actions do
     end
 
     context 'with missing indexes' do
-      context 'source index' do
+      context 'without dest index' do
         specify do
           expect(DummiesIndex)
             .to receive(:reindex)
@@ -791,7 +791,7 @@ describe Chewy::Index::Actions do
         end
       end
 
-      context 'dest index' do
+      context 'without source index' do
         specify do
           expect(CitiesIndex)
             .to receive(:reindex)

@@ -758,23 +758,25 @@ describe Chewy::Index::Actions do
       end
     end
 
-    context 'with unexisting source index' do
-      specify do
-        expect(CitiesIndex)
-          .to receive(:reindex)
-          .and_call_original
-        expect { CitiesIndex.reindex(source: unexisted_index, destination: dest_index_with_prefix) }
-          .to raise_error Elasticsearch::Transport::Transport::Errors::NotFound
+    context 'with unexisting indexes' do
+      context 'source index' do
+        specify do
+          expect(CitiesIndex)
+            .to receive(:reindex)
+            .and_call_original
+          expect { CitiesIndex.reindex(source: unexisted_index, destination: dest_index_with_prefix) }
+            .to raise_error Elasticsearch::Transport::Transport::Errors::NotFound
+        end
       end
-    end
 
-    context 'with unexisting dest index' do
-      specify do
-        expect(CitiesIndex)
-          .to receive(:reindex)
-          .and_call_original
-        expect { CitiesIndex.reindex(source: source_index_with_prefix, destination: unexisted_index) }
-          .not_to raise_error
+      context 'dest index' do
+        specify do
+          expect(CitiesIndex)
+            .to receive(:reindex)
+            .and_call_original
+          expect { CitiesIndex.reindex(source: source_index_with_prefix, destination: unexisted_index) }
+            .not_to raise_error
+        end
       end
     end
   end

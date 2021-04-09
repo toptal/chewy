@@ -226,7 +226,6 @@ module Chewy
         end
 
         def reindex(source: index_name, dest: index_name)
-          binding.pry
           client.reindex(
             {
               body:

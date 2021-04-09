@@ -780,5 +780,17 @@ describe Chewy::Index::Actions do
         end
       end
     end
+
+    context 'with one argument' do
+      context 'source index' do
+        specify do
+          expect(CitiesIndex)
+            .to receive(:reindex)
+            .and_call_original
+          expect { CitiesIndex.reindex(source: source_index_with_prefix) }
+            .not_to raise_error
+        end
+      end
+    end
   end
 end

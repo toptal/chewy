@@ -740,6 +740,7 @@ describe Chewy::Index::Actions do
       end
       CitiesIndex.create(source_index)
       CitiesIndex.create(dest_index)
+      CitiesIndex.create
     end
 
     let(:source_index) { 'source_index' }

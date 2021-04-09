@@ -225,13 +225,13 @@ module Chewy
           client.indices.clear_cache(args)
         end
 
-        def reindex(source: index_name, destination: index_name)
+        def reindex(source: index_name, dest: index_name)
           client.reindex(
             {
               body:
                 {
                   source: {index: source},
-                  dest: {index: destination}
+                  dest: {index: dest}
                 }
             }
           )

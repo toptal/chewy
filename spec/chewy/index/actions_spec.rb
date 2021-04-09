@@ -739,14 +739,13 @@ describe Chewy::Index::Actions do
         define_type City
       end
       CitiesIndex.create(source_index)
-      CitiesIndex.create(dest_index)
-      CitiesIndex.create
+      DummiesIndex.create(dest_index)
     end
 
     let(:source_index) { 'source_index' }
     let(:source_index_with_prefix) { 'cities_source_index' }
     let(:dest_index) { 'dest_index' }
-    let(:dest_index_with_prefix) { 'cities_dest_index' }
+    let(:dest_index_with_prefix) { 'dummies_dest_index' }
     let(:unexisted_index) { 'wrong_index' }
 
     context 'with existing indexes' do
@@ -784,10 +783,10 @@ describe Chewy::Index::Actions do
     context 'with one argument' do
       context 'source index' do
         specify do
-          expect(CitiesIndex)
+          expect(DummiesIndex)
             .to receive(:reindex)
             .and_call_original
-          expect { CitiesIndex.reindex(source: source_index_with_prefix) }
+          expect { DummiesIndex.reindex(source: source_index_with_prefix) }
             .not_to raise_error
         end
       end

@@ -225,6 +225,18 @@ module Chewy
           client.indices.clear_cache(args)
         end
 
+        def reindex(source: index_name, dest: index_name)
+          client.reindex(
+            {
+              body:
+                {
+                  source: {index: source},
+                  dest: {index: dest}
+                }
+            }
+          )
+        end
+
       private
 
         def optimize_index_settings(index_name)

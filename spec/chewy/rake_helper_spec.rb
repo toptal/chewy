@@ -393,4 +393,46 @@ Total: \\d+s\\Z
       OUTPUT
     end
   end
+
+  describe '.reindex' do
+    before do
+      journal
+      CitiesIndex.create!
+      CountriesIndex.create!
+    end
+
+    let(:source_index) { 'cities' }
+    let(:dest_index) { 'countries' }
+
+    context 'with correct arguments' do
+      specify do
+        output = StringIO.new
+        described_class.reindex(source: source_index, dest: dest_index, output: output)
+        expect(output.string).to match(Regexp.new(<<-OUTPUT, Regexp::MULTILINE))
+\\Source index is cities
+\\Destination index is countries
+cities index successfully reindexed with countries index data
+Total: \\d+s\\Z
+        OUTPUT
+      end
+    end
+
+    context 'with missing indexes' do
+      context 'without dest index' do
+        specify do
+          output = StringIO.new
+          expect { described_class.reindex(source: source_index, output: output) }
+            .to raise_error ArgumentError
+        end
+      end
+
+      context 'without source index' do
+        specify do
+          output = StringIO.new
+          expect { described_class.reindex(dest: dest_index, output: output) }
+            .to raise_error ArgumentError
+        end
+      end
+    end
+  end
 end

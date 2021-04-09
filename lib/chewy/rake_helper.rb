@@ -203,6 +203,20 @@ module Chewy
         Chewy::Index.descendants - [Chewy::Stash::Journal, Chewy::Stash::Specification]
       end
 
+      # Reindex data from source index to destination index
+      #
+      # @example
+      #   Chewy::RakeHelper.reindex(source: 'users_index', dest: 'cities_index') reindex data from 'users_index' index to 'cities_index'
+      #
+      # @param source [String], dest [String] indexes to reindex
+      def reindex(source:, dest:, output: $stdout)
+        subscribed_task_stats(output) do
+          output.puts "Source index is #{source}\nDestination index is #{dest}"
+          Chewy::Index.reindex(source: source, dest: dest)
+          output.puts "#{source} index successfully reindexed with #{dest} index data"
+        end
+      end
+
       def normalize_indexes(*identifiers)
         identifiers.flatten(1).map { |identifier| normalize_index(identifier) }
       end

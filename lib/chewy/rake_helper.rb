@@ -210,8 +210,6 @@ module Chewy
       #
       # @param only [Array<Chewy::Index, String>, Chewy::Index, String] indexes to reindex
       def reindex(source:, dest:, output: $stdout)
-        raise ArgumentError, 'Please specify the source index and the destination index' unless source || dest
-
         subscribed_task_stats(output) do
           output.puts "Source index is #{source}\nDestination index is #{dest}"
           Chewy::Index.reindex(source: source, dest: dest)

@@ -790,6 +790,16 @@ describe Chewy::Index::Actions do
             .not_to raise_error
         end
       end
+
+      context 'dest index' do
+        specify do
+          expect(CitiesIndex)
+            .to receive(:reindex)
+            .and_call_original
+          expect { CitiesIndex.reindex(dest: dest_index_with_prefix) }
+            .not_to raise_error
+        end
+      end
     end
   end
 end

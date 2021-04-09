@@ -418,7 +418,7 @@ Total: \\d+s\\Z
     end
 
     context 'with missing indexes' do
-      context 'destination index' do
+      context 'without dest index' do
         specify do
           output = StringIO.new
           expect { described_class.reindex(source: source_index, output: output) }

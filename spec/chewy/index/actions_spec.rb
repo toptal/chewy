@@ -780,7 +780,7 @@ describe Chewy::Index::Actions do
       end
     end
 
-    context 'with one argument' do
+    context 'with missing indexes' do
       context 'source index' do
         specify do
           expect(DummiesIndex)

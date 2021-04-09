@@ -417,11 +417,13 @@ Total: \\d+s\\Z
       end
     end
 
-    context 'with missing destination index' do
-      specify do
-        output = StringIO.new
-        expect { described_class.reindex(source: source_index, output: output) }
-          .to raise_error ArgumentError
+    context 'with missing indexes' do
+      context 'destination index' do
+        specify do
+          output = StringIO.new
+          expect { described_class.reindex(source: source_index, output: output) }
+            .to raise_error ArgumentError
+        end
       end
     end
   end

@@ -206,9 +206,9 @@ module Chewy
       # Reindex data from source index to destination index
       #
       # @example
-      #   Chewy::RakeHelper.reindex(only: ['users_index', 'cities_index']) reindex data from 'users_index' index to 'cities_index'
+      #   Chewy::RakeHelper.reindex(source: 'users_index', dest: 'cities_index') reindex data from 'users_index' index to 'cities_index'
       #
-      # @param only [Array<Chewy::Index, String>, Chewy::Index, String] indexes to reindex
+      # @param source [String], dest [String] indexes to reindex
       def reindex(source:, dest:, output: $stdout)
         subscribed_task_stats(output) do
           output.puts "Source index is #{source}\nDestination index is #{dest}"

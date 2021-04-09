@@ -226,13 +226,13 @@ module Chewy
         end
 
         def reindex(source: index_name, destination: index_name)
-          client.perform_request(
-            'POST',
-            '_reindex',
-            {},
+          client.reindex(
             {
-              source: {index: source},
-              dest: {index: destination}
+              body:
+                {
+                  source: {index: source},
+                  dest: {index: destination}
+                }
             }
           )
         end

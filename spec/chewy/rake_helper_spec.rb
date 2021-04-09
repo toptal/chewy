@@ -425,6 +425,14 @@ Total: \\d+s\\Z
             .to raise_error ArgumentError
         end
       end
+
+      context 'without source index' do
+        specify do
+          output = StringIO.new
+          expect { described_class.reindex(dest: dest_index, output: output) }
+            .to raise_error ArgumentError
+        end
+      end
     end
   end
 end

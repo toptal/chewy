@@ -753,7 +753,7 @@ describe Chewy::Index::Actions do
         expect(CitiesIndex)
           .to receive(:reindex)
           .and_call_original
-        expect { CitiesIndex.reindex(source: source_index_with_prefix, destination: dest_index_with_prefix) }
+        expect { CitiesIndex.reindex(source: source_index_with_prefix, dest: dest_index_with_prefix) }
           .not_to raise_error
       end
     end
@@ -764,7 +764,7 @@ describe Chewy::Index::Actions do
           expect(CitiesIndex)
             .to receive(:reindex)
             .and_call_original
-          expect { CitiesIndex.reindex(source: unexisted_index, destination: dest_index_with_prefix) }
+          expect { CitiesIndex.reindex(source: unexisted_index, dest: dest_index_with_prefix) }
             .to raise_error Elasticsearch::Transport::Transport::Errors::NotFound
         end
       end
@@ -774,7 +774,7 @@ describe Chewy::Index::Actions do
           expect(CitiesIndex)
             .to receive(:reindex)
             .and_call_original
-          expect { CitiesIndex.reindex(source: source_index_with_prefix, destination: unexisted_index) }
+          expect { CitiesIndex.reindex(source: source_index_with_prefix, dest: unexisted_index) }
             .not_to raise_error
         end
       end

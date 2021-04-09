@@ -48,8 +48,8 @@ namespace :chewy do
   end
 
   desc 'Reindex data from source index to destination index'
-  task reindex: :environment do |_task, args|
-    Chewy::RakeHelper.reindex(**parse_classes(args.extras))
+  task :reindex, %i[source dest] => :environment do |_task, args|
+    Chewy::RakeHelper.reindex(source: args[:source], dest: args[:dest])
   end
 
   namespace :parallel do

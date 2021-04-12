@@ -10,7 +10,7 @@
 
 ### Changes
 
-  * [#594](https://github.com/toptal/chewy/issues/594): Add `._reindex` to Index class ([@Vitalina-Vakulchyk][]):
+  * [#594](https://github.com/toptal/chewy/issues/594): Add `.reindex` to Index class ([@Vitalina-Vakulchyk][]):
     * Wrapped Elasticsearch gem `.reindex` with `.reindex` in Index class
     * Add `rake chewy:reindex` task
   * [#679](https://github.com/toptal/chewy/issues/679): Wrapped `Elasticsearch::API::Indices::Actions#clear_cache` with `.clear_cache` in Index class ([@Vitalina-Vakulchyk][])

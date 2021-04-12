@@ -237,6 +237,14 @@ module Chewy
           )
         end
 
+        def update_mapping(index, type, body)
+          client.indices.put_mapping(
+            index: index,
+            type: type,
+            body: body
+          )['acknowledged']
+        end
+
       private
 
         def optimize_index_settings(index_name)

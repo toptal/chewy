@@ -52,6 +52,11 @@ namespace :chewy do
     Chewy::RakeHelper.reindex(source: args[:source], dest: args[:dest])
   end
 
+  desc 'Update mapping of exising index with body hash'
+  task :reindex, %i[index_name body_hash] => :environment do |_task, args|
+    Chewy::RakeHelper.update_mapping(name: args[:name], body: args[:body_hash])
+  end
+
   namespace :parallel do
     desc 'Parallel version of `rake chewy:reset`'
     task reset: :environment do |_task, args|

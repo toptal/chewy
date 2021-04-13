@@ -838,7 +838,7 @@ describe Chewy::Index::Actions do
         end
       end
 
-      context 'body_hash' do
+      context 'body hash' do
         specify do
           expect(CitiesIndex)
             .to receive(:update_mapping)

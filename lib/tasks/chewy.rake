@@ -53,7 +53,7 @@ namespace :chewy do
   end
 
   desc 'Update mapping of exising index with body hash'
-  task :reindex, %i[index_name body_hash] => :environment do |_task, args|
+  task :update_mapping, %i[index_name body_hash] => :environment do |_task, args|
     Chewy::RakeHelper.update_mapping(name: args[:name], body: args[:body_hash])
   end
 

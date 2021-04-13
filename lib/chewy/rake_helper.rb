@@ -217,6 +217,21 @@ module Chewy
         end
       end
 
+      # Adds new fields to an existing data stream or index.
+      # Change the search settings of existing fields.
+      #
+      # @example
+      #   Chewy::RakeHelper.update_mapping('cities', {properties: {new_field: {type: :text}}}) update 'cities' index with new_field of text type
+      #
+      # @param name [String], body_hash [Hash] index name and body hash to update
+      def update_mapping(name:, output: $stdout)
+        subscribed_task_stats(output) do
+          output.puts "Index name is #{name}"
+          Chewy::Index.update_mapping(name)
+          output.puts "#{name} index successfully updated"
+        end
+      end
+
       def normalize_indexes(*identifiers)
         identifiers.flatten(1).map { |identifier| normalize_index(identifier) }
       end

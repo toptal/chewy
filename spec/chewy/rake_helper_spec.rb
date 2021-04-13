@@ -435,4 +435,34 @@ Total: \\d+s\\Z
       end
     end
   end
+
+  describe '.update_mapping' do
+    before do
+      journal
+      CitiesIndex.create!
+    end
+
+    let(:index_name) { CitiesIndex.index_name }
+    let(:unexisting_index) { 'wrong_index' }
+
+    context 'with existing index' do
+      specify do
+        output = StringIO.new
+        described_class.update_mapping(name: index_name, output: output)
+        expect(output.string).to match(Regexp.new(<<-OUTPUT, Regexp::MULTILINE))
+\\Index name is cities
+cities index successfully updated
+Total: \\d+s\\Z
+        OUTPUT
+      end
+    end
+
+    context 'with unexisting index name' do
+      specify do
+        output = StringIO.new
+        expect { described_class.update_mapping(name: unexisting_index, output: output) }
+          .to raise_error Elasticsearch::Transport::Transport::Errors::NotFound
+      end
+    end
+  end
 end

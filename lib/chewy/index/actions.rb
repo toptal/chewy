@@ -237,6 +237,19 @@ module Chewy
           )
         end
 
+        # Adds new fields to an existing data stream or index.
+        # Change the search settings of existing fields.
+        #
+        # @example
+        #   Chewy.client.update_mapping('cities', {properties: {new_field: {type: :text}}})
+        #
+        def update_mapping(name = index_name, body = mappings_hash)
+          client.indices.put_mapping(
+            index: name,
+            body: body
+          )['acknowledged']
+        end
+
       private
 
         def optimize_index_settings(index_name)

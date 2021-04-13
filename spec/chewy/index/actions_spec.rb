@@ -843,8 +843,8 @@ describe Chewy::Index::Actions do
           expect(CitiesIndex)
             .to receive(:update_mapping)
             .and_call_original
-          expect { CitiesIndex.update_mapping(unexisting_index, empty_body_hash) }
-            .to raise_error Elasticsearch::Transport::Transport::Errors::NotFound
+          expect { CitiesIndex.update_mapping(index_name, empty_body_hash) }
+            .not_to raise_error
         end
       end
     end

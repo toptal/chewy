@@ -848,5 +848,15 @@ describe Chewy::Index::Actions do
         end
       end
     end
+
+    context 'with only index name argument' do
+      specify do
+        expect(CitiesIndex)
+          .to receive(:update_mapping)
+          .and_call_original
+        expect { CitiesIndex.update_mapping(index_name) }
+          .not_to raise_error
+      end
+    end
   end
 end

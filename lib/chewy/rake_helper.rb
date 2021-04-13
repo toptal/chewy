@@ -224,11 +224,11 @@ module Chewy
       #   Chewy::RakeHelper.update_mapping('cities', {properties: {new_field: {type: :text}}}) update 'cities' index with new_field of text type
       #
       # @param name [String], body_hash [Hash] index name and body hash to update
-      def update_mapping(name:, body_hash:, output: $stdout)
+      def update_mapping(name:, output: $stdout)
         subscribed_task_stats(output) do
-          output.puts "Index name is #{name}\nBody hash is #{body_hash}"
-          Chewy::Index.update_mapping(name, body_hash)
-          output.puts "#{name} index successfully updated with #{body_hash}"
+          output.puts "Index name is #{name}"
+          Chewy::Index.update_mapping(name)
+          output.puts "#{name} index successfully updated"
         end
       end
 

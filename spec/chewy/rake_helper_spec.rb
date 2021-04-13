@@ -443,38 +443,25 @@ Total: \\d+s\\Z
     end
 
     let(:index_name) { CitiesIndex.index_name }
-    let(:body_hash) { {properties: {new_field: {type: :text}}} }
     let(:unexisting_index) { 'wrong_index' }
-    let(:empty_body_hash) { {} }
 
     context 'with existing index' do
       specify do
         output = StringIO.new
-        described_class.update_mapping(name: index_name, body_hash: body_hash, output: output)
+        described_class.update_mapping(name: index_name, output: output)
         expect(output.string).to match(Regexp.new(<<-OUTPUT, Regexp::MULTILINE))
 \\Index name is cities
-Body hash is {:properties=>{:new_field=>{:type=>:text}}}
-cities index successfully updated with {:properties=>{:new_field=>{:type=>:text}}}
+cities index successfully updated
 Total: \\d+s\\Z
         OUTPUT
       end
     end
 
-    context 'with unexisting arguments' do
-      context 'index name' do
-        specify do
-          output = StringIO.new
-          expect { described_class.update_mapping(name: unexisting_index, body_hash: body_hash, output: output) }
-            .to raise_error Elasticsearch::Transport::Transport::Errors::NotFound
-        end
-      end
-
-      context 'body_hash' do
-        specify do
-          output = StringIO.new
-          expect { described_class.update_mapping(name: index_name, body_hash: empty_body_hash, output: output) }
-            .not_to raise_error
-        end
+    context 'with unexisting index name' do
+      specify do
+        output = StringIO.new
+        expect { described_class.update_mapping(name: unexisting_index, output: output) }
+          .to raise_error Elasticsearch::Transport::Transport::Errors::NotFound
       end
     end
   end

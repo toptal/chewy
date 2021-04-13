@@ -243,7 +243,7 @@ module Chewy
         # @example
         #   Chewy.client.update_mapping('cities', {properties: {new_field: {type: :text}}})
         #
-        def update_mapping(name, body)
+        def update_mapping(name = index_name, body)
           client.indices.put_mapping(
             index: name,
             body: body

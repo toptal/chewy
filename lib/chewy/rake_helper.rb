@@ -227,7 +227,7 @@ module Chewy
       def update_mapping(name:, body_hash:, output: $stdout)
         subscribed_task_stats(output) do
           output.puts "Index name is #{name}\nBody hash is #{body_hash}"
-          Chewy::Index.update_mapping(name: name, body: body_hash)
+          Chewy::Index.update_mapping(name, body_hash)
           output.puts "#{name} index successfully updated with #{body_hash}"
         end
       end

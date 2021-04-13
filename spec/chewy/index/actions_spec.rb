@@ -819,9 +819,6 @@ describe Chewy::Index::Actions do
 
     context 'with existing index' do
       specify do
-        expect(CitiesIndex)
-          .to receive(:update_mapping)
-          .and_call_original
         expect { CitiesIndex.update_mapping(index_name, body_hash) }
           .not_to raise_error
       end
@@ -830,9 +827,6 @@ describe Chewy::Index::Actions do
     context 'with unexisting arguments' do
       context 'index name' do
         specify do
-          expect(CitiesIndex)
-            .to receive(:update_mapping)
-            .and_call_original
           expect { CitiesIndex.update_mapping(unexisting_index, body_hash) }
             .to raise_error Elasticsearch::Transport::Transport::Errors::NotFound
         end
@@ -840,9 +834,6 @@ describe Chewy::Index::Actions do
 
       context 'body hash' do
         specify do
-          expect(CitiesIndex)
-            .to receive(:update_mapping)
-            .and_call_original
           expect { CitiesIndex.update_mapping(index_name, empty_body_hash) }
             .not_to raise_error
         end
@@ -851,9 +842,6 @@ describe Chewy::Index::Actions do
 
     context 'with only argument' do
       specify do
-        expect(CitiesIndex)
-          .to receive(:update_mapping)
-          .and_call_original
         expect { CitiesIndex.update_mapping(index_name) }
           .not_to raise_error
       end
@@ -861,9 +849,6 @@ describe Chewy::Index::Actions do
 
     context 'without arguments' do
       specify do
-        expect(CitiesIndex)
-          .to receive(:update_mapping)
-          .and_call_original
         expect { CitiesIndex.update_mapping }
           .not_to raise_error
       end

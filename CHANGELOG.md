@@ -10,6 +10,9 @@
 
 ### Changes
 
+  * [#692](https://github.com/toptal/chewy/issues/692): Add `.update_mapping` to Index class ([@Vitalina-Vakulchyk][]):
+    * Wrapped Elasticsearch gem `.put_mapping` with `.update_mapping` in Index class
+    * Add `rake chewy:update_mapping` task
   * [#594](https://github.com/toptal/chewy/issues/594): Add `.reindex` to Index class ([@Vitalina-Vakulchyk][]):
     * Wrapped Elasticsearch gem `.reindex` with `.reindex` in Index class
     * Add `rake chewy:reindex` task

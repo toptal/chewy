@@ -237,9 +237,9 @@ module Chewy
           )
         end
 
-        def update_mapping(index, type, body)
+        def update_mapping(name, type, body)
           client.indices.put_mapping(
-            index: index,
+            index: name,
             type: type,
             body: body
           )['acknowledged']

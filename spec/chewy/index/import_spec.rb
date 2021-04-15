@@ -508,6 +508,23 @@ describe Chewy::Index::Import do
 
       specify { expect { CitiesIndex.import!(dummy_cities) }.to raise_error Chewy::ImportFailed }
     end
+
+    context 'progressbar output' do
+      let(:mocked_progressbar) { Struct.new(:progress, :total).new(0, 100) }
+      context 'options values' do
+        specify do
+          expect(ProgressBar).to receive(:create).and_return(mocked_progressbar)
+          expect(mocked_progressbar).to receive(:progress).at_least(:once).and_call_original
+
+          expect(CitiesIndex::City).to receive(:import_parallel).and_call_original
+
+          CitiesIndex::City.import(parallel: true, progressbar: 'true')
+
+          expect(mocked_progressbar.progress).to eq(3)
+          expect(mocked_progressbar.total).to eq(3)
+        end
+      end
+    end
   end
 
   describe '.compose' do

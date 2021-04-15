@@ -1,18 +1,25 @@
-require 'chewy/index/import/journal_builder'
-require 'chewy/index/import/bulk_builder'
-require 'chewy/index/import/bulk_request'
-require 'chewy/index/import/routine'
+require 'chewy/type/import/journal_builder'
+require 'chewy/type/import/bulk_builder'
+require 'chewy/type/import/bulk_request'
+require 'chewy/type/import/routine'
+require 'chewy/type/import/thread_safe_progress_bar'
 
 module Chewy
   class Index
     module Import
       extend ActiveSupport::Concern
 
-      IMPORT_WORKER = lambda do |index, options, total, ids, iteration|
+      IMPORT_WORKER = lambda do |index, options, total, progress_bar, ids, iteration|
         ::Process.setproctitle("chewy [#{index}]: import data (#{iteration + 1}/#{total})")
         routine = Routine.new(index, **options)
         index.adapter.import(*ids, routine.options) do |action_objects|
           routine.process(**action_objects)
+          begin
+            progress_bar.increment(action_objects.map { |_, v| v.size }.sum) if routine.options[:progressbar]
+          rescue ProgressBar::InvalidProgressError
+            # Output title without progressbar line
+            progressbar.title = 'Too many elements to output progressbar'
+          end
         end
         {errors: routine.errors, import: routine.stats, leftovers: routine.leftovers}
       end
@@ -149,9 +156,16 @@ module Chewy
         end
 
         def import_linear(objects, routine)
-          ActiveSupport::Notifications.instrument 'import_objects.chewy', index: self do |payload|
+          ActiveSupport::Notifications.instrument 'import_objects.chewy', type: self do |payload|
+            progress_bar = ThreadSafeProgressBar.new(routine.options[:progressbar]) { adapter.import_count(objects) }
             adapter.import(*objects, routine.options) do |action_objects|
               routine.process(**action_objects)
+              begin
+                progress_bar.increment(action_objects.map { |_, v| v.size }.sum) if routine.options[:progressbar]
+              rescue ProgressBar::InvalidProgressError
+                # Output title without progressbar line
+                progress_bar.title = 'Too many elements to output progressbar'
+              end
             end
             routine.perform_bulk(routine.leftovers)
             payload[:import] = routine.stats
@@ -166,29 +180,35 @@ module Chewy
           ActiveSupport::Notifications.instrument 'import_objects.chewy', index: self do |payload|
             batches = adapter.import_references(*objects, routine.options.slice(:batch_size)).to_a
 
+            progress_bar = ThreadSafeProgressBar.new(routine.options[:progressbar]) { adapter.import_count(objects) }
             ::ActiveRecord::Base.connection.close if defined?(::ActiveRecord::Base)
-            results = ::Parallel.map_with_index(
-              batches,
-              routine.parallel_options,
-              &IMPORT_WORKER.curry[self, routine.options, batches.size]
-            )
+
+            results = ::Parallel.map_with_index(batches, routine.parallel_options) do |ids, index|
+              progress_bar.wait_until_ready
+              IMPORT_WORKER.call(index, routine.options, total, progress_bar, ids, self)
+            end
+
             ::ActiveRecord::Base.connection.reconnect! if defined?(::ActiveRecord::Base)
             errors, import, leftovers = process_parallel_import_results(results)
 
-            if leftovers.present?
-              batches = leftovers.each_slice(routine.options[:batch_size])
-              results = ::Parallel.map_with_index(
-                batches,
-                routine.parallel_options,
-                &LEFTOVERS_WORKER.curry[self, routine.options, batches.size]
-              )
-              errors.concat(results.flatten(1))
-            end
+            execute_leftovers(leftovers, routine, self, errors)
 
             payload[:import] = import
             payload[:errors] = payload_errors(errors) if errors.present?
             payload[:errors]
           end
+        end
+
+        def execute_leftovers(leftovers, routine, self_object, errors)
+          return unless leftovers.present?
+
+          batches = leftovers.each_slice(routine.options[:batch_size])
+          results = ::Parallel.map_with_index(
+            batches,
+            routine.parallel_options,
+            &LEFTOVERS_WORKER.curry[self_object, routine.options, batches.size]
+          )
+          errors.concat(results.flatten(1))
         end
 
         def process_parallel_import_results(results)

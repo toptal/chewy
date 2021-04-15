@@ -8,6 +8,7 @@ require 'rspec/its'
 require 'rspec/collection_matchers'
 
 require 'timecop'
+require 'ruby-progressbar'
 
 Kaminari::Hooks.init if defined?(::Kaminari::Hooks)
 

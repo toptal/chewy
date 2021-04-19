@@ -13,14 +13,12 @@ describe Chewy::Journal do
           end
 
           stub_index("#{namespace}cities") do
-            define_type City do
-              default_import_options journal: true
-            end
+            index_scope City
+            default_import_options journal: true
           end
           stub_index("#{namespace}countries") do
-            define_type Country do
-              default_import_options journal: true
-            end
+            index_scope Country
+            default_import_options journal: true
           end
 
           Chewy.massacre
@@ -67,63 +65,54 @@ describe Chewy::Journal do
             expected_journal = [
               {
                 'index_name' => "#{namespace}cities",
-                'type_name' => 'city',
                 'action' => 'index',
                 'references' => ['1'].map(&Base64.method(:encode64)),
                 'created_at' => time.utc.as_json
               },
               {
                 'index_name' => "#{namespace}cities",
-                'type_name' => 'city',
                 'action' => 'index',
                 'references' => ['2'].map(&Base64.method(:encode64)),
                 'created_at' => time.utc.as_json
               },
               {
                 'index_name' => "#{namespace}countries",
-                'type_name' => 'country',
                 'action' => 'index',
                 'references' => ['1'].map(&Base64.method(:encode64)),
                 'created_at' => time.utc.as_json
               },
               {
                 'index_name' => "#{namespace}countries",
-                'type_name' => 'country',
                 'action' => 'index',
                 'references' => ['2'].map(&Base64.method(:encode64)),
                 'created_at' => time.utc.as_json
               },
               {
                 'index_name' => "#{namespace}countries",
-                'type_name' => 'country',
                 'action' => 'index',
                 'references' => ['3'].map(&Base64.method(:encode64)),
                 'created_at' => time.utc.as_json
               },
               {
                 'index_name' => "#{namespace}cities",
-                'type_name' => 'city',
                 'action' => 'index',
                 'references' => %w[1 2].map(&Base64.method(:encode64)),
                 'created_at' => import_time.utc.as_json
               },
               {
                 'index_name' => "#{namespace}countries",
-                'type_name' => 'country',
                 'action' => 'index',
                 'references' => %w[1 2 3].map(&Base64.method(:encode64)),
                 'created_at' => import_time.utc.as_json
               },
               {
                 'index_name' => "#{namespace}cities",
-                'type_name' => 'city',
                 'action' => 'index',
                 'references' => ['1'].map(&Base64.method(:encode64)),
                 'created_at' => update_time.utc.as_json
               },
               {
                 'index_name' => "#{namespace}countries",
-                'type_name' => 'country',
                 'action' => 'delete',
                 'references' => ['2'].map(&Base64.method(:encode64)),
                 'created_at' => destroy_time.utc.as_json
@@ -166,14 +155,12 @@ describe Chewy::Journal do
       end
 
       stub_index(:cities) do
-        define_type City do
-          default_import_options journal: true
-        end
+        index_scope City
+        default_import_options journal: true
       end
       stub_index(:countries) do
-        define_type Country do
-          default_import_options journal: true
-        end
+        index_scope Country
+        default_import_options journal: true
       end
     end
 
@@ -235,7 +222,7 @@ describe Chewy::Journal do
           let!(:journal_entries) do
             record = Chewy::Stash::Journal.entries(time).first
             Array.new(count_of_checks) do |i|
-              Chewy::Stash::Journal::Journal.new(
+              Chewy::Stash::Journal.new(
                 record.attributes.merge(
                   'created_at' => time.to_i + i,
                   'references' => [i.to_s]

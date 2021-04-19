@@ -10,6 +10,21 @@
 
 ### Changes
 
+  * [#783](https://github.com/toptal/chewy/pull/783): **(Breaking)** Remove `Chewy::Type`, simplify DSL ([@rabotyaga][])
+    * Remove the `Chewy::Type` class
+        * e.g. remove `CitiesIndex::City` / `CitiesIndex.city`
+            * `CitiesIndex::City.import! ...` becomes `CitiesIndex.import! ...`
+    * Simplify index DSL:
+        * `define_type` block -> `index_scope` clause
+            * it can be omitted completely, if you don't need to specify the scope or options, e.g. `name`
+    * Remove type names from string representations:
+        * in `update_index` ActiveRecord helper and RSpec matcher, e.g.
+            * `update_index('cities#city')` -> `update_index('cities')`
+            * `update_index(UsersIndex::User)` -> `update_index(UsersIndex)`
+        * in rake tasks (e.g. `rake chewy:update[cities#city]` -> `rake chewy:update[cities]`)
+        * in rake tasks output (e.g. `Imported CitiesIndex::City in 1s, stats: index 3` -> `Imported CitiesIndex in 1s, stats: index 3`)
+    * Use index name instead of type name in loader additional scope
+        * e.g. `CitiesIndex.filter(...).load(city: {scope: City.where(...)})` -> `CitiesIndex.filter(...).load(cities: {scope: City.where(...)})`
   * [#692](https://github.com/toptal/chewy/issues/692): Add `.update_mapping` to Index class ([@Vitalina-Vakulchyk][]):
     * Wrapped Elasticsearch gem `.put_mapping` with `.update_mapping` in Index class
     * Add `rake chewy:update_mapping` task

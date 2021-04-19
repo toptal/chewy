@@ -9,8 +9,7 @@ require 'chewy/search/pagination/kaminari'
 
 module Chewy
   # This module being included to any provides an interface to the
-  # request DSL. By default it is included to {Chewy::Index} and
-  # {Chewy::Type}.
+  # request DSL. By default it is included to {Chewy::Index}.
   #
   # The class used as a request DSL provider is
   # inherited from {Chewy::Search::Request}
@@ -19,9 +18,7 @@ module Chewy
   #
   # @example
   #   PlacesIndex.query(match: {name: 'Moscow'})
-  #   PlacesIndex::City.query(match: {name: 'Moscow'})
   # @see Chewy::Index
-  # @see Chewy::Type
   # @see Chewy::Search::Request
   # @see Chewy::Search::ClassMethods
   # @see Chewy::Search::Pagination::Kaminari
@@ -51,15 +48,14 @@ module Chewy
       # @see https://www.elastic.co/guide/en/elasticsearch/reference/current/search-uri-request.html
       # @return [Hash] the request result
       def search_string(query, options = {})
-        options = options.merge(all.render.slice(:index, :type).merge(q: query))
+        options = options.merge(all.render.slice(:index).merge(q: query))
         Chewy.client.search(options)
       end
 
-      # Delegates methods from the request class to the index or type class
+      # Delegates methods from the request class to the index class
       #
       # @example
       #   PlacesIndex.query(match: {name: 'Moscow'})
-      #   PlacesIndex::City.query(match: {name: 'Moscow'})
       def method_missing(name, *args, &block)
         if search_class::DELEGATED_METHODS.include?(name)
           all.send(name, *args, &block)
@@ -80,11 +76,6 @@ module Chewy
 
       def build_search_class(base)
         search_class = Class.new(base)
-
-        if self < Chewy::Type
-          index_scopes = index.scopes - scopes
-          delegate_scoped index, search_class, index_scopes
-        end
 
         delegate_scoped self, search_class, scopes
         const_set('Query', search_class)

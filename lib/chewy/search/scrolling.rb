@@ -72,7 +72,7 @@ module Chewy
 
       # @!method scroll_wrappers(batch_size: 1000, scroll: '1m')
       # Iterates through the documents of the scope in batches. Yields
-      # each hit wrapped with {Chewy::Type}.
+      # each hit wrapped with {Chewy::Index}.
       #
       # @param batch_size [Integer] batch size obviously, replaces `size` query parameter
       # @param scroll [String] cursor expiration time
@@ -80,7 +80,7 @@ module Chewy
       # @overload scroll_wrappers(batch_size: 1000, scroll: '1m')
       #   @example
       #     PlaceIndex.scroll_wrappers { |object| p object.id }
-      #   @yieldparam object [Chewy::Type] block is executed for each hit object
+      #   @yieldparam object [Chewy::Index] block is executed for each hit object
       #
       # @overload scroll_wrappers(batch_size: 1000, scroll: '1m')
       #   @example
@@ -90,7 +90,7 @@ module Chewy
         return enum_for(:scroll_wrappers, **options) unless block_given?
 
         scroll_hits(**options).each do |hit|
-          yield loader.derive_type(hit['_index'], hit['_type']).build(hit)
+          yield loader.derive_index(hit['_index']).build(hit)
         end
       end
 

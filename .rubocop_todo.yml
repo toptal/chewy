@@ -30,16 +30,16 @@ Lint/EmptyBlock:
     - 'spec/chewy/search/scrolling_spec.rb'
     - 'spec/chewy/strategy/atomic_spec.rb'
     - 'spec/chewy/strategy_spec.rb'
-    - 'spec/chewy/type/import/bulk_request_spec.rb'
-    - 'spec/chewy/type/witchcraft_spec.rb'
+    - 'spec/chewy/index/import/bulk_request_spec.rb'
+    - 'spec/chewy/index/witchcraft_spec.rb'
     - 'spec/chewy_spec.rb'
 
 # Offense count: 3
 Lint/MissingSuper:
   Exclude:
     - 'lib/chewy/strategy/atomic.rb'
-    - 'lib/chewy/type/adapter/object.rb'
-    - 'lib/chewy/type/adapter/orm.rb'
+    - 'lib/chewy/index/adapter/object.rb'
+    - 'lib/chewy/index/adapter/orm.rb'
 
 # Offense count: 35
 # Configuration parameters: IgnoredMethods, CountRepeatedAttributes.
@@ -85,8 +85,8 @@ Style/DocumentDynamicEvalDefinition:
     - 'lib/chewy/index/actions.rb'
     - 'lib/chewy/repository.rb'
     - 'lib/chewy/search/pagination/kaminari.rb'
-    - 'lib/chewy/type/crutch.rb'
-    - 'lib/chewy/type/witchcraft.rb'
+    - 'lib/chewy/index/crutch.rb'
+    - 'lib/chewy/index/witchcraft.rb'
 
 # Offense count: 58
 Style/Documentation:
@@ -120,8 +120,8 @@ Style/IfUnlessModifier:
     - 'lib/chewy/railtie.rb'
     - 'lib/chewy/rspec/update_index.rb'
     - 'lib/chewy/search/query_proxy.rb'
-    - 'lib/chewy/type/import.rb'
-    - 'lib/chewy/type/witchcraft.rb'
+    - 'lib/chewy/index/import.rb'
+    - 'lib/chewy/index/witchcraft.rb'
     - 'spec/support/active_record.rb'
 
 # Offense count: 53

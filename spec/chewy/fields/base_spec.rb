@@ -141,14 +141,12 @@ describe Chewy::Fields::Base do
     context 'default field type' do
       before do
         stub_index(:events) do
-          define_type :event do
+          field :id
+          field :category do
             field :id
-            field :category do
+            field :licenses do
               field :id
-              field :licenses do
-                field :id
-                field :created_at, type: 'time'
-              end
+              field :created_at, type: 'time'
             end
           end
         end
@@ -162,18 +160,20 @@ describe Chewy::Fields::Base do
       end
 
       specify do
-        expect(EventsIndex::Event.mappings_hash).to eq(
-          properties: {
-            id: {type: 'integer'},
-            category: {
-              type: 'object',
-              properties: {
-                id: {type: 'integer'},
-                licenses: {
-                  type: 'object',
-                  properties: {
-                    id: {type: 'integer'},
-                    created_at: {type: 'time'}
+        expect(EventsIndex.mappings_hash).to eq(
+          mappings: {
+            properties: {
+              id: {type: 'integer'},
+              category: {
+                type: 'object',
+                properties: {
+                  id: {type: 'integer'},
+                  licenses: {
+                    type: 'object',
+                    properties: {
+                      id: {type: 'integer'},
+                      created_at: {type: 'time'}
+                    }
                   }
                 }
               }
@@ -186,14 +186,12 @@ describe Chewy::Fields::Base do
     context 'objects, hashes and arrays' do
       before do
         stub_index(:events) do
-          define_type :event do
+          field :id
+          field :category do
             field :id
-            field :category do
+            field :licenses do
               field :id
-              field :licenses do
-                field :id
-                field :name
-              end
+              field :name
             end
           end
         end
@@ -201,13 +199,13 @@ describe Chewy::Fields::Base do
 
       specify do
         expect(
-          EventsIndex::Event.root.compose({id: 1, category: {id: 2, licenses: {id: 3, name: 'Name'}}})
+          EventsIndex.root.compose({id: 1, category: {id: 2, licenses: {id: 3, name: 'Name'}}})
         ).to eq('id' => 1, 'category' => {'id' => 2, 'licenses' => {'id' => 3, 'name' => 'Name'}})
       end
 
       specify do
         expect(
-          EventsIndex::Event.root.compose({id: 1, category: [
+          EventsIndex.root.compose({id: 1, category: [
             {id: 2, 'licenses' => {id: 3, name: 'Name1'}},
             {id: 4, licenses: nil}
           ]})
@@ -219,7 +217,7 @@ describe Chewy::Fields::Base do
 
       specify do
         expect(
-          EventsIndex::Event.root.compose({
+          EventsIndex.root.compose({
             'id' => 1,
             category: {
               id: 2, licenses: [
@@ -242,7 +240,7 @@ describe Chewy::Fields::Base do
 
       specify do
         expect(
-          EventsIndex::Event.root.compose({id: 1, category: [
+          EventsIndex.root.compose({id: 1, category: [
             {id: 2, licenses: [
               {id: 3, 'name' => 'Name1'}, {id: 4, name: 'Name2'}
             ]},
@@ -261,13 +259,13 @@ describe Chewy::Fields::Base do
       end
       specify do
         expect(
-          EventsIndex::Event.root.compose(double(id: 1, category: double(id: 2, licenses: double(id: 3, name: 'Name'))))
+          EventsIndex.root.compose(double(id: 1, category: double(id: 2, licenses: double(id: 3, name: 'Name'))))
         ).to eq('id' => 1, 'category' => {'id' => 2, 'licenses' => {'id' => 3, 'name' => 'Name'}})
       end
 
       specify do
         expect(
-          EventsIndex::Event.root.compose(double(id: 1, category: [
+          EventsIndex.root.compose(double(id: 1, category: [
             double(id: 2, licenses: double(id: 3, name: 'Name1')),
             double(id: 4, licenses: nil)
           ]))
@@ -279,7 +277,7 @@ describe Chewy::Fields::Base do
 
       specify do
         expect(
-          EventsIndex::Event.root.compose(double(id: 1, category: double(id: 2, licenses: [
+          EventsIndex.root.compose(double(id: 1, category: double(id: 2, licenses: [
             double(id: 3, name: 'Name1'), double(id: 4, name: 'Name2')
           ])))
         ).to eq('id' => 1, 'category' => {'id' => 2, 'licenses' => [
@@ -289,7 +287,7 @@ describe Chewy::Fields::Base do
 
       specify do
         expect(
-          EventsIndex::Event.root.compose(double(id: 1, category: [
+          EventsIndex.root.compose(double(id: 1, category: [
             double(id: 2, licenses: [
               double(id: 3, name: 'Name1'), double(id: 4, name: 'Name2')
             ]),
@@ -309,14 +307,12 @@ describe Chewy::Fields::Base do
     context 'custom methods' do
       before do
         stub_index(:events) do
-          define_type :event do
+          field :id, type: 'integer'
+          field :category, value: -> { categories } do
             field :id, type: 'integer'
-            field :category, value: -> { categories } do
+            field :licenses, value: -> { license } do
               field :id, type: 'integer'
-              field :licenses, value: -> { license } do
-                field :id, type: 'integer'
-                field :name
-              end
+              field :name
             end
           end
         end
@@ -324,7 +320,7 @@ describe Chewy::Fields::Base do
 
       specify do
         expect(
-          EventsIndex::Event.root.compose(
+          EventsIndex.root.compose(
             double(
               id: 1, categories: double(
                 id: 2, license: double(
@@ -340,34 +336,34 @@ describe Chewy::Fields::Base do
     context 'objects and multi_fields' do
       before do
         stub_index(:events) do
-          define_type :event do
-            field :id, type: 'integer'
-            field :name, type: 'integer' do
-              field :raw, analyzer: 'my_own'
-            end
-            field :category, type: 'object'
+          field :id, type: 'integer'
+          field :name, type: 'integer' do
+            field :raw, analyzer: 'my_own'
           end
+          field :category, type: 'object'
         end
       end
 
       specify do
-        expect(EventsIndex::Event.mappings_hash).to eq(
-          properties: {
-            id: {type: 'integer'},
-            name: {
-              type: 'integer',
-              fields: {
-                raw: {analyzer: 'my_own', type: Chewy.default_field_type}
-              }
-            },
-            category: {type: 'object'}
+        expect(EventsIndex.mappings_hash).to eq(
+          mappings: {
+            properties: {
+              id: {type: 'integer'},
+              name: {
+                type: 'integer',
+                fields: {
+                  raw: {analyzer: 'my_own', type: Chewy.default_field_type}
+                }
+              },
+              category: {type: 'object'}
+            }
           }
         )
       end
 
       specify do
         expect(
-          EventsIndex::Event.root.compose(
+          EventsIndex.root.compose(
             double(
               id: 1, name: 'Jonny', category: double(
                 id: 2, as_json: {'name' => 'Borogoves'}
@@ -383,7 +379,7 @@ describe Chewy::Fields::Base do
 
       specify do
         expect(
-          EventsIndex::Event.root.compose(
+          EventsIndex.root.compose(
             double(id: 1, name: 'Jonny', category: [
               double(id: 2, as_json: {'name' => 'Borogoves1'}),
               double(id: 3, as_json: {'name' => 'Borogoves2'})
@@ -415,14 +411,13 @@ describe Chewy::Fields::Base do
       context 'text fields with and without ignore_blank option' do
         before do
           stub_index(:countries) do
-            define_type Country do
+            index_scope Country
+            field :id
+            field :cities do
               field :id
-              field :cities do
-                field :id
-                field :name
-                field :historical_name, ignore_blank: false
-                field :description, ignore_blank: true
-              end
+              field :name
+              field :historical_name, ignore_blank: false
+              field :description, ignore_blank: true
             end
           end
         end
@@ -437,7 +432,7 @@ describe Chewy::Fields::Base do
         end
 
         specify do
-          expect(CountriesIndex::Country.root.compose(country_with_cities)).to eq(
+          expect(CountriesIndex.root.compose(country_with_cities)).to eq(
             'id' => 1, 'cities' => [
               {'id' => 1, 'name' => '', 'historical_name' => ''},
               {'id' => 2, 'name' => '', 'historical_name' => ''}
@@ -450,14 +445,13 @@ describe Chewy::Fields::Base do
         context 'with ignore_blank: true option' do
           before do
             stub_index(:countries) do
-              define_type Country do
+              index_scope Country
+              field :id
+              field :cities, ignore_blank: true do
                 field :id
-                field :cities, ignore_blank: true do
-                  field :id
-                  field :name
-                  field :historical_name, ignore_blank: true
-                  field :description
-                end
+                field :name
+                field :historical_name, ignore_blank: true
+                field :description
               end
             end
           end
@@ -466,14 +460,14 @@ describe Chewy::Fields::Base do
           context('without cities') do
             let(:cities) { [] }
             specify do
-              expect(CountriesIndex::Country.root.compose(country))
+              expect(CountriesIndex.root.compose(country))
                 .to eq('id' => 1)
             end
           end
           context('with cities') do
             let(:cities) { [City.create!(id: 1, name: '', historical_name: '')] }
             specify do
-              expect(CountriesIndex::Country.root.compose(country)).to eq(
+              expect(CountriesIndex.root.compose(country)).to eq(
                 'id' => 1, 'cities' => [
                   {'id' => 1, 'name' => '', 'description' => nil}
                 ]
@@ -485,14 +479,13 @@ describe Chewy::Fields::Base do
         context 'with ignore_blank: false option' do
           before do
             stub_index(:countries) do
-              define_type Country do
+              index_scope Country
+              field :id
+              field :cities, ignore_blank: false do
                 field :id
-                field :cities, ignore_blank: false do
-                  field :id
-                  field :name
-                  field :historical_name
-                  field :description
-                end
+                field :name
+                field :historical_name
+                field :description
               end
             end
           end
@@ -500,7 +493,7 @@ describe Chewy::Fields::Base do
           let(:country_with_cities) { Country.create!(id: 1) }
 
           specify do
-            expect(CountriesIndex::Country.root.compose(country_with_cities))
+            expect(CountriesIndex.root.compose(country_with_cities))
               .to eq('id' => 1, 'cities' => [])
           end
         end
@@ -508,14 +501,13 @@ describe Chewy::Fields::Base do
         context 'without ignore_blank: true option' do
           before do
             stub_index(:countries) do
-              define_type Country do
+              index_scope Country
+              field :id
+              field :cities do
                 field :id
-                field :cities do
-                  field :id
-                  field :name
-                  field :historical_name
-                  field :description
-                end
+                field :name
+                field :historical_name
+                field :description
               end
             end
           end
@@ -523,7 +515,7 @@ describe Chewy::Fields::Base do
           let(:country_with_cities) { Country.create!(id: 1) }
 
           specify do
-            expect(CountriesIndex::Country.root.compose(country_with_cities))
+            expect(CountriesIndex.root.compose(country_with_cities))
               .to eq('id' => 1, 'cities' => [])
           end
         end
@@ -533,15 +525,14 @@ describe Chewy::Fields::Base do
         context 'with ignore_blank: true option' do
           before do
             stub_index(:countries) do
-              define_type Country do
+              index_scope Country
+              field :id
+              field :cities do
                 field :id
-                field :cities do
-                  field :id
-                  field :name
-                  field :location, type: :geo_point, ignore_blank: true do
-                    field :lat
-                    field :lon
-                  end
+                field :name
+                field :location, type: :geo_point, ignore_blank: true do
+                  field :lat
+                  field :lon
                 end
               end
             end
@@ -549,7 +540,7 @@ describe Chewy::Fields::Base do
 
           specify do
             expect(
-              CountriesIndex::Country.root.compose({
+              CountriesIndex.root.compose({
                 'id' => 1,
                 'cities' => [
                   {'id' => 1, 'name' => 'City1', 'location' => {}},
@@ -568,15 +559,14 @@ describe Chewy::Fields::Base do
         context 'without ignore_blank option' do
           before do
             stub_index(:countries) do
-              define_type Country do
+              index_scope Country
+              field :id
+              field :cities do
                 field :id
-                field :cities do
-                  field :id
-                  field :name
-                  field :location, type: :geo_point do
-                    field :lat
-                    field :lon
-                  end
+                field :name
+                field :location, type: :geo_point do
+                  field :lat
+                  field :lon
                 end
               end
             end
@@ -584,7 +574,7 @@ describe Chewy::Fields::Base do
 
           specify do
             expect(
-              CountriesIndex::Country.root.compose({
+              CountriesIndex.root.compose({
                 'id' => 1,
                 'cities' => [
                   {'id' => 1, 'name' => 'City1', 'location' => {}},
@@ -603,15 +593,14 @@ describe Chewy::Fields::Base do
         context 'with ignore_blank: false flag' do
           before do
             stub_index(:countries) do
-              define_type Country do
+              index_scope Country
+              field :id
+              field :cities do
                 field :id
-                field :cities do
-                  field :id
-                  field :name
-                  field :location, type: :geo_point, ignore_blank: false do
-                    field :lat
-                    field :lon
-                  end
+                field :name
+                field :location, type: :geo_point, ignore_blank: false do
+                  field :lat
+                  field :lon
                 end
               end
             end
@@ -619,7 +608,7 @@ describe Chewy::Fields::Base do
 
           specify do
             expect(
-              CountriesIndex::Country.root.compose({
+              CountriesIndex.root.compose({
                 'id' => 1,
                 'cities' => [
                   {'id' => 1, 'location' => {}, 'name' => 'City1'},
@@ -646,12 +635,11 @@ describe Chewy::Fields::Base do
         Country.has_many :cities, -> { order :id }
 
         stub_index(:countries) do
-          define_type Country do
+          index_scope Country
+          field :id
+          field :cities do
             field :id
-            field :cities do
-              field :id
-              field :name
-            end
+            field :name
           end
         end
       end
@@ -663,7 +651,7 @@ describe Chewy::Fields::Base do
       end
 
       specify do
-        expect(CountriesIndex::Country.root.compose(country_with_cities)).to eq('id' => 1, 'cities' => [
+        expect(CountriesIndex.root.compose(country_with_cities)).to eq('id' => 1, 'cities' => [
           {'id' => 1, 'name' => 'City1'}, {'id' => 2, 'name' => 'City2'}
         ])
       end
@@ -671,19 +659,18 @@ describe Chewy::Fields::Base do
       context 'nested object' do
         before do
           stub_index(:cities) do
-            define_type City do
+            index_scope City
+            field :id
+            field :country do
               field :id
-              field :country do
-                field :id
-                field :name
-              end
+              field :name
             end
           end
         end
 
         specify do
           expect(
-            CitiesIndex::City.root.compose(City.create!(id: 1, country: Country.create!(id: 1, name: 'Country')))
+            CitiesIndex.root.compose(City.create!(id: 1, country: Country.create!(id: 1, name: 'Country')))
           ).to eq('id' => 1, 'country' => {'id' => 1, 'name' => 'Country'})
         end
       end

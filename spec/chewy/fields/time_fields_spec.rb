@@ -5,14 +5,12 @@ describe 'Time fields' do
 
   before do
     stub_index(:posts) do
-      define_type :post do
-        field :published_at, type: 'date'
-      end
+      field :published_at, type: 'date'
     end
   end
 
   before do
-    PostsIndex::Post.import(
+    PostsIndex.import(
       double(published_at: ActiveSupport::TimeZone[-28_800].parse('2014/12/18 19:00')),
       double(published_at: ActiveSupport::TimeZone[-21_600].parse('2014/12/18 20:00')),
       double(published_at: ActiveSupport::TimeZone[-21_600].parse('2014/12/17 20:00'))

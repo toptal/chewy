@@ -5,11 +5,11 @@ describe Chewy::Strategy::Atomic, :orm do
 
   before do
     stub_model(:country) do
-      update_index('countries#country') { self }
+      update_index('countries') { self }
     end
 
     stub_index(:countries) do
-      define_type Country
+      index_scope Country
     end
   end
 
@@ -18,35 +18,34 @@ describe Chewy::Strategy::Atomic, :orm do
 
   specify do
     expect { [country, other_country].map(&:save!) }
-      .to update_index(CountriesIndex::Country, strategy: :atomic)
+      .to update_index(CountriesIndex, strategy: :atomic)
       .and_reindex(country, other_country).only
   end
 
   specify do
     expect { [country, other_country].map(&:destroy) }
-      .to update_index(CountriesIndex::Country, strategy: :atomic)
+      .to update_index(CountriesIndex, strategy: :atomic)
       .and_delete(country, other_country).only
   end
 
   context do
     before do
       stub_index(:countries) do
-        define_type Country do
-          root id: -> { country_code } do
-          end
+        index_scope Country
+        root id: -> { country_code } do
         end
       end
     end
 
     specify do
       expect { [country, other_country].map(&:save!) }
-        .to update_index(CountriesIndex::Country, strategy: :atomic)
+        .to update_index(CountriesIndex, strategy: :atomic)
         .and_reindex('HL', 'WD').only
     end
 
     specify do
       expect { [country, other_country].map(&:destroy) }
-        .to update_index(CountriesIndex::Country, strategy: :atomic)
+        .to update_index(CountriesIndex, strategy: :atomic)
         .and_delete('HL', 'WD').only
     end
 
@@ -55,7 +54,7 @@ describe Chewy::Strategy::Atomic, :orm do
         country.save!
         other_country.destroy
       end
-        .to update_index(CountriesIndex::Country, strategy: :atomic)
+        .to update_index(CountriesIndex, strategy: :atomic)
         .and_reindex('HL').and_delete('WD').only
     end
   end

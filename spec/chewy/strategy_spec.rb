@@ -55,11 +55,11 @@ describe Chewy::Strategy do
   context 'nesting', :orm do
     before do
       stub_model(:city) do
-        update_index('cities#city') { self }
+        update_index('cities') { self }
       end
 
       stub_index(:cities) do
-        define_type City
+        index_scope City
       end
     end
 
@@ -70,12 +70,12 @@ describe Chewy::Strategy do
       around { |example| Chewy.strategy(:bypass) { example.run } }
 
       specify do
-        expect(CitiesIndex::City).not_to receive(:import!)
+        expect(CitiesIndex).not_to receive(:import!)
         [city, other_city].map(&:save!)
       end
 
       specify do
-        expect(CitiesIndex::City).to receive(:import!).with([city.id, other_city.id]).once
+        expect(CitiesIndex).to receive(:import!).with([city.id, other_city.id]).once
         Chewy.strategy(:atomic) { [city, other_city].map(&:save!) }
       end
     end
@@ -84,41 +84,39 @@ describe Chewy::Strategy do
       around { |example| Chewy.strategy(:urgent) { example.run } }
 
       specify do
-        expect(CitiesIndex::City).to receive(:import!).at_least(2).times
+        expect(CitiesIndex).to receive(:import!).at_least(2).times
         [city, other_city].map(&:save!)
       end
 
       specify do
-        expect(CitiesIndex::City).to receive(:import!).with([city.id, other_city.id]).once
+        expect(CitiesIndex).to receive(:import!).with([city.id, other_city.id]).once
         Chewy.strategy(:atomic) { [city, other_city].map(&:save!) }
       end
 
       context 'hash passed to urgent' do
         before do
-          stub_index(:cities) do
-            define_type :city
-          end
+          stub_index(:cities)
 
           stub_model(:city) do
-            update_index('cities#city') { {name: name} }
+            update_index('cities') { {name: name} }
           end
         end
 
         specify do
           [city, other_city].map(&:save!)
-          expect(CitiesIndex::City.total_count).to eq(4)
+          expect(CitiesIndex.total_count).to eq(4)
         end
 
         context do
           before do
             stub_model(:city) do
-              update_index('cities#city') { {id: id.to_s, name: name} }
+              update_index('cities') { {id: id.to_s, name: name} }
             end
           end
 
           specify do
             [city, other_city].map(&:save!)
-            expect(CitiesIndex::City.total_count).to eq(2)
+            expect(CitiesIndex.total_count).to eq(2)
           end
         end
       end

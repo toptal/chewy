@@ -9,11 +9,9 @@ module Chewy
     class Specification < Chewy::Index
       index_name 'chewy_specifications'
 
-      define_type :specification do
-        default_import_options journal: false
+      default_import_options journal: false
 
-        field :specification, type: 'binary'
-      end
+      field :specification, type: 'binary'
     end
 
     class Journal < Chewy::Index
@@ -43,33 +41,26 @@ module Chewy
       # @param indices [Chewy::Index, Array<Chewy::Index>]
       def self.for(*something)
         something = something.flatten.compact
-        types = something.flat_map { |s| Chewy.derive_types(s) }
-        return none if something.present? && types.blank?
+        indexes = something.flat_map { |s| Chewy.derive_name(s) }
+        return none if something.present? && indexes.blank?
 
         scope = all
-        types.map(&:index).uniq.each do |index|
+        indexes.each do |index|
           scope = scope.or(filter(term: {index_name: index.derivable_name}))
         end
         scope
       end
 
-      define_type :journal do
-        default_import_options journal: false
+      default_import_options journal: false
 
-        field :index_name, type: 'keyword'
-        field :type_name, type: 'keyword'
-        field :action, type: 'keyword'
-        field :references, type: 'binary'
-        field :created_at, type: 'date'
+      field :index_name, type: 'keyword'
+      field :action, type: 'keyword'
+      field :references, type: 'binary'
+      field :created_at, type: 'date'
 
-        def type
-          @type ||= Chewy.derive_type("#{index_name}##{type_name}")
-        end
-
-        def references
-          @references ||= Array.wrap(@attributes['references']).map do |item|
-            JSON.load(Base64.decode64(item)) # rubocop:disable Security/JSONLoad
-          end
+      def references
+        @references ||= Array.wrap(@attributes['references']).map do |item|
+          JSON.load(Base64.decode64(item)) # rubocop:disable Security/JSONLoad
         end
       end
     end

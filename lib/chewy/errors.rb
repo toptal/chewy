@@ -5,12 +5,6 @@ module Chewy
   class UndefinedIndex < Error
   end
 
-  class UndefinedType < Error
-  end
-
-  class UnderivableType < Error
-  end
-
   class UndefinedUpdateStrategy < Error
     def initialize(_type)
       super <<-MESSAGE
@@ -35,11 +29,5 @@ module Chewy
       end
       super message
     end
-  end
-
-  class RemovedFeature < Error
-  end
-
-  class PluginMissing < Error
   end
 end

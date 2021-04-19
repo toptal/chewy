@@ -129,37 +129,6 @@ module Chewy
           create! suffix
         end
 
-        # Perform import operation for every defined type
-        #
-        #   UsersIndex.import                           # imports default data for every index type
-        #   UsersIndex.import user: User.active         # imports specified objects for user type and default data for other types
-        #   UsersIndex.import refresh: false            # to disable index refreshing after import
-        #   UsersIndex.import suffix: Time.now.to_i     # imports data to index with specified suffix if such is exists
-        #   UsersIndex.import batch_size: 300           # import batch size
-        #
-        # See [import.rb](lib/chewy/type/import.rb) for more details.
-        #
-        %i[import import!].each do |method|
-          class_eval <<-METHOD, __FILE__, __LINE__ + 1
-            def #{method}(*args)
-              return true if args.first.blank? && !args.first.nil?
-
-              options = args.extract_options!
-              if args.one? && type_names.one?
-                objects = {type_names.first.to_sym => args.first}
-              elsif args.one?
-                fail ArgumentError, "Please pass objects for `#{method}` as a hash with type names"
-              else
-                objects = options.reject { |k, v| !type_names.map(&:to_sym).include?(k) }
-              end
-              types.map do |type|
-                args = [objects[type.type_name.to_sym], options.dup].reject(&:blank?)
-                type.#{method} *args
-              end.all?
-            end
-          METHOD
-        end
-
         # Deletes, creates and imports data to the index. Returns the
         # import result. If index name suffix is passed as the first
         # argument - performs zero-downtime index resetting.
@@ -213,6 +182,7 @@ module Chewy
           specification.lock!
           result
         end
+        alias_method :reset, :reset!
 
         # A {Chewy::Journal} instance for the particular index
         #
@@ -243,11 +213,26 @@ module Chewy
         # @example
         #   Chewy.client.update_mapping('cities', {properties: {new_field: {type: :text}}})
         #
-        def update_mapping(name = index_name, body = mappings_hash)
+        def update_mapping(name = index_name, body = root.mappings_hash)
           client.indices.put_mapping(
             index: name,
             body: body
           )['acknowledged']
+        end
+
+        # Performs missing and outdated objects synchronization for the current index.
+        #
+        # @example
+        #   UsersIndex.sync
+        #
+        # @see Chewy::Index::Syncer
+        # @param parallel [true, Integer, Hash] options for parallel execution or the number of processes
+        # @return [Hash{Symbol, Object}, nil] a number of missing and outdated documents re-indexed and their ids,
+        #   nil in case of errors
+        def sync(parallel: nil)
+          syncer = Syncer.new(self, parallel: parallel)
+          count = syncer.perform
+          {count: count, missing: syncer.missing_ids, outdated: syncer.outdated_ids} if count
         end
 
       private

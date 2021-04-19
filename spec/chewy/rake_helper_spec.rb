@@ -8,13 +8,12 @@ describe Chewy::RakeHelper, :orm do
     stub_model(:country)
 
     stub_index(:cities) do
-      define_type City do
-        field :name
-        field :updated_at, type: 'date'
-      end
+      index_scope City
+      field :name
+      field :updated_at, type: 'date'
     end
     stub_index(:countries) do
-      define_type Country
+      index_scope Country
     end
     stub_index(:users)
 
@@ -52,17 +51,18 @@ describe Chewy::RakeHelper, :orm do
         .to update_index(CitiesIndex)
       expect(output.string).to match(Regexp.new(<<-OUTPUT, Regexp::MULTILINE))
 \\AResetting CitiesIndex
-  Imported CitiesIndex::City in \\d+s, stats: index 3
-  Applying journal to \\[CitiesIndex::City\\], 2 entries, stage 1
-  Imported CitiesIndex::City in \\d+s, stats: index 2
-  Imported Chewy::Stash::Specification::Specification in \\d+s, stats: index 1
+  Imported CitiesIndex in \\d+s, stats: index 3
+  Applying journal to \\[CitiesIndex\\], 2 entries, stage 1
+  Imported CitiesIndex in \\d+s, stats: index 2
+  Imported Chewy::Stash::Specification in \\d+s, stats: index 1
 Resetting CountriesIndex
-  Imported CountriesIndex::Country in \\d+s, stats: index 2
-  Applying journal to \\[CountriesIndex::Country\\], 1 entries, stage 1
-  Imported CountriesIndex::Country in \\d+s, stats: index 1
-  Imported Chewy::Stash::Specification::Specification in \\d+s, stats: index 1
+  Imported CountriesIndex in \\d+s, stats: index 2
+  Applying journal to \\[CountriesIndex\\], 1 entries, stage 1
+  Imported CountriesIndex in \\d+s, stats: index 1
+  Imported Chewy::Stash::Specification in \\d+s, stats: index 1
 Resetting UsersIndex
-  Imported Chewy::Stash::Specification::Specification in \\d+s, stats: index 1
+  Imported UsersIndex in 1s, stats:\s
+  Imported Chewy::Stash::Specification in \\d+s, stats: index 1
 Total: \\d+s\\Z
       OUTPUT
     end
@@ -73,10 +73,10 @@ Total: \\d+s\\Z
         .to update_index(CitiesIndex)
       expect(output.string).to match(Regexp.new(<<-OUTPUT, Regexp::MULTILINE))
 \\AResetting CitiesIndex
-  Imported CitiesIndex::City in \\d+s, stats: index 3
-  Applying journal to \\[CitiesIndex::City\\], 2 entries, stage 1
-  Imported CitiesIndex::City in \\d+s, stats: index 2
-  Imported Chewy::Stash::Specification::Specification in \\d+s, stats: index 1
+  Imported CitiesIndex in \\d+s, stats: index 3
+  Applying journal to \\[CitiesIndex\\], 2 entries, stage 1
+  Imported CitiesIndex in \\d+s, stats: index 2
+  Imported Chewy::Stash::Specification in \\d+s, stats: index 1
 Total: \\d+s\\Z
       OUTPUT
     end
@@ -87,7 +87,8 @@ Total: \\d+s\\Z
         .not_to update_index(CitiesIndex)
       expect(output.string).to match(Regexp.new(<<-OUTPUT, Regexp::MULTILINE))
 \\AResetting UsersIndex
-  Imported Chewy::Stash::Specification::Specification in \\d+s, stats: index 1
+  Imported UsersIndex in 1s, stats:\s
+  Imported Chewy::Stash::Specification in \\d+s, stats: index 1
 Total: \\d+s\\Z
       OUTPUT
     end
@@ -100,13 +101,14 @@ Total: \\d+s\\Z
         .to update_index(CitiesIndex)
       expect(output.string).to match(Regexp.new(<<-OUTPUT, Regexp::MULTILINE))
 \\AResetting CitiesIndex
-  Imported CitiesIndex::City in \\d+s, stats: index 3
-  Imported Chewy::Stash::Specification::Specification in \\d+s, stats: index 1
+  Imported CitiesIndex in \\d+s, stats: index 3
+  Imported Chewy::Stash::Specification in \\d+s, stats: index 1
 Resetting CountriesIndex
-  Imported CountriesIndex::Country in \\d+s, stats: index 2
-  Imported Chewy::Stash::Specification::Specification in \\d+s, stats: index 1
+  Imported CountriesIndex in \\d+s, stats: index 2
+  Imported Chewy::Stash::Specification in \\d+s, stats: index 1
 Resetting UsersIndex
-  Imported Chewy::Stash::Specification::Specification in \\d+s, stats: index 1
+  Imported UsersIndex in 1s, stats:\s
+  Imported Chewy::Stash::Specification in \\d+s, stats: index 1
 Total: \\d+s\\Z
       OUTPUT
     end
@@ -125,7 +127,8 @@ Total: \\d+s\\Z
 \\ASkipping CitiesIndex, the specification didn't change
 Skipping CountriesIndex, the specification didn't change
 Resetting UsersIndex
-  Imported Chewy::Stash::Specification::Specification in \\d+s, stats: index 1
+  Imported UsersIndex in 1s, stats:\s
+  Imported Chewy::Stash::Specification in \\d+s, stats: index 1
 Total: \\d+s\\Z
         OUTPUT
       end
@@ -136,7 +139,8 @@ Total: \\d+s\\Z
           .not_to update_index(CitiesIndex)
         expect(output.string).to match(Regexp.new(<<-OUTPUT, Regexp::MULTILINE))
 \\AResetting UsersIndex
-  Imported Chewy::Stash::Specification::Specification in \\d+s, stats: index 1
+  Imported UsersIndex in 1s, stats:\s
+  Imported Chewy::Stash::Specification in \\d+s, stats: index 1
 Total: \\d+s\\Z
         OUTPUT
       end
@@ -165,6 +169,7 @@ Total: \\d+s\\Z
       expect(output.string).to match(Regexp.new(<<-OUTPUT, Regexp::MULTILINE))
 \\ASkipping CitiesIndex, it does not exists \\(use rake chewy:reset\\[cities\\] to create and update it\\)
 Skipping CountriesIndex, it does not exists \\(use rake chewy:reset\\[countries\\] to create and update it\\)
+Skipping UsersIndex, it does not exists \\(use rake chewy:reset\\[users\\] to create and update it\\)
 Total: \\d+s\\Z
       OUTPUT
     end
@@ -181,9 +186,10 @@ Total: \\d+s\\Z
           .to update_index(CitiesIndex)
         expect(output.string).to match(Regexp.new(<<-OUTPUT, Regexp::MULTILINE))
 \\AUpdating CitiesIndex
-  Imported CitiesIndex::City in \\d+s, stats: index 3
+  Imported CitiesIndex in \\d+s, stats: index 3
 Updating CountriesIndex
-  Imported CountriesIndex::Country in \\d+s, stats: index 2
+  Imported CountriesIndex in \\d+s, stats: index 2
+Skipping UsersIndex, it does not exists \\(use rake chewy:reset\\[users\\] to create and update it\\)
 Total: \\d+s\\Z
         OUTPUT
       end
@@ -194,7 +200,7 @@ Total: \\d+s\\Z
           .not_to update_index(CitiesIndex)
         expect(output.string).to match(Regexp.new(<<-OUTPUT, Regexp::MULTILINE))
 \\AUpdating CountriesIndex
-  Imported CountriesIndex::Country in \\d+s, stats: index 2
+  Imported CountriesIndex in \\d+s, stats: index 2
 Total: \\d+s\\Z
         OUTPUT
       end
@@ -205,7 +211,8 @@ Total: \\d+s\\Z
           .to update_index(CitiesIndex)
         expect(output.string).to match(Regexp.new(<<-OUTPUT, Regexp::MULTILINE))
 \\AUpdating CitiesIndex
-  Imported CitiesIndex::City in \\d+s, stats: index 3
+  Imported CitiesIndex in \\d+s, stats: index 3
+Skipping UsersIndex, it does not exists \\(use rake chewy:reset\\[users\\] to create and update it\\)
 Total: \\d+s\\Z
         OUTPUT
       end
@@ -218,14 +225,18 @@ Total: \\d+s\\Z
       expect { described_class.sync(output: output) }
         .to update_index(CitiesIndex)
       expect(output.string).to match(Regexp.new(<<-OUTPUT, Regexp::MULTILINE))
-\\ASynchronizing CitiesIndex::City
-  Imported CitiesIndex::City in \\d+s, stats: index 3
+\\ASynchronizing CitiesIndex
+  Imported CitiesIndex in \\d+s, stats: index 3
   Missing documents: \\[[^\\]]+\\]
   Took \\d+s
-Synchronizing CountriesIndex::Country
-  CountriesIndex::Country doesn't support outdated synchronization
-  Imported CountriesIndex::Country in \\d+s, stats: index 2
+Synchronizing CountriesIndex
+  CountriesIndex doesn't support outdated synchronization
+  Imported CountriesIndex in \\d+s, stats: index 2
   Missing documents: \\[[^\\]]+\\]
+  Took \\d+s
+Synchronizing UsersIndex
+  UsersIndex doesn't support outdated synchronization
+  Skipping UsersIndex, up to date
   Took \\d+s
 Total: \\d+s\\Z
       OUTPUT
@@ -236,7 +247,6 @@ Total: \\d+s\\Z
         CitiesIndex.import(cities.first(2))
         CountriesIndex.import
 
-        sleep(1) if ActiveSupport::VERSION::STRING < '4.1.0'
         cities.first.update(name: 'Name5')
       end
 
@@ -245,14 +255,18 @@ Total: \\d+s\\Z
         expect { described_class.sync(output: output) }
           .to update_index(CitiesIndex)
         expect(output.string).to match(Regexp.new(<<-OUTPUT, Regexp::MULTILINE))
-\\ASynchronizing CitiesIndex::City
-  Imported CitiesIndex::City in \\d+s, stats: index 2
+\\ASynchronizing CitiesIndex
+  Imported CitiesIndex in \\d+s, stats: index 2
   Missing documents: \\["#{cities.last.id}"\\]
   Outdated documents: \\["#{cities.first.id}"\\]
   Took \\d+s
-Synchronizing CountriesIndex::Country
-  CountriesIndex::Country doesn't support outdated synchronization
-  Skipping CountriesIndex::Country, up to date
+Synchronizing CountriesIndex
+  CountriesIndex doesn't support outdated synchronization
+  Skipping CountriesIndex, up to date
+  Took \\d+s
+Synchronizing UsersIndex
+  UsersIndex doesn't support outdated synchronization
+  Skipping UsersIndex, up to date
   Took \\d+s
 Total: \\d+s\\Z
         OUTPUT
@@ -263,8 +277,8 @@ Total: \\d+s\\Z
         expect { described_class.sync(only: CitiesIndex, output: output) }
           .to update_index(CitiesIndex)
         expect(output.string).to match(Regexp.new(<<-OUTPUT, Regexp::MULTILINE))
-\\ASynchronizing CitiesIndex::City
-  Imported CitiesIndex::City in \\d+s, stats: index 2
+\\ASynchronizing CitiesIndex
+  Imported CitiesIndex in \\d+s, stats: index 2
   Missing documents: \\["#{cities.last.id}"\\]
   Outdated documents: \\["#{cities.first.id}"\\]
   Took \\d+s
@@ -277,9 +291,13 @@ Total: \\d+s\\Z
         expect { described_class.sync(except: ['cities'], output: output) }
           .not_to update_index(CitiesIndex)
         expect(output.string).to match(Regexp.new(<<-OUTPUT, Regexp::MULTILINE))
-\\ASynchronizing CountriesIndex::Country
-  CountriesIndex::Country doesn't support outdated synchronization
-  Skipping CountriesIndex::Country, up to date
+\\ASynchronizing CountriesIndex
+  CountriesIndex doesn't support outdated synchronization
+  Skipping CountriesIndex, up to date
+  Took \\d+s
+Synchronizing UsersIndex
+  UsersIndex doesn't support outdated synchronization
+  Skipping UsersIndex, up to date
   Took \\d+s
 Total: \\d+s\\Z
         OUTPUT
@@ -308,9 +326,9 @@ Total: \\d+s\\Z
           .to update_index(CitiesIndex)
         expect(output.string).to match(Regexp.new(<<-OUTPUT, Regexp::MULTILINE))
 \\AApplying journal entries created after [+-:\\d\\s]+
-  Applying journal to \\[CitiesIndex::City, CountriesIndex::Country\\], 3 entries, stage 1
-  Imported CitiesIndex::City in \\d+s, stats: index 2
-  Imported CountriesIndex::Country in \\d+s, stats: index 1
+  Applying journal to \\[CitiesIndex, CountriesIndex\\], 3 entries, stage 1
+  Imported CitiesIndex in \\d+s, stats: index 2
+  Imported CountriesIndex in \\d+s, stats: index 1
 Total: \\d+s\\Z
         OUTPUT
       end
@@ -321,8 +339,8 @@ Total: \\d+s\\Z
           .not_to update_index(CitiesIndex)
         expect(output.string).to match(Regexp.new(<<-OUTPUT, Regexp::MULTILINE))
 \\AApplying journal entries created after [+-:\\d\\s]+
-  Applying journal to \\[CountriesIndex::Country\\], 1 entries, stage 1
-  Imported CountriesIndex::Country in \\d+s, stats: index 1
+  Applying journal to \\[CountriesIndex\\], 1 entries, stage 1
+  Imported CountriesIndex in \\d+s, stats: index 1
 Total: \\d+s\\Z
         OUTPUT
       end
@@ -333,8 +351,8 @@ Total: \\d+s\\Z
           .to update_index(CitiesIndex)
         expect(output.string).to match(Regexp.new(<<-OUTPUT, Regexp::MULTILINE))
 \\AApplying journal entries created after [+-:\\d\\s]+
-  Applying journal to \\[CitiesIndex::City\\], 2 entries, stage 1
-  Imported CitiesIndex::City in \\d+s, stats: index 2
+  Applying journal to \\[CitiesIndex\\], 2 entries, stage 1
+  Imported CitiesIndex in \\d+s, stats: index 2
 Total: \\d+s\\Z
         OUTPUT
       end
@@ -345,8 +363,8 @@ Total: \\d+s\\Z
           .not_to update_index(CitiesIndex)
         expect(output.string).to match(Regexp.new(<<-OUTPUT, Regexp::MULTILINE))
 \\AApplying journal entries created after [+-:\\d\\s]+
-  Applying journal to \\[CountriesIndex::Country\\], 1 entries, stage 1
-  Imported CountriesIndex::Country in \\d+s, stats: index 1
+  Applying journal to \\[CountriesIndex\\], 1 entries, stage 1
+  Imported CountriesIndex in \\d+s, stats: index 1
 Total: \\d+s\\Z
         OUTPUT
       end
@@ -443,7 +461,7 @@ Total: \\d+s\\Z
     end
 
     let(:index_name) { CitiesIndex.index_name }
-    let(:unexisting_index) { 'wrong_index' }
+    let(:nonexistent_index) { 'wrong_index' }
 
     context 'with existing index' do
       specify do
@@ -457,11 +475,11 @@ Total: \\d+s\\Z
       end
     end
 
-    context 'with unexisting index name' do
+    context 'with non-existent index name' do
       specify do
         output = StringIO.new
-        expect { described_class.update_mapping(name: unexisting_index, output: output) }
-          .to raise_error Elasticsearch::Transport::Transport::Errors::NotFound
+        expect { described_class.update_mapping(name: nonexistent_index, output: output) }
+          .to raise_error NameError
       end
     end
   end

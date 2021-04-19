@@ -349,7 +349,7 @@ describe Chewy::Index::Actions do
     before do
       stub_model(:city)
       stub_index(:cities) do
-        define_type City
+        index_scope City
       end
     end
     let!(:dummy_cities) { Array.new(3) { |i| City.create(id: i + 1, name: "name#{i}") } }
@@ -371,9 +371,8 @@ describe Chewy::Index::Actions do
     context do
       before do
         stub_index(:cities) do
-          define_type City do
-            field :name, type: 'object'
-          end
+          index_scope City
+          field :name, type: 'object'
         end
       end
 
@@ -385,7 +384,7 @@ describe Chewy::Index::Actions do
     before do
       stub_model(:city)
       stub_index(:cities) do
-        define_type City
+        index_scope City
       end
     end
     let!(:dummy_cities) { Array.new(3) { |i| City.create(id: i + 1, name: "name#{i}") } }
@@ -407,9 +406,8 @@ describe Chewy::Index::Actions do
     context do
       before do
         stub_index(:cities) do
-          define_type City do
-            field :name, type: 'object'
-          end
+          index_scope City
+          field :name, type: 'object'
         end
       end
 
@@ -421,7 +419,7 @@ describe Chewy::Index::Actions do
     before do
       stub_model(:city)
       stub_index(:cities) do
-        define_type City
+        index_scope City
       end
     end
 
@@ -512,7 +510,7 @@ describe Chewy::Index::Actions do
           before do
             stub_index(:cities) do
               settings index: {refresh_interval: '2s'}
-              define_type City
+              index_scope City
             end
           end
 
@@ -588,12 +586,11 @@ describe Chewy::Index::Actions do
     xcontext 'applying journal' do
       before do
         stub_index(:cities) do
-          define_type City do
-            field :name, value: (lambda do
-              sleep(rating)
-              name
-            end)
-          end
+          index_scope City
+          field :name, value: (lambda do
+            sleep(rating)
+            name
+          end)
         end
       end
 
@@ -663,17 +660,75 @@ describe Chewy::Index::Actions do
 
     context 'other options' do
       specify do
-        expect(CitiesIndex::City).to receive(:import).with(parallel: true, journal: false).once.and_return(true)
+        expect(CitiesIndex).to receive(:import).with(parallel: true, journal: false).once.and_return(true)
         expect(CitiesIndex.reset!(parallel: true)).to eq(true)
       end
 
       specify do
-        expect(CitiesIndex::City)
+        expect(CitiesIndex)
           .to receive(:import)
           .with(suffix: 'suffix', parallel: true, journal: false, refresh: true)
           .once.and_return(true)
         expect(CitiesIndex.reset!('suffix', parallel: true)).to eq(true)
       end
+    end
+  end
+
+  describe '.reset' do
+    before do
+      stub_model(:city)
+      stub_index(:cities) do
+        index_scope City
+      end
+    end
+
+    context do
+      before { City.create!(id: 1, name: 'Moscow') }
+
+      specify { expect(CitiesIndex.reset).to eq(true) }
+      specify { expect(CitiesIndex.reset('2013')).to eq(true) }
+
+      context do
+        before { CitiesIndex.reset }
+
+        specify { expect(CitiesIndex.all).to have(1).item }
+        specify { expect(CitiesIndex.aliases).to eq([]) }
+        specify { expect(CitiesIndex.indexes).to eq(['cities']) }
+      end
+    end
+  end
+
+  describe '.sync' do
+    before do
+      stub_model(:city)
+      stub_index(:cities) do
+        index_scope City
+        field :name
+        field :updated_at, type: 'date'
+      end
+    end
+
+    let!(:cities) { Array.new(3) { |i| City.create!(name: "Name#{i + 1}") } }
+
+    before do
+      CitiesIndex.import
+      cities.first.destroy
+      cities.last.update(name: 'Name5')
+    end
+
+    let!(:additional_city) { City.create!(name: 'Name4') }
+
+    specify do
+      expect(CitiesIndex.sync).to match(
+        count: 3,
+        missing: contain_exactly(cities.first.id.to_s, additional_city.id.to_s),
+        outdated: [cities.last.id.to_s]
+      )
+    end
+    specify do
+      expect { CitiesIndex.sync }.to update_index(CitiesIndex)
+        .and_reindex(additional_city, cities.last)
+        .and_delete(cities.first).only
     end
   end
 
@@ -685,7 +740,7 @@ describe Chewy::Index::Actions do
     before do
       stub_model(:city)
       stub_index(:cities) do
-        define_type City
+        index_scope City
       end
     end
 
@@ -703,7 +758,7 @@ describe Chewy::Index::Actions do
           .to receive(:clear_cache)
           .and_call_original
         expect { CitiesIndex.clear_cache({index: index_name_with_prefix}) }
-          .not_to raise_error Elasticsearch::Transport::Transport::Errors::NotFound
+          .not_to raise_error
       end
     end
 
@@ -727,7 +782,7 @@ describe Chewy::Index::Actions do
           .to receive(:clear_cache)
           .and_call_original
         expect { CitiesIndex.clear_cache }
-          .not_to raise_error Elasticsearch::Transport::Transport::Errors::NotFound
+          .not_to raise_error
       end
     end
   end
@@ -736,7 +791,7 @@ describe Chewy::Index::Actions do
     before do
       stub_model(:city)
       stub_index(:cities) do
-        define_type City
+        index_scope City
       end
       CitiesIndex.create(source_index)
       DummiesIndex.create(dest_index)
@@ -807,7 +862,7 @@ describe Chewy::Index::Actions do
     before do
       stub_model(:city)
       stub_index(:cities) do
-        define_type City
+        index_scope City
       end
       CitiesIndex.create
     end

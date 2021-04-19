@@ -10,12 +10,10 @@ describe Chewy::Stash::Journal, :orm do
   before do
     stub_model(:city)
     stub_index(:cities) do
-      define_type City
+      index_scope City
     end
-    stub_index(:countries) do
-      define_type :country
-    end
-    stub_index(:users) { define_type :user }
+    stub_index(:countries)
+    stub_index(:users)
     stub_index(:borogoves)
   end
 
@@ -28,7 +26,7 @@ describe Chewy::Stash::Journal, :orm do
       CountriesIndex.import!([id: 2, name: 'Country'], journal: true)
     end
     Timecop.travel(Time.now + 2.minutes) do
-      UsersIndex::User.import!([id: 3, name: 'User'], journal: true)
+      UsersIndex.import!([id: 3, name: 'User'], journal: true)
     end
   end
 
@@ -81,23 +79,7 @@ describe Chewy::Stash::Journal, :orm do
   describe '.for' do
     specify { expect(described_class.for(UsersIndex).map(&:index_name)).to eq(['users']) }
     specify do
-      expect(described_class.for(CitiesIndex, CountriesIndex).map(&:type_name)).to contain_exactly('city', 'country')
-    end
-    specify do
       expect(described_class.for(CitiesIndex, UsersIndex).map(&:index_name)).to contain_exactly('cities', 'users')
-    end
-  end
-
-  describe '#type' do
-    let(:index_name) { 'users' }
-    let(:type_name) { 'city' }
-    subject { described_class::Journal.new('index_name' => index_name, 'type_name' => type_name).type }
-
-    specify { expect { subject }.to raise_error(Chewy::UnderivableType) }
-
-    context do
-      let(:index_name) { 'cities' }
-      it { is_expected.to eq(CitiesIndex::City) }
     end
   end
 end

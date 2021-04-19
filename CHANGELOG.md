@@ -4,6 +4,14 @@
 
 ### New Features
 
+### Changes
+
+### Bugs Fixed
+
+## 7.2.0 (2021-04-19)
+
+### New Features
+
   * [#778](https://github.com/toptal/chewy/pull/778): Add `ignore_blank` option to `field` method ([@Vitalina-Vakulchyk][]):
     * `true` by default for the `geo_point` type
     * `false` by default for other types
@@ -51,8 +59,6 @@
     * `Chewy::RakeHelper.update_all` is removed, use `Chewy::RakeHelper.update` instead
     * `rake chewy:apply_changes_from` is removed, use `rake chewy:journal:apply` instead
     * `rake chewy:clean_journal` is removed, use `rake chewy:journal:clean` instead
-
-### Bugs Fixed
 
 ## 7.1.0 (2021-03-03)
 

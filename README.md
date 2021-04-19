@@ -51,6 +51,7 @@ Chewy is compatible with MRI 2.6-3.0¹.
 
 | Chewy version | Elasticsearch version              |
 | ------------- | ---------------------------------- |
+| 7.2.x         | 7.x                                |
 | 7.1.x         | 7.x                                |
 | 7.0.0         | 6.8, 7.x                           |
 | 6.0.0         | 5.x, 6.x                           |

@@ -17,6 +17,20 @@ In order to upgrade Chewy 6/Elasticsearch 6 to Chewy 7/Elasticsearch 7 in the mo
 * Run your test suite on Chewy 7.1 / Elasticsearch 7
 * Run manual tests on Chewy 7.1 / Elasticsearch 7
 * Upgrade to Chewy 7.1
+* Upgrade to Chewy 7.2:
+  * Remove all the the `Chewy::Type` class usages, e.g. remove `CitiesIndex::City` / `CitiesIndex.city`
+    * `CitiesIndex::City.import! ...` becomes `CitiesIndex.import! ...`
+  * Update indexes with simplified DSL:
+    * `define_type` block -> `index_scope` clause
+      * it can be omitted completely, if you don't need to specify the scope or options, e.g. `name`
+  * Remove type names from string representations:
+    * in `update_index` ActiveRecord helper and RSpec matcher, e.g.
+      * `update_index('cities#city')` -> `update_index('cities')`
+      * `update_index(UsersIndex::User)` -> `update_index(UsersIndex)`
+    * in rake tasks (e.g. `rake chewy:update[cities#city]` -> `rake chewy:update[cities]`)
+    * rake tasks output is also changed (e.g. `Imported CitiesIndex::City in 1s, stats: index 3` -> `Imported CitiesIndex in 1s, stats: index 3`)
+  * Use index name instead of type name in loader additional scope
+    * e.g. `CitiesIndex.filter(...).load(city: {scope: City.where(...)})` -> `CitiesIndex.filter(...).load(cities: {scope: City.where(...)})`
 
 ## Chewy 5/Elasticsearch 5 to Chewy 6/Elasticsearch 6
 

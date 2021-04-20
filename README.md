@@ -57,7 +57,12 @@ Chewy is compatible with MRI 2.6-3.0¹.
 | 6.0.0         | 5.x, 6.x                           |
 | 5.x           | 5.x, limited support for 1.x & 2.x |
 
-See [Migration guide](migration_guide.md).
+**Important:** Chewy doesn't follow SemVer, so you should always
+check the release notes before upgrading. The major version is linked to the
+newest supported Elasticsearch and the minor version bumps may include breaking changes.
+
+See our [migration guide](migration_guide.md) for detailed upgrade instructions between
+various Chewy versions.
 
 ### Active Record
 

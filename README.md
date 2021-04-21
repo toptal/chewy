@@ -102,7 +102,7 @@ $ docker run --rm --name elasticsearch -p 9200:9200 -p 9300:9300 -e "discovery.t
 
 ### Index
 
-Create `app/chewy/user_index.rb` with User Index:
+Create `app/chewy/users_index.rb` with User Index:
 
 ```ruby
 class UsersIndex < Chewy::Index

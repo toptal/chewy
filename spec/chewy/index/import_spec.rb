@@ -507,8 +507,6 @@ describe Chewy::Index::Import do
       end
 
       specify do
-        puts 'broken import'
-        puts ::ActiveRecord::Base.connection.object_id
         expect { CitiesIndex.import!(dummy_cities) }.to raise_error Chewy::ImportFailed
       end
     end

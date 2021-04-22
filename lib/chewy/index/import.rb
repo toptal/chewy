@@ -156,7 +156,7 @@ module Chewy
         end
 
         def import_linear(objects, routine)
-          ActiveSupport::Notifications.instrument 'import_objects.chewy', type: self do |payload|
+          ActiveSupport::Notifications.instrument 'import_objects.chewy', index: self do |payload|
             progress_bar = ThreadSafeProgressBar.new(routine.options[:progressbar]) { adapter.import_count(objects) }
             adapter.import(*objects, routine.options) do |action_objects|
               routine.process(**action_objects)

@@ -180,6 +180,9 @@ module Chewy
           ActiveSupport::Notifications.instrument 'import_objects.chewy', index: self do |payload|
             batches = adapter.import_references(*objects, routine.options.slice(:batch_size)).to_a
 
+            puts 'before import'
+            puts ::ActiveRecord::Base.connection.object_id
+
             progress_bar = ThreadSafeProgressBar.new(routine.options[:progressbar]) { adapter.import_count(objects) }
             ::ActiveRecord::Base.connection.close if defined?(::ActiveRecord::Base)
 
@@ -192,6 +195,9 @@ module Chewy
 
             ::ActiveRecord::Base.connection.reconnect! if defined?(::ActiveRecord::Base)
             errors, import, leftovers = process_parallel_import_results(results)
+
+            puts 'before import'
+            puts ::ActiveRecord::Base.connection.object_id
 
             execute_leftovers(leftovers, routine, self, errors)
 

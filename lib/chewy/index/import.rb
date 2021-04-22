@@ -181,7 +181,7 @@ module Chewy
             batches = adapter.import_references(*objects, routine.options.slice(:batch_size)).to_a
 
             progress_bar = ThreadSafeProgressBar.new(routine.options[:progressbar]) { adapter.import_count(objects) }
-            ::ActiveRecord::Base.connection.close if defined?(::ActiveRecord::Base)
+            # ::ActiveRecord::Base.connection.close if defined?(::ActiveRecord::Base)
 
             results = ::Parallel.map_with_index(batches, routine.parallel_options) do |ids, index|
               progress_bar.wait_until_ready
@@ -190,7 +190,7 @@ module Chewy
               end
             end
 
-            ::ActiveRecord::Base.connection.reconnect! if defined?(::ActiveRecord::Base)
+            # ::ActiveRecord::Base.connection.reconnect! if defined?(::ActiveRecord::Base)
             errors, import, leftovers = process_parallel_import_results(results)
 
             execute_leftovers(leftovers, routine, self, errors)

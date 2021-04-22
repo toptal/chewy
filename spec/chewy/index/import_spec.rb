@@ -519,7 +519,7 @@ describe Chewy::Index::Import do
           CitiesIndex.import(parallel: true, progressbar: 'true')
           expect(mocked_progressbar.progress).to eq(3)
           expect(mocked_progressbar.total).to eq(3)
-          sleep 1
+          sleep 3
         end
       end
     end

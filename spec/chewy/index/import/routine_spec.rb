@@ -63,15 +63,9 @@ describe Chewy::Index::Import::Routine do
   end
 
   describe '#parallel_options' do
-<<<<<<< HEAD:spec/chewy/index/import/routine_spec.rb
     specify { expect(described_class.new(CitiesIndex).parallel_options).to be_nil }
-    specify { expect(described_class.new(CitiesIndex, parallel: true).parallel_options).to eq({}) }
-    specify { expect(described_class.new(CitiesIndex, parallel: 3).parallel_options).to eq(in_processes: 3) }
-=======
-    specify { expect(described_class.new(CitiesIndex::City).parallel_options).to be_nil }
-    specify { expect(described_class.new(CitiesIndex::City, parallel: true).parallel_options).to eq({in_threads: [::Parallel.processor_count, ActiveRecord::Base.connection_pool.size].min}) }
-    specify { expect(described_class.new(CitiesIndex::City, parallel: 3).parallel_options).to eq(in_threads: 3) }
->>>>>>> [Fix #469] Print log progress on import rake task:spec/chewy/type/import/routine_spec.rb
+    specify { expect(described_class.new(CitiesIndex, parallel: true).parallel_options).to eq({in_threads: [::Parallel.processor_count, ActiveRecord::Base.connection_pool.size].min}) }
+    specify { expect(described_class.new(CitiesIndex, parallel: 3).parallel_options).to eq(in_threads: 3) }
     specify do
       expect(described_class.new(CitiesIndex, parallel: {in_threads: 2}).parallel_options).to eq(in_threads: 2)
     end

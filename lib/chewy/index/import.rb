@@ -1,8 +1,8 @@
-require 'chewy/type/import/journal_builder'
-require 'chewy/type/import/bulk_builder'
-require 'chewy/type/import/bulk_request'
-require 'chewy/type/import/routine'
-require 'chewy/type/import/thread_safe_progress_bar'
+require 'chewy/index/import/journal_builder'
+require 'chewy/index/import/bulk_builder'
+require 'chewy/index/import/bulk_request'
+require 'chewy/index/import/routine'
+require 'chewy/index/import/thread_safe_progress_bar'
 
 module Chewy
   class Index

@@ -3,7 +3,7 @@ module Chewy
     module Import
       # This class performs the threading for parallel import to avoid concurrency during progressbar output.
       #
-      # @see Chewy::Type::Import::ClassMethods#import with `parallel: true` and `progressbar: 'true'` option
+      # @see Chewy::Type::Import::ClassMethods#import with `parallel: true` option
       class ThreadSafeProgressBar
         def initialize(enabled)
           @enabled = enabled
@@ -27,10 +27,6 @@ module Chewy
           @mutex.synchronize do
             @progressbar.progress += value
           end
-        end
-
-        def title(value)
-          @progressbar.title = value
         end
 
         def wait_until_ready

@@ -18,7 +18,7 @@ module Chewy
             progress_bar.increment(action_objects.map { |_, v| v.size }.sum) if routine.options[:progressbar]
           rescue ProgressBar::InvalidProgressError
             # Output title without progressbar line
-            progress_bar.title('Too many elements to output progressbar')
+            progressbar.title = 'Too many elements to output progressbar'
           end
         end
         {errors: routine.errors, import: routine.stats, leftovers: routine.leftovers}
@@ -164,7 +164,7 @@ module Chewy
                 progress_bar.increment(action_objects.map { |_, v| v.size }.sum) if routine.options[:progressbar]
               rescue ProgressBar::InvalidProgressError
                 # Output title without progressbar line
-                progress_bar.title('Too many elements to output progressbar')
+                progress_bar.title = 'Too many elements to output progressbar'
               end
             end
             routine.perform_bulk(routine.leftovers)

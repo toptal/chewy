@@ -509,7 +509,7 @@ describe Chewy::Index::Import do
       specify { expect { CitiesIndex.import!(dummy_cities) }.to raise_error Chewy::ImportFailed }
     end
 
-    context 'progressbar output' do
+    xcontext 'progressbar output' do
       let(:mocked_progressbar) { Struct.new(:progress, :total).new(0, 100) }
       context 'options values' do
         specify do

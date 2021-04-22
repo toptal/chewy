@@ -13,12 +13,12 @@ module Chewy
           @mutex = Mutex.new
           @released = false
           @progressbar = ProgressBar.create total: nil
-          #Thread.new do
+          Thread.new do
             ActiveRecord::Base.connection_pool.with_connection do
               @mutex.synchronize { @released = true }
               @progressbar.total = yield
             end
-          #end
+          end
         end
 
         def increment(value)

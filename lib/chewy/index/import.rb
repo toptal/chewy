@@ -185,7 +185,7 @@ module Chewy
 
             results = ::Parallel.map_with_index(batches, routine.parallel_options) do |ids, index|
               progress_bar.wait_until_ready
-              IMPORT_WORKER.call(index, routine.options, total, progress_bar, ids, self)
+              IMPORT_WORKER.call(self, routine.options, total, progress_bar, ids, index)
             end
 
             ::ActiveRecord::Base.connection.reconnect! if defined?(::ActiveRecord::Base)

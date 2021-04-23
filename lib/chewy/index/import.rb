@@ -14,12 +14,7 @@ module Chewy
         routine = Routine.new(index, **options)
         index.adapter.import(*ids, routine.options) do |action_objects|
           routine.process(**action_objects)
-          begin
-            progress_bar.increment(action_objects.map { |_, v| v.size }.sum) if routine.options[:progressbar]
-          rescue ProgressBar::InvalidProgressError
-            # Output title without progressbar line
-            progressbar.title = 'Too many elements to output progressbar'
-          end
+          progress_bar.increment(action_objects.map { |_, v| v.size }.sum) if routine.options[:progressbar]
         end
         {errors: routine.errors, import: routine.stats, leftovers: routine.leftovers}
       end
@@ -160,12 +155,7 @@ module Chewy
             progress_bar = ThreadSafeProgressBar.new(routine.options[:progressbar]) { adapter.import_count(objects) }
             adapter.import(*objects, routine.options) do |action_objects|
               routine.process(**action_objects)
-              begin
-                progress_bar.increment(action_objects.map { |_, v| v.size }.sum) if routine.options[:progressbar]
-              rescue ProgressBar::InvalidProgressError
-                # Output title without progressbar line
-                progress_bar.title = 'Too many elements to output progressbar'
-              end
+              progress_bar.increment(action_objects.map { |_, v| v.size }.sum) if routine.options[:progressbar]
             end
             routine.perform_bulk(routine.leftovers)
             payload[:import] = routine.stats

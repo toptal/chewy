@@ -33,4 +33,5 @@ Gem::Specification.new do |spec| # rubocop:disable Metrics/BlockLength
   spec.add_dependency 'activesupport', '>= 5.2'
   spec.add_dependency 'elasticsearch', '>= 6.3.0'
   spec.add_dependency 'elasticsearch-dsl'
+  spec.add_dependency 'ruby-progressbar'
 end

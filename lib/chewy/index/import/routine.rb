@@ -51,9 +51,9 @@ module Chewy
           @parallel_options = @options.delete(:parallel)
           if @parallel_options && !@parallel_options.is_a?(Hash)
             @parallel_options = if @parallel_options.is_a?(Integer)
-              {in_processes: @parallel_options}
+              {in_threads: @parallel_options}
             else
-              {}
+              {in_threads: [::Parallel.processor_count, ActiveRecord::Base.connection_pool.size].min}
             end
           end
           @errors = []

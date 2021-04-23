@@ -108,6 +108,18 @@ module Chewy
           ids.map { |id| loaded_objects[id.to_s] }
         end
 
+        def import_count(*args)
+          collection = if args.first.empty?
+            default_scope
+          elsif args.first.is_a?(relation_class)
+            args.first
+          else
+            args.flatten.compact
+          end
+
+          collection.count
+        end
+
       private
 
         def import_objects(collection, options)

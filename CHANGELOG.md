@@ -4,6 +4,10 @@
 
 ### New Features
 
+  * [#469](https://github.com/toptal/chewy/issues/469): Add ability to output the progressbar with `ENV['PROGRESS']` during `reset` rake tasks ([@Vitalina-Vakulchyk][]):
+    * for `rake chewy:reset` and `rake chewy:parallel:reset`
+    * progressbar is hidden by default, set `ENV['PROGRESS']` to `true` to display it
+
 ### Changes
 
 ### Bugs Fixed
@@ -33,9 +37,6 @@
         * in rake tasks output (e.g. `Imported CitiesIndex::City in 1s, stats: index 3` -> `Imported CitiesIndex in 1s, stats: index 3`)
     * Use index name instead of type name in loader additional scope
         * e.g. `CitiesIndex.filter(...).load(city: {scope: City.where(...)})` -> `CitiesIndex.filter(...).load(cities: {scope: City.where(...)})`
-  * [#469](https://github.com/toptal/chewy/issues/469): Add ability to output progressbar with `ENV['PROGRESS']` during `reset` rake tasks ([@Vitalina-Vakulchyk][]):
-    * for `rake chewy:reset` and `rake chewy:parallel:reset`
-    * progressbar is hidden by default, set `ENV['PROGRESS']` to `true` to display it
   * [#692](https://github.com/toptal/chewy/issues/692): Add `.update_mapping` to Index class ([@Vitalina-Vakulchyk][]):
     * Wrapped Elasticsearch gem `.put_mapping` with `.update_mapping` in Index class
     * Add `rake chewy:update_mapping` task

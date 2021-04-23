@@ -1032,6 +1032,12 @@ rake chewy:reset[users,cities] # resets UsersIndex and CitiesIndex
 rake chewy:reset[-users,cities] # resets every index in the application except specified ones
 ```
 
+#### Progressbar for `chewy:reset` tasks
+
+You can optionally output the `progressbar` for `chewy:reset` and `chewy:parallel:reset` during import.
+
+Progressbar is hidden by default. Set `ENV['PROGRESS']` to `true` to display it.
+
 #### `chewy:upgrade`
 
 Performs reset exactly the same way as `chewy:reset` does, but only when the index specification (setting or mapping) was changed.

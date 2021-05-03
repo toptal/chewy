@@ -12,6 +12,13 @@
 
 ### Bugs Fixed
 
+## 7.0.1 (2021-05-03)
+
+### Changes
+
+  * [#792](https://github.com/toptal/chewy/pull/792): Skip ES version memoization for search requests ([@rabotyaga][])
+    * See the Migration Guide for details
+
 ## 7.2.0 (2021-04-19)
 
 ### New Features

@@ -13,6 +13,11 @@ In order to upgrade Chewy 6/Elasticsearch 6 to Chewy 7/Elasticsearch 7 in the mo
 * Run your test suite on Chewy 7.0 / Elasticsearch 7
 * Run manual tests on Chewy 7.0 / Elasticsearch 7
 * Upgrade to Chewy 7.0
+  * The “total hits” counter is an integer for ES versions < 7 and an object (hash) for the versions starting from 7.0.0. Elasticsearch added a special option, `rest_total_hits_as_int`, to ease the upgrade, that could be appended to any request and results in the old “total hits” format. Unfortunately, this option is not recognized by ES versions prior to 7.0.0, which means that we have to check the version to decide if we need this option.
+    Normally Chewy does memoization of the current ES version, but this might be inappropriate for the upgrade, as the version changes live.
+    To handle that we have 2 versions of Chewy for this stage of the upgrade: 7.0.0 and 7.0.1. Version 7.0.0 does the memoization and version 7.0.1 requests the current version on every search request. 
+  * You can use the 7.0.0 version if it's fine for you to have an application restart immediately after ES cluster upgrade.
+  * If you're using the 7.0.1 version you might be interested in keeping the timeframe between this step and updating to Chewy 7.1 as small as possible, as version 7.0.1 skips ES version memoization for search requests to help dynamically detect ES version. This leads to an extra version request on each search request, i.e. could affect the overall performance/latency of the search and a load of ES cluster.
 * Perform a [rolling upgrade](https://www.elastic.co/guide/en/elasticsearch/reference//rolling-upgrades.html) of Elasticsearch
 * Run your test suite on Chewy 7.1 / Elasticsearch 7
 * Run manual tests on Chewy 7.1 / Elasticsearch 7

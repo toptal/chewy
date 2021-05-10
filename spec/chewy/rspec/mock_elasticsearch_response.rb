@@ -4,16 +4,14 @@ require './lib/chewy/rspec/mock_elasticsearch_response'
 describe :mock_elasticsearch_response do
   before do
     stub_model(:city)
-    stub_index(:cities) do
-      index_scope City
-    end
+    stub_index(:cities) { index_scope City }
     CitiesIndex.create
   end
 
-  let(:dummy_request) { {} }
+  let(:dummy_query) { {} }
 
   specify do
-    mock_elasticsearch_response(dummy_request)
-    CitiesIndex.client.search(dummy_request)
+    mock_elasticsearch_response(dummy_query)
+    CitiesIndex.client.search(dummy_query)
   end
 end

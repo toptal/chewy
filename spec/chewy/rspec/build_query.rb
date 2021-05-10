@@ -4,9 +4,7 @@ require './lib/chewy/rspec/build_query'
 describe :build_query do
   before do
     stub_model(:city)
-    stub_index(:cities) do
-      index_scope City
-    end
+    stub_index(:cities) { index_scope City }
     CitiesIndex.create
   end
 

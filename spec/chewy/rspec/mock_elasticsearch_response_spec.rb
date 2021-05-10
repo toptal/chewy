@@ -1,5 +1,4 @@
 require 'spec_helper'
-require './lib/chewy/rspec/mock_elasticsearch_response'
 
 describe :mock_elasticsearch_response do
   before do

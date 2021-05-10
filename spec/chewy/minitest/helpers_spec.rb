@@ -22,6 +22,15 @@ describe :minitest_helper do
     end
   end
 
+  context 'mock_elasticsearch_response' do
+    dummy_query = {}
+
+    specify do
+      mock_elasticsearch_response(dummy_query)
+      DummiesIndex.client.search(dummy_query)
+    end
+  end
+
   context 'assert_indexes' do
     specify 'doesn\'t fail when index updates correctly' do
       expect do

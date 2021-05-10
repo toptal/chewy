@@ -803,12 +803,6 @@ describe Chewy::Index::Actions do
     let(:dest_index_with_prefix) { 'dummies_dest_index' }
     let(:unexisting_index) { 'wrong_index' }
 
-    context 'check expected query with build_query rspec matcher' do
-      specify do
-        expect(CitiesIndex.query({})).to build_query({index: ['cities'], body: {}})
-      end
-    end
-
     context 'with existing indexes' do
       specify do
         expect(CitiesIndex)

@@ -9,8 +9,17 @@ describe :build_query do
 
   let(:dummy_query) { {} }
   let(:expected_query) { {index: ['cities'], body: {}} }
+  let(:unexpected_query) { {} }
 
-  specify do
-    expect(CitiesIndex.query(dummy_query)).to build_query(expected_query)
+  context 'build expected query' do
+    specify do
+      expect(CitiesIndex.query(dummy_query)).to build_query(expected_query)
+    end
+  end
+
+  context 'not to build unexpected query' do
+    specify do
+      expect(CitiesIndex.query(dummy_query)).not_to build_query(unexpected_query)
+    end
   end
 end

@@ -46,6 +46,17 @@ module Chewy
         Chewy.strategy strategy, &block
       end
 
+      # Mock Elasticsearch response
+      # Simple usage - just pass expected response as argument
+      # and then call needed query.
+      #
+      # @param raw_response [Hash] to mock the given response.
+      def mock_elasticsearch_response(raw_response)
+        mocked_request = instance_double('Chewy::Search::Request')
+        allow(Chewy::Search::Request).to receive(:new).and_return(mocked_request)
+        allow(mocked_request).to receive(:build_response).and_return(raw_response)
+      end
+
       module ClassMethods
         # Declare that all tests in this file require real indexing, always.
         # In my completely unscientific experiments, this roughly doubled test runtime.

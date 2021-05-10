@@ -1,5 +1,4 @@
 require 'spec_helper'
-require './lib/chewy/rspec/build_query'
 
 describe :build_query do
   before do

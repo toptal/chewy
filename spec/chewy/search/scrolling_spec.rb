@@ -106,7 +106,7 @@ describe Chewy::Search::Scrolling, :orm do
       end
 
       it 'clears the scroll after completion' do
-        expect(Chewy.client).to receive(:clear_scroll).with(scroll_id: anything).once.and_call_original
+        expect(Chewy.client).to receive(:clear_scroll).with(body: {scroll_id: anything}).once.and_call_original
         request.scroll_batches(batch_size: 3) {}
       end
 

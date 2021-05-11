@@ -31,6 +31,20 @@ describe :minitest_helper do
     end
   end
 
+  context 'build_query' do
+    expected_query = {index: ['cities'], body: {}}
+    dummy_query = {}
+    unexpected_query = {}
+
+    specify 'build expected query' do
+      expect(DummiesIndex.query(dummy_query)).to build_query(expected_query)
+    end
+
+    specify 'not to build unexpected query' do
+      expect(DummiesIndex.query(dummy_query)).not_to build_query(unexpected_query)
+    end
+  end
+
   context 'assert_indexes' do
     specify 'doesn\'t fail when index updates correctly' do
       expect do

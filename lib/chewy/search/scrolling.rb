@@ -44,7 +44,7 @@ module Chewy
           result = perform_scroll(scroll: scroll, scroll_id: scroll_id)
         end
       ensure
-        Chewy.client.clear_scroll(scroll_id: scroll_id) if scroll_id
+        Chewy.client.clear_scroll(body: {scroll_id: scroll_id}) if scroll_id
       end
 
       # @!method scroll_hits(batch_size: 1000, scroll: '1m')

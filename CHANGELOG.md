@@ -4,13 +4,21 @@
 
 ### New Features
 
+### Changes
+
+### Bugs Fixed
+
+## 7.2.1 (2021-05-11)
+
+### New Features
+
   * [#469](https://github.com/toptal/chewy/issues/469): Add ability to output the progressbar with `ENV['PROGRESS']` during `reset` rake tasks ([@Vitalina-Vakulchyk][]):
     * for `rake chewy:reset` and `rake chewy:parallel:reset`
     * progressbar is hidden by default, set `ENV['PROGRESS']` to `true` to display it
 
-### Changes
-
 ### Bugs Fixed
+
+  * [#796](https://github.com/toptal/chewy/pull/796): Fix clear scroll: pass `scroll_id` in body, as passing in path parameters is deprecated and can overflow `http.max_initial_line_length` ([@rabotyaga][])
 
 ## 7.0.1 (2021-05-03)
 

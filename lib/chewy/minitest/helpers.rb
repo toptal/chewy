@@ -74,8 +74,6 @@ module Chewy
 
         Chewy::Search::Request.define_singleton_method(:new, original_new)
 
-        # assert something
-
         response
       end
 

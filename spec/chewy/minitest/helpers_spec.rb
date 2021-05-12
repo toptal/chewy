@@ -22,7 +22,7 @@ describe :minitest_helper do
     end
   end
 
-  describe 'assert_elasticsearch_response' do
+  xdescribe 'assert_elasticsearch_response' do
     #  Commented because of 'underfined SomeRequest'
     # let(:minitest_context) do
     #  class SomeRequest

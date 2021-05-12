@@ -24,17 +24,25 @@ describe :minitest_helper do
 
   describe 'assert_elasticsearch_response' do
     let(:raw_response) { {} }
-    let(:expected_response) { {index: ['dummies'], body: {}} }
-
-    context 'should work' do
-      let(:response) do
-        assert_elasticsearch_response(raw_response) do
-          DummiesIndex.query(raw_response)
-        end
+    let(:response) do
+      assert_elasticsearch_response(raw_response) do
+        DummiesIndex.query(raw_response)
       end
+    end
+
+    context 'should work for right responses' do
+      let(:expected_response) { {index: ['dummies'], body: {}} }
 
       specify do
         expect(response).to eq(expected_response)
+      end
+    end
+
+    context 'should not work for wrong expected response' do
+      let(:wrong_expected_response) { {index: ['cities'], body: {}} }
+
+      specify do
+        expect(response).not_to eq(wrong_expected_response)
       end
     end
   end

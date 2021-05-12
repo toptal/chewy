@@ -22,7 +22,7 @@ describe :minitest_helper do
     end
   end
 
-  xdescribe 'assert_elasticsearch_response' do
+  describe 'assert_elasticsearch_response' do
     #  Commented because of 'underfined SomeRequest'
     # let(:minitest_context) do
     #  class SomeRequest
@@ -48,29 +48,6 @@ describe :minitest_helper do
       specify do
         expect(response).to eq(expected_response)
       end
-    end
-  end
-
-  context 'mock_elasticsearch_response' do
-    dummy_query = {}
-
-    specify do
-      mock_elasticsearch_response(dummy_query)
-      DummiesIndex.client.search(dummy_query)
-    end
-  end
-
-  context 'build_query' do
-    expected_query = {index: ['cities'], body: {}}
-    dummy_query = {}
-    unexpected_query = {}
-
-    specify 'build expected query' do
-      expect(DummiesIndex.query(dummy_query)).to build_query(expected_query)
-    end
-
-    specify 'not to build unexpected query' do
-      expect(DummiesIndex.query(dummy_query)).not_to build_query(unexpected_query)
     end
   end
 

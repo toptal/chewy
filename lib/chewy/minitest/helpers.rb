@@ -1,4 +1,4 @@
-require "minitest/autorun"
+require 'minitest/autorun'
 require_relative 'search_index_receiver'
 
 module Chewy
@@ -52,7 +52,7 @@ module Chewy
       # and then call needed query.
       #
       # @param raw_response [Hash] to mock the given response.
-      
+
       class SomeRequest
         def initialize(some_request)
           @some_request = some_request
@@ -63,13 +63,30 @@ module Chewy
         end
       end
 
-      def mock_elasticsearch_response(raw_response)      
+      def mock_elasticsearch_response(raw_response)
         mock = MiniTest::Mock.new
         request = SomeRequest.new mock
 
         mock.expect :new, request
         mock.new
 
+        mock.expect :build_response, raw_response
+        mock.build_response
+
+        mock.verify
+      end
+
+      def xmock_elasticsearch_response(raw_response)
+        # mocked_request = instance_double('Chewy::Search::Request')
+        mock = MiniTest::Mock.new
+        # #request = Chewy::Search::Request.new []
+        request = SomeRequest.new mock
+
+        # allow(Chewy::Search::Request).to receive(:new).and_return(mocked_request)
+        mock.expect :new, request
+        mock.new
+
+        # allow(mocked_request).to receive(:build_response).and_return(raw_response)
         mock.expect :build_response, raw_response
         mock.build_response
 

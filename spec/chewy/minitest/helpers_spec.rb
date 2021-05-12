@@ -22,6 +22,35 @@ describe :minitest_helper do
     end
   end
 
+  describe 'assert_elasticsearch_response' do
+    #  Commented because of 'underfined SomeRequest'
+    # let(:minitest_context) do
+    #  class SomeRequest
+    #    def initialize(some_request)
+    #      @some_request = some_request
+    #    end
+    #
+    #    def build_response(raw_response)
+    #      raw_response
+    #    end
+    #  end
+    # end
+    let(:raw_response) { {} }
+    let(:expected_response) { {index: ['dummies'], body: {}} }
+
+    context 'should work' do
+      let(:response) do
+        assert_elasticsearch_response(raw_response) do
+          DummiesIndex.query(raw_response)
+        end
+      end
+
+      specify do
+        expect(response).to eq(expected_response)
+      end
+    end
+  end
+
   context 'mock_elasticsearch_response' do
     dummy_query = {}
 

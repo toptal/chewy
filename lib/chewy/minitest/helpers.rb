@@ -52,51 +52,29 @@ module Chewy
       # and then call needed query.
       #
       # @param raw_response [Hash] to mock the given response.
+      #
+      def assert_elasticsearch_response(raw_response)
+        mocked_request = nil
 
-      class SomeRequest
-        def initialize(some_request)
-          @some_request = some_request
+        original_new = Chewy::Search::Request.method(:new)
+
+        Chewy::Search::Request.define_singleton_method(:new) do |*args|
+          mocked_request = Chewy::Search::Request.new(*args)
         end
 
-        def build_response(raw_response)
-          raw_response
-        end
-      end
+        original_build_response = Chewy::Search::Request.method(:new)
 
-      def mock_elasticsearch_response(raw_response)
-        mock = MiniTest::Mock.new
-        request = SomeRequest.new mock
+        mocked_request.define_singleton_method(:build_response) { raw_response }
 
-        mock.expect :new, request
-        mock.new
+        response = yield.render
 
-        mock.expect :build_response, raw_response
-        mock.build_response
+        mocked_request.define_singleton_method(:build_response, original_build_response)
 
-        mock.verify
-      end
+        Chewy::Search::Request.define_singleton_method(:new, original_new)
 
-      def xmock_elasticsearch_response(raw_response)
-        # mocked_request = instance_double('Chewy::Search::Request')
-        mock = MiniTest::Mock.new
-        # #request = Chewy::Search::Request.new []
-        request = SomeRequest.new mock
+        # assert something
 
-        # allow(Chewy::Search::Request).to receive(:new).and_return(mocked_request)
-        mock.expect :new, request
-        mock.new
-
-        # allow(mocked_request).to receive(:build_response).and_return(raw_response)
-        mock.expect :build_response, raw_response
-        mock.build_response
-
-        mock.verify
-      end
-
-      def build_query(expected_query)
-        match do |request|
-          request.render == expected_query
-        end
+        response
       end
 
       module ClassMethods

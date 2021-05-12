@@ -33,7 +33,6 @@ describe :minitest_helper do
         end
       end
 
-      
       specify do
         expect(response).to eq(expected_response)
       end

@@ -69,7 +69,6 @@ module Chewy
 
         response = yield.render
 
-        # mocked_request.define_singleton_method(:build_response, original_build_response)
         mocked_request.define_singleton_method(:build_response) { original_build_response }
 
         Chewy::Search::Request.define_singleton_method(:new, original_new)

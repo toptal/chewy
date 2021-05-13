@@ -22,10 +22,10 @@ describe :minitest_helper do
     end
   end
 
-  describe 'assert_elasticsearch_response' do
+  describe 'mock_elasticsearch_response' do
     let(:raw_response) { {} }
     let(:response) do
-      assert_elasticsearch_response(raw_response) do
+      mock_elasticsearch_response(raw_response) do
         DummiesIndex.query(raw_response)
       end
     end

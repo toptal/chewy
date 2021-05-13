@@ -53,7 +53,7 @@ module Chewy
       #
       # @param raw_response [Hash] to mock the given response.
       #
-      def assert_elasticsearch_response(raw_response)
+      def mock_elasticsearch_response(raw_response)
         mocked_request = nil
 
         original_new = Chewy::Search::Request.method(:new)

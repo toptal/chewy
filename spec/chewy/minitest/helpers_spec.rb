@@ -26,12 +26,14 @@ describe :minitest_helper do
     let(:raw_response) { {} }
     let(:response) do
       mock_elasticsearch_response(raw_response) do
-        DummiesIndex.query(raw_response)
+        DummiesIndex.query(raw_response)  # it needs to be set to the right query
       end
     end
 
-    context 'should work for right responses' do
-      let(:expected_response) { {index: ['dummies'], body: {}} }
+    xcontext 'should work for right responses' do
+      let(:expected_response) do
+        DummiesIndex.query(raw_response)
+      end
 
       specify do
         expect(response).to eq(expected_response)
@@ -39,10 +41,30 @@ describe :minitest_helper do
     end
 
     context 'should not work for wrong expected response' do
-      let(:wrong_expected_response) { {index: ['cities'], body: {}} }
+      let(:wrong_expected_response) do
+        DummiesIndex.query(raw_response)
+      end
 
       specify do
         expect(response).not_to eq(wrong_expected_response)
+      end
+    end
+  end
+
+  describe :build_query do
+    let(:dummy_query) { {} }
+    let(:expected_query) { {index: ['dummies'], body: {}} }
+    let(:unexpected_query) { {} }
+
+    context 'build expected query' do
+      specify do
+        expect(build_expected_query(DummiesIndex.query(dummy_query), expected_query)).to eq true
+      end
+    end
+
+    context 'not to build unexpected query' do
+      specify do
+        expect(build_expected_query(DummiesIndex.query(dummy_query), unexpected_query)).to eq false
       end
     end
   end

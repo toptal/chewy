@@ -65,13 +65,17 @@ module Chewy
 
         mocked_request.define_singleton_method(:build_response) { raw_response }
 
-        response = yield.render
+        response = yield
 
         mocked_request.define_singleton_method(:build_response) { original_build_response }
 
         Chewy::Search::Request.define_singleton_method(:new, original_new)
 
         response
+      end
+
+      def build_expected_query(actual_query, expected_query)
+        actual_query.render == expected_query
       end
 
       module ClassMethods

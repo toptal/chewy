@@ -23,7 +23,18 @@ describe :minitest_helper do
   end
 
   describe 'mock_elasticsearch_response' do
-    let(:raw_response) { {} }
+    let(:raw_response) { {"took"=>4,
+ "timed_out"=>false,
+ "_shards"=>{"total"=>1, "successful"=>1, "skipped"=>0, "failed"=>0},
+ "hits"=>
+  {"total"=>{"value"=>10000, "relation"=>"gte"},
+   "max_score"=>0.00044983125,
+   "hits"=>
+    [{"_index"=>"users",
+      "_type"=>"_doc",
+      "_id"=>"13",
+      "_score"=>0.00044983125,
+      "_source"=>{"name"=>"test2", "email"=>"test2@example.com", "phone"=>"2090111111"}} ]}} }
     let(:response) do
       mock_elasticsearch_response(raw_response) do
         DummiesIndex.query(raw_response)  # it needs to be set to the right query

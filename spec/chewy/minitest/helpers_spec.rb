@@ -12,6 +12,10 @@ describe :minitest_helper do
 
   include ::Chewy::Minitest::Helpers
 
+  def assert_equal(expected, actual, message)
+    raise message unless expected == actual
+  end
+
   before do
     Chewy.massacre
   end
@@ -23,22 +27,88 @@ describe :minitest_helper do
   end
 
   describe 'mock_elasticsearch_response' do
-    let(:raw_response) { {"took"=>4,
- "timed_out"=>false,
- "_shards"=>{"total"=>1, "successful"=>1, "skipped"=>0, "failed"=>0},
- "hits"=>
-  {"total"=>{"value"=>10000, "relation"=>"gte"},
-   "max_score"=>0.00044983125,
-   "hits"=>
-    [{"_index"=>"users",
-      "_type"=>"_doc",
-      "_id"=>"13",
-      "_score"=>0.00044983125,
-      "_source"=>{"name"=>"test2", "email"=>"test2@example.com", "phone"=>"2090111111"}} ]}} }
-    let(:response) do
-      mock_elasticsearch_response(raw_response) do
-        DummiesIndex.query(raw_response)  # it needs to be set to the right query
+    let(:raw_response) do
+      {
+        'took' => 4,
+        'timed_out' => false,
+        '_shards' => {'total' => 1, 'successful' => 1, 'skipped' => 0, 'failed' => 0},
+        'hits' => {
+          'total' => {
+            'value' => 1,
+            'relation' => 'gte'
+          },
+          'max_score' => 0.0005,
+          'hits' => hits
+        }
+      }
+    end
+
+    let(:hits) do
+      [
+        {
+          '_index' => 'dummies',
+          '_type' => '_doc',
+          '_id' => '1',
+          '_score' => 3.14,
+          '_source' => source
+        }
+      ]
+    end
+
+    let(:source) { { 'name' => 'some_name' } }
+    let(:sources) { [source] }
+
+    let(:query) do
+      DummiesIndex.filter.should { multi_match foo: 'bar' }.filter { match foo: 'bar' }
+    end
+
+    let(:expected_query) do
+      {
+        index: [ 'dummies' ],
+        body: {
+          query: {
+            bool: {
+              filter: {
+                bool: {
+                  must: {
+                    match: { foo: 'bar' }
+                  },
+                  should: {
+                    multi_match: { foo: 'bar' }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    end
+
+    let(:unexpected_query) do
+      {
+        index: ['what?'],
+        body: {}
+      }
+    end
+
+    it 'mocks by raw response' do
+      mock_elasticsearch_response(DummiesIndex, raw_response) do
+        expect(DummiesIndex.query({}).hits).to eq(hits)
       end
+    end
+
+    it 'mocks by response sources' do
+      mock_elasticsearch_response_sources(DummiesIndex, sources) do
+        expect(DummiesIndex.query({}).hits).to eq(hits)
+      end
+    end
+
+    it 'assert correct elasticsearch query will be built' do
+      expect { assert_elasticsearch_query(query, expected_query) }.not_to raise_error
+    end
+
+    it 'assert correct elasticsearch query will be built' do
+      expect { assert_elasticsearch_query(query, unexpected_query) }.to raise_error(RuntimeError, 'got {:index=>["dummies"], :body=>{:query=>{:bool=>{:filter=>{:bool=>{:must=>{:match=>{:foo=>"bar"}}, :should=>{:multi_match=>{:foo=>"bar"}}}}}}}} instead of expected query.')
     end
 
     xcontext 'should work for right responses' do

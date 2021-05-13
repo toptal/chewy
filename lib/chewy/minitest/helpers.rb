@@ -53,29 +53,58 @@ module Chewy
       #
       # @param raw_response [Hash] to mock the given response.
       #
-      def mock_elasticsearch_response(raw_response)
-        mocked_request = nil
+      def mock_elasticsearch_response(index, raw_response)
+        mocked_request = Chewy::Search::Request.new(index)
 
         original_new = Chewy::Search::Request.method(:new)
 
-        Chewy::Search::Request.define_singleton_method(:new) { |*args| mocked_request = original_new.call(*args) }
-        Chewy::Search::Request.new
+        Chewy::Search::Request.define_singleton_method(:new) { |*args| mocked_request }
 
-        original_build_response = mocked_request
+        original_perform = mocked_request.method(:perform)
+        mocked_request.define_singleton_method(:perform) { raw_response }
 
-        mocked_request.define_singleton_method(:build_response) { raw_response }
+        yield
 
-        response = yield
-
-        mocked_request.define_singleton_method(:build_response) { original_build_response }
-
+        mocked_request.define_singleton_method(:perform, original_perform)
         Chewy::Search::Request.define_singleton_method(:new, original_new)
-
-        response
       end
 
-      def build_expected_query(actual_query, expected_query)
-        actual_query.render == expected_query
+      # TODO: Document it
+      def mock_elasticsearch_response_sources(index, hits, &block)
+        raw_response = {
+          'took' => 4,
+          'timed_out' => false,
+          '_shards' => {
+            'total' => 1,
+            'successful' => 1,
+            'skipped' => 0,
+            'failed' => 0
+          },
+          'hits' => {
+            'total' => {
+              'value' => hits.count,
+              'relation' => 'gte'
+            },
+            'max_score' => 0.0005,
+            'hits' => hits.each_with_index.map do |hit, i|
+              {
+                '_index' => index.index_name,
+                '_type' => '_doc',
+                '_id' => (i + 1).to_s,
+                '_score' => 3.14,
+                '_source' => hit
+              }
+            end
+          }
+        }
+
+        mock_elasticsearch_response(index, raw_response, &block)
+      end
+
+      # TODO: Document it
+      def assert_elasticsearch_query(query, expected_query)
+        actual_query = query.render
+        assert_equal expected_query, actual_query, "got #{actual_query.inspect} instead of expected query."
       end
 
       module ClassMethods

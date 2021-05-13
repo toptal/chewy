@@ -59,10 +59,8 @@ module Chewy
         original_new = Chewy::Search::Request.method(:new)
 
         Chewy::Search::Request.define_singleton_method(:new) { |*args| mocked_request = original_new.call(*args) }
-
         Chewy::Search::Request.new
 
-        # original_build_response = mocked_request.method(:new)
         original_build_response = mocked_request
 
         mocked_request.define_singleton_method(:build_response) { raw_response }

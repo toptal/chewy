@@ -59,7 +59,7 @@ module Chewy
     Chewy::Index::Adapter::Object
   ]
 
-  class << self
+  class << self 
     attr_accessor :adapters
 
     # Derives an index for the passed string identifier if possible.

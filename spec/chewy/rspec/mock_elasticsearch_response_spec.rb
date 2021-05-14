@@ -45,7 +45,7 @@ describe :mock_elasticsearch_response do
     end
 
     specify do
-      mock_elasticsearch_response(raw_response)
+      mock_elasticsearch_response(CitiesIndex, raw_response)
       expect(CitiesIndex.query({}).hits).to eq(hits)
     end
   end

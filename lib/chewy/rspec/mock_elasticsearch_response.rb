@@ -10,8 +10,8 @@ module Chewy
       #   mock_elasticsearch_response(expected_response_here)
       #   CitiesIndex.client.search(expected_response_here)
       #
-      def mock_elasticsearch_response(raw_response)
-        mocked_request = instance_double('Chewy::Search::Request')
+      def mock_elasticsearch_response(index, raw_response)
+        mocked_request = Chewy::Search::Request.new(index)
         allow(Chewy::Search::Request).to receive(:new).and_return(mocked_request)
         allow(mocked_request).to receive(:perform).and_return(raw_response)
       end

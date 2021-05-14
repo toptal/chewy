@@ -43,6 +43,7 @@ module Chewy
       # Run indexing for the database changes during the block provided.
       # By default, indexing is run at the end of the block.
       # @param strategy [Symbol] the Chewy index update strategy see Chewy docs.
+      #
       def run_indexing(strategy: :atomic, &block)
         Chewy.strategy strategy, &block
       end
@@ -114,6 +115,8 @@ module Chewy
       #
       # @param query [::Query] the actual Elasticsearch query.
       # @param expected_query [Hash] expected query.
+      #
+      # @return [Boolean]
       #
       def assert_elasticsearch_query(query, expected_query)
         actual_query = query.render

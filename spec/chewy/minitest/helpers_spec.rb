@@ -39,7 +39,7 @@ describe :minitest_helper do
       ]
     end
 
-    let(:source) { { 'name' => 'some_name' } }
+    let(:source) { {'name' => 'some_name'} }
     let(:sources) { [source] }
 
     context 'mocks by raw response' do
@@ -82,17 +82,17 @@ describe :minitest_helper do
 
     let(:expected_query) do
       {
-        index: [ 'dummies' ],
+        index: ['dummies'],
         body: {
           query: {
             bool: {
               filter: {
                 bool: {
                   must: {
-                    match: { foo: 'bar' }
+                    match: {foo: 'bar'}
                   },
                   should: {
-                    multi_match: { foo: 'bar' }
+                    multi_match: {foo: 'bar'}
                   }
                 }
               }
@@ -121,8 +121,8 @@ describe :minitest_helper do
       end
 
       specify do
-        expect { assert_elasticsearch_query(query, unexpected_query) }.
-          to raise_error(RuntimeError, unexpected_query_error_message)
+        expect { assert_elasticsearch_query(query, unexpected_query) }
+          .to raise_error(RuntimeError, unexpected_query_error_message)
       end
     end
   end

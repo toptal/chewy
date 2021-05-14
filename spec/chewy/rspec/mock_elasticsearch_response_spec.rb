@@ -41,23 +41,8 @@ describe :mock_elasticsearch_response do
       }
     end
 
-    specify do
-      mock_elasticsearch_response(raw_response) do
-        expect(CitiesIndex.query({}).hits).to eq(hits)
-      end
+    xspecify do
+      expect{ expect(CitiesIndex.query({}).hits).to eq(hits) }.to mock_elasticsearch_response(raw_response)
     end
-  end
-
-  xcontext 'mocks by response sources' do
-    specify do
-      mock_elasticsearch_response_sources(sources) do
-        expect(CitiesIndex.query({}).hits).to eq(hits)
-      end
-    end
-  end
-
-  xspecify do
-    mock_elasticsearch_response(dummy_query)
-    CitiesIndex.client.search(dummy_query)
   end
 end

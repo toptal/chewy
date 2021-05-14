@@ -7,9 +7,9 @@ describe :build_query do
     CitiesIndex.create
   end
 
-  let(:dummy_query) { {} }
-  let(:expected_query) { {index: ['cities'], body: {}} }
-  let(:unexpected_query) { {} }
+  let(:dummy_query) { {match: { name: 'name' }} }
+  let(:expected_query) { {:index=>["cities"], :body=>{:query=>{:match=>{:name=>"name"}}}} }
+  let(:unexpected_query) { {match: { name: 'name' }} }
 
   context 'build expected query' do
     specify do

@@ -6,12 +6,16 @@
 #   mock_elasticsearch_response(expected_response_here)
 #   CitiesIndex.client.search(expected_response_here)
 #
-RSpec::Matchers.define :mock_elasticsearch_response do |raw_response = {}, &block|
-  match do
-    mocked_request = instance_double('Chewy::Search::Request', indexes: [])
-    allow(Chewy::Search::Request).to receive(:new).and_return(mocked_request)
-    allow(mocked_request).to receive(:build_response).and_return(raw_response)
+RSpec::Matchers.define :mock_elasticsearch_response do |raw_response = {}|
+  match do |block|
+    mocked_request = instance_double('Chewy::Search::Request')
+    allow(Chewy::Search::Request).to receive(:new).with({}).and_return(mocked_request)
+    allow(mocked_request).to receive(:perform).and_return(raw_response)
 
     block.call
+  end
+
+  def supports_block_expectations?
+    true
   end
 end

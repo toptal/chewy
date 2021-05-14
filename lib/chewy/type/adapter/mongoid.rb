@@ -34,7 +34,8 @@ module Chewy
           collection_ids = identify(collection)
           hash = Hash[collection_ids.map(&:to_s).zip(collection)]
 
-          direct_import = (collection.is_a?(Array) &&
+          direct_import = (default_scope.selector.empty? &&
+                           collection.is_a?(Array) &&
                            !collection.empty? &&
                            collection.all? { |item| item.is_a?(::Mongoid::Document) && item.__selected_fields.nil? })
 

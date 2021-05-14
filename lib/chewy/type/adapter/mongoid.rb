@@ -30,6 +30,40 @@ module Chewy
           end.all?
         end
 
+        def import_objects(collection, options)
+          collection_ids = identify(collection)
+          hash = Hash[collection_ids.map(&:to_s).zip(collection)]
+
+          direct_import = (collection.is_a?(Array) &&
+                           !collection.empty? &&
+                           collection.all? { |item| item.is_a?(::Mongoid::Document) && item.__selected_fields.nil? })
+
+          indexed = collection_ids.each_slice(options[:batch_size]).map do |ids|
+            batch = if options[:raw_import]
+              raw_default_scope_where_ids_in(ids, options[:raw_import])
+            elsif direct_import
+              hash.values_at(*ids.map(&:to_s))
+            else
+              default_scope_where_ids_in(ids)
+            end
+
+            batch = batch.to_a
+
+            if batch.empty?
+              true
+            else
+              batch.each { |object| hash.delete(object.send(primary_key).to_s) }
+              yield grouped_objects(batch)
+            end
+          end.all?
+
+          deleted = hash.keys.each_slice(options[:batch_size]).map do |group|
+            yield delete: hash.values_at(*group)
+          end.all?
+
+          indexed && deleted
+        end
+
         def primary_key
           :_id
         end

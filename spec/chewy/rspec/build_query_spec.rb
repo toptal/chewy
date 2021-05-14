@@ -7,10 +7,16 @@ describe :build_query do
     CitiesIndex.create
   end
 
-  # rubocop:disable Style/HashSyntax, Style/StringLiterals, Layout/SpaceAroundOperators
-  let(:expected_query) { {:index=>["cities"], :body=>{:query=>{:match=>{:name=>"name"}}}} }
-  # rubocop:enable Style/HashSyntax, Style/StringLiterals, Layout/SpaceAroundOperators
-
+  let(:expected_query) do
+    {
+      index: ['cities'],
+      body: {
+        query: {
+          match: {name: 'name'}
+        }
+      }
+    }
+  end
   let(:dummy_query) { {match: {name: 'name'}} }
   let(:unexpected_query) { {match: {name: 'name'}} }
 

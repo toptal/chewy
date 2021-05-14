@@ -1,4 +1,3 @@
-require 'minitest/autorun'
 require_relative 'search_index_receiver'
 
 module Chewy

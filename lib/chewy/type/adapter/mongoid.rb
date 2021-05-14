@@ -31,15 +31,15 @@ module Chewy
         end
 
         def import_objects(collection, options)
-          direct_import = (default_scope.selector.empty? || options[:searchable_proc]) &&
+          direct_import = (default_scope.selector.empty? || @options[:searchable_proc]) &&
             !options[:raw_import] &&
             collection.is_a?(Array) &&
             !collection.empty? &&
             collection.all? { |item| item.is_a?(::Mongoid::Document) && item.__selected_fields.nil? }
 
-          if direct_import && options[:searchable_proc]
+          if direct_import && @options[:searchable_proc]
             collection = collection.select do |c|
-              options[:searchable_proc].call(c)
+              @options[:searchable_proc].call(c)
             end
           end
 

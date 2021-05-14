@@ -103,31 +103,17 @@ describe :minitest_helper do
       end
     end
 
-    it 'assert correct elasticsearch query will be built' do
-      expect { assert_elasticsearch_query(query, expected_query) }.not_to raise_error
-    end
-
-    it 'assert correct elasticsearch query will be built' do
-      expect { assert_elasticsearch_query(query, unexpected_query) }.to raise_error(RuntimeError, 'got {:index=>["dummies"], :body=>{:query=>{:bool=>{:filter=>{:bool=>{:must=>{:match=>{:foo=>"bar"}}, :should=>{:multi_match=>{:foo=>"bar"}}}}}}}} instead of expected query.')
-    end
-
-    xcontext 'should work for right responses' do
-      let(:expected_response) do
-        DummiesIndex.query(raw_response)
+    context 'assert correct elasticsearch query' do
+      context 'will be built' do
+        specify do
+          expect { assert_elasticsearch_query(query, unexpected_query) }.to raise_error(RuntimeError, 'got {:index=>["dummies"], :body=>{:query=>{:bool=>{:filter=>{:bool=>{:must=>{:match=>{:foo=>"bar"}}, :should=>{:multi_match=>{:foo=>"bar"}}}}}}}} instead of expected query.')
+        end
       end
 
-      specify do
-        expect(response).to eq(expected_response)
-      end
-    end
-
-    context 'should not work for wrong expected response' do
-      let(:wrong_expected_response) do
-        DummiesIndex.query(raw_response)
-      end
-
-      specify do
-        expect(response).not_to eq(wrong_expected_response)
+      context 'will not be built' do
+        specify do
+          expect { assert_elasticsearch_query(query, expected_query) }.not_to raise_error
+        end
       end
     end
   end

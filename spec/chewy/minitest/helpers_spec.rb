@@ -27,22 +27,6 @@ describe :minitest_helper do
   end
 
   describe 'mock_elasticsearch_response' do
-    let(:raw_response) do
-      {
-        'took' => 4,
-        'timed_out' => false,
-        '_shards' => {'total' => 1, 'successful' => 1, 'skipped' => 0, 'failed' => 0},
-        'hits' => {
-          'total' => {
-            'value' => 1,
-            'relation' => 'gte'
-          },
-          'max_score' => 0.0005,
-          'hits' => hits
-        }
-      }
-    end
-
     let(:hits) do
       [
         {
@@ -58,6 +42,40 @@ describe :minitest_helper do
     let(:source) { { 'name' => 'some_name' } }
     let(:sources) { [source] }
 
+    context 'mocks by raw response' do
+      let(:raw_response) do
+        {
+          'took' => 4,
+          'timed_out' => false,
+          '_shards' => {'total' => 1, 'successful' => 1, 'skipped' => 0, 'failed' => 0},
+          'hits' => {
+            'total' => {
+              'value' => 1,
+              'relation' => 'gte'
+            },
+            'max_score' => 0.0005,
+            'hits' => hits
+          }
+        }
+      end
+
+      specify do
+        mock_elasticsearch_response(DummiesIndex, raw_response) do
+          expect(DummiesIndex.query({}).hits).to eq(hits)
+        end
+      end
+    end
+
+    context 'mocks by response sources' do
+      specify do
+        mock_elasticsearch_response_sources(DummiesIndex, sources) do
+          expect(DummiesIndex.query({}).hits).to eq(hits)
+        end
+      end
+    end
+  end
+
+  describe 'assert correct elasticsearch query' do
     let(:query) do
       DummiesIndex.filter.should { multi_match foo: 'bar' }.filter { match foo: 'bar' }
     end
@@ -91,47 +109,20 @@ describe :minitest_helper do
       }
     end
 
-    it 'mocks by raw response' do
-      mock_elasticsearch_response(DummiesIndex, raw_response) do
-        expect(DummiesIndex.query({}).hits).to eq(hits)
-      end
-    end
-
-    it 'mocks by response sources' do
-      mock_elasticsearch_response_sources(DummiesIndex, sources) do
-        expect(DummiesIndex.query({}).hits).to eq(hits)
-      end
-    end
-
-    context 'assert correct elasticsearch query' do
-      context 'will be built' do
-        specify do
-          expect { assert_elasticsearch_query(query, unexpected_query) }.to raise_error(RuntimeError, 'got {:index=>["dummies"], :body=>{:query=>{:bool=>{:filter=>{:bool=>{:must=>{:match=>{:foo=>"bar"}}, :should=>{:multi_match=>{:foo=>"bar"}}}}}}}} instead of expected query.')
-        end
-      end
-
-      context 'will not be built' do
-        specify do
-          expect { assert_elasticsearch_query(query, expected_query) }.not_to raise_error
-        end
-      end
-    end
-  end
-
-  describe :build_query do
-    let(:dummy_query) { {} }
-    let(:expected_query) { {index: ['dummies'], body: {}} }
-    let(:unexpected_query) { {} }
-
-    context 'build expected query' do
+    context 'will be built' do
       specify do
-        expect(build_expected_query(DummiesIndex.query(dummy_query), expected_query)).to eq true
+        expect { assert_elasticsearch_query(query, expected_query) }.not_to raise_error
       end
     end
 
-    context 'not to build unexpected query' do
+    context 'will not be built' do
+      let(:unexpected_query_error_message) do
+        'got {:index=>["dummies"], :body=>{:query=>{:bool=>{:filter=>{:bool=>{:must=>{:match=>{:foo=>"bar"}}, :should=>{:multi_match=>{:foo=>"bar"}}}}}}}} instead of expected query.'
+      end
+
       specify do
-        expect(build_expected_query(DummiesIndex.query(dummy_query), unexpected_query)).to eq false
+        expect { assert_elasticsearch_query(query, unexpected_query) }.
+          to raise_error(RuntimeError, unexpected_query_error_message)
       end
     end
   end

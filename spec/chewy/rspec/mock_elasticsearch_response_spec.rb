@@ -1,6 +1,9 @@
 require 'spec_helper'
 
 describe :mock_elasticsearch_response do
+
+  include ::Chewy::Rspec::Helpers
+
   before do
     stub_model(:city)
     stub_index(:cities) { index_scope City }
@@ -41,8 +44,9 @@ describe :mock_elasticsearch_response do
       }
     end
 
-    xspecify do
-      expect{ expect(CitiesIndex.query({}).hits).to eq(hits) }.to mock_elasticsearch_response(raw_response)
+    specify do
+      mock_elasticsearch_response(raw_response)
+      expect(CitiesIndex.query({}).hits).to eq(hits)
     end
   end
 end

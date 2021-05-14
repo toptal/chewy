@@ -1,7 +1,6 @@
 require 'spec_helper'
 
 describe :mock_elasticsearch_response do
-
   include ::Chewy::Rspec::Helpers
 
   before do

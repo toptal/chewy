@@ -16,9 +16,6 @@ require 'support/fail_helpers'
 require 'support/class_helpers'
 
 require 'chewy/rspec'
-require 'chewy/rspec/mock_elasticsearch_response'
-require 'chewy/rspec/mock_elasticsearch_response_sources'
-require 'chewy/rspec/build_query'
 
 host = ENV['ES_HOST'] || 'localhost'
 port = ENV['ES_PORT'] || 9250

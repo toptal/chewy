@@ -2,8 +2,8 @@ module Chewy
   module Rspec
     module Helpers
       extend ActiveSupport::Concern
-      # Rspec helper `mock_elasticsearch_response`
-      # To use it - add `require 'chewy/rspec/mock_elasticsearch_response'` to the `spec_helper.rb`
+      # Rspec helper to mock elasticsearch response
+      # To use it - add `require 'chewy/rspec'` to the `spec_helper.rb`
       # Simple usage - just pass expected response as argument
       # and then call needed query.
       #

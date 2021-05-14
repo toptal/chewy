@@ -6,6 +6,11 @@
 
 ### Changes
 
+  * [#654](https://github.com/toptal/chewy/issues/654): Add helpers and matchers for both Rspec and Minitest ([@Vitalina-Vakulchyk][]):
+    * `mock_elasticsearch_response` helper - to mock elasticsearch response
+    * `mock_elasticsearch_response_sources` - to mock elasticsearch response sources
+    * `build_query` matcher - to compare request and expected query (returns `true`/`false`)
+
 ### Bugs Fixed
 
 ## 7.2.1 (2021-05-11)

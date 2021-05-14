@@ -108,7 +108,13 @@ module Chewy
         mock_elasticsearch_response(index, raw_response, &block)
       end
 
-      # TODO: Document it
+      # Check the assertion that actual Elasticsearch query is rendered
+      # to the expected query
+      # Usage - query and expected query.
+      #
+      # @param query [::Query] the actual Elasticsearch query.
+      # @param expected_query [Hash] expected query.
+      #
       def assert_elasticsearch_query(query, expected_query)
         actual_query = query.render
         assert_equal expected_query, actual_query, "got #{actual_query.inspect} instead of expected query."

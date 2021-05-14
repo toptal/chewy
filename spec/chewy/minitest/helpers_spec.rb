@@ -102,13 +102,6 @@ describe :minitest_helper do
       }
     end
 
-    let(:unexpected_query) do
-      {
-        index: ['what?'],
-        body: {}
-      }
-    end
-
     context 'will be built' do
       specify do
         expect { assert_elasticsearch_query(query, expected_query) }.not_to raise_error
@@ -116,6 +109,13 @@ describe :minitest_helper do
     end
 
     context 'will not be built' do
+      let(:unexpected_query) do
+        {
+          index: ['what?'],
+          body: {}
+        }
+      end
+
       let(:unexpected_query_error_message) do
         'got {:index=>["dummies"], :body=>{:query=>{:bool=>{:filter=>{:bool=>{:must=>{:match=>{:foo=>"bar"}}, :should=>{:multi_match=>{:foo=>"bar"}}}}}}}} instead of expected query.'
       end

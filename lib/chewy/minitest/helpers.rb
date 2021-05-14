@@ -117,6 +117,8 @@ module Chewy
       # @param expected_query [Hash] expected query.
       #
       # @return [Boolean]
+      #   True - in the case when actual Elasticsearch query is rendered to the expected query.
+      #   False - in the opposite case.
       #
       def assert_elasticsearch_query(query, expected_query)
         actual_query = query.render

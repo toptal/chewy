@@ -48,10 +48,11 @@ module Chewy
       end
 
       # Mock Elasticsearch response
-      # Simple usage - just pass expected response as argument
-      # and then call needed query.
+      # Simple usage - just pass index, expected raw response
+      # and block with the query.
       #
-      # @param raw_response [Hash] to mock the given response.
+      # @param index [Chewy::Index] the index to watch, eg EntitiesIndex.
+      # @param raw_response [Hash] hash with response.
       #
       def mock_elasticsearch_response(index, raw_response)
         mocked_request = Chewy::Search::Request.new(index)
@@ -69,7 +70,13 @@ module Chewy
         Chewy::Search::Request.define_singleton_method(:new, original_new)
       end
 
-      # TODO: Document it
+      # Mock Elasticsearch response with defined sources
+      # Simple usage - just pass index, expected sources
+      # and block with the query.
+      #
+      # @param index [Chewy::Index] the index to watch, eg EntitiesIndex.
+      # @param hits [Hash] hash with sources.
+      #
       def mock_elasticsearch_response_sources(index, hits, &block)
         raw_response = {
           'took' => 4,

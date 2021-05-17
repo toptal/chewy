@@ -110,7 +110,6 @@ module Chewy
 
       # Check the assertion that actual Elasticsearch query is rendered
       # to the expected query
-      # Usage - query and expected query.
       #
       # @param query [::Query] the actual Elasticsearch query.
       # @param expected_query [Hash] expected query.

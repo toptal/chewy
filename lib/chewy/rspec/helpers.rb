@@ -4,11 +4,9 @@ module Chewy
       extend ActiveSupport::Concern
       # Rspec helper to mock elasticsearch response
       # To use it - add `require 'chewy/rspec'` to the `spec_helper.rb`
-      # Simple usage - just pass expected response as argument
-      # and then call needed query.
       #
-      #   mock_elasticsearch_response(expected_response_here)
-      #   CitiesIndex.client.search(expected_response_here)
+      #   mock_elasticsearch_response(CitiesIndex, raw_response)
+      #   expect(CitiesIndex.query({}).hits).to eq(hits)
       #
       def mock_elasticsearch_response(index, raw_response)
         mocked_request = Chewy::Search::Request.new(index)
@@ -18,11 +16,9 @@ module Chewy
 
       # Rspec helper to mock Elasticsearch response source
       # To use it - add `require 'chewy/rspec'` to the `spec_helper.rb`
-      # Simple usage - just pass expected response as argument
-      # and then call needed query.
       #
-      #   mock_elasticsearch_response(expected_response_here)
-      #   CitiesIndex.client.search(expected_response_here)
+      #  mock_elasticsearch_response_sources(CitiesIndex, sources)
+      #  expect(CitiesIndex.query({}).hits).to eq(hits)
       #
       def mock_elasticsearch_response_sources(index, hits)
         raw_response = {

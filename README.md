@@ -1121,7 +1121,7 @@ Just add `require 'chewy/rspec'` to your spec_helper.rb and you will get additio
 
 [update_index](lib/chewy/rspec/update_index.rb) helper
 `mock_elasticsearch_response` helper to mock elasticsearch response
-`mock_elasticsearch_response_sources` to mock elasticsearch response sources
+`mock_elasticsearch_response_sources` helper to mock elasticsearch response sources
 `build_query` matcher to compare request and expected query (returns `true`/`false`)
 
 To use `mock_elasticsearch_response` and `mock_elasticsearch_response_sources` helpers add `include Chewy::Rspec::Helpers` to your tests.
@@ -1136,11 +1136,11 @@ Since you can set `:bypass` strategy for test suites and manually handle import 
 
 But if you require chewy to index/update model regularly in your test suite then you can specify `:urgent` strategy for documents indexing. Add `Chewy.strategy(:urgent)` to test_helper.rb.
 
-Also, you can use additional features:
+Also, you can use additional helpers:
 
-`mock_elasticsearch_response` helper to mock elasticsearch response
+`mock_elasticsearch_response` to mock elasticsearch response
 `mock_elasticsearch_response_sources` to mock elasticsearch response sources
-`assert_elasticsearch_query` matcher to compare request and expected query (returns `true`/`false`)
+`assert_elasticsearch_query` to compare request and expected query (returns `true`/`false`)
 
 See [chewy/minitest/](lib/chewy/minitest/) for more details.
 

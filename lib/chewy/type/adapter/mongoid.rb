@@ -37,12 +37,6 @@ module Chewy
             !collection.empty? &&
             collection.all? { |item| item.is_a?(::Mongoid::Document) && item.__selected_fields.nil? }
 
-          if direct_import && @options[:searchable_proc]
-            collection = collection.select do |c|
-              @options[:searchable_proc].call(c)
-            end
-          end
-
           collection_ids = identify(collection)
           hash = Hash[collection_ids.map(&:to_s).zip(collection)]
 
@@ -56,6 +50,11 @@ module Chewy
             end
 
             batch = batch.to_a
+
+            # If it's not searchable/indexable, we should delete it.
+            if direct_import && @options[:searchable_proc]
+              batch = batch.select { |object| @options[:searchable_proc].call(object) }
+            end
 
             if batch.empty?
               true

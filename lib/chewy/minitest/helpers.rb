@@ -65,7 +65,7 @@ module Chewy
         mocked_request.define_singleton_method(:perform) { raw_response }
 
         yield
-
+      ensure
         mocked_request.define_singleton_method(:perform, original_perform)
         Chewy::Search::Request.define_singleton_method(:new, original_new)
       end

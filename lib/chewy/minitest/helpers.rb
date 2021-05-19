@@ -90,9 +90,9 @@ module Chewy
           'hits' => {
             'total' => {
               'value' => hits.count,
-              'relation' => 'gte'
+              'relation' => 'eq'
             },
-            'max_score' => 0.0005,
+            'max_score' => 1.0,
             'hits' => hits.each_with_index.map do |hit, i|
               {
                 '_index' => index.index_name,

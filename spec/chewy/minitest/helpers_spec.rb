@@ -51,9 +51,9 @@ describe :minitest_helper do
           'hits' => {
             'total' => {
               'value' => 1,
-              'relation' => 'gte'
+              'relation' => 'eq'
             },
-            'max_score' => 0.0005,
+            'max_score' => 1.0,
             'hits' => hits
           }
         }

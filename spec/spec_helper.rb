@@ -14,7 +14,6 @@ Kaminari::Hooks.init if defined?(::Kaminari::Hooks)
 
 require 'support/fail_helpers'
 require 'support/class_helpers'
-require 'support/helpers_examples'
 
 require 'chewy/rspec'
 

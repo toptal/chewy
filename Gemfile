@@ -15,8 +15,6 @@ gem 'ruby-progressbar', require: false
 gem 'guard'
 gem 'guard-rspec'
 
-gem 'pry'
-
 gem 'redcarpet'
 gem 'yard'
 

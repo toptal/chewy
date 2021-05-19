@@ -42,8 +42,85 @@ module Chewy
       # Run indexing for the database changes during the block provided.
       # By default, indexing is run at the end of the block.
       # @param strategy [Symbol] the Chewy index update strategy see Chewy docs.
+      #
       def run_indexing(strategy: :atomic, &block)
         Chewy.strategy strategy, &block
+      end
+
+      # Mock Elasticsearch response
+      # Simple usage - just pass index, expected raw response
+      # and block with the query.
+      #
+      # @param index [Chewy::Index] the index to watch, eg EntitiesIndex.
+      # @param raw_response [Hash] hash with response.
+      #
+      def mock_elasticsearch_response(index, raw_response)
+        mocked_request = Chewy::Search::Request.new(index)
+
+        original_new = Chewy::Search::Request.method(:new)
+
+        Chewy::Search::Request.define_singleton_method(:new) { |*_args| mocked_request }
+
+        original_perform = mocked_request.method(:perform)
+        mocked_request.define_singleton_method(:perform) { raw_response }
+
+        yield
+      ensure
+        mocked_request.define_singleton_method(:perform, original_perform)
+        Chewy::Search::Request.define_singleton_method(:new, original_new)
+      end
+
+      # Mock Elasticsearch response with defined sources
+      # Simple usage - just pass index, expected sources
+      # and block with the query.
+      #
+      # @param index [Chewy::Index] the index to watch, eg EntitiesIndex.
+      # @param hits [Hash] hash with sources.
+      #
+      def mock_elasticsearch_response_sources(index, hits, &block)
+        raw_response = {
+          'took' => 4,
+          'timed_out' => false,
+          '_shards' => {
+            'total' => 1,
+            'successful' => 1,
+            'skipped' => 0,
+            'failed' => 0
+          },
+          'hits' => {
+            'total' => {
+              'value' => hits.count,
+              'relation' => 'eq'
+            },
+            'max_score' => 1.0,
+            'hits' => hits.each_with_index.map do |hit, i|
+              {
+                '_index' => index.index_name,
+                '_type' => '_doc',
+                '_id' => (i + 1).to_s,
+                '_score' => 3.14,
+                '_source' => hit
+              }
+            end
+          }
+        }
+
+        mock_elasticsearch_response(index, raw_response, &block)
+      end
+
+      # Check the assertion that actual Elasticsearch query is rendered
+      # to the expected query
+      #
+      # @param query [::Query] the actual Elasticsearch query.
+      # @param expected_query [Hash] expected query.
+      #
+      # @return [Boolean]
+      #   True - in the case when actual Elasticsearch query is rendered to the expected query.
+      #   False - in the opposite case.
+      #
+      def assert_elasticsearch_query(query, expected_query)
+        actual_query = query.render
+        assert_equal expected_query, actual_query, "got #{actual_query.inspect} instead of expected query."
       end
 
       module ClassMethods

@@ -1117,7 +1117,16 @@ rake chewy:journal:apply["$(date -v-1H -u +%FT%TZ)",users] # apply journaled cha
 
 ### RSpec integration
 
-Just add `require 'chewy/rspec'` to your spec_helper.rb and you will get additional features: See [update_index.rb](lib/chewy/rspec/update_index.rb) for more details.
+Just add `require 'chewy/rspec'` to your spec_helper.rb and you will get additional features:
+
+[update_index](lib/chewy/rspec/update_index.rb) helper
+`mock_elasticsearch_response` helper to mock elasticsearch response
+`mock_elasticsearch_response_sources` helper to mock elasticsearch response sources
+`build_query` matcher to compare request and expected query (returns `true`/`false`)
+
+To use `mock_elasticsearch_response` and `mock_elasticsearch_response_sources` helpers add `include Chewy::Rspec::Helpers` to your tests.
+
+See [chewy/rspec/](lib/chewy/rspec/) for more details.
 
 ### Minitest integration
 
@@ -1126,6 +1135,14 @@ Add `require 'chewy/minitest'` to your test_helper.rb, and then for tests which 
 Since you can set `:bypass` strategy for test suites and manually handle import for the index and manually flush test indices using `Chewy.massacre`. This will help reduce unnecessary ES requests
 
 But if you require chewy to index/update model regularly in your test suite then you can specify `:urgent` strategy for documents indexing. Add `Chewy.strategy(:urgent)` to test_helper.rb.
+
+Also, you can use additional helpers:
+
+`mock_elasticsearch_response` to mock elasticsearch response
+`mock_elasticsearch_response_sources` to mock elasticsearch response sources
+`assert_elasticsearch_query` to compare request and expected query (returns `true`/`false`)
+
+See [chewy/minitest/](lib/chewy/minitest/) for more details.
 
 ### DatabaseCleaner
 

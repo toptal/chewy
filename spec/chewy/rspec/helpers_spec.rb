@@ -29,7 +29,12 @@ describe :rspec_helper do
       {
         'took' => 4,
         'timed_out' => false,
-        '_shards' => {'total' => 1, 'successful' => 1, 'skipped' => 0, 'failed' => 0},
+        '_shards' => {
+          'total' => 1,
+          'successful' => 1,
+          'skipped' => 0,
+          'failed' => 0
+        },
         'hits' => {
           'total' => {
             'value' => 1,

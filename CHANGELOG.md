@@ -14,6 +14,9 @@
 
 ### Bugs Fixed
 
+  * [#795](https://github.com/toptal/chewy/issues/795): Change the Chewy::Search::Parameters::Order implementation to use Array ([@jiajiawang][]):
+    * To allow multiple sorting options that may have the same key name. For example script based sorting whose key will always be `_script`.
+
 ## 7.2.1 (2021-05-11)
 
 ### New Features
@@ -637,6 +640,7 @@
 [@inbeom]: https://github.com/inbeom
 [@jesjos]: https://github.com/jesjos
 [@JF-Lalonde]: https://github.com/JF-Lalonde
+[@jiajiawang]: https://github.com/jiajiawang
 [@jimmybaker]: https://github.com/jimmybaker
 [@jirikolarik]: https://github.com/jirikolarik
 [@jirutka]: https://github.com/jirutka

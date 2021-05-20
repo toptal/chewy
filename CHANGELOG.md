@@ -6,6 +6,13 @@
 
 ### Changes
 
+  * [#795](https://github.com/toptal/chewy/issues/795): **(Breaking)** Change the Chewy::Search::Parameters::Order implementation to use Array ([@jiajiawang][]):
+    * To allow multiple sorting options that may have the same key name. For example script based sorting whose key will always be `_script`.
+    * Behaviour change of chained `order` calls.
+      * e.g. `.order(_script: {a: 1}).order(_script: {b: 2})`
+        * Before `{:sort=>[{"_script"=>{:b=>2}}]}`
+        * After  `{:sort=>[{"_script"=>{:a=>1}},{"_script"=>{:b=>2}}]}`
+
   * [#654](https://github.com/toptal/chewy/issues/654): Add helpers and matchers for testing ([@Vitalina-Vakulchyk][]):
     * `mock_elasticsearch_response` helpers both Rspec and Minitest - to mock elasticsearch response
     * `mock_elasticsearch_response_sources` helpers both Rspec and Minitest - to mock elasticsearch response sources
@@ -637,6 +644,7 @@
 [@inbeom]: https://github.com/inbeom
 [@jesjos]: https://github.com/jesjos
 [@JF-Lalonde]: https://github.com/JF-Lalonde
+[@jiajiawang]: https://github.com/jiajiawang
 [@jimmybaker]: https://github.com/jimmybaker
 [@jirikolarik]: https://github.com/jirikolarik
 [@jirutka]: https://github.com/jirutka

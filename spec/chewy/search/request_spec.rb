@@ -177,7 +177,7 @@ describe Chewy::Search::Request do
   describe '#order' do
     specify { expect(subject.order(:foo).render[:body]).to include(sort: ['foo']) }
     specify { expect(subject.order(foo: 42).order(nil).render[:body]).to include(sort: ['foo' => 42]) }
-    specify { expect(subject.order(foo: 42).order(foo: 43).render[:body]).to include(sort: ['foo' => 43]) }
+    specify { expect(subject.order(foo: 42).order(foo: 43).render[:body]).to include(sort: [{'foo' => 42}, {'foo' => 43}]) }
     specify { expect(subject.order(:foo).order(:bar, :baz).render[:body]).to include(sort: %w[foo bar baz]) }
     specify { expect(subject.order(nil).render[:body]).to be_blank }
     specify { expect { subject.order(:foo) }.not_to change { subject.render } }

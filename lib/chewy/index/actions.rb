@@ -146,7 +146,7 @@ module Chewy
         # @param journal [true, false] journaling is switched off for import during reset by default
         # @param import_options [Hash] options, passed to the import call
         # @return [true, false] false in case of errors
-        def reset!(suffix = nil, apply_journal: true, journal: false, progressbar: false, **import_options)
+        def reset!(suffix = nil, apply_journal: true, journal: false, **import_options)
           result = if suffix.present?
             start_time = Time.now
             indexes = self.indexes - [index_name]
@@ -159,13 +159,17 @@ module Chewy
             result = import import_options.merge(
               suffix: suffix,
               journal: journal,
-              refresh: !Chewy.reset_disable_refresh_interval,
-              progressbar: progressbar
+              refresh: !Chewy.reset_disable_refresh_interval
             )
             original_index_settings suffixed_name
 
             delete if indexes.blank?
-            update_aliases(indexes, general_name, suffixed_name)
+            client.indices.update_aliases body: {actions: [
+              *indexes.map do |index|
+                {remove: {index: index, alias: general_name}}
+              end,
+              {add: {index: suffixed_name, alias: general_name}}
+            ]}
             client.indices.delete index: indexes if indexes.present?
 
             self.journal.apply(start_time, **import_options) if apply_journal
@@ -232,15 +236,6 @@ module Chewy
         end
 
       private
-
-        def update_aliases(indexes, general_name, suffixed_name)
-          client.indices.update_aliases body: {actions: [
-            *indexes.map do |index|
-              {remove: {index: index, alias: general_name}}
-            end,
-            {add: {index: suffixed_name, alias: general_name}}
-          ]}
-        end
 
         def optimize_index_settings(index_name)
           settings = {}

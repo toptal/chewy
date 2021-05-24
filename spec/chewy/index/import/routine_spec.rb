@@ -64,8 +64,8 @@ describe Chewy::Index::Import::Routine do
 
   describe '#parallel_options' do
     specify { expect(described_class.new(CitiesIndex).parallel_options).to be_nil }
-    specify { expect(described_class.new(CitiesIndex, parallel: true).parallel_options).to eq({in_threads: [::Parallel.processor_count, ActiveRecord::Base.connection_pool.size].min}) }
-    specify { expect(described_class.new(CitiesIndex, parallel: 3).parallel_options).to eq(in_threads: 3) }
+    specify { expect(described_class.new(CitiesIndex, parallel: true).parallel_options).to eq({}) }
+    specify { expect(described_class.new(CitiesIndex, parallel: 3).parallel_options).to eq(in_processes: 3) }
     specify do
       expect(described_class.new(CitiesIndex, parallel: {in_threads: 2}).parallel_options).to eq(in_threads: 2)
     end

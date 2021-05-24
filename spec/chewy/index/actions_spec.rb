@@ -502,7 +502,7 @@ describe Chewy::Index::Actions do
         specify do
           expect(CitiesIndex.client.indices).to receive(:put_settings).with(index: name, body: before_import_body).once
           expect(CitiesIndex.client.indices).to receive(:put_settings).with(index: name, body: after_import_body).once
-          expect(CitiesIndex).to receive(:import).with(suffix: suffix, progressbar: false, journal: false, refresh: false).and_call_original
+          expect(CitiesIndex).to receive(:import).with(suffix: suffix, journal: false, refresh: false).and_call_original
           expect(CitiesIndex.reset!(suffix)).to eq(true)
         end
 
@@ -525,7 +525,7 @@ describe Chewy::Index::Actions do
               .to receive(:put_settings).with(index: name, body: before_import_body).once
             expect(CitiesIndex.client.indices).to receive(:put_settings).with(index: name, body: after_import_body).once
             expect(CitiesIndex)
-              .to receive(:import).with(suffix: suffix, progressbar: false, journal: false, refresh: false).and_call_original
+              .to receive(:import).with(suffix: suffix, journal: false, refresh: false).and_call_original
             expect(CitiesIndex.reset!(suffix)).to eq(true)
           end
 
@@ -541,7 +541,7 @@ describe Chewy::Index::Actions do
         let(:reset_disable_refresh_interval) { false }
         specify do
           expect(CitiesIndex.client.indices).not_to receive(:put_settings)
-          expect(CitiesIndex).to receive(:import).with(suffix: suffix, progressbar: false, journal: false, refresh: true).and_call_original
+          expect(CitiesIndex).to receive(:import).with(suffix: suffix, journal: false, refresh: true).and_call_original
           expect(CitiesIndex.reset!(suffix)).to eq(true)
         end
       end
@@ -568,7 +568,7 @@ describe Chewy::Index::Actions do
         specify do
           expect(CitiesIndex.client.indices).to receive(:put_settings).with(index: name, body: before_import_body).once
           expect(CitiesIndex.client.indices).to receive(:put_settings).with(index: name, body: after_import_body).once
-          expect(CitiesIndex).to receive(:import).with(suffix: suffix, progressbar: false, journal: false, refresh: true).and_call_original
+          expect(CitiesIndex).to receive(:import).with(suffix: suffix, journal: false, refresh: true).and_call_original
           expect(CitiesIndex.reset!(suffix)).to eq(true)
         end
       end
@@ -577,7 +577,7 @@ describe Chewy::Index::Actions do
         let(:reset_no_replicas) { false }
         specify do
           expect(CitiesIndex.client.indices).not_to receive(:put_settings)
-          expect(CitiesIndex).to receive(:import).with(suffix: suffix, progressbar: false, journal: false, refresh: true).and_call_original
+          expect(CitiesIndex).to receive(:import).with(suffix: suffix, journal: false, refresh: true).and_call_original
           expect(CitiesIndex.reset!(suffix)).to eq(true)
         end
       end
@@ -667,7 +667,7 @@ describe Chewy::Index::Actions do
       specify do
         expect(CitiesIndex)
           .to receive(:import)
-          .with(suffix: 'suffix', progressbar: false, parallel: true, journal: false, refresh: true)
+          .with(suffix: 'suffix', parallel: true, journal: false, refresh: true)
           .once.and_return(true)
         expect(CitiesIndex.reset!('suffix', parallel: true)).to eq(true)
       end

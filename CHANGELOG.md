@@ -6,6 +6,14 @@
 
 ### Changes
 
+### Bugs Fixed
+
+## 7.2.2 (2021-05-24)
+
+### Changes
+
+  * [#800](https://github.com/toptal/chewy/pull/800): Revert [#787](https://github.com/toptal/chewy/pull/787) progressbar feature to avoid performance degradation in parallel import ([@rabotyaga][])
+
   * [#795](https://github.com/toptal/chewy/issues/795): **(Breaking)** Change the Chewy::Search::Parameters::Order implementation to use Array ([@jiajiawang][]):
     * To allow multiple sorting options that may have the same key name. For example script based sorting whose key will always be `_script`.
     * Behaviour change of chained `order` calls.
@@ -18,8 +26,6 @@
     * `mock_elasticsearch_response_sources` helpers both Rspec and Minitest - to mock elasticsearch response sources
     * `assert_elasticsearch_query` helper for Minitest - to compare request and expected query (returns `true`/`false`)
     * `build_query` matcher for Rspec - to compare request and expected query (returns `true`/`false`)
-
-### Bugs Fixed
 
 ## 7.2.1 (2021-05-11)
 

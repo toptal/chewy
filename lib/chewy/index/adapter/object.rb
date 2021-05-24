@@ -192,16 +192,6 @@ module Chewy
           end
         end
 
-        def import_count(*args)
-          collection = if args.first.empty? && @target.respond_to?(import_all_method)
-            @target.send(import_all_method)
-          else
-            args.flatten(1).compact
-          end
-
-          collection.count
-        end
-
       private
 
         def import_objects(objects, options)

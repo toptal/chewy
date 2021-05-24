@@ -53,7 +53,7 @@ Chewy is compatible with MRI 2.6-3.0¹.
 | ------------- | ---------------------------------- |
 | 7.2.x         | 7.x                                |
 | 7.1.x         | 7.x                                |
-| 7.0.0         | 6.8, 7.x                           |
+| 7.0.x         | 6.8, 7.x                           |
 | 6.0.0         | 5.x, 6.x                           |
 | 5.x           | 5.x, limited support for 1.x & 2.x |
 
@@ -1031,12 +1031,6 @@ rake chewy:reset[users] # resets UsersIndex only
 rake chewy:reset[users,cities] # resets UsersIndex and CitiesIndex
 rake chewy:reset[-users,cities] # resets every index in the application except specified ones
 ```
-
-#### Progressbar for `chewy:reset` tasks
-
-You can optionally output the `progressbar` for `chewy:reset` and `chewy:parallel:reset` during import.
-
-Progressbar is hidden by default. Set `ENV['PROGRESS']` to `true` to display it.
 
 #### `chewy:upgrade`
 

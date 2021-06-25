@@ -4,6 +4,8 @@
 
 ### New Features
 
+  * [#801](https://github.com/toptal/chewy/pull/801): Add the [`track_total_hits`](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-your-data.html#track-total-hits) option to the query. ([@milk1000cc][])
+
 ### Changes
 
 ### Bugs Fixed
@@ -674,6 +676,7 @@
 [@mattzollinhofer]: https://github.com/mattzollinhofer
 [@menglewis]: https://github.com/menglewis
 [@mikeyhogarth]: https://github.com/mikeyhogarth
+[@milk1000cc]: https://github.com/milk1000cc
 [@mkcode]: https://github.com/mkcode
 [@mpeychich]: https://github.com/mpeychich
 [@mrbrdo]: https://github.com/mrbrdo

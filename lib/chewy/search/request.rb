@@ -21,7 +21,7 @@ module Chewy
       EVERFIELDS = %w[_index _type _id _parent].freeze
       DELEGATED_METHODS = %i[
         query filter post_filter order reorder docvalue_fields
-        track_scores request_cache explain version profile
+        track_scores track_total_hits request_cache explain version profile
         search_type preference limit offset terminate_after
         timeout min_score source stored_fields search_after
         load script_fields suggest aggs aggregations none
@@ -336,6 +336,19 @@ module Chewy
       #   @param value [true, false]
       #   @return [Chewy::Search::Request]
       #
+      # @!method track_total_hits(value = true)
+      #   Replaces the value of the `track_total_hits` parameter with the provided value.
+      #
+      #   @example
+      #     PlacesIndex.track_total_hits
+      #     # => <PlacesIndex::Query {..., :body=>{:track_total_hits=>true}}>
+      #     PlacesIndex.track_total_hits.track_total_hits(false)
+      #     # => <PlacesIndex::Query {:index=>["places"]}>
+      #   @see Chewy::Search::Parameters::TrackTotalHits
+      #   @see https://www.elastic.co/guide/en/elasticsearch/reference/current/search-your-data.html#track-total-hits
+      #   @param value [true, false]
+      #   @return [Chewy::Search::Request]
+      #
       # @!method explain(value = true)
       #   Replaces the value of the `explain` parameter with the provided value.
       #
@@ -388,7 +401,7 @@ module Chewy
       #   @see https://en.wikipedia.org/wiki/Null_Object_pattern
       #   @param value [true, false]
       #   @return [Chewy::Search::Request]
-      %i[track_scores explain version profile none].each do |name|
+      %i[track_scores track_total_hits explain version profile none].each do |name|
         define_method name do |value = true|
           modify(name) { replace!(value) }
         end

@@ -50,13 +50,13 @@ describe Chewy do
   end
 
   describe '.client' do
-    let!(:initial_client) { Chewy.thread_local_data[:chewy_client] }
+    let!(:initial_client) { Chewy.current[:chewy_client] }
     let(:faraday_block) { proc {} }
     let(:mock_client) { double(:client) }
     let(:expected_client_config) { {transport_options: {}} }
 
     before do
-      Chewy.thread_local_data[:chewy_client] = nil
+      Chewy.current[:chewy_client] = nil
       allow(Chewy).to receive_messages(configuration: {transport_options: {proc: faraday_block}})
 
       allow(::Elasticsearch::Client).to receive(:new).with(expected_client_config) do |*_args, &passed_block|
@@ -70,7 +70,7 @@ describe Chewy do
 
     its(:client) { is_expected.to eq(mock_client) }
 
-    after { Chewy.thread_local_data[:chewy_client] = initial_client }
+    after { Chewy.current[:chewy_client] = initial_client }
   end
 
   describe '.create_indices' do

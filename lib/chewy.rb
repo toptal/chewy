@@ -64,7 +64,7 @@ module Chewy
 
     # A thread-local variables accessor
     # @return [Hash]
-    def thread_local_data
+    def current
       Thread.current[:chewy] ||= {}
     end
 
@@ -92,7 +92,7 @@ module Chewy
     # Main elasticsearch-ruby client instance
     #
     def client
-      Chewy.thread_local_data[:chewy_client] ||= begin
+      Chewy.current[:chewy_client] ||= begin
         client_configuration = configuration.deep_dup
         client_configuration.delete(:prefix) # used by Chewy, not relevant to Elasticsearch::Client
         block = client_configuration[:transport_options].try(:delete, :proc)
@@ -144,15 +144,15 @@ module Chewy
     #   city3.do_update! # index updated again
     #
     def strategy(name = nil, &block)
-      Chewy.thread_local_data[:chewy_strategy] ||= Chewy::Strategy.new
+      Chewy.current[:chewy_strategy] ||= Chewy::Strategy.new
       if name
         if block
-          Chewy.thread_local_data[:chewy_strategy].wrap name, &block
+          Chewy.current[:chewy_strategy].wrap name, &block
         else
-          Chewy.thread_local_data[:chewy_strategy].push name
+          Chewy.current[:chewy_strategy].push name
         end
       else
-        Chewy.thread_local_data[:chewy_strategy]
+        Chewy.current[:chewy_strategy]
       end
     end
 

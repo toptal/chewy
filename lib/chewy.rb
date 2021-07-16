@@ -62,10 +62,35 @@ module Chewy
   class << self
     attr_accessor :adapters
 
-    # A thread-local variables accessor
+    # A global variables accessor
     # @return [Hash]
     def current
-      Thread.current[:chewy] ||= {}
+      case global_storage_strategy
+      when :thread_local
+        initialize_thread_local_storage
+      when :fiber_local
+        initialize_fiber_local_storage
+      else
+        raise ArgumentError, "invalid option for global_storage_strategy (`#{global_storage_strategy}`)"
+      end
+
+      current
+    end
+
+    def initialize_thread_local_storage
+      Thread.current.thread_variable_set(:chewy, {})
+
+      define_singleton_method :current do
+        Thread.current.thread_variable_get(:chewy)
+      end
+    end
+
+    def initialize_fiber_local_storage
+      Thread.current[:chewy] = {}
+
+      define_singleton_method :current do
+        Thread.current[:chewy]
+      end
     end
 
     # Derives an index for the passed string identifier if possible.

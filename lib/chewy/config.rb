@@ -16,6 +16,11 @@ module Chewy
                   # Rails console strategy, `:urgent` by default.
                   #
                   :console_strategy,
+                  #
+                  # The way chewy stores global data. There are two options: `:fiber_local` and `:thread_local`.
+                  # `:thread_local` by default.
+                  :global_storage_strategy,
+                  #
                   # Use after_commit callbacks for RDBMS instead of
                   # after_save and after_destroy. True by default. Useful
                   # in tests with transactional fixtures or transactional
@@ -53,6 +58,7 @@ module Chewy
       @root_strategy = :base
       @request_strategy = :atomic
       @console_strategy = :urgent
+      @global_storage_strategy = :thread_local
       @use_after_commit_callbacks = true
       @reset_disable_refresh_interval = false
       @reset_no_replicas = false

@@ -29,7 +29,7 @@ module Chewy
         #
         # @return [Array<Chewy::Search::Request>] array of scopes
         def scopes
-          Thread.current[:chewy_scopes] ||= []
+          Chewy.thread_local_data[:chewy_scopes] ||= []
         end
       end
 

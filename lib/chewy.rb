@@ -65,8 +65,20 @@ module Chewy
     # A thread-local variables accessor
     # @return [Hash]
     def current
-      Thread.current[:chewy] ||= {}
+      initialize_current_storage
+
+      current
     end
+
+    # @api private
+    def initialize_current_storage
+      Thread.current.thread_variable_set(:chewy, {})
+
+      define_singleton_method(:current) do
+        Thread.current.thread_variable_get(:chewy)
+      end
+    end
+    private :initialize_current_storage
 
     # Derives an index for the passed string identifier if possible.
     #

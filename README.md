@@ -446,6 +446,23 @@ end
 
 See the section on *Script fields* for details on calculating distance in a search.
 
+### Join fields
+
+You can use a [join field](https://www.elastic.co/guide/en/elasticsearch/reference/current/parent-join.html)
+to implement parent-child relationships between documents.
+It [replaces the old `parent_id` based parent-child mapping](https://www.elastic.co/guide/en/elasticsearch/reference/current/removal-of-types.html#parent-child-mapping-types)
+
+To use it, you need to pass `relations`, `join_type` and `join_id` options:
+```ruby
+field :hierarchy_link, type: :join, relations: {question: %i[answer comment], answer: :vote, vote: :subvote}, join_type: :comment_type, join_id: :commented_id
+```
+assuming you have `comment_type` and `commented_id` fields in your model.
+
+Note that when you remove or reindex a parent, it's children and grandchildren will be removed/reindexed as well.
+This may require additional queries to the database and to elastisearch.
+
+Also note that the join field doesn't support crutches (it should be a field directly defined on the model).
+
 ### Crutches™ technology
 
 Assume you are defining your index like this (product has_many categories through product_categories):

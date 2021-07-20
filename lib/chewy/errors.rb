@@ -30,4 +30,10 @@ module Chewy
       super message
     end
   end
+
+  class InvalidJoinFieldType < Error
+    def initialize(join_field_type, join_field_name, relations)
+      super("`#{join_field_type}` set for the join field `#{join_field_name}` is not on the :relations list (#{relations})")
+    end
+  end
 end

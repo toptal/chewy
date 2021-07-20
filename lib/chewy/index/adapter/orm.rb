@@ -100,12 +100,18 @@ module Chewy
           scope = all_scope_where_ids_in(ids)
           additional_scope = options[options[:_index].to_sym].try(:[], :scope) || options[:scope]
 
-          loaded_objects = load_scope_objects(scope, additional_scope)
-            .index_by do |object|
+          loaded_objects =
+            if options[:raw_import]
+              raw(load_scope_objects(scope, additional_scope, options), options[:raw_import])
+            else
+              load_scope_objects(scope, additional_scope, options)
+            end
+
+          indexed_objects = loaded_objects.index_by do |object|
               object.public_send(primary_key).to_s
             end
 
-          ids.map { |id| loaded_objects[id.to_s] }
+          ids.map { |id| indexed_objects[id.to_s] }
         end
 
       private
@@ -158,7 +164,7 @@ module Chewy
           relation.klass
         end
 
-        def load_scope_objects(scope, additional_scope = nil)
+        def load_scope_objects(scope, additional_scope, options)
           if additional_scope.is_a?(Proc)
             scope.instance_exec(&additional_scope)
           elsif additional_scope.is_a?(relation_class) && scope.respond_to?(:merge)

@@ -1,8 +1,10 @@
 module Chewy
   module Fields
     class Base
-      attr_reader :name, :options, :value, :children
+      attr_reader :name, :options, :children
       attr_accessor :parent
+
+      JOIN_FIELD_EXTRA_OPTIONS = %i[join_id join_type].freeze
 
       def initialize(name, value: nil, **options)
         @name = name.to_sym
@@ -10,10 +12,13 @@ module Chewy
         update_options!(**options)
         @value = value
         @children = []
+        @allowed_relations = find_allowed_relations(options[:relations]) # for join fields
       end
 
       def update_options!(**options)
-        @options = options
+        @join_type = options[:join_type]
+        @join_id = options[:join_id]
+        @options = options.reject { |k, _| JOIN_FIELD_EXTRA_OPTIONS.include?(k) }
       end
 
       def multi_field?
@@ -53,10 +58,33 @@ module Chewy
         {name => result}
       end
 
+      def value
+        if join_field?
+          # memoize
+          @value ||= proc do |object|
+            validate_join_type!(value_by_name_proc(@join_type).call(object))
+            if value_by_name_proc(@join_id).call(object).present?
+              {
+                name: value_by_name_proc(@join_type).call(object),
+                parent: value_by_name_proc(@join_id).call(object)
+              }
+            else
+              value_by_name_proc(@join_type).call(object)
+            end
+          end
+        else
+          @value
+        end
+      end
+
     private
 
       def geo_point?
         @options[:type].to_s == 'geo_point'
+      end
+
+      def join_field?
+        @options[:type].to_s == 'join'
       end
 
       def ignore_blank?
@@ -64,19 +92,32 @@ module Chewy
       end
 
       def evaluate(objects)
-        object = objects.first
-
         if value.is_a?(Proc)
-          if value.arity.zero?
-            object.instance_exec(&value)
-          elsif value.arity.negative?
-            value.call(*object)
-          else
-            value.call(*objects.first(value.arity))
-          end
+          value_by_proc(objects, value)
         else
-          message = value.is_a?(Symbol) || value.is_a?(String) ? value.to_sym : name
+          value_by_name(objects, value)
+        end
+      end
 
+      def value_by_proc(objects, value)
+        object = objects.first
+        if value.arity.zero?
+          object.instance_exec(&value)
+        elsif value.arity.negative?
+          value.call(*object)
+        else
+          value.call(*objects.first(value.arity))
+        end
+      end
+
+      def value_by_name(objects, value)
+        object = objects.first
+        message = value.is_a?(Symbol) || value.is_a?(String) ? value.to_sym : name
+        value_by_name_proc(message).call(object)
+      end
+
+      def value_by_name_proc(message)
+        proc do |object|
           if object.is_a?(Hash)
             if object.key?(message)
               object[message]
@@ -87,6 +128,20 @@ module Chewy
             object.send(message)
           end
         end
+      end
+
+      def validate_join_type!(type)
+        return unless type
+        return if @allowed_relations.include?(type.to_sym)
+
+        raise Chewy::InvalidJoinFieldType.new(type, @name, options[:relations])
+      end
+
+      def find_allowed_relations(relations)
+        return [] unless relations
+        return relations unless relations.is_a?(Hash)
+
+        (relations.keys + relations.values).flatten.uniq
       end
 
       def compose_children(value, *parent_objects)

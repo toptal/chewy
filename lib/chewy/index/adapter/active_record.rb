@@ -94,6 +94,11 @@ module Chewy
           object_class.connection.execute(sql).map(&converter)
         end
 
+        def raw(scope, converter)
+          sql = scope.to_sql
+          object_class.connection.execute(sql).map(&converter)
+        end
+
         def relation_class
           ::ActiveRecord::Relation
         end

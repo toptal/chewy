@@ -65,7 +65,11 @@ module Chewy
     # A thread-local variables accessor
     # @return [Hash]
     def current
-      Thread.current[:chewy] ||= {}
+      unless Thread.current.thread_variable?(:chewy)
+        Thread.current.thread_variable_set(:chewy, {})
+      end
+
+      Thread.current.thread_variable_get(:chewy)
     end
 
     # Derives an index for the passed string identifier if possible.

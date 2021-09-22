@@ -214,13 +214,18 @@ describe Chewy::Search::Request do
     specify { expect { subject.search_type('foo') }.not_to change { subject.render } }
   end
 
-  %i[preference timeout].each do |name|
-    describe "##{name}" do
-      specify { expect(subject.send(name, :foo).render[:body]).to include(name => 'foo') }
-      specify { expect(subject.send(name, :foo).send(name, :bar).render[:body]).to include(name => 'bar') }
-      specify { expect(subject.send(name, :foo).send(name, nil).render[:body]).to be_blank }
-      specify { expect { subject.send(name, :foo) }.not_to change { subject.render } }
-    end
+  describe '#preference' do
+    specify { expect(subject.preference('foo').render).to include(preference: 'foo') }
+    specify { expect(subject.preference('foo').preference('bar').render).to include(preference: 'bar') }
+    specify { expect(subject.preference('foo').preference(nil).render[:preference]).to be_blank }
+    specify { expect { subject.preference('foo') }.not_to change { subject.render } }
+  end
+
+  describe '#timeout' do
+    specify { expect(subject.timeout(:foo).render[:body]).to include(timeout: 'foo') }
+    specify { expect(subject.timeout(:foo).timeout(:bar).render[:body]).to include(timeout: 'bar') }
+    specify { expect(subject.timeout(:foo).timeout(nil).render[:body]).to be_blank }
+    specify { expect { subject.timeout(:foo) }.not_to change { subject.render } }
   end
 
   describe '#source' do

@@ -1,7 +1,7 @@
 # Changelog
 
 ## master (unreleased)
-[#817](https://github.com/toptal/chewy/pull/817): Show warning messsge during rake chewy:reset or chewy:upgrade if journaling is disabled. ([@konalegi][])
+[#817](https://github.com/toptal/chewy/pull/817): Show warning message during rake chewy:reset or chewy:upgrade if journaling is disabled. ([@konalegi][])
 
 ### New Features
 

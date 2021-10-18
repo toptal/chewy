@@ -4,6 +4,8 @@ describe Chewy::RakeHelper, :orm do
   before { Chewy.massacre }
 
   before do
+    described_class.instance_variable_set(:@journal_exists, journal_exists)
+
     stub_model(:city)
     stub_model(:country)
 
@@ -20,6 +22,7 @@ describe Chewy::RakeHelper, :orm do
     allow(described_class).to receive(:all_indexes) { [CitiesIndex, CountriesIndex, UsersIndex] }
   end
 
+  let(:journal_exists) { true }
   let!(:cities) { Array.new(3) { |i| City.create!(name: "Name#{i + 1}") } }
   let!(:countries) { Array.new(2) { |i| Country.create!(name: "Name#{i + 1}") } }
   let(:journal) do
@@ -91,6 +94,22 @@ Total: \\d+s\\Z
   Imported Chewy::Stash::Specification in \\d+s, stats: index 1
 Total: \\d+s\\Z
       OUTPUT
+    end
+
+    context 'when journal is missing' do
+      let(:journal_exists) { false }
+
+      specify do
+        output = StringIO.new
+        expect { described_class.reset(only: [CitiesIndex], output: output) }
+          .to update_index(CitiesIndex)
+        expect(output.string).to include(
+          "############################################################\n"\
+          "WARN: You are risking to lose some changes during the reset.\n" \
+          "      Please consider enabling journaling.\n" \
+          '      See https://github.com/toptal/chewy#journaling'
+        )
+      end
     end
   end
 

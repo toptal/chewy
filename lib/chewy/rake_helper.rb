@@ -35,6 +35,8 @@ module Chewy
       # @param output [IO] output io for logging
       # @return [Array<Chewy::Index>] indexes that were reset
       def reset(only: nil, except: nil, parallel: nil, output: $stdout)
+        warn_missing_index(output)
+
         subscribed_task_stats(output) do
           indexes_from(only: only, except: except).each do |index|
             reset_one(index, output, parallel: parallel)
@@ -58,6 +60,8 @@ module Chewy
       # @param output [IO] output io for logging
       # @return [Array<Chewy::Index>] indexes that were actually reset
       def upgrade(only: nil, except: nil, parallel: nil, output: $stdout)
+        warn_missing_index(output)
+
         subscribed_task_stats(output) do
           indexes = indexes_from(only: only, except: except)
 
@@ -271,7 +275,23 @@ module Chewy
 
       def reset_one(index, output, parallel: false)
         output.puts "Resetting #{index}"
-        index.reset!((Time.now.to_f * 1000).round, parallel: parallel)
+        index.reset!((Time.now.to_f * 1000).round, parallel: parallel, apply_journal: journal_exists?)
+      end
+
+      def warn_missing_index(output)
+        return if journal_exists?
+
+        output.puts "############################################################\n" \
+                    "WARN: You are risking to lose some changes during the reset.\n" \
+                    "      Please consider enabling journaling.\n" \
+                    "      See https://github.com/toptal/chewy#journaling\n" \
+                    '############################################################'
+      end
+
+      def journal_exists?
+        @journal_exists = Chewy::Stash::Journal.exists? if @journal_exists.nil?
+
+        @journal_exists
       end
     end
   end

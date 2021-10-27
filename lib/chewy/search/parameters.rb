@@ -10,7 +10,7 @@ module Chewy
     # @see Chewy::Search::Request#parameters
     # @see Chewy::Search::Parameters::Storage
     class Parameters
-      QUERY_STRING_STORAGES = %i[indices preference search_type request_cache allow_partial_search_results].freeze
+      QUERY_STRING_STORAGES = %i[indices preference search_type request_cache allow_partial_search_results ignore_unavailable].freeze
 
       # Default storage classes warehouse. It is probably possible to
       # add your own classes here if necessary, but I'm not sure it will work.

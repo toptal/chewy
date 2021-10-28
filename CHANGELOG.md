@@ -7,6 +7,7 @@
 
   * [#801](https://github.com/toptal/chewy/pull/801): Add the [`track_total_hits`](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-your-data.html#track-total-hits) option to the query. ([@milk1000cc][])
   * [#810](https://github.com/toptal/chewy/pull/810): Use `unsafe_load` when loading config to support Psych 4.
+  * [#819](https://github.com/toptal/chewy/pull/819): Add the [`ignore_unavailable`](https://www.elastic.co/guide/en/elasticsearch/reference/current/multi-index.html#multi-index) option to the request. ([@kolauren][])
 
 ### Changes
 
@@ -708,3 +709,4 @@
 [@Vitalina-Vakulchyk]: https://github.com/Vitalina-Vakulchyk
 [@webgago]: https://github.com/webgago
 [@yahooguntu]: https://github.com/yahooguntu
+[@kolauren]: https://github.com/kolauren

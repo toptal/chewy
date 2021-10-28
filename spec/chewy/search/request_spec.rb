@@ -366,6 +366,13 @@ describe Chewy::Search::Request do
     specify { expect { subject.min_score(1.2) }.not_to change { subject.render } }
   end
 
+  describe '#ignore_unavailable' do
+    specify { expect(subject.ignore_unavailable(true).render).to include(ignore_unavailable: true) }
+    specify { expect(subject.ignore_unavailable(true).ignore_unavailable(false).render).to include(ignore_unavailable: false) }
+    specify { expect(subject.ignore_unavailable(true).ignore_unavailable(nil).render[:ignore_unavailable]).to be_blank }
+    specify { expect { subject.ignore_unavailable(true) }.not_to change { subject.render } }
+  end
+
   describe '#search_after' do
     specify { expect(subject.search_after(:foo, :bar).render[:body]).to include(search_after: %i[foo bar]) }
     specify do

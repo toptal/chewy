@@ -28,7 +28,7 @@ module Chewy
         indices_boost rescore highlight total total_count
         total_entries indices types delete_all count exists?
         exist? find pluck scroll_batches scroll_hits
-        scroll_results scroll_wrappers
+        scroll_results scroll_wrappers ignore_unavailable
       ].to_set.freeze
       DEFAULT_BATCH_SIZE = 1000
       DEFAULT_PLUCK_BATCH_SIZE = 10_000
@@ -498,7 +498,18 @@ module Chewy
       #   @see https://www.elastic.co/guide/en/elasticsearch/reference/current/search-search.html#search-api-min-score
       #   @param value [String, Integer, Float]
       #   @return [Chewy::Search::Request]
-      %i[request_cache search_type preference timeout limit offset terminate_after min_score].each do |name|
+      #
+      # @!method ignore_unavailable(value)
+      #   Replaces the value of the `ignore_unavailable` request part.
+      #
+      #   @example
+      #     PlacesIndex.ignore_unavailable(true)
+      #     <PlacesIndex::Query {..., :ignore_unavailable => true, :body=>{ ... }}>
+      #   @see Chewy::Search::Parameters::IgnoreUnavailable
+      #   @see https://www.elastic.co/guide/en/elasticsearch/reference/current/multi-index.html#multi-index
+      #   @param value [true, false, nil]
+      #   @return [Chewy::Search::Request]
+      %i[request_cache search_type preference timeout limit offset terminate_after min_score ignore_unavailable].each do |name|
         define_method name do |value|
           modify(name) { replace!(value) }
         end

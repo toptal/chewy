@@ -959,7 +959,7 @@ Main methods of the request DSL are: `query`, `filter` and `post_filter`, it is 
 ```ruby
 CitiesIndex
   .filter(term: {name: 'Bangkok'})
-  .query { match name: 'London' }
+  .query(match: {name: 'London'})
   .query.not(range: {population: {gt: 1_000_000}})
 ```
 

@@ -340,7 +340,7 @@ Chewy.settings = {
   [See index settings here](https://www.elastic.co/guide/en/elasticsearch/reference/current/indices-update-settings.html).
   [See root object settings here](https://www.elastic.co/guide/en/elasticsearch/reference/current/dynamic-field-mapping.html).
 
-  See [mapping.rb](lib/chewy/type/mapping.rb) for more details.
+  See [mapping.rb](lib/chewy/index/mapping.rb) for more details.
 
 5. Add model-observing code
 

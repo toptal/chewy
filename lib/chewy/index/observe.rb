@@ -3,6 +3,31 @@ module Chewy
     module Observe
       extend ActiveSupport::Concern
 
+      class Callback
+        def initialize(executable, **filters)
+          @executable = executable
+          @if_filter = filters[:if]
+          @unless_filter = filters[:unless]
+        end
+
+        def call(context)
+          return if @if_filter && !eval_filter(@if_filter, context)
+          return if @unless_filter && eval_filter(@unless_filter, context)
+
+          context.instance_eval(&@executable)
+        end
+
+      private
+
+        def eval_filter(filter, context)
+          case filter
+          when Symbol then context.instance_exec(&filter.to_proc)
+          when Proc then context.instance_exec(&filter)
+          else filter
+          end
+        end
+      end
+
       module Helpers
         def update_proc(index_name, *args, &block)
           options = args.extract_options!
@@ -48,14 +73,30 @@ module Chewy
       extend Helpers
 
       module ActiveRecordMethods
+        def self.extend_object(base)
+          super
+
+          base.class_attribute :chewy_callbacks, default: []
+
+          base.define_method :run_chewy_callbacks do
+            chewy_callbacks.each { |callback| callback.call(self) }
+          end
+        end
+
         ruby2_keywords def update_index(type_name, *args, &block)
           callback_options = Observe.extract_callback_options!(args)
           update_proc = Observe.update_proc(type_name, *args, &block)
 
+          self.chewy_callbacks =
+            chewy_callbacks.dup << Chewy::Index::Observe::Callback.new(update_proc, callback_options)
+
+          # Set Chewy callbacks along with destroy callbacks here
+          # because here we have actual Chewy.use_after_commit_callbacks
           if Chewy.use_after_commit_callbacks
-            after_commit(**callback_options, &update_proc)
+            after_commit(:run_chewy_callbacks, on: %i[create update])
+            after_commit(on: :destroy, **callback_options, &update_proc)
           else
-            after_save(**callback_options, &update_proc)
+            after_save(:run_chewy_callbacks)
             after_destroy(**callback_options, &update_proc)
           end
         end

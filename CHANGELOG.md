@@ -8,6 +8,8 @@
 
 ### Bugs Fixed
 
+ * [#825](https://github.com/toptal/chewy/issues/825): Fix mismatch argument names at update_mapping rake task ([@AgeevAndrew][])
+
 ## 7.2.3 (2021-10-29)
 
 ### New Features
@@ -634,6 +636,7 @@
   * Initial version
 
 [@0x0badc0de]: https://github.com/0x0badc0de
+[@AgeevAndrew]: https://github.com/AgeevAndrew
 [@aglushkov]: https://github.com/aglushkov
 [@AlexVPopov]: https://github.com/AlexVPopov
 [@AndreySavelyev]: https://github.com/AndreySavelyev

@@ -6,6 +6,7 @@ require 'chewy/strategy/atomic'
 begin
   require 'sidekiq'
   require 'chewy/strategy/sidekiq'
+  require 'chewy/strategy/lazy_sidekiq'
 rescue LoadError
   nil
 end

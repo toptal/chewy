@@ -22,6 +22,16 @@ module Chewy
       # strategies stack
       #
       def leave; end
+
+      # This method called when some model record is created or updated.
+      # Normally it will just evaluate all the Chewy callbacks and pass results
+      # to current strategy's update method.
+      # However it's possible to override it to achieve delayed evaluation of
+      # callbacks, e.g. using sidekiq.
+      #
+      def update_chewy_indices(object)
+        object.run_chewy_callbacks
+      end
     end
   end
 end

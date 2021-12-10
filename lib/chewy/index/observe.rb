@@ -4,7 +4,7 @@ module Chewy
       extend ActiveSupport::Concern
 
       class Callback
-        def initialize(executable, **filters)
+        def initialize(executable, filters = {})
           @executable = executable
           @if_filter = filters[:if]
           @unless_filter = filters[:unless]
@@ -81,6 +81,10 @@ module Chewy
           base.define_method :run_chewy_callbacks do
             chewy_callbacks.each { |callback| callback.call(self) }
           end
+
+          base.define_method :update_chewy_indices do
+            Chewy.strategy.current.update_chewy_indices(self)
+          end
         end
 
         ruby2_keywords def update_index(type_name, *args, &block)
@@ -93,10 +97,10 @@ module Chewy
           # Set Chewy callbacks along with destroy callbacks here
           # because here we have actual Chewy.use_after_commit_callbacks
           if Chewy.use_after_commit_callbacks
-            after_commit(:run_chewy_callbacks, on: %i[create update])
+            after_commit(:update_chewy_indices, on: %i[create update])
             after_commit(on: :destroy, **callback_options, &update_proc)
           else
-            after_save(:run_chewy_callbacks)
+            after_save(:update_chewy_indices)
             after_destroy(**callback_options, &update_proc)
           end
         end

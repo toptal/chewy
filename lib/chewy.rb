@@ -50,7 +50,7 @@ require 'chewy/journal'
 require 'chewy/railtie' if defined?(::Rails::Railtie)
 
 ActiveSupport.on_load(:active_record) do
-  extend Chewy::Index::Observe::ActiveRecordMethods
+  include Chewy::Index::Observe::ActiveRecordMethods
 end
 
 module Chewy

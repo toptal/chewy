@@ -33,13 +33,13 @@ if defined?(::Sidekiq)
 
       specify do
         expect(::Sidekiq::Client).to receive(:push)
-          .with(hash_including('class' => Chewy::Strategy::LazySidekiq::LazyWorker, 'queue' => 'low'))
+          .with(hash_including('class' => Chewy::Strategy::LazySidekiq::IndicesUpdateWorker, 'queue' => 'low'))
           .and_call_original
-          .twice
+          .once
         expect(::Sidekiq::Client).to receive(:push)
           .with(hash_including('class' => Chewy::Strategy::Sidekiq::Worker, 'queue' => 'low'))
           .and_call_original
-          .twice
+          .once
         ::Sidekiq::Testing.inline! do
           expect { [city, other_city].map(&:save!) }
             .to update_index(CitiesIndex, strategy: :lazy_sidekiq)
@@ -63,10 +63,10 @@ if defined?(::Sidekiq)
         expect(::Sidekiq::Client).to receive(:push)
           .with(hash_including('class' => Chewy::Strategy::Sidekiq::Worker, 'queue' => 'low'))
           .and_call_original
-        allow(City).to receive(:find_by_id).with(city.id).and_return(city)
+        allow(City).to receive(:where).with(id: city.id).and_return([city])
         expect(city).to receive(:run_chewy_callbacks).and_call_original
         ::Sidekiq::Testing.inline! do
-          Chewy::Strategy::LazySidekiq::LazyWorker.new.perform('City', city.id)
+          Chewy::Strategy::LazySidekiq::IndicesUpdateWorker.new.perform({'City' => city.id})
         end
       end
     end

@@ -58,19 +58,25 @@ module Chewy
 
         included do
           class_attribute :chewy_callbacks, default: []
-
-          after_commit(-> { Chewy.use_after_commit_callbacks && update_chewy_indices }, on: %i[create update])
-          after_commit(-> { Chewy.use_after_commit_callbacks && run_chewy_callbacks }, on: :destroy)
-
-          after_save(-> { !Chewy.use_after_commit_callbacks && update_chewy_indices })
-          after_destroy(-> { !Chewy.use_after_commit_callbacks && run_chewy_callbacks })
         end
 
         class_methods do
+          def initialize_chewy_callbacks
+            if Chewy.use_after_commit_callbacks
+              after_commit :update_chewy_indices, on: %i[create update]
+              after_commit :run_chewy_callbacks, on: :destroy
+            else
+              after_save :update_chewy_indices
+              after_destroy :run_chewy_callbacks
+            end
+          end
+
           ruby2_keywords def update_index(type_name, *args, &block)
             callback_options = Observe.extract_callback_options!(args)
             update_proc = Observe.update_proc(type_name, *args, &block)
             callback = Chewy::Index::Observe::Callback.new(update_proc, callback_options)
+
+            initialize_chewy_callbacks if chewy_callbacks.empty?
 
             self.chewy_callbacks = chewy_callbacks.dup << callback
           end

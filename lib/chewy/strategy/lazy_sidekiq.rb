@@ -23,19 +23,27 @@ module Chewy
         end
       end
 
+      def initialize
+        super
+
+        @lazy_stash = {}
+      end
+
       def leave
-        return if @stash.empty?
+        super
+
+        return if @lazy_stash.empty?
 
         ::Sidekiq::Client.push(
           'queue' => sidekiq_queue,
           'class' => Chewy::Strategy::LazySidekiq::IndicesUpdateWorker,
-          'args'  => [@stash]
+          'args'  => [@lazy_stash]
         )
       end
 
       def update_chewy_indices(object)
-        @stash[object.class.name] ||= []
-        @stash[object.class.name] |= Array.wrap(object.id)
+        @lazy_stash[object.class.name] ||= []
+        @lazy_stash[object.class.name] |= Array.wrap(object.id)
       end
     end
   end

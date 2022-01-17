@@ -36,8 +36,7 @@ module Chewy
         # passed objects from the index if they are not in the default scope
         # or marked for destruction.
         #
-        # It handles parent-child relationships: if the object parent_id has been
-        # changed it destroys the object and recreates it from scratch.
+        # It handles parent-child relationships with a join field reindexing children when the parent is reindexed.
         #
         # Performs journaling if enabled: it stores all the ids of the imported
         # objects to a specialized index. It is possible to replay particular import

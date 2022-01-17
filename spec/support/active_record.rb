@@ -31,6 +31,13 @@ ActiveRecord::Schema.define do
     t.column :lat, :string
     t.column :lon, :string
   end
+
+  create_table :comments do |t|
+    t.column :content, :string
+    t.column :comment_type, :string
+    t.column :commented_id, :integer
+    t.column :updated_at, :datetime
+  end
 end
 
 module ActiveRecordClassHelpers

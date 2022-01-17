@@ -1,7 +1,7 @@
 module Chewy
   module Fields
     class Root < Chewy::Fields::Base
-      attr_reader :dynamic_templates, :id, :parent, :parent_id
+      attr_reader :dynamic_templates, :id
 
       def initialize(name, **options)
         super(name, **options)
@@ -12,9 +12,7 @@ module Chewy
 
       def update_options!(**options)
         @id = options.fetch(:id, options.fetch(:_id, @id))
-        @parent = options.fetch(:parent, options.fetch(:_parent, @parent))
-        @parent_id = options.fetch(:parent_id, @parent_id)
-        @options.merge!(options.except(:id, :_id, :parent, :_parent, :parent_id, :type))
+        @options.merge!(options.except(:id, :_id, :type))
       end
 
       def mappings_hash
@@ -48,12 +46,6 @@ module Chewy
         else
           @dynamic_templates.push(options)
         end
-      end
-
-      def compose_parent(object)
-        return unless parent_id
-
-        parent_id.arity.zero? ? object.instance_exec(&parent_id) : parent_id.call(object)
       end
 
       def compose_id(object)

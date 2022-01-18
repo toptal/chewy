@@ -9,8 +9,8 @@ module Chewy
         end
 
         def call(context)
-          return if @if_filter && !eval_filter(@if_filter, context)
-          return if @unless_filter && eval_filter(@unless_filter, context)
+          return if !@if_filter.nil? && !eval_filter(@if_filter, context)
+          return if !@unless_filter.nil? && eval_filter(@unless_filter, context)
 
           eval_proc(@executable, context)
         end

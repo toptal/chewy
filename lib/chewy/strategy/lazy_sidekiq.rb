@@ -24,14 +24,22 @@ module Chewy
       end
 
       def initialize
+        # Use parent's @stash to store destroyed records, since callbacks for them have to
+        # be run immediately on the strategy block end because we won't be able to fetch
+        # records further in IndicesUpdateWorker. This will be done by avoiding of
+        # LazySidekiq#update_chewy_indices call and calling LazySidekiq#update instead.
         super
 
+        # @lazy_stash is used to store all the lazy evaluated callbacks with call of
+        # strategy's #update_chewy_indices.
         @lazy_stash = {}
       end
 
       def leave
+        # Fallback to Sidekiq#leave implementation for destroyed records stored in @stash.
         super
 
+        # Proceed with other records stored in @lazy_stash
         return if @lazy_stash.empty?
 
         ::Sidekiq::Client.push(

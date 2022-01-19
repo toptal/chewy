@@ -57,6 +57,9 @@ describe Chewy::Index::Observe do
       specify { expect { city.save! }.to update_index('cities').and_reindex(city).only }
       specify { expect { city.save! }.to update_index('countries').and_reindex(country1).only }
 
+      specify { expect { city.destroy }.to update_index('cities') }
+      specify { expect { city.destroy }.to update_index('countries').and_reindex(country1).only }
+
       specify { expect { city.update!(country: nil) }.to update_index('cities').and_reindex(city).only }
       specify { expect { city.update!(country: nil) }.to update_index('countries').and_reindex(country1).only }
 
@@ -78,9 +81,13 @@ describe Chewy::Index::Observe do
       specify { expect { country.save! }.to update_index('cities').and_reindex(country.cities).only }
       specify { expect { country.save! }.to update_index('countries').and_reindex(country).only }
 
+      specify { expect { country.destroy }.to update_index('cities').and_reindex(country.cities).only }
+      specify { expect { country.destroy }.to update_index('countries') }
+
       context 'conditional update' do
         let(:update_condition) { false }
         specify { expect { country.save! }.not_to update_index('cities') }
+        specify { expect { country.destroy }.not_to update_index('cities') }
       end
     end
   end
@@ -97,6 +104,16 @@ describe Chewy::Index::Observe do
           end
         end
       end
+
+      specify do
+        city = Chewy.strategy(:bypass) { City.create! }
+
+        Chewy.strategy(:urgent) do
+          ActiveRecord::Base.transaction do
+            expect { city.destroy }.not_to update_index('cities')
+          end
+        end
+      end
     end
 
     context do
@@ -108,6 +125,16 @@ describe Chewy::Index::Observe do
         Chewy.strategy(:urgent) do
           ActiveRecord::Base.transaction do
             expect { City.create! }.to update_index('cities')
+          end
+        end
+      end
+
+      specify do
+        city = Chewy.strategy(:bypass) { City.create! }
+
+        Chewy.strategy(:urgent) do
+          ActiveRecord::Base.transaction do
+            expect { city.destroy }.to update_index('cities')
           end
         end
       end

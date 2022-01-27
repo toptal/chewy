@@ -1,3 +1,4 @@
+require 'active_support'
 require 'active_support/version'
 require 'active_support/concern'
 require 'active_support/deprecation'
@@ -14,18 +15,18 @@ require 'active_support/core_ext/object/blank'
 require 'active_support/core_ext/object/inclusion'
 require 'active_support/core_ext/string/inflections'
 
-require 'i18n/core_ext/hash'
-require 'chewy/backports/deep_dup' unless Object.respond_to?(:deep_dup)
-require 'singleton'
-require 'base64'
-
-require 'elasticsearch'
-
 def try_require(path)
   require path
 rescue LoadError
   nil
 end
+
+try_require('i18n/core_ext/hash')
+require 'chewy/backports/deep_dup' unless Object.respond_to?(:deep_dup)
+require 'singleton'
+require 'base64'
+
+require 'elasticsearch'
 
 try_require 'kaminari'
 try_require 'kaminari/core'

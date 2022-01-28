@@ -1,5 +1,3 @@
-try_require 'i18n/core_ext/hash'
-
 # Rspec matcher `update_index`
 # To use it - add `require 'chewy/rspec'` to the `spec_helper.rb`
 # Simple usage - just pass index as argument.

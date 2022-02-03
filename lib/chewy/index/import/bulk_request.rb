@@ -33,7 +33,7 @@ module Chewy
           return [] if body.blank?
 
           request_bodies(body).each_with_object([]) do |request_body, results|
-            response = @index.client.bulk request_base.merge(body: request_body) if request_body.present?
+            response = @index.client.bulk(**request_base.merge(body: request_body)) if request_body.present?
 
             next unless response.try(:[], 'errors')
 

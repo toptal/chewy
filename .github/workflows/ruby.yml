@@ -3,7 +3,7 @@ name: CI
 on: [push]
 
 jobs:
-  tests:
+  ruby-2:
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -29,15 +29,23 @@ jobs:
       - name: Tests
         run: bundle exec rspec
 
-  ruby-3-0-activerecord-6-1:
+  ruby-3:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        ruby: [ '3.0', 3.1 ]
+        gemfile: [ rails.6.1.activerecord, rails.7.0.activerecord ]
+    name: ${{ matrix.ruby }}-${{ matrix.gemfile }}
+
     env:
-      BUNDLE_GEMFILE: gemfiles/rails.6.1.activerecord.gemfile
+      BUNDLE_GEMFILE: gemfiles/${{ matrix.gemfile }}.gemfile
+
     steps:
       - uses: actions/checkout@v2
       - uses: ruby/setup-ruby@v1
         with:
-          ruby-version: '3.0'
+          ruby-version: ${{ matrix.ruby }}
           bundler-cache: true
       - name: Run Elasticsearch
         uses: elastic/elastic-github-actions/elasticsearch@9de0f78f306e4ebc0838f057e6b754364685e759

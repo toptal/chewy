@@ -19,3 +19,4 @@ gem 'redcarpet'
 gem 'yard'
 
 gem 'rexml' if RUBY_VERSION >= '3.0.0'
+gem 'ruby2_keywords' if RUBY_VERSION < '2.7'

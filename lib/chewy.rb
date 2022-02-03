@@ -4,6 +4,7 @@ require 'active_support/deprecation'
 require 'active_support/json'
 require 'active_support/log_subscriber'
 
+require 'active_support/isolated_execution_state' if ActiveSupport::VERSION::MAJOR >= 7
 require 'active_support/core_ext/array/access'
 require 'active_support/core_ext/array/wrap'
 require 'active_support/core_ext/enumerable'

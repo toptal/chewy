@@ -170,8 +170,8 @@ module Chewy
         #   template /tit.+/, type: 'text', mapping_hash # "match_mapping_type" as an optional second argument
         #   template template42: {match: 'hello*', mapping: {type: 'object'}} # or even pass a template as is
         #
-        def template(*args)
-          root.dynamic_template(*args)
+        def template(*args, **options)
+          root.dynamic_template(*args, **options)
         end
         alias_method :dynamic_template, :template
 

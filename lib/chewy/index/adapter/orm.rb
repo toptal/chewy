@@ -72,7 +72,7 @@ module Chewy
         #   # or
         #   UsersIndex.import users.map(&:id) # user ids will be deleted from index
         #
-        def import(*args, &block)
+        ruby2_keywords def import(*args, &block)
           collection, options = import_args(*args)
 
           if !collection.is_a?(relation_class) || options[:direct_import]
@@ -82,7 +82,7 @@ module Chewy
           end
         end
 
-        def import_fields(*args, &block)
+        ruby2_keywords def import_fields(*args, &block)
           return enum_for(:import_fields, *args) unless block_given?
 
           collection, options = import_args(*args)

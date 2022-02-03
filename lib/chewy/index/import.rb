@@ -72,7 +72,7 @@ module Chewy
         # @option options [true, false] update_failover enables full objects reimport in cases of partial update errors, `true` by default
         # @option options [true, Integer, Hash] parallel enables parallel import processing with the Parallel gem, accepts the number of workers or any Parallel gem acceptable options
         # @return [true, false] false in case of errors
-        def import(*args)
+        ruby2_keywords def import(*args)
           import_routine(*args).blank?
         end
 
@@ -83,7 +83,7 @@ module Chewy
         # in case of any import errors.
         #
         # @raise [Chewy::ImportFailed] in case of errors
-        def import!(*args)
+        ruby2_keywords def import!(*args)
           errors = import_routine(*args)
           raise Chewy::ImportFailed.new(self, errors) if errors.present?
 

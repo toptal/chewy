@@ -11,6 +11,7 @@
 ### Bugs Fixed
 
  * [#825](https://github.com/toptal/chewy/issues/825): Fix mismatch argument names at update_mapping rake task ([@AgeevAndrew][])
+ * [#832](https://github.com/toptal/chewy/issues/832): Fix "cannot load such file -- `i18n/core_ext/hash`" ([@chrisandreae][])
 
 ## 7.2.3 (2021-10-29)
 
@@ -653,6 +654,7 @@
 [@biow0lf]: https://github.com/biow0lf
 [@Borzik]: https://github.com/Borzik
 [@caldwecr]: https://github.com/caldwecr
+[@chrisandreae]: https://github.com/chrisandreae
 [@clupprich]: https://github.com/clupprich
 [@dalthon]: https://github.com/dalthon
 [@davekaro]: https://github.com/davekaro

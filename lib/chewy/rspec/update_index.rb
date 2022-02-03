@@ -1,4 +1,4 @@
-require 'i18n/core_ext/hash'
+require 'active_support/core_ext/hash/keys'
 
 # Rspec matcher `update_index`
 # To use it - add `require 'chewy/rspec'` to the `spec_helper.rb`

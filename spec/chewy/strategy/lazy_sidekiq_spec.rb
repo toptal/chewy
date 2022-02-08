@@ -74,7 +74,9 @@ if defined?(::Sidekiq)
       end
 
       it 'calls Index#import!' do
-        expect(CitiesIndex).to receive(:import!).with([city.id, other_city.id])
+        empty_options = {} if RUBY_VERSION < '2.7'
+        expect(CitiesIndex).to receive(:import!).with(*[[city.id, other_city.id], empty_options].compact)
+
         expect(::Sidekiq::Client).to receive(:push)
           .with(hash_including('class' => Chewy::Strategy::Sidekiq::Worker, 'queue' => 'low'))
           .and_call_original

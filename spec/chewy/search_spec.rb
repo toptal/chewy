@@ -48,7 +48,7 @@ describe Chewy::Search do
           filter { match name: "Name#{index}" }
         end
 
-        def self.by_rating_with_kwargs(value, options:)
+        def self.by_rating_with_kwargs(value, options:) # rubocop:disable Lint/UnusedMethodArgument
           filter { match rating: value }
         end
 

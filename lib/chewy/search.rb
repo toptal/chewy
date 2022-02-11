@@ -84,9 +84,10 @@ module Chewy
       def delegate_scoped(source, destination, methods)
         methods.each do |method|
           destination.class_eval do
-            define_method method do |*args, **kwargs, &block|
-              scoping { source.public_send(method, *args, **kwargs, &block) }
+            define_method method do |*args, &block|
+              scoping { source.public_send(method, *args, &block) }
             end
+            ruby2_keywords method
           end
         end
       end

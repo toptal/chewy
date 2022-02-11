@@ -8,6 +8,8 @@
 
 ### Bugs Fixed
 
+ * [#835](https://github.com/toptal/chewy/pull/835): Support keyword arguments in named scopes. ([@milk1000cc][])
+
 ## 7.2.4 (2022-02-03)
 
 ### New Features

@@ -48,6 +48,10 @@ describe Chewy::Search do
           filter { match name: "Name#{index}" }
         end
 
+        def self.by_rating_with_kwargs(value, options:)
+          filter { match rating: value }
+        end
+
         index_scope City
         field :name, type: 'keyword'
         field :rating, type: :integer
@@ -114,5 +118,10 @@ describe Chewy::Search do
     specify { expect(CountriesIndex.by_rating(3).by_name(5).map(&:class)).to eq([CountriesIndex]) }
     specify { expect(CountriesIndex.order(:name).by_rating(3).map(&:rating)).to eq([3]) }
     specify { expect(CountriesIndex.order(:name).by_rating(3).map(&:class)).to eq([CountriesIndex]) }
+
+    specify 'supports keyword arguments' do
+      expect(CitiesIndex.by_rating_with_kwargs(3, options: 'blah blah blah').map(&:rating)).to eq([3])
+      expect(CitiesIndex.order(:name).by_rating_with_kwargs(3, options: 'blah blah blah').map(&:rating)).to eq([3])
+    end
   end
 end

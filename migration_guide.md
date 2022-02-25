@@ -9,7 +9,7 @@ Chewy alongside a matching Elasticsearch version.
 In order to upgrade Chewy 6/Elasticsearch 6 to Chewy 7/Elasticsearch 7 in the most seamless manner you have to:
 
 * Upgrade to the latest 6.x stable releases, namely Chewy 6.0, Elasticsearch 6.8
-* Study carefully [Breaking changes in 7.0](https://www.elastic.co/guide/en/elasticsearch/reference/current/breaking-changes-7.0.html), make sure your application conforms.
+* Study carefully [Breaking changes in 7.0](https://www.elastic.co/guide/en/elasticsearch/reference/7.17/breaking-changes-7.0.html), make sure your application conforms.
 * Run your test suite on Chewy 7.0 / Elasticsearch 7
 * Run manual tests on Chewy 7.0 / Elasticsearch 7
 * Upgrade to Chewy 7.0

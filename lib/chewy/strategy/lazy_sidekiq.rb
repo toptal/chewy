@@ -15,11 +15,17 @@ module Chewy
         include ::Sidekiq::Worker
 
         def perform(models)
-          Chewy.strategy(:sidekiq) do
+          Chewy.strategy(strategy) do
             models.each do |model_type, model_ids|
               model_type.constantize.where(id: model_ids).each(&:run_chewy_callbacks)
             end
           end
+        end
+
+        private
+
+        def strategy
+          Chewy.disable_refresh_async ? :atomic_no_refresh : :atomic
         end
       end
 

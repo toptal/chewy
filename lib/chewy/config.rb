@@ -32,7 +32,7 @@ module Chewy
                   # Set number_of_replicas to 0 before reset and put the original value after
                   # https://www.elastic.co/guide/en/elasticsearch/reference/current/indices-update-settings.html
                   :reset_no_replicas,
-                  # Refresh or not when import async (sidekiq, activejob)
+                  # Refresh or not when import async (sidekiq, lazy_sidekiq, activejob)
                   :disable_refresh_async,
                   # Default options for root of Chewy type. Allows to set default options
                   # for type mappings like `_all`.

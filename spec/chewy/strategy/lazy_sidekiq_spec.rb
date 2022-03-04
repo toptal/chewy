@@ -39,14 +39,6 @@ if defined?(::Sidekiq)
                 ))
           .and_call_original
           .once
-        expect(::Sidekiq::Client).to receive(:push)
-          .with(hash_including(
-                  'class' => Chewy::Strategy::Sidekiq::Worker,
-                  'queue' => 'low',
-                  'args' => ['CitiesIndex', [city.id, other_city.id]]
-                ))
-          .and_call_original
-          .once
         ::Sidekiq::Testing.inline! do
           expect { [city, other_city].map(&:save!) }
             .to update_index(CitiesIndex, strategy: :lazy_sidekiq)
@@ -74,20 +66,15 @@ if defined?(::Sidekiq)
       end
 
       it 'calls Index#import!' do
-        empty_options = {} if RUBY_VERSION < '2.7'
-        expect(CitiesIndex).to receive(:import!).with(*[[city.id, other_city.id], empty_options].compact)
-
-        expect(::Sidekiq::Client).to receive(:push)
-          .with(hash_including('class' => Chewy::Strategy::Sidekiq::Worker, 'queue' => 'low'))
-          .and_call_original
-
         allow(City).to receive(:where).with(id: [city.id, other_city.id]).and_return([city, other_city])
         expect(city).to receive(:run_chewy_callbacks).and_call_original
         expect(other_city).to receive(:run_chewy_callbacks).and_call_original
 
-        ::Sidekiq::Testing.inline! do
-          Chewy::Strategy::LazySidekiq::IndicesUpdateWorker.new.perform({'City' => [city.id, other_city.id]})
-        end
+        expect do
+          ::Sidekiq::Testing.inline! do
+            Chewy::Strategy::LazySidekiq::IndicesUpdateWorker.new.perform({'City' => [city.id, other_city.id]})
+          end
+        end.to update_index(CitiesIndex).and_reindex(city, other_city).only
       end
 
       context 'when Chewy.disable_refresh_async is true' do
@@ -96,18 +83,15 @@ if defined?(::Sidekiq)
         end
 
         it 'calls Index#import! with refresh false' do
-          expect(CitiesIndex).to receive(:import!).with([city.id, other_city.id], refresh: false)
-          expect(::Sidekiq::Client).to receive(:push)
-            .with(hash_including('class' => Chewy::Strategy::Sidekiq::Worker, 'queue' => 'low'))
-            .and_call_original
-
           allow(City).to receive(:where).with(id: [city.id, other_city.id]).and_return([city, other_city])
           expect(city).to receive(:run_chewy_callbacks).and_call_original
           expect(other_city).to receive(:run_chewy_callbacks).and_call_original
 
-          ::Sidekiq::Testing.inline! do
-            Chewy::Strategy::LazySidekiq::IndicesUpdateWorker.new.perform({'City' => [city.id, other_city.id]})
-          end
+          expect do
+            ::Sidekiq::Testing.inline! do
+              Chewy::Strategy::LazySidekiq::IndicesUpdateWorker.new.perform({'City' => [city.id, other_city.id]})
+            end
+          end.to update_index(CitiesIndex).and_reindex(city, other_city).only.no_refresh
         end
       end
     end

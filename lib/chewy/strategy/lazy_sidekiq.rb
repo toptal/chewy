@@ -22,7 +22,7 @@ module Chewy
           end
         end
 
-        private
+      private
 
         def strategy
           Chewy.disable_refresh_async ? :atomic_no_refresh : :atomic

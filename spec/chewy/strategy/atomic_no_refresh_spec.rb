@@ -32,8 +32,7 @@ describe Chewy::Strategy::AtomicNoRefresh, :orm do
     before do
       stub_index(:countries) do
         index_scope Country
-        root id: -> { country_code } do
-        end
+        root id: -> { country_code }
       end
     end
 

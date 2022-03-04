@@ -758,6 +758,8 @@ Chewy.settings[:sidekiq] = {queue: :low}
 
 This does the same thing as `:sidekiq`, but with lazy evaluation. Beware it does not allow you to use any non-persistent record state for indices and conditions because record will be re-fetched from database asynchronously using sidekiq. However for destroying records strategy will fallback to `:sidekiq` because it's not possible to re-fetch deleted records from database.
 
+The purpose of this strategy is to improve the response time of the code that should update indexes, as it does not only defer actual ES calls to a background job but `update_index` callbacks evaluation (for created and updated objects) too. Similar to `:sidekiq`, index update is asynchronous so this strategy cannot be used when data and index synchronization is required.
+
 ```ruby
 Chewy.strategy(:lazy_sidekiq) do
   City.popular.map(&:do_some_update_action!)

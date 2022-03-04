@@ -4,12 +4,18 @@
 
 ### New Features
 
+### Changes
+
+### Bugs Fixed
+
+## 7.2.5 (2022-03-04)
+
+### New Features
+
  * [#827](https://github.com/toptal/chewy/pull/827): Add `:lazy_sidekiq` strategy, that defers not only importing but also `update_index` callback evaluation for created and updated objects. ([@sl4vr][])
  * [#827](https://github.com/toptal/chewy/pull/827): Add `:atomic_no_refresh` strategy. Like `:atomic`, but `refresh=false` parameter is set. ([@barthez][])
  * [#827](https://github.com/toptal/chewy/pull/827): Add `:no_refresh` chain call to `update_index` matcher to ensure import was called with `refresh=false`. ([@barthez][])
-
-### Changes
-
+ 
 ### Bugs Fixed
 
  * [#835](https://github.com/toptal/chewy/pull/835): Support keyword arguments in named scopes. ([@milk1000cc][])

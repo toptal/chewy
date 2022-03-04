@@ -88,6 +88,11 @@ RSpec::Matchers.define :update_index do |index_name, options = {}| # rubocop:dis
     @only = true
   end
 
+  # Expect import to be called with refresh=false parameter
+  chain(:no_refresh) do
+    @no_refresh = true
+  end
+
   def supports_block_expectations?
     true
   end
@@ -100,11 +105,13 @@ RSpec::Matchers.define :update_index do |index_name, options = {}| # rubocop:dis
 
     index = Chewy.derive_name(index_name)
     if defined?(Mocha) && RSpec.configuration.mock_framework.to_s == 'RSpec::Core::MockingAdapters::Mocha'
-      Chewy::Index::Import::BulkRequest.stubs(:new).with(index, any_parameters).returns(mock_bulk_request)
+      params_matcher = @no_refresh ? has_entry(refresh: false) : any_parameters
+      Chewy::Index::Import::BulkRequest.stubs(:new).with(index, params_matcher).returns(mock_bulk_request)
     else
       mocked_already = ::RSpec::Mocks.space.proxy_for(Chewy::Index::Import::BulkRequest).method_double_if_exists_for_message(:new)
       allow(Chewy::Index::Import::BulkRequest).to receive(:new).and_call_original unless mocked_already
-      allow(Chewy::Index::Import::BulkRequest).to receive(:new).with(index, any_args).and_return(mock_bulk_request)
+      params_matcher = @no_refresh ? hash_including(refresh: false) : any_args
+      allow(Chewy::Index::Import::BulkRequest).to receive(:new).with(index, params_matcher).and_return(mock_bulk_request)
     end
 
     Chewy.strategy(options[:strategy] || :atomic) { block.call }
@@ -146,7 +153,7 @@ RSpec::Matchers.define :update_index do |index_name, options = {}| # rubocop:dis
     output = ''
 
     if mock_bulk_request.updates.none?
-      output << "Expected index `#{index_name}` to be updated, but it was not\n"
+      output << "Expected index `#{index_name}` to be updated#{' with no refresh' if @no_refresh}, but it was not\n"
     elsif @missed_reindex.present? || @missed_delete.present?
       message = "Expected index `#{index_name}` "
       message << [

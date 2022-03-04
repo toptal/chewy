@@ -2,10 +2,12 @@ require 'chewy/strategy/base'
 require 'chewy/strategy/bypass'
 require 'chewy/strategy/urgent'
 require 'chewy/strategy/atomic'
+require 'chewy/strategy/atomic_no_refresh'
 
 begin
   require 'sidekiq'
   require 'chewy/strategy/sidekiq'
+  require 'chewy/strategy/lazy_sidekiq'
 rescue LoadError
   nil
 end

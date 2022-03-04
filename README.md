@@ -754,6 +754,23 @@ The default queue name is `chewy`, you can customize it in settings: `sidekiq.qu
 Chewy.settings[:sidekiq] = {queue: :low}
 ```
 
+#### `:lazy_sidekiq`
+
+This does the same thing as `:sidekiq`, but with lazy evaluation. Beware it does not allow you to use any non-persistent record state for indices and conditions because record will be re-fetched from database asynchronously using sidekiq. However for destroying records strategy will fallback to `:sidekiq` because it's not possible to re-fetch deleted records from database.
+
+The purpose of this strategy is to improve the response time of the code that should update indexes, as it does not only defer actual ES calls to a background job but `update_index` callbacks evaluation (for created and updated objects) too. Similar to `:sidekiq`, index update is asynchronous so this strategy cannot be used when data and index synchronization is required.
+
+```ruby
+Chewy.strategy(:lazy_sidekiq) do
+  City.popular.map(&:do_some_update_action!)
+end
+```
+
+The default queue name is `chewy`, you can customize it in settings: `sidekiq.queue_name`
+```
+Chewy.settings[:sidekiq] = {queue: :low}
+```
+
 #### `:active_job`
 
 This does the same thing as `:atomic`, but using ActiveJob. This will inherit the ActiveJob configuration settings including the `active_job.queue_adapter` setting for the environment. Patch `Chewy::Strategy::ActiveJob::Worker` for index updates improving.

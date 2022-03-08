@@ -231,11 +231,21 @@ module Chewy
         #   nil in case of errors
         def sync(parallel: nil)
           syncer = Syncer.new(self, parallel: parallel)
+          optimize_index_settings_for_sync(index_name)
+
           count = syncer.perform
           {count: count, missing: syncer.missing_ids, outdated: syncer.outdated_ids} if count
         end
 
       private
+
+        def optimize_index_settings_for_sync(index_name)
+          settings = {}
+          settings[:refresh_interval] = -1
+          settings[:number_of_replicas] = 0
+
+          update_settings index_name, settings: settings
+        end
 
         def optimize_index_settings(index_name)
           settings = {}
@@ -255,6 +265,7 @@ module Chewy
         end
 
         def update_settings(index_name, **options)
+          p "Updating settings for #{index_name} with #{options}"
           client.indices.put_settings index: index_name, body: {index: options[:settings]}
         end
 

@@ -800,8 +800,8 @@ module Chewy
       # Returns a new scope containing only specified storages.
       #
       # @example
-      #   PlacesIndex.limit(10).offset(10).order(:name).except(:offset, :order)
-      #   # => <PlacesIndex::Query {..., :body=>{:size=>10}}>
+      #   PlacesIndex.limit(10).offset(10).order(:name).only(:offset, :order)
+      #   # => <PlacesIndex::Query {..., :body=>{:from=>10, :sort=>["name"]}}>
       # @param values [Array<String, Symbol>]
       # @return [Chewy::Search::Request] new scope
       def only(*values)
@@ -811,8 +811,8 @@ module Chewy
       # Returns a new scope containing all the storages except specified.
       #
       # @example
-      #   PlacesIndex.limit(10).offset(10).order(:name).only(:offset, :order)
-      #   # => <PlacesIndex::Query {..., :body=>{:from=>10, :sort=>["name"]}}>
+      #   PlacesIndex.limit(10).offset(10).order(:name).except(:offset, :order)
+      #   # => <PlacesIndex::Query {..., :body=>{:size=>10}}>
       # @param values [Array<String, Symbol>]
       # @return [Chewy::Search::Request] new scope
       def except(*values)

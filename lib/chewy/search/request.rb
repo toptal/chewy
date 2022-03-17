@@ -24,7 +24,7 @@ module Chewy
         track_scores track_total_hits request_cache explain version profile
         search_type preference limit offset terminate_after
         timeout min_score source stored_fields search_after
-        load script_fields suggest aggs aggregations none
+        load script_fields suggest aggs aggregations collapse none
         indices_boost rescore highlight total total_count
         total_entries indices types delete_all count exists?
         exist? find pluck scroll_batches scroll_hits
@@ -41,7 +41,7 @@ module Chewy
       EXTRA_STORAGES = %i[aggs suggest].freeze
       # An array of storage names that are changing the returned hist collection in any way.
       WHERE_STORAGES = %i[
-        query filter post_filter none min_score rescore indices_boost
+        query filter post_filter none min_score rescore indices_boost collapse
       ].freeze
 
       delegate :hits, :wrappers, :objects, :records, :documents,
@@ -509,7 +509,18 @@ module Chewy
       #   @see https://www.elastic.co/guide/en/elasticsearch/reference/current/multi-index.html#multi-index
       #   @param value [true, false, nil]
       #   @return [Chewy::Search::Request]
-      %i[request_cache search_type preference timeout limit offset terminate_after min_score ignore_unavailable].each do |name|
+      #
+      # @!method collapse(value)
+      #   Replaces the value of the `collapse` request part.
+      #
+      #   @example
+      #     PlacesIndex.collapse(field: :name)
+      #     # => <PlacesIndex::Query {..., :body=>{:collapse=>{"field"=>:name}}}>
+      #   @see Chewy::Search::Parameters::Collapse
+      #   @see https://www.elastic.co/guide/en/elasticsearch/reference/current/collapse-search-results.html
+      #   @param value [Hash]
+      #   @return [Chewy::Search::Request]
+      %i[request_cache search_type preference timeout limit offset terminate_after min_score ignore_unavailable collapse].each do |name|
         define_method name do |value|
           modify(name) { replace!(value) }
         end

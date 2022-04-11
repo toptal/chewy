@@ -10,6 +10,8 @@
 
 ### Bugs Fixed
 
+* [#842](https://github.com/toptal/chewy/issues/842): Fix `ignore_blank` handling. ([@rabotyaga][])
+
 ## 7.2.5 (2022-03-04)
 
 ### New Features

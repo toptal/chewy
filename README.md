@@ -694,6 +694,7 @@ UsersIndex.import User.where('rating > 100') # or import specified users scope
 UsersIndex.import User.where('rating > 100').to_a # or import specified users array
 UsersIndex.import [1, 2, 42] # pass even ids for import, it will be handled in the most effective way
 UsersIndex.import User.where('rating > 100'), update_fields: [:email] # if update fields are specified - it will update their values only with the `update` bulk action
+UsersIndex.import! # raises an exception in case of any import errors
 
 UsersIndex.reset! # purges index and imports default data for all types
 ```

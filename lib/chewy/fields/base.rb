@@ -33,7 +33,7 @@ module Chewy
           else
             {}
           end
-        mapping.reverse_merge!(options)
+        mapping.reverse_merge!(options.except(:ignore_blank))
         mapping.reverse_merge!(type: (children.present? ? 'object' : Chewy.default_field_type))
 
         {name => mapping}

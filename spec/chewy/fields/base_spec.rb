@@ -424,6 +424,7 @@ describe Chewy::Fields::Base do
             ]
           )
         end
+        specify { expect(CountriesIndex.reset).to eq(true) }
       end
 
       context 'nested fields' do

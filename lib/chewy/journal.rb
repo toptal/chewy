@@ -16,14 +16,17 @@ module Chewy
     # specified indexes.
     #
     # @param since_time [Time, DateTime] timestamp from which changes will be applied
-    # @param retries [Integer] maximum number of attempts to make journal empty, 10 by default
+    # @param fetch_limit [Int] amount of entries to be fetched on each cycle
     # @return [Integer] the amount of journal entries found
-    def apply(since_time, retries: 10, **import_options)
+    def apply(since_time, fetch_limit: 10, **import_options)
       stage = 1
       since_time -= 1
       count = 0
-      while stage <= retries
-        entries = Chewy::Stash::Journal.entries(since_time, only: @only).to_a.presence or break
+
+      total_count = entries(since_time, fetch_limit).total_count
+
+      while count < total_count
+        entries = entries(since_time, fetch_limit).to_a.presence or break
         count += entries.size
         groups = reference_groups(entries)
         ActiveSupport::Notifications.instrument 'apply_journal.chewy', stage: stage, groups: groups
@@ -45,6 +48,10 @@ module Chewy
     end
 
   private
+
+    def entries(since_time, fetch_limit)
+      Chewy::Stash::Journal.entries(since_time, only: @only).order(:created_at).limit(fetch_limit)
+    end
 
     def reference_groups(entries)
       entries.group_by(&:index_name)

@@ -4,9 +4,15 @@
 
 ### New Features
 
- * [#841](https://github.com/toptal/chewy/pull/841): Add the [`collapse`](https://www.elastic.co/guide/en/elasticsearch/reference/current/collapse-search-results.html) option to the request. ([@jkostolansky][])
-
 ### Changes
+
+### Bugs Fixed
+
+## 7.2.6 (2022-06-13)
+
+### New Features
+
+ * [#841](https://github.com/toptal/chewy/pull/841): Add the [`collapse`](https://www.elastic.co/guide/en/elasticsearch/reference/current/collapse-search-results.html) option to the request. ([@jkostolansky][])
 
 ### Bugs Fixed
 

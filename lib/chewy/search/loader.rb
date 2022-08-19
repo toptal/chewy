@@ -52,9 +52,8 @@ module Chewy
 
           type = derive_type(index_name, type_name)
           ids = hit_group.map { |hit| hit['_id'] }
-          loaded = type.adapter.load(ids, @options.merge(_type: type))
+          loaded = type.adapter.load(ids, **@options.merge(_type: type))
           loaded ||= hit_group.map { |hit| type.build(hit) }
-
           result.merge!(hit_group.zip(loaded).to_h)
         end
 

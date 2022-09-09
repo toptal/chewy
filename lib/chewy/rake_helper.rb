@@ -184,8 +184,7 @@ module Chewy
       def journal_clean(time: nil, only: nil, except: nil, output: $stdout)
         subscribed_task_stats(output) do
           output.puts "Cleaning journal entries created before #{time}" if time
-          response = Chewy::Journal.new(indexes_from(only: only, except: except)).clean(time)
-          count = response['deleted'] || response['_indices']['_all']['deleted']
+          count = Chewy::Journal.new(indexes_from(only: only, except: except)).clean(time)
           output.puts "Cleaned up #{count} journal entries"
         end
       end

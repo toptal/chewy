@@ -133,7 +133,7 @@ describe Chewy::Journal do
             expect(cities_index.count).to eq 2
 
             clean_response = described_class.new.clean(import_time)
-            expect(clean_response['deleted'] || clean_response['_indices']['_all']['deleted']).to eq 7
+            expect(clean_response).to eq 7
             Chewy.client.indices.refresh
             expect(Chewy::Stash::Journal.count).to eq 2
 

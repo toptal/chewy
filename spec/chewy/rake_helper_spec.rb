@@ -570,4 +570,11 @@ Total: \\d+s\\Z
       end
     end
   end
+
+  describe '.subscribed_task_stats' do
+    specify do
+      block_output = described_class.subscribed_task_stats(StringIO.new) { 'expected output' }
+      expect(block_output).to eq('expected output')
+    end
+  end
 end

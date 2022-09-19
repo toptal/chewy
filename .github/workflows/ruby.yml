@@ -1,6 +1,13 @@
 name: CI
 
-on: [push, pull_request]
+on:
+  push:
+    branches: [master]
+  pull_request:
+    types: [
+      synchronize, # PR was updated
+      opened # PR was open
+    ]
 
 jobs:
   ruby-2:

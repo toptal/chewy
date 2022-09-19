@@ -43,8 +43,12 @@ module Chewy
     #
     # @param until_time [Time, DateTime] time to clean up until it
     # @return [Hash] delete_by_query ES API call result
-    def clean(until_time = nil)
-      Chewy::Stash::Journal.clean(until_time, only: @only)
+    def clean(until_time = nil, delete_by_query_options: {})
+      Chewy::Stash::Journal.clean(
+        until_time,
+        only: @only,
+        delete_by_query_options: delete_by_query_options.merge(refresh: false)
+      )
     end
 
   private

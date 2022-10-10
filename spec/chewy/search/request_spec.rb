@@ -817,6 +817,31 @@ describe Chewy::Search::Request do
           request: {index: ['products'], body: {query: {match: {name: 'name3'}}}, refresh: false}
         )
       end
+
+      it 'delete records asynchronously' do
+        outer_payload = nil
+        ActiveSupport::Notifications.subscribe('delete_query.chewy') do |_name, _start, _finish, _id, payload|
+          outer_payload = payload
+        end
+        subject.query(match: {name: 'name3'}).delete_all(
+          refresh: false,
+          wait_for_completion: false,
+          requests_per_second: 10.0,
+          scroll_size: 2000
+        )
+        expect(outer_payload).to eq(
+          index: ProductsIndex,
+          indexes: [ProductsIndex],
+          request: {
+            index: ['products'],
+            body: {query: {match: {name: 'name3'}}},
+            refresh: false,
+            wait_for_completion: false,
+            requests_per_second: 10.0,
+            scroll_size: 2000
+          }
+        )
+      end
     end
 
     describe '#response=' do

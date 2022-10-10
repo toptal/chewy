@@ -962,10 +962,22 @@ module Chewy
       #
       # @see https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-delete-by-query.html
       # @note The result hash is different for different API used.
-      # @param refresh [true, false] field names
+      # @param refresh [true, false] Refreshes all shards involved in the delete by query
+      # @param wait_for_completion [true, false] wait for request completion or run it asynchronously
+      #    and return task reference at `.tasks/task/${taskId}`.
+      # @param requests_per_second [Float] The throttle for this request in sub-requests per second
+      # @param scroll_size [Integer] Size of the scroll request that powers the operation
+
       # @return [Hash] the result of query execution
-      def delete_all(refresh: true)
-        request_body = only(WHERE_STORAGES).render.merge(refresh: refresh)
+      def delete_all(refresh: true, wait_for_completion: nil, requests_per_second: nil, scroll_size: nil)
+        request_body = only(WHERE_STORAGES).render.merge(
+          {
+            refresh: refresh,
+            wait_for_completion: wait_for_completion,
+            requests_per_second: requests_per_second,
+            scroll_size: scroll_size
+          }.compact
+        )
         ActiveSupport::Notifications.instrument 'delete_query.chewy', notification_payload(request: request_body) do
           request_body[:body] = {query: {match_all: {}}} if request_body[:body].empty?
           Chewy.client.delete_by_query(request_body)

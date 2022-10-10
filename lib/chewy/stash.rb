@@ -28,12 +28,12 @@ module Chewy
       # Cleans up all the journal entries until the specified time. If nothing is
       # specified - cleans up everything.
       #
-      # @param since_time [Time, DateTime] the time top boundary
+      # @param until_time [Time, DateTime] Clean everything before that date
       # @param only [Chewy::Index, Array<Chewy::Index>] indexes to clean up journal entries for
-      def self.clean(until_time = nil, only: [])
+      def self.clean(until_time = nil, only: [], delete_by_query_options: {})
         scope = self.for(only)
         scope = scope.filter(range: {created_at: {lte: until_time}}) if until_time
-        scope.delete_all
+        scope.delete_all(**delete_by_query_options)
       end
 
       # Selects all the journal entries for the specified indices.

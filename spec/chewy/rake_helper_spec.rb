@@ -429,6 +429,33 @@ Total: \\d+s\\Z
 Total: \\d+s\\Z
       OUTPUT
     end
+
+    it 'executes asynchronously' do
+      output = StringIO.new
+      expect(Chewy.client).to receive(:delete_by_query).with(
+        {
+          body: {query: {match_all: {}}},
+          index: ['chewy_journal'],
+          refresh: false,
+          requests_per_second: 10.0,
+          scroll_size: 200,
+          wait_for_completion: false
+        }
+      ).and_call_original
+      described_class.journal_clean(
+        output: output,
+        delete_by_query_options: {
+          wait_for_completion: false,
+          requests_per_second: 10.0,
+          scroll_size: 200
+        }
+      )
+
+      expect(output.string).to match(Regexp.new(<<-OUTPUT, Regexp::MULTILINE))
+\\ATask to cleanup the journal has been created, [^\\n]*
+Total: \\d+s\\Z
+      OUTPUT
+    end
   end
 
   describe '.reindex' do
@@ -499,6 +526,47 @@ Total: \\d+s\\Z
         output = StringIO.new
         expect { described_class.update_mapping(name: nonexistent_index, output: output) }
           .to raise_error NameError
+      end
+    end
+  end
+
+  describe '.delete_by_query_options_from_env' do
+    subject(:options) { described_class.delete_by_query_options_from_env(env) }
+    let(:env) do
+      {
+        'WAIT_FOR_COMPLETION' => 'false',
+        'REQUESTS_PER_SECOND' => '10',
+        'SCROLL_SIZE' => '5000'
+      }
+    end
+
+    it 'parses the options' do
+      expect(options).to eq(
+        wait_for_completion: false,
+        requests_per_second: 10.0,
+        scroll_size: 5000
+      )
+    end
+
+    context 'with different boolean values' do
+      it 'parses the option correctly' do
+        %w[1 t true TRUE on ON].each do |v|
+          expect(described_class.delete_by_query_options_from_env({'WAIT_FOR_COMPLETION' => v}))
+            .to eq(wait_for_completion: true)
+        end
+
+        %w[0 f false FALSE off OFF].each do |v|
+          expect(described_class.delete_by_query_options_from_env({'WAIT_FOR_COMPLETION' => v}))
+            .to eq(wait_for_completion: false)
+        end
+      end
+    end
+
+    context 'with other env' do
+      let(:env) { {'SOME_ENV' => '123', 'REQUESTS_PER_SECOND' => '15'} }
+
+      it 'parses only the options' do
+        expect(options).to eq(requests_per_second: 15.0)
       end
     end
   end

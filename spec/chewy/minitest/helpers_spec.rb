@@ -32,14 +32,14 @@ describe :minitest_helper do
         {
           '_index' => 'dummies',
           '_type' => '_doc',
-          '_id' => '1',
+          '_id' => '2',
           '_score' => 3.14,
           '_source' => source
         }
       ]
     end
 
-    let(:source) { {'name' => 'some_name'} }
+    let(:source) { {'name' => 'some_name', id: '2'} }
     let(:sources) { [source] }
 
     context 'mocks by raw response' do

@@ -10,6 +10,8 @@
 
 ### Bugs Fixed
 
+* [#863](https://github.com/toptal/chewy/pull/863): Fix `crutches` call doesn't respect `update_fields` option. ([@skcc321][])
+
 ## 7.2.6 (2022-06-13)
 
 ### New Features

@@ -62,6 +62,8 @@ describe Chewy::Index::Import::BulkBuilder do
         let(:to_index) { cities.first(2) }
         let(:delete) { [cities.last] }
         specify do
+          expect(subject).to receive(:data_for).with(cities.first).and_call_original
+          expect(subject).to receive(:data_for).with(cities.second).and_call_original
           expect(subject.bulk_body).to eq([
             {index: {_id: 1, data: {'name' => 'City17', 'rating' => 42}}},
             {index: {_id: 2, data: {'name' => 'City18', 'rating' => 42}}},
@@ -72,6 +74,8 @@ describe Chewy::Index::Import::BulkBuilder do
         context ':fields' do
           let(:fields) { %w[name] }
           specify do
+            expect(subject).to receive(:data_for).with(cities.first, fields: [:name]).and_call_original
+            expect(subject).to receive(:data_for).with(cities.second, fields: [:name]).and_call_original
             expect(subject.bulk_body).to eq([
               {update: {_id: 1, data: {doc: {'name' => 'City17'}}}},
               {update: {_id: 2, data: {doc: {'name' => 'City18'}}}},

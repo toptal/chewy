@@ -4,6 +4,14 @@
 
 ### New Features
 
+### Changes
+
+### Bugs Fixed
+
+## 7.2.7 (2022-11-15)
+
+### New Features
+
 * [#857](https://github.com/toptal/chewy/pull/857): Allow passing `wait_for_completion`, `request_per_second` and `scroll_size` options to `chewy:journal:clean` rake task and `delete_all` query builder method. ([@konalegi][])([@barthez][])
 
 ### Changes

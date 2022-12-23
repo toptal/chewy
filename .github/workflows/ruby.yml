@@ -6,7 +6,8 @@ on:
   pull_request:
     types: [
       synchronize, # PR was updated
-      opened # PR was open
+      opened, # PR was open
+      reopened # PR was reopened
     ]
 
 jobs:

@@ -8,6 +8,8 @@
 
 ### Bugs Fixed
 
+* [#856](https://github.com/toptal/chewy/pull/856): Fix return value of subscribed_task_stats used in rake tasks. ([@fabiormoura][])
+
 ## 7.2.7 (2022-11-15)
 
 ### New Features

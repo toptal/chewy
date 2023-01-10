@@ -5,7 +5,7 @@
 
 # Chewy
 
-Chewy is an ODM (Object Document Mapper), built on top of the [the official Elasticsearch client](https://github.com/elastic/elasticsearch-ruby).
+Chewy is an ODM (Object Document Mapper), built on top of [the official Elasticsearch client](https://github.com/elastic/elasticsearch-ruby).
 
 ## Why Chewy?
 
@@ -458,7 +458,7 @@ field :hierarchy_link, type: :join, relations: {question: %i[answer comment], an
 ```
 assuming you have `comment_type` and `commented_id` fields in your model.
 
-Note that when you reindex a parent, it's children and grandchildren will be reindexed as well.
+Note that when you reindex a parent, its children and grandchildren will be reindexed as well.
 This may require additional queries to the primary database and to elastisearch.
 
 Also note that the join field doesn't support crutches (it should be a field directly defined on the model).
@@ -525,7 +525,7 @@ So Chewy Crutches™ technology is able to increase your indexing performance in
 
 ### Witchcraft™ technology
 
-One more experimental technology to increase import performance. As far as you know, chewy defines value proc for every imported field in mapping, so at the import time each of this procs is executed on imported object to extract result document to import. It would be great for performance to use one huge whole-document-returning proc instead. So basically the idea or Witchcraft™ technology is to compile a single document-returning proc from the index definition.
+One more experimental technology to increase import performance. As far as you know, chewy defines value proc for every imported field in mapping, so at the import time each of these procs is executed on imported object to extract result document to import. It would be great for performance to use one huge whole-document-returning proc instead. So basically the idea or Witchcraft™ technology is to compile a single document-returning proc from the index definition.
 
 ```ruby
 index_scope Product
@@ -569,7 +569,7 @@ Obviously not every type of definition might be compiled. There are some restric
   end
   ```
 
-However, it is quite possible that your index definition will be supported by Witchcraft™ technology out of the box in the most of the cases.
+However, it is quite possible that your index definition will be supported by Witchcraft™ technology out of the box in most of the cases.
 
 ### Raw Import
 
@@ -675,7 +675,7 @@ end
 
 You may be wondering why do you need it? The answer is simple: not to lose the data.
 
-Imagine that you reset your index in a zero-downtime manner (to separate index), and at the meantime somebody keeps updating the data frequently (to old index). So all these actions will be written to the journal index and you'll be able to apply them after index reset using the `Chewy::Journal` interface.
+Imagine that you reset your index in a zero-downtime manner (to separate index), and in the meantime somebody keeps updating the data frequently (to old index). So all these actions will be written to the journal index and you'll be able to apply them after index reset using the `Chewy::Journal` interface.
 
 When enabled, journal can grow to enormous size, consider setting up cron job that would clean it occasionally using [`chewy:journal:clean` rake task](#chewyjournal).
 
@@ -888,7 +888,7 @@ Chewy has notifying the following events:
     {index: 30, delete: 5}
     ```
 
-  * `payload[:errors]`: might not exists. Contains grouped errors with objects ids list:
+  * `payload[:errors]`: might not exist. Contains grouped errors with objects ids list:
 
     ```ruby
     {index: {
@@ -1020,7 +1020,7 @@ Request DSL also provides additional scope actions, like `delete_all`, `exists?`
 
 #### Pagination
 
-The request DSL supports pagination with `Kaminari`. An extension is enabled on initializtion if `Kaminari` is available. See [Chewy::Search](lib/chewy/search.rb) and [Chewy::Search::Pagination::Kaminari](lib/chewy/search/pagination/kaminari.rb) for details.
+The request DSL supports pagination with `Kaminari`. An extension is enabled on initialization if `Kaminari` is available. See [Chewy::Search](lib/chewy/search.rb) and [Chewy::Search::Pagination::Kaminari](lib/chewy/search/pagination/kaminari.rb) for details.
 
 #### Named scopes
 

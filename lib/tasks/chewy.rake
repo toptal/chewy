@@ -23,22 +23,22 @@ end
 namespace :chewy do
   desc 'Destroys, recreates and imports data for the specified indexes or all of them'
   task reset: :environment do |_task, args|
-    Chewy::RakeHelper.reset(parse_classes(args.extras))
+    Chewy::RakeHelper.reset(**parse_classes(args.extras))
   end
 
   desc 'Resets data for the specified indexes or all of them only if the index specification is changed'
   task upgrade: :environment do |_task, args|
-    Chewy::RakeHelper.upgrade(parse_classes(args.extras))
+    Chewy::RakeHelper.upgrade(**parse_classes(args.extras))
   end
 
   desc 'Updates data for the specified indexes/types or all of them'
   task update: :environment do |_task, args|
-    Chewy::RakeHelper.update(parse_classes(args.extras))
+    Chewy::RakeHelper.update(**parse_classes(args.extras))
   end
 
   desc 'Synchronizes data for the specified indexes/types or all of them'
   task sync: :environment do |_task, args|
-    Chewy::RakeHelper.sync(parse_classes(args.extras))
+    Chewy::RakeHelper.sync(**parse_classes(args.extras))
   end
 
   desc 'Resets all the indexes with the specification changed and synchronizes the rest of them'
@@ -50,22 +50,22 @@ namespace :chewy do
   namespace :parallel do
     desc 'Parallel version of `rake chewy:reset`'
     task reset: :environment do |_task, args|
-      Chewy::RakeHelper.reset(parse_parallel_args(args.extras))
+      Chewy::RakeHelper.reset(**parse_parallel_args(args.extras))
     end
 
     desc 'Parallel version of `rake chewy:upgrade`'
     task upgrade: :environment do |_task, args|
-      Chewy::RakeHelper.upgrade(parse_parallel_args(args.extras))
+      Chewy::RakeHelper.upgrade(**parse_parallel_args(args.extras))
     end
 
     desc 'Parallel version of `rake chewy:update`'
     task update: :environment do |_task, args|
-      Chewy::RakeHelper.update(parse_parallel_args(args.extras))
+      Chewy::RakeHelper.update(**parse_parallel_args(args.extras))
     end
 
     desc 'Parallel version of `rake chewy:sync`'
     task sync: :environment do |_task, args|
-      Chewy::RakeHelper.sync(parse_parallel_args(args.extras))
+      Chewy::RakeHelper.sync(**parse_parallel_args(args.extras))
     end
 
     desc 'Parallel version of `rake chewy:deploy`'
@@ -79,12 +79,12 @@ namespace :chewy do
   namespace :journal do
     desc 'Applies changes that were done after the specified time for the specified indexes/types or all of them'
     task apply: :environment do |_task, args|
-      Chewy::RakeHelper.journal_apply(parse_journal_args(args.extras))
+      Chewy::RakeHelper.journal_apply(**parse_journal_args(args.extras))
     end
 
     desc 'Removes journal records created before the specified timestamp for the specified indexes/types or all of them'
     task clean: :environment do |_task, args|
-      Chewy::RakeHelper.journal_clean(parse_journal_args(args.extras))
+      Chewy::RakeHelper.journal_clean(**parse_journal_args(args.extras))
     end
   end
 

@@ -2,48 +2,6 @@
 
 require_relative '../index'
 
-# patch Chewy::Index with a delayed sidekiq options method
-# example usage:
-#   class UsersIndex < Chewy::Index
-#     delayed_sidekiq_options latency: 10, margin: 2, reindex_wrapper: ->(&reindex) {
-#       ActiveRecord::Base.connected_to(role: :reading) do
-#         reindex.call
-#       end
-#     }
-#     ...
-#   end
-Chewy::Index.define_singleton_method(:delayed_sidekiq_options) do |opts = {}|
-  @delayed_sidekiq_options ||= Struct.new(:latency, :margin, :reindex_wrapper, keyword_init: true).new(
-    latency: opts[:latency] || Chewy::Config.instance.configuration.dig(:delayed_sidekiq, :latency),
-    margin: opts[:margin] || Chewy::Config.instance.configuration.dig(:delayed_sidekiq, :margin),
-    reindex_wrapper: ->(&reindex) { reindex.call }
-  )
-end
-
-# patch Chewy::Index import method with :strategy option
-# example usage:
-#   UsersIndex.import([user1.id], update_fields: [:email], strategy: :delayed_sidekiq)
-Chewy::Index.define_singleton_method(:import_routine) do |*args|
-  *ids, options = args
-  if options.is_a?(Hash) && options.delete(:strategy) == :delayed_sidekiq
-    return if ids.empty?
-
-    return 'delayed_sidekiq supports ids only!' unless ids.all? do |id|
-      id.respond_to?(:to_i)
-    end
-
-    begin
-      Chewy::Strategy::DelayedSidekiq::Scheduler.new(self, ids, options).postpone
-    rescue StandardError => e
-      e.message
-    else
-      return # to match super behaviour - return nothing (means no errors)
-    end
-  else
-    super(*args)
-  end
-end
-
 module Chewy
   class Strategy
     class DelayedSidekiq < Atomic
@@ -64,14 +22,14 @@ module Chewy
           ::Sidekiq.redis do |redis|
             timechunks_key = "#{KEY_PREFIX}:#{type}:timechunks"
             timechunk_keys = redis.zrangebyscore(timechunks_key, -1, score)
-            members = timechunk_keys.flat_map { |timechunk_key| redis.smembers(timechunk_key) }
+            members = timechunk_keys.flat_map { |timechunk_key| redis.smembers(timechunk_key) }.compact
 
             # extract ids and fields & do the reset of records
             ids, fields = extract_ids_and_fields(members)
             options[:update_fields] = fields if fields
 
             index = type.constantize
-            index.delayed_sidekiq_options.reindex_wrapper.call do
+            index.strategy_config.delayed_sidekiq.reindex_wrapper.call do
               options.any? ? index.import!(ids, **options) : index.import!(ids)
             end
 
@@ -107,7 +65,12 @@ module Chewy
 
         def postpone
           ::Sidekiq.redis do |redis|
-            redis.sadd(timechunk_key, serialize_data)
+            # warning: Redis#sadd will always return an Integer in Redis 5.0.0. Use Redis#sadd? instead
+            if redis.respond_to?(:sadd?)
+              redis.sadd?(timechunk_key, serialize_data)
+            else
+              redis.sadd(timechunk_key, serialize_data)
+            end
             redis.expire(timechunk_key, expire_in)
 
             unless redis.zrank(timechunks_key, timechunk_key)
@@ -141,7 +104,7 @@ module Chewy
         end
 
         def fields
-          options[:update_fields] || [FALLBACK_FIELDS]
+          options[:update_fields].presence || [FALLBACK_FIELDS]
         end
 
         def timechunks_key
@@ -161,15 +124,19 @@ module Chewy
         end
 
         def latency
-          type.delayed_sidekiq_options.latency || Chewy::Strategy::DelayedSidekiq::DEFAULT_LATENCY
+          strategy_config.latency || Chewy::Strategy::DelayedSidekiq::DEFAULT_LATENCY
         end
 
         def margin
-          type.delayed_sidekiq_options.margin || Chewy::Strategy::DelayedSidekiq::DEFAULT_MARGIN
+          strategy_config.margin || Chewy::Strategy::DelayedSidekiq::DEFAULT_MARGIN
         end
 
         def sidekiq_queue
           Chewy.settings.dig(:sidekiq, :queue) || DEFAULT_QUEUE
+        end
+
+        def strategy_config
+          type.strategy_config.delayed_sidekiq
         end
       end
 

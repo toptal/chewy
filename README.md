@@ -783,15 +783,46 @@ It supports `update_fields` option, so it will try to select just enough data fr
 There are three options that can be defined in the index:
 ```ruby
 class CitiesIndex...
-  delayed_sidekiq_options latency: 3, margin: 2, reindex_wrapper: ->(&reindex) { ActiveRecord::Base.connected_to(role: :reading) { reindex.call } }
+  strategy_config delayed_sidekiq: {
+    latency: 3,
+    margin: 2,
+    reindex_wrapper: ->(&reindex) {
+      ActiveRecord::Base.connected_to(role: :reading) { reindex.call }
+    }
+    # latency - will prevent scheduling identical jobs
+    # margin - main purpose is to cover db replication lag by the margin
+    # reindex_wrapper - lambda that accepts block to wrap that reindex process AR connection block.
+  }
 
-  # latency - will prevent scheduling identical jobs
-  # margin - main purpose is to cover db replication lag by the margin
-  # reindex_wrapper - lambda that accepts block to wrap that reindex process AR connection block.
   ...
 end
 ```
 
+Also you can define defaults in the `initializers/chewy.rb`
+```ruby
+Chewy.settings = {
+  strategy_config: {
+    delayed_sidekiq: {
+      latency: 3,
+      margin: 2,
+      reindex_wrapper: ->(&reindex) {
+        ActiveRecord::Base.connected_to(role: :reading) { reindex.call }
+      }
+    }
+  }
+}
+
+```
+or in `config/chewy.yml`
+```ruby
+  strategy_config: 
+    delayed_sidekiq: 
+      latency: 3
+      margin: 2
+      # reindex_wrapper setting is not possible here!!! use the initializer instead
+```
+
+You can use the strategy identically to other strategies
 ```ruby
 Chewy.strategy(:delayed_sidekiq) do
   City.popular.map(&:do_some_update_action!)

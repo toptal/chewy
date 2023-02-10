@@ -96,7 +96,7 @@ namespace :chewy do
     task clean: :environment do |_task, args|
       delete_options = Chewy::RakeHelper.delete_by_query_options_from_env(ENV)
       Chewy::RakeHelper.journal_clean(
-        [
+        **[
           parse_journal_args(args.extras),
           {delete_by_query_options: delete_options}
         ].reduce({}, :merge)

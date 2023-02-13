@@ -241,7 +241,7 @@ module Chewy
                 config[:reindex_wrapper] ||= ->(&reindex) { reindex.call } # default wrapper
               end
             else
-              raise NotImplementedError, "Unsupported strategy: '#{k}'"
+              raise NotImplementedError, "Unsupported strategy: '#{strategy}'"
             end
           end
         end

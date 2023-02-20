@@ -41,7 +41,7 @@ if defined?(Sidekiq)
       Chewy::Strategy::DelayedSidekiq::Worker.drain
     end
 
-    context "with default config" do
+    context 'with default config' do
       it 'does schedule a job that triggers reindex with default options' do
         Timecop.freeze do
           expect(Sidekiq::Client).to receive(:push).with(
@@ -64,12 +64,21 @@ if defined?(Sidekiq)
       end
     end
 
-    context "with custom config" do
+    context 'with custom config' do
       before do
-        CitiesIndex.strategy_config(delayed_sidekiq: {reindex_wrapper: ->(&reindex) { puts "hello"; reindex.call }, margin: 5, latency: 60})
+        CitiesIndex.strategy_config(
+          delayed_sidekiq: {
+            reindex_wrapper: lambda { |&reindex|
+              puts 'hello'
+              reindex.call
+            },
+            margin: 5,
+            latency: 60
+          }
+        )
       end
 
-      it "respects :strategy_config options" do
+      it 'respects :strategy_config options' do
         Timecop.freeze do
           expect(Sidekiq::Client).to receive(:push).with(
             hash_including(
@@ -80,7 +89,7 @@ if defined?(Sidekiq)
             )
           ).and_call_original
 
-          expect($stdout).to receive(:puts).with("hello") # check that reindex_wrapper works
+          expect($stdout).to receive(:puts).with('hello') # check that reindex_wrapper works
 
           Sidekiq::Testing.inline! do
             expect { [city, other_city].map(&:save!) }
@@ -91,8 +100,8 @@ if defined?(Sidekiq)
       end
     end
 
-    context "two reindex call within the timewindow" do
-      it "accumulates all ids does the reindex one time" do
+    context 'two reindex call within the timewindow' do
+      it 'accumulates all ids does the reindex one time' do
         Timecop.freeze do
           expect(CitiesIndex).to receive(:import!).with([other_city.id, city.id]).once
           scheduler = Chewy::Strategy::DelayedSidekiq::Scheduler.new(CitiesIndex, [city.id])
@@ -103,8 +112,8 @@ if defined?(Sidekiq)
         end
       end
 
-      context "one call with update_fields another one without update_fields" do
-        it "does reindex of all fields" do
+      context 'one call with update_fields another one without update_fields' do
+        it 'does reindex of all fields' do
           Timecop.freeze do
             expect(CitiesIndex).to receive(:import!).with([other_city.id, city.id]).once
             scheduler = Chewy::Strategy::DelayedSidekiq::Scheduler.new(CitiesIndex, [city.id], update_fields: ['name'])
@@ -116,8 +125,8 @@ if defined?(Sidekiq)
         end
       end
 
-      context "both calls with different update fields" do
-        it "deos reindex with union of fields" do
+      context 'both calls with different update fields' do
+        it 'deos reindex with union of fields' do
           Timecop.freeze do
             expect(CitiesIndex).to receive(:import!).with([other_city.id, city.id], update_fields: %w[description name]).once
             scheduler = Chewy::Strategy::DelayedSidekiq::Scheduler.new(CitiesIndex, [city.id], update_fields: ['name'])
@@ -130,8 +139,8 @@ if defined?(Sidekiq)
       end
     end
 
-    context "two calls within different timewindows" do
-      it "does two separate reindexes" do
+    context 'two calls within different timewindows' do
+      it 'does two separate reindexes' do
         Timecop.freeze do
           expect(CitiesIndex).to receive(:import!).with([city.id]).once
           expect(CitiesIndex).to receive(:import!).with([other_city.id]).once
@@ -146,8 +155,8 @@ if defined?(Sidekiq)
       end
     end
 
-    context "first call has update_fields" do
-      it "does first reindex with the expected update_fields and second without update_fields" do
+    context 'first call has update_fields' do
+      it 'does first reindex with the expected update_fields and second without update_fields' do
         Timecop.freeze do
           expect(CitiesIndex).to receive(:import!).with([city.id], update_fields: ['name']).once
           expect(CitiesIndex).to receive(:import!).with([other_city.id]).once
@@ -162,8 +171,8 @@ if defined?(Sidekiq)
       end
     end
 
-    context "both calls have update_fields option" do
-      it "does both reindexes with their expected update_fields option" do
+    context 'both calls have update_fields option' do
+      it 'does both reindexes with their expected update_fields option' do
         Timecop.freeze do
           expect(CitiesIndex).to receive(:import!).with([city.id], update_fields: ['name']).once
           expect(CitiesIndex).to receive(:import!).with([other_city.id], update_fields: ['description']).once

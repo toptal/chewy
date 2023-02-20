@@ -85,6 +85,7 @@ module Chewy
         # @raise [Chewy::ImportFailed] in case of errors
         ruby2_keywords def import!(*args)
           errors = intercept_import_using_strategy(*args)
+
           raise Chewy::ImportFailed.new(self, errors) if errors.present?
 
           true
@@ -134,8 +135,8 @@ module Chewy
           return import_routine(*args) if strategy.blank?
 
           ids = args_clone.flatten
-          return 'there are no ids' if ids.empty?
-          return "#{strategy} supports ids only!" unless ids.all? do |id|
+          return {} if ids.blank?
+          return {argument: {"#{strategy} supports ids only!" => ids}} unless ids.all? do |id|
             id.respond_to?(:to_i)
           end
 
@@ -143,11 +144,12 @@ module Chewy
           when :delayed_sidekiq
             begin
               Chewy::Strategy::DelayedSidekiq::Scheduler.new(self, ids, options).postpone
+              {} # success. errors handling convention
             rescue StandardError => e
-              e.message
+              {scheduler: {e.message => ids}}
             end
           else
-            raise NotImplementedError, "unsupported strategy: '#{strategy}'"
+            {argument: {"unsupported strategy: '#{strategy}'" => ids}}
           end
         end
 

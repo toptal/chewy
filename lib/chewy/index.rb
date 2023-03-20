@@ -21,7 +21,7 @@ module Chewy
     ].freeze
 
     STRATEGY_OPTIONS = {
-      delayed_sidekiq: %i[latency margin reindex_wrapper]
+      delayed_sidekiq: %i[latency margin ttl reindex_wrapper]
     }.freeze
 
     include Search

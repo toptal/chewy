@@ -35,7 +35,7 @@ module Chewy
           fields = []
 
           members.each do |member|
-            member_ids, member_fields = member.split(Scheduler::FIELDS_IDS_SEPARATOR).map do |v| 
+            member_ids, member_fields = member.split(Scheduler::FIELDS_IDS_SEPARATOR).map do |v|
               v.split(Scheduler::IDS_SEPARATOR)
             end
             ids |= member_ids

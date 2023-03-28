@@ -13,7 +13,7 @@ module Chewy
       require_relative 'worker'
 
       class Scheduler
-        DEFAULT_TTL = 60 * 24 # in minutes
+        DEFAULT_TTL = 60 * 24 # in seconds
         DEFAULT_LATENCY = 10
         DEFAULT_MARGIN = 2
         DEFAULT_QUEUE = 'chewy'
@@ -34,36 +34,36 @@ module Chewy
         #  latency == 2
         #  reindex_time = Time.current
         #
-        #  Parallel OR Sequential triggers of reindex:          │  What is going on in reindex store (Redis):
-        #  ─────────────────────────────────────────────────────┼───────────────────────────────────────────►
-        #                                                       │
-        #  process 1 (reindex_time):                            │  chewy:delayed_sidekiq:CitiesIndex:1679347866 = [1]
-        #    Schedule.new(CitiesIndex, [1]).postpone            │  chewy:delayed_sidekiq:timechunks = [{ score: 1679347866, "chewy:delayed_sidekiq:CitiesIndex:1679347866"}]
-        #                                                       │  & schedule a DelayedSidekiq::Worker at 1679347869 (at + 3)
-        #                                                       │    it will zpop chewy:delayed_sidekiq:timechunks up to 1679347866 score and reindex all ids with zpoped keys
-        #                                                       │      chewy:delayed_sidekiq:CitiesIndex:1679347866
-        #                                                       │
-        #                                                       │
-        #  process 2 (reindex_time):                            │  chewy:delayed_sidekiq:CitiesIndex:1679347866 = [1, 2]
-        #    Schedule.new(CitiesIndex, [2]).postpone            │  chewy:delayed_sidekiq:timechunks = [{ score: 1679347866, "chewy:delayed_sidekiq:CitiesIndex:1679347866"}]
-        #                                                       │  & do not schedule a new worker
-        #                                                       │
-        #                                                       │
-        #  process 1 (reindex_time + (latency - 1).seconds):    │  chewy:delayed_sidekiq:CitiesIndex:1679347866 = [1, 2, 3]
-        #    Schedule.new(CitiesIndex, [3]).postpone            │  chewy:delayed_sidekiq:timechunks = [{ score: 1679347866, "chewy:delayed_sidekiq:CitiesIndex:1679347866"}]
-        #                                                       │  & do not schedule a new worker
-        #                                                       │
-        #                                                       │
-        #  process 2 (reindex_time + (latency + 1).seconds):    │  chewy:delayed_sidekiq:CitiesIndex:1679347866 = [1, 2, 3]
-        #    Schedule.new(CitiesIndex, [4]).postpone            │  chewy:delayed_sidekiq:CitiesIndex:1679347868 = [4]
-        #                                                       │  chewy:delayed_sidekiq:timechunks = [
-        #                                                       │    { score: 1679347866, "chewy:delayed_sidekiq:CitiesIndex:1679347866"}
-        #                                                       │    { score: 1679347868, "chewy:delayed_sidekiq:CitiesIndex:1679347868"}
-        #                                                       │  ]
-        #                                                       │  & schedule a DelayedSidekiq::Worker at 1679347871 (at + 3)
-        #                                                       │    it will zpop chewy:delayed_sidekiq:timechunks up to 1679347868 score and reindex all ids with zpoped keys
-        #                                                       │      chewy:delayed_sidekiq:CitiesIndex:1679347866 (in case of failed previous reindex),
-        #                                                       ▼      chewy:delayed_sidekiq:CitiesIndex:1679347868
+        #  Parallel OR Sequential triggers of reindex:          |  What is going on in reindex store (Redis):
+        #  --------------------------------------------------------------------------------------------------
+        #                                                       |
+        #  process 1 (reindex_time):                            |  chewy:delayed_sidekiq:CitiesIndex:1679347866 = [1]
+        #    Schedule.new(CitiesIndex, [1]).postpone            |  chewy:delayed_sidekiq:timechunks = [{ score: 1679347866, "chewy:delayed_sidekiq:CitiesIndex:1679347866"}]
+        #                                                       |  & schedule a DelayedSidekiq::Worker at 1679347869 (at + 3)
+        #                                                       |    it will zpop chewy:delayed_sidekiq:timechunks up to 1679347866 score and reindex all ids with zpoped keys
+        #                                                       |      chewy:delayed_sidekiq:CitiesIndex:1679347866
+        #                                                       |
+        #                                                       |
+        #  process 2 (reindex_time):                            |  chewy:delayed_sidekiq:CitiesIndex:1679347866 = [1, 2]
+        #    Schedule.new(CitiesIndex, [2]).postpone            |  chewy:delayed_sidekiq:timechunks = [{ score: 1679347866, "chewy:delayed_sidekiq:CitiesIndex:1679347866"}]
+        #                                                       |  & do not schedule a new worker
+        #                                                       |
+        #                                                       |
+        #  process 1 (reindex_time + (latency - 1).seconds):    |  chewy:delayed_sidekiq:CitiesIndex:1679347866 = [1, 2, 3]
+        #    Schedule.new(CitiesIndex, [3]).postpone            |  chewy:delayed_sidekiq:timechunks = [{ score: 1679347866, "chewy:delayed_sidekiq:CitiesIndex:1679347866"}]
+        #                                                       |  & do not schedule a new worker
+        #                                                       |
+        #                                                       |
+        #  process 2 (reindex_time + (latency + 1).seconds):    |  chewy:delayed_sidekiq:CitiesIndex:1679347866 = [1, 2, 3]
+        #    Schedule.new(CitiesIndex, [4]).postpone            |  chewy:delayed_sidekiq:CitiesIndex:1679347868 = [4]
+        #                                                       |  chewy:delayed_sidekiq:timechunks = [
+        #                                                       |    { score: 1679347866, "chewy:delayed_sidekiq:CitiesIndex:1679347866"}
+        #                                                       |    { score: 1679347868, "chewy:delayed_sidekiq:CitiesIndex:1679347868"}
+        #                                                       |  ]
+        #                                                       |  & schedule a DelayedSidekiq::Worker at 1679347871 (at + 3)
+        #                                                       |    it will zpop chewy:delayed_sidekiq:timechunks up to 1679347868 score and reindex all ids with zpoped keys
+        #                                                       |      chewy:delayed_sidekiq:CitiesIndex:1679347866 (in case of failed previous reindex),
+        #                                                       |      chewy:delayed_sidekiq:CitiesIndex:1679347868
         def postpone
           ::Sidekiq.redis do |redis|
             # warning: Redis#sadd will always return an Integer in Redis 5.0.0. Use Redis#sadd? instead

@@ -786,13 +786,13 @@ class CitiesIndex...
   strategy_config delayed_sidekiq: {
     latency: 3,
     margin: 2,
-    ttl: 60 * 24,
+    ttl: 60 * 60 * 24,
     reindex_wrapper: ->(&reindex) {
       ActiveRecord::Base.connected_to(role: :reading) { reindex.call }
     }
     # latency - will prevent scheduling identical jobs
     # margin - main purpose is to cover db replication lag by the margin
-    # ttl - a chunk expiration time (in minutes)
+    # ttl - a chunk expiration time (in seconds)
     # reindex_wrapper - lambda that accepts block to wrap that reindex process AR connection block.
   }
 
@@ -807,7 +807,7 @@ Chewy.settings = {
     delayed_sidekiq: {
       latency: 3,
       margin: 2,
-      ttl: 60 * 24,
+      ttl: 60 * 60 * 24,
       reindex_wrapper: ->(&reindex) {
         ActiveRecord::Base.connected_to(role: :reading) { reindex.call }
       }
@@ -822,7 +822,7 @@ or in `config/chewy.yml`
     delayed_sidekiq:
       latency: 3
       margin: 2
-      ttl: <%= 60 * 24 %>
+      ttl: <%= 60 * 60 * 24 %>
       # reindex_wrapper setting is not possible here!!! use the initializer instead
 ```
 

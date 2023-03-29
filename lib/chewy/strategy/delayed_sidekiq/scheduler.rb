@@ -13,7 +13,7 @@ module Chewy
       require_relative 'worker'
 
       class Scheduler
-        DEFAULT_TTL = 60 * 24 # in seconds
+        DEFAULT_TTL = 60 * 60 * 24 # in seconds
         DEFAULT_LATENCY = 10
         DEFAULT_MARGIN = 2
         DEFAULT_QUEUE = 'chewy'

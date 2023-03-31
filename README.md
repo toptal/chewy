@@ -774,6 +774,80 @@ The default queue name is `chewy`, you can customize it in settings: `sidekiq.qu
 Chewy.settings[:sidekiq] = {queue: :low}
 ```
 
+#### `:delayed_sidekiq`
+
+It accumulates ids of records to be reindexed during the latency window in redis and then does the reindexing of all accumulated records at once.
+The strategy is very useful in case of frequently mutated records.
+It supports `update_fields` option, so it will try to select just enough data from the DB
+
+There are three options that can be defined in the index:
+```ruby
+class CitiesIndex...
+  strategy_config delayed_sidekiq: {
+    latency: 3,
+    margin: 2,
+    ttl: 60 * 60 * 24,
+    reindex_wrapper: ->(&reindex) {
+      ActiveRecord::Base.connected_to(role: :reading) { reindex.call }
+    }
+    # latency - will prevent scheduling identical jobs
+    # margin - main purpose is to cover db replication lag by the margin
+    # ttl - a chunk expiration time (in seconds)
+    # reindex_wrapper - lambda that accepts block to wrap that reindex process AR connection block.
+  }
+
+  ...
+end
+```
+
+Also you can define defaults in the `initializers/chewy.rb`
+```ruby
+Chewy.settings = {
+  strategy_config: {
+    delayed_sidekiq: {
+      latency: 3,
+      margin: 2,
+      ttl: 60 * 60 * 24,
+      reindex_wrapper: ->(&reindex) {
+        ActiveRecord::Base.connected_to(role: :reading) { reindex.call }
+      }
+    }
+  }
+}
+
+```
+or in `config/chewy.yml`
+```ruby
+  strategy_config:
+    delayed_sidekiq:
+      latency: 3
+      margin: 2
+      ttl: <%= 60 * 60 * 24 %>
+      # reindex_wrapper setting is not possible here!!! use the initializer instead
+```
+
+You can use the strategy identically to other strategies
+```ruby
+Chewy.strategy(:delayed_sidekiq) do
+  City.popular.map(&:do_some_update_action!)
+end
+```
+
+The default queue name is `chewy`, you can customize it in settings: `sidekiq.queue_name`
+```
+Chewy.settings[:sidekiq] = {queue: :low}
+```
+
+Explicit call of the reindex using `:delayed_sidekiq strategy`
+```ruby
+CitiesIndex.import([1, 2, 3], strategy: :delayed_sidekiq)
+```
+
+Explicit call of the reindex using `:delayed_sidekiq` strategy with `:update_fields` support
+```ruby
+CitiesIndex.import([1, 2, 3], update_fields: [:name], strategy: :delayed_sidekiq)
+```
+
 #### `:active_job`
 
 This does the same thing as `:atomic`, but using ActiveJob. This will inherit the ActiveJob configuration settings including the `active_job.queue_adapter` setting for the environment. Patch `Chewy::Strategy::ActiveJob::Worker` for index updates improving.

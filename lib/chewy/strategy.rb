@@ -8,6 +8,7 @@ begin
   require 'sidekiq'
   require 'chewy/strategy/sidekiq'
   require 'chewy/strategy/lazy_sidekiq'
+  require 'chewy/strategy/delayed_sidekiq'
 rescue LoadError
   nil
 end

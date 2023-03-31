@@ -20,6 +20,10 @@ module Chewy
       pipeline raw_import refresh replication
     ].freeze
 
+    STRATEGY_OPTIONS = {
+      delayed_sidekiq: %i[latency margin ttl reindex_wrapper]
+    }.freeze
+
     include Search
     include Actions
     include Aliases
@@ -220,6 +224,27 @@ module Chewy
       def default_import_options(params)
         params.assert_valid_keys(IMPORT_OPTIONS_KEYS)
         self._default_import_options = _default_import_options.merge(params)
+      end
+
+      def strategy_config(params = {})
+        @strategy_config ||= begin
+          config_struct = Struct.new(*STRATEGY_OPTIONS.keys).new
+
+          STRATEGY_OPTIONS.each_with_object(config_struct) do |(strategy, options), res|
+            res[strategy] = case strategy
+            when :delayed_sidekiq
+              Struct.new(*STRATEGY_OPTIONS[strategy]).new.tap do |config|
+                options.each do |option|
+                  config[option] = params.dig(strategy, option) || Chewy.configuration.dig(:strategy_config, strategy, option)
+                end
+
+                config[:reindex_wrapper] ||= ->(&reindex) { reindex.call } # default wrapper
+              end
+            else
+              raise NotImplementedError, "Unsupported strategy: '#{strategy}'"
+            end
+          end
+        end
       end
     end
   end

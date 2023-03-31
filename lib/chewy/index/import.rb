@@ -73,7 +73,7 @@ module Chewy
         # @option options [true, Integer, Hash] parallel enables parallel import processing with the Parallel gem, accepts the number of workers or any Parallel gem acceptable options
         # @return [true, false] false in case of errors
         ruby2_keywords def import(*args)
-          import_routine(*args).blank?
+          intercept_import_using_strategy(*args).blank?
         end
 
         # @!method import!(*collection, **options)
@@ -84,7 +84,8 @@ module Chewy
         #
         # @raise [Chewy::ImportFailed] in case of errors
         ruby2_keywords def import!(*args)
-          errors = import_routine(*args)
+          errors = intercept_import_using_strategy(*args)
+
           raise Chewy::ImportFailed.new(self, errors) if errors.present?
 
           true
@@ -125,6 +126,32 @@ module Chewy
         end
 
       private
+
+        def intercept_import_using_strategy(*args)
+          args_clone = args.deep_dup
+          options = args_clone.extract_options!
+          strategy = options.delete(:strategy)
+
+          return import_routine(*args) if strategy.blank?
+
+          ids = args_clone.flatten
+          return {} if ids.blank?
+          return {argument: {"#{strategy} supports ids only!" => ids}} unless ids.all? do |id|
+            id.respond_to?(:to_i)
+          end
+
+          case strategy
+          when :delayed_sidekiq
+            begin
+              Chewy::Strategy::DelayedSidekiq::Scheduler.new(self, ids, options).postpone
+              {} # success. errors handling convention
+            rescue StandardError => e
+              {scheduler: {e.message => ids}}
+            end
+          else
+            {argument: {"unsupported strategy: '#{strategy}'" => ids}}
+          end
+        end
 
         def import_routine(*args)
           return if !args.first.nil? && empty_objects_or_scope?(args.first)

@@ -4,6 +4,14 @@
 
 ### New Features
 
+### Changes
+
+### Bugs Fixed
+
+## 7.3.0 (2023-04-03)
+
+### New Features
+
 * [#869](https://github.com/toptal/chewy/pull/869): New strategy - `delayed_sidekiq`. Allow passing `strategy: :delayed_sidekiq` option to `SomeIndex.import([1, ...], strategy: :delayed_sidekiq)`. The strategy is compatible with `update_fields` option as well. ([@skcc321][])
 * [#879](https://github.com/toptal/chewy/pull/879): Configure CI to check for ruby 3.2 compatibility. ([@konalegi][])
 

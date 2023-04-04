@@ -464,7 +464,7 @@ Total: \\d+s\\Z
         Rake::DefaultLoader.new.load('lib/tasks/chewy.rake')
         Rake::Task.define_task(:environment)
       end
-      it "does not raise error" do
+      it 'does not raise error' do
         expect { task.invoke }.to_not raise_error
       end
     end

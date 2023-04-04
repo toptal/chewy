@@ -1,4 +1,5 @@
 require 'spec_helper'
+require 'rake'
 
 describe Chewy::RakeHelper, :orm do
   before { Chewy.massacre }
@@ -455,6 +456,17 @@ Total: \\d+s\\Z
 \\ATask to cleanup the journal has been created, [^\\n]*
 Total: \\d+s\\Z
       OUTPUT
+    end
+
+    context 'execute "chewy:journal:clean" rake task' do
+      subject(:task) { Rake.application['chewy:journal:clean'] }
+      before do
+        Rake::DefaultLoader.new.load('lib/tasks/chewy.rake')
+        Rake::Task.define_task(:environment)
+      end
+      it "does not raise error" do
+        expect { task.invoke }.to_not raise_error
+      end
     end
   end
 

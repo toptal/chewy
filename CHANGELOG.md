@@ -8,6 +8,8 @@
 
 ### Bugs Fixed
 
+* [#874](https://github.com/toptal/chewy/pull/874): Fix `chewy:journal:clean` task for ruby 3.x. ([@muk-ai](https://github.com/muk-ai))
+
 ## 7.3.0 (2023-04-03)
 
 ### New Features

@@ -884,7 +884,9 @@ It is convenient for use in e.g. the Rails console with non-block notation:
 
 #### `:bypass`
 
-The bypass strategy simply silences index updates.
+When the bypass strategy is active the index will not be automatically updated on object save.
+
+For example, on `City.first.save!` the cities index would not be updated.
 
 #### Nesting
 

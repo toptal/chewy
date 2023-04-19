@@ -12,13 +12,21 @@ module Chewy
         def initialize(index, collection)
           @index = index
           @collection = collection
-          @index._crutches.each_key do |name|
-            singleton_class.class_eval <<-METHOD, __FILE__, __LINE__ + 1
-              def #{name}
-                @#{name} ||= @index._crutches[:#{name}].call @collection
-              end
-            METHOD
-          end
+          @crutches_instances = {}
+        end
+
+        def method_missing(name, *, **)
+          return self[name] if @index._crutches.key?(name)
+
+          super
+        end
+
+        def respond_to_missing?(name, include_private = false)
+          @index._crutches.key?(name) || super
+        end
+
+        def [](name)
+          @crutches_instances[name] ||= @index._crutches[:"#{name}"].call(@collection)
         end
       end
 

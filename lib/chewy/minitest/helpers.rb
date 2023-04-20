@@ -97,7 +97,7 @@ module Chewy
               {
                 '_index' => index.index_name,
                 '_type' => '_doc',
-                '_id' => (i + 1).to_s,
+                '_id' => hit[:id] || (i + 1).to_s,
                 '_score' => 3.14,
                 '_source' => hit
               }

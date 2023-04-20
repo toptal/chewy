@@ -503,7 +503,7 @@ class ProductsIndex < Chewy::Index
 
   field :name
   # simply use crutch-fetched data as a value:
-  field :category_names, value: ->(product, crutches) { crutches.categories[product.id] }
+  field :category_names, value: ->(product, crutches) { crutches[:categories][product.id] }
 end
 ```
 

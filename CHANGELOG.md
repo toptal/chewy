@@ -8,6 +8,10 @@
 
 ### Bugs Fixed
 
+## 7.3.1 (2023-04-20)
+
+### Bugs Fixed
+
 * [#874](https://github.com/toptal/chewy/pull/874): Fix `chewy:journal:clean` task for ruby 3.x. ([@muk-ai](https://github.com/muk-ai))
 * [#882](https://github.com/toptal/chewy/pull/882): Fix memory leak during `chewy:reset` for ruby 3.2 ([@konalegi](https://github.com/konalegi))
 

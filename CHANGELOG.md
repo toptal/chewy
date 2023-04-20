@@ -10,6 +10,8 @@
 
 * [#874](https://github.com/toptal/chewy/pull/874): Fix `chewy:journal:clean` task for ruby 3.x. ([@muk-ai](https://github.com/muk-ai))
 
+* [#861](https://github.com/toptal/chewy/pull/861): Fix bug in mock_elasticsearch_response_sources ([@lafeber](https://github.com/lafeber))
+
 ## 7.3.0 (2023-04-03)
 
 ### New Features

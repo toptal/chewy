@@ -48,12 +48,11 @@ module Chewy
         def index_entry(object)
           entry = {}
           entry[:_id] = index_object_ids[object] if index_object_ids[object]
-
-          data = data_for(object)
-          parent = cache(entry[:_id])
-
           entry[:routing] = routing(object) if join_field?
-          if parent_changed?(data, parent)
+
+          parent = cache(entry[:_id])
+          data = data_for(object) if parent.present?
+          if parent.present? && parent_changed?(data, parent)
             reindex_entries(object, data) + reindex_descendants(object)
           elsif @fields.present?
             return [] unless entry[:_id]
@@ -61,7 +60,7 @@ module Chewy
             entry[:data] = {doc: data_for(object, fields: @fields)}
             [{update: entry}]
           else
-            entry[:data] = data
+            entry[:data] = data || data_for(object)
             [{index: entry}]
           end
         end

@@ -6,7 +6,8 @@ on:
   pull_request:
     types: [
       synchronize, # PR was updated
-      opened # PR was open
+      opened, # PR was open
+      reopened # PR was reopened
     ]
 
 jobs:
@@ -41,7 +42,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        ruby: [ '3.0', 3.1 ]
+        ruby: [ '3.0', '3.1', '3.2' ]
         gemfile: [ rails.6.1.activerecord, rails.7.0.activerecord ]
     name: ${{ matrix.ruby }}-${{ matrix.gemfile }}
 

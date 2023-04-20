@@ -1,4 +1,5 @@
 require 'spec_helper'
+require 'rake'
 
 describe Chewy::RakeHelper, :orm do
   before { Chewy.massacre }
@@ -456,6 +457,17 @@ Total: \\d+s\\Z
 Total: \\d+s\\Z
       OUTPUT
     end
+
+    context 'execute "chewy:journal:clean" rake task' do
+      subject(:task) { Rake.application['chewy:journal:clean'] }
+      before do
+        Rake::DefaultLoader.new.load('lib/tasks/chewy.rake')
+        Rake::Task.define_task(:environment)
+      end
+      it 'does not raise error' do
+        expect { task.invoke }.to_not raise_error
+      end
+    end
   end
 
   describe '.reindex' do
@@ -568,6 +580,13 @@ Total: \\d+s\\Z
       it 'parses only the options' do
         expect(options).to eq(requests_per_second: 15.0)
       end
+    end
+  end
+
+  describe '.subscribed_task_stats' do
+    specify do
+      block_output = described_class.subscribed_task_stats(StringIO.new) { 'expected output' }
+      expect(block_output).to eq('expected output')
     end
   end
 end

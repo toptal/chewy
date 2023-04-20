@@ -270,6 +270,7 @@ module Chewy
         ActiveSupport::Notifications.subscribed(JOURNAL_CALLBACK.curry[output], 'apply_journal.chewy') do
           ActiveSupport::Notifications.subscribed(IMPORT_CALLBACK.curry[output], 'import_objects.chewy', &block)
         end
+      ensure
         output.puts "Total: #{human_duration(Time.now - start)}"
       end
 

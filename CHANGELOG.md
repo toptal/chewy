@@ -4,11 +4,36 @@
 
 ### New Features
 
+### Changes
+
+### Bugs Fixed
+
+* [#874](https://github.com/toptal/chewy/pull/874): Fix `chewy:journal:clean` task for ruby 3.x. ([@muk-ai](https://github.com/muk-ai))
+
+## 7.3.0 (2023-04-03)
+
+### New Features
+
+* [#869](https://github.com/toptal/chewy/pull/869): New strategy - `delayed_sidekiq`. Allow passing `strategy: :delayed_sidekiq` option to `SomeIndex.import([1, ...], strategy: :delayed_sidekiq)`. The strategy is compatible with `update_fields` option as well. ([@skcc321][])
+* [#879](https://github.com/toptal/chewy/pull/879): Configure CI to check for ruby 3.2 compatibility. ([@konalegi][])
+
+### Changes
+
+### Bugs Fixed
+
+* [#856](https://github.com/toptal/chewy/pull/856): Fix return value of subscribed_task_stats used in rake tasks. ([@fabiormoura][])
+
+## 7.2.7 (2022-11-15)
+
+### New Features
+
 * [#857](https://github.com/toptal/chewy/pull/857): Allow passing `wait_for_completion`, `request_per_second` and `scroll_size` options to `chewy:journal:clean` rake task and `delete_all` query builder method. ([@konalegi][])([@barthez][])
 
 ### Changes
 
 ### Bugs Fixed
+
+* [#863](https://github.com/toptal/chewy/pull/863): Fix `crutches` call doesn't respect `update_fields` option. ([@skcc321][])
 
 ## 7.2.6 (2022-06-13)
 

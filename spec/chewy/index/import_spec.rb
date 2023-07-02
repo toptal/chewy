@@ -60,6 +60,19 @@ describe Chewy::Index::Import do
         CitiesIndex.import(dummy_city)
       end
     end
+
+    context 'skip journal creation on import' do
+      before do
+        Chewy::Stash::Journal.create!
+        Chewy.config.settings[:skip_journal_creation_on_import] = true
+      end
+      after { Chewy.config.settings[:skip_journal_creation_on_import] = nil }
+
+      specify do
+        expect(Chewy::Stash::Journal).not_to receive(:create!)
+        CitiesIndex.import(dummy_city, journal: true)
+      end
+    end
   end
 
   shared_examples 'importing' do

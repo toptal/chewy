@@ -470,6 +470,17 @@ Total: \\d+s\\Z
     end
   end
 
+  describe '.journal_create' do
+    specify do
+      output = StringIO.new
+      described_class.journal_create(output: output)
+      expect(Chewy::Stash::Journal.exists?).to be_truthy
+      expect(output.string).to match(Regexp.new(<<-OUTPUT, Regexp::MULTILINE))
+Total: \\d+s\\Z
+      OUTPUT
+    end
+  end
+
   describe '.reindex' do
     before do
       journal

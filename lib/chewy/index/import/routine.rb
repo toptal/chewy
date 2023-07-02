@@ -64,7 +64,7 @@ module Chewy
         # Creates the journal index and the corresponding index if necessary.
         # @return [Object] whatever
         def create_indexes!
-          Chewy::Stash::Journal.create if @options[:journal]
+          Chewy::Stash::Journal.create if @options[:journal] && !Chewy.configuration[:skip_journal_creation_on_import]
           return if Chewy.configuration[:skip_index_creation_on_import]
 
           @index.create!(**@bulk_options.slice(:suffix)) unless @index.exists?

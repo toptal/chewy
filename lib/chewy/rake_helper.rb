@@ -197,6 +197,19 @@ module Chewy
         end
       end
 
+      # Creates journal index.
+      #
+      # @example
+      #   Chewy::RakeHelper.journal_create # creates journal
+      #
+      # @param output [IO] output io for logging
+      # @return Chewy::Index Returns instance of chewy index
+      def journal_create(output: $stdout)
+        subscribed_task_stats(output) do
+          Chewy::Stash::Journal.create!
+        end
+      end
+
       # Eager loads and returns all the indexes defined in the application
       # except Chewy::Stash::Specification and Chewy::Stash::Journal.
       #

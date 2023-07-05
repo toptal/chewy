@@ -87,6 +87,11 @@ namespace :chewy do
   end
 
   namespace :journal do
+    desc 'Create manually journal, useful when `skip_journal_creation_on_import` is used'
+    task create: :environment do |_task, _args|
+      Chewy::RakeHelper.journal_create
+    end
+
     desc 'Applies changes that were done after the specified time for the specified indexes/types or all of them'
     task apply: :environment do |_task, args|
       Chewy::RakeHelper.journal_apply(**parse_journal_args(args.extras))

@@ -4,6 +4,8 @@
 
 ### New Features
 
+* [#888](https://github.com/toptal/chewy/pull/888/files): Skip journal creation on import ([@konalegi](https://github.com/konalegi))
+
 ### Changes
 
 ### Bugs Fixed

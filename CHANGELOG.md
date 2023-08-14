@@ -4,6 +4,8 @@
 
 ### New Features
 
+* [#888](https://github.com/toptal/chewy/pull/888): Add the [`knn`](https://www.elastic.co/guide/en/elasticsearch/reference/current/knn-search.html) option to the request. ([@jkostolansky][])
+
 ### Changes
 
 ### Bugs Fixed

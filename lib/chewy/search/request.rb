@@ -20,7 +20,7 @@ module Chewy
       UNDEFINED = Class.new.freeze
       EVERFIELDS = %w[_index _type _id _parent _routing].freeze
       DELEGATED_METHODS = %i[
-        query filter post_filter order reorder docvalue_fields
+        query filter post_filter knn order reorder docvalue_fields
         track_scores track_total_hits request_cache explain version profile
         search_type preference limit offset terminate_after
         timeout min_score source stored_fields search_after
@@ -41,7 +41,7 @@ module Chewy
       EXTRA_STORAGES = %i[aggs suggest].freeze
       # An array of storage names that are changing the returned hist collection in any way.
       WHERE_STORAGES = %i[
-        query filter post_filter none min_score rescore indices_boost collapse
+        query filter post_filter knn none min_score rescore indices_boost collapse
       ].freeze
 
       delegate :hits, :wrappers, :objects, :records, :documents,
@@ -520,7 +520,18 @@ module Chewy
       #   @see https://www.elastic.co/guide/en/elasticsearch/reference/current/collapse-search-results.html
       #   @param value [Hash]
       #   @return [Chewy::Search::Request]
-      %i[request_cache search_type preference timeout limit offset terminate_after min_score ignore_unavailable collapse].each do |name|
+      #
+      # @!method knn(value)
+      #   Replaces the value of the `knn` request part.
+      #
+      #   @example
+      #     PlacesIndex.knn(field: :vector, query_vector: [4, 2], k: 5, num_candidates: 50)
+      #     # => <PlacesIndex::Query {..., :body=>{:knn=>{"field"=>:vector, "query_vector"=>[4, 2], "k"=>5, "num_candidates"=>50}}}>
+      #   @see Chewy::Search::Parameters::Knn
+      #   @see https://www.elastic.co/guide/en/elasticsearch/reference/current/knn-search.html
+      #   @param value [Hash]
+      #   @return [Chewy::Search::Request]
+      %i[request_cache search_type preference timeout limit offset terminate_after min_score ignore_unavailable collapse knn].each do |name|
         define_method name do |value|
           modify(name) { replace!(value) }
         end

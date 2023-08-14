@@ -314,14 +314,16 @@ describe Chewy::Search::Request do
     end
   end
 
-  describe '#collapse' do
-    specify { expect(subject.collapse(foo: {bar: 42}).render[:body]).to include(collapse: {'foo' => {bar: 42}}) }
-    specify do
-      expect(subject.collapse(foo: {bar: 42}).collapse(moo: {baz: 43}).render[:body])
-        .to include(collapse: {'moo' => {baz: 43}})
+  %i[collapse knn].each do |name|
+    describe "##{name}" do
+      specify { expect(subject.send(name, foo: {bar: 42}).render[:body]).to include(name => {'foo' => {bar: 42}}) }
+      specify do
+        expect(subject.send(name, foo: {bar: 42}).send(name, moo: {baz: 43}).render[:body])
+          .to include(name => {'moo' => {baz: 43}})
+      end
+      specify { expect(subject.send(name, foo: {bar: 42}).collapse(nil).render[:body]).to be_blank }
+      specify { expect { subject.send(name, foo: {bar: 42}) }.not_to change { subject.render } }
     end
-    specify { expect(subject.collapse(foo: {bar: 42}).collapse(nil).render[:body]).to be_blank }
-    specify { expect { subject.collapse(foo: {bar: 42}) }.not_to change { subject.render } }
   end
 
   describe '#docvalue_fields' do

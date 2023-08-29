@@ -268,6 +268,24 @@ module Chewy
           end
       end
 
+      def create_missing_indexes!(output: $stdout)
+        subscribed_task_stats(output) do
+          Chewy.eager_load!
+          all_indexes = Chewy::Index.descendants
+          all_indexes = all_indexes - [Chewy::Stash::Journal] unless Chewy.configuration[:journal]
+          Chewy::Index.descendants.each do |index|
+            if index.exists?
+              output.puts "#{index.name} already exists, skipping"
+              next
+            end
+
+            index.create!
+
+            output.puts "#{index.name} index successfully created"
+          end
+        end
+      end
+
       def normalize_indexes(*identifiers)
         identifiers.flatten(1).map { |identifier| normalize_index(identifier) }
       end

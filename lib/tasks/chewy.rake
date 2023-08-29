@@ -57,6 +57,11 @@ namespace :chewy do
     Chewy::RakeHelper.update_mapping(name: args[:index_name])
   end
 
+  desc 'Creates missing indexes'
+  task create_missing_indexes: :environment do
+    Chewy::RakeHelper.create_missing_indexes!
+  end
+
   namespace :parallel do
     desc 'Parallel version of `rake chewy:reset`'
     task reset: :environment do |_task, args|

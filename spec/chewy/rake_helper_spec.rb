@@ -470,6 +470,24 @@ Total: \\d+s\\Z
     end
   end
 
+  describe '.create_missing_indexes!' do
+    specify do
+      [CountriesIndex, Chewy::Stash::Journal, Chewy::Stash::Specification].map(&:create!)
+
+      output = StringIO.new
+      described_class.create_missing_indexes!(output: output)
+      expect(CitiesIndex.exists?).to be_truthy
+      expect(output.string).to match(Regexp.new(<<-OUTPUT, Regexp::MULTILINE))
+UsersIndex index successfully created
+CountriesIndex already exists, skipping
+CitiesIndex index successfully created
+Chewy::Stash::Journal already exists, skipping
+Chewy::Stash::Specification already exists, skipping
+Total: \\d+s\\Z
+      OUTPUT
+    end
+  end
+
   describe '.journal_create' do
     specify do
       output = StringIO.new

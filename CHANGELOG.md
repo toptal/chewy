@@ -4,6 +4,14 @@
 
 ### New Features
 
+### Changes
+
+### Bugs Fixed
+
+## 7.3.4 (2023-08-29)
+
+### New Features
+
 * [#888](https://github.com/toptal/chewy/pull/892): Rake task to create missing indexes ([@konalegi](https://github.com/konalegi))
 
 ### Changes

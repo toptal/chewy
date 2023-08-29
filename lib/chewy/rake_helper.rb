@@ -272,8 +272,8 @@ module Chewy
         subscribed_task_stats(output) do
           Chewy.eager_load!
           all_indexes = Chewy::Index.descendants
-          all_indexes = all_indexes - [Chewy::Stash::Journal] unless Chewy.configuration[:journal]
-          Chewy::Index.descendants.each do |index|
+          all_indexes -= [Chewy::Stash::Journal] unless Chewy.configuration[:journal]
+          all_indexes.each do |index|
             if index.exists?
               output.puts "#{index.name} already exists, skipping"
               next

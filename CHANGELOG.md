@@ -4,7 +4,7 @@
 
 ### New Features
 
-* [#888](https://github.com/toptal/chewy/pull/892): Rake task to create all indexes ([@konalegi](https://github.com/konalegi))
+* [#888](https://github.com/toptal/chewy/pull/892): Rake task to create missing indexes ([@konalegi](https://github.com/konalegi))
 
 ### Changes
 

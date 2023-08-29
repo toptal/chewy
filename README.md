@@ -1199,7 +1199,7 @@ Also, there is always full reset alternative with `rake chewy:reset`.
 
 #### `chewy:create_missing_indexes`
 
-This rake task creates newly defined indexes in ElasticSearch and skips existing ones. Useful for production like environments.
+This rake task creates newly defined indexes in ElasticSearch and skips existing ones. Useful for production-like environments.
 
 #### Parallelizing rake tasks
 

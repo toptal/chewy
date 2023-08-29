@@ -1197,6 +1197,10 @@ Right now the approach is that if some data had been updated, but index definiti
 
 Also, there is always full reset alternative with `rake chewy:reset`.
 
+#### `chewy:create_missing_indexes`
+
+This rake task creates newly defined indexes in ElasticSearch and skips existing ones. Useful for production-like environments.
+
 #### Parallelizing rake tasks
 
 Every task described above has its own parallel version. Every parallel rake task takes the number for processes for execution as the first argument and the rest of the arguments are exactly the same as for the non-parallel task version.

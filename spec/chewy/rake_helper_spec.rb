@@ -470,6 +470,59 @@ Total: \\d+s\\Z
     end
   end
 
+  describe '.create_missing_indexes!' do
+    before do
+      [CountriesIndex, Chewy::Stash::Specification].map(&:create!)
+
+      # To avoid flaky issues when previous specs were run
+      expect(Chewy::Index).to receive(:descendants).and_return(
+        [
+          UsersIndex,
+          CountriesIndex,
+          CitiesIndex,
+          Chewy::Stash::Specification,
+          Chewy::Stash::Journal
+        ]
+      )
+    end
+
+    specify do
+      output = StringIO.new
+      described_class.create_missing_indexes!(output: output)
+      expect(CitiesIndex.exists?).to be_truthy
+      expect(UsersIndex.exists?).to be_truthy
+      expect(Chewy::Stash::Journal.exists?).to be_falsey
+      expect(output.string).to match(Regexp.new(<<-OUTPUT, Regexp::MULTILINE))
+UsersIndex index successfully created
+CitiesIndex index successfully created
+Total: \\d+s\\Z
+      OUTPUT
+    end
+
+    context 'when verbose' do
+      specify do
+        output = StringIO.new
+        described_class.create_missing_indexes!(output: output, env: {'VERBOSE' => '1'})
+        expect(output.string).to match(Regexp.new(<<-OUTPUT, Regexp::MULTILINE))
+UsersIndex index successfully created
+CountriesIndex already exists, skipping
+CitiesIndex index successfully created
+Chewy::Stash::Specification already exists, skipping
+Total: \\d+s\\Z
+        OUTPUT
+      end
+    end
+
+    context 'when journaling is enabled' do
+      before { Chewy.config.settings[:journal] = true }
+      after { Chewy.config.settings.delete(:journal) }
+      specify do
+        described_class.create_missing_indexes!(output: StringIO.new)
+        expect(Chewy::Stash::Journal.exists?).to be_truthy
+      end
+    end
+  end
+
   describe '.journal_create' do
     specify do
       output = StringIO.new

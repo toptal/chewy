@@ -186,5 +186,17 @@ if defined?(Sidekiq)
         end
       end
     end
+
+    describe '#clear_delayed_sidekiq_timechunks test helper' do
+      it 'clears redis from the timechunk sorted sets to avoid leak between tests' do
+        timechunks_set = -> { Sidekiq.redis { |redis| redis.zrange('chewy:delayed_sidekiq:CitiesIndex:timechunks', 0, -1) } }
+
+        expect { CitiesIndex.import!([1], strategy: :delayed_sidekiq) }
+          .to change { timechunks_set.call.size }.by(1)
+
+        expect { Chewy::Strategy::DelayedSidekiq.clear_timechunks! }
+          .to change { timechunks_set.call.size }.to(0)
+      end
+    end
   end
 end

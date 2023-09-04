@@ -848,6 +848,12 @@ Explicit call of the reindex using `:delayed_sidekiq` strategy with `:update_fie
 CitiesIndex.import([1, 2, 3], update_fields: [:name], strategy: :delayed_sidekiq)
 ```
 
+While running tests with delayed_sidekiq strategy and Sidekiq is using a real redis instance that is NOT cleaned up in between tests (via e.g. `Sidekiq.redis(&:flushdb)`), you'll want to cleanup some redis keys in between tests to avoid state leaking and flaky tests. Chewy provides a convenience method for that:
+```ruby
+# it might be a good idea to also add to your testing setup, e.g.: a rspec `before` hook
+Chewy::Strategy::DelayedSidekiq.clear_timechunks!
+```
+
 #### `:active_job`
 
 This does the same thing as `:atomic`, but using ActiveJob. This will inherit the ActiveJob configuration settings including the `active_job.queue_adapter` setting for the environment. Patch `Chewy::Strategy::ActiveJob::Worker` for index updates improving.

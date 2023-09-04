@@ -18,6 +18,7 @@ module Chewy
         DEFAULT_MARGIN = 2
         DEFAULT_QUEUE = 'chewy'
         KEY_PREFIX = 'chewy:delayed_sidekiq'
+        ALL_SETS_KEY = "#{KEY_PREFIX}:all_sets".freeze
         FALLBACK_FIELDS = 'all'
         FIELDS_IDS_SEPARATOR = ';'
         IDS_SEPARATOR = ','
@@ -68,8 +69,10 @@ module Chewy
           ::Sidekiq.redis do |redis|
             # warning: Redis#sadd will always return an Integer in Redis 5.0.0. Use Redis#sadd? instead
             if redis.respond_to?(:sadd?)
+              redis.sadd?(ALL_SETS_KEY, timechunks_key)
               redis.sadd?(timechunk_key, serialize_data)
             else
+              redis.sadd(ALL_SETS_KEY, timechunks_key)
               redis.sadd(timechunk_key, serialize_data)
             end
 

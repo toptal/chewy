@@ -1,0 +1,42 @@
+version: 2
+registries:
+  toptal-github:
+    type: "git"
+    url: "https://github.com"
+    username: "x-access-token"
+    password: "${{secrets.DEPENDABOT_GITHUB_TOKEN}}"
+
+updates:
+  - package-ecosystem: bundler
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "wednesday"
+      time: "07:00"
+    pull-request-branch-name:
+      separator: "-"
+    labels:
+      - "no-jira"
+      - "ruby"
+      - "dependencies"
+    reviewers:
+      - "toptal/devx"
+    registries:
+      - toptal-github
+    insecure-external-code-execution: allow
+    open-pull-requests-limit: 3
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "wednesday"
+      time: "07:00"
+    pull-request-branch-name:
+      separator: "-"
+    labels:
+      - "no-jira"
+      - "dependencies"
+      - "gha"
+    reviewers:
+      - "toptal/devx"
+    open-pull-requests-limit: 3

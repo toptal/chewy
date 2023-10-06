@@ -24,7 +24,7 @@ Gem::Specification.new do |spec| # rubocop:disable Metrics/BlockLength
   spec.add_development_dependency 'rspec', '>= 3.7.0'
   spec.add_development_dependency 'rspec-collection_matchers'
   spec.add_development_dependency 'rspec-its'
-  spec.add_development_dependency 'rubocop', '1.11'
+  spec.add_development_dependency 'rubocop', '1.56.4'
   spec.add_development_dependency 'sqlite3'
   spec.add_development_dependency 'timecop'
 

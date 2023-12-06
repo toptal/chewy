@@ -24,7 +24,11 @@ module Chewy
 
       subject = payload[:type].presence || payload[:index]
       action = "#{subject} #{action} (#{event.duration.round(1)}ms)"
-      action = color(action, GREEN, true)
+      action = if ActiveSupport.version >= Gem::Version.new('7.1')
+        color(action, GREEN, bold: true)
+      else
+        color(action, GREEN, true)
+      end
 
       debug("  #{action} #{description}")
     end

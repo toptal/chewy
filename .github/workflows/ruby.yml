@@ -16,7 +16,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        ruby: [2.6, 2.7]
+        ruby: [2.7]
         gemfile: [rails.5.2.activerecord, rails.6.0.activerecord, rails.6.1.activerecord]
     name: ${{ matrix.ruby }}-${{ matrix.gemfile }}
 

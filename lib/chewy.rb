@@ -1,3 +1,4 @@
+require 'active_support'
 require 'active_support/version'
 require 'active_support/concern'
 require 'active_support/deprecation'

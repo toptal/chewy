@@ -4,6 +4,8 @@
 
 ### New Features
 
+* [#907](https://github.com/toptal/chewy/pull/907): Fix deprecation warning in LogSubscriber for Rails 7.1 ([@alejandroperea](https://github.com/alejandroperea))
+
 ### Changes
 
 ### Bugs Fixed

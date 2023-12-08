@@ -321,7 +321,7 @@ describe Chewy::Search::Request do
         expect(subject.send(name, foo: {bar: 42}).send(name, moo: {baz: 43}).render[:body])
           .to include(name => {'moo' => {baz: 43}})
       end
-      specify { expect(subject.send(name, foo: {bar: 42}).collapse(nil).render[:body]).to be_blank }
+      specify { expect(subject.send(name, foo: {bar: 42}).send(name, nil).render[:body]).to be_blank }
       specify { expect { subject.send(name, foo: {bar: 42}) }.not_to change { subject.render } }
     end
   end

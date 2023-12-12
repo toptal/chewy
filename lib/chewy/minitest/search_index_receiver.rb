@@ -6,6 +6,8 @@
 # The class will capture the data from the *param on the Chewy::Index.bulk method and
 # aggregate the data for test analysis.
 class SearchIndexReceiver
+  MUTATION_FOR_CLASS = Struct.new(:indexes, :deletes, keyword_init: true)
+
   def initialize
     @mutations = {}
   end
@@ -71,6 +73,6 @@ private
   # @param index [Chewy::Index] the index to fetch.
   # @return [#indexes, #deletes] an object with a list of indexes and a list of deletes.
   def mutation_for(index)
-    @mutations[index] ||= OpenStruct.new(indexes: [], deletes: [])
+    @mutations[index] ||= MUTATION_FOR_CLASS.new(indexes: [], deletes: [])
   end
 end

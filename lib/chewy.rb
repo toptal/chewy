@@ -48,7 +48,7 @@ require 'chewy/index'
 require 'chewy/fields/base'
 require 'chewy/fields/root'
 require 'chewy/journal'
-require 'chewy/railtie' if defined?(::Rails::Railtie)
+require 'chewy/railtie' if defined?(Rails::Railtie)
 
 ActiveSupport.on_load(:active_record) do
   include Chewy::Index::Observe::ActiveRecordMethods

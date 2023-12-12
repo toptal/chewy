@@ -1,7 +1,5 @@
 source 'https://rubygems.org'
 
-gemspec
-
 gem 'activerecord'
 
 gem 'activejob', require: false
@@ -19,3 +17,6 @@ gem 'redcarpet'
 gem 'yard'
 
 gem 'rexml'
+
+eval_gemfile 'gemfiles/base.gemfile'
+gemspec

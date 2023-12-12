@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-if defined?(::ActiveJob)
+if defined?(ActiveJob)
   describe Chewy::Strategy::ActiveJob do
     around do |example|
       active_job_settings = Chewy.settings[:active_job]
@@ -9,12 +9,12 @@ if defined?(::ActiveJob)
       Chewy.settings[:active_job] = active_job_settings
     end
     before(:all) do
-      ::ActiveJob::Base.logger = Chewy.logger
+      ActiveJob::Base.logger = Chewy.logger
     end
     before do
-      ::ActiveJob::Base.queue_adapter = :test
-      ::ActiveJob::Base.queue_adapter.enqueued_jobs.clear
-      ::ActiveJob::Base.queue_adapter.performed_jobs.clear
+      ActiveJob::Base.queue_adapter = :test
+      ActiveJob::Base.queue_adapter.enqueued_jobs.clear
+      ActiveJob::Base.queue_adapter.performed_jobs.clear
     end
 
     before do
@@ -39,7 +39,7 @@ if defined?(::ActiveJob)
       Chewy.strategy(:active_job) do
         [city, other_city].map(&:save!)
       end
-      enqueued_job = ::ActiveJob::Base.queue_adapter.enqueued_jobs.first
+      enqueued_job = ActiveJob::Base.queue_adapter.enqueued_jobs.first
       expect(enqueued_job[:job]).to eq(Chewy::Strategy::ActiveJob::Worker)
       expect(enqueued_job[:queue]).to eq('low')
     end
@@ -48,12 +48,12 @@ if defined?(::ActiveJob)
       Chewy.strategy(:active_job) do
         [city, other_city].map(&:save!)
       end
-      enqueued_job = ::ActiveJob::Base.queue_adapter.enqueued_jobs.first
+      enqueued_job = ActiveJob::Base.queue_adapter.enqueued_jobs.first
       expect(enqueued_job[:queue]).to eq('low')
     end
 
     specify do
-      ::ActiveJob::Base.queue_adapter = :inline
+      ActiveJob::Base.queue_adapter = :inline
       expect { [city, other_city].map(&:save!) }
         .to update_index(CitiesIndex, strategy: :active_job)
         .and_reindex(city, other_city).only

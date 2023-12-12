@@ -5,6 +5,7 @@
 ### New Features
 
 * [#890](https://github.com/toptal/chewy/pull/890): Add the [`knn`](https://www.elastic.co/guide/en/elasticsearch/reference/current/knn-search.html) option to the request. ([@jkostolansky][])
+* [#911](https://github.com/toptal/chewy/pull/911): Remove ruby 2.x. ([@konalegi][])
 
 ### Changes
 

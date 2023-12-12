@@ -59,7 +59,7 @@ describe Chewy do
       Chewy.current[:chewy_client] = nil
       allow(Chewy).to receive_messages(configuration: {transport_options: {proc: faraday_block}})
 
-      allow(::Elasticsearch::Client).to receive(:new).with(expected_client_config) do |*_args, &passed_block|
+      allow(Elasticsearch::Client).to receive(:new).with(expected_client_config) do |*_args, &passed_block|
         # RSpec's `with(..., &block)` was used previously, but doesn't actually do
         # any verification of the passed block (even of its presence).
         expect(passed_block.source_location).to eq(faraday_block.source_location)

@@ -347,9 +347,9 @@ module Chewy
         return if journal_exists?
 
         output.puts "############################################################\n" \
-                    "WARN: You are risking to lose some changes during the reset.\n" \
-                    "      Please consider enabling journaling.\n" \
-                    "      See https://github.com/toptal/chewy#journaling\n" \
+                    "WARN: You are risking to lose some changes during the reset.\n      " \
+                    "Please consider enabling journaling.\n      " \
+                    "See https://github.com/toptal/chewy#journaling\n" \
                     '############################################################'
       end
 

@@ -35,7 +35,7 @@ module Chewy
         # @param other [Chewy::Search::Parameters::Storage] any storage instance
         # @return [true, false] the result of comparision
         def ==(other)
-          super || other.class == self.class && other.value == value
+          super || (other.class == self.class && other.value == value)
         end
 
         # Replaces current value with normalized provided one. Doesn't

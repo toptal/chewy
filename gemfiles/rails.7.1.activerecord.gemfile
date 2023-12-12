@@ -11,3 +11,4 @@ gem 'sidekiq', require: false
 gem 'rexml'
 
 gemspec path: '../'
+eval_gemfile 'base.gemfile'

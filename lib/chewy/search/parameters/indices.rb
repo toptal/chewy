@@ -17,7 +17,7 @@ module Chewy
         # @param other [Chewy::Search::Parameters::Storage] any storage instance
         # @return [true, false] the result of comparison
         def ==(other)
-          super || other.class == self.class && other.render == render
+          super || (other.class == self.class && other.render == render)
         end
 
         # Just adds indices to indices.

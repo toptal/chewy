@@ -215,8 +215,8 @@ describe Chewy::Index::Import do
           payload = subscribe_notification
           import dummy_cities, batch_size: 2
           expect(payload).to eq(index: CitiesIndex,
-            errors: {index: {mapper_parsing_exception => %w[1 2 3]}},
-            import: {index: 3})
+                                errors: {index: {mapper_parsing_exception => %w[1 2 3]}},
+                                import: {index: 3})
         end
       end
     end
@@ -567,7 +567,7 @@ describe Chewy::Index::Import do
     before do
       stub_index(:cities) do
         crutch :names do |collection|
-          collection.map { |o| [o.name, "#{o.name}42"] }.to_h
+          collection.to_h { |o| [o.name, "#{o.name}42"] }
         end
         field :name, value: ->(o, c) { c.names[o.name] }
         field :rating

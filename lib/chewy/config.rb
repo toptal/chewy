@@ -127,17 +127,19 @@ module Chewy
   private
 
     def yaml_settings
-      @yaml_settings ||= begin
-        if defined?(Rails::VERSION)
-          file = Rails.root.join('config', 'chewy.yml')
+      @yaml_settings ||= build_yaml_settings || {}
+    end
 
-          if File.exist?(file)
-            yaml = ERB.new(File.read(file)).result
-            hash = YAML.respond_to?(:unsafe_load) ? YAML.unsafe_load(yaml) : YAML.load(yaml) # rubocop:disable Security/YAMLLoad
-            hash[Rails.env].try(:deep_symbolize_keys) if hash
-          end
-        end || {}
-      end
+    def build_yaml_settings
+      return unless defined?(Rails::VERSION)
+
+      file = Rails.root.join('config', 'chewy.yml')
+
+      return unless File.exist?(file)
+
+      yaml = ERB.new(File.read(file)).result
+      hash = YAML.unsafe_load(yaml)
+      hash[Rails.env].try(:deep_symbolize_keys) if hash
     end
 
     def build_search_class(base)

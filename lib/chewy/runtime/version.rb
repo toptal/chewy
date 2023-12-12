@@ -5,7 +5,7 @@ module Chewy
       attr_reader :major, :minor, :patch
 
       def initialize(version)
-        @major, @minor, @patch = *(version.to_s.split('.', 3) + [0] * 3).first(3).map(&:to_i)
+        @major, @minor, @patch = *(version.to_s.split('.', 3) + ([0] * 3)).first(3).map(&:to_i)
       end
 
       def to_s

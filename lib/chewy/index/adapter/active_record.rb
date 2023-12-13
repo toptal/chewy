@@ -6,7 +6,7 @@ module Chewy
       class ActiveRecord < Orm
         def self.accepts?(target)
           defined?(::ActiveRecord::Base) && (
-            target.is_a?(Class) && target < ::ActiveRecord::Base ||
+            (target.is_a?(Class) && target < ::ActiveRecord::Base) ||
             target.is_a?(::ActiveRecord::Relation))
         end
 

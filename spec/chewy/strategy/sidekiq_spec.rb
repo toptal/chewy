@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-if defined?(::Sidekiq)
+if defined?(Sidekiq)
   require 'sidekiq/testing'
 
   describe Chewy::Strategy::Sidekiq do
@@ -10,7 +10,7 @@ if defined?(::Sidekiq)
       Chewy.strategy(:bypass) { example.run }
       Chewy.settings[:sidekiq] = sidekiq_settings
     end
-    before { ::Sidekiq::Worker.clear_all }
+    before { Sidekiq::Worker.clear_all }
     before do
       stub_model(:city) do
         update_index('cities') { self }
@@ -30,8 +30,8 @@ if defined?(::Sidekiq)
     end
 
     specify do
-      expect(::Sidekiq::Client).to receive(:push).with(hash_including('queue' => 'low')).and_call_original
-      ::Sidekiq::Testing.inline! do
+      expect(Sidekiq::Client).to receive(:push).with(hash_including('queue' => 'low')).and_call_original
+      Sidekiq::Testing.inline! do
         expect { [city, other_city].map(&:save!) }
           .to update_index(CitiesIndex, strategy: :sidekiq)
           .and_reindex(city, other_city).only

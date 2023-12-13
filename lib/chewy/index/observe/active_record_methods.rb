@@ -71,7 +71,7 @@ module Chewy
             end
           end
 
-          ruby2_keywords def update_index(type_name, *args, &block)
+          def update_index(type_name, *args, &block)
             callback_options = Observe.extract_callback_options!(args)
             update_proc = Observe.update_proc(type_name, *args, &block)
             callback = Chewy::Index::Observe::Callback.new(update_proc, callback_options)

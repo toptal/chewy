@@ -105,10 +105,10 @@ Total: \\d+s\\Z
         expect { described_class.reset(only: [CitiesIndex], output: output) }
           .to update_index(CitiesIndex)
         expect(output.string).to include(
-          "############################################################\n"\
-          "WARN: You are risking to lose some changes during the reset.\n" \
-          "      Please consider enabling journaling.\n" \
-          '      See https://github.com/toptal/chewy#journaling'
+          "############################################################\n" \
+          "WARN: You are risking to lose some changes during the reset.\n      " \
+          "Please consider enabling journaling.\n      " \
+          'See https://github.com/toptal/chewy#journaling'
         )
       end
     end

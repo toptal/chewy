@@ -24,6 +24,8 @@ describe :search_index_receiver do
     SearchIndexReceiver.new
   end
 
+  let(:dummy_class) { Struct.new(:id) }
+
   before do
     stub_index(:dummies) do
       root value: ->(_o) { {} }
@@ -82,12 +84,12 @@ describe :search_index_receiver do
     end
 
     specify 'validates that an object was indexed' do
-      dummy = OpenStruct.new(id: 1)
+      dummy = dummy_class.new(1)
       expect(receiver.indexed?(dummy, DummiesIndex)).to be(true)
     end
 
     specify 'doesn\'t validate than unindexed objects were indexed' do
-      dummy = OpenStruct.new(id: 2)
+      dummy = dummy_class.new(2)
       expect(receiver.indexed?(dummy, DummiesIndex)).to be(false)
     end
   end
@@ -98,12 +100,12 @@ describe :search_index_receiver do
     end
 
     specify 'validates than an object was deleted' do
-      dummy = OpenStruct.new(id: 1)
+      dummy = dummy_class.new(1)
       expect(receiver.deleted?(dummy, DummiesIndex)).to be(true)
     end
 
     specify 'doesn\'t validate than undeleted objects were deleted' do
-      dummy = OpenStruct.new(id: 2)
+      dummy = dummy_class.new(2)
       expect(receiver.deleted?(dummy, DummiesIndex)).to be(false)
     end
   end

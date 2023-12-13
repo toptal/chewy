@@ -108,7 +108,7 @@ RSpec::Matchers.define :update_index do |index_name, options = {}| # rubocop:dis
       params_matcher = @no_refresh ? has_entry(refresh: false) : any_parameters
       Chewy::Index::Import::BulkRequest.stubs(:new).with(index, params_matcher).returns(mock_bulk_request)
     else
-      mocked_already = ::RSpec::Mocks.space.proxy_for(Chewy::Index::Import::BulkRequest).method_double_if_exists_for_message(:new)
+      mocked_already = RSpec::Mocks.space.proxy_for(Chewy::Index::Import::BulkRequest).method_double_if_exists_for_message(:new)
       allow(Chewy::Index::Import::BulkRequest).to receive(:new).and_call_original unless mocked_already
       params_matcher = @no_refresh ? hash_including(refresh: false) : any_args
       allow(Chewy::Index::Import::BulkRequest).to receive(:new).with(index, params_matcher).and_return(mock_bulk_request)
@@ -220,7 +220,7 @@ RSpec::Matchers.define :update_index do |index_name, options = {}| # rubocop:dis
     expected_count = options[:times] || options[:count]
     expected_attributes = (options[:with] || options[:attributes] || {}).deep_symbolize_keys
 
-    args.flatten.map do |document|
+    args.flatten.to_h do |document|
       id = document.respond_to?(:id) ? document.id.to_s : document.to_s
       [id, {
         document: document,
@@ -229,7 +229,7 @@ RSpec::Matchers.define :update_index do |index_name, options = {}| # rubocop:dis
         real_count: 0,
         real_attributes: {}
       }]
-    end.to_h
+    end
   end
 
   def compare_attributes(expected, real)

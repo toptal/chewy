@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe :rspec_helper do
-  include ::Chewy::Rspec::Helpers
+  include Chewy::Rspec::Helpers
 
   before do
     stub_model(:city)

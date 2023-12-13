@@ -43,7 +43,7 @@ Or install it yourself as:
 
 ### Ruby
 
-Chewy is compatible with MRI 2.6-3.0¹.
+Chewy is compatible with MRI 3.0-3.2¹.
 
 > ¹ Ruby 3 is only supported with Rails 6.1
 

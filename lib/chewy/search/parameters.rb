@@ -1,5 +1,5 @@
-Dir.glob(File.join(File.dirname(__FILE__), 'parameters', 'concerns', '*.rb')).sort.each { |f| require f }
-Dir.glob(File.join(File.dirname(__FILE__), 'parameters', '*.rb')).sort.each { |f| require f }
+Dir.glob(File.join(File.dirname(__FILE__), 'parameters', 'concerns', '*.rb')).each { |f| require f }
+Dir.glob(File.join(File.dirname(__FILE__), 'parameters', '*.rb')).each { |f| require f }
 
 module Chewy
   module Search
@@ -53,7 +53,7 @@ module Chewy
       # @param other [Object] any object
       # @return [true, false]
       def ==(other)
-        super || other.is_a?(self.class) && compare_storages(other)
+        super || (other.is_a?(self.class) && compare_storages(other))
       end
 
       # Clones the specified storage, performs the operation

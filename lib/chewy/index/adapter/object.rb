@@ -85,7 +85,7 @@ module Chewy
         # @param args [Array<#to_json>]
         # @option options [Integer] :batch_size import processing batch size
         # @return [true, false]
-        ruby2_keywords def import(*args, &block)
+        def import(*args, &block)
           collection, options = import_args(*args)
           import_objects(collection, options, &block)
         end
@@ -113,7 +113,7 @@ module Chewy
         #   end
         #
         # @see Chewy::Index::Adapter::Base#import_fields
-        ruby2_keywords def import_fields(*args, &block)
+        def import_fields(*args, &block)
           return enum_for(:import_fields, *args) unless block_given?
 
           options = args.extract_options!
@@ -139,7 +139,7 @@ module Chewy
         # For the Object adapter returns the objects themselves in batches.
         #
         # @see Chewy::Index::Adapter::Base#import_references
-        ruby2_keywords def import_references(*args, &block)
+        def import_references(*args, &block)
           return enum_for(:import_references, *args) unless block_given?
 
           collection, options = import_args(*args)

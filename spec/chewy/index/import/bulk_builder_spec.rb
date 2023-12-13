@@ -132,7 +132,7 @@ describe Chewy::Index::Import::BulkBuilder do
       before do
         stub_index(:cities) do
           crutch :names do |collection|
-            collection.map { |item| [item.id, "Name#{item.id}"] }.to_h
+            collection.to_h { |item| [item.id, "Name#{item.id}"] }
           end
 
           field :name, value: ->(o, c) { c.names[o.id] }
@@ -198,7 +198,7 @@ describe Chewy::Index::Import::BulkBuilder do
           index_scope Comment
 
           crutch :content_with_crutches do |collection| # collection here is a current batch of products
-            collection.map { |comment| [comment.id, "[crutches] #{comment.content}"] }.to_h
+            collection.to_h { |comment| [comment.id, "[crutches] #{comment.content}"] }
           end
 
           field :content
@@ -272,7 +272,7 @@ describe Chewy::Index::Import::BulkBuilder do
             default_import_options raw_import: ->(hash) { SimpleComment.new(hash) }
 
             crutch :content_with_crutches do |collection| # collection here is a current batch of products
-              collection.map { |comment| [comment.id, "[crutches] #{comment.content}"] }.to_h
+              collection.to_h { |comment| [comment.id, "[crutches] #{comment.content}"] }
             end
 
             field :content

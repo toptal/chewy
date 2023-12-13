@@ -8,6 +8,7 @@ gem 'parallel', require: false
 gem 'rspec_junit_formatter', '~> 0.4.1'
 gem 'sidekiq', require: false
 
-gem 'rexml' if RUBY_VERSION >= '3.0.0'
+gem 'rexml'
 
 gemspec path: '../'
+eval_gemfile 'base.gemfile'

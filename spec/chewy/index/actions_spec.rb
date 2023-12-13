@@ -610,7 +610,7 @@ describe Chewy::Index::Actions do
       specify 'with journal application' do
         cities
         p 'cities created1'
-        ::ActiveRecord::Base.connection.close if defined?(::ActiveRecord::Base)
+        ActiveRecord::Base.connection.close if defined?(ActiveRecord::Base)
         [
           parallel_update,
           Thread.new do
@@ -619,7 +619,7 @@ describe Chewy::Index::Actions do
             p 'end reset1'
           end
         ].map(&:join)
-        ::ActiveRecord::Base.connection.reconnect! if defined?(::ActiveRecord::Base)
+        ActiveRecord::Base.connection.reconnect! if defined?(ActiveRecord::Base)
         p 'expect1'
         expect(CitiesIndex::City.pluck(:_id, :name)).to contain_exactly(%w[1 NewName1], %w[2 Name2], %w[3 NewName3])
         p 'end expect1'
@@ -628,7 +628,7 @@ describe Chewy::Index::Actions do
       specify 'without journal application' do
         cities
         p 'cities created2'
-        ::ActiveRecord::Base.connection.close if defined?(::ActiveRecord::Base)
+        ActiveRecord::Base.connection.close if defined?(ActiveRecord::Base)
         [
           parallel_update,
           Thread.new do
@@ -637,7 +637,7 @@ describe Chewy::Index::Actions do
             p 'end reset2'
           end
         ].map(&:join)
-        ::ActiveRecord::Base.connection.reconnect! if defined?(::ActiveRecord::Base)
+        ActiveRecord::Base.connection.reconnect! if defined?(ActiveRecord::Base)
         p 'expect2'
         expect(CitiesIndex::City.pluck(:_id, :name)).to contain_exactly(%w[1 Name1], %w[2 Name2], %w[3 Name3])
         p 'end expect2'

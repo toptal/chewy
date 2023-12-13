@@ -162,12 +162,12 @@ module Chewy
             .filter(ids: {values: ids_for_cache})
             .order('_doc')
             .pluck(:_id, :_routing, join_field)
-            .map do |id, routing, join|
+            .to_h do |id, routing, join|
               [
                 id,
                 {routing: routing, parent_id: join['parent']}
               ]
-            end.to_h
+            end
         end
 
         def existing_routing(id)

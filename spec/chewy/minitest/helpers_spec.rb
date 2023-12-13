@@ -10,7 +10,7 @@ describe :minitest_helper do
     expect(haystack).to include(needle)
   end
 
-  include ::Chewy::Minitest::Helpers
+  include Chewy::Minitest::Helpers
 
   def assert_equal(expected, actual, message)
     raise message unless expected == actual

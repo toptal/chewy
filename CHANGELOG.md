@@ -8,12 +8,21 @@
 
 ### Bugs Fixed
 
+## 7.4.0 (2023-12-13)
+
+### New Features
+
+### Changes
+
+* [#911](https://github.com/toptal/chewy/pull/911): Remove ruby 2.x. ([@konalegi][https://github.com/konalegi])
+
+### Bugs Fixed
+
 ## 7.3.5 (2023-12-13)
 
 ### New Features
 
 * [#890](https://github.com/toptal/chewy/pull/890): Add the [`knn`](https://www.elastic.co/guide/en/elasticsearch/reference/current/knn-search.html) option to the request. ([@jkostolansky][])
-* [#911](https://github.com/toptal/chewy/pull/911): Remove ruby 2.x. ([@konalegi][])
 
 ### Changes
 

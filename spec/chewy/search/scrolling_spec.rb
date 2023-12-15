@@ -33,6 +33,56 @@ describe Chewy::Search::Scrolling, :orm do
     let(:countries) { Array.new(3) { |i| Country.create!(rating: i + 2, name: "country #{i}") } }
 
     describe '#scroll_batches' do
+      describe 'with search backend returning failures' do
+        before do
+          expect(Chewy.client).to receive(:scroll).once.and_return(
+            'hits' => {
+              'total' => {
+                'value' => 5
+              },
+              'hits' => []
+            },
+            '_shards' => {
+              'total' => 5,
+              'successful' => 2,
+              'skipped' => 0,
+              'failed' => 3,
+              'failures' => [
+                {
+                  'shard' => -1,
+                  'index' => nil,
+                  'reason' => {
+                    'type' => 'search_context_missing_exception',
+                    'reason' => 'No search context found for id [34462229]'
+                  }
+                },
+                {
+                  'shard' => -1,
+                  'index' => nil,
+                  'reason' => {
+                    'type' => 'search_context_missing_exception',
+                    'reason' => 'No search context found for id [34462228]'
+                  }
+                },
+                {
+                  'shard' => -1,
+                  'index' => nil,
+                  'reason' => {
+                    'type' => 'search_context_missing_exception',
+                    'reason' => 'No search context found for id [34888662]'
+                  }
+                }
+              ]
+            },
+            '_scroll_id' => 'scroll_id'
+          )
+        end
+
+        specify do
+          expect { request.scroll_batches(batch_size: 2) {} }.to raise_error(Chewy::Error)
+        end
+      end
+
       context do
         before { expect(Chewy.client).to receive(:scroll).twice.and_call_original }
         specify do

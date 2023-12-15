@@ -34,6 +34,9 @@ module Chewy
         scroll_id = nil
 
         loop do
+          failures = result.dig('_shards', 'failures')
+          raise Chewy::Error, failures if failures.present?
+
           hits = result.fetch('hits', {}).fetch('hits', [])
           fetched += hits.size
           hits = hits.first(last_batch_size) if last_batch_size != 0 && fetched >= total

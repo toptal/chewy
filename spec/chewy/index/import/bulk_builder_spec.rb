@@ -216,7 +216,7 @@ describe Chewy::Index::Import::BulkBuilder do
       end
 
       def do_raw_index_comment(options:, data:)
-        CommentsIndex.client.index(options.merge(index: 'comments', type: '_doc', refresh: true, body: data))
+        CommentsIndex.client.index(options.merge(index: 'comments', refresh: true, body: data))
       end
 
       def raw_index_comment(comment)

@@ -11,13 +11,14 @@ Gem::Specification.new do |spec|
   spec.description   = 'Chewy provides functionality for Elasticsearch index handling, documents import mappings and chainable query DSL'
   spec.homepage      = 'https://github.com/toptal/chewy'
   spec.license       = 'MIT'
+  spec.required_ruby_version = '~> 3.0'
 
   spec.files         = `git ls-files`.split($RS)
   spec.executables   = spec.files.grep(%r{^bin/}) { |f| File.basename(f) }
   spec.require_paths = ['lib']
 
-  spec.add_dependency 'activesupport', '>= 5.2' # Remove with major version bump, 8.x
-  spec.add_dependency 'elasticsearch', '>= 7.14.0', '< 8'
+  spec.add_dependency 'activesupport', '>= 6.1'
+  spec.add_dependency 'elasticsearch', '>= 8.11', '< 9.0'
   spec.add_dependency 'elasticsearch-dsl'
   spec.metadata['rubygems_mfa_required'] = 'true'
 end

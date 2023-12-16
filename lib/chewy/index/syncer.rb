@@ -213,7 +213,7 @@ module Chewy
         @outdated_sync_field_type = mappings
           .fetch('properties', {})
           .fetch(@index.outdated_sync_field.to_s, {})['type']
-      rescue Elasticsearch::Transport::Transport::Errors::NotFound
+      rescue Elastic::Transport::Transport::Errors::NotFound
         nil
       end
     end

@@ -854,7 +854,7 @@ module Chewy
         else
           Chewy.client.count(only(WHERE_STORAGES).render)['count']
         end
-      rescue Elasticsearch::Transport::Transport::Errors::NotFound
+      rescue Elastic::Transport::Transport::Errors::NotFound
         0
       end
 
@@ -1035,7 +1035,7 @@ module Chewy
         request_body = render.merge(additional)
         ActiveSupport::Notifications.instrument 'search_query.chewy', notification_payload(request: request_body) do
           Chewy.client.search(request_body)
-        rescue Elasticsearch::Transport::Transport::Errors::NotFound
+        rescue Elastic::Transport::Transport::Errors::NotFound
           {}
         end
       end

@@ -4,6 +4,8 @@
 
 ### New Features
 
+* [#894](https://github.com/toptal/chewy/pull/894): Way of cleaning redis from artifacts left by `delayed_sidekiq` strategy which could potentially cause flaky tests. ([@Drowze](https://github.com/Drowze))
+
 ### Changes
 
 ### Bugs Fixed

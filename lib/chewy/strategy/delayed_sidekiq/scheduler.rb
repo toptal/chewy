@@ -12,13 +12,43 @@ module Chewy
     class DelayedSidekiq
       require_relative 'worker'
 
+      LUA_SCRIPT = <<~LUA
+        local timechunk_key = KEYS[1]
+        local timechunks_key = KEYS[2]
+        local serialize_data = ARGV[1]
+        local at = ARGV[2]
+        local ttl = tonumber(ARGV[3])
+
+        local schedule_job = false
+
+        -- Check if the 'sadd?' method is available
+        if redis.call('exists', 'sadd?') == 1 then
+          redis.call('sadd?', timechunk_key, serialize_data)
+        else
+          redis.call('sadd', timechunk_key, serialize_data)
+        end
+
+        -- Set expiration for timechunk_key
+        redis.call('expire', timechunk_key, ttl)
+
+        -- Check if timechunk_key exists in the sorted set
+        if not redis.call('zrank', timechunks_key, timechunk_key) then
+            -- Add timechunk_key to the sorted set
+            redis.call('zadd', timechunks_key, at, timechunk_key)
+            -- Set expiration for timechunks_key
+            redis.call('expire', timechunks_key, ttl)
+            schedule_job = true
+        end
+
+        return schedule_job
+      LUA
+
       class Scheduler
         DEFAULT_TTL = 60 * 60 * 24 # in seconds
         DEFAULT_LATENCY = 10
         DEFAULT_MARGIN = 2
         DEFAULT_QUEUE = 'chewy'
         KEY_PREFIX = 'chewy:delayed_sidekiq'
-        ALL_SETS_KEY = "#{KEY_PREFIX}:all_sets".freeze
         FALLBACK_FIELDS = 'all'
         FIELDS_IDS_SEPARATOR = ';'
         IDS_SEPARATOR = ','
@@ -67,21 +97,8 @@ module Chewy
         #                                                       |      chewy:delayed_sidekiq:CitiesIndex:1679347868
         def postpone
           ::Sidekiq.redis do |redis|
-            # warning: Redis#sadd will always return an Integer in Redis 5.0.0. Use Redis#sadd? instead
-            if redis.respond_to?(:sadd?)
-              redis.sadd?(ALL_SETS_KEY, timechunks_key)
-              redis.sadd?(timechunk_key, serialize_data)
-            else
-              redis.sadd(ALL_SETS_KEY, timechunks_key)
-              redis.sadd(timechunk_key, serialize_data)
-            end
-
-            redis.expire(timechunk_key, ttl)
-
-            unless redis.zrank(timechunks_key, timechunk_key)
-              redis.zadd(timechunks_key, at, timechunk_key)
-              redis.expire(timechunks_key, ttl)
-
+            # do the redis stuff in a single command to avoid concurrency issues
+            if redis.eval(LUA_SCRIPT, keys: [timechunk_key, timechunks_key], argv: [serialize_data, at, ttl])
               ::Sidekiq::Client.push(
                 'queue' => sidekiq_queue,
                 'at' => at + margin,

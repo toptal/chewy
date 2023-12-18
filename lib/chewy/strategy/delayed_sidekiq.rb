@@ -9,11 +9,11 @@ module Chewy
       # leak and potential flaky tests.
       def self.clear_timechunks!
         ::Sidekiq.redis do |redis|
-          timechunk_sets = redis.smembers(Chewy::Strategy::DelayedSidekiq::Scheduler::ALL_SETS_KEY)
-          break if timechunk_sets.empty?
+          keys_to_delete = redis.keys("#{Scheduler::KEY_PREFIX}*")
 
-          redis.pipelined do |pipeline|
-            timechunk_sets.each { |set| pipeline.del(set) }
+          # Delete keys one by one
+          keys_to_delete.each do |key|
+            redis.del(key)
           end
         end
       end

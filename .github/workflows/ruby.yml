@@ -41,11 +41,11 @@ jobs:
         with:
           ruby-version: ${{ matrix.ruby }}
           bundler-cache: true
-      - name: Run Elasticsearch
-        uses: elastic/elastic-github-actions/elasticsearch@9de0f78f306e4ebc0838f057e6b754364685e759
-        with:
-          stack-version: 7.10.1
-          port: 9250
+      - name: Start containers
+        run: |
+          docker compose up elasticsearch_test -d
+          sleep 10
+
       - name: Tests
         run: bundle exec rspec
 

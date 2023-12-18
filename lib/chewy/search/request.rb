@@ -46,7 +46,7 @@ module Chewy
 
       delegate :hits, :wrappers, :objects, :records, :documents,
                :object_hash, :record_hash, :document_hash,
-               :total, :max_score, :took, :timed_out?, to: :response
+               :total, :max_score, :took, :timed_out?, :terminated_early?, to: :response
       delegate :each, :size, :to_a, :[], to: :wrappers
       alias_method :to_ary, :to_a
       alias_method :total_count, :total
@@ -891,7 +891,7 @@ module Chewy
       def first(limit = UNDEFINED)
         request_limit = limit == UNDEFINED ? 1 : limit
 
-        if performed? && (request_limit <= size || size == total)
+        if performed? && (terminated_early? || request_limit <= size || size == total)
           limit == UNDEFINED ? wrappers.first : wrappers.first(limit)
         else
           result = except(EXTRA_STORAGES).limit(request_limit).to_a

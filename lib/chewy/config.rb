@@ -38,7 +38,9 @@ module Chewy
                   # for type mappings like `_all`.
                   :default_root_options,
                   # Default field type for any field in any Chewy type. Defaults to 'text'.
-                  :default_field_type
+                  :default_field_type,
+                  # Callback called on each search request to be done into ES
+                  :before_es_request_filter
 
     attr_reader :transport_logger, :transport_tracer,
                 # Chewy search request DSL base class, used by every index.

@@ -29,22 +29,26 @@ module Chewy
 
         result = perform(size: batch_size, scroll: scroll)
         total = [raw_limit_value, result.fetch('hits', {}).fetch('total', {}).fetch('value', 0)].compact.min
+
+        total_batches = total / batch_size
         last_batch_size = total % batch_size
-        fetched = 0
+
+        total_batches += 1 if last_batch_size != 0
+
         scroll_id = nil
 
-        loop do
-          failures = result.dig('_shards', 'failures')
-          raise Chewy::Error, failures if failures.present?
+        total_batches.times do |batch_counter|
+          last_run = total_batches - 1 == batch_counter
 
           hits = result.fetch('hits', {}).fetch('hits', [])
-          fetched += hits.size
-          hits = hits.first(last_batch_size) if last_batch_size != 0 && fetched >= total
+          hits = hits.first(last_batch_size) if last_run && last_batch_size != 0
+
+          raise Chewy::MissingHitsInScrollError if hits.empty?
+
           yield(hits) if hits.present?
           scroll_id = result['_scroll_id']
-          break if fetched >= total
 
-          result = perform_scroll(scroll: scroll, scroll_id: scroll_id)
+          result = perform_scroll(scroll: scroll, scroll_id: scroll_id) unless last_run
         end
       ensure
         Chewy.client.clear_scroll(body: {scroll_id: scroll_id}) if scroll_id

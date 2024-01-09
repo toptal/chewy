@@ -79,7 +79,7 @@ describe Chewy::Search::Scrolling, :orm do
         end
 
         specify do
-          expect { request.scroll_batches(batch_size: 2) {} }.to raise_error(Chewy::Error)
+          expect { request.scroll_batches(batch_size: 2) {} }.to raise_error(Chewy::MissingHitsInScrollError)
         end
       end
 

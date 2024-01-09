@@ -1275,14 +1275,6 @@ If you use `DatabaseCleaner` in your tests with [the `transaction` strategy](htt
 Chewy.use_after_commit_callbacks = !Rails.env.test?
 ```
 
-## Running specs
-
-Make sure you're running a local Elasticsearch instance.
-
-```
-ES_PORT=9200 bundle exec rspec
-```
-
 ## Contributing
 
 1. Fork it (http://github.com/toptal/chewy/fork)

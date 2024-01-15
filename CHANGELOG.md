@@ -5,6 +5,7 @@
 ### New Features
 
 * [#894](https://github.com/toptal/chewy/pull/894): Way of cleaning redis from artifacts left by `delayed_sidekiq` strategy which could potentially cause flaky tests. ([@Drowze](https://github.com/Drowze))
+* [#919](https://github.com/toptal/chewy/pull/919): Add pre-request filter ([@konalegi][https://github.com/konalegi])
 
 ### Changes
 

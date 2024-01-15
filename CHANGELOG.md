@@ -4,12 +4,16 @@
 
 ### New Features
 
-* [#894](https://github.com/toptal/chewy/pull/894): Way of cleaning redis from artifacts left by `delayed_sidekiq` strategy which could potentially cause flaky tests. ([@Drowze](https://github.com/Drowze))
-* [#919](https://github.com/toptal/chewy/pull/919): Add pre-request filter ([@konalegi][https://github.com/konalegi])
-
 ### Changes
 
 ### Bugs Fixed
+
+## 7.5.0 (2023-01-15)
+
+### New Features
+
+* [#894](https://github.com/toptal/chewy/pull/894): Way of cleaning redis from artifacts left by `delayed_sidekiq` strategy which could potentially cause flaky tests. ([@Drowze](https://github.com/Drowze))
+* [#919](https://github.com/toptal/chewy/pull/919): Add pre-request filter ([@konalegi][https://github.com/konalegi])
 
 ## 7.4.0 (2023-12-13)
 

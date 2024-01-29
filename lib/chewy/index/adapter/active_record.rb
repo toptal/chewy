@@ -13,9 +13,19 @@ module Chewy
       private
 
         def cleanup_default_scope!
-          if Chewy.logger && (@default_scope.arel.orders.present? ||
+          behavior = Chewy.config.import_scope_cleanup_behavior
+
+          if behavior != :ignore && (@default_scope.arel.orders.present? ||
              @default_scope.arel.limit.present? || @default_scope.arel.offset.present?)
-            Chewy.logger.warn('Default type scope order, limit and offset are ignored and will be nullified')
+            if behavior == :warn && Chewy.logger
+              gem_dir = File.realpath('../..', __dir__)
+              source = caller.grep_v(Regexp.new(gem_dir)).first
+              Chewy.logger.warn(
+                "Default type scope order, limit and offset are ignored and will be nullified (called from: #{source})"
+              )
+            elsif behavior == :raise
+              raise ImportScopeCleanupError, "Default type scope order, limit and offset are ignored and will be nullified"
+            end
           end
 
           @default_scope = @default_scope.reorder(nil).limit(nil).offset(nil)

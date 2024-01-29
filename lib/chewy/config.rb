@@ -40,7 +40,10 @@ module Chewy
                   # Default field type for any field in any Chewy type. Defaults to 'text'.
                   :default_field_type,
                   # Callback called on each search request to be done into ES
-                  :before_es_request_filter
+                  :before_es_request_filter,
+                  # Behavior when import scope for index includes order, offset or limit.
+                  # Can be :ignore, :warn, :raise. Defaults to :warn
+                  :import_scope_cleanup_behavior
 
     attr_reader :transport_logger, :transport_tracer,
                 # Chewy search request DSL base class, used by every index.
@@ -62,6 +65,7 @@ module Chewy
       @indices_path = 'app/chewy'
       @default_root_options = {}
       @default_field_type = 'text'.freeze
+      @import_scope_cleanup_behavior = :warn
       @search_class = build_search_class(Chewy::Search::Request)
     end
 

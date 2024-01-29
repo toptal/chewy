@@ -24,7 +24,7 @@ module Chewy
                 "Default type scope order, limit and offset are ignored and will be nullified (called from: #{source})"
               )
             elsif behavior == :raise
-              raise ImportScopeCleanupError, "Default type scope order, limit and offset are ignored and will be nullified"
+              raise ImportScopeCleanupError, 'Default type scope order, limit and offset are ignored and will be nullified'
             end
           end
 

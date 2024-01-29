@@ -4,6 +4,8 @@
 
 ### New Features
 
+* [#925](https://github.com/toptal/chewy/pull/925): Add configuration option for default scope cleanup behavior. ([@barthez][])
+
 ### Changes
 
 ### Bugs Fixed

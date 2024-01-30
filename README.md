@@ -1298,6 +1298,24 @@ While using the `before_es_request_filter`, please consider the following:
 * The return value of the proc is disregarded. This filter is intended for inspection or modification of the query rather than generating a response.
 * Any exception raised inside the callback will propagate upward and halt the execution of the query. It is essential to handle potential errors adequately to ensure the stability of your search functionality.
 
+### Import scope clean-up behavior
+
+Whenever you set the `import_scope` for the index, in the case of ActiveRecord,
+options for order, offset and limit will be removed. You can set the behavior of
+chewy, before the clean-up itself.
+
+The default behavior is a warning sent to the Chewy logger (`:warn`). Another more
+restrictive option is raising an exception (`:raise`). Both options have a
+negative impact on performance since verifying whether the code uses any of
+these options requires building AREL query.
+
+To avoid the loading time impact, you can ignore the check (`:ignore`) before
+the clean-up.
+
+```
+Chewy.import_scope_cleanup_behavior = :ignore
+```
+
 ## Contributing
 
 1. Fork it (http://github.com/toptal/chewy/fork)

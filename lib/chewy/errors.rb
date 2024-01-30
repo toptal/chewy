@@ -36,4 +36,7 @@ module Chewy
       super("`#{join_field_type}` set for the join field `#{join_field_name}` is not on the :relations list (#{relations})")
     end
   end
+
+  class ImportScopeCleanupError < Error
+  end
 end

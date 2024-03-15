@@ -39,7 +39,8 @@ module Chewy
           hits = hits.first(last_batch_size) if last_batch_size != 0 && fetched >= total
           yield(hits) if hits.present?
           scroll_id = result['_scroll_id']
-          break if fetched >= total
+
+          break if result['terminated_early'] || fetched >= total
 
           result = perform_scroll(scroll: scroll, scroll_id: scroll_id)
         end

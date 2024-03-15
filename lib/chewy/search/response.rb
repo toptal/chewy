@@ -47,6 +47,13 @@ module Chewy
         @timed_out ||= @body['timed_out']
       end
 
+      # Has the request been terminated early?
+      #
+      # @return [true, false]
+      def terminated_early?
+        @terminated_early ||= @body['terminated_early']
+      end
+
       # The `suggest` response part. Returns empty hash if suggests
       # were not requested.
       #

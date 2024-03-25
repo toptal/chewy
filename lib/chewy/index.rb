@@ -236,7 +236,7 @@ module Chewy
             raise "Type mapping must have 1 entry: #{type_mapping}"
           end
 
-          fields = type_mapping.reduce[1][:properties]
+          fields = type_mapping.reduce(:merge)[1][:properties]
           fields.each do |field_name, field_settings|
             existing_field_settings = mappings[:properties][field_name]
             if existing_field_settings && existing_field_settings != field_settings

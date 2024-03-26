@@ -17,7 +17,7 @@ Gem::Specification.new do |spec|
   spec.require_paths = ['lib']
 
   spec.add_dependency 'activesupport', '>= 5.2' # Remove with major version bump, 8.x
-  spec.add_dependency 'elasticsearch', '>= 7.12.0', '< 7.14.0'
+  spec.add_dependency 'elasticsearch', '>= 7.12.0', '< 8'
   spec.add_dependency 'elasticsearch-dsl'
   spec.metadata['rubygems_mfa_required'] = 'true'
 end

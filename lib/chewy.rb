@@ -192,3 +192,5 @@ module Chewy
 end
 
 require 'chewy/stash'
+
+# Sample change

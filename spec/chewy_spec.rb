@@ -111,7 +111,7 @@ describe Chewy do
       expect(CitiesIndex.exists?).to eq true
       expect(PlacesIndex.exists?).to eq true
 
-      expect { Chewy.create_indices! }.to raise_error(Elasticsearch::Transport::Transport::Errors::BadRequest)
+      expect { Chewy.create_indices! }.to raise_error(Elastic::Transport::Transport::Errors::BadRequest)
     end
   end
 end

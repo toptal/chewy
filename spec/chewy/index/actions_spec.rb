@@ -78,12 +78,12 @@ describe Chewy::Index::Actions do
       specify do
         expect do
           DummiesIndex.create!
-        end.to raise_error(Elasticsearch::Transport::Transport::Errors::BadRequest).with_message(/already exists.*dummies/)
+        end.to raise_error(Elastic::Transport::Transport::Errors::BadRequest).with_message(/already exists.*dummies/)
       end
       specify do
         expect do
           DummiesIndex.create!('2013')
-        end.to raise_error(Elasticsearch::Transport::Transport::Errors::BadRequest).with_message(/Invalid alias name \[dummies\]/)
+        end.to raise_error(Elastic::Transport::Transport::Errors::BadRequest).with_message(/Invalid alias name \[dummies\]/)
       end
     end
 
@@ -100,7 +100,7 @@ describe Chewy::Index::Actions do
       specify do
         expect do
           DummiesIndex.create!('2013')
-        end.to raise_error(Elasticsearch::Transport::Transport::Errors::BadRequest).with_message(/already exists.*dummies_2013/)
+        end.to raise_error(Elastic::Transport::Transport::Errors::BadRequest).with_message(/already exists.*dummies_2013/)
       end
       specify { expect(DummiesIndex.create!('2014')['acknowledged']).to eq(true) }
 
@@ -190,11 +190,11 @@ describe Chewy::Index::Actions do
   end
 
   describe '.delete!' do
-    specify { expect { DummiesIndex.delete! }.to raise_error(Elasticsearch::Transport::Transport::Errors::NotFound) }
+    specify { expect { DummiesIndex.delete! }.to raise_error(Elastic::Transport::Transport::Errors::NotFound) }
     specify do
       expect do
         DummiesIndex.delete!('2013')
-      end.to raise_error(Elasticsearch::Transport::Transport::Errors::NotFound)
+      end.to raise_error(Elastic::Transport::Transport::Errors::NotFound)
     end
 
     context do
@@ -768,7 +768,7 @@ describe Chewy::Index::Actions do
           .to receive(:clear_cache)
           .and_call_original
         expect { CitiesIndex.clear_cache({index: unexisted_index_name}) }
-          .to raise_error Elasticsearch::Transport::Transport::Errors::NotFound
+          .to raise_error Elastic::Transport::Transport::Errors::NotFound
       end
     end
 
@@ -820,7 +820,7 @@ describe Chewy::Index::Actions do
             .to receive(:reindex)
             .and_call_original
           expect { CitiesIndex.reindex(source: unexisting_index, dest: dest_index_with_prefix) }
-            .to raise_error Elasticsearch::Transport::Transport::Errors::NotFound
+            .to raise_error Elastic::Transport::Transport::Errors::NotFound
         end
       end
 
@@ -883,7 +883,7 @@ describe Chewy::Index::Actions do
       context 'index name' do
         specify do
           expect { CitiesIndex.update_mapping(unexisting_index, body_hash) }
-            .to raise_error Elasticsearch::Transport::Transport::Errors::NotFound
+            .to raise_error Elastic::Transport::Transport::Errors::NotFound
         end
       end
 

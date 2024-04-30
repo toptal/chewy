@@ -22,7 +22,7 @@ describe Chewy::Config do
 
     specify do
       expect { subject.transport_logger = logger }
-        .to change { Chewy.client.transport.logger }.to(logger)
+        .to change { Chewy.client.transport.transport.logger }.to(logger)
     end
     specify do
       expect { subject.transport_logger = logger }
@@ -40,7 +40,7 @@ describe Chewy::Config do
 
     specify do
       expect { subject.transport_tracer = tracer }
-        .to change { Chewy.client.transport.tracer }.to(tracer)
+        .to change { Chewy.client.transport.transport.tracer }.to(tracer)
     end
     specify do
       expect { subject.transport_tracer = tracer }

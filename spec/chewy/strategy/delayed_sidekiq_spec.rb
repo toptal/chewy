@@ -47,7 +47,7 @@ if defined?(Sidekiq)
           expect(Sidekiq::Client).to receive(:push).with(
             hash_including(
               'queue' => 'chewy',
-              'at' => (Time.current.to_i.ceil(-1) + 2.seconds).to_i,
+              'at' => expected_at_time.to_i,
               'class' => Chewy::Strategy::DelayedSidekiq::Worker,
               'args' => ['CitiesIndex', an_instance_of(Integer)]
             )
@@ -61,6 +61,11 @@ if defined?(Sidekiq)
               .and_reindex(city, other_city).only
           end
         end
+      end
+
+      def expected_at_time
+        target = described_class::Scheduler::DEFAULT_LATENCY.seconds.from_now.to_i
+        target - (target % described_class::Scheduler::DEFAULT_LATENCY) + described_class::Scheduler::DEFAULT_MARGIN.seconds
       end
     end
 

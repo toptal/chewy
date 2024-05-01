@@ -6,6 +6,8 @@
 
 ### Changes
 
+* [#933](https://github.com/toptal/chewy/pull/933): Relax allowed `elasticsearch` dependency versions. ([@mjankowski][])
+
 ### Bugs Fixed
 
 ## 7.5.1 (2024-01-30)

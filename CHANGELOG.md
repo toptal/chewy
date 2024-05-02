@@ -10,6 +10,8 @@
 
 ### Bugs Fixed
 
+* [#947](https://github.com/toptal/chewy/pull/947): Fix intermittent time-based failure in delayed sidekiq spec. ([@mjankowski][])
+
 ## 7.5.1 (2024-01-30)
 
 ### New Features

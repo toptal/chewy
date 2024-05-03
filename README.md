@@ -776,9 +776,12 @@ Chewy.settings[:sidekiq] = {queue: :low}
 
 #### `:delayed_sidekiq`
 
-It accumulates ids of records to be reindexed during the latency window in redis and then does the reindexing of all accumulated records at once.
-The strategy is very useful in case of frequently mutated records.
-It supports `update_fields` option, so it will try to select just enough data from the DB
+It accumulates IDs of records to be reindexed during the latency window in Redis and then performs the reindexing of all accumulated records at once. 
+This strategy is very useful in the case of frequently mutated records. 
+It supports the `update_fields` option, so it will attempt to select just enough data from the database.
+
+Keep in mind, this strategy does not guarantee reindexing in the event of Sidekiq worker termination or an error during the reindexing phase. 
+This behavior is intentional to prevent continuous growth of Redis db.
 
 There are three options that can be defined in the index:
 ```ruby

@@ -9,6 +9,7 @@
 * [#933](https://github.com/toptal/chewy/pull/933): Relax allowed `elasticsearch` dependency versions. ([@mjankowski][])
 
 ### Bugs Fixed
+* [#937](https://github.com/toptal/chewy/pull/937): Fix for race condition while using the `delayed_sidekiq` strategy. Also, fix for Redis bloating in case of reindexing error ([@skcc321](https://github.com/skcc321))
 
 * [#947](https://github.com/toptal/chewy/pull/947): Fix intermittent time-based failure in delayed sidekiq spec. ([@mjankowski][])
 

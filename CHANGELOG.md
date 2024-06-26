@@ -4,6 +4,8 @@
 
 ### New Features
 
+* [#950](https://github.com/toptal/chewy/issues/950): Adds supports for inner_hits in the search request. ([@JonathanFrias][])
+
 ### Changes
 
 ### Bugs Fixed

@@ -314,7 +314,7 @@ describe Chewy::Search::Request do
     end
   end
 
-  %i[collapse knn].each do |name|
+  %i[collapse knn inner_hits].each do |name|
     describe "##{name}" do
       specify { expect(subject.send(name, foo: {bar: 42}).render[:body]).to include(name => {'foo' => {bar: 42}}) }
       specify do

@@ -22,7 +22,7 @@ module Chewy
       DELEGATED_METHODS = %i[
         query filter post_filter knn order reorder docvalue_fields
         track_scores track_total_hits request_cache explain version profile
-        search_type preference limit offset terminate_after
+        search_type preference limit offset terminate_after inner_hits
         timeout min_score source stored_fields search_after
         load script_fields suggest aggs aggregations collapse none
         indices_boost rescore highlight total total_count
@@ -41,7 +41,7 @@ module Chewy
       EXTRA_STORAGES = %i[aggs suggest].freeze
       # An array of storage names that are changing the returned hist collection in any way.
       WHERE_STORAGES = %i[
-        query filter post_filter knn none min_score rescore indices_boost collapse
+        query filter post_filter inner_hits knn none min_score rescore indices_boost collapse
       ].freeze
 
       delegate :hits, :wrappers, :objects, :records, :documents,
@@ -535,6 +535,20 @@ module Chewy
         define_method name do |value|
           modify(name) { replace!(value) }
         end
+      end
+
+      # @!method inner_hits(value)
+      #  Updates `inner_hits` request part
+      #
+      #  @example
+      #  PlacesIndex.inner_hits(attendees: {size: 5})
+      #  # => <PlacesIndex::Query {..., :body=>{:inner_hits=>{:attendees=>{:size=>5}}}}>
+      #  @see Chewy::Search::Parameters::InnerHits
+      #  @see https://www.elastic.co/guide/en/elasticsearch/reference/current/inner-hits.html
+      #  @param value [Hash]
+      #  @return [Chewy::Search::Request]
+      def inner_hits(value)
+        modify(:inner_hits) { update!(value) }
       end
 
       # @!method source(*values)

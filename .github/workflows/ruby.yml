@@ -22,6 +22,9 @@ jobs:
           - rails.7.0.activerecord
           - rails.7.1.activerecord
           - rails.7.2.beta.activerecord
+        exclude:
+        - ruby: 3.0
+          gemfile: rails.7.2.beta.activerecord
     name: ${{ matrix.ruby }}-${{ matrix.gemfile }}
 
     env:

@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe Chewy::Index::Specification do
-  before { Chewy.massacre }
+  before { drop_indices }
 
   let(:index1) do
     stub_index(:places) do

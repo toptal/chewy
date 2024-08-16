@@ -31,8 +31,8 @@ describe Chewy do
     end
   end
 
-  describe '.massacre' do
-    before { Chewy.massacre }
+  xdescribe '.massacre' do
+    before { drop_indices }
 
     before do
       allow(Chewy).to receive_messages(configuration: Chewy.configuration.merge(prefix: 'prefix1'))
@@ -40,7 +40,7 @@ describe Chewy do
       allow(Chewy).to receive_messages(configuration: Chewy.configuration.merge(prefix: 'prefix2'))
       stub_index(:developers).create!
 
-      Chewy.massacre
+      drop_indices
 
       allow(Chewy).to receive_messages(configuration: Chewy.configuration.merge(prefix: 'prefix1'))
     end
@@ -84,7 +84,8 @@ describe Chewy do
       # To avoid flaky issues when previous specs were run
       allow(Chewy::Index).to receive(:descendants).and_return([CitiesIndex, PlacesIndex])
 
-      Chewy.massacre
+      CitiesIndex.delete
+      PlacesIndex.delete
     end
 
     specify do

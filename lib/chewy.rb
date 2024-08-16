@@ -116,6 +116,10 @@ module Chewy
     # Be careful, if current prefix is blank, this will destroy all the indexes.
     #
     def massacre
+      unless Chewy.settings[:delete_all_enabled]
+        raise FeatureDisabled, 'Feature disabled by default in ES 8. You can enable it in the cluster and set `delete_all_enabled` option in settings'
+      end
+
       Chewy.client.indices.delete(index: [Chewy.configuration[:prefix], '*'].reject(&:blank?).join('_'))
       Chewy.wait_for_status
     end

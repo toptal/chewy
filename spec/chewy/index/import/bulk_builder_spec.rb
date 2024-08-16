@@ -17,7 +17,7 @@ SimpleComment = Class.new do
 end
 
 describe Chewy::Index::Import::BulkBuilder do
-  before { Chewy.massacre }
+  before { drop_indices }
 
   subject { described_class.new(index, to_index: to_index, delete: delete, fields: fields) }
   let(:index) { CitiesIndex }

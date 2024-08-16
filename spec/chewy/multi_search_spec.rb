@@ -2,7 +2,7 @@ require 'spec_helper'
 require 'chewy/multi_search'
 
 describe Chewy::MultiSearch do
-  before { Chewy.massacre }
+  before { drop_indices }
 
   before do
     stub_model(:city)

@@ -2,7 +2,7 @@ require 'spec_helper'
 require 'rake'
 
 describe Chewy::RakeHelper, :orm do
-  before { Chewy.massacre }
+  before { drop_indices }
 
   before do
     described_class.instance_variable_set(:@journal_exists, journal_exists)

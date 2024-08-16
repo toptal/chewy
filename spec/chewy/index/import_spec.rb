@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe Chewy::Index::Import do
-  before { Chewy.massacre }
+  before { drop_indices }
 
   before do
     stub_model(:city)

@@ -17,7 +17,7 @@ describe :minitest_helper do
   end
 
   before do
-    Chewy.massacre
+    drop_indices
   end
 
   before do

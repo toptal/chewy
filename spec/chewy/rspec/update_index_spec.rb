@@ -9,7 +9,7 @@ describe :update_index do
   end
 
   before do
-    Chewy.massacre
+    drop_indices
     DummiesIndex.create!
   end
 

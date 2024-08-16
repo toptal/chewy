@@ -7,7 +7,6 @@ services:
       - "ES_JAVA_OPTS=-Xms${TEST_ES_HEAP_SIZE:-500m} -Xmx${TEST_ES_HEAP_SIZE:-500m}"
       - discovery.type=single-node
       - xpack.security.enabled=false
-      - action.destructive_requires_name=false
     ports:
       - "127.0.0.1:9250:9200"
     ulimits:

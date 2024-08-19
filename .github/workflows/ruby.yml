@@ -44,7 +44,7 @@ jobs:
       - name: Start containers
         run: |
           docker compose up elasticsearch_test -d
-          sleep 10
+          sleep 15
 
       - name: Tests
         run: bundle exec rspec

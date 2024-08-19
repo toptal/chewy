@@ -28,6 +28,22 @@ Chewy.settings = {
   }
 }
 
+# To work with security enabled:
+#
+# user = ENV['ES_USER'] || 'elastic'
+# password = ENV['ES_PASSWORD'] || ''
+# ca_cert = ENV['ES_CA_CERT'] || './tmp/http_ca.crt'
+#
+# Chewy.settings.merge!(
+#   user: user,
+#   password: password,
+#   transport_options: {
+#     ssl: {
+#       ca_file: ca_cert
+#     }
+#   }
+# )
+
 # Chewy.transport_logger = Logger.new(STDERR)
 
 RSpec.configure do |config|

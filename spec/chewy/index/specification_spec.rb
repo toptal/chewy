@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe Chewy::Index::Specification do
-  before { Chewy.massacre }
+  before { drop_indices }
 
   let(:index1) do
     stub_index(:places) do
@@ -46,7 +46,6 @@ describe Chewy::Index::Specification do
     specify do
       expect { specification1.lock! }.to change { Chewy::Stash::Specification.all.hits }.from([]).to([{
         '_index' => 'chewy_specifications',
-        '_type' => '_doc',
         '_id' => 'places',
         '_score' => 1.0,
         '_source' => {'specification' => Base64.encode64({
@@ -62,7 +61,6 @@ describe Chewy::Index::Specification do
       specify do
         expect { specification5.lock! }.to change { Chewy::Stash::Specification.all.hits }.to([{
           '_index' => 'chewy_specifications',
-          '_type' => '_doc',
           '_id' => 'places',
           '_score' => 1.0,
           '_source' => {'specification' => Base64.encode64({
@@ -71,7 +69,6 @@ describe Chewy::Index::Specification do
           }.to_json)}
         }, {
           '_index' => 'chewy_specifications',
-          '_type' => '_doc',
           '_id' => 'namespace/cities',
           '_score' => 1.0,
           '_source' => {'specification' => Base64.encode64({

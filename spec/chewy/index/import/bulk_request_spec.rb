@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe Chewy::Index::Import::BulkRequest do
-  before { Chewy.massacre }
+  before { drop_indices }
 
   subject { described_class.new(index, suffix: suffix, bulk_size: bulk_size, **bulk_options) }
   let(:suffix) {}

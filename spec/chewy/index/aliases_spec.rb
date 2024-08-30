@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe Chewy::Index::Aliases do
-  before { Chewy.massacre }
+  before { drop_indices }
 
   before { stub_index :dummies }
 

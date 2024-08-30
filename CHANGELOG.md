@@ -8,6 +8,18 @@
 
 ### Bugs Fixed
 
+## 8.0.0-beta (2024-08-27)
+
+### New Features
+
+* [#962](https://github.com/toptal/chewy/pull/962): ElasticSearch v.8 support added
+
+* `delete_all_enabled` setting introduced to align Chewy.massacre with wildcard indices deletion disabled in ES 8 by default
+
+### Changes
+
+### Bugs Fixed
+
 ## 7.6.0 (2024-05-03)
 
 ### Changes

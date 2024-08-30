@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe Chewy::Search::Response, :orm do
-  before { Chewy.massacre }
+  before { drop_indices }
 
   before do
     stub_model(:city)
@@ -39,7 +39,7 @@ describe Chewy::Search::Response, :orm do
     specify { expect(subject.hits).to all be_a(Hash) }
     specify do
       expect(subject.hits.flat_map(&:keys).uniq)
-        .to match_array(%w[_id _index _type _score _source sort])
+        .to match_array(%w[_id _index _score _source sort])
     end
 
     context do

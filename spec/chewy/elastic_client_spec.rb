@@ -6,7 +6,7 @@ describe Chewy::ElasticClient do
     let!(:filter_previous_value) { Chewy.before_es_request_filter }
 
     before do
-      Chewy.massacre
+      drop_indices
       stub_index(:products) do
         field :id, type: :integer
       end

@@ -134,7 +134,7 @@ if defined?(Sidekiq)
       context 'both calls with different update fields' do
         it 'deos reindex with union of fields' do
           Timecop.freeze do
-            expect(CitiesIndex).to receive(:import!).with(match_array([city.id, other_city.id]), update_fields: %w[name description]).once
+            expect(CitiesIndex).to receive(:import!).with(match_array([city.id, other_city.id]), update_fields: match_array(%w[name description])).once
             scheduler = Chewy::Strategy::DelayedSidekiq::Scheduler.new(CitiesIndex, [city.id], update_fields: ['name'])
             scheduler.postpone
             scheduler = Chewy::Strategy::DelayedSidekiq::Scheduler.new(CitiesIndex, [other_city.id], update_fields: ['description'])

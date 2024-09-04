@@ -8,6 +8,8 @@
 
 ### Bugs Fixed
 
+* [#964](https://github.com/toptal/chewy/pull/964): Fix `delayed_sidekiq` worker to handle UUID primary keys correctly.
+
 ## 8.0.0-beta (2024-08-27)
 
 ### New Features

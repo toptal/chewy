@@ -15,7 +15,12 @@ module Chewy
           @type._crutches.each_key do |name|
             singleton_class.class_eval <<-METHOD, __FILE__, __LINE__ + 1
               def #{name}
-                @#{name} ||= @type._crutches[:#{name}].call @collection
+                execution_block = @type._crutches[:#{name}]
+                if execution_block.arity == 1
+                  @#{name} ||= execution_block.call @collection
+                else
+                  @#{name} ||= execution_block.call @collection, self
+                end
               end
             METHOD
           end

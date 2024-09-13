@@ -20,7 +20,7 @@ updates:
       - "ruby"
       - "dependencies"
     reviewers:
-      - "toptal/devx"
+      - "toptal/sre"
     registries:
       - toptal-github
     insecure-external-code-execution: allow
@@ -38,5 +38,5 @@ updates:
       - "dependencies"
       - "gha"
     reviewers:
-      - "toptal/devx"
+      - "toptal/sre"
     open-pull-requests-limit: 3

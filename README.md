@@ -43,9 +43,9 @@ Or install it yourself as:
 
 ### Ruby
 
-Chewy is compatible with MRI 3.0-3.2¹.
+Chewy is compatible with MRI 3.0-3.3¹.
 
-> ¹ Ruby 3 is only supported with Rails 6.1
+> ¹ Ruby 3 is supported with Rails 6.1, 7.0, 7.1 and 7.2
 
 ### Elasticsearch compatibility matrix
 
@@ -67,7 +67,7 @@ various Chewy versions.
 
 ### Active Record
 
-5.2, 6.0, 6.1 Active Record versions are supported by all Chewy versions.
+6.1, 7.0, 7.1, 7.2 Active Record versions are supported by Chewy.
 
 ## Getting Started
 

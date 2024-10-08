@@ -21,13 +21,23 @@ if defined?(Sidekiq)
         update_index('cities') { self }
       end
 
+      stub_uuid_model(:user) do
+        update_index('users') { self }
+      end
+
       stub_index(:cities) do
         index_scope City
+      end
+
+      stub_index(:users) do
+        index_scope User
       end
     end
 
     let(:city) { City.create!(name: 'hello') }
     let(:other_city) { City.create!(name: 'world') }
+    let(:user) { User.create!(name: 'John') }
+    let(:other_user) { User.create!(name: 'Jane') }
 
     it 'does not trigger immediate reindex due to it`s async nature' do
       expect { [city, other_city].map(&:save!) }
@@ -36,8 +46,15 @@ if defined?(Sidekiq)
 
     it "respects 'refresh: false' options" do
       allow(Chewy).to receive(:disable_refresh_async).and_return(true)
-      expect(CitiesIndex).to receive(:import!).with(match_array([city.id, other_city.id]), refresh: false)
+      expect(CitiesIndex).to receive(:import!).with(match_array([city.id.to_s, other_city.id.to_s]), refresh: false)
       scheduler = Chewy::Strategy::DelayedSidekiq::Scheduler.new(CitiesIndex, [city.id, other_city.id])
+      scheduler.postpone
+      Chewy::Strategy::DelayedSidekiq::Worker.drain
+    end
+
+    it 'works with models with string primary key' do
+      expect(UsersIndex).to receive(:import!).with(match_array([user.id, other_user.id]))
+      scheduler = Chewy::Strategy::DelayedSidekiq::Scheduler.new(UsersIndex, [user.id, other_user.id])
       scheduler.postpone
       Chewy::Strategy::DelayedSidekiq::Worker.drain
     end
@@ -109,7 +126,7 @@ if defined?(Sidekiq)
     context 'two reindex call within the timewindow' do
       it 'accumulates all ids does the reindex one time' do
         Timecop.freeze do
-          expect(CitiesIndex).to receive(:import!).with(match_array([city.id, other_city.id])).once
+          expect(CitiesIndex).to receive(:import!).with(match_array([city.id.to_s, other_city.id.to_s])).once
           scheduler = Chewy::Strategy::DelayedSidekiq::Scheduler.new(CitiesIndex, [city.id])
           scheduler.postpone
           scheduler = Chewy::Strategy::DelayedSidekiq::Scheduler.new(CitiesIndex, [other_city.id])
@@ -121,7 +138,7 @@ if defined?(Sidekiq)
       context 'one call with update_fields another one without update_fields' do
         it 'does reindex of all fields' do
           Timecop.freeze do
-            expect(CitiesIndex).to receive(:import!).with(match_array([city.id, other_city.id])).once
+            expect(CitiesIndex).to receive(:import!).with(match_array([city.id.to_s, other_city.id.to_s])).once
             scheduler = Chewy::Strategy::DelayedSidekiq::Scheduler.new(CitiesIndex, [city.id], update_fields: ['name'])
             scheduler.postpone
             scheduler = Chewy::Strategy::DelayedSidekiq::Scheduler.new(CitiesIndex, [other_city.id])
@@ -134,7 +151,7 @@ if defined?(Sidekiq)
       context 'both calls with different update fields' do
         it 'deos reindex with union of fields' do
           Timecop.freeze do
-            expect(CitiesIndex).to receive(:import!).with(match_array([city.id, other_city.id]), update_fields: match_array(%w[name description])).once
+            expect(CitiesIndex).to receive(:import!).with(match_array([city.id.to_s, other_city.id.to_s]), update_fields: match_array(%w[name description])).once
             scheduler = Chewy::Strategy::DelayedSidekiq::Scheduler.new(CitiesIndex, [city.id], update_fields: ['name'])
             scheduler.postpone
             scheduler = Chewy::Strategy::DelayedSidekiq::Scheduler.new(CitiesIndex, [other_city.id], update_fields: ['description'])
@@ -148,8 +165,8 @@ if defined?(Sidekiq)
     context 'two calls within different timewindows' do
       it 'does two separate reindexes' do
         Timecop.freeze do
-          expect(CitiesIndex).to receive(:import!).with([city.id]).once
-          expect(CitiesIndex).to receive(:import!).with([other_city.id]).once
+          expect(CitiesIndex).to receive(:import!).with([city.id.to_s]).once
+          expect(CitiesIndex).to receive(:import!).with([other_city.id.to_s]).once
           Timecop.travel(20.seconds.ago) do
             scheduler = Chewy::Strategy::DelayedSidekiq::Scheduler.new(CitiesIndex, [city.id])
             scheduler.postpone
@@ -164,8 +181,8 @@ if defined?(Sidekiq)
     context 'first call has update_fields' do
       it 'does first reindex with the expected update_fields and second without update_fields' do
         Timecop.freeze do
-          expect(CitiesIndex).to receive(:import!).with([city.id], update_fields: ['name']).once
-          expect(CitiesIndex).to receive(:import!).with([other_city.id]).once
+          expect(CitiesIndex).to receive(:import!).with([city.id.to_s], update_fields: ['name']).once
+          expect(CitiesIndex).to receive(:import!).with([other_city.id.to_s]).once
           Timecop.travel(20.seconds.ago) do
             scheduler = Chewy::Strategy::DelayedSidekiq::Scheduler.new(CitiesIndex, [city.id], update_fields: ['name'])
             scheduler.postpone
@@ -180,8 +197,8 @@ if defined?(Sidekiq)
     context 'both calls have update_fields option' do
       it 'does both reindexes with their expected update_fields option' do
         Timecop.freeze do
-          expect(CitiesIndex).to receive(:import!).with([city.id], update_fields: ['name']).once
-          expect(CitiesIndex).to receive(:import!).with([other_city.id], update_fields: ['description']).once
+          expect(CitiesIndex).to receive(:import!).with([city.id.to_s], update_fields: ['name']).once
+          expect(CitiesIndex).to receive(:import!).with([other_city.id.to_s], update_fields: ['description']).once
           Timecop.travel(20.seconds.ago) do
             scheduler = Chewy::Strategy::DelayedSidekiq::Scheduler.new(CitiesIndex, [city.id], update_fields: ['name'])
             scheduler.postpone

@@ -6,17 +6,16 @@ if ActiveRecord::Base.respond_to?(:raise_in_transactional_callbacks)
   ActiveRecord::Base.raise_in_transactional_callbacks = true
 end
 
-ActiveRecord::Base.connection.execute("DROP TABLE IF EXISTS 'countries'")
-ActiveRecord::Base.connection.execute("DROP TABLE IF EXISTS 'cities'")
-ActiveRecord::Base.connection.execute("DROP TABLE IF EXISTS 'locations'")
-ActiveRecord::Schema.define do
+def create_countries_table
   create_table :countries do |t|
     t.column :name, :string
     t.column :country_code, :string
     t.column :rating, :integer
     t.column :updated_at, :datetime
   end
+end
 
+def create_cities_table
   create_table :cities do |t|
     t.column :country_id, :integer
     t.column :name, :string
@@ -25,19 +24,43 @@ ActiveRecord::Schema.define do
     t.column :rating, :integer
     t.column :updated_at, :datetime
   end
+end
 
+def create_locations_table
   create_table :locations do |t|
     t.column :city_id, :integer
     t.column :lat, :string
     t.column :lon, :string
   end
+end
 
+def create_comments_table
   create_table :comments do |t|
     t.column :content, :string
     t.column :comment_type, :string
     t.column :commented_id, :integer
     t.column :updated_at, :datetime
   end
+end
+
+def create_users_table
+  create_table :users, id: false do |t|
+    t.column :id, :string
+    t.column :name, :string
+  end
+end
+
+ActiveRecord::Base.connection.execute("DROP TABLE IF EXISTS 'countries'")
+ActiveRecord::Base.connection.execute("DROP TABLE IF EXISTS 'cities'")
+ActiveRecord::Base.connection.execute("DROP TABLE IF EXISTS 'locations'")
+ActiveRecord::Base.connection.execute("DROP TABLE IF EXISTS 'comments'")
+ActiveRecord::Base.connection.execute("DROP TABLE IF EXISTS 'users'")
+ActiveRecord::Schema.define do
+  create_countries_table
+  create_cities_table
+  create_locations_table
+  create_comments_table
+  create_users_table
 end
 
 module ActiveRecordClassHelpers
@@ -72,6 +95,14 @@ module ActiveRecordClassHelpers
 
   def stub_model(name, superclass = nil, &block)
     stub_class(name, superclass || ActiveRecord::Base, &block)
+  end
+
+  def stub_uuid_model(name, superclass = nil, &block)
+    stub_class(name, superclass || ActiveRecord::Base) do
+      before_create { self.id = SecureRandom.uuid }
+      define_singleton_method(:primary_key, -> { 'id' })
+      class_eval(&block)
+    end
   end
 end
 

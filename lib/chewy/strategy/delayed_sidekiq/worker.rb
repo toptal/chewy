@@ -68,7 +68,7 @@ module Chewy
 
           fields = nil if fields.include?(Scheduler::FALLBACK_FIELDS)
 
-          [ids.map(&:to_i), fields]
+          [ids, fields]
         end
       end
     end

@@ -1171,6 +1171,16 @@ scope.each do |wrapper|
 end
 ```
 
+#### runtime_mappings
+
+You can define runtime fields in a search request as described [here](https://www.elastic.co/guide/en/elasticsearch/reference/current/runtime-search-request.html):
+
+```ruby
+CitiesIndex.runtime_mappings(
+  field1: {type: 'keyword', :script=>{:lang => "painless", :source => "emit('some script here')"}}
+)
+```
+
 ### Rake tasks
 
 For a Rails application, some index-maintaining rake tasks are defined.

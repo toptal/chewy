@@ -25,6 +25,23 @@ module Chewy
           @index._crutches.key?(name) || super
         end
 
+        # This method triggers crutch executions whenever crutches are accessed
+        # This method is called from method_missing above, with crutch name as argument
+        # This allows the crutch to be invoked in two ways, depending upon the block passed.
+        # If crutch is defined with a block accepting only 1 argument, it is called with only @collection
+        # ```ruby
+        # :crutch my_independent_crutch do |entities|
+        #     <do stuff>
+        # end
+        # ```
+        # If crutch is defined with a block accepting 2 arguments, the second argument is all crutches so that we can invoke dependent crutches from here
+        # ```ruby
+        # :crutch my_dependent_crutch do |entities, crutches|
+        #     independent_entities = crutches.my_independent_crutch
+        #     <do stuff>
+        # end
+        # ```
+        # WARN: One thing to note here is that this method doesnt check for cycles. So its upto developer discretion to make sure they dont end up with a cycle here.
         def [](name)
           execution_block = @index._crutches[:"#{name}"]
           @crutches_instances[name] ||= if execution_block.arity == 2

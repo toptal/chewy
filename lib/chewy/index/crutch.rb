@@ -26,7 +26,12 @@ module Chewy
         end
 
         def [](name)
-          @crutches_instances[name] ||= @index._crutches[:"#{name}"].call(@collection)
+          execution_block = @index._crutches[:"#{name}"]
+          @crutches_instances[name] ||= if execution_block.arity == 2
+            execution_block.call(@collection, self)
+          else
+            execution_block.call(@collection)
+          end
         end
       end
 

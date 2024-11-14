@@ -36,6 +36,10 @@ ActiveSupport.on_load(:active_record) do
   try_require 'kaminari/activerecord'
 end
 
+ActiveSupport.on_load(:mongoid) do
+  try_require 'kaminari/mongoid'
+end
+
 require 'chewy/version'
 require 'chewy/errors'
 require 'chewy/config'
@@ -55,8 +59,19 @@ ActiveSupport.on_load(:active_record) do
   include Chewy::Index::Observe::ActiveRecordMethods
 end
 
+# ActiveSupport.on_load(:mongoid) do
+#   module Mongoid
+#     module Document
+#       module ClassMethods
+#         include Chewy::Index::Observe::MongoidMethods
+#       end
+#     end
+#   end
+# end
+
 module Chewy
   @adapters = [
+    Chewy::Index::Adapter::Mongoid,
     Chewy::Index::Adapter::ActiveRecord,
     Chewy::Index::Adapter::Object
   ]
@@ -97,8 +112,14 @@ module Chewy
 
     # Main elasticsearch-ruby client instance
     #
-    def client
-      Chewy.current[:chewy_client] ||= Chewy::ElasticClient.new
+    def client(hosts = nil)
+      #   # We are changing this to support multiple clusters in chewy.
+      thread_cache_key = if hosts
+        "chewy_client_#{hosts}"
+      else
+        'chewy_client'
+      end
+      Chewy.current[thread_cache_key.to_sym] ||= Chewy::ElasticClient.new(hosts)
     end
 
     # Sends wait_for_status request to ElasticSearch with status
@@ -108,7 +129,7 @@ module Chewy
     #
     def wait_for_status
       if Chewy.configuration[:wait_for_status].present?
-        client.cluster.health wait_for_status: Chewy.configuration[:wait_for_status]
+        client(@hosts_name).cluster.health wait_for_status: Chewy.configuration[:wait_for_status]
       end
     end
 
@@ -116,7 +137,7 @@ module Chewy
     # Be careful, if current prefix is blank, this will destroy all the indexes.
     #
     def massacre
-      Chewy.client.indices.delete(index: [Chewy.configuration[:prefix], '*'].reject(&:blank?).join('_'))
+      Chewy.client(@hosts_name).indices.delete(index: [Chewy.configuration[:prefix], '*'].reject(&:blank?).join('_'))
       Chewy.wait_for_status
     end
     alias_method :delete_all, :massacre

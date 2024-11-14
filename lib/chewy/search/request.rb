@@ -46,7 +46,7 @@ module Chewy
 
       delegate :hits, :wrappers, :objects, :records, :documents,
                :object_hash, :record_hash, :document_hash,
-               :total, :max_score, :took, :timed_out?, to: :response
+               :total, :max_score, :took, :timed_out?, :errors, to: :response
       delegate :each, :size, :to_a, :[], to: :wrappers
       alias_method :to_ary, :to_a
       alias_method :total_count, :total
@@ -75,6 +75,24 @@ module Chewy
       # @return [Chewy::Search::Parameters]
       def parameters
         @parameters ||= Parameters.new
+      end
+
+      def x_opaque_id(x_opaque_id)
+        @x_opaque_id = x_opaque_id
+      end
+
+      # Response `errors` field. Returns `nil` if there is no error.
+      # @return [Hash, nil]
+      def errors
+        return nil if @body.blank?
+        not_found_error = @body['not_found_error']
+        # there's another case when failures could be present in some shards, in that case es returns them
+        # in @body[_shards][failures] array
+        shard_failures = @body['_shards']['failures'] if @body['_shards']
+        {
+          not_found_error: not_found_error,
+          shard_failures: shard_failures
+        }.compact.presence
       end
 
       # Compare two scopes or scope with a collection of wrappers.
@@ -115,10 +133,10 @@ module Chewy
       end
 
       # ES request body
-      #
+      # @param replace_post_filter [true, false] whether to replace post_filter with filter
       # @return [Hash] request body
-      def render
-        @render ||= parameters.render
+      def render(replace_post_filter: false)
+        @render ||= parameters.render(replace_post_filter: replace_post_filter)
       end
 
       # Includes the class name and the result of rendering.
@@ -566,8 +584,8 @@ module Chewy
       #   @param values [true, false, String, Symbol, Array<String, Symbol>]
       #   @return [Chewy::Search::Request]
       %i[source stored_fields].each do |name|
-        define_method name do |value, *values|
-          modify(name) { update!(values.empty? ? value : [value, *values]) }
+        define_method(name) do |value, *values|
+          modify(name) { update!([*value, *values, '_index_type']) }
         end
       end
 
@@ -852,7 +870,9 @@ module Chewy
         if performed?
           total
         else
-          Chewy.client.count(only(WHERE_STORAGES).render)['count']
+          count_params = only(WHERE_STORAGES).render(replace_post_filter: true)
+          count_params.merge!({opaque_id: @x_opaque_id}) if @x_opaque_id
+          Chewy.client(_indices.first.hosts_name).count(count_params)['count']
         end
       rescue Elasticsearch::Transport::Transport::Errors::NotFound
         0
@@ -991,7 +1011,7 @@ module Chewy
         )
         ActiveSupport::Notifications.instrument 'delete_query.chewy', notification_payload(request: request_body) do
           request_body[:body] = {query: {match_all: {}}} if request_body[:body].empty?
-          Chewy.client.delete_by_query(request_body)
+          Chewy.client(_indices.first.hosts_name).delete_by_query(request_body)
         end
       end
 
@@ -1034,9 +1054,11 @@ module Chewy
       def perform(additional = {})
         request_body = render.merge(additional)
         ActiveSupport::Notifications.instrument 'search_query.chewy', notification_payload(request: request_body) do
-          Chewy.client.search(request_body)
-        rescue Elasticsearch::Transport::Transport::Errors::NotFound
-          {}
+          request_body.merge!({opaque_id: @x_opaque_id}) if @x_opaque_id
+          Chewy.client(_indices.first.hosts_name).search(request_body)
+        rescue Elasticsearch::Transport::Transport::Errors::NotFound => error
+          # passing error as a separate param down to the response, hence won't affect any other logic
+          { "not_found_error" => error }
         end
       end
 

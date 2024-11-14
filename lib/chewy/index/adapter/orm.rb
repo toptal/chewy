@@ -124,7 +124,7 @@ module Chewy
             else
               default_scope_where_ids_in(ids)
             end
-
+            batch = batch.select { |object| @options[:searchable_proc].call(object) } if @options[:searchable_proc].present?
             if batch.empty?
               true
             else

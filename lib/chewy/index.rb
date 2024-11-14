@@ -1,6 +1,7 @@
 require 'chewy/search'
 require 'chewy/index/actions'
 require 'chewy/index/adapter/active_record'
+require 'chewy/index/adapter/mongoid'
 require 'chewy/index/adapter/object'
 require 'chewy/index/aliases'
 require 'chewy/index/crutch'
@@ -48,6 +49,8 @@ module Chewy
     self._default_import_options = {}
 
     class << self
+      attr_reader :hosts_name
+
       # @overload index_name(suggest)
       #   If suggested name is passed, it is set up as the new base name for
       #   the index. Used for the index base name redefinition.
@@ -90,6 +93,13 @@ module Chewy
             suffix
           ].reject(&:blank?).join('_')
         end
+      end
+
+      # Sets the hosts name of the index. If hosts_name is nil, use the default
+      # hosts in chewy.yml. Otherwise use the hosts with the specified name for
+      # indexing/queries.
+      def es_cluster_host(hosts_name)
+        @hosts_name = hosts_name
       end
 
       # Base name for the index. Uses the default value inferred from the

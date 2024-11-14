@@ -6,6 +6,7 @@ gem 'activejob', require: false
 gem 'sidekiq', require: false
 
 gem 'kaminari-core', require: false
+gem 'mongoid'
 
 gem 'parallel', require: false
 gem 'ruby-progressbar', require: false

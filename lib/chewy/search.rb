@@ -49,7 +49,7 @@ module Chewy
       # @return [Hash] the request result
       def search_string(query, options = {})
         options = options.merge(all.render.slice(:index).merge(q: query))
-        Chewy.client.search(options)
+        Chewy.client(@hosts_name).search(options)
       end
 
       # Delegates methods from the request class to the index class

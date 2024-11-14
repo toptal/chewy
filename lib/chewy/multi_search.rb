@@ -52,7 +52,7 @@ module Chewy
         [rendered.except(:body), rendered[:body]]
       end
 
-      client.msearch(body: body)
+      client(@hosts_name).msearch(body: body)
     end
   end
 

@@ -5,14 +5,14 @@ module Chewy
 
       module ClassMethods
         def indexes
-          indexes = empty_if_not_found { client.indices.get(index: index_name).keys }
-          indexes += empty_if_not_found { client.indices.get_alias(name: index_name).keys }
+          indexes = empty_if_not_found { client(@hosts_name).indices.get(index: index_name).keys }
+          indexes += empty_if_not_found { client(@hosts_name).indices.get_alias(name: index_name).keys }
           indexes.compact.uniq
         end
 
         def aliases
           empty_if_not_found do
-            client.indices.get_alias(index: index_name, name: '*').values.flat_map do |aliases|
+            client(@hosts_name).indices.get_alias(index: index_name, name: '*').values.flat_map do |aliases|
               aliases['aliases'].keys
             end
           end.compact.uniq

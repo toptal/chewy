@@ -12,7 +12,7 @@ module Chewy
         #   UsersIndex.exists? #=> true
         #
         def exists?
-          client.indices.exists(index: index_name)
+          client(@hosts_name).indices.exists(index: index_name)
         end
 
         # Creates index and applies mappings and settings.
@@ -59,7 +59,7 @@ module Chewy
 
           body = specification_hash
           body[:aliases] = {general_name => {}} if options[:alias] && suffixed_name != general_name
-          result = client.indices.create(index: suffixed_name, body: body)
+          result = client(@hosts_name).indices.create(index: suffixed_name, body: body)
 
           Chewy.wait_for_status if result
           result
@@ -79,8 +79,8 @@ module Chewy
           #   "The index parameter in the delete index API no longer accepts alias names.
           #   Instead, it accepts only index names (or wildcards which will expand to matching indices)."
           #   https://www.elastic.co/guide/en/elasticsearch/reference/6.8/breaking-changes-6.0.html#_delete_index_api_resolves_indices_expressions_only_against_indices
-          index_names = client.indices.get_alias(index: index_name(suffix: suffix)).keys
-          result = client.indices.delete index: index_names.join(',')
+          index_names = client(@hosts_name).indices.get_alias(index: index_name(suffix: suffix)).keys
+          result = client(@hosts_name).indices.delete index: index_names.join(',')
           Chewy.wait_for_status if result
           result
           # es-ruby >= 1.0.10 handles Elasticsearch::Transport::Transport::Errors::NotFound
@@ -164,13 +164,13 @@ module Chewy
             original_index_settings suffixed_name
 
             delete if indexes.blank?
-            client.indices.update_aliases body: {actions: [
+            client(@hosts_name).indices.update_aliases body: {actions: [
               *indexes.map do |index|
                 {remove: {index: index, alias: general_name}}
               end,
               {add: {index: suffixed_name, alias: general_name}}
             ]}
-            client.indices.delete index: indexes if indexes.present?
+            client(@hosts_name).indices.delete index: indexes if indexes.present?
 
             self.journal.apply(start_time, **import_options) if apply_journal
             result
@@ -192,11 +192,11 @@ module Chewy
         end
 
         def clear_cache(args = {index: index_name})
-          client.indices.clear_cache(args)
+          client(@hosts_name).indices.clear_cache(args)
         end
 
         def reindex(source: index_name, dest: index_name)
-          client.reindex(
+          client(@hosts_name).reindex(
             {
               body:
                 {
@@ -214,7 +214,7 @@ module Chewy
         #   Chewy.client.update_mapping('cities', {properties: {new_field: {type: :text}}})
         #
         def update_mapping(name = index_name, body = root.mappings_hash)
-          client.indices.put_mapping(
+          client(@hosts_name).indices.put_mapping(
             index: name,
             body: body
           )['acknowledged']
@@ -255,7 +255,7 @@ module Chewy
         end
 
         def update_settings(index_name, **options)
-          client.indices.put_settings index: index_name, body: {index: options[:settings]}
+          client(@hosts_name).indices.put_settings index: index_name, body: {index: options[:settings]}
         end
 
         def index_settings(setting_name)

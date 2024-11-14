@@ -97,15 +97,21 @@ module Chewy
       # @return [{Symbol => Chewy::Search::Parameters::Storage}] storages from other parameters
       def merge!(other)
         other.storages.each do |name, storage|
-          modify!(name) { merge!(storage) }
+          # Handle query-related storages with a specialized merge function
+          if name.to_sym.in? %i[query filter post_filter]
+            merge_queries_and_filters(name, storage)
+          else
+            # For other types of storages, use a general purpose merge method
+            modify!(name) { merge!(storage) }
+          end
         end
       end
 
       # Renders and merges all the parameter storages into a single hash.
       #
       # @return [Hash] request body
-      def render
-        render_query_string_params.merge(render_body)
+      def render(replace_post_filter: false)
+        render_query_string_params.merge(render_body(replace_post_filter: replace_post_filter))
       end
 
     protected
@@ -137,16 +143,17 @@ module Chewy
         end
       end
 
-      def render_body
+      def render_body(replace_post_filter: false)
         exceptions = %i[filter query none] + QUERY_STRING_STORAGES
+        exceptions += %i[post_filter] if replace_post_filter
         body = @storages.except(*exceptions).values.inject({}) do |result, storage|
           result.merge!(storage.render || {})
         end
-        body.merge!(render_query || {})
+        body.merge!(render_query(replace_post_filter: replace_post_filter) || {})
         {body: body}
       end
 
-      def render_query
+      def render_query(replace_post_filter: false)
         none = @storages[:none].render
 
         return none if none
@@ -154,6 +161,16 @@ module Chewy
         filter = @storages[:filter].render
         query = @storages[:query].render
 
+        if replace_post_filter
+          post_filter = @storages[:post_filter].render
+          if post_filter
+            query = if query
+              {query: {bool: {must: [query[:query], post_filter[:post_filter]]}}}
+            else
+              {query: {bool: {must: [post_filter[:post_filter]]}}}
+            end
+          end
+        end
         return query unless filter
 
         if query && query[:query][:bool]
@@ -163,6 +180,116 @@ module Chewy
           {query: {bool: {must: query[:query]}.merge!(filter)}}
         else
           {query: {bool: filter}}
+        end
+      end
+
+    private
+
+      # Smartly wraps a query in a bool must unless it is already correctly structured.
+      # This method helps maintain logical grouping and avoid unnecessary nesting in queries.
+      #
+      # @param [Hash, Array, Nil] query The query to wrap.
+      # @return [Hash, Array, Nil] The wrapped or original query.
+      #
+      # Example:
+      #   input: { term: { status: 'active' } }
+      #   output: { bool: { must: [{ term: { status: 'active' } }] } }
+      #
+      #   input: { bool: { must: [{ term: { status: 'active' } }] } }
+      #   output: { bool: { must: [{ term: { status: 'active' } }] } }
+      def smart_wrap_in_bool_must(query = nil)
+        return nil if query.nil?
+
+        query = query.deep_symbolize_keys if query.is_a?(Hash)
+
+        # Normalize to ensure it's always in an array form for 'must' unless already properly formatted.
+        normalized_query = query.is_a?(Array) ? query : [query]
+
+        # Check if the query already has a 'bool' structure
+        if query.is_a?(Hash) && query.key?(:bool)
+          # Check the components of the 'bool' structure
+          has_only_must = query[:bool].key?(:must) && query[:bool].keys.size == 1
+
+          # If it has only a 'must' and nothing else, use it as is
+          if has_only_must
+            query
+          else
+            # If it contains other components like 'should' or 'must_not', wrap in a new 'bool' 'must'
+            {bool: {must: normalized_query}}
+          end
+        else
+          # If no 'bool' structure is present, wrap the query in a 'bool' 'must'
+          {bool: {must: normalized_query}}
+        end
+      end
+
+      # Combines two boolean queries into a single well-formed boolean query without redundant nesting.
+      #
+      # @param [Hash, Array] query1 The first query component.
+      # @param [Hash, Array] query2 The second query component.
+      # @return [Hash] A combined boolean query.
+      #
+      # Example:
+      #   query1: { bool: { must: [{ term: { status: 'active' } }] } }
+      #   query2: { bool: { must: [{ term: { age: 25 } }] } }
+      #   result: { bool: { must: [{ term: { status: 'active' } }, { term: { age: 25 } }] } }
+      def merge_bool_queries(query1, query2)
+        # Extract the :must components, ensuring they are arrays. ideally this should be the case anyway
+        # but this is a safety check for cases like OrganizationChartFilter where the query is not properly formatted.
+        #      Eg  index.query(
+        #             {
+        #               bool: {
+        #                 must: {
+        #                   term: {
+        #                     has_org_chart_note: has_org_chart_note
+        #                   }
+        #                 },
+        #               }
+        #             }
+        #           )
+        must1 = ensure_array(query1.dig(:bool, :must))
+        must2 = ensure_array(query2.dig(:bool, :must))
+
+        # Combine the arrays; if both are empty, wrap the entire queries as fallback.
+        if must1.empty? && must2.empty?
+          {bool: {must: [query1, query2].compact}} # Use compact to remove any nils.
+        else
+          {bool: {must: must1 + must2}}
+        end
+      end
+
+      # Merges queries or filters from two different storages into a single storage efficiently.
+      #
+      # @param [Symbol] name The type of storage (query, filter, post_filter).
+      # @param [Storage] other_storage The storage object from another instance.
+      def merge_queries_and_filters(name, other_storage)
+        current_storage = storages[name]
+        # other_storage = other.storages[name]
+        # Render each storage to get the DSL
+        current_query = smart_wrap_in_bool_must(current_storage.render&.[](name))
+        other_query = smart_wrap_in_bool_must(other_storage.render&.[](name))
+
+        if current_query && other_query
+          # Custom merging logic for queries and filters
+
+          # Combine rendered queries inside a single bool must
+          combined_storage = merge_bool_queries(current_query, other_query)
+
+          storages[name].replace!(combined_storage) # Directly set the modified storage
+        else
+          # Default merge if one is nil
+          replacement_query = current_query || other_query
+          storages[name].replace!(replacement_query) if replacement_query
+        end
+      end
+
+      # Helper to ensure the :must key is always an array
+      def ensure_array(value)
+        case value
+        when Hash, nil
+          [value].compact # Wrap hashes or non-nil values in an array, remove nils.
+        else
+          value
         end
       end
     end

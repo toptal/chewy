@@ -73,7 +73,7 @@ module Chewy
         # @option options [true, Integer, Hash] parallel enables parallel import processing with the Parallel gem, accepts the number of workers or any Parallel gem acceptable options
         # @return [true, false] false in case of errors
         def import(*args)
-          intercept_import_using_strategy(*args).blank?
+          import_routine(*args).blank?
         end
 
         # @!method import!(*collection, **options)
@@ -84,7 +84,7 @@ module Chewy
         #
         # @raise [Chewy::ImportFailed] in case of errors
         def import!(*args)
-          errors = intercept_import_using_strategy(*args)
+          errors = import_routine(*args)
 
           raise Chewy::ImportFailed.new(self, errors) if errors.present?
 
@@ -128,16 +128,15 @@ module Chewy
       private
 
         def intercept_import_using_strategy(*args)
-          options = args.extract_options!
-          # strategy = options.delete(:strategy)
-
-          return import_routine(*args)
-
           # We should evaluate impact of deep_dup if we pass any specific strategy in the import call
           # Right now this is always blank in our case, so the code will never reach here
           # Check for our mongo data with invalid attributes, and setters which raise an exception if we want to
           # call deep_dup
           args_clone = args.deep_dup
+          options = args_clone.extract_options!
+          strategy = options.delete(:strategy)
+
+          return import_routine(*args) if strategy.blank?
 
           ids = args_clone.flatten
           return {} if ids.blank?

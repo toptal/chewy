@@ -52,11 +52,11 @@ module Chewy
         [rendered.except(:body), rendered[:body]]
       end
 
-      client(@hosts_name).msearch(body: body)
+      @client.msearch(body: body)
     end
   end
 
-  def self.msearch(queries)
-    Chewy::MultiSearch.new(queries)
+  def self.msearch(queries, client)
+    Chewy::MultiSearch.new(queries, client:)
   end
 end

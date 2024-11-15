@@ -70,12 +70,14 @@ module Chewy
     end
 
     def transport_logger=(logger)
-      Chewy.client(@hosts_name).transport.transport.logger = logger
+      # TODO Add support for hostname
+      Chewy.client.transport.transport.logger = logger
       @transport_logger = logger
     end
 
     def transport_tracer=(tracer)
-      Chewy.client(@hosts_name).transport.transport.tracer = tracer
+      # TODO Add support for hostname
+      Chewy.client.transport.transport.tracer = tracer
       @transport_tracer = tracer
     end
 

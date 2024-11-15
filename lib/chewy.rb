@@ -127,18 +127,18 @@ module Chewy
     #
     # Does nothing in case of config `wait_for_status` is undefined.
     #
-    def wait_for_status
+    def wait_for_status(client)
       if Chewy.configuration[:wait_for_status].present?
-        client(@hosts_name).cluster.health wait_for_status: Chewy.configuration[:wait_for_status]
+        client.cluster.health wait_for_status: Chewy.configuration[:wait_for_status]
       end
     end
 
     # Deletes all corresponding indexes with current prefix from ElasticSearch.
     # Be careful, if current prefix is blank, this will destroy all the indexes.
     #
-    def massacre
-      Chewy.client(@hosts_name).indices.delete(index: [Chewy.configuration[:prefix], '*'].reject(&:blank?).join('_'))
-      Chewy.wait_for_status
+    def massacre(client)
+      client.indices.delete(index: [Chewy.configuration[:prefix], '*'].reject(&:blank?).join('_'))
+      wait_for_status(client)
     end
     alias_method :delete_all, :massacre
 

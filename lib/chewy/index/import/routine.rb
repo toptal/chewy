@@ -61,10 +61,6 @@ module Chewy
           @leftovers = []
         end
 
-        def es_client
-          @index.client(@index.hosts_name)
-        end
-
         # Creates the journal index and the corresponding index if necessary.
         # @return [Object] whatever
         def create_indexes!
@@ -106,7 +102,7 @@ module Chewy
         def perform_bulk(body)
           response = bulk.perform(body)
           yield response if block_given?
-          Chewy.wait_for_status(es_client)
+          Chewy.wait_for_status(@index.es_client)
           @errors.concat(response)
           response.blank?
         end

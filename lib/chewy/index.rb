@@ -102,6 +102,11 @@ module Chewy
         @hosts_name = hosts_name
       end
 
+      # Calls the delegated method above to Chewy.client
+      def es_client
+        client(@hosts_name)
+      end
+
       # Base name for the index. Uses the default value inferred from the
       # class name unless redefined.
       #

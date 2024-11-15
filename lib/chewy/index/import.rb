@@ -103,7 +103,7 @@ module Chewy
         # @return [Hash] tricky transposed errors hash, empty if everything is fine
         def bulk(**options)
           error_items = BulkRequest.new(self, **options).perform(options[:body])
-          Chewy.wait_for_status(client(@hosts_name))
+          Chewy.wait_for_status(es_client)
 
           payload_errors(error_items)
         end

@@ -61,6 +61,10 @@ module Chewy
           @leftovers = []
         end
 
+        def es_client
+          @index.client(@index.hosts_name)
+        end
+
         # Creates the journal index and the corresponding index if necessary.
         # @return [Object] whatever
         def create_indexes!

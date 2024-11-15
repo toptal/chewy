@@ -128,7 +128,7 @@ module Chewy
       private
 
         def intercept_import_using_strategy(*args)
-          # options = args.extract_options!
+          options = args.extract_options!
           # strategy = options.delete(:strategy)
 
           return import_routine(*args)

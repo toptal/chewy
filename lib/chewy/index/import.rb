@@ -103,7 +103,7 @@ module Chewy
         # @return [Hash] tricky transposed errors hash, empty if everything is fine
         def bulk(**options)
           error_items = BulkRequest.new(self, **options).perform(options[:body])
-          Chewy.wait_for_status
+          Chewy.wait_for_status(es_client)
 
           payload_errors(error_items)
         end
@@ -135,6 +135,8 @@ module Chewy
 
           # We should evaluate impact of deep_dup if we pass any specific strategy in the import call
           # Right now this is always blank in our case, so the code will never reach here
+          # Check for our mongo data with invalid attributes, and setters which raise an exception if we want to
+          # call deep_dup
           args_clone = args.deep_dup
 
           ids = args_clone.flatten

@@ -59,9 +59,10 @@ module Chewy
 
           body = specification_hash
           body[:aliases] = {general_name => {}} if options[:alias] && suffixed_name != general_name
-          result = client(@hosts_name).indices.create(index: suffixed_name, body: body)
+          es_client = client(@hosts_name)
+          result = es_client.indices.create(index: suffixed_name, body: body)
 
-          Chewy.wait_for_status if result
+          Chewy.wait_for_status(es_client) if result
           result
         end
 
@@ -79,9 +80,10 @@ module Chewy
           #   "The index parameter in the delete index API no longer accepts alias names.
           #   Instead, it accepts only index names (or wildcards which will expand to matching indices)."
           #   https://www.elastic.co/guide/en/elasticsearch/reference/6.8/breaking-changes-6.0.html#_delete_index_api_resolves_indices_expressions_only_against_indices
-          index_names = client(@hosts_name).indices.get_alias(index: index_name(suffix: suffix)).keys
-          result = client(@hosts_name).indices.delete index: index_names.join(',')
-          Chewy.wait_for_status if result
+          es_client = client(@hosts_name)
+          index_names = es_client.indices.get_alias(index: index_name(suffix: suffix)).keys
+          result = es_client.indices.delete index: index_names.join(',')
+          Chewy.wait_for_status(es_client) if result
           result
           # es-ruby >= 1.0.10 handles Elasticsearch::Transport::Transport::Errors::NotFound
           # by itself, rescue is for previous versions

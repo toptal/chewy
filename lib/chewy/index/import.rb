@@ -128,10 +128,10 @@ module Chewy
       private
 
         def intercept_import_using_strategy(*args)
-          options = args.extract_options!
-          strategy = options.delete(:strategy)
+          # options = args.extract_options!
+          # strategy = options.delete(:strategy)
 
-          return import_routine(*args) if strategy.blank?
+          return import_routine(*args)
 
           # We should evaluate impact of deep_dup if we pass any specific strategy in the import call
           # Right now this is always blank in our case, so the code will never reach here

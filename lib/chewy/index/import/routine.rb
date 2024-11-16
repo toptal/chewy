@@ -102,7 +102,7 @@ module Chewy
         def perform_bulk(body)
           response = bulk.perform(body)
           yield response if block_given?
-          Chewy.wait_for_status
+          Chewy.wait_for_status(@index.es_client)
           @errors.concat(response)
           response.blank?
         end

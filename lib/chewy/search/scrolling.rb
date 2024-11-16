@@ -44,7 +44,7 @@ module Chewy
           result = perform_scroll(scroll: scroll, scroll_id: scroll_id)
         end
       ensure
-        Chewy.client(@hosts_name).clear_scroll(body: {scroll_id: scroll_id}) if scroll_id
+        es_client.clear_scroll(body: {scroll_id: scroll_id}) if scroll_id
       end
 
       # @!method scroll_hits(batch_size: 1000, scroll: '1m')
@@ -129,7 +129,7 @@ module Chewy
 
       def perform_scroll(body)
         ActiveSupport::Notifications.instrument 'search_query.chewy', notification_payload(request: body) do
-          Chewy.client(@hosts_name).scroll(body)
+          es_client.scroll(body)
         end
       end
     end

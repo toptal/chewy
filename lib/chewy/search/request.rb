@@ -872,7 +872,7 @@ module Chewy
         else
           count_params = only(WHERE_STORAGES).render(replace_post_filter: true)
           count_params.merge!({opaque_id: @x_opaque_id}) if @x_opaque_id
-          Chewy.client(_indices.first.hosts_name).count(count_params)['count']
+          es_client.count(count_params)['count']
         end
       rescue Elasticsearch::Transport::Transport::Errors::NotFound
         0
@@ -1011,7 +1011,7 @@ module Chewy
         )
         ActiveSupport::Notifications.instrument 'delete_query.chewy', notification_payload(request: request_body) do
           request_body[:body] = {query: {match_all: {}}} if request_body[:body].empty?
-          Chewy.client(_indices.first.hosts_name).delete_by_query(request_body)
+          es_client.delete_by_query(request_body)
         end
       end
 
@@ -1055,7 +1055,7 @@ module Chewy
         request_body = render.merge(additional)
         ActiveSupport::Notifications.instrument 'search_query.chewy', notification_payload(request: request_body) do
           request_body.merge!({opaque_id: @x_opaque_id}) if @x_opaque_id
-          Chewy.client(_indices.first.hosts_name).search(request_body)
+          es_client.search(request_body)
         rescue Elasticsearch::Transport::Transport::Errors::NotFound => error
           # passing error as a separate param down to the response, hence won't affect any other logic
           { "not_found_error" => error }
@@ -1071,6 +1071,10 @@ module Chewy
 
       def _indices
         parameters[:indices].indices
+      end
+
+      def es_client
+        Chewy.client(_indices.first.hosts_name)
       end
 
       def raw_limit_value

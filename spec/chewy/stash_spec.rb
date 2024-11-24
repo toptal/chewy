@@ -101,4 +101,8 @@ describe Chewy::Stash::Journal, :orm do
         .to contain_exactly('cities', 'countries', 'users')
     end
   end
+
+  describe '.timestamp_suffix' do
+    specify { expect(described_class.timestamp_suffix).to be_nil }
+  end
 end

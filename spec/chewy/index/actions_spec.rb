@@ -15,6 +15,18 @@ describe Chewy::Index::Actions do
       before { DummiesIndex.create }
       specify { expect(DummiesIndex.exists?).to eq(true) }
     end
+
+    context do
+      before { DummiesIndex.create('2024') }
+      specify { expect(DummiesIndex.exists?).to eq(true) }
+      specify { expect(DummiesIndex.exists?('2024')).to eq(true) }
+    end
+
+    context do
+      before { DummiesIndex.create('2024', alias: false) }
+      specify { expect(DummiesIndex.exists?).to eq(false) }
+      specify { expect(DummiesIndex.exists?('2024')).to eq(true) }
+    end
   end
 
   describe '.create' do

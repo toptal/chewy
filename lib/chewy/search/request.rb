@@ -327,6 +327,10 @@ module Chewy
         modify(:indices) { update!(indices: [value, *values]) }
       end
 
+      def es_client
+        Chewy.client(_indices.first.hosts_name)
+      end
+
       # @overload reorder(*values)
       #   Replaces the value of the `sort` parameter with the provided value.
       #
@@ -1071,10 +1075,6 @@ module Chewy
 
       def _indices
         parameters[:indices].indices
-      end
-
-      def es_client
-        Chewy.client(_indices.first.hosts_name)
       end
 
       def raw_limit_value

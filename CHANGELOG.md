@@ -5,6 +5,7 @@
 ### New Features
 
 ### Changes
+* [#977](https://github.com/toptal/chewy/pull/977): Fewer files on gem installation [@ericproulx](https://github.com/ericproulx).
 
 ### Bugs Fixed
 

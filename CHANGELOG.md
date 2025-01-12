@@ -5,6 +5,7 @@
 ### New Features
 
 ### Changes
+* [#977](https://github.com/toptal/chewy/pull/977): Fewer files on gem installation [@ericproulx](https://github.com/ericproulx).
 
 * **(Breaking)** Drop support for Ruby < 3.2 and Rails < 7.2. Chewy now requires Ruby ~> 3.2 and ActiveSupport >= 7.2. ([@bbatsov][])
 

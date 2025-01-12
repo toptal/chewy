@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Chewy
   class Strategy
     # This strategy basically does nothing.

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Chewy
   module Search
     # This module along with {Chewy::Search} provides an ability to

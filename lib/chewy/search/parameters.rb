@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 Dir.glob(File.join(File.dirname(__FILE__), 'parameters', 'concerns', '*.rb')).each { |f| require f }
 Dir.glob(File.join(File.dirname(__FILE__), 'parameters', '*.rb')).each { |f| require f }
 

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Chewy
   module Fields
     class Root < Chewy::Fields::Base

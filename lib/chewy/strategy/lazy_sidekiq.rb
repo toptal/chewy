@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Chewy
   class Strategy
     # The strategy works the same way as sidekiq, but performs

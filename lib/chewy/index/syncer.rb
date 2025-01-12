@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Chewy
   class Index
     # This class is able to find missing and outdated documents in the ES

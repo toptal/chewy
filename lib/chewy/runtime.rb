@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'chewy/runtime/version'
 
 module Chewy

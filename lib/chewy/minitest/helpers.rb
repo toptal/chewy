@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_relative 'search_index_receiver'
 
 module Chewy

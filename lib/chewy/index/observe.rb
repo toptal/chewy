@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'chewy/index/observe/callback'
 require 'chewy/index/observe/active_record_methods'
 

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'chewy/search/parameters/query_storage_examples'
 
 describe Chewy::Search::Parameters::PostFilter do

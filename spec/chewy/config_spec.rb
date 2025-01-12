@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 describe Chewy::Config do
@@ -82,7 +84,7 @@ describe Chewy::Config do
     context 'when Rails::VERSION constant is defined' do
       it 'looks for configuration in "config/chewy.yml"' do
         module Rails
-          VERSION = '5.1.1'.freeze
+          VERSION = '5.1.1'
 
           def self.root
             Pathname.new(__dir__)

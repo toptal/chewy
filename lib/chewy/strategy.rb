@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'chewy/strategy/base'
 require 'chewy/strategy/bypass'
 require 'chewy/strategy/urgent'

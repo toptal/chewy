@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Chewy
   # This class is the main storage for Chewy service data,
   # Now index raw specifications are stored in the `chewy_specifications`

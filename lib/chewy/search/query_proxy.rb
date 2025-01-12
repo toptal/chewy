@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Chewy
   module Search
     # This specialized proxy class is used to provide an ability

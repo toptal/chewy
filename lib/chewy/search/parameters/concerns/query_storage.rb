@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'elasticsearch/dsl'
 
 module Chewy

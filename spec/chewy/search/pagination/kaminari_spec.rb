@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'chewy/search/pagination/kaminari_examples'
 
 describe Chewy::Search::Pagination::Kaminari do

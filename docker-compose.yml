@@ -1,15 +1,44 @@
 version: "3.4"
+
+volumes:
+  gems:
+
 services:
   elasticsearch_test:
-    image: "elasticsearch:8.15.0"
+    image: elasticsearch:8.15.0
+    hostname: elasticsearch_test
     environment:
       - bootstrap.memory_lock=${ES_MEMORY_LOCK:-false}
       - "ES_JAVA_OPTS=-Xms${TEST_ES_HEAP_SIZE:-500m} -Xmx${TEST_ES_HEAP_SIZE:-500m}"
       - discovery.type=single-node
       - xpack.security.enabled=false
     ports:
-      - "127.0.0.1:9250:9200"
+      - 9250:9200
     ulimits:
       nofile:
         soft: 65536
         hard: 65536
+
+  chewy:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+      args:
+        - RUBY_VERSION=${RUBY_VERSION:-3.3}
+    stdin_open: true
+    tty: true
+    environment:
+      ES_HOST: elasticsearch_test
+      ES_PORT: 9200
+      GEMFILE: rails.7.2.activerecord
+      REDIS_URL: redis://redis:6379/0
+    volumes:
+      - .:/var/chewy
+      - gems:/usr/local/bundle
+    depends_on:
+      - elasticsearch_test
+      - redis
+
+  redis:
+    image: redis:latest
+

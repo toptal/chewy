@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Chewy
   # A class to perform journal-related actions for the specified indexes/types.
   #

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Chewy
   class Strategy
     # This strategy updates index on demand. Not the best

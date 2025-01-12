@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Chewy
   module Search
     # This class is used for two different purposes: load ORM/ODM

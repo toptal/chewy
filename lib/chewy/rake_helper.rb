@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Chewy
   module RakeHelper
     IMPORT_CALLBACK = lambda do |output, _name, start, finish, _id, payload|

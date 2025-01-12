@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Chewy
   class Config
     include Singleton
@@ -64,7 +66,7 @@ module Chewy
       @disable_refresh_async = false
       @indices_path = 'app/chewy'
       @default_root_options = {}
-      @default_field_type = 'text'.freeze
+      @default_field_type = 'text'
       @import_scope_cleanup_behavior = :warn
       @search_class = build_search_class(Chewy::Search::Request)
     end

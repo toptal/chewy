@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'active_support/core_ext/hash/keys'
 
 # Rspec matcher `update_index`
@@ -150,12 +152,12 @@ RSpec::Matchers.define :update_index do |index_name, options = {}| # rubocop:dis
   end
 
   failure_message do # rubocop:disable Metrics/BlockLength
-    output = ''
+    output = +''
 
     if mock_bulk_request.updates.none?
       output << "Expected index `#{index_name}` to be updated#{' with no refresh' if @no_refresh}, but it was not\n"
     elsif @missed_reindex.present? || @missed_delete.present?
-      message = "Expected index `#{index_name}` "
+      message = +"Expected index `#{index_name}` "
       message << [
         ("to update documents #{@reindex.keys}" if @reindex.present?),
         ("to delete documents #{@delete.keys}" if @delete.present?)
@@ -170,7 +172,7 @@ RSpec::Matchers.define :update_index do |index_name, options = {}| # rubocop:dis
       output << message
     end
 
-    output << @reindex.each.with_object('') do |(id, document), result|
+    output << @reindex.each.with_object(+'') do |(id, document), result|
       unless document[:match_count] && document[:match_attributes]
         result << "Expected document with id `#{id}` to be reindexed"
         if (document[:real_count]).positive?
@@ -187,9 +189,9 @@ RSpec::Matchers.define :update_index do |index_name, options = {}| # rubocop:dis
       end
     end
 
-    output << @delete.each.with_object('') do |(id, document), result|
+    output << @delete.each.with_object(+'') do |(id, document), result|
       unless document[:match_count]
-        result << "Expected document with id `#{id}` to be deleted"
+        result << +"Expected document with id `#{id}` to be deleted"
         result << if (document[:real_count]).positive? && document[:expected_count]
           "\n   #{document[:expected_count]} times, but was deleted #{document[:real_count]} times"
         else

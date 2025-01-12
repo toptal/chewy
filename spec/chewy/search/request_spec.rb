@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 describe Chewy::Search::Request do
@@ -53,12 +55,13 @@ describe Chewy::Search::Request do
 
   describe '#inspect' do
     specify do
-      expect(described_class.new(ProductsIndex).inspect)
-        .to eq('<Chewy::Search::Request {:index=>["products"], :body=>{}}>')
+      expect(subject.inspect)
+        .to eq("<#{subject.class} #{subject.render}>")
     end
     specify do
-      expect(ProductsIndex.limit(10).inspect)
-        .to eq('<ProductsIndex::Query {:index=>["products"], :body=>{:size=>10}}>')
+      subject { ProductsIndex.limit(10) }
+      expect(subject.inspect)
+        .to eq("<#{subject.class} #{subject.render}>")
     end
   end
 

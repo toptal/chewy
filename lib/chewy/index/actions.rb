@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Chewy
   class Index
     # Module provides per-index actions, such as deletion,

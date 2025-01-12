@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # Rspec helper to compare request and expected query
 # To use it - add `require 'chewy/rspec/build_query'` to the `spec_helper.rb`
 # Simple usage - just pass expected response as argument

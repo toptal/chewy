@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'chewy/search/parameters/storage'
 
 module Chewy

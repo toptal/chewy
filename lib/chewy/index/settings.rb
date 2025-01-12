@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Chewy
   class Index
     # Stores ElasticSearch index settings and resolves `analysis`

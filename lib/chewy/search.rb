@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'chewy/search/scoping'
 require 'chewy/search/scrolling'
 require 'chewy/search/query_proxy'

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Chewy
   module Search
     # This module contains batch requests DSL via ES scroll API. All the methods

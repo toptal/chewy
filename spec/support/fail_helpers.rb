@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module FailHelpers
   def fail
     raise_error(RSpec::Expectations::ExpectationNotMetError)

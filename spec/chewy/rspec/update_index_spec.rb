@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 describe :update_index do
@@ -255,14 +257,17 @@ describe :update_index do
         let(:expectation) do
           expect do
             expect do
-              DummiesIndex.bulk body: [{index: {_id: 43, data: {a: '1'}}}, {index: {_id: 42, data: {'a' => 2}}}]
-            end.to update_index(DummiesIndex).and_reindex(43, times: 2, with: {a: 2})
+              DummiesIndex.bulk body: [{index: {_id: 43, data: first_document_data}}, {index: {_id: 42, data: second_document_data}}]
+            end.to update_index(DummiesIndex).and_reindex(43, times: 2, with: second_document_data)
           end
         end
 
+        let(:first_document_data) { {a: '1'} }
+        let(:second_document_data) { {a: 2} }
+
         specify { expectation.to fail_matching 'Expected document with id `43` to be reindexed' }
         specify { expectation.to fail_matching '2 times, but was reindexed 1 times' }
-        specify { expectation.to fail_matching 'with {:a=>2}, but it was reindexed with {:a=>"1"}' }
+        specify { expectation.to fail_matching "with #{second_document_data}, but it was reindexed with #{first_document_data}" }
       end
     end
   end

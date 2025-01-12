@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Chewy
   module Search
     # The main request DSL class. Supports multiple index requests.
@@ -32,7 +34,7 @@ module Chewy
       ].to_set.freeze
       DEFAULT_BATCH_SIZE = 1000
       DEFAULT_PLUCK_BATCH_SIZE = 10_000
-      DEFAULT_SCROLL = '1m'.freeze
+      DEFAULT_SCROLL = '1m'
       # An array of storage names that are modifying returned fields in hits
       FIELD_STORAGES = %i[
         source docvalue_fields script_fields stored_fields

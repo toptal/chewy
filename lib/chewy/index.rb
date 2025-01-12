@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'chewy/search'
 require 'chewy/index/actions'
 require 'chewy/index/adapter/active_record'

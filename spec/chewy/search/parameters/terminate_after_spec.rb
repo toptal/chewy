@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'chewy/search/parameters/integer_storage_examples'
 
 describe Chewy::Search::Parameters::TerminateAfter do

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'chewy/search/parameters/string_storage_examples'
 
 describe Chewy::Search::Parameters::Preference do

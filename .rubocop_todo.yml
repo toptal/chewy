@@ -98,13 +98,6 @@ Style/EvalWithLocation:
   Exclude:
     - 'spec/chewy/index_spec.rb'
 
-# Offense count: 191
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: always, always_true, never
-Style/FrozenStringLiteralComment:
-  Enabled: false
-
 # Offense count: 2
 # Configuration parameters: MinBodyLength.
 Style/GuardClause:

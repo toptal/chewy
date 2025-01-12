@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # Test helper class to provide minitest hooks for Chewy::Index testing.
 #
 # @note Intended to be used in conjunction with a test helper which mocks over the #bulk

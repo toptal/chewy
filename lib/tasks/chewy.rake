@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'chewy/rake_helper'
 
 def parse_classes(args)

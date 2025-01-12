@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 require 'chewy/minitest'
 
@@ -122,7 +124,7 @@ describe :minitest_helper do
       end
 
       let(:unexpected_query_error_message) do
-        'got {:index=>["dummies"], :body=>{:query=>{:bool=>{:filter=>{:bool=>{:must=>{:match=>{:foo=>"bar"}}, :should=>{:multi_match=>{:foo=>"bar"}}}}}}}} instead of expected query.'
+        "got #{query.render.inspect} instead of expected query."
       end
 
       specify do

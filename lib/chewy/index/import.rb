@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'chewy/index/import/journal_builder'
 require 'chewy/index/import/bulk_builder'
 require 'chewy/index/import/bulk_request'

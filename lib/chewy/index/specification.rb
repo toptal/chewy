@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Chewy
   class Index
     # Index specification is a combination of index settings and

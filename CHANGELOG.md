@@ -3,6 +3,7 @@
 ## master (unreleased)
 
 ### New Features
+* [#978](https://github.com/toptal/chewy/pull/978): Adds frozen string literal - [@ericproulx](https://github.com/ericproulx).
 
 ### Changes
 

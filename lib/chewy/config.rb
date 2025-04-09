@@ -130,6 +130,14 @@ module Chewy
       end
     end
 
+    def replica_configuration
+      yaml_settings.fetch(:replica, {}).merge(settings.dig(:replica).deep_symbolize_keys).tap do |configuration|
+        configuration[:logger] = transport_logger if transport_logger
+        configuration[:indices_path] ||= indices_path if indices_path
+        configuration.merge!(tracer: transport_tracer) if transport_tracer
+      end
+    end
+
   private
 
     def yaml_settings

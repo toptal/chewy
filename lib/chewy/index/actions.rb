@@ -36,6 +36,12 @@ module Chewy
           false
         end
 
+        def create_replica(*args, **kwargs)
+          create_replica!(*args, **kwargs)
+        rescue Elastic::Transport::Transport::Errors::BadRequest
+          false
+        end
+
         # Creates index and applies mappings and settings.
         # Raises elasticsearch-ruby transport error in case of
         # unsuccessfull creation.
@@ -65,6 +71,19 @@ module Chewy
           result
         end
 
+        def create_replica!(suffix = nil, **options)
+          options.reverse_merge!(alias: true)
+          general_name = index_name
+          suffixed_name = index_name(suffix: suffix)
+
+          body = specification_hash
+          body[:aliases] = {general_name => {}} if options[:alias] && suffixed_name != general_name
+          result = client_replica.indices.create(index: suffixed_name, body: body)
+
+          Chewy.wait_for_status(client_replica) if result
+          result
+        end
+
         # Deletes ES index. Returns false in case of error.
         #
         #   UsersIndex.delete # deletes `users` index
@@ -89,6 +108,22 @@ module Chewy
           false
         end
 
+        def delete_replica(suffix = nil)
+          # Verify that the index_name is really the index_name and not an alias.
+          #
+          #   "The index parameter in the delete index API no longer accepts alias names.
+          #   Instead, it accepts only index names (or wildcards which will expand to matching indices)."
+          #   https://www.elastic.co/guide/en/elasticsearch/reference/6.8/breaking-changes-6.0.html#_delete_index_api_resolves_indices_expressions_only_against_indices
+          index_names = client_replica.indices.get_alias(index: index_name(suffix: suffix)).keys
+          result = client_replica.indices.delete index: index_names.join(',')
+          Chewy.wait_for_status(client_replica) if result
+          result
+          # es-ruby >= 1.0.10 handles Elastic::Transport::Transport::Errors::NotFound
+          # by itself, rescue is for previous versions
+        rescue Elastic::Transport::Transport::Errors::NotFound
+          false
+        end
+
         # Deletes ES index. Raises elasticsearch-ruby transport error
         # in case of error.
         #
@@ -102,6 +137,12 @@ module Chewy
           # es-ruby >= 1.0.10 handles Elastic::Transport::Transport::Errors::NotFound
           # by itself, so it is raised here
           delete(suffix) or raise Elastic::Transport::Transport::Errors::NotFound
+        end
+
+        def delete_replica!(suffix = nil)
+          # es-ruby >= 1.0.10 handles Elastic::Transport::Transport::Errors::NotFound
+          # by itself, so it is raised here
+          delete_replica(suffix) or raise Elastic::Transport::Transport::Errors::NotFound
         end
 
         # Deletes and recreates index. Supports suffixes.

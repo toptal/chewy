@@ -101,6 +101,10 @@ module Chewy
       Chewy.current[:chewy_client] ||= Chewy::ElasticClient.new
     end
 
+    def client_replica
+      Chewy.current[:chewy_client_replica] ||= Chewy::ElasticClientReplica.new
+    end
+
     # Sends wait_for_status request to ElasticSearch with status
     # defined in configuration.
     #

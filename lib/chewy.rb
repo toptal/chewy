@@ -50,6 +50,7 @@ require 'chewy/fields/root'
 require 'chewy/journal'
 require 'chewy/railtie' if defined?(Rails::Railtie)
 require 'chewy/elastic_client'
+require 'chewy/elastic_client_replica'
 
 ActiveSupport.on_load(:active_record) do
   include Chewy::Index::Observe::ActiveRecordMethods
@@ -99,6 +100,14 @@ module Chewy
     #
     def client
       Chewy.current[:chewy_client] ||= Chewy::ElasticClient.new
+    end
+
+    def use_primary!
+      Chewy.current[:chewy_client] = Chewy::ElasticClient.new
+    end
+
+    def use_replica!
+      Chewy.current[:chewy_client] = Chewy::ElasticClientReplica.new
     end
 
     # Sends wait_for_status request to ElasticSearch with status

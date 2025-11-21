@@ -67,7 +67,12 @@ various Chewy versions.
 
 ### Active Record
 
-6.1, 7.0, 7.1, 7.2 Active Record versions are supported by Chewy.
+The following Active Record versions are supported by Chewy:
+
+- 6.1
+- 7.0
+- 7.1
+- 7.2
 
 ## Getting Started
 

@@ -1371,5 +1371,5 @@ rake elasticsearch:stop # stop Elasticsearch
 
 ## Copyright
 
-Copyright (c) 2013-2021 Toptal, LLC. See [LICENSE.txt](LICENSE.txt) for
+Copyright (c) 2013-2025 Toptal, LLC. See [LICENSE.txt](LICENSE.txt) for
 further details.

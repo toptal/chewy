@@ -678,15 +678,7 @@ Common journal record looks like this:
 ```
 
 This feature is turned off by default.
-But you can turn it on by setting `journal` setting to `true` in `config/chewy.yml`.
-Also, you can specify journal index name. For example:
-
-```yaml
-# config/chewy.yml
-production:
-  journal: true
-  journal_name: my_super_journal
-```
+You can turn it on by setting `journal` option to `true` in `config/chewy.yml`.
 
 Also, you can provide this option while you're importing some index:
 
@@ -705,9 +697,14 @@ end
 
 You may be wondering why do you need it? The answer is simple: not to lose the data.
 
-Imagine that you reset your index in a zero-downtime manner (to separate index), and in the meantime somebody keeps updating the data frequently (to old index). So all these actions will be written to the journal index and you'll be able to apply them after index reset using the `Chewy::Journal` interface.
+Imagine that you reset your index in a zero-downtime manner (to separate index),
+and in the meantime somebody keeps updating the data frequently (to old
+index). So all these actions will be written to the journal index and you'll be
+able to apply them after index reset using the `Chewy::Journal` interface.
 
-When enabled, journal can grow to enormous size, consider setting up cron job that would clean it occasionally using [`chewy:journal:clean` rake task](#chewyjournal).
+When enabled, journal can grow to enormous size, consider setting up cron job
+that would clean it occasionally using [`chewy:journal:clean` rake
+task](#chewyjournal).
 
 ### Index manipulation
 
@@ -806,11 +803,11 @@ Chewy.settings[:sidekiq] = {queue: :low}
 
 #### `:delayed_sidekiq`
 
-It accumulates IDs of records to be reindexed during the latency window in Redis and then performs the reindexing of all accumulated records at once. 
-This strategy is very useful in the case of frequently mutated records. 
+It accumulates IDs of records to be reindexed during the latency window in Redis and then performs the reindexing of all accumulated records at once.
+This strategy is very useful in the case of frequently mutated records.
 It supports the `update_fields` option, so it will attempt to select just enough data from the database.
 
-Keep in mind, this strategy does not guarantee reindexing in the event of Sidekiq worker termination or an error during the reindexing phase. 
+Keep in mind, this strategy does not guarantee reindexing in the event of Sidekiq worker termination or an error during the reindexing phase.
 This behavior is intentional to prevent continuous growth of Redis db.
 
 There are three options that can be defined in the index:

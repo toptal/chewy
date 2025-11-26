@@ -1,4 +1,3 @@
-version: "3.4"
 services:
   elasticsearch_test:
     image: "elasticsearch:8.15.0"

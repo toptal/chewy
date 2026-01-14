@@ -6,6 +6,8 @@
 
 ### Changes
 
+* [#993](https://github.com/toptal/chewy/pull/993): Allow Ruby 4 support. ([@milk1000cc][])
+
 ### Bugs Fixed
 
 * [#964](https://github.com/toptal/chewy/pull/964): Fix `delayed_sidekiq` worker to handle UUID primary keys correctly.

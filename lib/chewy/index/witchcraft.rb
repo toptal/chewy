@@ -1,6 +1,6 @@
 begin
   require 'method_source'
-  require 'parser/current'
+  require 'prism'
   require 'unparser'
 rescue LoadError
   nil
@@ -24,7 +24,7 @@ module Chewy
         def check_requirements!
           messages = []
           messages << "MethodSource gem is required for the Witchcraft, please add `gem 'method_source'` to your Gemfile" unless Proc.method_defined?(:source)
-          messages << "Parser gem is required for the Witchcraft, please add `gem 'parser'` to your Gemfile" unless '::Parser'.safe_constantize
+          messages << "Prism gem is required for the Witchcraft, please add `gem 'prism'` to your Gemfile" unless '::Prism'.safe_constantize
           messages << "Unparser gem is required for the Witchcraft, please add `gem 'unparser'` to your Gemfile" unless '::Unparser'.safe_constantize
           messages = messages.join("\n")
 
@@ -164,7 +164,7 @@ module Chewy
         end
 
         def source_for(proc, nesting)
-          ast = Parser::CurrentRuby.parse(proc.source)
+          ast = Prism::Translation::ParserCurrent.parse(proc.source)
           lambdas = exctract_lambdas(ast)
 
           raise "No lambdas found, try to reformat your code:\n`#{proc.source}`" unless lambdas

@@ -84,6 +84,19 @@ describe Chewy::Index::Witchcraft do
       end
     end
 
+    context 'context' do
+      mapping do
+        field :name, value: ->(_o, _c, ctx) { ctx[:name] }
+      end
+
+      context do
+        let(:object) { double(name: 'Name') }
+        let(:crutches) { double }
+        let(:context) { {name: 'FromContext'} }
+        specify { expect(index.cauldron.brew(object, crutches, context)).to eq({name: 'FromContext'}.as_json) }
+      end
+    end
+
     context 'nesting' do
       context do
         mapping do

@@ -13,11 +13,12 @@ module Chewy
         # @param to_index [Array<Object>] objects to index
         # @param delete [Array<Object>] objects or ids to delete
         # @param fields [Array<Symbol, String>] and array of fields for documents update
-        def initialize(index, to_index: [], delete: [], fields: [])
+        def initialize(index, to_index: [], delete: [], fields: [], context: {})
           @index = index
           @to_index = to_index
           @delete = delete
           @fields = fields.map!(&:to_sym)
+          @context = context
         end
 
         # Returns ES API-ready bulk requiest body.
@@ -42,7 +43,7 @@ module Chewy
       private
 
         def crutches_for_index
-          @crutches_for_index ||= Chewy::Index::Crutch::Crutches.new @index, @to_index
+          @crutches_for_index ||= Chewy::Index::Crutch::Crutches.new @index, @to_index, @context
         end
 
         def index_entry(object)
@@ -257,7 +258,7 @@ module Chewy
         end
 
         def data_for(object, fields: [], crutches: crutches_for_index)
-          @index.compose(object, crutches, fields: fields)
+          @index.compose(object, crutches, fields: fields, context: @context)
         end
 
         def parent_changed?(data, old_parent)

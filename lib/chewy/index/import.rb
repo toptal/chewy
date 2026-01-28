@@ -115,13 +115,13 @@ module Chewy
         # @param crutches [Object] optional crutches object; if omitted - a crutch for the single passed object is created as a fallback
         # @param fields [Array<Symbol>] and array of fields to restrict the generated document
         # @return [Hash] a JSON-ready hash
-        def compose(object, crutches = nil, fields: [])
-          crutches ||= Chewy::Index::Crutch::Crutches.new self, [object]
+        def compose(object, crutches = nil, fields: [], context: {})
+          crutches ||= Chewy::Index::Crutch::Crutches.new self, [object], context
 
           if witchcraft? && root.children.present?
-            cauldron(fields: fields).brew(object, crutches)
+            cauldron(fields: fields).brew(object, crutches, context)
           else
-            root.compose(object, crutches, fields: fields)
+            root.compose(object, crutches, fields: fields, context: context)
           end
         end
 

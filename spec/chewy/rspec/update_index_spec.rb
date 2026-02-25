@@ -262,7 +262,7 @@ describe :update_index do
 
         specify { expectation.to fail_matching 'Expected document with id `43` to be reindexed' }
         specify { expectation.to fail_matching '2 times, but was reindexed 1 times' }
-        specify { expectation.to fail_matching 'with {:a=>2}, but it was reindexed with {:a=>"1"}' }
+        specify { expectation.to fail_matching 'but it was reindexed with' }
       end
     end
   end

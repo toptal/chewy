@@ -465,7 +465,9 @@ Total: \\d+s\\Z
         Rake::Task.define_task(:environment)
       end
       it 'does not raise error' do
-        expect { task.invoke }.to_not raise_error
+        expect do
+          expect { task.invoke }.to_not raise_error
+        end.to output(match('Cleaned up 2 journal entries')).to_stdout
       end
     end
   end

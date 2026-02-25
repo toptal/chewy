@@ -17,7 +17,7 @@ jobs:
       fail-fast: false
       matrix:
         ruby: [ '3.2', '3.3', '3.4' ]
-        gemfile: [rails.6.1.activerecord, rails.7.0.activerecord, rails.7.1.activerecord, rails.7.2.activerecord, rails.8.0.activerecord]
+        gemfile: [rails.7.2.activerecord, rails.8.0.activerecord]
     name: ${{ matrix.ruby }}-${{ matrix.gemfile }}
 
     env:

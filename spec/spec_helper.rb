@@ -10,6 +10,11 @@ require 'timecop'
 
 Kaminari::Hooks.init if defined?(Kaminari::Hooks)
 
+if defined?(Sidekiq)
+  Sidekiq.testing!(:fake)
+  Sidekiq.default_configuration.logger = nil
+end
+
 require 'support/fail_helpers'
 require 'support/class_helpers'
 

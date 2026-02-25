@@ -1,8 +1,6 @@
 require 'spec_helper'
 
 if defined?(Sidekiq)
-  require 'sidekiq/testing'
-
   describe Chewy::Strategy::LazySidekiq do
     around do |example|
       sidekiq_settings = Chewy.settings[:sidekiq]

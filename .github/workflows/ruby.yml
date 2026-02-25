@@ -3,6 +3,7 @@ name: CI
 on:
   push:
     branches: [master]
+  workflow_dispatch:
   pull_request:
     types: [
       synchronize, # PR was updated
@@ -36,7 +37,7 @@ jobs:
           --health-timeout 5s
           --health-retries 5
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: ruby/setup-ruby@v1
         with:
           ruby-version: ${{ matrix.ruby }}
@@ -52,9 +53,9 @@ jobs:
   rubocop:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: ruby/setup-ruby@v1
         with:
-          ruby-version: 3.0
+          ruby-version: 3.4
           bundler-cache: true
       - run: bundle exec rubocop --format simple

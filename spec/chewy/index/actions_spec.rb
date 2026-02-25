@@ -583,67 +583,6 @@ describe Chewy::Index::Actions do
       end
     end
 
-    xcontext 'applying journal' do
-      before do
-        stub_index(:cities) do
-          index_scope City
-          field :name, value: (lambda do
-            sleep(rating)
-            name
-          end)
-        end
-      end
-
-      let!(:cities) { Array.new(3) { |i| City.create!(id: i + 1, name: "Name#{i + 1}", rating: 1) } }
-
-      let(:parallel_update) do
-        Thread.new do
-          p 'start parallel'
-          sleep(1.5)
-          cities.first.update(name: 'NewName1', rating: 0)
-          cities.last.update(name: 'NewName3', rating: 0)
-          CitiesIndex::City.import!([cities.first, cities.last], journal: true)
-          p 'end parallel'
-        end
-      end
-
-      specify 'with journal application' do
-        cities
-        p 'cities created1'
-        ActiveRecord::Base.connection.close if defined?(ActiveRecord::Base)
-        [
-          parallel_update,
-          Thread.new do
-            p 'start reset1'
-            CitiesIndex.reset!('suffix')
-            p 'end reset1'
-          end
-        ].map(&:join)
-        ActiveRecord::Base.connection.reconnect! if defined?(ActiveRecord::Base)
-        p 'expect1'
-        expect(CitiesIndex::City.pluck(:_id, :name)).to contain_exactly(%w[1 NewName1], %w[2 Name2], %w[3 NewName3])
-        p 'end expect1'
-      end
-
-      specify 'without journal application' do
-        cities
-        p 'cities created2'
-        ActiveRecord::Base.connection.close if defined?(ActiveRecord::Base)
-        [
-          parallel_update,
-          Thread.new do
-            p 'start reset2'
-            CitiesIndex.reset!('suffix', apply_journal: false)
-            p 'end reset2'
-          end
-        ].map(&:join)
-        ActiveRecord::Base.connection.reconnect! if defined?(ActiveRecord::Base)
-        p 'expect2'
-        expect(CitiesIndex::City.pluck(:_id, :name)).to contain_exactly(%w[1 Name1], %w[2 Name2], %w[3 Name3])
-        p 'end expect2'
-      end
-    end
-
     context 'journaling' do
       before { City.create!(id: 1, name: 'Moscow') }
 

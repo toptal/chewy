@@ -12,18 +12,10 @@ describe Chewy::Search::QueryProxy do
       expect(subject.must(multi_match: {foo: 'bar'}).render[:body])
         .to eq(query: {bool: {must: [{match: {foo: 'bar'}}, {multi_match: {foo: 'bar'}}]}})
     end
-    specify do
-      expect(subject.must(multi_match: {foo: 'bar'}).render[:body])
-        .to eq(query: {bool: {must: [{match: {foo: 'bar'}}, {multi_match: {foo: 'bar'}}]}})
-    end
   end
 
   describe '#should' do
     specify { expect { subject.should }.to raise_error ArgumentError }
-    specify do
-      expect(subject.should(multi_match: {foo: 'bar'}).render[:body])
-        .to eq(query: {bool: {must: {match: {foo: 'bar'}}, should: {multi_match: {foo: 'bar'}}}})
-    end
     specify do
       expect(subject.should(multi_match: {foo: 'bar'}).render[:body])
         .to eq(query: {bool: {must: {match: {foo: 'bar'}}, should: {multi_match: {foo: 'bar'}}}})
@@ -36,18 +28,10 @@ describe Chewy::Search::QueryProxy do
       expect(subject.must_not(multi_match: {foo: 'bar'}).render[:body])
         .to eq(query: {bool: {must: {match: {foo: 'bar'}}, must_not: {multi_match: {foo: 'bar'}}}})
     end
-    specify do
-      expect(subject.must_not(multi_match: {foo: 'bar'}).render[:body])
-        .to eq(query: {bool: {must: {match: {foo: 'bar'}}, must_not: {multi_match: {foo: 'bar'}}}})
-    end
   end
 
   describe '#and' do
     specify { expect { subject.and }.to raise_error ArgumentError }
-    specify do
-      expect(subject.and(multi_match: {foo: 'bar'}).render[:body])
-        .to eq(query: {bool: {must: [{match: {foo: 'bar'}}, {multi_match: {foo: 'bar'}}]}})
-    end
     specify do
       expect(subject.and(multi_match: {foo: 'bar'}).render[:body])
         .to eq(query: {bool: {must: [{match: {foo: 'bar'}}, {multi_match: {foo: 'bar'}}]}})
@@ -65,10 +49,6 @@ describe Chewy::Search::QueryProxy do
         .to eq(query: {bool: {should: [{match: {foo: 'bar'}}, {multi_match: {foo: 'bar'}}]}})
     end
     specify do
-      expect(subject.or(multi_match: {foo: 'bar'}).render[:body])
-        .to eq(query: {bool: {should: [{match: {foo: 'bar'}}, {multi_match: {foo: 'bar'}}]}})
-    end
-    specify do
       expect(subject.or(scope).render[:body])
         .to eq(query: {bool: {should: [{match: {foo: 'bar'}}, {bool: {must_not: {match: {foo: 'bar'}}}}]}})
     end
@@ -76,10 +56,6 @@ describe Chewy::Search::QueryProxy do
 
   describe '#not' do
     specify { expect { subject.not }.to raise_error ArgumentError }
-    specify do
-      expect(subject.not(multi_match: {foo: 'bar'}).render[:body])
-        .to eq(query: {bool: {must: {match: {foo: 'bar'}}, must_not: {multi_match: {foo: 'bar'}}}})
-    end
     specify do
       expect(subject.not(multi_match: {foo: 'bar'}).render[:body])
         .to eq(query: {bool: {must: {match: {foo: 'bar'}}, must_not: {multi_match: {foo: 'bar'}}}})

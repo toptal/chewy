@@ -32,11 +32,36 @@ describe Chewy::Index::Import do
 
   describe 'index creation on import' do
     let(:dummy_city) { City.create }
+    let(:dummy_auto_suffix) { (Time.now.to_f * 1000).round }
+
+    before do
+      allow(Chewy::Index).to receive(:auto_suffix).and_return(dummy_auto_suffix)
+    end
 
     specify 'lazy (default)' do
-      expect(CitiesIndex).to receive(:exists?).and_call_original
-      expect(CitiesIndex).to receive(:create!).and_call_original
+      expect(CitiesIndex).to receive(:exists?).with(no_args).and_call_original
+      expect(CitiesIndex).to receive(:create!).with(dummy_auto_suffix).and_call_original
       CitiesIndex.import(dummy_city)
+    end
+
+    specify 'lazy when index is already created' do
+      CitiesIndex.create!
+      expect(CitiesIndex).to receive(:exists?).with(no_args).and_call_original
+      expect(CitiesIndex).not_to receive(:create!)
+      CitiesIndex.import(dummy_city)
+    end
+
+    specify 'lazy when index is already created and suffix is given' do
+      CitiesIndex.create!(dummy_auto_suffix)
+      expect(CitiesIndex).to receive(:exists?).with(dummy_auto_suffix).and_call_original
+      expect(CitiesIndex).not_to receive(:create!)
+      CitiesIndex.import(dummy_city, suffix: dummy_auto_suffix)
+    end
+
+    specify 'lazy when suffix is given' do
+      expect(CitiesIndex).to receive(:exists?).with(dummy_auto_suffix).and_call_original
+      expect(CitiesIndex).to receive(:create!).with(dummy_auto_suffix).and_call_original
+      CitiesIndex.import(dummy_city, suffix: dummy_auto_suffix)
     end
 
     specify 'lazy without objects' do

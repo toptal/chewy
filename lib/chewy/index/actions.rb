@@ -7,12 +7,13 @@ module Chewy
       extend ActiveSupport::Concern
 
       module ClassMethods
-        # Checks index existance. Returns true or false
+        # Checks index existance. Supports suffixes. Returns true or false
         #
         #   UsersIndex.exists? #=> true
+        #   UsersIndex.exists?('11-2024') #=> false
         #
-        def exists?
-          client.indices.exists(index: index_name)
+        def exists?(suffix = nil)
+          client.indices.exists(index: index_name(suffix: suffix))
         end
 
         # Creates index and applies mappings and settings.

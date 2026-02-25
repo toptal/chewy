@@ -1,5 +1,13 @@
 # Changelog
 
+## master (unreleased)
+
+### New Features
+
+### Changes
+
+* [#973](https://github.com/toptal/chewy/pull/973): **(Potentially Breaking)** Indexes now use suffixed physical names from first creation (e.g., `users_1700000000000`) with an unsuffixed alias (`users`), instead of switching to this layout only after an index reset. This reduces the risk of a race condition during index reset. Existing unsuffixed indexes are not auto-migrated and continue to work, but direct ES operations that expect unsuffixed concrete index names may need updates. To migrate existing unsuffixed indexes to the alias-based layout, perform a one-time `chewy:reset` in a controlled window (pause jobs/writes that can recreate the unsuffixed index name). ([@dmeremyanin][])
+
 ## 8.0.0 (2026-02-25)
 
 ### New Features
@@ -827,6 +835,7 @@
 [@davekaro]: https://github.com/davekaro
 [@dck]: https://github.com/dck
 [@dm1try]: https://github.com/dm1try
+[@dmeremyanin]: https://github.com/dmeremyanin
 [@dmitry]: https://github.com/dmitry
 [@dnd]: https://github.com/dnd
 [@DNNX]: https://github.com/DNNX

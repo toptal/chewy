@@ -63,7 +63,7 @@ It is not possible to specify any particular indexes for this task as it doesn't
 
 Right now the approach is that if some data had been updated, but index definition was not changed (no changes satisfying the synchronization algorithm were done), it would be much faster to perform manual partial index update inside data migrations or even manually after the deploy.
 
-Also, there is always full reset alternative with `rake chewy:reset`.
+Also, there is always full reset alternative with `rake chewy:reset`. See [configuration.md](configuration.md#index-update-strategies) for how update strategies interact with deployment.
 
 ## `chewy:create_missing_indexes`
 
@@ -93,6 +93,8 @@ This namespace contains two tasks for the journal manipulations: `chewy:journal:
 rake chewy:journal:apply["$(date -v-1H -u +%FT%TZ)"] # apply journaled changes for the past hour
 rake chewy:journal:apply["$(date -v-1H -u +%FT%TZ)",users] # apply journaled changes for the past hour on UsersIndex only
 ```
+
+See [import.md](import.md#journaling) for how journaling works and how to enable it.
 
 When the size of the journal becomes very large, the classical way of deletion would be obstructive and resource consuming. Fortunately, Chewy internally uses [delete-by-query](https://www.elastic.co/guide/en/elasticsearch/reference/7.17/docs-delete-by-query.html#docs-delete-by-query-task-api) ES function which supports async execution with batching and [throttling](https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-delete-by-query.html#docs-delete-by-query-throttle).
 

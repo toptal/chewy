@@ -14,7 +14,7 @@ class ProductsIndex < Chewy::Index
 end
 ```
 
-See [import.rb](../lib/chewy/index/import.rb) for available options.
+See [import.rb](../lib/chewy/index/import.rb) for available options. For field definitions (`field`, `index_scope`, etc.), see [indexing.md](indexing.md#index-definition).
 
 ## Raw import
 
@@ -115,7 +115,7 @@ You may be wondering why do you need it? The answer is simple: not to lose the d
 Imagine that you reset your index in a zero-downtime manner (to separate index),
 and in the meantime somebody keeps updating the data frequently (to old
 index). So all these actions will be written to the journal index and you'll be
-able to apply them after index reset using the `Chewy::Journal` interface.
+able to apply them after index reset using the `Chewy::Journal` interface. You can subscribe to journal events via `ActiveSupport::Notifications` — see [configuration.md](configuration.md#activesupportnotifications-support) for details.
 
 When enabled, journal can grow to enormous size, consider setting up cron job
 that would clean it occasionally using [`chewy:journal:clean` rake

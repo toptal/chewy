@@ -70,7 +70,7 @@ Here's the relevant Elasticsearch documentation on the subject: https://rubydoc.
 
 ## Index update strategies
 
-Assume you've got the following code:
+Assume you've got the following code (see [indexing.md](indexing.md#index-definition) for the full `update_index` DSL):
 
 ```ruby
 class City < ActiveRecord::Base
@@ -308,6 +308,8 @@ RSpec.configure do |config|
 end
 ```
 
+See [testing.md](testing.md) for more on RSpec/Minitest integration and the DatabaseCleaner caveat.
+
 ## `ActiveSupport::Notifications` support
 
 Chewy has notifying the following events:
@@ -338,6 +340,8 @@ Chewy has notifying the following events:
     ```
 
 ## NewRelic integration
+
+**Note:** this example was written for an older version of the NewRelic APM agent and may need adaptation for current versions. The general pattern of subscribing to Chewy's `ActiveSupport::Notifications` events remains valid.
 
 To integrate with NewRelic you may use the following example source (config/initializers/chewy.rb):
 

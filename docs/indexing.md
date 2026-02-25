@@ -104,6 +104,8 @@
   end
   ```
 
+  The `update_index` callback requires an active update strategy to be set. See [configuration.md](configuration.md#index-update-strategies) for available strategies and how they integrate with Rails.
+
   Also, you can use the second argument for method name passing:
 
   ```ruby
@@ -242,7 +244,7 @@ Product.includes(:categories).find_in_batches(1000) do |batch|
 end
 ```
 
-So Chewy Crutches technology is able to increase your indexing performance in some cases up to a hundredfold or even more depending on your associations complexity.
+So Chewy Crutches technology is able to increase your indexing performance in some cases up to a hundredfold or even more depending on your associations complexity. For another approach to import performance, see [Raw import](import.md#raw-import).
 
 ## Witchcraft technology
 
@@ -313,6 +315,8 @@ UsersIndex.import! # raises an exception in case of any import errors
 
 UsersIndex.reset! # purges index and imports default data for all types
 ```
+
+For more on import options, batching and journaling, see [import.md](import.md).
 
 If the passed user is `#destroyed?`, or satisfies a `delete_if` index_scope option, or the specified id does not exist in the database, import will perform delete from index action for this object.
 

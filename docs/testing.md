@@ -37,3 +37,5 @@ If you use `DatabaseCleaner` in your tests with [the `transaction` strategy](htt
 #config/initializers/chewy.rb
 Chewy.use_after_commit_callbacks = !Rails.env.test?
 ```
+
+If you're seeing other unexpected behavior in tests, check [troubleshooting.md](troubleshooting.md) for common issues and debugging tips.

@@ -1,14 +1,17 @@
 # Changelog
 
-## master (unreleased)
+## 8.0.0 (2026-02-25)
 
 ### New Features
 
 ### Changes
 
+* **(Breaking)** Drop support for Ruby < 3.2 and Rails < 7.2. Chewy now requires Ruby ~> 3.2 and ActiveSupport >= 7.2. ([@bbatsov][])
+
 ### Bugs Fixed
 
 * [#964](https://github.com/toptal/chewy/pull/964): Fix `delayed_sidekiq` worker to handle UUID primary keys correctly.
+* Fix `FrozenError` in `Syncer` when ActiveRecord returns frozen arrays from `pluck`. ([@bbatsov][])
 
 ## 8.0.0-beta (2024-08-27)
 

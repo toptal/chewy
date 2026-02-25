@@ -5,7 +5,6 @@ gem 'rake'
 gem 'redis', require: false
 gem 'rspec', '>= 3.7.0'
 gem 'rspec-collection_matchers'
-gem 'rspec-its'
 gem 'rubocop', '1.84.2'
 gem 'sqlite3', '~> 2.1'
 gem 'timecop'

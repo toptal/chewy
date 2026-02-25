@@ -4,7 +4,6 @@ Bundler.require
 
 require 'active_record'
 
-require 'rspec/its'
 require 'rspec/collection_matchers'
 
 require 'timecop'

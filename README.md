@@ -41,6 +41,8 @@ Or install it yourself as:
 
 ## Compatibility
 
+Chewy aims to support all Ruby and Rails versions that are currently maintained by their respective teams. When a version reaches end-of-life, we may drop support for it in a future release.
+
 ### Ruby
 
 Chewy is compatible with MRI 3.2-3.4.

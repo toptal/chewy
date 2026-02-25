@@ -23,7 +23,7 @@ In order to upgrade Chewy 6/Elasticsearch 6 to Chewy 7/Elasticsearch 7 in the mo
 * Run manual tests on Chewy 7.1 / Elasticsearch 7
 * Upgrade to Chewy 7.1
 * Upgrade to Chewy 7.2:
-  * Remove all the the `Chewy::Type` class usages, e.g. remove `CitiesIndex::City` / `CitiesIndex.city`
+  * Remove all the `Chewy::Type` class usages, e.g. remove `CitiesIndex::City` / `CitiesIndex.city`
     * `CitiesIndex::City.import! ...` becomes `CitiesIndex.import! ...`
   * Update indexes with simplified DSL:
     * `define_type` block -> `index_scope` clause

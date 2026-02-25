@@ -157,8 +157,8 @@ module Chewy
             batch_size: DEFAULT_SYNC_BATCH_SIZE,
             typecast: false
           }
-          @index.adapter.import_fields(import_fields_args).to_a.flatten(1).each do |data|
-            data[0] = data[0].to_s
+          @index.adapter.import_fields(import_fields_args).to_a.flatten(1).map do |data|
+            [data[0].to_s, *data[1..]]
           end
         else
           @index.adapter.import_fields(batch_size: DEFAULT_SYNC_BATCH_SIZE, typecast: false).to_a.flatten(1).map(&:to_s)
@@ -167,8 +167,8 @@ module Chewy
 
       def fetch_index_data
         if @index.supports_outdated_sync?
-          @index.pluck(:_id, @index.outdated_sync_field).each do |data|
-            data[0] = data[0].to_s
+          @index.pluck(:_id, @index.outdated_sync_field).map do |data|
+            [data[0].to_s, *data[1..]]
           end
         else
           @index.pluck(:_id).map(&:to_s)

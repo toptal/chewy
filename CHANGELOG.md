@@ -4,6 +4,8 @@
 
 ### New Features
 
+* [#996](https://github.com/toptal/chewy/pull/996): Add `context:` option to `import`/`import!` for passing custom data to crutch blocks and field value procs without redundant DB queries.
+
 ### Changes
 * [#977](https://github.com/toptal/chewy/pull/977): Fewer files on gem installation [@ericproulx](https://github.com/ericproulx).
 

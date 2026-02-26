@@ -157,6 +157,90 @@ describe Chewy::Index::Import::BulkBuilder do
       end
     end
 
+    context 'context' do
+      before do
+        stub_index(:cities) do
+          crutch :names do |collection, context|
+            context[:names] || collection.to_h { |item| [item.id, "Name#{item.id}"] }
+          end
+
+          field :name, value: ->(o, c) { c.names[o.id] }
+        end
+      end
+
+      let(:to_index) { [double(id: 42)] }
+
+      context 'without context' do
+        specify do
+          expect(subject.bulk_body).to eq([
+            {index: {_id: 42, data: {'name' => 'Name42'}}}
+          ])
+        end
+      end
+
+      context 'with context' do
+        subject { described_class.new(index, to_index: to_index, delete: delete, fields: fields, context: {names: {42 => 'ContextName42'}}) }
+
+        specify do
+          expect(subject.bulk_body).to eq([
+            {index: {_id: 42, data: {'name' => 'ContextName42'}}}
+          ])
+        end
+      end
+
+      context 'with context passed to field value' do
+        before do
+          stub_index(:cities) do
+            crutch :names do |collection|
+              collection.to_h { |item| [item.id, "Name#{item.id}"] }
+            end
+
+            field :name, value: ->(o, crutches, context) { context[:prefix].to_s + crutches.names[o.id] }
+          end
+        end
+
+        context 'without context' do
+          specify do
+            expect(subject.bulk_body).to eq([
+              {index: {_id: 42, data: {'name' => 'Name42'}}}
+            ])
+          end
+        end
+
+        context 'with context' do
+          subject { described_class.new(index, to_index: to_index, delete: delete, fields: fields, context: {prefix: '[ctx] '}) }
+
+          specify do
+            expect(subject.bulk_body).to eq([
+              {index: {_id: 42, data: {'name' => '[ctx] Name42'}}}
+            ])
+          end
+        end
+      end
+
+      context 'witchcraft' do
+        before { CitiesIndex.witchcraft! }
+
+        context 'without context' do
+          specify do
+            expect(subject.bulk_body).to eq([
+              {index: {_id: 42, data: {'name' => 'Name42'}}}
+            ])
+          end
+        end
+
+        context 'with context' do
+          subject { described_class.new(index, to_index: to_index, delete: delete, fields: fields, context: {names: {42 => 'ContextName42'}}) }
+
+          specify do
+            expect(subject.bulk_body).to eq([
+              {index: {_id: 42, data: {'name' => 'ContextName42'}}}
+            ])
+          end
+        end
+      end
+    end
+
     context 'empty ids' do
       before do
         stub_index(:cities) do

@@ -51,15 +51,15 @@ module Chewy
           @fields = fields
         end
 
-        def brew(object, crutches = nil)
-          alicorn.call(locals, object, crutches).as_json
+        def brew(object, crutches = nil, context = {})
+          alicorn.call(locals, object, crutches, context).as_json
         end
 
       private
 
         def alicorn
           @alicorn ||= singleton_class.class_eval <<-RUBY, __FILE__, __LINE__ + 1
-            -> (locals, object0, crutches) do
+            -> (locals, object0, crutches, context) do
               #{composed_values(@index.root, 0)}
             end
           RUBY
@@ -182,6 +182,7 @@ module Chewy
               source = replace_lvar(source, proc_params[n], :"object#{n}") if proc_params[n]
             end
             source = replace_lvar(source, proc_params[nesting + 1], :crutches) if proc_params[nesting + 1]
+            source = replace_lvar(source, proc_params[nesting + 2], :context) if proc_params[nesting + 2]
 
             binding_variable_list(source).each do |variable|
               locals.push(proc.binding.eval(variable.to_s))

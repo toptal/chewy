@@ -1,7 +1,6 @@
 require 'spec_helper'
 
 if defined?(Sidekiq)
-  require 'sidekiq/testing'
   require 'redis'
 
   describe Chewy::Strategy::DelayedSidekiq do

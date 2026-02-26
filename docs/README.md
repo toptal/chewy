@@ -1,6 +1,8 @@
 # Chewy Documentation
 
-Getting started — see the main [README](../README.md).
+## Getting Started
+
+- [Getting Started Tutorial](getting_started.md) — end-to-end guide building search for a media library
 
 ## Reference
 

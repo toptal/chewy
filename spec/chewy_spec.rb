@@ -1,8 +1,8 @@
 require 'spec_helper'
 
 describe Chewy do
-  it 'should have a version number' do
-    expect(Chewy::VERSION).not_to be nil
+  it 'has a version number' do
+    expect(Chewy::VERSION).not_to be_nil
   end
 
   describe '.derive_name' do
@@ -29,24 +29,6 @@ describe Chewy do
     specify do
       expect(described_class.derive_name('namespace/autocomplete')).to eq(Namespace::AutocompleteIndex)
     end
-  end
-
-  xdescribe '.massacre' do
-    before { drop_indices }
-
-    before do
-      allow(Chewy).to receive_messages(configuration: Chewy.configuration.merge(prefix: 'prefix1'))
-      stub_index(:admins).create!
-      allow(Chewy).to receive_messages(configuration: Chewy.configuration.merge(prefix: 'prefix2'))
-      stub_index(:developers).create!
-
-      drop_indices
-
-      allow(Chewy).to receive_messages(configuration: Chewy.configuration.merge(prefix: 'prefix1'))
-    end
-
-    specify { expect(AdminsIndex.exists?).to eq(true) }
-    specify { expect(DevelopersIndex.exists?).to eq(false) }
   end
 
   describe '.client' do

@@ -68,32 +68,10 @@ describe Chewy::Search::Response, :orm do
 
   describe '#took' do
     specify { expect(subject.took).to be >= 0 }
-
-    context do
-      let(:request) do
-        Chewy::Search::Request.new(CitiesIndex)
-          .query(script: {script: {inline: 'sleep(100); true', lang: 'groovy'}})
-      end
-      specify do
-        pending
-        expect(subject.took).to be > 100
-      end
-    end
   end
 
   describe '#timed_out?' do
     specify { expect(subject.timed_out?).to eq(false) }
-
-    context do
-      let(:request) do
-        Chewy::Search::Request.new(CitiesIndex)
-          .query(script: {script: {inline: 'sleep(100); true', lang: 'groovy'}}).timeout('10ms')
-      end
-      specify do
-        pending
-        expect(subject.timed_out?).to eq(true)
-      end
-    end
   end
 
   describe '#suggest' do

@@ -25,7 +25,7 @@ module Chewy
         search_type preference limit offset terminate_after
         timeout min_score source stored_fields search_after
         load script_fields suggest aggs aggregations collapse none
-        indices_boost rescore highlight total total_count
+        indices_boost rescore highlight runtime_mappings total total_count
         total_entries indices types delete_all count exists?
         exist? find pluck scroll_batches scroll_hits
         scroll_results scroll_wrappers ignore_unavailable
@@ -656,7 +656,23 @@ module Chewy
       #   @see https://www.elastic.co/guide/en/elasticsearch/reference/current/highlighting.html
       #   @param value [Hash]
       #   @return [Chewy::Search::Request]
-      %i[script_fields indices_boost rescore highlight].each do |name|
+      #
+      # @!method runtime_mappings(value)
+      #   Add a `runtime_mappings` part to the request. Further
+      #   call values are merged to the storage hash.
+      #
+      #   @example
+      #     PlacesIndex
+      #       .runtime_mappings(field1: {type: "keyword", :script=>{:lang=>"painless", :source=>"emit('some script here')"}})
+      #       .runtime_mappings(field2: {type: "keyword", :script=>{:lang=>"painless", :source=>"emit('some script here')"}})
+      #     # => <PlacesIndex::Query {..., :body=>{:runtime_mappings=>{
+      #     #      "field1"=>{:type=>"keyword", :script=>{:lang=>"painless", :source=>"emit('some script here')"}},
+      #     #      "field2"=>{:type=>"keyword", :script=>{:lang=>"painless", :source=>"emit('some script here')"}}}}}>
+      #   @see Chewy::Search::Parameters::ScriptFields
+      #   @see https://www.elastic.co/guide/en/elasticsearch/reference/current/runtime-search-request.html
+      #   @param value [Hash]
+      #   @return [Chewy::Search::Request]
+      %i[script_fields indices_boost rescore highlight runtime_mappings].each do |name|
         define_method name do |value|
           modify(name) { update!(value) }
         end

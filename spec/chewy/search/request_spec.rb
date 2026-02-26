@@ -288,7 +288,7 @@ describe Chewy::Search::Request do
     specify { expect { subject.stored_fields(:foo) }.not_to change { subject.render } }
   end
 
-  %i[script_fields highlight].each do |name|
+  %i[script_fields highlight runtime_mappings].each do |name|
     describe "##{name}" do
       specify { expect(subject.send(name, foo: {bar: 42}).render[:body]).to include(name => {'foo' => {bar: 42}}) }
       specify do

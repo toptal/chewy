@@ -51,6 +51,43 @@ Elasticsearch scroll API is utilized by a bunch of methods: `scroll_batches`, `s
 
 See [Chewy::Search::Scrolling](../lib/chewy/search/scrolling.rb) for details.
 
+## Sorting
+
+Use `order` to sort results. It accepts field names, hashes for direction, and
+Elasticsearch sort options:
+
+```ruby
+CitiesIndex.order(:name)                                  # ascending by name
+CitiesIndex.order(population: :desc)                      # descending by population
+CitiesIndex.order(:_score)                                # by relevance (the default)
+CitiesIndex.order(population: {order: :desc, missing: '_last'})
+```
+
+You can chain multiple sort clauses — they apply in order:
+
+```ruby
+CitiesIndex.order(country: :asc, name: :asc)
+```
+
+To sort on a text field without tokenization artifacts, define a keyword
+sub-field (e.g. `title.sorted`) in your index mapping and sort on that.
+See [indexing.md](indexing.md#multi-nested-and-object-field-types) for an example.
+
+## Error handling
+
+When building search UIs where users type free-text queries, malformed input
+(unbalanced parentheses, invalid syntax) can cause Elasticsearch to return a
+400 error. Rescue it to avoid crashing the page:
+
+```ruby
+begin
+  results = CitiesIndex.query(query_string: {query: user_input}).to_a
+rescue Elasticsearch::Transport::Transport::Errors::BadRequest => e
+  results = []
+  # Log or display a user-friendly message
+end
+```
+
 ## Loading objects
 
 It is possible to load ORM/ODM source objects with the `objects` method. To provide additional loading options use `load` method:

@@ -150,6 +150,20 @@ end
 
 The `value:` option for internal fields will no longer be effective.
 
+A common use for multi-fields is adding a keyword sub-field for sorting.
+Text fields are tokenized and cannot be sorted directly, but a keyword
+sub-field preserves the original value:
+
+```ruby
+field :title, type: 'text' do
+  field :sorted, type: 'keyword'
+end
+```
+
+Then sort with `BooksIndex.order('title.sorted': :asc)`. You can also use a
+custom analyzer (e.g. `keyword` tokenizer + `lowercase` filter) if you want
+case-insensitive sorting.
+
 ## Geo Point fields
 
 You can use [Elasticsearch's geo mapping](https://www.elastic.co/guide/en/elasticsearch/reference/current/geo-point.html) with the `geo_point` field type, allowing you to query, filter and order by latitude and longitude. You can use the following hash format:

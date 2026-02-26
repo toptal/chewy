@@ -38,4 +38,38 @@ If you use `DatabaseCleaner` in your tests with [the `transaction` strategy](htt
 Chewy.use_after_commit_callbacks = !Rails.env.test?
 ```
 
+## Testing search results
+
+The `update_index` matcher verifies that index operations are triggered, but
+sometimes you need to test that queries return the right documents. Import data
+into a real Elasticsearch index and query it:
+
+```ruby
+RSpec.describe 'City search' do
+  before do
+    CitiesIndex.purge!
+    Chewy.strategy(:urgent) do
+      City.create!(name: 'London', population: 9_000_000)
+      City.create!(name: 'Bangkok', population: 11_000_000)
+      City.create!(name: 'Lisbon', population: 500_000)
+    end
+    CitiesIndex.refresh
+  end
+
+  it 'finds cities by name' do
+    results = CitiesIndex.query(match: {name: 'London'})
+    expect(results.count).to eq(1)
+    expect(results.first.name).to eq('London')
+  end
+
+  it 'filters by population' do
+    results = CitiesIndex.filter(range: {population: {gte: 10_000_000}})
+    expect(results.count).to eq(1)
+  end
+end
+```
+
+Use `purge!` to clear the index, `:urgent` strategy so records are indexed
+immediately, and `refresh` to ensure documents are searchable before asserting.
+
 If you're seeing other unexpected behavior in tests, check [troubleshooting.md](troubleshooting.md) for common issues and debugging tips.

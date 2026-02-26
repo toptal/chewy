@@ -11,7 +11,7 @@ Gem::Specification.new do |spec|
   spec.description   = 'Chewy provides functionality for Elasticsearch index handling, documents import mappings and chainable query DSL'
   spec.homepage      = 'https://github.com/toptal/chewy'
   spec.license       = 'MIT'
-  spec.required_ruby_version = '~> 3.2'
+  spec.required_ruby_version = '>= 3.2'
 
   spec.files         = Dir['CHANGELOG.md', 'LICENSE.txt', 'README.md', 'lib/**/*']
   spec.executables   = spec.files.grep(%r{^bin/}) { |f| File.basename(f) }

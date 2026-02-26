@@ -9,6 +9,10 @@ Getting started — see the main [README](../README.md).
 - [Import](import.md) — import options, raw import, journaling
 - [Querying](querying.md) — search requests, pagination, scopes, scroll, loading
 
+## Guides
+
+- [Non-Rails Usage](non_rails.md) — using Chewy without Rails (setup, strategies, rake tasks)
+
 ## Operations
 
 - [Rake Tasks](rake_tasks.md) — reindexing, syncing, journal management, parallelization

@@ -23,6 +23,8 @@ development:
   host: 'localhost:9200'
 ```
 
+> **Not using Rails?** You can skip `chewy.yml` entirely and configure Chewy with `Chewy.settings = {...}`. See the [Non-Rails Usage](non_rails.md) guide.
+
 The resulting config merges both hashes. Client options are passed as is to `Elasticsearch::Transport::Client` except for the `:prefix`, which is used internally by Chewy to create prefixed index names:
 
 ```ruby

@@ -243,6 +243,33 @@ end
 - [Rake Tasks](docs/rake_tasks.md) — all rake tasks and parallelization
 - [Testing](docs/testing.md) — RSpec, Minitest, DatabaseCleaner
 - [Troubleshooting](docs/troubleshooting.md) — pre-request filter
+- [Non-Rails Usage](docs/non_rails.md) — using Chewy without Rails
+
+## FAQ
+
+**Can I use Chewy without Rails?**
+
+Yes. ActiveSupport and the elasticsearch gem are the only hard dependencies; the Rails railtie loads conditionally. See the [Non-Rails Usage](docs/non_rails.md) guide.
+
+**Does Chewy follow SemVer?**
+
+No. The major version tracks the newest supported Elasticsearch version and minor version bumps may include breaking changes. Always check the [release notes](https://github.com/toptal/chewy/releases) before upgrading.
+
+**Which versions of Ruby, Rails and Elasticsearch are supported?**
+
+See the [Compatibility](#compatibility) section above. When a Ruby or Rails version reaches end-of-life we may drop support in a future release.
+
+**What's the `UndefinedUpdateStrategy` error?**
+
+Chewy raises this when you save a model with an `update_index` callback and no strategy is active. Wrap your code in `Chewy.strategy(:atomic) { ... }` or set `Chewy.root_strategy = :bypass`. See [Troubleshooting](docs/troubleshooting.md#undefinedupdatestrategy-error) for details.
+
+**Can I use Chewy with OpenSearch?**
+
+OpenSearch is not officially supported or tested. Chewy depends on the official `elasticsearch` Ruby client and targets Elasticsearch.
+
+**How do I connect to Elastic Cloud?**
+
+Use the standard client settings with your Cloud credentials (API key or user/password). See [Configuration](docs/configuration.md#client-settings) for examples.
 
 ## Contributing
 

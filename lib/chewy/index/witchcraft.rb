@@ -172,12 +172,7 @@ module Chewy
         end
 
         def source_for(proc, nesting)
-          ast = if defined?(Prism)
-            Prism::Translation::ParserCurrent.parse(proc.source)
-          else
-            Parser::CurrentRuby.parse(proc.source)
-          end
-          lambdas = exctract_lambdas(ast)
+          lambdas = exctract_lambdas(ast_from_proc(proc))
 
           raise "No lambdas found, try to reformat your code:\n`#{proc.source}`" unless lambdas
 
@@ -202,6 +197,14 @@ module Chewy
           end
 
           Unparser.unparse(source)
+        end
+
+        def ast_from_proc(proc)
+          if defined?(Prism)
+            Prism::Translation::ParserCurrent.parse(proc.source)
+          else
+            Parser::CurrentRuby.parse(proc.source)
+          end
         end
 
         def exctract_lambdas(node)

@@ -9,9 +9,12 @@ module Chewy
       end
 
       class Crutches
-        def initialize(index, collection)
+        attr_reader :context
+
+        def initialize(index, collection, context = {})
           @index = index
           @collection = collection
+          @context = context
           @crutches_instances = {}
         end
 
@@ -26,7 +29,14 @@ module Chewy
         end
 
         def [](name)
-          @crutches_instances[name] ||= @index._crutches[:"#{name}"].call(@collection)
+          @crutches_instances[name] ||= begin
+            block = @index._crutches[:"#{name}"]
+            if block.arity > 1 || block.arity < -1
+              block.call(@collection, @context)
+            else
+              block.call(@collection)
+            end
+          end
         end
       end
 

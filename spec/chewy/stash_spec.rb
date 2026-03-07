@@ -82,4 +82,8 @@ describe Chewy::Stash::Journal, :orm do
       expect(described_class.for(CitiesIndex, UsersIndex).map(&:index_name)).to contain_exactly('cities', 'users')
     end
   end
+
+  describe '.auto_suffix' do
+    specify { expect(described_class.auto_suffix).to be_nil }
+  end
 end

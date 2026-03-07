@@ -6,15 +6,20 @@ module Chewy
   #
   # @see Chewy::Index::Specification
   module Stash
-    class Specification < Chewy::Index
-      index_name 'chewy_specifications'
-
+    class Index < Chewy::Index
       default_import_options journal: false
+
+      # Disable automatic suffixes for specification and journal indexes
+      def self.auto_suffix; end
+    end
+
+    class Specification < Index
+      index_name 'chewy_specifications'
 
       field :specification, type: 'binary'
     end
 
-    class Journal < Chewy::Index
+    class Journal < Index
       index_name 'chewy_journal'
 
       # Loads all entries since the specified time.
@@ -50,8 +55,6 @@ module Chewy
         end
         scope
       end
-
-      default_import_options journal: false
 
       field :index_name, type: 'keyword'
       field :action, type: 'keyword'

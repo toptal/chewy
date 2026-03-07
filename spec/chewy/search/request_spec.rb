@@ -755,12 +755,13 @@ describe Chewy::Search::Request do
         expect(subject.limit(5).source(:name).pluck(:id, :age)).to eq([[1, 10], [2, 20], [3, 30], [4, 40], [5, 50]])
       end
       specify do
+        index_name = ProductsIndex.indexes[0]
         expect(subject.limit(5).pluck(:_index, :name)).to eq([
-          %w[products Name1],
-          %w[products Name2],
-          %w[products Name3],
-          %w[products Name4],
-          %w[products Name5]
+          [index_name, 'Name1'],
+          [index_name, 'Name2'],
+          [index_name, 'Name3'],
+          [index_name, 'Name4'],
+          [index_name, 'Name5']
         ])
       end
 

@@ -197,6 +197,16 @@ module Chewy
         public_methods - Chewy::Index.public_methods
       end
 
+      # Generates an automatic suffix for index names. By default, the method
+      # returns a timestamp-based suffix, using the current time in milliseconds (e.g., 1638947285000).
+      #
+      # It is used to differentiate indexes for zero-downtime deployments.
+      #
+      # @return [Object] an object that can be cast to a string (e.g., integer, timestamp, etc.)
+      def auto_suffix
+        (Time.now.to_f * 1000).round
+      end
+
       def settings_hash
         _settings.to_hash
       end

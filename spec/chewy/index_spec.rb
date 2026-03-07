@@ -246,6 +246,16 @@ describe Chewy::Index do
     specify { expect(subject.specification).to equal(subject.specification) }
   end
 
+  describe '.auto_suffix' do
+    subject { stub_index(:documents) }
+
+    around do |spec|
+      Timecop.freeze { spec.run }
+    end
+
+    specify { expect(subject.auto_suffix).to eq((Time.now.to_f * 1000).round) }
+  end
+
   context 'index call inside index', :orm do
     before do
       stub_index(:cities) do

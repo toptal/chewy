@@ -67,7 +67,10 @@ module Chewy
           Chewy::Stash::Journal.create if @options[:journal] && !Chewy.configuration[:skip_journal_creation_on_import]
           return if Chewy.configuration[:skip_index_creation_on_import]
 
-          @index.create!(**@bulk_options.slice(:suffix)) unless @index.exists?
+          suffix = @bulk_options[:suffix] || @index.auto_suffix
+          index_exists = @bulk_options[:suffix] ? @index.exists?(suffix) : @index.exists?
+
+          @index.create!(suffix) unless index_exists
         end
 
         # The main process method. Converts passed objects to the bulk request body,

@@ -1,5 +1,15 @@
 # Changelog
 
+## 8.0.1 (2026-03-12)
+
+### New Features
+
+### Changes
+
+* [#1003](https://github.com/toptal/chewy/pull/1003): Ruby 4.0 support added [@mjankowski](https://github.com/mjankowski)
+
+### Bugs Fixed
+
 ## 8.0.0 (2026-02-25)
 
 ### New Features

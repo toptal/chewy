@@ -136,9 +136,10 @@ module Chewy
 
     private
 
-      def perform_scroll(body)
-        ActiveSupport::Notifications.instrument 'search_query.chewy', notification_payload(request: body) do
-          Chewy.client.scroll(body)
+      def perform_scroll(scroll:, scroll_id:)
+        request = {scroll: scroll, body: {scroll_id: scroll_id}}
+        ActiveSupport::Notifications.instrument 'search_query.chewy', notification_payload(request: request) do
+          Chewy.client.scroll(request)
         end
       end
     end

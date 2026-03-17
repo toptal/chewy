@@ -49,11 +49,12 @@ Chewy.settings = {
 # )
 
 # Low-level substitute for now-obsolete drop_indices.
-# Uses format: 'json' for version-portable parsing.
+# Uses format: 'json' for version-portable parsing and `.body` to unwrap
+# the Elasticsearch::API::Response (required for ES 9.x gem).
 # System indices (prefixed with '.') are excluded to avoid deleting
 # ES-internal indices like .security or .kibana.
 def drop_indices
-  indices = Chewy.client.cat.indices(format: 'json')
+  indices = Chewy.client.cat.indices(format: 'json').body
     .map { |entry| entry['index'] }
     .reject { |name| name.start_with?('.') }
   return if indices.blank?

@@ -1,5 +1,11 @@
 # Changelog
 
+## master (unreleased)
+
+### Changes
+
+* [#1010](https://github.com/toptal/chewy/pull/1010): Add Chewy 7/ES 7 to Chewy 8/ES 8 migration guide and fix stale `Elasticsearch::Transport` namespace references in docs. ([@mattmenefee][])
+
 ## 8.0.1 (2026-03-12)
 
 ### New Features
@@ -874,6 +880,7 @@
 [@marshall]: https://github.com/marshall
 [@matchbookmac]: https://github.com/matchbookmac
 [@matthee]: https://github.com/matthee
+[@mattmenefee]: https://github.com/mattmenefee
 [@mattzollinhofer]: https://github.com/mattzollinhofer
 [@menglewis]: https://github.com/menglewis
 [@mikeyhogarth]: https://github.com/mikeyhogarth

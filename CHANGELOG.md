@@ -1,5 +1,11 @@
 # Changelog
 
+## master (unreleased)
+
+### Changes
+
+* [#1013](https://github.com/toptal/chewy/pull/1013): Fix `drop_indices` test helper to use `format: 'json'` for ES version portability. If you define a custom `drop_indices` helper in your test suite, update it to use `Chewy.client.cat.indices(format: 'json')` instead of parsing the text-format response. ([@mattmenefee][])
+
 ## 8.0.1 (2026-03-12)
 
 ### New Features
@@ -874,6 +880,7 @@
 [@marshall]: https://github.com/marshall
 [@matchbookmac]: https://github.com/matchbookmac
 [@matthee]: https://github.com/matthee
+[@mattmenefee]: https://github.com/mattmenefee
 [@mattzollinhofer]: https://github.com/mattzollinhofer
 [@menglewis]: https://github.com/menglewis
 [@mikeyhogarth]: https://github.com/mikeyhogarth

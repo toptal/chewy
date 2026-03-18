@@ -11,7 +11,7 @@ module Chewy
     # Instantiate a new MultiSearch instance.
     #
     # @param queries [Array<Chewy::Search::Request>]
-    # @option [Elasticsearch::Transport::Client] :client (Chewy.client)
+    # @option [Elasticsearch::Client] :client (Chewy.client)
     #   The Elasticsearch client that should be used for issuing requests.
     def initialize(queries, client: Chewy.client)
       @client = client

@@ -82,7 +82,7 @@ When building search UIs where users type free-text queries, malformed input
 ```ruby
 begin
   results = CitiesIndex.query(query_string: {query: user_input}).to_a
-rescue Elasticsearch::Transport::Transport::Errors::BadRequest => e
+rescue Elastic::Transport::Transport::Errors::BadRequest => e
   results = []
   # Log or display a user-friendly message
 end

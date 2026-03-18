@@ -285,7 +285,7 @@ class BooksController < ApplicationController
     @books = form.search
                  .load(scope: -> { includes(:author) })
                  .page(params[:page]).per(20)
-  rescue Elasticsearch::Transport::Transport::Errors::BadRequest
+  rescue Elastic::Transport::Transport::Errors::BadRequest
     # Malformed user query — fall back to empty results
     @books = Book.none.page(params[:page])
     flash.now[:alert] = 'Invalid search query.'

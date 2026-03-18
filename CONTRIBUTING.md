@@ -16,6 +16,57 @@ do so.
 * Include the versions of Chewy, Elasticsearch, Ruby, Rails, etc.
 * Include any relevant code to the issue summary.
 
+## Development setup
+
+### Prerequisites
+
+- Ruby 3.2+
+- Docker (for Elasticsearch)
+
+### Starting Elasticsearch
+
+The test suite expects Elasticsearch on `localhost:9250`. The easiest way to start it is with Docker Compose:
+
+```bash
+docker compose up elasticsearch_test -d
+```
+
+If you prefer a native Elasticsearch installation, use the provided Rake tasks instead:
+
+```bash
+bundle exec rake elasticsearch:start # start Elasticsearch on port 9250
+bundle exec rake elasticsearch:stop  # stop Elasticsearch
+```
+
+To point the test suite at a different host or port, set the `ES_HOST` and `ES_PORT` environment variables.
+
+### Running tests
+
+```bash
+bundle exec rspec                          # run the full suite
+bundle exec rspec spec/path/to_spec.rb     # run a single file
+```
+
+### Running RuboCop
+
+```bash
+bundle exec rubocop
+```
+
+### Testing against different Rails versions
+
+Chewy maintains gemfiles for each supported Rails version. Set `BUNDLE_GEMFILE` to test against a specific one:
+
+```bash
+BUNDLE_GEMFILE=gemfiles/rails.8.0.activerecord.gemfile bundle exec rspec
+```
+
+Available gemfiles:
+
+- `gemfiles/rails.7.2.activerecord.gemfile`
+- `gemfiles/rails.8.0.activerecord.gemfile`
+- `gemfiles/rails.8.1.activerecord.gemfile`
+
 ## Pull requests
 
 * Read [how to properly contribute to open source projects on GitHub][2].

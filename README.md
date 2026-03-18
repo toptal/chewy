@@ -279,12 +279,7 @@ Use the standard client settings with your Cloud credentials (API key or user/pa
 5. Push to the branch (`git push origin my-new-feature`)
 6. Create new Pull Request
 
-Use the following Rake tasks to control the Elasticsearch cluster while developing, if you prefer native Elasticsearch installation over the dockerized one:
-
-```bash
-rake elasticsearch:start # start Elasticsearch cluster on 9250 port for tests
-rake elasticsearch:stop # stop Elasticsearch
-```
+See [CONTRIBUTING.md](CONTRIBUTING.md) for full development setup instructions, including how to start Elasticsearch, run tests, and lint your code.
 
 ## Copyright
 

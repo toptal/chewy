@@ -1,6 +1,6 @@
 services:
   elasticsearch_test:
-    image: "elasticsearch:8.15.0"
+    image: "docker.elastic.co/elasticsearch/elasticsearch:${ES_VERSION:-8.19.13}"
     environment:
       - bootstrap.memory_lock=${ES_MEMORY_LOCK:-false}
       - "ES_JAVA_OPTS=-Xms${TEST_ES_HEAP_SIZE:-500m} -Xmx${TEST_ES_HEAP_SIZE:-500m}"

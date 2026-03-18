@@ -8,6 +8,7 @@
 * [#1011](https://github.com/toptal/chewy/pull/1011): Replace deprecated `Sidekiq::Testing` API with new `Sidekiq 8.1+` testing API and silence Sidekiq logger during spec runs. ([@mattmenefee][], [@mjankowski][])
 * [#1013](https://github.com/toptal/chewy/pull/1013): Fix `drop_indices` test helper to use `format: 'json'` for ES version portability. If you define a custom `drop_indices` helper in your test suite, update it to use `Chewy.client.cat.indices(format: 'json')` instead of parsing the text-format response. ([@mattmenefee][])
 * [#1014](https://github.com/toptal/chewy/pull/1014): Improve contributing documentation with development setup instructions, PR workflow, and grammar fixes. ([@mattmenefee][])
+* [#1008](https://github.com/toptal/chewy/pull/1008): Promote Elasticsearch to a native GitHub Actions service with a health-check gate, replacing the fragile `docker compose` + `sleep 15` approach. ([@mattmenefee][])
 
 ## 8.0.1 (2026-03-12)
 

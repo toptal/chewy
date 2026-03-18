@@ -11,9 +11,17 @@ on:
       reopened # PR was reopened
     ]
 
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
-  ruby-3:
+  test:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     strategy:
       fail-fast: false
       matrix:
@@ -36,22 +44,33 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
+      elasticsearch:
+        image: docker.elastic.co/elasticsearch/elasticsearch:8.19.13
+        ports:
+          - '9250:9200'
+        env:
+          discovery.type: single-node
+          xpack.security.enabled: 'false'
+          ES_JAVA_OPTS: '-Xms500m -Xmx500m'
+        # Set health checks to wait until Elasticsearch has started
+        options: >-
+          --health-cmd "curl -sf http://localhost:9200/_cluster/health?wait_for_status=yellow&timeout=5s"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 10
+
     steps:
       - uses: actions/checkout@v6
       - uses: ruby/setup-ruby@v1
         with:
           ruby-version: ${{ matrix.ruby }}
           bundler-cache: true
-      - name: Start containers
-        run: |
-          docker compose up elasticsearch_test -d
-          sleep 15
-
       - name: Tests
         run: bundle exec rspec
 
   rubocop:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v6
       - uses: ruby/setup-ruby@v1

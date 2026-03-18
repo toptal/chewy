@@ -45,7 +45,7 @@ Chewy aims to support all Ruby and Rails versions that are currently maintained 
 
 ### Ruby
 
-Chewy is compatible with MRI 3.2-3.4.
+Chewy is compatible with MRI 3.2-4.0.
 
 ### Elasticsearch compatibility matrix
 

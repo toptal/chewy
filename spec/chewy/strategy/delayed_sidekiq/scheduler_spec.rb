@@ -1,8 +1,6 @@
 require 'spec_helper'
 
 if defined?(Sidekiq)
-  require 'sidekiq/testing'
-
   describe Chewy::Strategy::DelayedSidekiq::Scheduler do
     before do
       stub_model(:city)

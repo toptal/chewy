@@ -1,7 +1,6 @@
 require 'spec_helper'
 
 if defined?(Sidekiq)
-  require 'sidekiq/testing'
   require 'redis'
 
   describe Chewy::Strategy::DelayedSidekiq do
@@ -73,7 +72,7 @@ if defined?(Sidekiq)
 
           expect($stdout).not_to receive(:puts)
 
-          Sidekiq::Testing.inline! do
+          Sidekiq.testing!(:inline) do
             expect { [city, other_city].map(&:save!) }
               .to update_index(CitiesIndex, strategy: :delayed_sidekiq)
               .and_reindex(city, other_city).only
@@ -114,7 +113,7 @@ if defined?(Sidekiq)
 
           expect($stdout).to receive(:puts).with('hello') # check that reindex_wrapper works
 
-          Sidekiq::Testing.inline! do
+          Sidekiq.testing!(:inline) do
             expect { [city, other_city].map(&:save!) }
               .to update_index(CitiesIndex, strategy: :delayed_sidekiq)
               .and_reindex(city, other_city).only

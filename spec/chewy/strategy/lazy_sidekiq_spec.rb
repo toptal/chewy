@@ -1,8 +1,6 @@
 require 'spec_helper'
 
 if defined?(Sidekiq)
-  require 'sidekiq/testing'
-
   describe Chewy::Strategy::LazySidekiq do
     around do |example|
       sidekiq_settings = Chewy.settings[:sidekiq]
@@ -39,7 +37,7 @@ if defined?(Sidekiq)
                 ))
           .and_call_original
           .once
-        Sidekiq::Testing.inline! do
+        Sidekiq.testing!(:inline) do
           expect { [city, other_city].map(&:save!) }
             .to update_index(CitiesIndex, strategy: :lazy_sidekiq)
             .and_reindex(city, other_city).only
@@ -60,7 +58,7 @@ if defined?(Sidekiq)
                 ))
           .and_call_original
           .once
-        Sidekiq::Testing.inline! do
+        Sidekiq.testing!(:inline) do
           expect { [city, other_city].map(&:destroy) }.to update_index(CitiesIndex, strategy: :sidekiq)
         end
       end
@@ -71,7 +69,7 @@ if defined?(Sidekiq)
         expect(other_city).to receive(:run_chewy_callbacks).and_call_original
 
         expect do
-          Sidekiq::Testing.inline! do
+          Sidekiq.testing!(:inline) do
             Chewy::Strategy::LazySidekiq::IndicesUpdateWorker.new.perform({'City' => [city.id, other_city.id]})
           end
         end.to update_index(CitiesIndex).and_reindex(city, other_city).only
@@ -88,7 +86,7 @@ if defined?(Sidekiq)
           expect(other_city).to receive(:run_chewy_callbacks).and_call_original
 
           expect do
-            Sidekiq::Testing.inline! do
+            Sidekiq.testing!(:inline) do
               Chewy::Strategy::LazySidekiq::IndicesUpdateWorker.new.perform({'City' => [city.id, other_city.id]})
             end
           end.to update_index(CitiesIndex).and_reindex(city, other_city).only.no_refresh
@@ -97,7 +95,7 @@ if defined?(Sidekiq)
     end
 
     context 'integration' do
-      around { |example| Sidekiq::Testing.inline! { example.run } }
+      around { |example| Sidekiq.testing!(:inline) { example.run } }
 
       let(:update_condition) { true }
 

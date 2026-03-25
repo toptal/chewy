@@ -272,19 +272,7 @@ Use the standard client settings with your Cloud credentials (API key or user/pa
 
 ## Contributing
 
-1. Fork it (http://github.com/toptal/chewy/fork)
-2. Create your feature branch (`git checkout -b my-new-feature`)
-3. Implement your changes, cover it with specs and make sure old specs are passing
-4. Commit your changes (`git commit -am 'Add some feature'`)
-5. Push to the branch (`git push origin my-new-feature`)
-6. Create new Pull Request
-
-Use the following Rake tasks to control the Elasticsearch cluster while developing, if you prefer native Elasticsearch installation over the dockerized one:
-
-```bash
-rake elasticsearch:start # start Elasticsearch cluster on 9250 port for tests
-rake elasticsearch:stop # stop Elasticsearch
-```
+See [CONTRIBUTING.md](CONTRIBUTING.md) for development setup instructions, how to run tests, and the pull request workflow.
 
 ## Copyright
 

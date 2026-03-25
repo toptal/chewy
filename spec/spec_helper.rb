@@ -10,6 +10,11 @@ require 'timecop'
 
 Kaminari::Hooks.init if defined?(Kaminari::Hooks)
 
+if defined?(Sidekiq)
+  Sidekiq.testing!(:fake)
+  Sidekiq.default_configuration.logger = nil
+end
+
 require 'support/fail_helpers'
 require 'support/class_helpers'
 
@@ -43,10 +48,14 @@ Chewy.settings = {
 #   }
 # )
 
-# Low-level substitute for now-obsolete drop_indices
+# Low-level substitute for now-obsolete drop_indices.
+# Uses format: 'json' for version-portable parsing.
+# System indices (prefixed with '.') are excluded to avoid deleting
+# ES-internal indices like .security or .kibana.
 def drop_indices
-  response = Chewy.client.cat.indices
-  indices = response.body.lines.map { |line| line.split[2] }
+  indices = Chewy.client.cat.indices(format: 'json')
+    .map { |entry| entry['index'] }
+    .reject { |name| name.start_with?('.') }
   return if indices.blank?
 
   Chewy.client.indices.delete(index: indices)

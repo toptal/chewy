@@ -5,6 +5,9 @@
 ### Changes
 
 * [#1010](https://github.com/toptal/chewy/pull/1010): Add Chewy 7/ES 7 to Chewy 8/ES 8 migration guide and fix stale `Elasticsearch::Transport` namespace references in docs. ([@mattmenefee][])
+* [#1011](https://github.com/toptal/chewy/pull/1011): Replace deprecated `Sidekiq::Testing` API with new `Sidekiq 8.1+` testing API and silence Sidekiq logger during spec runs. ([@mattmenefee][], [@mjankowski][])
+* [#1013](https://github.com/toptal/chewy/pull/1013): Fix `drop_indices` test helper to use `format: 'json'` for ES version portability. If you define a custom `drop_indices` helper in your test suite, update it to use `Chewy.client.cat.indices(format: 'json')` instead of parsing the text-format response. ([@mattmenefee][])
+* [#1014](https://github.com/toptal/chewy/pull/1014): Improve contributing documentation with development setup instructions, PR workflow, and grammar fixes. ([@mattmenefee][])
 
 ## 8.0.1 (2026-03-12)
 
@@ -885,6 +888,7 @@
 [@menglewis]: https://github.com/menglewis
 [@mikeyhogarth]: https://github.com/mikeyhogarth
 [@milk1000cc]: https://github.com/milk1000cc
+[@mjankowski]: https://github.com/mjankowski
 [@mkcode]: https://github.com/mkcode
 [@mpeychich]: https://github.com/mpeychich
 [@mrbrdo]: https://github.com/mrbrdo

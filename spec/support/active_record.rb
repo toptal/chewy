@@ -55,6 +55,7 @@ ActiveRecord::Base.connection.execute("DROP TABLE IF EXISTS 'cities'")
 ActiveRecord::Base.connection.execute("DROP TABLE IF EXISTS 'locations'")
 ActiveRecord::Base.connection.execute("DROP TABLE IF EXISTS 'comments'")
 ActiveRecord::Base.connection.execute("DROP TABLE IF EXISTS 'users'")
+ActiveRecord::Migration.verbose = false
 ActiveRecord::Schema.define do
   create_countries_table
   create_cities_table

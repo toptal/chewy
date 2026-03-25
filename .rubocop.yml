@@ -52,6 +52,9 @@ Style/AndOr:
 Style/DoubleNegation:
   Enabled: false
 
+Style/RedundantStructKeywordInit:
+  Enabled: false
+
 Metrics/BlockLength:
   Exclude:
     - '**/*_spec.rb'

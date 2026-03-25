@@ -16,20 +16,80 @@ do so.
 * Include the versions of Chewy, Elasticsearch, Ruby, Rails, etc.
 * Include any relevant code to the issue summary.
 
+## Development setup
+
+### Prerequisites
+
+- Ruby 3.2+
+- Docker (for Elasticsearch)
+
+### Starting Elasticsearch
+
+The test suite expects Elasticsearch on `localhost:9250`. The easiest way to start it is with Docker Compose:
+
+```bash
+docker compose up elasticsearch_test -d
+```
+
+If you prefer a native Elasticsearch installation, use the provided Rake tasks instead:
+
+```bash
+bundle exec rake elasticsearch:start # start Elasticsearch on port 9250
+bundle exec rake elasticsearch:stop  # stop Elasticsearch
+```
+
+To point the test suite at a different host or port, set the `ES_HOST` and `ES_PORT` environment variables.
+
+### Running tests
+
+```bash
+bundle exec rspec                          # run the full suite
+bundle exec rspec spec/path/to_spec.rb     # run a single file
+```
+
+### Running RuboCop
+
+```bash
+bundle exec rubocop
+```
+
+### Testing against different Rails versions
+
+Chewy maintains gemfiles for each supported Rails version. Set `BUNDLE_GEMFILE` to test against a specific one:
+
+```bash
+BUNDLE_GEMFILE=gemfiles/rails.8.0.activerecord.gemfile bundle exec rspec
+```
+
+Available gemfiles:
+
+- `gemfiles/rails.7.2.activerecord.gemfile`
+- `gemfiles/rails.8.0.activerecord.gemfile`
+- `gemfiles/rails.8.1.activerecord.gemfile`
+
 ## Pull requests
 
-* Read [how to properly contribute to open source projects on GitHub][2].
-* Fork the project.
+If you're new to open source, [How to Contribute to Open Source][2] is a great place to start.
+
+1. Fork the repository (http://github.com/toptal/chewy/fork)
+2. Create your feature branch (`git checkout -b my-new-feature`)
+3. Implement your changes, cover them with specs, and make sure existing specs still pass
+4. Commit your changes (`git commit -am 'Add some feature'`)
+5. Push to the branch (`git push origin my-new-feature`)
+6. Create a new pull request
+
+When preparing your pull request:
+
 * Use a topic/feature branch to easily amend a pull request later, if necessary.
 * Write [good commit messages][3].
 * Use the same coding conventions as the rest of the project.
 * Commit and push until you are happy with your contribution.
 * If your change has a corresponding open GitHub issue, prefix the commit message with `[Fix #github-issue-number]`.
-* Make sure to add tests for it. This is important so I don't break it
+* Make sure to add tests for it. This is important so it isn't broken
   in a future version unintentionally.
 * Add an entry to the [Changelog](CHANGELOG.md).
 * Please try not to mess with the Rakefile, version, or history. If
-  you want to have your own version, or is otherwise necessary, that
+  you want to have your own version, or it is otherwise necessary, that
   is fine, but please isolate to its own commit so I can cherry-pick
   around it.
 * Make sure the test suite is passing and the code you wrote doesn't produce
@@ -50,13 +110,13 @@ Here are a few examples:
 * Mark it up in [Markdown syntax][6].
 * The entry line should start with `* ` (an asterisk and a space).
 * If the change has a related GitHub issue (e.g. a bug fix for a reported issue), put a link to the issue as `[#123](https://github.com/toptal/chewy/issues/123): `.
-* Describe the change briefly. The sentence should end with a punctuation.
+* Describe the change briefly. The sentence should end with punctuation.
 * If this is a breaking change, mark it with `**(Breaking)**`.
 * At the end of the entry, add an implicit link to your GitHub user page as `([@username][])`.
 * If this is your first contribution to the project, add a link definition for the implicit link to the bottom of the changelog as `[@username]: https://github.com/username`.
 
 [1]: https://github.com/toptal/chewy/issues
-[2]: https://www.gun.io/blog/how-to-github-fork-branch-and-pull-request
+[2]: https://opensource.guide/how-to-contribute/
 [3]: https://tbaggery.com/2008/04/19/a-note-about-git-commit-messages.html
 [4]: https://help.github.com/articles/about-pull-requests
 [5]: http://gitready.com/advanced/2009/02/10/squashing-commits-with-rebase.html

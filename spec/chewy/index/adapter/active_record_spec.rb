@@ -35,6 +35,68 @@ describe Chewy::Index::Adapter::ActiveRecord, :active_record do
     specify { expect(described_class.new(City.where(rating: 10)).default_scope).to eq(City.where(rating: 10)) }
   end
 
+  describe '.new' do
+    context 'with logger' do
+      let(:test_logger) { Logger.new('/dev/null') }
+      let(:default_scope_behavior) { :warn }
+
+      around do |example|
+        previous_logger = Chewy.logger
+        Chewy.logger = test_logger
+
+        previous_default_scope_behavior = Chewy.config.import_scope_cleanup_behavior
+        Chewy.config.import_scope_cleanup_behavior = default_scope_behavior
+
+        example.run
+      ensure
+        Chewy.logger = previous_logger
+        Chewy.config.import_scope_cleanup_behavior = previous_default_scope_behavior
+      end
+
+      specify do
+        expect(test_logger).to receive(:warn)
+        described_class.new(City.order(:id))
+      end
+
+      specify do
+        expect(test_logger).to receive(:warn)
+        described_class.new(City.offset(10))
+      end
+
+      specify do
+        expect(test_logger).to receive(:warn)
+        described_class.new(City.limit(10))
+      end
+
+      context 'ignore import scope warning' do
+        let(:default_scope_behavior) { :ignore }
+
+        specify do
+          expect(test_logger).not_to receive(:warn)
+          described_class.new(City.order(:id))
+        end
+
+        specify do
+          expect(test_logger).not_to receive(:warn)
+          described_class.new(City.offset(10))
+        end
+
+        specify do
+          expect(test_logger).not_to receive(:warn)
+          described_class.new(City.limit(10))
+        end
+      end
+
+      context 'raise exception on import scope with order/limit/offset' do
+        let(:default_scope_behavior) { :raise }
+
+        specify { expect { described_class.new(City.order(:id)) }.to raise_error(Chewy::ImportScopeCleanupError) }
+        specify { expect { described_class.new(City.limit(10)) }.to raise_error(Chewy::ImportScopeCleanupError) }
+        specify { expect { described_class.new(City.offset(10)) }.to raise_error(Chewy::ImportScopeCleanupError) }
+      end
+    end
+  end
+
   describe '#type_name' do
     specify { expect(described_class.new(City).type_name).to eq('city') }
     specify { expect(described_class.new(City.order(:id)).type_name).to eq('city') }

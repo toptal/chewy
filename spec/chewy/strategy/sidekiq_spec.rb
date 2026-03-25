@@ -1,8 +1,6 @@
 require 'spec_helper'
 
 if defined?(Sidekiq)
-  require 'sidekiq/testing'
-
   describe Chewy::Strategy::Sidekiq do
     around do |example|
       sidekiq_settings = Chewy.settings[:sidekiq]
@@ -31,7 +29,7 @@ if defined?(Sidekiq)
 
     specify do
       expect(Sidekiq::Client).to receive(:push).with(hash_including('queue' => 'low')).and_call_original
-      Sidekiq::Testing.inline! do
+      Sidekiq.testing!(:inline) do
         expect { [city, other_city].map(&:save!) }
           .to update_index(CitiesIndex, strategy: :sidekiq)
           .and_reindex(city, other_city).only

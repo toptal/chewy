@@ -1,4 +1,4 @@
-Copyright (c) 2013-2021 Toptal, LLC
+Copyright (c) 2013-2025 Toptal, LLC
 
 MIT License
 

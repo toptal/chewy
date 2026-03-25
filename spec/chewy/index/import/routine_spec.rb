@@ -2,7 +2,7 @@ require 'spec_helper'
 
 # TODO: add more specs here later
 describe Chewy::Index::Import::Routine do
-  before { Chewy.massacre }
+  before { drop_indices }
   before do
     stub_index(:cities) do
       field :name

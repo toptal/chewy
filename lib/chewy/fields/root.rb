@@ -4,7 +4,7 @@ module Chewy
       attr_reader :dynamic_templates, :id
 
       def initialize(name, **options)
-        super(name, **options)
+        super
 
         @value ||= -> { self }
         @dynamic_templates = []

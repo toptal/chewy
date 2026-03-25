@@ -142,7 +142,7 @@ module Chewy
         teardown do
           # always destroy indexes between tests
           # Prevent croll pollution of test cases due to indexing
-          Chewy.massacre
+          drop_indices
         end
       end
     end

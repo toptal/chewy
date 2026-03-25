@@ -177,7 +177,7 @@ describe Chewy::Index do
 
     context do
       before do
-        Chewy.massacre
+        drop_indices
         PlacesIndex.import!(
           double(colors: ['red']),
           double(colors: %w[red green]),

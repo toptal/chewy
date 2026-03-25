@@ -3,10 +3,10 @@ require 'spec_helper'
 describe Chewy::Repository do
   subject { described_class.send(:new) }
 
-  its(:analyzers) { should == {} }
-  its(:tokenizers) { should == {} }
-  its(:filters) { should == {} }
-  its(:char_filters) { should == {} }
+  specify { expect(subject.analyzers).to eq({}) }
+  specify { expect(subject.tokenizers).to eq({}) }
+  specify { expect(subject.filters).to eq({}) }
+  specify { expect(subject.char_filters).to eq({}) }
 
   describe '#analyzer' do
     specify { expect(subject.analyzer(:name)).to be_nil }

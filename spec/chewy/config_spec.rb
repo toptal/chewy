@@ -3,18 +3,17 @@ require 'spec_helper'
 describe Chewy::Config do
   subject { described_class.send(:new) }
 
-  its(:logger) { should be_nil }
-  its(:transport_logger) { should be_nil }
-  its(:transport_logger) { should be_nil }
-  its(:root_strategy) { should == :base }
-  its(:request_strategy) { should == :atomic }
-  its(:console_strategy) { should == :urgent }
-  its(:use_after_commit_callbacks) { should == true }
-  its(:indices_path) { should == 'app/chewy' }
-  its(:reset_disable_refresh_interval) { should == false }
-  its(:reset_no_replicas) { should == false }
-  its(:disable_refresh_async) { should == false }
-  its(:search_class) { should be < Chewy::Search::Request }
+  specify { expect(subject.logger).to be_nil }
+  specify { expect(subject.transport_logger).to be_nil }
+  specify { expect(subject.root_strategy).to eq(:base) }
+  specify { expect(subject.request_strategy).to eq(:atomic) }
+  specify { expect(subject.console_strategy).to eq(:urgent) }
+  specify { expect(subject.use_after_commit_callbacks).to eq(true) }
+  specify { expect(subject.indices_path).to eq('app/chewy') }
+  specify { expect(subject.reset_disable_refresh_interval).to eq(false) }
+  specify { expect(subject.reset_no_replicas).to eq(false) }
+  specify { expect(subject.disable_refresh_async).to eq(false) }
+  specify { expect(subject.search_class).to be < Chewy::Search::Request }
 
   describe '#transport_logger=' do
     let(:logger) { Logger.new('/dev/null') }

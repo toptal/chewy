@@ -21,7 +21,7 @@ describe Chewy::Journal do
             default_import_options journal: true
           end
 
-          Chewy.massacre
+          drop_indices
           Chewy.settings[:prefix] = 'some_prefix'
           Timecop.freeze(time)
         end
@@ -145,7 +145,7 @@ describe Chewy::Journal do
   end
 
   context do
-    before { Chewy.massacre }
+    before { drop_indices }
     before do
       stub_model(:city) do
         update_index 'cities', :self

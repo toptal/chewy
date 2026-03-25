@@ -21,7 +21,7 @@ describe Chewy::Index::Observe::Callback do
     end
 
     context 'when executable is has arity 1' do
-      let(:executable) { ->(record) { record.population } }
+      let(:executable) { lambda(&:population) }
 
       it 'calls exectuable within context' do
         expect(callback.call(city)).to eq(city.population)

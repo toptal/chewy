@@ -2,7 +2,7 @@ require 'spec_helper'
 require 'rake'
 
 describe Chewy::RakeHelper, :orm do
-  before { Chewy.massacre }
+  before { drop_indices }
 
   before do
     described_class.instance_variable_set(:@journal_exists, journal_exists)
@@ -465,7 +465,9 @@ Total: \\d+s\\Z
         Rake::Task.define_task(:environment)
       end
       it 'does not raise error' do
-        expect { task.invoke }.to_not raise_error
+        expect do
+          expect { task.invoke }.to_not raise_error
+        end.to output(match('Cleaned up 2 journal entries')).to_stdout
       end
     end
   end

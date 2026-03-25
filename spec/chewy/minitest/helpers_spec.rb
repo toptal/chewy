@@ -17,7 +17,7 @@ describe :minitest_helper do
   end
 
   before do
-    Chewy.massacre
+    drop_indices
   end
 
   before do
@@ -121,13 +121,9 @@ describe :minitest_helper do
         }
       end
 
-      let(:unexpected_query_error_message) do
-        'got {:index=>["dummies"], :body=>{:query=>{:bool=>{:filter=>{:bool=>{:must=>{:match=>{:foo=>"bar"}}, :should=>{:multi_match=>{:foo=>"bar"}}}}}}}} instead of expected query.'
-      end
-
       specify do
         expect { assert_elasticsearch_query(query, unexpected_query) }
-          .to raise_error(RuntimeError, unexpected_query_error_message)
+          .to raise_error(RuntimeError, /instead of expected query\./)
       end
     end
   end

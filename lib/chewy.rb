@@ -49,6 +49,7 @@ require 'chewy/fields/base'
 require 'chewy/fields/root'
 require 'chewy/journal'
 require 'chewy/railtie' if defined?(Rails::Railtie)
+require 'chewy/elastic_client'
 
 ActiveSupport.on_load(:active_record) do
   include Chewy::Index::Observe::ActiveRecordMethods
@@ -97,12 +98,7 @@ module Chewy
     # Main elasticsearch-ruby client instance
     #
     def client
-      Chewy.current[:chewy_client] ||= begin
-        client_configuration = configuration.deep_dup
-        client_configuration.delete(:prefix) # used by Chewy, not relevant to Elasticsearch::Client
-        block = client_configuration[:transport_options].try(:delete, :proc)
-        ::Elasticsearch::Client.new(client_configuration, &block)
-      end
+      Chewy.current[:chewy_client] ||= Chewy::ElasticClient.new
     end
 
     # Sends wait_for_status request to ElasticSearch with status
@@ -120,6 +116,10 @@ module Chewy
     # Be careful, if current prefix is blank, this will destroy all the indexes.
     #
     def massacre
+      unless Chewy.settings[:delete_all_enabled]
+        raise FeatureDisabled, 'Feature disabled by default in ES 8. You can enable it in the cluster and set `delete_all_enabled` option in settings'
+      end
+
       Chewy.client.indices.delete(index: [Chewy.configuration[:prefix], '*'].reject(&:blank?).join('_'))
       Chewy.wait_for_status
     end

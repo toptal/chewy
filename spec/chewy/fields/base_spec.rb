@@ -5,7 +5,7 @@ describe Chewy::Fields::Base do
   specify { expect(described_class.new('name', type: 'integer').options[:type]).to eq('integer') }
 
   describe '#compose' do
-    let(:field) { described_class.new(:name, value: ->(o) { o.value }) }
+    let(:field) { described_class.new(:name, value: lambda(&:value)) }
 
     specify { expect(field.compose(double(value: 'hello'))).to eq(name: 'hello') }
     specify { expect(field.compose(double(value: %w[hello world]))).to eq(name: %w[hello world]) }
@@ -23,7 +23,7 @@ describe Chewy::Fields::Base do
 
     context 'nested fields' do
       before do
-        field.children.push(described_class.new(:subname1, value: ->(o) { o.subvalue1 }))
+        field.children.push(described_class.new(:subname1, value: lambda(&:subvalue1)))
         field.children.push(described_class.new(:subname2, value: -> { subvalue2 }))
         field.children.push(described_class.new(:subname3))
       end

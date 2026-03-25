@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe Chewy::Strategy do
-  before { Chewy.massacre }
+  before { drop_indices }
   subject(:strategy) { Chewy::Strategy.new }
 
   describe '#current' do

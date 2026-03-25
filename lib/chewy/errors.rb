@@ -7,7 +7,7 @@ module Chewy
 
   class UndefinedUpdateStrategy < Error
     def initialize(_type)
-      super <<-MESSAGE
+      super(<<-MESSAGE)
   Index update strategy is undefined for current context.
   Please wrap your code with `Chewy.strategy(:strategy_name) block.`
       MESSAGE
@@ -27,7 +27,7 @@ module Chewy
           message << "        on #{documents.count} documents: #{documents}\n"
         end
       end
-      super message
+      super(message)
     end
   end
 
@@ -38,5 +38,11 @@ module Chewy
   end
 
   class MissingHitsInScrollError < Error
+  end
+    
+  class ImportScopeCleanupError < Error
+  end
+
+  class FeatureDisabled < Error
   end
 end

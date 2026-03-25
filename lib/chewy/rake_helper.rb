@@ -320,11 +320,7 @@ module Chewy
           all_indexes
         end
 
-        indexes = if except.present?
-          indexes - normalize_indexes(Array.wrap(except))
-        else
-          indexes
-        end
+        indexes -= normalize_indexes(Array.wrap(except)) if except.present?
 
         indexes.sort_by(&:derivable_name)
       end

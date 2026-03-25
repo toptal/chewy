@@ -2,11 +2,77 @@
 
 ## master (unreleased)
 
+### Changes
+
+* [#1010](https://github.com/toptal/chewy/pull/1010): Add Chewy 7/ES 7 to Chewy 8/ES 8 migration guide and fix stale `Elasticsearch::Transport` namespace references in docs. ([@mattmenefee][])
+* [#1011](https://github.com/toptal/chewy/pull/1011): Replace deprecated `Sidekiq::Testing` API with new `Sidekiq 8.1+` testing API and silence Sidekiq logger during spec runs. ([@mattmenefee][], [@mjankowski][])
+* [#1013](https://github.com/toptal/chewy/pull/1013): Fix `drop_indices` test helper to use `format: 'json'` for ES version portability. If you define a custom `drop_indices` helper in your test suite, update it to use `Chewy.client.cat.indices(format: 'json')` instead of parsing the text-format response. ([@mattmenefee][])
+* [#1014](https://github.com/toptal/chewy/pull/1014): Improve contributing documentation with development setup instructions, PR workflow, and grammar fixes. ([@mattmenefee][])
+* [#1008](https://github.com/toptal/chewy/pull/1008): Promote Elasticsearch to a native GitHub Actions service with a health-check gate, replacing the fragile `docker compose` + `sleep 15` approach. ([@mattmenefee][])
+
+## 8.0.1 (2026-03-12)
+
 ### New Features
 
 ### Changes
 
+* [#1003](https://github.com/toptal/chewy/pull/1003): Ruby 4.0 support added [@mjankowski](https://github.com/mjankowski)
+
 ### Bugs Fixed
+
+## 8.0.0 (2026-02-25)
+
+### New Features
+
+### Changes
+* [#977](https://github.com/toptal/chewy/pull/977): Fewer files on gem installation [@ericproulx](https://github.com/ericproulx).
+
+* **(Breaking)** Drop support for Ruby < 3.2 and Rails < 7.2. Chewy now requires Ruby ~> 3.2 and ActiveSupport >= 7.2. ([@bbatsov][])
+
+### Bugs Fixed
+
+* [#964](https://github.com/toptal/chewy/pull/964): Fix `delayed_sidekiq` worker to handle UUID primary keys correctly.
+* Fix `FrozenError` in `Syncer` when ActiveRecord returns frozen arrays from `pluck`. ([@bbatsov][])
+
+## 8.0.0-beta (2024-08-27)
+
+### New Features
+
+* [#962](https://github.com/toptal/chewy/pull/962): ElasticSearch v.8 support added
+
+* `delete_all_enabled` setting introduced to align Chewy.massacre with wildcard indices deletion disabled in ES 8 by default
+
+### Changes
+
+### Bugs Fixed
+
+## 7.6.0 (2024-05-03)
+
+### Changes
+
+* [#933](https://github.com/toptal/chewy/pull/933): Relax allowed `elasticsearch` dependency versions. ([@mjankowski][])
+
+### Bugs Fixed
+* [#937](https://github.com/toptal/chewy/pull/937): Fix for race condition while using the `delayed_sidekiq` strategy. Also, fix for Redis bloating in case of reindexing error ([@skcc321](https://github.com/skcc321))
+
+* [#947](https://github.com/toptal/chewy/pull/947): Fix intermittent time-based failure in delayed sidekiq spec. ([@mjankowski][])
+
+## 7.5.1 (2024-01-30)
+
+### New Features
+
+* [#925](https://github.com/toptal/chewy/pull/925): Add configuration option for default scope cleanup behavior. ([@barthez][])
+
+### Changes
+
+### Bugs Fixed
+
+## 7.5.0 (2024-01-15)
+
+### New Features
+
+* [#894](https://github.com/toptal/chewy/pull/894): Way of cleaning redis from artifacts left by `delayed_sidekiq` strategy which could potentially cause flaky tests. ([@Drowze](https://github.com/Drowze))
+* [#919](https://github.com/toptal/chewy/pull/919): Add pre-request filter ([@konalegi][https://github.com/konalegi])
 
 ## 7.4.0 (2023-12-13)
 
@@ -18,7 +84,7 @@
 
 ### Bugs Fixed
 
-## 7.3.5 (2023-12-13)
+## 7.3.6 (2023-12-13)
 
 ### New Features
 
@@ -818,10 +884,12 @@
 [@marshall]: https://github.com/marshall
 [@matchbookmac]: https://github.com/matchbookmac
 [@matthee]: https://github.com/matthee
+[@mattmenefee]: https://github.com/mattmenefee
 [@mattzollinhofer]: https://github.com/mattzollinhofer
 [@menglewis]: https://github.com/menglewis
 [@mikeyhogarth]: https://github.com/mikeyhogarth
 [@milk1000cc]: https://github.com/milk1000cc
+[@mjankowski]: https://github.com/mjankowski
 [@mkcode]: https://github.com/mkcode
 [@mpeychich]: https://github.com/mpeychich
 [@mrbrdo]: https://github.com/mrbrdo

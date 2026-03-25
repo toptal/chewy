@@ -1,8 +1,11 @@
 inherit_from: .rubocop_todo.yml
 
+plugins:
+  - rubocop-rake
+
 AllCops:
   NewCops: enable
-  TargetRubyVersion: 3.0
+  TargetRubyVersion: 3.2
 
 Layout/AccessModifierIndentation:
   EnforcedStyle: outdent
@@ -49,6 +52,9 @@ Style/AndOr:
 Style/DoubleNegation:
   Enabled: false
 
+Style/RedundantStructKeywordInit:
+  Enabled: false
+
 Metrics/BlockLength:
   Exclude:
     - '**/*_spec.rb'
@@ -59,3 +65,6 @@ Metrics/ModuleLength:
   Exclude:
     - 'lib/chewy/rake_helper.rb'
     - '**/*_spec.rb'
+
+Style/ArgumentsForwarding:
+  Enabled: false

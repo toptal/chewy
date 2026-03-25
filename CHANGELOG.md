@@ -5,6 +5,7 @@
 ### Changes
 
 * [#1011](https://github.com/toptal/chewy/pull/1011): Replace deprecated `Sidekiq::Testing` API with new `Sidekiq 8.1+` testing API and silence Sidekiq logger during spec runs. ([@mattmenefee][], [@mjankowski][])
+* [#1014](https://github.com/toptal/chewy/pull/1014): Improve contributing documentation with development setup instructions, PR workflow, and grammar fixes. ([@mattmenefee][])
 
 ## 8.0.1 (2026-03-12)
 
@@ -881,6 +882,7 @@
 [@matchbookmac]: https://github.com/matchbookmac
 [@mattmenefee]: https://github.com/mattmenefee
 [@matthee]: https://github.com/matthee
+[@mattmenefee]: https://github.com/mattmenefee
 [@mattzollinhofer]: https://github.com/mattzollinhofer
 [@menglewis]: https://github.com/menglewis
 [@mikeyhogarth]: https://github.com/mikeyhogarth

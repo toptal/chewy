@@ -507,6 +507,26 @@ describe Chewy::Index::Import do
       it_behaves_like 'importing'
     end
 
+    context 'parallel with context' do
+      before do
+        stub_index(:cities) do
+          index_scope City
+          crutch :names do |_collection, context|
+            context[:names] || raise('context lost in parallel worker')
+          end
+          field :name, value: ->(o, c) { c.names[o.id] }
+        end
+      end
+
+      specify 'context flows into parallel workers' do
+        ctx = {names: dummy_cities.to_h { |c| [c.id, "ctx#{c.id}"] }}
+        expect { CitiesIndex.import!(dummy_cities, parallel: 0, context: ctx) }.not_to raise_error
+        expect(imported_cities).to match_array(
+          dummy_cities.map { |c| {'id' => c.id.to_s, 'name' => "ctx#{c.id}"} }
+        )
+      end
+    end
+
     context 'with parent-child relationship' do
       before do
         stub_model(:comment)

@@ -56,7 +56,7 @@ module Chewy
               {}
             end
           end
-          @context = @options.delete(:context) || {}
+          @context = @options[:context] || {}
           @errors = []
           @stats = {}
           @leftovers = []

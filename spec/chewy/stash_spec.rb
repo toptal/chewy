@@ -81,5 +81,24 @@ describe Chewy::Stash::Journal, :orm do
     specify do
       expect(described_class.for(CitiesIndex, UsersIndex).map(&:index_name)).to contain_exactly('cities', 'users')
     end
+
+    # Regression for #878: building the journal scope for many indices used to
+    # chain one `bool.should` clause per index, blowing past Elasticsearch's
+    # `indices.query.bool.max_nested_depth` (default 30). The new
+    # implementation collapses the clauses into a single `terms` filter.
+    specify 'renders a single terms filter regardless of index count' do
+      indexes = Array.new(100) { |i| stub_index(:"idx#{i}") }
+      index_names = indexes.map(&:derivable_name)
+
+      expect(described_class.for(indexes).render).to eq(
+        index: ['chewy_journal'],
+        body: {query: {bool: {filter: {terms: {index_name: index_names}}}}}
+      )
+    end
+
+    specify 'matches all entries when called with no indexes' do
+      expect(described_class.for([]).map(&:index_name))
+        .to contain_exactly('cities', 'countries', 'users')
+    end
   end
 end

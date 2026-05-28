@@ -38,17 +38,21 @@ module Chewy
 
       # Selects all the journal entries for the specified indices.
       #
+      # Uses a single `terms` filter rather than a chain of `bool.should`
+      # clauses so the query depth stays constant regardless of how many
+      # indices are passed. Avoids hitting the Elasticsearch
+      # `indices.query.bool.max_nested_depth` limit (default 30) when
+      # cleaning or applying journals across many indices.
+      #
       # @param indices [Chewy::Index, Array<Chewy::Index>]
       def self.for(*something)
         something = something.flatten.compact
-        indexes = something.flat_map { |s| Chewy.derive_name(s) }
-        return none if something.present? && indexes.blank?
+        return all if something.empty?
 
-        scope = all
-        indexes.each do |index|
-          scope = scope.or(filter(term: {index_name: index.derivable_name}))
-        end
-        scope
+        indexes = something.flat_map { |s| Chewy.derive_name(s) }
+        return none if indexes.blank?
+
+        filter(terms: {index_name: indexes.map(&:derivable_name).uniq})
       end
 
       default_import_options journal: false

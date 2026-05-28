@@ -56,6 +56,7 @@ module Chewy
               {}
             end
           end
+          @context = @options.delete(:context) || {}
           @errors = []
           @stats = {}
           @leftovers = []
@@ -78,7 +79,7 @@ module Chewy
         # @param delete [Array<Object>] any acceptable objects for deleting
         # @return [true, false] the result of the request, true if no errors
         def process(index: [], delete: [])
-          bulk_builder = BulkBuilder.new(@index, to_index: index, delete: delete, fields: @options[:update_fields])
+          bulk_builder = BulkBuilder.new(@index, to_index: index, delete: delete, fields: @options[:update_fields], context: @context)
           bulk_body = bulk_builder.bulk_body
 
           if @options[:journal]

@@ -61,8 +61,8 @@ module Chewy
       # @param fields [Array<Symbol>] a list of fields to compose, every field will be composed if empty
       # @return [Hash] JSON-ready hash with stringified keys
       #
-      def compose(object, crutches = nil, fields: [])
-        result = evaluate([object, crutches])
+      def compose(object, crutches = nil, fields: [], context: {})
+        result = evaluate([object, crutches, context])
 
         if children.present?
           child_fields = if fields.present?
@@ -72,7 +72,7 @@ module Chewy
           end
 
           child_fields.each_with_object({}) do |field, memo|
-            memo.merge!(field.compose(result, crutches) || {})
+            memo.merge!(field.compose(result, crutches, context) || {})
           end.as_json
         elsif fields.present?
           result.as_json(only: fields, root: false)

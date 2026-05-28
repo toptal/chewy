@@ -308,6 +308,41 @@ Obviously not every type of definition might be compiled. There are some restric
 
 However, it is quite possible that your index definition will be supported by Witchcraft technology out of the box in most of the cases.
 
+## Import context
+
+When importing, you often already have data in memory at the call site (precomputed embeddings, batched API responses, aggregations) that crutches would otherwise re-fetch from the database.
+Pass it through via the `context:` keyword on `import` / `import!`.
+Context is an arbitrary hash, defaulting to `{}`, that flows into crutch blocks and field value procs.
+
+```ruby
+MyIndex.import!(objects, context: { embeddings: precomputed_embeddings })
+```
+
+### Context in crutch blocks (2nd argument)
+
+```ruby
+crutch :embeddings do |collection, context|
+  context[:embeddings] || load_embeddings(collection)
+end
+```
+
+### Context in field value procs (3rd argument)
+
+```ruby
+field :embedding, value: ->(object, crutches, context) {
+  context[:override] || crutches.embeddings[object.id]
+}
+```
+
+Both are backward-compatible: existing 1-arg crutch blocks and 1-2 arg field procs continue to work unchanged via arity-based dispatch.
+
+Context is also supported under Witchcraft (`witchcraft!`) and under parallel imports (`parallel: N`).
+With `parallel:`, the same context hash is shared across all workers — precompute once on the main process, reuse in every worker.
+
+```ruby
+MediaIndex.import!(slices, parallel: 4, context: { embeddings: precomputed })
+```
+
 ## Index manipulation
 
 ```ruby

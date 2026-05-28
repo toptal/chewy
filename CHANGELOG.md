@@ -6,9 +6,11 @@
 
 ### Bug Fixes
 
-### Changes
+* Fix race condition during `reset!` where the unsuffixed concrete index could be recreated by a concurrent process between the delete and the alias creation, causing the alias creation to fail with an index/alias name collision.
+  The delete + alias-add are now performed in a single atomic `_aliases` cluster state update via the `remove_index` action.
+  No public API or layout change.
 
-* `Chewy::Index.exists?` now accepts an optional `suffix` argument so a specific physical index can be checked without inspecting aliases manually (`UsersIndex.exists?('2024')`).
+### Changes
 
 ## 8.1.0 (2026-05-28)
 

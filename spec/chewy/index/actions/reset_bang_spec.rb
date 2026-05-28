@@ -73,6 +73,54 @@ describe Chewy::Index::Actions do
       end
     end
 
+    context 'atomic concrete-to-alias migration' do
+      before do
+        City.create!(id: 1, name: 'Moscow')
+        CitiesIndex.reset!
+      end
+
+      specify 'emits remove_index for the unsuffixed name in a single update_aliases call' do
+        expect(CitiesIndex.client.indices).to receive(:update_aliases) do |**kwargs|
+          actions = kwargs[:body][:actions]
+          expect(actions).to include(remove_index: {index: 'cities'})
+          expect(actions).to include(add: {index: 'cities_2013', alias: 'cities'})
+          {'acknowledged' => true}
+        end
+        expect(CitiesIndex).not_to receive(:delete)
+        CitiesIndex.reset!('2013')
+      end
+
+      specify 'leaves the index aliased to the new suffixed concrete index' do
+        CitiesIndex.reset!('2013')
+        expect(CitiesIndex.aliases).to eq(['cities'])
+        expect(CitiesIndex.indexes).to eq(['cities_2013'])
+        expect(Chewy.client.indices.exists(index: 'cities')).to eq(true)
+      end
+    end
+
+    context 'atomic alias transition between suffixed indexes' do
+      before do
+        City.create!(id: 1, name: 'Moscow')
+        CitiesIndex.reset!('2013')
+      end
+
+      specify 'detaches the alias from the old suffix and attaches it to the new in a single update_aliases call' do
+        expect(CitiesIndex.client.indices).to receive(:update_aliases) do |**kwargs|
+          actions = kwargs[:body][:actions]
+          expect(actions).to include(remove: {index: 'cities_2013', alias: 'cities'})
+          expect(actions).to include(add: {index: 'cities_2014', alias: 'cities'})
+          {'acknowledged' => true}
+        end
+        CitiesIndex.reset!('2014')
+      end
+
+      specify 'deletes the old suffixed index after the alias is moved' do
+        expect(CitiesIndex.client.indices).to receive(:delete).with(index: ['cities_2013']).and_call_original
+        CitiesIndex.reset!('2014')
+        expect(Chewy.client.indices.exists(index: 'cities_2013')).to eq(false)
+      end
+    end
+
     context 'reset_disable_refresh_interval' do
       let(:suffix) { Time.now.to_i }
       let(:name) { CitiesIndex.index_name(suffix: suffix) }

@@ -6,6 +6,10 @@
 
 * [#887](https://github.com/toptal/chewy/pull/887): Add support [runtime_mappings](https://www.elastic.co/guide/en/elasticsearch/reference/current/runtime-search-request.html). ([@TakuyaKurimoto](https://github.com/TakuyaKurimoto))
 
+### Bug Fixes
+
+* [#878](https://github.com/toptal/chewy/issues/878): Flatten `Chewy::Stash::Journal.for` to use a single `terms` filter instead of a chain of `bool.should` clauses. Fixes Elasticsearch `indices.query.bool.max_nested_depth` errors when applying or cleaning the journal across many indices.
+
 ### Changes
 
 * [#916](https://github.com/toptal/chewy/pull/916): Raise error in #scroll_batches when search backend returns a failure. ([@tomdev][])

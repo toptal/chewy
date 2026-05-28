@@ -31,6 +31,7 @@ end
 try_require 'kaminari'
 try_require 'kaminari/core'
 try_require 'parallel'
+try_require 'ruby-progressbar'
 
 ActiveSupport.on_load(:active_record) do
   try_require 'kaminari/activerecord'

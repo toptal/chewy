@@ -146,6 +146,23 @@ module Chewy
           collection.each_slice(options[:batch_size], &block)
         end
 
+        # Returns the count of objects that would be imported. Used by the
+        # progressbar feature to set the total. Mirrors {#import_args} input
+        # handling but does not enumerate batches.
+        #
+        # @return [Integer]
+        def import_count(*args)
+          args = args.dup
+          args.extract_options!
+          collection = if args.empty? && @target.respond_to?(import_all_method)
+            @target.send(import_all_method)
+          else
+            args.flatten(1).compact
+          end
+
+          collection.count
+        end
+
         # This method is used internally by the request DSL when the
         # collection of ORM/ODM objects is requested.
         #

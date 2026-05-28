@@ -96,6 +96,26 @@ module Chewy
         end
         alias_method :import_references, :import_fields
 
+        # Returns the count of records that would be imported. Used by the
+        # progressbar feature to set the total. Accepts the same shapes as
+        # {#import}: nothing (uses default scope), a relation, or an array
+        # of ids/objects.
+        #
+        # @return [Integer]
+        def import_count(*args)
+          args = args.dup
+          args.extract_options!
+          collection = if args.empty?
+            default_scope
+          elsif args.first.is_a?(relation_class)
+            args.first
+          else
+            args.flatten.compact
+          end
+
+          collection.count
+        end
+
         def load(ids, **options)
           scope = all_scope_where_ids_in(ids)
           additional_scope = options[options[:_index].to_sym].try(:[], :scope) || options[:scope]

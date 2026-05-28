@@ -2,6 +2,7 @@ require 'chewy/index/import/journal_builder'
 require 'chewy/index/import/bulk_builder'
 require 'chewy/index/import/bulk_request'
 require 'chewy/index/import/routine'
+require 'chewy/index/import/progressbar'
 
 module Chewy
   class Index
@@ -11,20 +12,22 @@ module Chewy
       IMPORT_WORKER = lambda do |index, options, total, ids, iteration|
         ::Process.setproctitle("chewy [#{index}]: import data (#{iteration + 1}/#{total})")
         routine = Routine.new(index, **options)
+        processed = 0
         index.adapter.import(*ids, routine.options) do |action_objects|
           routine.process(**action_objects)
+          processed += action_objects.sum { |_, v| v.size }
         end
-        {errors: routine.errors, import: routine.stats, leftovers: routine.leftovers}
+        {errors: routine.errors, import: routine.stats, leftovers: routine.leftovers, processed: processed}
       end
 
       LEFTOVERS_WORKER = lambda do |index, options, total, body, iteration|
         ::Process.setproctitle("chewy [#{index}]: import leftovers (#{iteration + 1}/#{total})")
         routine = Routine.new(index, **options)
         routine.perform_bulk(body)
-        routine.errors
+        {errors: routine.errors}
       end
 
-      module ClassMethods
+      module ClassMethods # rubocop:disable Metrics/ModuleLength
         # @!method import(*collection, **options)
         # Basically, one of the main methods for an index. Performs any objects import
         # to the index. Does all the objects handling routines.
@@ -71,6 +74,11 @@ module Chewy
         # @option options [Array<Symbol, String>] update_fields list of fields for the partial import, empty by default
         # @option options [true, false] update_failover enables full objects reimport in cases of partial update errors, `true` by default
         # @option options [true, Integer, Hash] parallel enables parallel import processing with the Parallel gem, accepts the number of workers or any Parallel gem acceptable options
+        # @option options [true, false, :unbounded] progressbar shows an import progressbar
+        #   on stderr. `true` precomputes the total via `adapter.import_count` (one extra
+        #   count query); `:unbounded` shows a spinner without computing the total. Default
+        #   `false`. Safe in parallel mode: the bar is incremented in the parent process via
+        #   `Parallel`'s `finish:` callback, workers stay process-based.
         # @return [true, false] false in case of errors
         def import(*args)
           intercept_import_using_strategy(*args).blank?
@@ -175,46 +183,91 @@ module Chewy
         end
 
         def import_linear(objects, routine)
+          bar = build_progressbar(routine, objects)
           ActiveSupport::Notifications.instrument 'import_objects.chewy', index: self do |payload|
             adapter.import(*objects, routine.options) do |action_objects|
               routine.process(**action_objects)
+              bar.increment(action_objects.sum { |_, v| v.size })
             end
             routine.perform_bulk(routine.leftovers)
             payload[:import] = routine.stats
             payload[:errors] = payload_errors(routine.errors) if routine.errors.present?
             payload[:errors]
           end
+        ensure
+          bar&.finish
         end
 
         def import_parallel(objects, routine)
           raise "The `parallel` gem is required for parallel import, please add `gem 'parallel'` to your Gemfile" unless '::Parallel'.safe_constantize
 
+          bar = build_progressbar(routine, objects)
           ActiveSupport::Notifications.instrument 'import_objects.chewy', index: self do |payload|
             batches = adapter.import_references(*objects, routine.options.slice(:batch_size)).to_a
 
             ::ActiveRecord::Base.connection.close if defined?(::ActiveRecord::Base)
             results = ::Parallel.map_with_index(
               batches,
-              routine.parallel_options,
+              parallel_options_with_progress(routine.parallel_options, bar),
               &IMPORT_WORKER.curry[self, routine.options, batches.size]
             )
             ::ActiveRecord::Base.connection.reconnect! if defined?(::ActiveRecord::Base)
             errors, import, leftovers = process_parallel_import_results(results)
-
-            if leftovers.present?
-              batches = leftovers.each_slice(routine.options[:batch_size])
-              results = ::Parallel.map_with_index(
-                batches,
-                routine.parallel_options,
-                &LEFTOVERS_WORKER.curry[self, routine.options, batches.size]
-              )
-              errors.concat(results.flatten(1))
-            end
+            errors.concat(process_parallel_leftovers(leftovers, routine)) if leftovers.present?
 
             payload[:import] = import
             payload[:errors] = payload_errors(errors) if errors.present?
             payload[:errors]
           end
+        ensure
+          bar&.finish
+        end
+
+        def process_parallel_leftovers(leftovers, routine)
+          batches = leftovers.each_slice(routine.options[:batch_size]).to_a
+          results = ::Parallel.map_with_index(
+            batches,
+            routine.parallel_options,
+            &LEFTOVERS_WORKER.curry[self, routine.options, batches.size]
+          )
+          results.flat_map { |r| r[:errors] }
+        end
+
+        # Builds Parallel options with a `finish:` callback that increments the
+        # progressbar after each worker batch returns. The callback runs in the
+        # parent (main) thread under Parallel's internal mutex (parallel-1.x),
+        # so workers stay process-based and there is no worker-side
+        # synchronization — the regression that triggered the PR #800 revert.
+        #
+        # If the caller already supplied a `finish:` callback in
+        # `parallel_options`, both run; user callback first, then the bar.
+        def parallel_options_with_progress(parallel_options, bar)
+          user_finish = parallel_options[:finish]
+          progress = lambda do |item, i, result|
+            user_finish&.call(item, i, result)
+            bar.increment(result[:processed]) if result.is_a?(Hash) && result[:processed]
+          end
+          parallel_options.merge(finish: progress)
+        end
+
+        def build_progressbar(routine, objects)
+          enabled = routine.options[:progressbar]
+          total = enabled == true ? safe_import_count(objects) : nil
+          Progressbar.build(enabled, total)
+        end
+
+        # Returns nil when the adapter cannot or should not be counted:
+        # missing `import_count` on a custom adapter, a grouped scope that
+        # raises, or any unexpected count failure. A nil total makes
+        # `Progressbar.new` render a spinner instead of a bounded bar —
+        # avoids aborting the import just because the progressbar can't
+        # size itself.
+        def safe_import_count(objects)
+          return nil unless adapter.respond_to?(:import_count)
+
+          adapter.import_count(*objects)
+        rescue StandardError
+          nil
         end
 
         def process_parallel_import_results(results)

@@ -21,6 +21,8 @@ module Chewy
 
     DELETE_BY_QUERY_OPTIONS = %w[WAIT_FOR_COMPLETION REQUESTS_PER_SECOND SCROLL_SIZE].freeze
     FALSE_VALUES = %w[0 f false off].freeze
+    TRUE_VALUES = %w[1 t true on yes].freeze
+    UNBOUNDED_VALUES = %w[unbounded].freeze
 
     class << self
       # Performs zero-downtime reindexing of all documents for the specified indexes
@@ -105,7 +107,7 @@ module Chewy
           indexes_from(only: only, except: except).each_with_object([]) do |index, updated_indexes|
             if index.exists?
               output.puts "Updating #{index}"
-              index.import(parallel: parallel)
+              index.import(parallel: parallel, progressbar: progressbar_option)
               updated_indexes.push(index)
             else
               output.puts "Skipping #{index}, it does not exists (use rake chewy:reset[#{index.derivable_name}] to create and update it)"
@@ -336,7 +338,22 @@ module Chewy
 
       def reset_one(index, output, parallel: false)
         output.puts "Resetting #{index}"
-        index.reset!((Time.now.to_f * 1000).round, parallel: parallel, apply_journal: journal_exists?)
+        index.reset!((Time.now.to_f * 1000).round, parallel: parallel, apply_journal: journal_exists?, progressbar: progressbar_option)
+      end
+
+      def progressbar_option
+        value = ENV.fetch('PROGRESS', nil)
+        return false if value.nil? || value.empty?
+
+        case value.downcase
+        when *FALSE_VALUES then false
+        when *UNBOUNDED_VALUES then :unbounded
+        when *TRUE_VALUES then true
+        else
+          warn "PROGRESS=#{value.inspect} not recognized; treating as enabled. " \
+               "Use #{TRUE_VALUES.join('/')}, #{UNBOUNDED_VALUES.join('/')}, or #{FALSE_VALUES.join('/')}."
+          true
+        end
       end
 
       def warn_missing_index(output)

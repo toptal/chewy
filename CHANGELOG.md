@@ -8,6 +8,8 @@
 
 ### Changes
 
+* `Chewy::Index.exists?` now accepts an optional `suffix` argument so a specific physical index can be checked without inspecting aliases manually (`UsersIndex.exists?('2024')`).
+
 ## 8.1.0 (2026-05-28)
 
 ### New Features

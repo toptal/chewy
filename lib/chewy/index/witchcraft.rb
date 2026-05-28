@@ -171,7 +171,7 @@ module Chewy
           end
         end
 
-        def source_for(proc, nesting)
+        def source_for(proc, nesting) # rubocop:disable Metrics/AbcSize
           lambdas = exctract_lambdas(ast_from_proc(proc))
 
           raise "No lambdas found, try to reformat your code:\n`#{proc.source}`" unless lambdas

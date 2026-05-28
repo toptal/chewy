@@ -5,6 +5,7 @@
 ### New Features
 
 * [#887](https://github.com/toptal/chewy/pull/887): Add support [runtime_mappings](https://www.elastic.co/guide/en/elasticsearch/reference/current/runtime-search-request.html). ([@TakuyaKurimoto](https://github.com/TakuyaKurimoto))
+* [#996](https://github.com/toptal/chewy/pull/996): Add `context:` option to `import`/`import!` for passing custom data to crutch blocks and field value procs without redundant DB queries.
 
 ### Bug Fixes
 
@@ -32,8 +33,6 @@
 ## 8.0.0 (2026-02-25)
 
 ### New Features
-
-* [#996](https://github.com/toptal/chewy/pull/996): Add `context:` option to `import`/`import!` for passing custom data to crutch blocks and field value procs without redundant DB queries.
 
 ### Changes
 * [#977](https://github.com/toptal/chewy/pull/977): Fewer files on gem installation [@ericproulx](https://github.com/ericproulx).

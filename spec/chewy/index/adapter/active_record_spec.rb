@@ -478,6 +478,19 @@ describe Chewy::Index::Adapter::ActiveRecord, :active_record do
     end
   end
 
+  describe '#import_count' do
+    subject { described_class.new(City) }
+    let!(:cities) { Array.new(3) { |i| City.create!(rating: i) { |c| c.id = i + 1 } } }
+
+    context 'relation with multi-column select' do
+      specify do
+        scope = City.select(:id).select('rating AS r')
+        expect { subject.import_count(scope) }.not_to raise_error
+        expect(subject.import_count(scope)).to eq(3)
+      end
+    end
+  end
+
   describe '#import_fields' do
     subject { described_class.new(Country) }
     let!(:countries) { Array.new(3) { |i| Country.create!(rating: i) { |c| c.id = i + 1 } } }

@@ -113,7 +113,7 @@ module Chewy
             args.flatten.compact
           end
 
-          collection.count
+          collection.is_a?(relation_class) ? collection.count(:all) : collection.count
         end
 
         def load(ids, **options)

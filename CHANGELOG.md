@@ -15,6 +15,8 @@
 
 ### Changes
 
+* [#1024](https://github.com/toptal/chewy/pull/1024): Replace deprecated `ZRANGEBYSCORE` with `ZRANGE ... BYSCORE` in the `delayed_sidekiq` worker Lua script. `ZRANGEBYSCORE` has been deprecated in Redis since 6.2.0.
+
 ## 8.1.0 (2026-05-28)
 
 ### New Features

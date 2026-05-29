@@ -174,7 +174,7 @@ module Chewy
             client.indices.update_aliases body: {actions: actions}
             client.indices.delete index: indexes if indexes.present?
 
-            self.journal.apply(start_time, **import_options) if apply_journal
+            self.journal.apply(start_time, **import_options.except(:progressbar)) if apply_journal
             result
           else
             purge!

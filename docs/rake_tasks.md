@@ -85,6 +85,20 @@ rake chewy:parallel:sync[4,-users]
 rake chewy:parallel:deploy[4] # performs parallel upgrade and parallel sync afterwards
 ```
 
+## Progress bar
+
+`chewy:reset` and `chewy:update` (including the parallel variants) can show an import progress bar on stderr.
+Set `PROGRESS=1` to enable it; set `PROGRESS=unbounded` to skip the upfront `count` query and show only the running count and elapsed time (no percentage, no total, no ETA).
+
+```bash
+PROGRESS=1 rake chewy:reset
+PROGRESS=unbounded rake chewy:parallel:reset[4]
+```
+
+Requires the optional `ruby-progressbar` gem (add `gem 'ruby-progressbar'` to your Gemfile). If absent, enabling `PROGRESS` raises a clear error; leaving it unset keeps imports silent.
+
+Parallel-safe: workers stay process-based; the bar is incremented in the parent process via the `Parallel` gem's `finish:` callback, so there is no GVL contention.
+
 ## `chewy:journal`
 
 This namespace contains two tasks for the journal manipulations: `chewy:journal:apply` and `chewy:journal:clean`. Both are taking time as the first argument (optional for clean) and a list of indexes exactly as the tasks above. Time can be in any format parsable by ActiveSupport.

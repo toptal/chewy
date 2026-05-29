@@ -4,6 +4,8 @@
 
 ### New Features
 
+* Add `progressbar:` option to `import`/`import!` and a `PROGRESS=1` rake env toggle for `chewy:reset` / `chewy:update`. The bar is opt-in (default `false`), supports a `:unbounded` spinner mode that skips the `import_count` query, and is safe in parallel mode — workers stay process-based, the bar is incremented in the parent via `Parallel`'s `finish:` callback. Reintroduces the feature originally added in [#787](https://github.com/toptal/chewy/pull/787) and reverted in [#800](https://github.com/toptal/chewy/pull/800) without the GVL regression.
+
 ### Bug Fixes
 
 * Fix race condition during `reset!` where the unsuffixed concrete index could be recreated by a concurrent process between the delete and the alias creation, causing the alias creation to fail with an index/alias name collision.

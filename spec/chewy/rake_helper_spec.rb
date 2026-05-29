@@ -655,4 +655,71 @@ Total: \\d+s\\Z
       expect(block_output).to eq('expected output')
     end
   end
+
+  describe 'PROGRESS env forwarding' do
+    def with_progress_env(value)
+      prev = ENV.fetch('PROGRESS', nil)
+      value.nil? ? ENV.delete('PROGRESS') : (ENV['PROGRESS'] = value)
+      yield
+    ensure
+      prev.nil? ? ENV.delete('PROGRESS') : (ENV['PROGRESS'] = prev)
+    end
+
+    shared_examples 'forwards PROGRESS as :progressbar kwarg' do |env_value, expected|
+      it "passes progressbar: #{expected.inspect} (PROGRESS=#{env_value.inspect})" do
+        captured = []
+        allow(target).to receive(target_method) do |*_args, **kwargs|
+          captured << kwargs
+          nil
+        end
+        with_progress_env(env_value) { invoke.call }
+        expect(captured).not_to be_empty
+        expect(captured).to all(include(progressbar: expected))
+      end
+    end
+
+    context 'via .reset' do
+      let(:target)        { CitiesIndex }
+      let(:target_method) { :reset! }
+      let(:invoke)        { -> { described_class.reset(only: [CitiesIndex], output: StringIO.new) } }
+
+      include_examples 'forwards PROGRESS as :progressbar kwarg', nil,         false
+      include_examples 'forwards PROGRESS as :progressbar kwarg', '',          false
+      include_examples 'forwards PROGRESS as :progressbar kwarg', '0',         false
+      include_examples 'forwards PROGRESS as :progressbar kwarg', 'false',     false
+      include_examples 'forwards PROGRESS as :progressbar kwarg', 'off',       false
+      include_examples 'forwards PROGRESS as :progressbar kwarg', '1',         true
+      include_examples 'forwards PROGRESS as :progressbar kwarg', 'yes',       true
+      include_examples 'forwards PROGRESS as :progressbar kwarg', 'unbounded', :unbounded
+      include_examples 'forwards PROGRESS as :progressbar kwarg', 'UNBOUNDED', :unbounded
+      include_examples 'forwards PROGRESS as :progressbar kwarg', 'true',      true
+      include_examples 'forwards PROGRESS as :progressbar kwarg', 'on',        true
+
+      it 'warns and treats unknown values as enabled' do
+        captured = []
+        allow(CitiesIndex).to receive(:reset!) do |*_a, **kw|
+          captured << kw
+          nil
+        end
+        expect do
+          with_progress_env('bogus') do
+            described_class.reset(only: [CitiesIndex], output: StringIO.new)
+          end
+        end.to output(/PROGRESS="bogus" not recognized/).to_stderr
+        expect(captured).to all(include(progressbar: true))
+      end
+    end
+
+    context 'via .update' do
+      before { CitiesIndex.create! }
+
+      let(:target)        { CitiesIndex }
+      let(:target_method) { :import }
+      let(:invoke)        { -> { described_class.update(only: [CitiesIndex], output: StringIO.new) } }
+
+      include_examples 'forwards PROGRESS as :progressbar kwarg', nil,         false
+      include_examples 'forwards PROGRESS as :progressbar kwarg', '1',         true
+      include_examples 'forwards PROGRESS as :progressbar kwarg', 'unbounded', :unbounded
+    end
+  end
 end

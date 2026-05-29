@@ -11,6 +11,7 @@
 * Fix race condition during `reset!` where the unsuffixed concrete index could be recreated by a concurrent process between the delete and the alias creation, causing the alias creation to fail with an index/alias name collision.
   The delete + alias-add are now performed in a single atomic `_aliases` cluster state update via the `remove_index` action.
   No public API or layout change.
+* [#1024](https://github.com/toptal/chewy/pull/1024): Replace deprecated `ZRANGEBYSCORE` with `ZRANGE ... BYSCORE` in the `delayed_sidekiq` worker Lua script. `ZRANGEBYSCORE` has been deprecated in Redis since 6.2.0.
 
 ### Changes
 

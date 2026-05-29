@@ -71,7 +71,8 @@ module Chewy
         # @option options [Integer] batch_size passed to the adapter import method, used to split imported objects in chunks, 1000 by default
         # @option options [Boolean] direct_import skips object reloading in ORM adapter, `false` by default
         # @option options [true, false] journal enables imported objects journaling, false by default
-        # @option options [Array<Symbol, String>] update_fields list of fields for the partial import, empty by default
+        # @option options [Array<Symbol, String>] update_fields list of fields for partial import. `nil` (default) triggers full document reindex;
+        #   an empty array (`[]`) is an explicit no-op (no fields updated).
         # @option options [true, false] update_failover enables full objects reimport in cases of partial update errors, `true` by default
         # @option options [true, Integer, Hash] parallel enables parallel import processing with the Parallel gem, accepts the number of workers or any Parallel gem acceptable options
         # @option options [true, false, :unbounded] progressbar shows an import progressbar

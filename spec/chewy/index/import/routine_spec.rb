@@ -20,7 +20,7 @@ describe Chewy::Index::Import::Routine do
         journal: nil,
         refresh: true,
         update_failover: true,
-        update_fields: [],
+        update_fields: nil,
         batch_size: 1000
       )
     end
@@ -32,7 +32,7 @@ describe Chewy::Index::Import::Routine do
         journal: nil,
         refresh: false,
         update_failover: true,
-        update_fields: [],
+        update_fields: nil,
         bulk_size: 1_048_576,
         batch_size: 100
       )
@@ -45,7 +45,7 @@ describe Chewy::Index::Import::Routine do
           journal: true,
           refresh: true,
           update_failover: true,
-          update_fields: [],
+          update_fields: nil,
           batch_size: 1000
         )
       end

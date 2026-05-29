@@ -11,6 +11,7 @@
 * Fix race condition during `reset!` where the unsuffixed concrete index could be recreated by a concurrent process between the delete and the alias creation, causing the alias creation to fail with an index/alias name collision.
   The delete + alias-add are now performed in a single atomic `_aliases` cluster state update via the `remove_index` action.
   No public API or layout change.
+* [#992](https://github.com/toptal/chewy/issues/992): `import(update_fields: [])` is now a no-op (zero fields to update) instead of triggering a full document reindex. The default of `update_fields` is now `nil` (still performs a full reindex). Behavior change: any caller passing an explicit empty array previously got a silent full reimport; they will now skip the update.
 
 ### Changes
 

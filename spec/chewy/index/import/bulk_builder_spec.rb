@@ -23,7 +23,21 @@ describe Chewy::Index::Import::BulkBuilder do
   let(:index) { CitiesIndex }
   let(:to_index) { [] }
   let(:delete) { [] }
-  let(:fields) { [] }
+  let(:fields) { nil }
+
+  describe '#initialize' do
+    before do
+      stub_index(:cities) do
+        field :name
+      end
+    end
+
+    it 'does not mutate the caller-supplied fields array' do
+      fields = %w[name].freeze
+      expect { described_class.new(CitiesIndex, fields: fields) }.not_to raise_error
+      expect(fields).to eq(%w[name])
+    end
+  end
 
   describe '#bulk_body' do
     context 'simple bulk', :orm do
@@ -81,6 +95,15 @@ describe Chewy::Index::Import::BulkBuilder do
               {update: {_id: 2, data: {doc: {'name' => 'City18'}}}},
               {delete: {_id: 3}}
             ])
+          end
+
+          context 'empty fields array is a no-op for indexed objects' do
+            let(:fields) { [] }
+            specify do
+              expect(subject.bulk_body).to eq([
+                {delete: {_id: 3}}
+              ])
+            end
           end
         end
       end

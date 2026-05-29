@@ -1,6 +1,14 @@
 # Changelog
 
-## master (unreleased)
+## master (unreleased
+
+### New Features
+
+### Bug Fixes
+
+### Changes
+
+## 8.2.1 (2026-06-01)
 
 ### New Features
 

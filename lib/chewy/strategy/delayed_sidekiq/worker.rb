@@ -13,7 +13,7 @@ module Chewy
           local timechunks_key = prefix .. ":" .. type .. ":timechunks"
 
           -- Get timechunk_keys with scores less than or equal to the specified score
-          local timechunk_keys = redis.call('zrangebyscore', timechunks_key, '-inf', score)
+          local timechunk_keys = redis.call('zrange', timechunks_key, '-inf', score, 'byscore')
 
           -- Get all members from the sets associated with the timechunk_keys
           local members = {}

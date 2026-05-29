@@ -7,12 +7,13 @@ module Chewy
       extend ActiveSupport::Concern
 
       module ClassMethods
-        # Checks index existance. Returns true or false
+        # Checks index existance. Supports suffixes. Returns true or false
         #
         #   UsersIndex.exists? #=> true
+        #   UsersIndex.exists?('11-2024') #=> false
         #
-        def exists?
-          client.indices.exists(index: index_name)
+        def exists?(suffix = nil)
+          client.indices.exists(index: index_name(suffix: suffix))
         end
 
         # Creates index and applies mappings and settings.
@@ -163,13 +164,14 @@ module Chewy
             ))
             original_index_settings suffixed_name
 
-            delete if indexes.blank?
-            client.indices.update_aliases body: {actions: [
-              *indexes.map do |index|
-                {remove: {index: index, alias: general_name}}
-              end,
-              {add: {index: suffixed_name, alias: general_name}}
-            ]}
+            actions = indexes.map { |index| {remove: {index: index, alias: general_name}} }
+            actions << {add: {index: suffixed_name, alias: general_name}}
+            if indexes.blank? && exists?
+              index_names = client.indices.get_alias(index: general_name).keys
+              actions << {remove_index: {index: index_names.join(',')}}
+            end
+
+            client.indices.update_aliases body: {actions: actions}
             client.indices.delete index: indexes if indexes.present?
 
             self.journal.apply(start_time, **import_options) if apply_journal

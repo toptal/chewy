@@ -31,7 +31,7 @@ module Chewy
 
         DEFAULT_OPTIONS = {
           refresh: true,
-          update_fields: [],
+          update_fields: nil,
           update_failover: true,
           batch_size: Chewy::Index::Adapter::Base::BATCH_SIZE
         }.freeze

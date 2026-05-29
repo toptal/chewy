@@ -13,11 +13,11 @@ module Chewy
         # @param to_index [Array<Object>] objects to index
         # @param delete [Array<Object>] objects or ids to delete
         # @param fields [Array<Symbol, String>] and array of fields for documents update
-        def initialize(index, to_index: [], delete: [], fields: [], context: {})
+        def initialize(index, to_index: [], delete: [], fields: nil, context: {})
           @index = index
           @to_index = to_index
           @delete = delete
-          @fields = fields.map!(&:to_sym)
+          @fields = fields&.map(&:to_sym)
           @context = context
         end
 
@@ -47,6 +47,8 @@ module Chewy
         end
 
         def index_entry(object)
+          return [] if @fields&.empty?
+
           entry = {}
           entry[:_id] = index_object_ids[object] if index_object_ids[object]
           entry[:routing] = routing(object) if join_field?
@@ -264,7 +266,7 @@ module Chewy
         def parent_changed?(data, old_parent)
           return false unless old_parent
           return false unless join_field?
-          return false unless @fields.include?(join_field.to_sym)
+          return false unless @fields&.include?(join_field.to_sym)
           return false unless data.key?(join_field)
 
           # The join field value can be a hash, e.g.:

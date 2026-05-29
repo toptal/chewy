@@ -12,3 +12,13 @@ services:
       nofile:
         soft: 65536
         hard: 65536
+
+  redis_test:
+    image: "redis:${REDIS_VERSION:-7}"
+    ports:
+      - "127.0.0.1:6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5

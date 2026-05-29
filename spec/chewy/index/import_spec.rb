@@ -234,6 +234,21 @@ describe Chewy::Index::Import do
         before { expect(Chewy.client).to receive(:bulk).once.and_call_original }
         specify { expect(import(dummy_cities, update_fields: [:name])).to eq(true) }
       end
+
+      context 'empty update_fields array is a no-op' do
+        let(:original) { dummy_cities.first }
+
+        specify 'does not overwrite existing document and skips the bulk request' do
+          original.update!(name: 'mutated_in_db')
+          original.name = 'transient_overwrite'
+
+          expect(Chewy.client).not_to receive(:bulk)
+          expect(import([original], update_fields: [])).to eq(true)
+
+          doc = CitiesIndex.all.detect { |c| c.id.to_s == original.id.to_s }
+          expect(doc.name).to eq('name0')
+        end
+      end
     end
 
     context 'fields integrational' do

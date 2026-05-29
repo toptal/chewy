@@ -6,6 +6,8 @@
 
 ### Bug Fixes
 
+* Fix `import_count` on relations with multiple `.select(...)` clauses so the bounded progressbar is used instead of silently falling back to the unbounded spinner. Bare `.count` produced `SELECT COUNT(col1, col2, ...)` (invalid SQL); `count(:all)` is used for relations. ([#1026](https://github.com/toptal/chewy/pull/1026))
+
 ### Changes
 
 ## 8.2.0 (2026-05-29)

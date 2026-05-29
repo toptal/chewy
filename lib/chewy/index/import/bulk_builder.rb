@@ -47,6 +47,8 @@ module Chewy
         end
 
         def index_entry(object)
+          return [] if @fields&.empty?
+
           entry = {}
           entry[:_id] = index_object_ids[object] if index_object_ids[object]
           entry[:routing] = routing(object) if join_field?
@@ -55,8 +57,6 @@ module Chewy
           data = data_for(object) if parent.present?
           if parent.present? && parent_changed?(data, parent)
             reindex_entries(object, data) + reindex_descendants(object)
-          elsif @fields&.empty?
-            []
           elsif @fields.present?
             return [] unless entry[:_id]
 

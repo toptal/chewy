@@ -8,6 +8,8 @@
 
 ### Changes
 
+* [#1029](https://github.com/toptal/chewy/pull/1029): **(Breaking)** Drop support for Ruby 3.2, which reached end-of-life on 2026-04-01. Chewy now requires Ruby `>= 3.3`. ([@mattmenefee][])
+
 ## 8.4.1 (2026-06-19)
 
 ### New Features

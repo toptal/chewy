@@ -218,7 +218,6 @@ end
     },
     "_data":{
       "_index":"users",
-      "_type":"_doc",
       "_id":"1",
       "_score":0.9808291,
       "_source":{

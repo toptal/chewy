@@ -31,7 +31,6 @@ describe :minitest_helper do
       [
         {
           '_index' => 'dummies',
-          '_type' => '_doc',
           '_id' => '2',
           '_score' => 3.14,
           '_source' => source

@@ -138,7 +138,6 @@ describe Chewy::Search::Response, :orm do
       let(:raw_response) do
         {'hits' => {'hits' => [
           {'_index' => 'cities',
-           '_type' => 'city',
            '_id' => '1',
            '_score' => 1.3,
            '_source' => {'id' => 2, 'rating' => 0}}
@@ -155,7 +154,6 @@ describe Chewy::Search::Response, :orm do
       let(:raw_response) do
         {'hits' => {'hits' => [
           {'_index' => 'countries',
-           '_type' => 'country',
            '_id' => '2',
            '_score' => 1.2,
            '_explanation' => {foo: 'bar'}}

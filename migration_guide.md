@@ -25,6 +25,9 @@ In order to upgrade Chewy 7/Elasticsearch 7 to Chewy 8/Elasticsearch 8 in the mo
   * In test suites, consider switching to targeted index deletion instead of `Chewy.massacre`
 * Configure Elasticsearch 8 security:
   * ES 8 enables security features by default. Ensure your Chewy configuration includes proper authentication (username/password or API key) and SSL/TLS settings as needed.
+* Update test assertions for mock responses:
+  * If you use `mock_elasticsearch_response_sources` (in `Chewy::Minitest::Helpers` or `Chewy::Rspec::Helpers`), remove any assertions expecting `'_type' => '_doc'` in the mock hits it returns. The `_type` field has been removed from these helpers to match actual ES response format (ES 8 removed `_type` from search responses; ES 7 still returned the placeholder `'_doc'`).
+  * If you use `mock_elasticsearch_response` with a hand-crafted raw response hash, ensure your raw response does not include `'_type'` for consistency with ES 8+ responses.
 * Run your test suite on Chewy 8 / Elasticsearch 8
 * Run manual tests on Chewy 8 / Elasticsearch 8
 * Upgrade to Chewy 8

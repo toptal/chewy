@@ -13,7 +13,6 @@ describe :rspec_helper do
     [
       {
         '_index' => 'cities',
-        '_type' => '_doc',
         '_id' => '1',
         '_score' => 3.14,
         '_source' => source

@@ -8,6 +8,8 @@
 
 ### Changes
 
+* [#1028](https://github.com/toptal/chewy/pull/1028): Remove the obsolete `_type` field from mock response helpers (`Chewy::Minitest::Helpers`, `Chewy::Rspec::Helpers`), `EVERFIELDS`, and `Chewy::Index::Wrapper` accessors. Elasticsearch removed `_type` from search responses in 8.0 (ES 7 already returned only the placeholder `_doc`), so these references no longer matched real responses. Also removes the long-obsolete `_parent` entry from `EVERFIELDS`. ([@mattmenefee][])
+
 ## 8.2.1 (2026-06-01)
 
 ### New Features

@@ -39,7 +39,7 @@ module Chewy
         end
       end
 
-      %w[_id _type _index].each do |name|
+      %w[_id _index].each do |name|
         define_method name do
           _data[name]
         end

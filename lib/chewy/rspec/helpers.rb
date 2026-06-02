@@ -39,7 +39,6 @@ module Chewy
             'hits' => hits.each_with_index.map do |hit, i|
               {
                 '_index' => index.index_name,
-                '_type' => '_doc',
                 '_id' => (i + 1).to_s,
                 '_score' => 3.14,
                 '_source' => hit

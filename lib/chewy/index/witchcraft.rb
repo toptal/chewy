@@ -172,7 +172,7 @@ module Chewy
         end
 
         def source_for(proc, nesting) # rubocop:disable Metrics/AbcSize
-          lambdas = exctract_lambdas(ast_from_proc(proc))
+          lambdas = extract_lambdas(ast_from_proc(proc))
 
           raise "No lambdas found, try to reformat your code:\n`#{proc.source}`" unless lambdas
 
@@ -208,13 +208,13 @@ module Chewy
           end
         end
 
-        def exctract_lambdas(node)
+        def extract_lambdas(node)
           return unless node.is_a?(Parser::AST::Node)
 
           if node.type == :block && node.children[0].type == :send && node.children[0].to_a == [nil, :lambda]
             [node.children[2]]
           else
-            node.children.map { |child| exctract_lambdas(child) }.flatten.compact
+            node.children.map { |child| extract_lambdas(child) }.flatten.compact
           end
         end
 

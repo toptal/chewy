@@ -123,7 +123,7 @@ Key points:
 - The `author` object is denormalized into the book document — this is how
   you search across associations with Elasticsearch.
 
-See [indexing.md](indexing.md) for the full field DSL, crutches and witchcraft.
+See [indexing.md](indexing.md) for the full field DSL, crutches, and the compiled compose path.
 
 ## Connecting models
 
@@ -398,7 +398,7 @@ See [testing.md](testing.md) for the full RSpec/Minitest API including
 ## Next steps
 
 - [Configuration](configuration.md) — strategies, async workers, notifications
-- [Indexing](indexing.md) — full field DSL, crutches, witchcraft, geo points
+- [Indexing](indexing.md) — full field DSL, crutches, compiled compose path, geo points
 - [Import](import.md) — batching, raw import, journaling
 - [Querying](querying.md) — DSL details, pagination, scroll API, loading
 - [Rake Tasks](rake_tasks.md) — resetting, syncing, parallel execution

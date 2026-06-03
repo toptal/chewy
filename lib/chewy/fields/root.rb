@@ -3,10 +3,12 @@ module Chewy
     class Root < Chewy::Fields::Base
       attr_reader :dynamic_templates, :id
 
+      DEFAULT_VALUE = -> { self }
+
       def initialize(name, **options)
         super
 
-        @value ||= -> { self }
+        @value ||= DEFAULT_VALUE
         @dynamic_templates = []
       end
 

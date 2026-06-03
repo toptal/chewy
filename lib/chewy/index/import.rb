@@ -127,7 +127,20 @@ module Chewy
         def compose(object, crutches = nil, fields: [], context: {})
           crutches ||= Chewy::Index::Crutch::Crutches.new self, [object], context
 
-          if witchcraft? && root.children.present?
+          # Hot path: the default-fields compiled method has already
+          # been built, so skip the per-call availability check and
+          # dispatch directly. Bulk reindexing hits this branch for
+          # every object after the first.
+          return __chewy_compose__(object, crutches, context) if fields.empty? && @compiled_default_ready
+
+          if compiled_compose_available?(fields)
+            if fields.empty?
+              @compiled_default_ready = true
+              __chewy_compose__(object, crutches, context)
+            else
+              compiled_compose(object, crutches, context, fields)
+            end
+          elsif witchcraft? && root.children.present?
             cauldron(fields: fields).brew(object, crutches, context)
           else
             root.compose(object, crutches, fields: fields, context: context)

@@ -122,6 +122,7 @@ module Chewy
         #   end
         #
         def field(*args, **options, &block)
+          invalidate_compiled_compose! if respond_to?(:invalidate_compiled_compose!)
           if args.size > 1
             args.map { |name| field(name, **options) }
           else

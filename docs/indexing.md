@@ -260,9 +260,33 @@ end
 
 So Chewy Crutches technology is able to increase your indexing performance in some cases up to a hundredfold or even more depending on your associations complexity. For another approach to import performance, see [Raw import](import.md#raw-import).
 
-## Witchcraft technology
+## Compiled compose path
 
-One more experimental technology to increase import performance. As far as you know, chewy defines value proc for every imported field in mapping, so at the import time each of these procs is executed on imported object to extract result document to import. It would be great for performance to use one huge whole-document-returning proc instead. So basically the idea or Witchcraft technology is to compile a single document-returning proc from the index definition.
+Every index automatically uses a compiled compose path: on the first import, Chewy generates one `__chewy_compose__` method per index from the field tree and calls it for every object instead of iterating through the field list at runtime.
+This typically gives **3-4× faster document composition** over the legacy iterative path with no code change required and no extra dependencies.
+
+The compiler:
+
+- Inlines the hash literal for the index document.
+- Bakes each field's accessor (method call, hash key lookup, or proc dispatch) directly into the generated source.
+- Calls value procs with exactly the arguments they declare (`(object)`, `(object, crutches)`, or `(object, crutches, context)`), so lambdas with optional arguments don't raise.
+- Supports `fields:` restriction by generating a separate cached method per unique fields set, so `update_fields:` partial imports stay on the fast path.
+
+There is nothing to opt into.
+The compiled path also handles hash inputs, join fields, and nested object fields the same way the legacy path did.
+
+For a small number of edge cases the compiler falls back to the legacy path automatically: `ignore_blank` fields, `geo_point` fields, indexes with a custom root value proc, and fields whose name is not a valid Ruby identifier.
+The fallback is transparent — the compose result is identical either way.
+
+## Witchcraft technology (deprecated)
+
+> **Deprecated**.
+> `witchcraft!` is retained only for compatibility with older index definitions and will be removed in a future major release.
+> The compiled compose path above is the default for all indexes and delivers equivalent performance without `method_source` / `parser` / `prism` / `unparser` dependencies, with substantially lower boot-time memory (see [#644](https://github.com/toptal/chewy/issues/644)).
+> Remove the `witchcraft!` call from your index — no other changes are needed.
+
+Witchcraft was an experimental performance optimization that used `method_source` to read each field value proc's Ruby source, parse it with `parser` or `prism`, rewrite the AST, and `Unparser`-emit a single fused lambda per index.
+Concretely it compiled definitions like this:
 
 ```ruby
 index_scope Product
@@ -276,7 +300,7 @@ field :categories do
 end
 ```
 
-The index definition above will be compiled to something close to:
+into a single lambda roughly equivalent to:
 
 ```ruby
 -> (object, crutches) do
@@ -285,7 +309,7 @@ The index definition above will be compiled to something close to:
     tags: object.tags.map(&:name),
     categories: object.categories.map do |object2|
       {
-        name: object2.name
+        name: object2.name,
         type: crutches.types[object2.name]
       }
     end
@@ -293,20 +317,15 @@ The index definition above will be compiled to something close to:
 end
 ```
 
-And don't even ask how is it possible, it is a witchcraft.
-Obviously not every type of definition might be compiled. There are some restrictions:
+It came with several limitations the compiled path does not have:
 
-1. Use reasonable formatting to make `method_source` be able to extract field value proc sources.
-2. Value procs with splat arguments are not supported right now.
-3. If you are generating fields dynamically use value proc with arguments, argumentless value procs are not supported yet:
+1. Required `method_source`-parseable proc source — reflowing a value proc could break the build.
+2. Did not support value procs with splat arguments.
+3. Required dynamically-generated fields to use procs with explicit arguments rather than argumentless `-> { ... }`.
+4. Required `method_source`, `parser` (or `prism`), and `unparser` at boot — together adding ~7 MiB of allocations and ~1 MiB of retained memory to every Rails boot, even for apps that did not call `witchcraft!`.
 
-  ```ruby
-  [:first_name, :last_name].each do |name|
-    field name, value: -> (o) { o.send(name) }
-  end
-  ```
-
-However, it is quite possible that your index definition will be supported by Witchcraft technology out of the box in most of the cases.
+Calling `witchcraft!` now prints a deprecation warning.
+Removing the call switches the index to the compiled path automatically; no other code changes are needed.
 
 ## Import context
 
@@ -336,7 +355,7 @@ field :embedding, value: ->(object, crutches, context) {
 
 Both are backward-compatible: existing 1-arg crutch blocks and 1-2 arg field procs continue to work unchanged via arity-based dispatch.
 
-Context is also supported under Witchcraft (`witchcraft!`) and under parallel imports (`parallel: N`).
+Context flows through the default compiled compose path automatically, and is also honored under the legacy `witchcraft!` path and under parallel imports (`parallel: N`).
 With `parallel:`, the same context hash is shared across all workers — precompute once on the main process, reuse in every worker.
 
 ```ruby

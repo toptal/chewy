@@ -7,7 +7,7 @@
 ## Reference
 
 - [Configuration](configuration.md) — client settings, update strategies, notifications, integrations
-- [Indexing](indexing.md) — index definition, field types, crutches, witchcraft, index manipulation
+- [Indexing](indexing.md) — index definition, field types, crutches, compiled compose path, index manipulation
 - [Import](import.md) — import options, raw import, journaling
 - [Querying](querying.md) — search requests, pagination, scopes, scroll, loading
 

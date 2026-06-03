@@ -235,7 +235,7 @@ end
 
 - [Getting Started](docs/getting_started.md) — end-to-end tutorial building search for a media library
 - [Configuration](docs/configuration.md) — client settings, update strategies, notifications, integrations
-- [Indexing](docs/indexing.md) — index definition, field types, crutches, witchcraft, index manipulation
+- [Indexing](docs/indexing.md) — index definition, field types, crutches, compiled compose path, index manipulation
 - [Import](docs/import.md) — import options, raw import, journaling
 - [Querying](docs/querying.md) — search requests, pagination, scopes, scroll, loading
 - [Rake Tasks](docs/rake_tasks.md) — all rake tasks and parallelization

@@ -4,9 +4,13 @@
 
 ### New Features
 
+* New compiled compose path is now the default for every index. Chewy generates one `__chewy_compose__` method per index from the field tree on first import and reuses it for every object, replacing the iterative `Fields::Root#compose` loop. Typical document composition is 3-4× faster than the iterative path and matches `witchcraft!` performance without any extra dependencies. `update_fields:` partial imports are also covered via per-fields-set memoized methods.
+
 ### Bug Fixes
 
 ### Changes
+
+* **Deprecation:** `Chewy::Index.witchcraft!` is deprecated and will be removed in a future major release. It now prints a deprecation warning and is no longer required for fast composition — the compiled compose path described above is the default and delivers equivalent throughput without `method_source` / `parser` / `prism` / `unparser`. The `parser` / `prism` / `unparser` requires are now lazy and only loaded when an index actually calls `witchcraft!`, eliminating ~24 MiB of boot-time allocations and ~1 MiB of retained memory for apps that don't use it ([#644](https://github.com/toptal/chewy/issues/644)).
 
 * [#1028](https://github.com/toptal/chewy/pull/1028): Remove the obsolete `_type` field from mock response helpers (`Chewy::Minitest::Helpers`, `Chewy::Rspec::Helpers`), `EVERFIELDS`, and `Chewy::Index::Wrapper` accessors. Elasticsearch removed `_type` from search responses in 8.0 (ES 7 already returned only the placeholder `_doc`), so these references no longer matched real responses. Also removes the long-obsolete `_parent` entry from `EVERFIELDS`. ([@mattmenefee][])
 

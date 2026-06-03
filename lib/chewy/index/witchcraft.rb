@@ -1,15 +1,3 @@
-begin
-  require 'method_source'
-  begin
-    require 'prism'
-  rescue LoadError
-    require 'parser/current'
-  end
-  require 'unparser'
-rescue LoadError
-  nil
-end
-
 module Chewy
   class Index
     module Witchcraft
@@ -19,8 +7,30 @@ module Chewy
         class_attribute :_witchcraft, instance_reader: false, instance_writer: false
       end
 
+      def self.load_dependencies!
+        return if @dependencies_loaded
+
+        require 'method_source'
+        begin
+          require 'prism'
+        rescue LoadError
+          require 'parser/current'
+        end
+        require 'unparser'
+        @dependencies_loaded = true
+      rescue LoadError
+        nil
+      end
+
       module ClassMethods
         def witchcraft!
+          warn(
+            '[DEPRECATION] Chewy::Index.witchcraft! is deprecated and will be removed in a future release. ' \
+            'The compiled compose path is now the default and delivers equivalent performance without ' \
+            "method_source/parser/unparser dependencies. Remove the `witchcraft!` call from #{name || self}.",
+            uplevel: 1
+          )
+          Witchcraft.load_dependencies!
           self._witchcraft = true
           check_requirements!
         end

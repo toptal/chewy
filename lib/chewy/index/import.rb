@@ -131,9 +131,7 @@ module Chewy
           # been built, so skip the per-call availability check and
           # dispatch directly. Bulk reindexing hits this branch for
           # every object after the first.
-          if fields.empty? && @compiled_default_ready
-            return __chewy_compose__(object, crutches, context)
-          end
+          return __chewy_compose__(object, crutches, context) if fields.empty? && @compiled_default_ready
 
           if compiled_compose_available?(fields)
             if fields.empty?

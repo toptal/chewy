@@ -154,20 +154,20 @@ describe Chewy::Index::Compiled do
 
     context 'field added after first compose' do
       mapping do
-        field :a, value: ->(o) { o.a }
+        field :a, value: ->(o) { o.a } # rubocop:disable Style/SymbolProc
       end
 
       it 'picks up newly defined field on subsequent compose' do
         obj = double(a: 1, b: 2)
         expect(index.compose(obj)).to eq('a' => 1)
-        index.field :b, value: ->(o) { o.b }
+        index.field :b, value: ->(o) { o.b } # rubocop:disable Style/SymbolProc
         expect(index.compose(obj)).to eq('a' => 1, 'b' => 2)
       end
     end
 
     context 'non-identifier field name' do
       mapping do
-        field :'first-name', value: ->(o) { o.name }
+        field :'first-name', value: ->(o) { o.name } # rubocop:disable Style/SymbolProc
       end
 
       it 'falls back to plain path rather than producing invalid Ruby source' do

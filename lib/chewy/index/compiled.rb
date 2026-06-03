@@ -100,10 +100,11 @@ module Chewy
           require 'digest'
           Digest::SHA1.hexdigest(fields.map(&:to_sym).sort.join("\0"))[0, 12]
         end
-
       end
 
       class Compiler
+        IDENTIFIER_RE = /\A[A-Za-z_][A-Za-z0-9_]*[!?=]?\z/
+
         def initialize(index, fields: [], method_name: :__chewy_compose__)
           @index       = index
           @procs       = index.compiled_procs
@@ -201,9 +202,7 @@ module Chewy
             end
           else
             method_name = v.is_a?(Symbol) || v.is_a?(String) ? v.to_s : field.name.to_s
-            unless safe_identifier?(method_name)
-              raise UNSUPPORTED, "non-identifier field accessor: #{method_name.inspect}"
-            end
+            raise UNSUPPORTED, "non-identifier field accessor: #{method_name.inspect}" unless safe_identifier?(method_name)
 
             # Mirror Base#value_by_name_proc: hash key-or-string fallback,
             # method send otherwise.
@@ -222,8 +221,6 @@ module Chewy
           has_splat = params.any? { |type, _| type == :rest }
           has_splat ? 3 : [required, 3].min
         end
-
-        IDENTIFIER_RE = /\A[A-Za-z_][A-Za-z0-9_]*[!?=]?\z/
 
         def safe_identifier?(name)
           IDENTIFIER_RE.match?(name.to_s)

@@ -104,6 +104,25 @@ if defined?(Sidekiq)
           described_class.drain
         end
       end
+
+      context 'with real Sidekiq redis client' do
+        let(:city) { City.create!(name: 'London') }
+
+        before do
+          allow(Sidekiq).to receive(:redis).and_call_original
+          Sidekiq::Worker.clear_all
+          Chewy::Strategy::DelayedSidekiq.clear_timechunks!
+        end
+
+        it 'reindexes the scheduled ids without raising' do
+          Timecop.freeze do
+            Chewy::Strategy::DelayedSidekiq::Scheduler.new(CitiesIndex, [city.id]).postpone
+
+            expect(CitiesIndex).to receive(:import!).with([city.id.to_s])
+            expect { described_class.drain }.not_to raise_error
+          end
+        end
+      end
     end
   end
 end

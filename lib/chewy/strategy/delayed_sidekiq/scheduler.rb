@@ -10,6 +10,7 @@ require_relative '../../index'
 module Chewy
   class Strategy
     class DelayedSidekiq
+      require_relative 'redis_script'
       require_relative 'worker'
 
       LUA_SCRIPT = <<~LUA
@@ -98,7 +99,7 @@ module Chewy
         def postpone
           ::Sidekiq.redis do |redis|
             # do the redis stuff in a single command to avoid concurrency issues
-            if redis.eval(LUA_SCRIPT, keys: [timechunk_key, timechunks_key], argv: [serialize_data, at, ttl])
+            if RedisScript.call(redis, LUA_SCRIPT, keys: [timechunk_key, timechunks_key], argv: [serialize_data, at, ttl])
               ::Sidekiq::Client.push(
                 'queue' => sidekiq_queue,
                 'at' => at + margin,

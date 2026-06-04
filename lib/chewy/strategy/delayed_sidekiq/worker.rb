@@ -39,7 +39,7 @@ module Chewy
           options[:refresh] = !Chewy.disable_refresh_async if Chewy.disable_refresh_async
 
           ::Sidekiq.redis do |redis|
-            members = redis.eval(LUA_SCRIPT, keys: [], argv: [type, score, Scheduler::KEY_PREFIX])
+            members = RedisScript.call(redis, LUA_SCRIPT, keys: [], argv: [type, score, Scheduler::KEY_PREFIX])
 
             # extract ids and fields & do the reset of records
             ids, fields = extract_ids_and_fields(members)

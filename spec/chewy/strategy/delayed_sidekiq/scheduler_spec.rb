@@ -1,6 +1,8 @@
 require 'spec_helper'
 
 if defined?(Sidekiq)
+  require 'redis'
+
   describe Chewy::Strategy::DelayedSidekiq::Scheduler do
     before do
       stub_model(:city)
@@ -72,6 +74,22 @@ if defined?(Sidekiq)
             expect(payload['at']).to eq(expected_at + margin)
           end
           described_class.new(CitiesIndex, [1]).postpone
+        end
+      end
+
+      context 'with real Sidekiq redis client' do
+        before do
+          allow(Sidekiq).to receive(:redis).and_call_original
+          Chewy::Strategy::DelayedSidekiq.clear_timechunks!
+        end
+
+        it 'schedules a Sidekiq job without raising' do
+          Timecop.freeze do
+            expect(Sidekiq::Client).to receive(:push).with(
+              hash_including('class' => Chewy::Strategy::DelayedSidekiq::Worker)
+            )
+            expect { described_class.new(CitiesIndex, [1, 2]).postpone }.not_to raise_error
+          end
         end
       end
     end

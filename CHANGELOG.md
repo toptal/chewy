@@ -8,6 +8,8 @@
 
 ### Bug Fixes
 
+* ([#1034](https://github.com/toptal/chewy/issues/1034)): Fixed `delayed_sidekiq` strategy raising `TypeError: Unsupported command argument type: Array` on Sidekiq 7+. The LUA scripts now run via `EVALSHA` through a portable helper instead of redis-rb's keyword `eval`, which the redis-client-backed client Sidekiq 7+ yields does not support. ([@AlfonsoUceda][])
+
 ### Changes
 
 ## 8.3.0 (2026-06-05)

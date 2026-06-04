@@ -23,4 +23,24 @@ describe Chewy::ElasticClient do
       Chewy.client.search({index: ['products'], body: {size: 0}}).to_a
     end
   end
+
+  describe '#close' do
+    let(:faraday_connection) { double(:faraday_connection) }
+    let(:connection) { double(:connection, connection: faraday_connection) }
+    let(:transport) { double(:transport, connections: [connection]) }
+    let(:elastic_client) { double(:elastic_client, transport: transport) }
+    let(:client) { described_class.new(elastic_client) }
+
+    it 'closes every underlying Faraday connection' do
+      allow(faraday_connection).to receive(:respond_to?).with(:close).and_return(true)
+      expect(faraday_connection).to receive(:close)
+      client.close
+    end
+
+    it 'skips connections that do not support close' do
+      allow(faraday_connection).to receive(:respond_to?).with(:close).and_return(false)
+      expect(faraday_connection).not_to receive(:close)
+      expect { client.close }.not_to raise_error
+    end
+  end
 end

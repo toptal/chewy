@@ -102,6 +102,21 @@ module Chewy
       Chewy.current[:chewy_client] ||= Chewy::ElasticClient.new
     end
 
+    # Closes the current thread's client connections to Elasticsearch and
+    # drops the thread-local client, so the next `Chewy.client` call builds a
+    # fresh one.
+    #
+    # Useful in long-lived multi-threaded processes (e.g. Sidekiq) where the
+    # per-thread client would otherwise keep its connections open until the
+    # dead thread is garbage collected, leaking file descriptors.
+    def close_client
+      client = Chewy.current[:chewy_client]
+      return unless client
+
+      client.close
+      Chewy.current[:chewy_client] = nil
+    end
+
     # Sends wait_for_status request to ElasticSearch with status
     # defined in configuration.
     #

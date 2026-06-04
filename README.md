@@ -133,6 +133,23 @@ development:
       ca_file: './tmp/http_ca.crt'
 ```
 
+### Closing connections
+
+`Chewy.client` is memoized per thread, so every thread that touches Chewy gets
+its own client with its own connections to Elasticsearch. Neither
+`elasticsearch-ruby` nor `elastic-transport` expose a public way to close those
+connections, so they are only released when Ruby's garbage collector reclaims
+the client. In long-lived, multi-threaded processes that frequently spawn and
+discard threads (e.g. Sidekiq, which replaces a thread on job failure), this can
+leak file descriptors.
+
+Use `Chewy.close_client` to close the current thread's connections and drop its
+client. The next `Chewy.client` call rebuilds a fresh one:
+
+```ruby
+Chewy.close_client
+```
+
 ### Index
 
 Create `app/chewy/users_index.rb` with User Index:

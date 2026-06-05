@@ -160,6 +160,11 @@ describe Chewy::Search::Scrolling, :orm do
         request.scroll_batches(batch_size: 3) {}
       end
 
+      it 'clears the scroll context opened for an empty result' do
+        expect(Chewy.client).to receive(:clear_scroll).with(body: {scroll_id: anything}).once.and_call_original
+        request.filter(term: {rating: -1}).scroll_batches(batch_size: 2) {}
+      end
+
       context 'instrumentation' do
         specify do
           outer_payload = []

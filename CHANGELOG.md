@@ -6,6 +6,8 @@
 
 ### Bug Fixes
 
+* [#1037](https://github.com/toptal/chewy/pull/1037): `#scroll_batches` now clears the scroll context opened for an empty result. The `_scroll_id` was only captured while iterating batches, so a zero-hit scope (which still opens a context on the initial request) leaked it until the scroll keepalive expired, contributing to `search.max_open_scroll_context` exhaustion.
+
 ### Changes
 
 ## 8.3.0 (2026-06-03)

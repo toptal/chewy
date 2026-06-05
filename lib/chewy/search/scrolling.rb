@@ -35,7 +35,7 @@ module Chewy
 
         total_batches += 1 if last_batch_size != 0
 
-        scroll_id = nil
+        scroll_id = result['_scroll_id']
 
         total_batches.times do |batch_counter|
           last_run = total_batches - 1 == batch_counter

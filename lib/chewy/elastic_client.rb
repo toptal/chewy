@@ -12,6 +12,21 @@ module Chewy
       @elastic_client = elastic_client
     end
 
+    # Closes the underlying connections to Elasticsearch.
+    #
+    # Neither elasticsearch-ruby nor elastic-transport expose a public method
+    # to close connections, so they are only released when Ruby's garbage
+    # collector reclaims the client instance. This reaches down to the Faraday
+    # connection of every transport connection and closes it explicitly, which
+    # is useful to avoid file descriptor leaks in long-lived processes that
+    # build a client per thread (e.g. Sidekiq workers).
+    def close
+      @elastic_client.transport.connections.each do |connection|
+        faraday = connection.connection
+        faraday.close if faraday.respond_to?(:close)
+      end
+    end
+
   private
 
     def method_missing(name, *args, **kwargs, &block)

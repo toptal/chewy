@@ -58,6 +58,33 @@ describe Chewy do
     after { Chewy.current[:chewy_client] = initial_client }
   end
 
+  describe '.close_client' do
+    let!(:initial_client) { Chewy.current[:chewy_client] }
+
+    after { Chewy.current[:chewy_client] = initial_client }
+
+    context 'when a client exists for the current thread' do
+      let(:client) { instance_double(Chewy::ElasticClient) }
+
+      before { Chewy.current[:chewy_client] = client }
+
+      specify 'closes the client and clears the thread-local' do
+        expect(client).to receive(:close)
+        Chewy.close_client
+        expect(Chewy.current[:chewy_client]).to be_nil
+      end
+    end
+
+    context 'when no client exists for the current thread' do
+      before { Chewy.current[:chewy_client] = nil }
+
+      specify 'does nothing' do
+        expect { Chewy.close_client }.not_to raise_error
+        expect(Chewy.current[:chewy_client]).to be_nil
+      end
+    end
+  end
+
   describe '.create_indices' do
     before do
       stub_index(:cities)

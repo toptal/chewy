@@ -1,4 +1,4 @@
-source 'https://rubygems.org'
+source 'https://rubygems.org', cooldown: 7
 
 gem 'activejob', '~> 7.2.0'
 gem 'activerecord', '~> 7.2.0'

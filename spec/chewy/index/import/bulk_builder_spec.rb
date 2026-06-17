@@ -169,15 +169,6 @@ describe Chewy::Index::Import::BulkBuilder do
           {index: {_id: 42, data: {'name' => 'Name42'}}}
         ])
       end
-
-      context 'witchcraft' do
-        before { CitiesIndex.witchcraft! }
-        specify do
-          expect(subject.bulk_body).to eq([
-            {index: {_id: 42, data: {'name' => 'Name42'}}}
-          ])
-        end
-      end
     end
 
     context 'context' do
@@ -236,28 +227,6 @@ describe Chewy::Index::Import::BulkBuilder do
           specify do
             expect(subject.bulk_body).to eq([
               {index: {_id: 42, data: {'name' => '[ctx] Name42'}}}
-            ])
-          end
-        end
-      end
-
-      context 'witchcraft' do
-        before { CitiesIndex.witchcraft! }
-
-        context 'without context' do
-          specify do
-            expect(subject.bulk_body).to eq([
-              {index: {_id: 42, data: {'name' => 'Name42'}}}
-            ])
-          end
-        end
-
-        context 'with context' do
-          subject { described_class.new(index, to_index: to_index, delete: delete, fields: fields, context: {names: {42 => 'ContextName42'}}) }
-
-          specify do
-            expect(subject.bulk_body).to eq([
-              {index: {_id: 42, data: {'name' => 'ContextName42'}}}
             ])
           end
         end

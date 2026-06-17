@@ -117,7 +117,7 @@ module Chewy
           payload_errors(error_items)
         end
 
-        # Composes a single document from the passed object. Uses either witchcraft
+        # Composes a single document from the passed object. Uses either the compiled
         # or normal composing under the hood.
         #
         # @param object [Object] a data source object
@@ -140,8 +140,6 @@ module Chewy
             else
               compiled_compose(object, crutches, context, fields)
             end
-          elsif witchcraft? && root.children.present?
-            cauldron(fields: fields).brew(object, crutches, context)
           else
             root.compose(object, crutches, fields: fields, context: context)
           end

@@ -45,7 +45,6 @@ Lint/ConstantDefinitionInBlock:
 Lint/EmptyBlock:
   Exclude:
     - 'spec/chewy/index/import/bulk_request_spec.rb'
-    - 'spec/chewy/index/witchcraft_spec.rb'
     - 'spec/chewy/minitest/helpers_spec.rb'
     - 'spec/chewy/rspec/update_index_spec.rb'
     - 'spec/chewy/search/scrolling_spec.rb'
@@ -136,7 +135,6 @@ Naming/VariableNumber:
 # Offense count: 3
 Style/DocumentDynamicEvalDefinition:
   Exclude:
-    - 'lib/chewy/index/witchcraft.rb'
     - 'lib/chewy/repository.rb'
     - 'lib/chewy/search/pagination/kaminari.rb'
 

@@ -3,7 +3,6 @@ source 'https://rubygems.org', cooldown: 7
 gem 'activerecord'
 
 gem 'activejob', require: false
-gem 'sidekiq', require: false
 
 gem 'ruby-progressbar', require: false
 

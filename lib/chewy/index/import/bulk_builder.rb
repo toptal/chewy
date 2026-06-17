@@ -47,7 +47,7 @@ module Chewy
         end
 
         def index_entry(object)
-          return [] if @fields&.empty?
+          return [] if @fields && @fields.empty?
 
           entry = {}
           entry[:_id] = index_object_ids[object] if index_object_ids[object]

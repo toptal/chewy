@@ -175,21 +175,6 @@ describe Chewy::Index::Compiled do
         expect(index.compose(obj)).to eq('first-name' => 'x')
       end
     end
-
-    context 'witchcraft fallback' do
-      mapping do
-        field :name
-      end
-
-      it 'uses witchcraft path when witchcraft! is set (with deprecation)' do
-        # silence the deprecation noise
-        original_stderr = $stderr
-        $stderr = StringIO.new
-        index.witchcraft!
-        $stderr = original_stderr
-        expect(index.compiled_compose_available?([])).to eq(false)
-      end
-    end
   end
 
   describe 'dispatch in Import.compose' do

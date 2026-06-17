@@ -278,55 +278,6 @@ The compiled path also handles hash inputs, join fields, and nested object field
 For a small number of edge cases the compiler falls back to the legacy path automatically: `ignore_blank` fields, `geo_point` fields, indexes with a custom root value proc, and fields whose name is not a valid Ruby identifier.
 The fallback is transparent — the compose result is identical either way.
 
-## Witchcraft technology (deprecated)
-
-> **Deprecated**.
-> `witchcraft!` is retained only for compatibility with older index definitions and will be removed in a future major release.
-> The compiled compose path above is the default for all indexes and delivers equivalent performance without `method_source` / `parser` / `prism` / `unparser` dependencies, with substantially lower boot-time memory (see [#644](https://github.com/toptal/chewy/issues/644)).
-> Remove the `witchcraft!` call from your index — no other changes are needed.
-
-Witchcraft was an experimental performance optimization that used `method_source` to read each field value proc's Ruby source, parse it with `parser` or `prism`, rewrite the AST, and `Unparser`-emit a single fused lambda per index.
-Concretely it compiled definitions like this:
-
-```ruby
-index_scope Product
-witchcraft!
-
-field :title
-field :tags, value: -> { tags.map(&:name) }
-field :categories do
-  field :name, value: -> (product, category) { category.name }
-  field :type, value: -> (product, category, crutch) { crutch.types[category.name] }
-end
-```
-
-into a single lambda roughly equivalent to:
-
-```ruby
--> (object, crutches) do
-  {
-    title: object.title,
-    tags: object.tags.map(&:name),
-    categories: object.categories.map do |object2|
-      {
-        name: object2.name,
-        type: crutches.types[object2.name]
-      }
-    end
-  }
-end
-```
-
-It came with several limitations the compiled path does not have:
-
-1. Required `method_source`-parseable proc source — reflowing a value proc could break the build.
-2. Did not support value procs with splat arguments.
-3. Required dynamically-generated fields to use procs with explicit arguments rather than argumentless `-> { ... }`.
-4. Required `method_source`, `parser` (or `prism`), and `unparser` at boot — together adding ~7 MiB of allocations and ~1 MiB of retained memory to every Rails boot, even for apps that did not call `witchcraft!`.
-
-Calling `witchcraft!` now prints a deprecation warning.
-Removing the call switches the index to the compiled path automatically; no other code changes are needed.
-
 ## Import context
 
 When importing, you often already have data in memory at the call site (precomputed embeddings, batched API responses, aggregations) that crutches would otherwise re-fetch from the database.
@@ -355,7 +306,7 @@ field :embedding, value: ->(object, crutches, context) {
 
 Both are backward-compatible: existing 1-arg crutch blocks and 1-2 arg field procs continue to work unchanged via arity-based dispatch.
 
-Context flows through the default compiled compose path automatically, and is also honored under the legacy `witchcraft!` path and under parallel imports (`parallel: N`).
+Context flows through the default compiled compose path automatically, and is also honored under parallel imports (`parallel: N`).
 With `parallel:`, the same context hash is shared across all workers — precompute once on the main process, reuse in every worker.
 
 ```ruby

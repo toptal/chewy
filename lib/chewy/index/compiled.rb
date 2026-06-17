@@ -7,8 +7,7 @@ module Chewy
     # per-field arity into the call site and inlines hash construction,
     # removing the per-field iteration + dispatch overhead of the legacy
     # plain compose path. Proc bodies are NOT inlined — procs are called
-    # via `.call`. In exchange there are no parser/unparser/method_source
-    # deps and no Ruby/Prism version coupling.
+    # via `.call`.
     #
     # `fields:` selection is supported: a dedicated method is generated
     # and memoized per unique fields set.
@@ -28,7 +27,6 @@ module Chewy
         # Returns true when this index can use the compiled path for the
         # given compose call. Builds the per-fields method if needed.
         def compiled_compose_available?(fields)
-          return false if witchcraft?
           return false unless root&.children&.present?
 
           ensure_compiled_compose_for!(fields)

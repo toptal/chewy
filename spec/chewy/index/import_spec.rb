@@ -619,20 +619,6 @@ describe Chewy::Index::Import do
         .to eq('name' => 'Name42')
     end
 
-    context 'witchcraft' do
-      before { CitiesIndex.witchcraft! }
-
-      specify do
-        expect(CitiesIndex.compose(double(name: 'Name', rating: 42)))
-          .to eq('name' => 'Name42', 'rating' => 42)
-      end
-
-      specify do
-        expect(CitiesIndex.compose(double(name: 'Name', rating: 42), fields: %i[name]))
-          .to eq('name' => 'Name42')
-      end
-    end
-
     context 'custom crutches' do
       let(:crutches) { double(names: {'Name' => 'Name43'}) }
 

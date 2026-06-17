@@ -8,6 +8,8 @@
 
 ### Changes
 
+* **Removal:** `Chewy::Index.witchcraft!` and the `Chewy::Index::Witchcraft` module have been removed. The compiled compose path (default since 8.3.0) delivers equivalent throughput without `method_source` / `parser` / `prism` / `unparser`. Remove any `witchcraft!` call from your indexes — no other changes are needed. ([@AlfonsoUceda][])
+
 ## 8.4.0 (2026-06-17)
 
 ### New Features

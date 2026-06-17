@@ -1,7 +1,6 @@
 gem 'database_cleaner'
 gem 'elasticsearch-extensions'
 gem 'kaminari-core', require: false
-gem 'method_source'
 gem 'parallel', require: false
 gem 'rake'
 gem 'redis', require: false
@@ -14,4 +13,3 @@ gem 'rubocop-rake'
 gem 'sidekiq', require: false
 gem 'sqlite3'
 gem 'timecop'
-gem 'unparser', '~> 0.6.15'

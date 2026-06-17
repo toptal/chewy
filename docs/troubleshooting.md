@@ -79,7 +79,6 @@ See [configuration.md](configuration.md#import-scope-clean-up-behavior) for deta
 Some Chewy features require additional gems that are not listed as hard dependencies:
 
 - **`parallel`** — required for `chewy:parallel:*` rake tasks. Install it with `gem 'parallel'` in your Gemfile.
-- **`method_source`**, **`parser`** (or **`prism`** on Ruby 3.3+), **`unparser`** — required only for the deprecated `witchcraft!` path. Not needed for the default compiled compose path. Install them only if you still call `witchcraft!` from an index.
 
 If these gems are missing you'll get a `LoadError` when the relevant feature is used.
 

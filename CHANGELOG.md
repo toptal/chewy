@@ -4,6 +4,14 @@
 
 ### New Features
 
+### Bug Fixes
+
+### Changes
+
+## 8.4.0 (2026-06-17)
+
+### New Features
+
 * [#1036](https://github.com/toptal/chewy/issues/1036): Add `Chewy.close_client` and `Chewy::ElasticClient#close` to explicitly close connections to Elasticsearch, avoiding file descriptor leaks in long-lived multi-threaded processes (e.g. Sidekiq). ([@AlfonsoUceda][])
 
 ### Bug Fixes
@@ -12,7 +20,7 @@
 
 ### Changes
 
-## 8.3.0 (2026-06-05)
+## 8.3.1 (2026-06-05)
 
 ### New Features
 

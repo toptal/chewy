@@ -187,17 +187,24 @@ module Chewy
             idx = @procs.size
             @procs << v
             procs_ref = "compiled_procs[#{idx}]"
-            param_count = positional_param_count(v)
-            case v.arity
-            when 0
+            if v.arity.zero?
               "#{obj_var}.instance_exec(&#{procs_ref})"
+            elsif v.parameters.any? { |type, _| type == :rest }
+              # Procs that declare a splat — Symbol#to_proc (`proc(&:method)`,
+              # parameters `[[:req], [:rest]]`) and `->(*args)` — must NOT
+              # receive crutches/context as extra positional args: a symbol
+              # proc would forward them to the method (`obj.method(crutches,
+              # context)` => "wrong number of arguments"). Mirror the plain
+              # Base#value_by_proc negative-arity branch (`value.call(*object)`)
+              # so the compiled and fallback paths behave identically.
+              "#{procs_ref}.call(*#{obj_var})"
             else
               # Pass only as many of (object, crutches, context) as the
               # proc actually declares. This keeps lambdas with optional
               # args (negative arity like `->(o, c=nil)`) from being
               # called with too many arguments. Anything beyond context
               # truncates to all three.
-              args = [obj_var, 'crutches', 'context'].first(param_count)
+              args = [obj_var, 'crutches', 'context'].first(positional_param_count(v))
               "#{procs_ref}.call(#{args.join(', ')})"
             end
           else
@@ -212,14 +219,13 @@ module Chewy
           end
         end
 
-        # Number of positional parameters declared by `proc`, counting
-        # required + optional. Splats and keyword args contribute one
-        # bucket each so the caller still passes all three context args.
+        # Number of (object, crutches, context) args to pass to a splat-free
+        # proc: its required + optional positional parameters, capped at the
+        # three available. Splat procs are handled by the caller and never
+        # reach here.
         def positional_param_count(proc)
-          params = proc.parameters
-          required = params.count { |type, _| %i[req opt].include?(type) }
-          has_splat = params.any? { |type, _| type == :rest }
-          has_splat ? 3 : [required, 3].min
+          required = proc.parameters.count { |type, _| %i[req opt].include?(type) }
+          [required, 3].min
         end
 
         def safe_identifier?(name)

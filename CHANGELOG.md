@@ -6,6 +6,8 @@
 
 ### Bug Fixes
 
+* Fixed `field ..., value: proc(&:method)` (and other splat-declaring procs) raising `ArgumentError: wrong number of arguments` during import. The compiled compose path introduced in 8.4.0 forwarded `crutches`/`context` as extra positional arguments to splat procs; `Symbol#to_proc` then passed them on to the method. Splat procs are now called with the object alone, matching the plain compose path. ([@AlfonsoUceda][])
+
 ### Changes
 
 ## 8.4.0 (2026-06-17)

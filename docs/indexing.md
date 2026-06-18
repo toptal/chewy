@@ -27,6 +27,7 @@
     field :email, analyzer: 'email' # Elasticsearch-related options
     field :country, value: ->(user) { user.country.name } # custom value proc
     field :badges, value: ->(user) { user.badges.map(&:name) } # passing array values to index
+    field :active, value: proc(&:active?) # Symbol#to_proc shorthand, same as ->(user) { user.active? }
     field :projects do # the same block syntax for multi_field, if `:type` is specified
       field :title
       field :description # default data type is `text`
@@ -269,7 +270,7 @@ The compiler:
 
 - Inlines the hash literal for the index document.
 - Bakes each field's accessor (method call, hash key lookup, or proc dispatch) directly into the generated source.
-- Calls value procs with exactly the arguments they declare (`(object)`, `(object, crutches)`, or `(object, crutches, context)`), so lambdas with optional arguments don't raise.
+- Calls value procs with exactly the arguments they declare (`(object)`, `(object, crutches)`, or `(object, crutches, context)`), so lambdas with optional arguments don't raise. Splat-declaring procs — including the `Symbol#to_proc` shorthand `value: proc(&:method)` — receive the object alone, so `value: proc(&:published?)` is equivalent to `value: ->(object) { object.published? }`.
 - Supports `fields:` restriction by generating a separate cached method per unique fields set, so `update_fields:` partial imports stay on the fast path.
 
 There is nothing to opt into.

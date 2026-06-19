@@ -56,6 +56,23 @@ describe Chewy::Index::Compiled do
       end
     end
 
+    context 'value: Symbol#to_proc (proc(&:method))' do
+      mapping do
+        field :published, value: proc(&:published?)
+      end
+
+      let(:record) do
+        Class.new do
+          def published? = true
+        end.new
+      end
+
+      it 'invokes the proc with only the object, not crutches/context' do
+        expect(index.compose(record, double(boost: 1), context: {boost: 1}))
+          .to eq('published' => true)
+      end
+    end
+
     context 'nested object children' do
       mapping do
         field :addr do

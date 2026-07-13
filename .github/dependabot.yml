@@ -13,14 +13,14 @@ updates:
       interval: "weekly"
       day: "wednesday"
       time: "07:00"
+    cooldown:
+      default-days: 7
     pull-request-branch-name:
       separator: "-"
     labels:
       - "no-jira"
       - "ruby"
       - "dependencies"
-    reviewers:
-      - "toptal/sre"
     registries:
       - toptal-github
     insecure-external-code-execution: allow
@@ -31,12 +31,12 @@ updates:
       interval: "weekly"
       day: "wednesday"
       time: "07:00"
+    cooldown:
+      default-days: 7
     pull-request-branch-name:
       separator: "-"
     labels:
       - "no-jira"
       - "dependencies"
       - "gha"
-    reviewers:
-      - "toptal/sre"
     open-pull-requests-limit: 3

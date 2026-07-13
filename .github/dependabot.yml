@@ -13,6 +13,8 @@ updates:
       interval: "weekly"
       day: "wednesday"
       time: "07:00"
+    cooldown:
+      default-days: 7
     pull-request-branch-name:
       separator: "-"
     labels:
@@ -31,6 +33,8 @@ updates:
       interval: "weekly"
       day: "wednesday"
       time: "07:00"
+    cooldown:
+      default-days: 7
     pull-request-branch-name:
       separator: "-"
     labels:

@@ -21,8 +21,6 @@ updates:
       - "no-jira"
       - "ruby"
       - "dependencies"
-    reviewers:
-      - "toptal/sre"
     registries:
       - toptal-github
     insecure-external-code-execution: allow
@@ -41,6 +39,4 @@ updates:
       - "no-jira"
       - "dependencies"
       - "gha"
-    reviewers:
-      - "toptal/sre"
     open-pull-requests-limit: 3

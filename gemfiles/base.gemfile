@@ -11,5 +11,4 @@ gem 'rubocop'
 gem 'rubocop-rake'
 gem 'sidekiq', require: false
 gem 'sqlite3'
-gem 'timecop'
 gem 'unparser', '~> 0.6.15'

@@ -68,7 +68,7 @@ if defined?(Sidekiq)
       let(:city) { City.create!(name: 'London') }
 
       it 'imports records via the index' do
-        Timecop.freeze do
+        freeze_time do
           scheduler = Chewy::Strategy::DelayedSidekiq::Scheduler.new(CitiesIndex, [city.id])
           scheduler.postpone
 
@@ -78,7 +78,7 @@ if defined?(Sidekiq)
       end
 
       it 'passes update_fields when present' do
-        Timecop.freeze do
+        freeze_time do
           scheduler = Chewy::Strategy::DelayedSidekiq::Scheduler.new(
             CitiesIndex, [city.id], update_fields: ['name']
           )
@@ -94,7 +94,7 @@ if defined?(Sidekiq)
       it 'sets refresh: false when disable_refresh_async is true' do
         allow(Chewy).to receive(:disable_refresh_async).and_return(true)
 
-        Timecop.freeze do
+        freeze_time do
           scheduler = Chewy::Strategy::DelayedSidekiq::Scheduler.new(CitiesIndex, [city.id])
           scheduler.postpone
 
@@ -115,7 +115,7 @@ if defined?(Sidekiq)
         end
 
         it 'reindexes the scheduled ids without raising' do
-          Timecop.freeze do
+          freeze_time do
             Chewy::Strategy::DelayedSidekiq::Scheduler.new(CitiesIndex, [city.id]).postpone
 
             expect(CitiesIndex).to receive(:import!).with([city.id.to_s])

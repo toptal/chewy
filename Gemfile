@@ -6,9 +6,6 @@ gem 'activejob', require: false
 
 gem 'ruby-progressbar', require: false
 
-gem 'guard'
-gem 'guard-rspec'
-
 gem 'redcarpet'
 gem 'yard'
 

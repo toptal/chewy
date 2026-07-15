@@ -5,13 +5,10 @@ gem 'method_source'
 gem 'parallel', require: false
 gem 'rake'
 gem 'redis', require: false
-gem 'rexml'
 gem 'rspec'
 gem 'rspec-collection_matchers'
-gem 'rspec_junit_formatter'
 gem 'rubocop'
 gem 'rubocop-rake'
 gem 'sidekiq', require: false
 gem 'sqlite3'
-gem 'timecop'
 gem 'unparser', '~> 0.6.15'

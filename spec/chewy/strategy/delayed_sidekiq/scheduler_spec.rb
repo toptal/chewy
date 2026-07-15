@@ -33,7 +33,7 @@ if defined?(Sidekiq)
       end
 
       it 'schedules a Sidekiq job' do
-        Timecop.freeze do
+        freeze_time do
           expect(Sidekiq::Client).to receive(:push).with(
             hash_including(
               'queue' => 'chewy',
@@ -46,7 +46,7 @@ if defined?(Sidekiq)
       end
 
       it 'does not schedule a second job within the same time window' do
-        Timecop.freeze do
+        freeze_time do
           expect(Sidekiq::Client).to receive(:push).once
           described_class.new(CitiesIndex, [1]).postpone
           described_class.new(CitiesIndex, [2]).postpone
@@ -56,7 +56,7 @@ if defined?(Sidekiq)
       it 'uses custom queue from settings' do
         allow(Chewy).to receive(:settings).and_return(sidekiq: {queue: 'low'})
 
-        Timecop.freeze do
+        freeze_time do
           expect(Sidekiq::Client).to receive(:push).with(
             hash_including('queue' => 'low')
           )
@@ -65,7 +65,7 @@ if defined?(Sidekiq)
       end
 
       it 'schedules at time = at + margin' do
-        Timecop.freeze do
+        freeze_time do
           expect(Sidekiq::Client).to receive(:push) do |payload|
             latency = described_class::DEFAULT_LATENCY
             margin = described_class::DEFAULT_MARGIN
@@ -84,7 +84,7 @@ if defined?(Sidekiq)
         end
 
         it 'schedules a Sidekiq job without raising' do
-          Timecop.freeze do
+          freeze_time do
             expect(Sidekiq::Client).to receive(:push).with(
               hash_including('class' => Chewy::Strategy::DelayedSidekiq::Worker)
             )
@@ -169,28 +169,26 @@ if defined?(Sidekiq)
     describe 'time chunking' do
       it 'returns the same value for calls within the same latency window' do
         # Freeze at start of a latency window to avoid boundary flakes
-        Timecop.freeze(Time.at((Time.now.to_i / 10) * 10)) do
+        travel_to(Time.at((Time.now.to_i / 10) * 10)) do
           scheduler1 = described_class.new(CitiesIndex, [1])
           at1 = scheduler1.send(:at)
 
-          Timecop.travel(1.second) do
-            scheduler2 = described_class.new(CitiesIndex, [2])
-            at2 = scheduler2.send(:at)
-            expect(at1).to eq(at2)
-          end
+          travel(1.second)
+          scheduler2 = described_class.new(CitiesIndex, [2])
+          at2 = scheduler2.send(:at)
+          expect(at1).to eq(at2)
         end
       end
 
       it 'returns different values for calls in different latency windows' do
-        Timecop.freeze do
+        freeze_time do
           scheduler1 = described_class.new(CitiesIndex, [1])
           at1 = scheduler1.send(:at)
 
-          Timecop.travel(described_class::DEFAULT_LATENCY.seconds) do
-            scheduler2 = described_class.new(CitiesIndex, [2])
-            at2 = scheduler2.send(:at)
-            expect(at1).not_to eq(at2)
-          end
+          travel(described_class::DEFAULT_LATENCY.seconds)
+          scheduler2 = described_class.new(CitiesIndex, [2])
+          at2 = scheduler2.send(:at)
+          expect(at1).not_to eq(at2)
         end
       end
     end

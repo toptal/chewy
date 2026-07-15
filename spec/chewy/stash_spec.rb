@@ -17,15 +17,15 @@ describe Chewy::Stash::Journal, :orm do
     stub_index(:borogoves)
   end
 
-  before { Timecop.freeze }
-  after { Timecop.return }
+  before { freeze_time }
+  after { travel_back }
 
   before do
     CitiesIndex.import!(City.new(id: 1, name: 'City'), journal: true)
-    Timecop.travel(Time.now + 1.minute) do
+    travel_to(Time.now + 1.minute) do
       CountriesIndex.import!([id: 2, name: 'Country'], journal: true)
     end
-    Timecop.travel(Time.now + 2.minutes) do
+    travel_to(Time.now + 2.minutes) do
       UsersIndex.import!([id: 3, name: 'User'], journal: true)
     end
   end

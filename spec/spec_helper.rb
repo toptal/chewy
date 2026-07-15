@@ -6,7 +6,7 @@ require 'active_record'
 
 require 'rspec/collection_matchers'
 
-require 'timecop'
+require 'active_support/testing/time_helpers'
 
 Kaminari::Hooks.init if defined?(Kaminari::Hooks)
 
@@ -72,6 +72,7 @@ RSpec.configure do |config|
 
   config.include FailHelpers
   config.include ClassHelpers
+  config.include ActiveSupport::Testing::TimeHelpers
 end
 
 require 'support/active_record'

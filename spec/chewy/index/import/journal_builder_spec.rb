@@ -7,9 +7,9 @@ describe Chewy::Index::Import::JournalBuilder, :orm do
     stub_index 'namespace/countries' do
       index_scope Country
     end
-    Timecop.freeze(time)
+    travel_to(time)
   end
-  after { Timecop.return }
+  after { travel_back }
 
   let(:time) { Time.parse('2017-07-14 12:00Z') }
 

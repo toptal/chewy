@@ -23,12 +23,12 @@ describe Chewy::Journal do
 
           drop_indices
           Chewy.settings[:prefix] = 'some_prefix'
-          Timecop.freeze(time)
+          travel_to(time, with_usec: true)
         end
 
         after do
           Chewy.settings[:prefix] = nil
-          Timecop.return
+          travel_back
         end
 
         let(:time) { Time.now }
@@ -48,17 +48,17 @@ describe Chewy::Journal do
             countries = Array.new(2) { |i| Country.create!(id: i + 1) }
             Country.create!(id: 3)
 
-            Timecop.freeze(import_time)
+            travel_to(import_time, with_usec: true)
 
             cities_index.import
             countries_index.import
 
             expect(Chewy::Stash::Journal.exists?).to eq true
 
-            Timecop.freeze(update_time)
+            travel_to(update_time, with_usec: true)
             cities.first.update!(name: 'Supername')
 
-            Timecop.freeze(destroy_time)
+            travel_to(destroy_time, with_usec: true)
             countries.last.destroy
 
             journal_entries = Chewy::Stash::Journal.order(:created_at).hits.map { |r| r['_source'] }
@@ -137,7 +137,7 @@ describe Chewy::Journal do
             Chewy.client.indices.refresh
             expect(Chewy::Stash::Journal.count).to eq 2
 
-            Timecop.return
+            travel_back
           end
         end
       end
@@ -170,8 +170,8 @@ describe Chewy::Journal do
       context 'with an index filter' do
         let(:time) { Time.now }
 
-        before { Timecop.freeze(time) }
-        after { Timecop.return }
+        before { travel_to(time, with_usec: true) }
+        after { travel_back }
 
         specify do
           Chewy.strategy(:urgent) do
@@ -204,10 +204,10 @@ describe Chewy::Journal do
 
         it 'paginates properly through all items' do
           Chewy.strategy(:urgent) do
-            Timecop.travel(time + 1.minute) { City.create!(id: 2) }
-            Timecop.travel(time + 3.minute) { City.create!(id: 4) }
-            Timecop.travel(time + 2.minute) { City.create!(id: 1) }
-            Timecop.travel(time + 4.minute) { City.create!(id: 3) }
+            travel_to(time + 1.minute, with_usec: true) { City.create!(id: 2) }
+            travel_to(time + 3.minute, with_usec: true) { City.create!(id: 4) }
+            travel_to(time + 2.minute, with_usec: true) { City.create!(id: 1) }
+            travel_to(time + 4.minute, with_usec: true) { City.create!(id: 3) }
           end
 
           CitiesIndex.purge!

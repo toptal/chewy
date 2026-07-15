@@ -61,7 +61,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v7
-      - uses: ruby/setup-ruby@v1
+      - uses: ruby/setup-ruby@v1.316.0
         with:
           ruby-version: ${{ matrix.ruby }}
           bundler-cache: true
@@ -73,7 +73,7 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v7
-      - uses: ruby/setup-ruby@v1
+      - uses: ruby/setup-ruby@v1.316.0
         with:
           ruby-version: 3.4
           bundler-cache: true

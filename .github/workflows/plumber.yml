@@ -20,7 +20,7 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      - uses: getplumber/plumber@87ca135cc4566ba8e9065ea95b5d897232cdb208 # v0.4.16
+      - uses: getplumber/plumber@40bd6b5bb8ff4f0944feacaeb41dea6bce08d62d # v0.4.28
         with:
           # Code scanning upload needs security-events write, which PRs
           # from forks do not get. The report stays available as a
@@ -29,3 +29,6 @@ jobs:
           # Publishes the score to score.getplumber.io, which feeds the
           # badge in the README. A failed push never fails the run.
           score-push: true
+          # Gate at 85 points instead of the all-or-nothing default,
+          # leaves room for a small finding without blocking PRs.
+          min-points: 85

@@ -1,5 +1,6 @@
 [![Gem Version](https://badge.fury.io/rb/chewy.svg)](http://badge.fury.io/rb/chewy)
 [![GitHub Actions](https://github.com/toptal/chewy/actions/workflows/ruby.yml/badge.svg)](https://github.com/toptal/chewy/actions/workflows/ruby.yml)
+[![Plumber Score](https://score.getplumber.io/github.com/toptal/chewy.svg)](https://score.getplumber.io/github.com/toptal/chewy)
 
 # Chewy
 

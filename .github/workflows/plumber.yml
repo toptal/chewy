@@ -20,7 +20,7 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      - uses: getplumber/plumber@031bc86d1e5f661626e2000f4f8779912d608d5f # v0.4.39
+      - uses: getplumber/plumber@bede38d25e270af86c2cec5dadc75e0925eb319c # v0.4.44
         with:
           # Code scanning upload needs security-events write, which PRs
           # from forks do not get. The report stays available as a

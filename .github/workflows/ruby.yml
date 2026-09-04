@@ -27,7 +27,21 @@ jobs:
       matrix:
         ruby: [ '3.2', '3.3', '3.4', '4.0' ]
         gemfile: [rails.7.2.activerecord, rails.8.0.activerecord, rails.8.1.activerecord]
-    name: ${{ matrix.ruby }}-${{ matrix.gemfile }}
+        elasticsearch: ['9.4.3']
+        include:
+          - ruby: '3.3'
+            gemfile: rails.7.2.activerecord
+            elasticsearch: '8.19.3'
+            es_gem_constraint: '~> 8.14'
+          - ruby: '3.4'
+            gemfile: rails.8.0.activerecord
+            elasticsearch: '8.19.3'
+            es_gem_constraint: '~> 8.14'
+          - ruby: '4.0'
+            gemfile: rails.8.1.activerecord
+            elasticsearch: '8.19.3'
+            es_gem_constraint: '~> 8.14'
+    name: ${{ matrix.ruby }}-${{ matrix.gemfile }}-es${{ matrix.elasticsearch }}
 
     env:
       BUNDLE_GEMFILE: gemfiles/${{ matrix.gemfile }}.gemfile
@@ -45,7 +59,7 @@ jobs:
           --health-timeout 5s
           --health-retries 5
       elasticsearch:
-        image: docker.elastic.co/elasticsearch/elasticsearch:8.19.13
+        image: docker.elastic.co/elasticsearch/elasticsearch:${{ matrix.elasticsearch }}
         ports:
           - '9250:9200'
         env:
@@ -61,6 +75,9 @@ jobs:
 
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Pin elasticsearch gem for ES 8.x
+        if: matrix.es_gem_constraint
+        run: echo "gem 'elasticsearch', '${{ matrix.es_gem_constraint }}'" >> $BUNDLE_GEMFILE
       - uses: ruby/setup-ruby@95ef2b042f9d7a56d8268cba8559e2842e2ad01b # v1.321.0
         with:
           ruby-version: ${{ matrix.ruby }}

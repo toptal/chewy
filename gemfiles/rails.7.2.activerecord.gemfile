@@ -3,6 +3,8 @@ source 'https://rubygems.org', cooldown: 7
 gem 'activejob', '~> 7.2.0'
 gem 'activerecord', '~> 7.2.0'
 gem 'activesupport', '~> 7.2.0'
+# activesupport 7.2 passes `quirks_mode` to JSON.generate, which json 3 rejects.
+gem 'json', '< 3'
 
 gemspec path: '../'
 eval_gemfile 'base.gemfile'

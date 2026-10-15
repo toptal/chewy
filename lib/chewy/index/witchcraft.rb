@@ -11,11 +11,7 @@ module Chewy
         return if @dependencies_loaded
 
         require 'method_source'
-        begin
-          require 'prism'
-        rescue LoadError
-          require 'parser/current'
-        end
+        require 'prism'
         require 'unparser'
         @dependencies_loaded = true
       rescue LoadError
@@ -38,11 +34,6 @@ module Chewy
         def check_requirements!
           messages = []
           messages << "MethodSource gem is required for the Witchcraft, please add `gem 'method_source'` to your Gemfile" unless Proc.method_defined?(:source)
-          if RUBY_VERSION >= '3.3'
-            messages << "Prism gem is required for the Witchcraft, please add `gem 'prism'` to your Gemfile" unless '::Prism'.safe_constantize
-          else
-            messages << "Parser gem is required for the Witchcraft, please add `gem 'parser'` to your Gemfile" unless '::Parser'.safe_constantize
-          end
           messages << "Unparser gem is required for the Witchcraft, please add `gem 'unparser'` to your Gemfile" unless '::Unparser'.safe_constantize
           messages = messages.join("\n")
 
@@ -211,11 +202,7 @@ module Chewy
         end
 
         def ast_from_proc(proc)
-          if defined?(Prism)
-            Prism::Translation::ParserCurrent.parse(proc.source)
-          else
-            Parser::CurrentRuby.parse(proc.source)
-          end
+          Prism::Translation::ParserCurrent.parse(proc.source)
         end
 
         def extract_lambdas(node)

@@ -18,7 +18,7 @@ module Chewy
           value.merge!(normalize(other_value))
         end
 
-        # Doesn't render anythig, has specific handling logic.
+        # Doesn't render anything, has specific handling logic.
         def render; end
 
       private

@@ -1,7 +1,7 @@
 module Chewy
   module Search
     # This module contains batch requests DSL via ES scroll API. All the methods
-    # are optimized on memory consumption, they are not caching anythig, so
+    # are optimized on memory consumption, they are not caching anything, so
     # use them when you need to do some single-run stuff on a huge amount of
     # documents. Don't forget to tune the `scroll` parameter for long-lasting
     # actions.

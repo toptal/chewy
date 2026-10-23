@@ -4,6 +4,46 @@ This document outlines the steps you need to take when migrating between major v
 Chewy and Elasticsearch. For simplicity's sake the guide will assume that you're using
 Chewy alongside a matching Elasticsearch version.
 
+## Chewy 8/Elasticsearch 8 to Chewy 9/Elasticsearch 9
+
+The Chewy 8 to 9 upgrade is relatively straightforward compared to previous major versions.
+The primary changes concern the `elasticsearch` Ruby gem version and the scroll notification
+payload format; no index mapping or query DSL changes are required.
+
+In order to upgrade Chewy 8/Elasticsearch 8 to Chewy 9/Elasticsearch 9 in the most seamless manner you have to:
+
+* Upgrade to the latest 8.x stable releases (Chewy 8.0.1, Elasticsearch 8.19.x). Your ES cluster must be on 8.19.x before upgrading to 9.x.
+* Study carefully [Breaking changes in 9.0](https://www.elastic.co/docs/release-notes/elasticsearch/breaking-changes), make sure your application conforms. Notable changes that may affect Chewy users:
+  * Stricter bulk API request parsing — malformed action lines that were previously tolerated are now rejected.
+  * The legacy `_knn_search` endpoint has been removed — use the `knn` clause in `_search` instead.
+  * Date histogram aggregations on boolean fields are no longer supported.
+  * Elasticsearch now returns HTTP 429 (instead of 5xx) for certain timeout conditions — update any retry logic that keys on 5xx status codes.
+* Update the `elasticsearch` gem — Chewy 9 requires `elasticsearch >= 8.14`.
+  * **Important:** The `elasticsearch` Ruby gem at version 9.x sends a `compatible-with=9` HTTP header that Elasticsearch 8.x servers reject with HTTP 400. Keep the gem pinned to `~> 8.14` (i.e. gem version 8.x) until after your Elasticsearch cluster has been upgraded to 9.x. You may optionally upgrade the gem to version 9.x after the cluster upgrade is complete.
+* Update scroll notification subscribers:
+  * The `search_query.chewy` notification payload for scroll requests now nests `scroll_id` under `body:`:
+    * Old format: `{scroll: '1m', scroll_id: '...'}`
+    * New format: `{scroll: '1m', body: {scroll_id: '...'}}`
+  * Update any application code that subscribes to scroll notification payloads:
+
+    ```ruby
+    # Before (Chewy < 9)
+    ActiveSupport::Notifications.subscribe('search_query.chewy') do |*, payload|
+      scroll_id = payload[:request][:scroll_id]
+    end
+
+    # After (Chewy 9+)
+    ActiveSupport::Notifications.subscribe('search_query.chewy') do |*, payload|
+      scroll_id = payload[:request].dig(:body, :scroll_id)
+    end
+    ```
+
+* Run your test suite on Chewy 9 / Elasticsearch 9.
+* Run manual tests on Chewy 9 / Elasticsearch 9.
+* Deploy Chewy 9 (with the `elasticsearch` gem still pinned to `~> 8.14`).
+* Perform a [rolling upgrade](https://www.elastic.co/docs/deploy-manage/upgrade/deployment-or-cluster) of Elasticsearch to 9.x.
+* (Optional) Remove the `elasticsearch` gem version pin, allowing the gem to resolve to 9.x.
+
 ## Chewy 7/Elasticsearch 7 to Chewy 8/Elasticsearch 8
 
 In order to upgrade Chewy 7/Elasticsearch 7 to Chewy 8/Elasticsearch 8 in the most seamless manner you have to:

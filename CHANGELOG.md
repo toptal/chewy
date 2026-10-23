@@ -8,6 +8,9 @@
 
 ### Changes
 
+* [#1009](https://github.com/toptal/chewy/pull/1009): **(Breaking)** Add Elasticsearch 9.x support while retaining ES 8.x compatibility. The `elasticsearch` gem dependency now allows `>= 8.14, < 10.0`. ([@mattmenefee][])
+  * The `search_query.chewy` notification payload for scroll requests now nests `scroll_id` under `body:` (i.e. `{scroll: '1m', body: {scroll_id: '...'}}` instead of `{scroll: '1m', scroll_id: '...'}`). Update any application code that subscribes to scroll notification payloads.
+
 ## 8.4.1 (2026-06-19)
 
 ### New Features

@@ -18,7 +18,7 @@ Gem::Specification.new do |spec|
   spec.require_paths = ['lib']
 
   spec.add_dependency 'activesupport', '>= 7.2'
-  spec.add_dependency 'elasticsearch', '>= 8.14', '< 9.0'
+  spec.add_dependency 'elasticsearch', '>= 8.14', '< 10.0'
   spec.add_dependency 'elasticsearch-dsl'
   spec.metadata['rubygems_mfa_required'] = 'true'
 end

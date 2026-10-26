@@ -58,7 +58,7 @@ module Chewy
         #   # or
         #   UsersIndex.import users.map(&:id) # deleted user ids will be deleted from index
         #
-        # Also there is custom type option `delete_if`. It it returns `true`
+        # Also there is a custom type option `delete_if`. If it returns `true`
         # object will be deleted from index. Note that if this option is defined and
         # return `false` Chewy will still check `destroyed?` method. This is useful
         # for paranoid objects deleting implementation.

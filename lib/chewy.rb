@@ -151,7 +151,7 @@ module Chewy
     #       city3.do_update!
     #       # there will be 2 update index requests for city2 and city3
     #     end
-    #     city4..do_update!
+    #     city4.do_update!
     #     # city1 and city4 will be grouped in one index update request
     #   end
     #

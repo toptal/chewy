@@ -20,7 +20,7 @@ do so.
 
 ### Prerequisites
 
-- Ruby 3.2+
+- Ruby 3.3+
 - Docker (for Elasticsearch)
 
 ### Starting Elasticsearch

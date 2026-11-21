@@ -84,7 +84,11 @@ describe Chewy::Search::Scrolling, :orm do
       end
 
       context do
-        before { expect(Chewy.client).to receive(:scroll).twice.and_call_original }
+        before do
+          expect(Chewy.client).to receive(:scroll)
+            .with(hash_including(scroll: '1m', body: hash_including(:scroll_id)))
+            .twice.and_call_original
+        end
         specify do
           expect(request.scroll_batches(batch_size: 2).map do |batch|
             batch.map { |hit| hit['_source']['rating'] }
@@ -181,7 +185,7 @@ describe Chewy::Search::Scrolling, :orm do
             hash_including(
               index: [CitiesIndex, CountriesIndex],
               indexes: [CitiesIndex, CountriesIndex],
-              request: {scroll: '1m', scroll_id: an_instance_of(String)}
+              request: {scroll: '1m', body: {scroll_id: an_instance_of(String)}}
             )
           ])
         end
